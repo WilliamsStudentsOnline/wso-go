@@ -14,7 +14,7 @@ type User struct {
 	ClassYear      int    `gorm:"size:4" json:"class_year"`
 
 	// Equivalent to belongs_to Department
-	DepartmentID int        `json:"department_id"`
+	DepartmentID int         `json:"department_id"`
 	Department   *Department `json:"department,omitempty"`
 
 	DormVisible bool   `gorm:"DEFAULT:true" json:"dorm_visible"`

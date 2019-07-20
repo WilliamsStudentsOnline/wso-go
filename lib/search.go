@@ -7,12 +7,11 @@ import (
 
 type SearchQuery struct {
 	query string
-
 }
 
 var (
-	SymbolAnd = regexp.MustCompilePOSIX(`AND`)
-	SymbolOr = regexp.MustCompilePOSIX(`OR`)
+	SymbolAnd   = regexp.MustCompilePOSIX(`AND`)
+	SymbolOr    = regexp.MustCompilePOSIX(`OR`)
 	SymbolField = regexp.MustCompilePOSIX(`.+:.+`)
 )
 

@@ -10,13 +10,13 @@ import (
 
 // Our configuration
 type Config struct {
-	Env            string `yaml:"env"`
-	DatabaseType   string `yaml:"database_type"`
-	DatabaseArgs   string `yaml:"database_args"`
-	JWTRealm       string `yaml:"jwt_realm"`
-	JWTSecretKey   string `yaml:"jwt_secret_key"`
-	GinMode        string `yaml:"gin_mode"`
-	Port string `yaml:"port"`
+	Env          string `yaml:"env"`
+	DatabaseType string `yaml:"database_type"`
+	DatabaseArgs string `yaml:"database_args"`
+	JWTRealm     string `yaml:"jwt_realm"`
+	JWTSecretKey string `yaml:"jwt_secret_key"`
+	GinMode      string `yaml:"gin_mode"`
+	Port         string `yaml:"port"`
 }
 
 // Check what environment our config is in

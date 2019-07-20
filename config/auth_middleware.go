@@ -16,7 +16,7 @@ import (
 type Login struct {
 	UnixID   string `form:"unix_id" json:"unix_id" binding:"required"`
 	Password string `form:"password" json:"password" binding:"required"`
-	Local bool `form:"local" json:"local"`
+	Local    bool   `form:"local" json:"local"`
 }
 
 func LoadAuthMiddleware(cfg *Config, db *gorm.DB) (authMiddleware *jwt.GinJWTMiddleware, err error) {

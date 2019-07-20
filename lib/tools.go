@@ -3,12 +3,12 @@ package lib
 import "net"
 
 var schoolSubnet = &net.IPNet{
-	IP: net.ParseIP("137.165.0.0"),
+	IP:   net.ParseIP("137.165.0.0"),
 	Mask: net.CIDRMask(16, 32),
 }
 
 var localSubnet = &net.IPNet{
-	IP: net.ParseIP("192.168.0.0"),
+	IP:   net.ParseIP("192.168.0.0"),
 	Mask: net.CIDRMask(24, 32),
 }
 

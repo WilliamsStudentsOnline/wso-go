@@ -101,7 +101,7 @@ func main() {
 
 	// Would change this to be more production-friendly in real life. I'd use something like endless to keep
 	// the server running even when it crashes
-	err = endless.ListenAndServe(":" + cfg.Port, r) // listen and serve on 0.0.0.0:8080
+	err = endless.ListenAndServe(":"+cfg.Port, r) // listen and serve on 0.0.0.0:8080
 	if err != nil {
 		log.Fatalln("Server Error: " + err.Error())
 	}
