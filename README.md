@@ -2,6 +2,7 @@
 The new flagship back-end for WSO's services. The WSO backend rewrite proposal is found [here](https://github.com/WilliamsStudentsOnline/wso-on-rails/wiki/Proposal:-WSO-Backend-Rewrite).
 
 ## Current Go Version: 1.12
+It is worth noting that you should install Go via the official site, not a package repository like apt-get or brew, which often have outdated versions. You can find info on how to install Go [here](https://golang.org/doc/install).
 
 ## Running
 To run the server, simply do `go run -tags=jsoniter . -env=development`.
