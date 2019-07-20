@@ -6,6 +6,10 @@ import (
 	"gopkg.in/gormigrate.v1"
 )
 
+// Add the new variable to the migrations list at db/migrate.go
+// If this creates a new table, or some other feature not automatically recorded in the model, add it to
+// the InitSchema section of db/migrate.go
+
 var CreateUsers20190719211808 = &gormigrate.Migration{
 	ID: "20190719211808_create_users",
 	Migrate: func(tx *gorm.DB) error {

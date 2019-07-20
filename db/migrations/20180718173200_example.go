@@ -7,6 +7,10 @@ import (
 
 // DONT EVER IMPORT THIS. THIS IS JUST AN EXAMPLE
 
+// Add the new variable to the migrations list at db/migrate.go
+// If this creates a new table, or some other feature not automatically recorded in the model, add it to
+// the InitSchema section of db/migrate.go
+
 var Example = &gormigrate.Migration{
 	ID: "20180718173200_example",
 	Migrate: func(tx *gorm.DB) error {

@@ -4,6 +4,7 @@ go 1.12
 
 require (
 	cloud.google.com/go v0.43.0 // indirect
+	github.com/DATA-DOG/go-sqlmock v1.3.3 // indirect
 	github.com/appleboy/gin-jwt/v2 v2.6.2
 	github.com/denisenkom/go-mssqldb v0.0.0-20190715232110-2b613d287457 // indirect
 	github.com/fvbock/endless v0.0.0-20170109170031-447134032cb6
@@ -13,6 +14,7 @@ require (
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/lib/pq v1.2.0 // indirect
 	github.com/mattn/go-sqlite3 v1.11.0 // indirect
+	github.com/stretchr/testify v1.3.0
 	github.com/thoas/go-funk v0.4.0
 	github.com/ugorji/go v1.1.5-pre // indirect
 	github.com/urfave/cli v1.20.0

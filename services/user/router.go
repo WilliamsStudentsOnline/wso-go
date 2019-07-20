@@ -1,0 +1,13 @@
+package user
+
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
+)
+
+func SetupRouter(r gin.IRouter, db *gorm.DB) {
+	c := NewController(db)
+	r.GET("/", c.FetchAllUsers)
+	r.GET("/:user_id", c.GetUser)
+	r.PUT("/:user_id", c.UpdateUser)
+}

@@ -1,6 +1,6 @@
 env: development
 database_type: sqlite3
 database_args: db/development.db
-jwt_realm: wso-local-dev
+jwt_realm: wso-go-dev
 jwt_secret_key: secret key
 port: 8080

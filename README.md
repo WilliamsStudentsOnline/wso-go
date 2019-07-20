@@ -4,6 +4,14 @@ The new flagship back-end for WSO's services. The WSO backend rewrite proposal i
 ## Running
 To run the server, simply do `go run -tags=jsoniter . -env=development`.
 
+## Development
+
+### Migrations
+To generate a database migration, run the command `go run db/migrations/cmd/main.go -m <ModelName> -t <table_name> <migration_title>`
+
+## Building
+To build the Go binary, run `go build -tags=jsoniter -o wso-go main.go`. You can then just execute `./wso-go`.
+
 ## API Endpoints
 Get All Users:
 ```http request

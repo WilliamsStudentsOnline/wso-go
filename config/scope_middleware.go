@@ -4,7 +4,8 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/WilliamsStudentsOnline/wso-go/controllers"
+	"github.com/WilliamsStudentsOnline/wso-go/services"
+
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	funk "github.com/thoas/go-funk"
@@ -42,7 +43,7 @@ func RequireScopes(scopes ...string) func(c *gin.Context) {
 
 		// If it isn't, abort with error
 		if !authed {
-			controllers.Base.RespondError(
+			services.Base.RespondError(
 				http.StatusForbidden, errors.New("user does not have scope authorization"), c)
 			return
 		}

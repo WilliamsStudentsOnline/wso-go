@@ -1,22 +1,23 @@
-package controllers
+package user
 
 import (
 	"errors"
 	"net/http"
 
 	"github.com/WilliamsStudentsOnline/wso-go/models"
+	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 )
 
-type UserController struct {
-	BaseController
+type Controller struct {
+	services.BaseController
 	userModel *models.UserModel
 }
 
 // Construct a new user controller
-func NewUserController(db *gorm.DB) *UserController {
-	return &UserController{
+func NewController(db *gorm.DB) *Controller {
+	return &Controller{
 		userModel: &models.UserModel{
 			BaseModel: models.BaseModel{
 				DB: db,
@@ -26,7 +27,7 @@ func NewUserController(db *gorm.DB) *UserController {
 }
 
 // Fetch all users
-func (t *UserController) FetchAllUsers(c *gin.Context) {
+func (t *Controller) FetchAllUsers(c *gin.Context) {
 	var users []models.User
 	err := t.userModel.GetAllUsers(&users)
 
@@ -39,7 +40,7 @@ func (t *UserController) FetchAllUsers(c *gin.Context) {
 }
 
 // Get user by id. Pass "me" if you want to get self
-func (t *UserController) GetUser(c *gin.Context) {
+func (t *Controller) GetUser(c *gin.Context) {
 	userIDStr := c.Param("user_id")
 
 	var userID uint
@@ -49,7 +50,7 @@ func (t *UserController) GetUser(c *gin.Context) {
 	if userIDStr == "me" {
 		userID = (c.MustGet("user_id")).(uint)
 	} else {
-		userID, err = GetUIntParam("user_id", c)
+		userID, err = services.GetUIntParam("user_id", c)
 		if err != nil {
 			t.RespondError(http.StatusBadRequest, errors.New("could not parse user id"), c)
 			return
@@ -67,16 +68,16 @@ func (t *UserController) GetUser(c *gin.Context) {
 	t.RespondOK(user, c)
 }
 
-func (t *UserController) UpdateUser(c *gin.Context) {
+func (t *Controller) UpdateUser(c *gin.Context) {
 	// Decode parameter
-	userID, err := GetUIntParam("user_id", c)
+	userID, err := services.GetUIntParam("user_id", c)
 	if err != nil {
 		t.RespondError(http.StatusBadRequest, errors.New("could not parse user id"), c)
 		return
 	}
 
 	// Must only be able to update self
-	if userID != GetUserID(c) {
+	if userID != services.GetUserID(c) {
 		t.RespondError(http.StatusForbidden, errors.New("can only update self"), c)
 		return
 	}

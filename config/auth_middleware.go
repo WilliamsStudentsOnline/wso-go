@@ -2,10 +2,11 @@ package config
 
 import (
 	"errors"
-	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"time"
 
-	"github.com/WilliamsStudentsOnline/wso-go/controllers"
+	"github.com/WilliamsStudentsOnline/wso-go/lib"
+	"github.com/WilliamsStudentsOnline/wso-go/services"
+
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -94,7 +95,7 @@ func LoadAuthMiddleware(cfg *Config, db *gorm.DB) (authMiddleware *jwt.GinJWTMid
 		},
 		// What to do when a JWT is unauthorized
 		Unauthorized: func(c *gin.Context, statusCode int, errorMsg string) {
-			controllers.Base.RespondError(statusCode, errors.New(errorMsg), c)
+			services.Base.RespondError(statusCode, errors.New(errorMsg), c)
 		},
 		// Called every request; ignore this for now
 		Authorizator: func(data interface{}, c *gin.Context) bool {
