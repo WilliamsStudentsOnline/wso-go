@@ -1,6 +1,8 @@
 # WSO-Go
 The new flagship back-end for WSO's services. The WSO backend rewrite proposal is found [here](https://github.com/WilliamsStudentsOnline/wso-on-rails/wiki/Proposal:-WSO-Backend-Rewrite).
 
+## Current Go Version: 1.12
+
 ## Running
 To run the server, simply do `go run -tags=jsoniter . -env=development`.
 
