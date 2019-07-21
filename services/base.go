@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -35,8 +36,15 @@ var Base = BaseController{}
 
 // Respond to request with an error and abort
 func (BaseController) RespondError(code int, err error, c *gin.Context) {
+	// If the error is that the DB could not find a record, return a not found error
 	if gorm.IsRecordNotFoundError(err) {
 		code = http.StatusNotFound
+	}
+
+	// We don't want clients knowing what's happening here, so just log the error and return something inconspicuous
+	if code >= http.StatusInternalServerError {
+		_ = c.Error(err)
+		err = errors.New("internal server error")
 	}
 
 	c.AbortWithStatusJSON(code, BaseResponse{
@@ -46,8 +54,6 @@ func (BaseController) RespondError(code int, err error, c *gin.Context) {
 			Message:   err.Error(),
 		},
 	})
-
-	_ = c.Error(err)
 }
 
 // Get a parameter that is a uint

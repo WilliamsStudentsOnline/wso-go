@@ -2,6 +2,7 @@ package user
 
 import (
 	"encoding/json"
+	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"net/http"
@@ -24,6 +25,7 @@ func TestController_GetUser(t *testing.T) {
 			ID: 1,
 		},
 		Name: "Test",
+		ClassYear: lib.IntToPtr(3),
 	}
 	err := db.FirstOrCreate(&user).Error
 	assert.NoError(err)

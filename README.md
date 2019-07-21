@@ -5,7 +5,10 @@ The new flagship back-end for WSO's services. The WSO backend rewrite proposal i
 It is worth noting that you should install Go via the official site, not a package repository like apt-get or brew, which often have outdated versions. You can find info on how to install Go [here](https://golang.org/doc/install).
 
 ## Running
+
 To run the server, simply do `go run -tags=jsoniter . -env=development`.
+
+If you want to include secrets in your build, run `cp config/secrets_example.yml config/secrets.yml` and edit the fields from there
 
 ## Development
 

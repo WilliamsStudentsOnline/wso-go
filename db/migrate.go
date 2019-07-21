@@ -12,6 +12,9 @@ func MigrateDB(db *gorm.DB) error {
 	m := gormigrate.New(db, gormigrate.DefaultOptions, []*gormigrate.Migration{
 		migrations.CreateUsers20190719211808,
 		migrations.CreateDepartments20190719212645,
+		migrations.CreateNeighborhoods20190721040940,
+		migrations.CreateDorms20190721040956,
+		migrations.CreateDormRooms20190721041007,
 	})
 
 	// This initializes the entire current schema with all migrations up to day.
@@ -23,6 +26,9 @@ func MigrateDB(db *gorm.DB) error {
 			// Put all current models here
 			&models.User{},
 			&models.Department{},
+			&models.Neighborhood{},
+			&models.Dorm{},
+			&models.DormRoom{},
 		).Error
 		if err != nil {
 			return err

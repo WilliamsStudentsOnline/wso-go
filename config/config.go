@@ -1,7 +1,6 @@
 package config
 
 import (
-	"flag"
 	"os"
 	"path/filepath"
 
@@ -14,9 +13,10 @@ type Config struct {
 	DatabaseType string `yaml:"database_type"`
 	DatabaseArgs string `yaml:"database_args"`
 	JWTRealm     string `yaml:"jwt_realm"`
-	JWTSecretKey string `yaml:"jwt_secret_key"`
 	GinMode      string `yaml:"gin_mode"`
 	Port         string `yaml:"port"`
+	DisableLDAP bool `yaml:"disable_ldap"`
+	Secrets *Secrets `yaml:"-"`
 }
 
 // Check what environment our config is in
@@ -37,16 +37,7 @@ func (c *Config) IsProduction() bool {
 }
 
 // Get the config and parse any info
-func GetConfig() (*Config, error) {
-	var env string
-	var configPath string
-
-	// Command-line flags
-	flag.StringVar(&env, "env", "development", "environment of server")
-	flag.StringVar(&configPath, "config", "", "path to config file")
-
-	flag.Parse()
-
+func GetConfig(env string, configPath string) (*Config, error) {
 	// Default config path
 	if configPath == "" {
 		configPath = filepath.Join("config", "environment", env+".yml")

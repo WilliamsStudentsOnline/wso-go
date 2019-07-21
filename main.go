@@ -2,8 +2,12 @@ package main
 
 import (
 	"errors"
+	"flag"
+	authService "github.com/WilliamsStudentsOnline/wso-go/services/auth"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	migrate "github.com/WilliamsStudentsOnline/wso-go/db"
@@ -17,10 +21,40 @@ import (
 )
 
 func main() {
-	/* CONFIG */
-	cfg, err := config.GetConfig()
+	/* Flags */
+	var env string
+	var configPath string
+	var secretsPath string
+
+	// Command-line flags
+	flag.StringVar(&env, "env", "development", "environment of server")
+	flag.StringVar(&configPath, "config", "", "path to config file")
+	flag.StringVar(&secretsPath, "secrets", filepath.Join("config", "secrets.yml"), "path to secrets file")
+
+	flag.Parse()
+
+	/* Config */
+	cfg, err := config.GetConfig(env, configPath)
 	if err != nil {
 		log.Fatalln("Config Error: " + err.Error())
+	}
+
+	/* Secrets */
+	if _, err := os.Stat(secretsPath); os.IsExist(err) {
+		// If secrets file exists, parse it
+		secrets, err := config.GetSecrets(secretsPath)
+		if err != nil {
+			log.Fatalln("Secrets Error: " + err.Error())
+		}
+		cfg.Secrets = secrets
+	} else if !cfg.IsProduction() {
+		// If secrets file does not exist, but we are not in production, stub the required secrets
+		cfg.Secrets = &config.Secrets{
+			JWTSecretKey: "wso-jwt-" + cfg.Env + "-secret",
+		}
+	} else {
+		// If secrets file does not exist, and we are in production, fail
+		log.Fatalln("Secrets file must exist in production")
 	}
 
 	/* DATABASE */
@@ -70,7 +104,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 	r.Use(gin.Recovery())
 
 	// Build JWT auth middleware
-	authMiddleware, err := config.LoadAuthMiddleware(cfg, db)
+	authMiddleware, err := authService.LoadAuthMiddleware(cfg, db)
 	if err != nil {
 		return nil, errors.New("JWT Error: " + err.Error())
 	}
@@ -104,8 +138,8 @@ func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 	// Actual API routing
 	v1 := router.Group("/api/v1")
 	{
-		// Authentication for refresh user
-		v1.GET("/auth/refresh_token", authMiddleware.RefreshHandler)
+		// Authentication for refresh user & other auth commands for already logged in users
+		authService.SetupRouter(v1.Group("/auth"), authMiddleware)
 
 		// User API group
 		userService.SetupRouter(v1.Group("/user"), db)

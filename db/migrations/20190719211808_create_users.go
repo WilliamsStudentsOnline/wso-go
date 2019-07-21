@@ -21,37 +21,39 @@ var CreateUsers20190719211808 = &gormigrate.Migration{
 			models.BaseSchema
 			Type           string
 			Name           string
-			CellPhone      string
-			CampusPhoneExt string
+			CellPhone      *string
+			CampusPhoneExt *string
 			UnixID         string
 			WilliamsEmail  string
-			Title          string
+			Title          *string
 			Visible        bool
-			ClassYear      int `gorm:"size:4"`
+			ClassYear      *int `gorm:"size:4"`
 
 			// Equivalent to belongs_to Department
-			DepartmentID int
+			DepartmentID *int
 
 			DormVisible bool `gorm:"DEFAULT:true"`
-			HomeTown    string
-			HomeZip     string
-			HomePhone   string
-			HomeState   string
-			HomeCountry string
+			HomeTown    *string
+			HomeZip     *string
+			HomePhone   *string
+			HomeState   *string
+			HomeCountry *string
 			HomeVisible bool `gorm:"DEFAULT:true"`
 
-			Major                     string
-			SUBox                     string
-			Entry                     string
+			Major                     *string
+			SUBox                     *string
+			Entry                     *string
 			Admin                     bool `gorm:"DEFAULT:false"`
 			FactrakAdmin              bool `gorm:"DEFAULT:false"`
 			HasAcceptedFactrakPolicy  bool `gorm:"DEFAULT:false"`
 			HasAcceptedDormtrakPolicy bool `gorm:"DEFAULT:false"`
 
-			Pronoun              string
+			DormRoomID *int `gorm:"index_rooms_on_dorm_room_id"`
+
+			Pronoun              *string
 			AtWilliams           bool `gorm:"DEFAULT:true"`
 			OffCycle             bool `gorm:"DEFAULT:false"`
-			FactrakSurveyDeficit int
+			FactrakSurveyDeficit *int
 
 			OptOutEphcatch      bool `gorm:"DEFAULT:false"`
 			EphcatchEligibility bool `gorm:"DEFAULT:false"`

@@ -18,9 +18,11 @@ func SetupServiceTest(assert *assert.Assertions) *gorm.DB {
 		Env:          "test",
 		GinMode:      "test",
 		JWTRealm:     "wso-go-test",
-		JWTSecretKey: "test",
 		DatabaseType: "sqlite3",
 		DatabaseArgs: ":memory:",
+		Secrets: &config.Secrets{
+			JWTSecretKey: "wso-jwt-test-secret",
+		},
 	}
 
 	db := config.LoadDatabase(cfg)

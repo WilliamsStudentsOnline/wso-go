@@ -116,3 +116,4 @@ fabric.properties
 vendor/
 
 wso-go
+config/secrets.yml

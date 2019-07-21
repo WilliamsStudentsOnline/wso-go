@@ -1,26 +1,17 @@
-package config
+package auth
 
 import (
 	"errors"
-	"time"
-
-	"github.com/WilliamsStudentsOnline/wso-go/lib"
+	"github.com/WilliamsStudentsOnline/wso-go/config"
+	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
-
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
-
-	"github.com/WilliamsStudentsOnline/wso-go/models"
+	"time"
 )
 
-type Login struct {
-	UnixID   string `form:"unix_id" json:"unix_id" binding:"required"`
-	Password string `form:"password" json:"password" binding:"required"`
-	Local    bool   `form:"local" json:"local"`
-}
-
-func LoadAuthMiddleware(cfg *Config, db *gorm.DB) (authMiddleware *jwt.GinJWTMiddleware, err error) {
+func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB) (authMiddleware *jwt.GinJWTMiddleware, err error) {
 	// The JWT middleware
 	authMiddleware, err = jwt.New(&jwt.GinJWTMiddleware{
 		Realm:       cfg.JWTRealm,
@@ -33,17 +24,17 @@ func LoadAuthMiddleware(cfg *Config, db *gorm.DB) (authMiddleware *jwt.GinJWTMid
 			// We take the data (which is a User) and create the payload
 			if v, ok := data.(*models.User); ok {
 				// Set scopes here
-				scope := []string{ScopeReadAll}
+				scope := []string{config.ScopeReadAll}
 
 				if v.ID > 0 {
-					scope = append(scope, ScopeWriteSelf)
+					scope = append(scope, config.ScopeWriteSelf)
 				}
 				if v.Admin {
-					scope = append(scope, ScopeAdminAll)
-					scope = append(scope, ScopeAdminFactrak)
+					scope = append(scope, config.ScopeAdminAll)
+					scope = append(scope, config.ScopeAdminFactrak)
 				}
 				if v.FactrakAdmin {
-					scope = append(scope, ScopeAdminFactrak)
+					scope = append(scope, config.ScopeAdminFactrak)
 				}
 
 				// This is the final payload
@@ -62,37 +53,7 @@ func LoadAuthMiddleware(cfg *Config, db *gorm.DB) (authMiddleware *jwt.GinJWTMid
 			return user
 		},
 		// Called on login to authenticate
-		Authenticator: func(c *gin.Context) (interface{}, error) {
-			var loginVals Login
-			if err := c.ShouldBind(&loginVals); err != nil {
-				return "", jwt.ErrMissingLoginValues
-			}
-
-			if loginVals.Local {
-				if lib.OnCampusIP(c.ClientIP()) {
-					user := models.NewUserWithID(0)
-					return &user, nil
-				} else {
-					return nil, errors.New("could not verify on-campus IP")
-				}
-			}
-
-			unixID := loginVals.UnixID
-			password := loginVals.Password
-
-			// Do LDAP Authentication HERE
-			_ = password
-
-			// Currently, we just check if the user exists in our DB, no LDAP yet
-			var user models.User
-			// In real version, do FirstOrCreate
-			err := db.Where(&models.User{UnixID: unixID}).First(&user).Error
-			if err != nil {
-				return nil, jwt.ErrFailedAuthentication
-			}
-
-			return &user, nil
-		},
+		Authenticator: NewController(cfg, db).Authenticator,
 		// What to do when a JWT is unauthorized
 		Unauthorized: func(c *gin.Context, statusCode int, errorMsg string) {
 			services.Base.RespondError(statusCode, errors.New(errorMsg), c)
