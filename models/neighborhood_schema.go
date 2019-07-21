@@ -4,8 +4,8 @@ import "github.com/jinzhu/gorm"
 
 type Neighborhood struct {
 	BaseSchema
-	Name string `json:"name"`
-	Dorms []Dorm `json:"dorms"`
+	Name  string `json:"name"`
+	Dorms []Dorm `json:"dorms,omitempty"`
 }
 
 func (*Neighborhood) TableName() string {

@@ -1,12 +1,13 @@
 package models
 
 import (
+	"log"
+	"strconv"
+
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/jinzhu/gorm"
 	"gopkg.in/ldap.v3"
-	"log"
-	"strconv"
 )
 
 // User Model
@@ -20,7 +21,6 @@ func (m *UserModel) GetAllUsers(u *[]User) (err error) {
 }
 
 func (m *UserModel) GetUserByID(id uint, u *User) (err error) {
-	//.Set("gorm:auto_preload", true)
 	err = m.DB.Where(NewUserWithID(id)).First(u).Error
 	return
 }
@@ -70,10 +70,10 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) error {
 	// Go through every returned entry from LDAP
 	for idx, entry := range userEntries {
 		user := &User{
-			UnixID: entry.GetAttributeValue("uid"),
-			Name: entry.GetAttributeValue("cn"),
+			UnixID:        entry.GetAttributeValue("uid"),
+			Name:          entry.GetAttributeValue("cn"),
 			WilliamsEmail: entry.GetAttributeValue("mail"),
-			Visible: parseBool(entry.GetAttributeValue("visible")),
+			Visible:       parseBool(entry.GetAttributeValue("visible")),
 			// User is in Ldap, therefore is at williams.
 			//  Explicitly set this to handle alums who return as fac/staff
 			AtWilliams: true,
@@ -158,7 +158,7 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) error {
 				} else {
 					var dormRoom DormRoom
 					err = m.DB.Where(&DormRoom{
-						Dorm: dorm,
+						Dorm:   dorm,
 						Number: entry.GetAttributeValue("wmsDormAddr2"),
 					}).FirstOrCreate(&dormRoom).Error
 					if err != nil {

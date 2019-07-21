@@ -3,7 +3,7 @@ package models
 type Dorm struct {
 	BaseSchema
 	NeighborhoodID    int          `json:"neighborhood_id"`
-	Neighborhood      Neighborhood `json:"-"`
+	Neighborhood      Neighborhood `json:"neighborhood,omitempty"`
 	Name              string       `json:"name"`
 	KeyOrCard         *string      `json:"key_or_card"`
 	Description       *string      `gorm:"size:65535" json:"description"`
@@ -25,7 +25,7 @@ type Dorm struct {
 	AverageDoubleArea *int         `json:"average_double_area"`
 	ModeSingleArea    *int         `json:"mode_single_area"`
 	ModeDoubleArea    *int         `json:"mode_double_area"`
-	DormRooms []DormRoom `json:"dorm_rooms"`
+	DormRooms         []DormRoom   `json:"dorm_rooms,omitempty"`
 }
 
 func (*Dorm) TableName() string {

@@ -3,13 +3,13 @@ package models
 const (
 	DormRoomTypeSingle = "s"
 	DormRoomTypeDouble = "d"
-	DormRoomTypeFlex = "f"
+	DormRoomTypeFlex   = "f"
 )
 
 type DormRoom struct {
 	BaseSchema
 	DormID           int      `gorm:"index:index_dorm_rooms_on_dorm_id" json:"dorm_id"`
-	Dorm             Dorm     `json:"-"`
+	Dorm             Dorm     `json:"dorm,omitempty"`
 	Number           string   `json:"number"`
 	Closet           *string  `json:"closet"`
 	Flooring         *string  `json:"flooring"`

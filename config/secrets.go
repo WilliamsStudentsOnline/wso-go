@@ -2,14 +2,15 @@ package config
 
 import (
 	"errors"
-	"gopkg.in/yaml.v2"
 	"os"
 	"path/filepath"
+
+	"gopkg.in/yaml.v2"
 )
 
 type Secrets struct {
-	JWTSecretKey string `yaml:"jwt_secret_key"`
-	WsoLdapDN string `yaml:"wso_ldap_dn"`
+	JWTSecretKey    string `yaml:"jwt_secret_key"`
+	WsoLdapDN       string `yaml:"wso_ldap_dn"`
 	WsoLdapPassword string `yaml:"wso_ldap_password"`
 }
 

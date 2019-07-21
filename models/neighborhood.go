@@ -4,7 +4,7 @@ import "github.com/jinzhu/gorm"
 
 const (
 	NeighborhoodFirstYear = "First-year"
-	NeighborhoodCoop = "Co-op"
+	NeighborhoodCoop      = "Co-op"
 )
 
 // Neighborhood Model

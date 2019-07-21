@@ -2,20 +2,21 @@ package auth
 
 import (
 	"errors"
+	"time"
+
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
-	"time"
 )
 
 func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB) (authMiddleware *jwt.GinJWTMiddleware, err error) {
 	// The JWT middleware
 	authMiddleware, err = jwt.New(&jwt.GinJWTMiddleware{
 		Realm:       cfg.JWTRealm,
-		Key:         []byte(cfg.JWTSecretKey),
+		Key:         []byte(cfg.Secrets.JWTSecretKey),
 		Timeout:     time.Hour,
 		MaxRefresh:  time.Hour,
 		IdentityKey: "id",

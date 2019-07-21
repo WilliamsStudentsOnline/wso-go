@@ -9,14 +9,14 @@ import (
 
 // Our configuration
 type Config struct {
-	Env          string `yaml:"env"`
-	DatabaseType string `yaml:"database_type"`
-	DatabaseArgs string `yaml:"database_args"`
-	JWTRealm     string `yaml:"jwt_realm"`
-	GinMode      string `yaml:"gin_mode"`
-	Port         string `yaml:"port"`
-	DisableLDAP bool `yaml:"disable_ldap"`
-	Secrets *Secrets `yaml:"-"`
+	Env          string   `yaml:"env"`
+	DatabaseType string   `yaml:"database_type"`
+	DatabaseArgs string   `yaml:"database_args"`
+	JWTRealm     string   `yaml:"jwt_realm"`
+	GinMode      string   `yaml:"gin_mode"`
+	Port         string   `yaml:"port"`
+	DisableLDAP  bool     `yaml:"disable_ldap"`
+	Secrets      *Secrets `yaml:"-"`
 }
 
 // Check what environment our config is in

@@ -2,6 +2,7 @@ package auth
 
 import (
 	"errors"
+
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
@@ -23,14 +24,14 @@ type Login struct {
 type Controller struct {
 	services.BaseController
 	cfg *config.Config
-	DB *gorm.DB
+	DB  *gorm.DB
 }
 
 // Construct a new user controller
 func NewController(cfg *config.Config, db *gorm.DB) *Controller {
 	return &Controller{
 		cfg: cfg,
-		DB: db,
+		DB:  db,
 	}
 }
 

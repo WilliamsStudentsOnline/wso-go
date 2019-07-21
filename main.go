@@ -3,11 +3,12 @@ package main
 import (
 	"errors"
 	"flag"
-	authService "github.com/WilliamsStudentsOnline/wso-go/services/auth"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
+
+	authService "github.com/WilliamsStudentsOnline/wso-go/services/auth"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	migrate "github.com/WilliamsStudentsOnline/wso-go/db"

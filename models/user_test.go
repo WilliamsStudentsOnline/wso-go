@@ -1,9 +1,10 @@
 package models
 
 import (
+	"testing"
+
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestUserModel_LDAPLookup(t *testing.T) {

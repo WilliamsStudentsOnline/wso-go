@@ -3,6 +3,7 @@ package auth
 import (
 	"crypto/tls"
 	"fmt"
+
 	"gopkg.in/ldap.v3"
 )
 
