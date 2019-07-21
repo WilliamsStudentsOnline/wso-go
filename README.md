@@ -12,10 +12,27 @@ If you want to include secrets in your build, run `cp config/secrets_example.yml
 
 ## Development
 
+### Services
+This project uses microservices to define API endpoints. This is essentially the combination of a controller and a router. Look at the user service for a good example.
+
+### Models
+The models folder will contain all models. Currently, there are two types of structs for each model. Help with the database driver can be found [here](https://gorm.io/docs).
+The schema struct (e.g. `user_schema.go` or `User{}`) is the parsed Go interpretation of a database row. Any functions built off the schema struct, should relate directly to the data at hand (such as `IsStudent()`), and not make any DB calls.
+The model struct (e.g. `user.go` or `UserModel{}`) is the database adapter for this model. It should contain the DB as a field and will run any CRUD or other DB-related queries. Most of these queries should return a schema struct.
+
+#### Schema
+Note that in the schema is defined following the [GORM guidelines](https://gorm.io/docs/models). Optional fields are pointer-type, and associations are documented [here](https://gorm.io/docs/belongs_to.html). When working with any optional fields, you can easily convert a literal value into a pointer by using the `lib/to_pointer.go` file, which has functions like `lib.StrToPtr(str string) *string`.
+
+### Lib
+The library (lib) folder contains tools that multiple other folders and files use. No file in the lib folder should import any code from another place in this repo (external places are fine though).
+
 ### Migrations
 To generate a database migration, run the command `go run db/migrations/cmd/main.go -m <ModelName> -t <table_name> <migration_title>`
 
-## Building
+### Config
+The config folder contains all of the configuration & secrets parsers. It also sets up the database and does necessary middleware.
+
+### Building
 To build the Go binary, run `go build -tags=jsoniter -o wso-go main.go`. You can then just execute `./wso-go`.
 
 ## API Endpoints
@@ -68,9 +85,9 @@ We use something called a [JWT](jwt.io), or JSON Web Token for the API. This all
   - `database.go` loads the database connection/configuration
   - `scope_middleware.go` is the scope-based role authorization package running on specific API calls. Learn more above
   - `environment/*.yml` are configuration yaml files named by the environment it is run in
-- `controllers/` contains all controllers tied to the server
-  - `base_controller.go` every container inherits the base container properties; include global code for containers here
-  - `user_controller.go` runs user-related requests. Currently, that's Get Users, Get User, and Update User
+- `services/` contains all server microservices
+  - `base.go` every service should inherit useful methods from base. But, base should only have external imports.
+  - `*/` other service folders with defined parts
 - `models/` contains database models
   - `base_model.go` every model inherits the base model; it contains important properties/funcs for all models
   - `department_schema.go` is the database schema for the departments table
