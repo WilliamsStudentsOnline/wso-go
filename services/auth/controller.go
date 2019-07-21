@@ -40,17 +40,21 @@ func (t *Controller) Authenticator(c *gin.Context) (interface{}, error) {
 	// Bind the POST parameters
 	var loginVals Login
 	if err := c.ShouldBind(&loginVals); err != nil {
-		return "", ErrorMissingLoginValues
+		return nil, ErrorMissingLoginValues
 	}
 
 	// The user model interface to return if we can authenticate
-	var user models.User
+	user := new(models.User)
 
 	// If client is requesting a local-network JWT (aka client is on campus and wants read-only WSO access)
 	if loginVals.Local {
 		if lib.OnCampusIP(c.ClientIP()) {
-			user = models.NewUserWithID(0)
-			return &user, nil
+			user = &models.User{
+				BaseSchema: models.BaseSchema{
+					ID: 0,
+				},
+			}
+			return user, nil
 		} else {
 			return nil, errors.New("could not verify on-campus IP")
 		}
@@ -63,11 +67,11 @@ func (t *Controller) Authenticator(c *gin.Context) (interface{}, error) {
 	// If LDAP has been disabled (and just to be sure, environment is not production),
 	// authenticate by seeing if the user exists in the database.
 	if t.cfg.DisableLDAP && !t.cfg.IsProduction() {
-		err := t.DB.Where(&models.User{UnixID: unixID}).First(&user).Error
+		err := t.DB.Where(&models.User{UnixID: unixID}).First(user).Error
 		if err != nil {
 			return nil, ErrorFailedAuthentication
 		}
-		return &user, nil
+		return user, nil
 	}
 
 	// Assuming we are not doing an internal network authentication, and LDAP is not disabled, do LDAP authentication
@@ -82,12 +86,20 @@ func (t *Controller) Authenticator(c *gin.Context) (interface{}, error) {
 		return nil, ErrorFailedAuthentication
 	}
 
-	// Currently, we just check if the user exists in our DB, no LDAP yet
-	// In real version, do FirstOrCreate.
-	err = t.DB.Where(&models.User{UnixID: unixID}).First(&user).Error
-	if err != nil {
-		return nil, ErrorFailedAuthentication
+	// Get the user model
+	userModel := &models.UserModel{
+		BaseModel: models.BaseModel{
+			DB: t.DB,
+		},
 	}
 
-	return &user, nil
+	// Check if user exists in DB and create the entry if it doesnt exist in DB
+	user, err = userModel.FirstOrCreateFromUnixID(unixID, t.cfg)
+	if err != nil {
+		// Record the error in the log, as it is an internal server error (but response will be an unauthorized error)
+		_ = c.Error(err)
+		return nil, err
+	}
+
+	return user, nil
 }

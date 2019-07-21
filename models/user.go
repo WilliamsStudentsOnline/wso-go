@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"log"
 	"strconv"
 	"strings"
@@ -31,6 +32,39 @@ func (m *UserModel) UpdateUser(id uint, update map[string]interface{}) (err erro
 	MapPermit(update, "visible", "dorm_visible", "home_visible", "pronoun", "off_cycle")
 	err = m.DB.Model(NewUserWithID(id)).Updates(update).Error
 	return
+}
+
+func (m *UserModel) FirstOrCreateFromUnixID(unixID string, config *config.Config) (*User, error) {
+	user := new(User)
+	err := m.DB.Where(&User{
+		UnixID: unixID,
+	}).First(user).Error
+	// If it's a legit error, throw an error
+	if err != nil && !gorm.IsRecordNotFoundError(err) {
+		return nil, err
+	}
+	// If no error, we found the user
+	if err == nil {
+		return user, nil
+	}
+
+	// Create user
+	users, err := m.LDAPLookup(unixID, config)
+	if err != nil {
+		return nil, err
+	}
+	if len(users) == 0 {
+		return nil, errors.New("user not found in LDAP")
+	}
+
+	user = users[0]
+	err = m.DB.Create(&user).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+
 }
 
 // TODO: AIDAN ENSURE THAT NIL FIELDS DON'T OVERWRITE CURRENT USER FIELDS (AT LEAST FOR ENTRY)

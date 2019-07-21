@@ -41,7 +41,7 @@ func main() {
 	}
 
 	/* Secrets */
-	if _, err := os.Stat(secretsPath); os.IsExist(err) {
+	if _, err := os.Stat(secretsPath); !os.IsNotExist(err) {
 		// If secrets file exists, parse it
 		secrets, err := config.GetSecrets(secretsPath)
 		if err != nil {
@@ -49,6 +49,7 @@ func main() {
 		}
 		cfg.Secrets = secrets
 	} else if !cfg.IsProduction() {
+		log.Println("Secrets file not found; generating stubs based on defaults")
 		// If secrets file does not exist, but we are not in production, stub the required secrets
 		cfg.Secrets = &config.Secrets{
 			JWTSecretKey: "wso-jwt-" + cfg.Env + "-secret",
