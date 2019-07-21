@@ -1,10 +1,9 @@
 package models
 
 import (
-	"testing"
-
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestUserModel_LDAPLookup(t *testing.T) {
@@ -26,6 +25,7 @@ func TestUserModel_LDAPLookup(t *testing.T) {
 		Neighborhood{},
 		Dorm{},
 		DormRoom{},
+		Office{},
 	).Error
 	assert.NoError(t, err)
 
@@ -35,6 +35,8 @@ func TestUserModel_LDAPLookup(t *testing.T) {
 		},
 	}
 
-	err = userModel.LDAPLookup("al15", cfg)
+	users, err := userModel.LDAPLookup("10rem", cfg)
 	assert.NoError(t, err)
+
+	_ = users
 }

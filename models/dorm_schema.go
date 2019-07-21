@@ -2,7 +2,7 @@ package models
 
 type Dorm struct {
 	BaseSchema
-	NeighborhoodID    int          `json:"neighborhood_id"`
+	NeighborhoodID    uint         `json:"neighborhood_id"`
 	Neighborhood      Neighborhood `json:"neighborhood,omitempty"`
 	Name              string       `json:"name"`
 	KeyOrCard         *string      `json:"key_or_card"`

@@ -3,6 +3,7 @@ package models
 import (
 	"log"
 	"strconv"
+	"strings"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
@@ -33,7 +34,7 @@ func (m *UserModel) UpdateUser(id uint, update map[string]interface{}) (err erro
 }
 
 // TODO: AIDAN ENSURE THAT NIL FIELDS DON'T OVERWRITE CURRENT USER FIELDS (AT LEAST FOR ENTRY)
-func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) error {
+func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*User, error) {
 	// Initialize LDAPs
 	willyLdap := lib.NewWilliamsLDAP()
 	ndsLdap := lib.NewNDSLDAP()
@@ -41,26 +42,26 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) error {
 	// We need the Willy LDAP credentials for this
 	err := config.Secrets.RequireLDAPAuth()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// Connect & bind the Willy LDAP
 	err = willyLdap.ConnectWithBind(config.Secrets.WsoLdapDN, config.Secrets.WsoLdapPassword)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer willyLdap.Close()
 
 	// Get all users from Willy LDAP
 	userEntries, err := willyLdap.Each("uid", unixSearch)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// Connect the NDS LDAP
 	err = ndsLdap.Connect()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer ndsLdap.Close()
 
@@ -84,7 +85,7 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) error {
 		// Get the NDS info of the user
 		ndsUser, err := ndsLdap.Get("uid", user.UnixID)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		user.Type = userAssociationType(ndsUser)
@@ -153,7 +154,7 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) error {
 						user.DormRoomID = nil
 						user.DormRoom = nil
 					} else if err != nil {
-						return err
+						return nil, err
 					}
 				} else {
 					var dormRoom DormRoom
@@ -162,18 +163,61 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) error {
 						Number: entry.GetAttributeValue("wmsDormAddr2"),
 					}).FirstOrCreate(&dormRoom).Error
 					if err != nil {
-						return err
+						return nil, err
 					}
 
+					user.DormRoomID = &dormRoom.ID
 					user.DormRoom = &dormRoom
 				}
+
+				student := user.Student()
+				if entry.GetAttributeValue("wmsDormAddr3") != "" && (student.Prefrosh() || student.Frosh()) {
+					user.Entry = parseStrToPtr(entry.GetAttributeValue("wmsDormAddr3"))
+				}
+			} else {
+				user.DormRoom = nil
+				user.DormRoomID = nil
+			}
+
+			user.SUBox = parseStrToPtr(entry.GetAttributeValue("wmsCampusAddr1"))
+		} else if user.IsProfessor() || user.IsStaff() {
+			number := entry.GetAttributeValue("wmsCampusAddr1") + " " + entry.GetAttributeValue("wmsCampusAddr2")
+
+			var office Office
+			err = m.DB.Where(&Office{
+				Number: number,
+			}).FirstOrCreate(&office).Error
+			if err != nil {
+				return nil, err
+			}
+			user.Office = &office
+			user.OfficeID = &office.ID
+
+			departmentName := entry.GetAttributeValue("ou")
+			if departmentName != "" {
+				deptIdx := strings.Index(departmentName, " Department")
+				if deptIdx == -1 {
+					deptIdx = len(departmentName)
+				}
+				departmentName = departmentName[:deptIdx]
+
+				var dept Department
+				err = m.DB.Where(&Department{
+					Name: departmentName,
+				}).FirstOrCreate(&dept).Error
+				if err != nil {
+					return nil, err
+				}
+				user.Department = &dept
+				user.DepartmentID = &dept.ID
+
 			}
 		}
 
-		log.Printf("User: %+v\n", user)
+		users[idx] = user
 	}
 
-	return nil
+	return users, nil
 }
 
 func userAssociationType(ndsUser *ldap.Entry) string {

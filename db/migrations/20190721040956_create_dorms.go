@@ -21,7 +21,7 @@ var CreateDorms20190721040956 = &gormigrate.Migration{
 		// with those fields.
 		type Dorm struct {
 			models.BaseSchema
-			NeighborhoodID    int      `json:"neighborhood_id"`
+			NeighborhoodID    uint     `json:"neighborhood_id"`
 			Name              string   `json:"name"`
 			KeyOrCard         *string  `json:"key_or_card"`
 			Description       *string  `gorm:"size:65535" json:"description"`

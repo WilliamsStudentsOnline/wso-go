@@ -30,7 +30,7 @@ var CreateUsers20190719211808 = &gormigrate.Migration{
 			ClassYear      *int `gorm:"size:4"`
 
 			// Equivalent to belongs_to Department
-			DepartmentID *int
+			DepartmentID *uint
 
 			DormVisible bool `gorm:"DEFAULT:true"`
 			HomeTown    *string
@@ -48,7 +48,9 @@ var CreateUsers20190719211808 = &gormigrate.Migration{
 			HasAcceptedFactrakPolicy  bool `gorm:"DEFAULT:false"`
 			HasAcceptedDormtrakPolicy bool `gorm:"DEFAULT:false"`
 
-			DormRoomID *int `gorm:"index_rooms_on_dorm_room_id"`
+			OfficeID *uint
+
+			DormRoomID *uint `gorm:"index_rooms_on_dorm_room_id"`
 
 			Pronoun              *string
 			AtWilliams           bool `gorm:"DEFAULT:true"`

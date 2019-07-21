@@ -21,7 +21,7 @@ type User struct {
 	ClassYear      *int    `gorm:"size:4" json:"class_year"`
 
 	// Equivalent to belongs_to Department
-	DepartmentID *int        `json:"department_id"`
+	DepartmentID *uint       `json:"department_id"`
 	Department   *Department `json:"department,omitempty"`
 
 	DormVisible bool    `gorm:"DEFAULT:true" json:"dorm_visible"`
@@ -41,9 +41,11 @@ type User struct {
 	HasAcceptedDormtrakPolicy bool    `gorm:"DEFAULT:false" json:"has_accepted_dormtrak_policy"`
 
 	// belongs_to Office
+	OfficeID *uint   `json:"office_id"`
+	Office   *Office `json:"office,omitempty"`
 
 	// belongs_to Dorm Room
-	DormRoomID *int      `gorm:"index_rooms_on_dorm_room_id" json:"dorm_room_id"`
+	DormRoomID *uint     `gorm:"index_rooms_on_dorm_room_id" json:"dorm_room_id"`
 	DormRoom   *DormRoom `json:"dorm_room,omitempty"`
 
 	Pronoun              *string `json:"pronoun"`
@@ -81,4 +83,10 @@ func (u *User) IsProfessor() bool {
 
 func (u *User) IsStaff() bool {
 	return u.Type == UserTypeStaff
+}
+
+func (u *User) Student() *Student {
+	return &Student{
+		User: u,
+	}
 }
