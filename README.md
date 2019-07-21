@@ -23,6 +23,15 @@ The model struct (e.g. `user.go` or `UserModel{}`) is the database adapter for t
 #### Schema
 Note that in the schema is defined following the [GORM guidelines](https://gorm.io/docs/models). Optional fields are pointer-type, and associations are documented [here](https://gorm.io/docs/belongs_to.html). When working with any optional fields, you can easily convert a literal value into a pointer by using the `lib/to_pointer.go` file, which has functions like `lib.StrToPtr(str string) *string`.
 
+### Auto-Generate
+You can use the auto-generator to generate a services and models. Usage is as follows:
+
+For Services:
+`go run lib/generate/cmd/main.go service -m [model] [service_name]`
+
+For Models:
+`go run lib/generate/cmd/main.go model -t [table] [ModelName] `
+
 ### Lib
 The library (lib) folder contains tools that multiple other folders and files use. No file in the lib folder should import any code from another place in this repo (external places are fine though).
 

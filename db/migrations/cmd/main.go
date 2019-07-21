@@ -97,7 +97,7 @@ func runApp(c *cli.Context) error {
 		"migrationTime": migrationTime,
 	})
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	fmt.Println("Migration file generated at", path)
