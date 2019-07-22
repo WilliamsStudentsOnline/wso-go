@@ -1,5 +1,7 @@
 package models
 
+import "github.com/jinzhu/gorm"
+
 const (
 	UserTypeStudent   = "student"
 	UserTypeAlum      = "alum"
@@ -89,4 +91,19 @@ func (u *User) Student() *Student {
 	return &Student{
 		User: u,
 	}
+}
+
+func (u *User) AfterCreate(scope *gorm.Scope) (err error) {
+	if u.IsStudent() {
+		// Update survey deficit
+		// This way, only student get a default, non-nil value for this
+		userModel := &UserModel{}
+		userModel.DB = scope.DB()
+
+		err = userModel.UpdateServerDeficit(u)
+		if err != nil {
+			return
+		}
+	}
+	return
 }
