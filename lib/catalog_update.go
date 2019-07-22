@@ -2,7 +2,6 @@ package lib
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -64,20 +63,18 @@ type Course struct {
 
 type unparsedJSON []map[string]string
 
-const FallSemesterID = 1201
-const WinterSemesterID = 1202
-const SpringSemesterID = 1203
+const (
+	FallSemesterID   = 1201
+	WinterSemesterID = 1202
+	SpringSemesterID = 1203
+)
 
-func assertError(err error) {
-	if err != nil {
-		fmt.Println(err)
-	}
-}
-
-func ParseCatalog(catalog []byte) []Course {
+func ParseCatalog(catalog []byte) ([]Course, error) {
 	unparsedCourses := unparsedJSON{}
 	err := json.Unmarshal(catalog, &unparsedCourses)
-	assertError(err)
+	if err != nil {
+		return nil, err
+	}
 
 	courses := []Course{}
 
@@ -88,9 +85,13 @@ func ParseCatalog(catalog []byte) []Course {
 		course := Course{}
 
 		course.Year, err = strconv.Atoi(unparsed["WMS_ACAD_YEAR"])
-		assertError(err)
+		if err != nil {
+			return nil, err
+		}
 		semID, err := strconv.Atoi(unparsed["STRM"])
-		assertError(err)
+		if err != nil {
+			return nil, err
+		}
 
 		switch semID {
 		case FallSemesterID:
@@ -104,15 +105,21 @@ func ParseCatalog(catalog []byte) []Course {
 		}
 
 		course.CourseID, err = strconv.Atoi(unparsed["CRSE_ID"])
-		assertError(err)
+		if err != nil {
+			return nil, err
+		}
 		course.Department = unparsed["SUBJECT"]
 		course.Number, err = strconv.Atoi(unparsed["CATALOG_NBR"])
-		assertError(err)
+		if err != nil {
+			return nil, err
+		}
 
 		// Tutorial sections start with 'T'
 		course.Section = unparsed["CLASS_SECTION"]
 		course.PeoplesoftNumber, err = strconv.Atoi(unparsed["CLASS_NBR"])
-		assertError(err)
+		if err != nil {
+			return nil, err
+		}
 
 		// Options for CONSENT are 'N', ' ', 'D
 		course.Consent = unparsed["CONSENT"]
@@ -212,7 +219,9 @@ func ParseCatalog(catalog []byte) []Course {
 				meeting.Start12 = ""
 			} else {
 				startTime, err := time.Parse(twentyFourHour, startT)
-				assertError(err)
+				if err != nil {
+					return nil, err
+				}
 
 				meeting.Start = startTime.Format(twentyFourHour)
 				meeting.Start12 = startTime.Format(twelveHour)
@@ -224,7 +233,9 @@ func ParseCatalog(catalog []byte) []Course {
 				meeting.End12 = ""
 			} else {
 				endTime, err := time.Parse(twentyFourHour, endT)
-				assertError(err)
+				if err != nil {
+					return nil, err
+				}
 
 				meeting.End = endTime.Format(twentyFourHour)
 				meeting.End12 = endTime.Format(twelveHour)
@@ -267,10 +278,10 @@ func ParseCatalog(catalog []byte) []Course {
 		courses = append(courses, course)
 	}
 
-	return courses
+	return courses, nil
 }
 
-func grabCatalog() []byte {
+func grabCatalog() ([]byte, error) {
 
 	url := "https://catalog.williams.edu/wp-json/courses/v1/year/1920"
 
@@ -280,20 +291,26 @@ func grabCatalog() []byte {
 
 	// Craft a GET request
 	req, err := http.NewRequest(http.MethodGet, url, nil)
-	assertError(err)
+	if err != nil {
+		return nil, err
+	}
 
 	// Send the GET request and get back the response
-	res, getErr := catalogClient.Do(req)
-	assertError(getErr)
+	res, err := catalogClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
 
 	// Parse the body into []byte
-	body, readErr := ioutil.ReadAll(res.Body)
-	assertError(readErr)
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
 
-	return body
+	return body, nil
 }
 
-func exportConstants() {
+func exportConstants() error {
 	// Most of these are hardcoded... Wonder if it makes more sense to edit the .json directly
 	// rather than use this function
 	constants := map[string]interface{}{
@@ -337,21 +354,41 @@ func exportConstants() {
 	}
 
 	constantsJSON, err := json.Marshal(constants)
-	assertError(err)
+	if err != nil {
+		return err
+	}
 	err = ioutil.WriteFile("constants.json", constantsJSON, 0644)
-	assertError(err)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func exportCatalog(courses []Course) {
+func exportCatalog(courses []Course) error {
 	coursesJSON, err := json.Marshal(courses)
-	assertError(err)
+	if err != nil {
+		return err
+	}
 	err = ioutil.WriteFile("courses.json", coursesJSON, 0644)
-	assertError(err)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func updateCatalog() {
-	responseBody := grabCatalog()
-	courses := ParseCatalog(responseBody)
+func updateCatalog() error {
+	responseBody, err := grabCatalog()
+	if err != nil {
+		return err
+	}
+	courses, err := ParseCatalog(responseBody)
+	if err != nil {
+		return err
+	}
 	exportCatalog(courses)
 	exportConstants()
+
+	return nil
 }
