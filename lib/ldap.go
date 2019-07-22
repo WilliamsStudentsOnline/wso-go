@@ -1,34 +1,35 @@
 package lib
 
 import (
-	"errors"
 	"fmt"
+
 	"gopkg.in/ldap.v3"
 )
 
+// TODO: Make this a connection pool (eg https://github.com/vetinari/go-ldappool)
 type LDAP struct {
-	Host string
-	Port int
-	Base string
+	Host  string
+	Port  int
+	Base  string
 	Scope int
-	conn *ldap.Conn
+	conn  *ldap.Conn
 }
 
 func NewWilliamsLDAP() *LDAP {
 	return &LDAP{
-		Host: "ldap.williams.edu",
-		Base: "ou=people,o=williams",
+		Host:  "ldap.williams.edu",
+		Base:  "ou=people,o=williams",
 		Scope: ldap.ScopeWholeSubtree,
-		Port: 389,
+		Port:  389,
 	}
 }
 
 func NewNDSLDAP() *LDAP {
 	return &LDAP{
-		Host: "nds1.williams.edu",
-		Base: "o=williams",
+		Host:  "nds1.williams.edu",
+		Base:  "o=williams",
 		Scope: ldap.ScopeWholeSubtree,
-		Port: 389,
+		Port:  389,
 	}
 }
 
@@ -66,7 +67,7 @@ func (l *LDAP) Close() {
 }
 
 // Gets an LDAP entry based on key/value. Pass optional attributes to get specific fields.
-// If there is no entry, error. If there are more than one entries, return the first one.
+// If there is no entry, return nil. If there are more than one entries, return the first one.
 func (l *LDAP) Get(key, value string, attributes ...string) (*ldap.Entry, error) {
 	searchRequest := ldap.NewSearchRequest(
 		l.Base,
@@ -84,7 +85,7 @@ func (l *LDAP) Get(key, value string, attributes ...string) (*ldap.Entry, error)
 	}
 
 	if len(res.Entries) == 0 {
-		return nil, errors.New("entry not found")
+		return nil, nil
 	}
 
 	return res.Entries[0], nil
