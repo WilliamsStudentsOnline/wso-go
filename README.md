@@ -18,6 +18,7 @@ Steps for a 10/10 development workflow:
 1. Notice an issue/feature and create a GitHub issue.
 2. Checkout a feature branch: the name should be `feature/YOUR-FEATURE-HERE` or `feature/YOUR-NAME/YOUR-FEATURE-HERE`.
 3. Write the code and create the tests.
+    * Please follow this [helpful guide](https://github.com/golang/go/wiki/CodeReviewComments) on how to write commit-worthy Go code.
 4. Make a pull request and link your original issue.
 5. After approval merge the pull request by squashing all of your commits into one.
 
