@@ -1,16 +1,25 @@
 # WSO-Go
 The new flagship back-end for WSO's services. The WSO backend rewrite proposal is found [here](https://github.com/WilliamsStudentsOnline/wso-on-rails/wiki/Proposal:-WSO-Backend-Rewrite).
 
-## Current Go Version: 1.12
-It is worth noting that you should install Go via the official site, not a package repository like apt-get or brew, which often have outdated versions. You can find info on how to install Go [here](https://golang.org/doc/install).
-
 ## Running
 
 To run the server, simply do `go run -tags=jsoniter . -env=development`.
 
 If you want to include secrets in your build, run `cp config/secrets_example.yml config/secrets.yml` and edit the fields from there
 
+### Current Go Version: 1.12
+It is worth noting that you should install Go via the official site, not a package repository like apt-get or brew, which often have outdated versions. You can find info on how to install Go [here](https://golang.org/doc/install).
+
 ## Development
+
+### Git Workflow/Pipeline
+Steps for a 10/10 development workflow:
+
+1. Notice an issue/feature and create a GitHub issue.
+2. Checkout a feature branch: the name should be `feature/YOUR-FEATURE-HERE` or `feature/YOUR-NAME/YOUR-FEATURE-HERE`.
+3. Write the code and create the tests.
+4. Make a pull request and link your original issue.
+5. After approval merge the pull request by squashing all of your commits into one.
 
 ### Services
 This project uses microservices to define API endpoints. This is essentially the combination of a controller and a router. Look at the user service for a good example.
