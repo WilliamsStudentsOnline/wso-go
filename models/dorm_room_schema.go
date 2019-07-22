@@ -37,6 +37,9 @@ type DormRoom struct {
 	Location         *float64 `json:"location"`
 	Satisfaction     *float64 `json:"satisfaction"`
 	RoomType         *string  `json:"room_type"`
+
+	// Has many students
+	Users []User `json:"users,omitempty"`
 }
 
 func (*DormRoom) TableName() string {

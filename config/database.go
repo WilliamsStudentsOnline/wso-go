@@ -1,11 +1,10 @@
 package config
 
 import (
-	"log"
-
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	log "github.com/sirupsen/logrus"
 )
 
 func LoadDatabase(cfg *Config) *gorm.DB {
@@ -18,6 +17,8 @@ func LoadDatabase(cfg *Config) *gorm.DB {
 	if cfg.IsDevelopment() || cfg.IsTest() {
 		db.LogMode(true)
 	}
+
+	db.SetLogger(log.StandardLogger())
 
 	return db
 }

@@ -2,13 +2,13 @@ package models
 
 import (
 	"errors"
-	"log"
 	"strconv"
 	"strings"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/jinzhu/gorm"
+	log "github.com/sirupsen/logrus"
 	"gopkg.in/ldap.v3"
 )
 
@@ -65,6 +65,28 @@ func (m *UserModel) FirstOrCreateFromUnixID(unixID string, config *config.Config
 
 	return user, nil
 
+}
+
+func (m *UserModel) Students() ([]*Student, error) {
+	rows, err := m.DB.Model(&User{}).Where("type = ?", UserTypeStudent).Rows() // (*sql.Rows, error)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var students []*Student
+
+	for rows.Next() {
+		var student Student
+		// ScanRows scan a row into student
+		err = m.DB.ScanRows(rows, &student)
+		if err != nil {
+			return nil, err
+		}
+
+		students = append(students, &student)
+	}
+	return students, nil
 }
 
 // TODO: AIDAN ENSURE THAT NIL FIELDS DON'T OVERWRITE CURRENT USER FIELDS (AT LEAST FOR ENTRY)
@@ -184,7 +206,7 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 
 				if err != nil {
 					if gorm.IsRecordNotFoundError(err) {
-						log.Println("Encountered unknown dorm:", dormName)
+						log.Warnln("Encountered unknown dorm:", dormName)
 						user.DormRoomID = nil
 						user.DormRoom = nil
 					} else if err != nil {
@@ -253,6 +275,8 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 
 	return users, nil
 }
+
+//func (m *UserModel) UpdateAllFromLDAP
 
 func userAssociationType(ndsUser *ldap.Entry) string {
 	ua := lib.NewUserAssociation(
