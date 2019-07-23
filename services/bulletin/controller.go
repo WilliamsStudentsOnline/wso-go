@@ -82,7 +82,6 @@ func (t *Controller) UpdateBulletin(c *gin.Context) {
 	// Bind update params
 	var update map[string]interface{}
 
-	// TODO test only works with ShouldBindJSON
 	err = c.ShouldBind(&update)
 	if err != nil {
 		t.RespondError(http.StatusBadRequest, errors.New("could not bind update params"), c)
