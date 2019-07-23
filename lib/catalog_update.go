@@ -11,62 +11,67 @@ import (
 
 type Instructor struct {
 	URL  string
-	Name string
+	Name string `json:"name"`
 }
 
 type Meeting struct {
-	Days     string
-	Start    string
-	Start12  string
-	End      string
-	End12    string
-	FacDescr string
-	Facil    string
+	Days     string `json:"days"`
+	Start    string `json:"start"`
+	Start12  string `json:"start12"`
+	End      string `json:"end"`
+	End12    string `json:"end12"`
+	FacDescr string `json:"facDescr"`
+	Facil    string `json:"facil"`
 }
 
 type Attributes struct {
-	Div1        bool
-	Div2        bool
-	Div3        bool
-	DPE         bool
-	QFR         bool
-	WAC         bool
-	PassFail    bool
-	FifthCourse bool
+	Div1        bool `json:"div1"`
+	Div2        bool `json:"div2"`
+	Div3        bool `json:"div3"`
+	DPE         bool `json:"dpe"`
+	QFR         bool `json:"qfr"`
+	WAC         bool `json:"wac"`
+	PassFail    bool `json:"passFail"`
+	FifthCourse bool `json:"fifthCourse"`
 }
 
 type Course struct {
-	Year              int
-	Semester          string
-	CourseID          int
-	Department        string
-	Number            int
-	Section           string
-	PeoplesoftNumber  int
-	Consent           string
-	GradingBasis      string
-	GradingBasisDesc  string
-	ClassType         string
-	TitleLong         string
-	TitleShort        string
-	Instructors       []Instructor
-	Meetings          []Meeting
-	CourseAttributes  Attributes
-	ClassFormat       string
-	ClassReqEval      string
-	ExtraInfo         string
-	Prereqs           string
-	DepartmentNotes   string
-	DescriptionSearch string
-	EnrlPref          string
+	Year              int          `json:"year"`
+	Semester          string       `json:"semester"`
+	CourseID          int          `json:"courseID"`
+	Department        string       `json:"departmnet"`
+	Number            int          `json:"number"`
+	Section           string       `json:"section"`
+	PeoplesoftNumber  int          `json:"peoplesoftNumber"`
+	Consent           string       `json:"consent"`
+	GradingBasis      string       `json:"gradingBasis"`
+	GradingBasisDesc  string       `json:"gradingBasisDesc"`
+	ClassType         string       `json:"classType"`
+	TitleLong         string       `json:"titleLong"`
+	TitleShort        string       `json:"titleShort"`
+	Instructors       []Instructor `json:"instructors"`
+	Meetings          []Meeting    `json:"meetings"`
+	CourseAttributes  Attributes   `json:"courseAttributes"`
+	ClassFormat       string       `json:"classFormat"`
+	ClassReqEval      string       `json:"classReqEval"`
+	ExtraInfo         string       `json:"extraInfo"`
+	Prereqs           string       `json:"prereqs"`
+	DepartmentNotes   string       `json:"departmentNotes"`
+	DescriptionSearch string       `json:"descriptionSearch"`
+	EnrlPref          string       `json:"enrlPref"`
+}
+
+type exportCourses struct {
+	Courses    []Course `json:"courses"`
+	UpdateTime string   `json:"updateTime"`
 }
 
 type unparsedJSON []map[string]string
 
 const (
-	FallSemesterID   = 1201
-	WinterSemesterID = 1202
-	SpringSemesterID = 1203
+	fallSemesterID   = 1201
+	winterSemesterID = 1202
+	springSemesterID = 1203
 )
 
 func ParseCatalog(catalog []byte) ([]Course, error) {
@@ -94,11 +99,11 @@ func ParseCatalog(catalog []byte) ([]Course, error) {
 		}
 
 		switch semID {
-		case FallSemesterID:
+		case fallSemesterID:
 			course.Semester = "FALL"
-		case WinterSemesterID:
+		case winterSemesterID:
 			course.Semester = "WINTER"
-		case SpringSemesterID:
+		case springSemesterID:
 			course.Semester = "SPRING"
 		default:
 			course.Semester = "UNKNOWN"
@@ -310,67 +315,16 @@ func grabCatalog() ([]byte, error) {
 	return body, nil
 }
 
-func exportConstants() error {
-	// Most of these are hardcoded... Wonder if it makes more sense to edit the .json directly
-	// rather than use this function
-	constants := map[string]interface{}{
-		"Palette":       [...]string{"#B3E5FC", "#F0F4C3", "#FFCCBC", "#CFD8DC", "#E1BEE7", "#B2DFDB"},
-		"BorderPalette": [...]string{"#03A9F4", "#AFB42B", "#E64A19", "#455A64", "#7B17A2", "#00796B"},
-		"Distributions": [...]string{"DPE", "QFR", "WAC"},
-		"Divisions":     [...]string{"DIV1", "DIV2", "DIV3"},
-		"Others":        [...]string{"OPP", "OPX"},
-		"Levels":        [...]int{0, 1, 2, 3, 4},
-		"ClassTypes":    [...]string{"Lecture", "Seminar", "Tutorial", "Studio", "Independent Study", "Laboratory"},
-		"UpdateDate":    time.Now().Format(time.RFC850),
-		"Dates": map[string]map[string]string{
-			"Fall": map[string]string{
-				"StartGCAL": "2019-09-05T",
-				"Start":     "20190905",
-				"End":       "20191207",
-			},
-			"Winter": map[string]string{
-				"StartGCAL": "2020-01-06T",
-				"Start":     "20200106",
-				"End":       "20200130",
-			},
-			"Spring": map[string]string{
-				"StartGCAL": "2020-02-05T",
-				"Start":     "20200205",
-				"End":       "20200515",
-			},
-		},
-		"StartTimes": [...]string{"01:10", "08:00", "08:30", "08:55", "09:00", "09:55", "10:00", "11:00",
-			"11:20", "12:00", "13:00", "13:10", "14:00", "14:10", "14:30", "14:35", "16:45", "18:30", "19:00"},
-		"StartTimes12": [...]string{" 1:10AM", " 8:00AM", " 8:30AM", " 8:55AM", " 9:00AM", " 9:55AM", "10:00AM",
-			"11:00AM", "11:20AM", "12:00PM", " 1:00PM", " 1:10PM", " 2:00PM", " 2:10PM", " 2:30PM", " 2:35PM", " 4:45PM",
-			" 6:30PM", " 7:00PM"},
-		"EndTimes": [...]string{"02:25", "08:50", "09:45", "09:50", "10:50", "11:10", "11:40", "11:50",
-			"12:00", "12:15", "12:35", "12:40", "12:50", "13:45", "14:00", "14:25", "14:30", "14:35", "15:00",
-			"15:40", "15:50", "16:00", "16:40", "17:00", "20:15", "20:30", "21:40", "22:00"},
-		"EndTimes12": [...]string{" 2:25AM", " 8:50AM", " 9:45AM", " 9:50AM", "10:50AM", "11:10AM", "11:40AM",
-			"11:50AM", "12:00PM", "12:15PM", "12:35PM", "12:40PM", "12:50PM", " 1:45PM", " 2:00PM", " 2:25PM",
-			" 2:30PM", " 2:35PM", " 3:00PM", " 3:40PM", " 3:50PM", " 4:00PM", " 4:40PM", " 5:00PM", " 8:15PM",
-			" 8:30PM", " 9:40PM", "10:00PM", "11:50PM"},
-	}
-
-	constantsJSON, err := json.Marshal(constants)
-	if err != nil {
-		return err
-	}
-	err = ioutil.WriteFile("constants.json", constantsJSON, 0644)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func exportCatalog(courses []Course) error {
-	coursesJSON, err := json.Marshal(courses)
+	var catalog = exportCourses{}
+	catalog.Courses = courses
+	catalog.UpdateTime = time.Now().Format(time.RFC850)
+
+	catalogJSON, err := json.Marshal(catalog)
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile("courses.json", coursesJSON, 0644)
+	err = ioutil.WriteFile("courses.json", catalogJSON, 0644)
 	if err != nil {
 		return err
 	}
@@ -388,7 +342,6 @@ func updateCatalog() error {
 		return err
 	}
 	exportCatalog(courses)
-	exportConstants()
 
 	return nil
 }
