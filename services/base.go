@@ -18,12 +18,28 @@ type BaseResponse struct {
 }
 
 type RespError struct {
-	ErrorCode int    `json:"error_code"`
+	ErrorCode int    `json:"errorCode"`
 	Message   string `json:"message"`
 }
 
+type APIError struct {
+	Code int
+	Message string
+}
+
+func NewAPIError(code int, message string) *APIError {
+	return &APIError{
+		Code: code,
+		Message: message,
+	}
+}
+
+func (e *APIError) Error() string {
+	return e.Message
+}
+
 // Respond to a request with an OK and some data
-func (BaseController) RespondOK(data interface{}, c *gin.Context) {
+func (BaseController) RespondOK(c *gin.Context, data interface{}) {
 	c.JSON(http.StatusOK, BaseResponse{
 		Status: http.StatusOK,
 		Data:   data,
@@ -34,8 +50,18 @@ func (BaseController) RespondOK(data interface{}, c *gin.Context) {
 // Base controller object for outside packages to call to access methods
 var Base = BaseController{}
 
+func (BaseController) RespondAPIError(c *gin.Context, err *APIError) {
+	c.AbortWithStatusJSON(http.StatusBadRequest, BaseResponse{
+		Status: err.Code,
+		Error: &RespError{
+			ErrorCode: err.Code,
+			Message:   err.Error(),
+		},
+	})
+}
+
 // Respond to request with an error and abort
-func (BaseController) RespondError(code int, err error, c *gin.Context) {
+func (BaseController) RespondError(c *gin.Context, code int, err error) {
 	// If the error is that the DB could not find a record, return a not found error
 	if gorm.IsRecordNotFoundError(err) {
 		code = http.StatusNotFound
@@ -57,8 +83,8 @@ func (BaseController) RespondError(code int, err error, c *gin.Context) {
 }
 
 // Get a parameter that is a uint
-func GetUIntParam(key string, ctx *gin.Context) (uint, error) {
-	param := ctx.Param(key)
+func GetUIntParam(c *gin.Context, key string) (uint, error) {
+	param := c.Param(key)
 	paramInt, err := strconv.Atoi(param)
 	if err != nil {
 		return 0, err
@@ -69,5 +95,5 @@ func GetUIntParam(key string, ctx *gin.Context) (uint, error) {
 
 // Get the User ID from context store
 func GetUserID(ctx *gin.Context) uint {
-	return (ctx.MustGet("user_id")).(uint)
+	return (ctx.MustGet("userID")).(uint)
 }

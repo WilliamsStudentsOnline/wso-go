@@ -35,9 +35,9 @@ func (t *Controller) UpdateAllUsersFromLDAP(c *gin.Context) {
 	err := t.userModel.UpdateAllFromLDAP(t.cfg)
 
 	if err != nil {
-		t.RespondError(http.StatusInternalServerError, err, c)
+		t.RespondError(c, http.StatusInternalServerError, err)
 		return
 	}
 
-	t.RespondOK(nil, c)
+	t.RespondOK(c, nil)
 }

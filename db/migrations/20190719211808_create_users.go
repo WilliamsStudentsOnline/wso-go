@@ -23,7 +23,7 @@ var CreateUsers20190719211808 = &gormigrate.Migration{
 			Name           string
 			CellPhone      *string
 			CampusPhoneExt *string
-			UnixID         string
+			UnixID         string `gorm:"unique;"`
 			WilliamsEmail  string
 			Title          *string
 			Visible        bool

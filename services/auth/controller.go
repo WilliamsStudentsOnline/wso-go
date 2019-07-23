@@ -16,7 +16,7 @@ var ErrorMissingLoginValues = errors.New("missing unix id or password")
 
 // Parameters passed from client when logging in
 type Login struct {
-	UnixID   string `form:"unix_id" json:"unix_id" binding:"required"`
+	UnixID   string `form:"unixID" json:"unixID" binding:"required"`
 	Password string `form:"password" json:"password" binding:"required"`
 	Local    bool   `form:"local" json:"local"`
 }
@@ -75,7 +75,7 @@ func (t *Controller) Authenticator(c *gin.Context) (interface{}, error) {
 	}
 
 	// Assuming we are not doing an internal network authentication, and LDAP is not disabled, do LDAP authentication
-	isAuthed, err := AuthOIT(unixID, password)
+	isAuthed, err := OITAuth(unixID, password)
 	if err != nil {
 		// Record the error in the log, as it is an internal server error (but response will be an unauthorized error)
 		_ = c.Error(err)

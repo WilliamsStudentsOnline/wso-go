@@ -23,18 +23,75 @@ func (m *UserModel) GetAllUsers(u *[]User) (err error) {
 }
 
 func (m *UserModel) GetUserByID(id uint, u *User) (err error) {
-	err = m.DB.Where(NewUserWithID(id)).First(u).Error
+	err = m.DB.Where(NewUserWithID(id)).Preload("Tags").First(u).Error
 	return
 }
 
 // Update the user. Only allow specific keys to be passed
 func (m *UserModel) UpdateUser(id uint, update map[string]interface{}) (err error) {
-	MapPermit(update, "visible", "dorm_visible", "home_visible", "pronoun", "off_cycle")
-	err = m.DB.Model(NewUserWithID(id)).Updates(update).Error
+	dbUpdate := map[string]interface{}{
+		"visible":      update["visible"],
+		"dorm_visible": update["dormVisible"],
+		"home_visible": update["homeVisible"],
+		"pronoun":      update["pronoun"],
+		"off_cycle":    update["offCycle"],
+	}
+	DeleteNilFields(dbUpdate)
+
+	err = m.DB.Model(NewUserWithID(id)).Updates(dbUpdate).Error
 	return
 }
 
-func (m *UserModel) UpdateUserUnsafe(dbUser *User, toUser *User) error {
+func (m *UserModel) UpdateUserTags(id uint, tags []string) (err error) {
+	// Get user
+	user := new(User)
+	err = m.DB.First(&user, id).Error
+	if err != nil {
+		return err
+	}
+
+	// Start transaction
+	tx := m.DB.Begin()
+	if err = tx.Error; err != nil {
+		return err
+	}
+
+	// Clear previous tags
+	err = tx.Model(&user).Association("Tags").Clear().Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// Add new tags
+	for _, tagName := range tags {
+		// Get tag
+		tag := new(Tag)
+		err = m.DB.Where(&Tag{
+			Name: tagName,
+		}).First(tag).Error
+
+		// If we don't have the tag, error
+		if err != nil {
+			tx.Rollback()
+			if gorm.IsRecordNotFoundError(err) {
+				return errors.New("invalid user tag")
+			}
+			return err
+		}
+
+		// If we do have the tag, add it
+		err = tx.Model(&user).Association("Tags").Append(tag).Error
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	return tx.Commit().Error
+}
+
+func (m *UserModel) updateUserUnsafe(dbUser *User, toUser *User) error {
 	if toUser.Type != dbUser.Type {
 		log.Infof("Changing type of user %s from %s to %s", dbUser.UnixID, dbUser.Type, toUser.Type)
 		dbUser.Type = toUser.Type
@@ -70,10 +127,6 @@ func (m *UserModel) UpdateUserUnsafe(dbUser *User, toUser *User) error {
 
 	return m.DB.Save(dbUser).Error
 }
-
-/*
-
- */
 
 func (m *UserModel) FirstOrCreateFromUnixID(unixID string, config *config.Config) (*User, error) {
 	user := new(User)
@@ -350,7 +403,7 @@ func (m *UserModel) UpdateAllFromLDAP(cfg *config.Config) error {
 		if !query.RecordNotFound() {
 			// If the user exists
 			// TODO: Figure out a way to batch these calls
-			err = m.UpdateUserUnsafe(dbUser, toUser)
+			err = m.updateUserUnsafe(dbUser, toUser)
 			if err != nil {
 				log.WithError(err).Errorf("Could not save user %s with %#+v", toUser.UnixID, toUser)
 			}
@@ -400,6 +453,18 @@ func (m *UserModel) UpdateServerDeficit(user *User) error {
 		return errors.New("user must be student")
 	}
 	return nil
+}
+
+func (*UserModel) scopeVisible(db *gorm.DB) *gorm.DB {
+	return db.Where("visible = ?", true)
+}
+
+func (*UserModel) scopeAtWilliams(db *gorm.DB) *gorm.DB {
+	return db.Where("at_williams = ?", true)
+}
+
+func (*UserModel) scopeAlphabetical(db *gorm.DB) *gorm.DB {
+	return db.Order("name DESC")
 }
 
 // Updates users that are not found in LDAP anymore (alumni usually) by searching for them on NDS,

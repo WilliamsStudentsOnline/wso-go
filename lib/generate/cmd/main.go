@@ -61,7 +61,7 @@ func generateModel(c *cli.Context) error {
 		return errors.New("a name is required")
 	}
 
-	name = strings.ToTitle(name)
+	name = strings.Title(name)
 	nameLC := strings.ToLower(name)
 
 	table := strings.ToLower(c.String("table"))
@@ -139,7 +139,7 @@ func generateService(c *cli.Context) error {
 	model := c.String("model")
 	if model == "" {
 		// Convert from underscore_case to CamelCase
-		model = strings.ReplaceAll(strings.ToTitle(strings.ReplaceAll(name, "_", " ")), " ", "")
+		model = strings.ReplaceAll(strings.Title(strings.ReplaceAll(name, "_", " ")), " ", "")
 	}
 
 	path, err := filepath.Abs(filepath.Join("services", name))

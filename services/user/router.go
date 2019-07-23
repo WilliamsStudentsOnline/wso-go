@@ -8,6 +8,7 @@ import (
 func SetupRouter(r gin.IRouter, db *gorm.DB) {
 	c := NewController(db)
 	r.GET("/", c.FetchAllUsers)
-	r.GET("/:user_id", c.GetUser)
-	r.PUT("/:user_id", c.UpdateUser)
+	r.GET("/:userID", c.GetUser)
+	r.PUT("/:userID", c.UpdateUser)
+	r.PUT("/:userID/tags", c.UpdateUserTags)
 }
