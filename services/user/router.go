@@ -10,4 +10,5 @@ func SetupRouter(r gin.IRouter, db *gorm.DB) {
 	r.GET("/", c.FetchAllUsers)
 	r.GET("/:userID", c.GetUser)
 	r.PUT("/:userID", c.UpdateUser)
+	r.PUT("/:userID/tags", c.UpdateUserTags)
 }

@@ -15,6 +15,7 @@ var Migrations = []*gormigrate.Migration{
 	migrations.CreateDorms20190721040956,
 	migrations.CreateDormRooms20190721041007,
 	migrations.CreateOffices20190721060106,
+	migrations.CreateTagsAndTagsUsers20190723012050,
 }
 
 var MigrationGormOptions = gormigrate.DefaultOptions
@@ -36,6 +37,7 @@ func MigrateDB(db *gorm.DB) error {
 			&models.Dorm{},
 			&models.DormRoom{},
 			&models.Office{},
+			&models.Tag{},
 		).Error
 		if err != nil {
 			return err

@@ -139,7 +139,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 	r.NoRoute(authMiddleware.MiddlewareFunc(), func(c *gin.Context) {
 		claims := jwt.ExtractClaims(c)
 		log.Infof("NoRoute claims: %#v\n", claims)
-		services.Base.RespondError(http.StatusNotFound, errors.New("page not found"), c)
+		services.Base.RespondError(c, http.StatusNotFound, errors.New("page not found"))
 	})
 
 	// Wrap everything else in authentication

@@ -57,7 +57,7 @@ func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB) (authMiddleware *jwt.Gi
 		Authenticator: NewController(cfg, db).Authenticator,
 		// What to do when a JWT is unauthorized
 		Unauthorized: func(c *gin.Context, statusCode int, errorMsg string) {
-			services.Base.RespondError(statusCode, errors.New(errorMsg), c)
+			services.Base.RespondError(c, statusCode, errors.New(errorMsg))
 		},
 		// Called every request; ignore this for now
 		Authorizator: func(data interface{}, c *gin.Context) bool {

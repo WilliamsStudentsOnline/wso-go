@@ -16,7 +16,7 @@ type User struct {
 	Name           string  `json:"name"`
 	CellPhone      *string `json:"cellPhone"`
 	CampusPhoneExt *string `json:"campusPhoneEXT"`
-	UnixID         string  `json:"unixID"`
+	UnixID         string  `gorm:"unique;" json:"unixID"`
 	WilliamsEmail  string  `json:"williamsEmail"`
 	Title          *string `json:"title"`
 	Visible        bool    `json:"visible"`
@@ -57,6 +57,8 @@ type User struct {
 
 	OptOutEphcatch      bool `gorm:"DEFAULT:false" json:"optOutEphcatch"`
 	EphcatchEligibility bool `gorm:"DEFAULT:false" json:"ephcatchEligibility"`
+
+	Tags []*Tag `gorm:"many2many:tags_users;" json:"tags,omitempty"`
 }
 
 func (*User) TableName() string {
