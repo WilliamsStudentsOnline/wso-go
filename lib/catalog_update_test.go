@@ -42,8 +42,8 @@ func TestParse(t *testing.T) {
 		assertParse(catalog, expected)
 	})
 
-	t.Run("Fetches data from online catalog", func(t *testing.T) {
-		updateCatalog()
-	})
+	// t.Run("Fetches data from online catalog", func(t *testing.T) {
+	// 	updateCatalog()
+	// })
 
 }
