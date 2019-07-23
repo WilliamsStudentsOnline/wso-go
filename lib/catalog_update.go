@@ -16,12 +16,10 @@ type Instructor struct {
 
 // Meeting holds the information relevant to the weekly class meetings
 type Meeting struct {
-	Days    string `json:"days"`
-	Start   string `json:"start"`
-	Start12 string `json:"start12"`
-	End     string `json:"end"`
-	End12   string `json:"end12"`
-	Facil   string `json:"facil"`
+	Days  string `json:"days"`
+	Start string `json:"start"`
+	End   string `json:"end"`
+	Facil string `json:"facil"`
 }
 
 // Attributes consolidates the divisional/distributional/additional options as boolean variables
@@ -149,7 +147,6 @@ const (
 	winterSemesterID = 1202
 	springSemesterID = 1203
 	twentyFourHour   = "15:04"
-	twelveHour       = "3:04pm"
 )
 
 // capitalize capitalizes the first letter of the string
@@ -339,7 +336,6 @@ func ParseCatalog(catalog []byte) ([]Course, error) {
 			startT := strings.TrimSpace(unparsedMeeting.start)
 			if startT == "" {
 				meeting.Start = ""
-				meeting.Start12 = ""
 			} else {
 				startTime, err := time.Parse(twentyFourHour, startT)
 				if err != nil {
@@ -347,13 +343,11 @@ func ParseCatalog(catalog []byte) ([]Course, error) {
 				}
 
 				meeting.Start = startTime.Format(twentyFourHour)
-				meeting.Start12 = startTime.Format(twelveHour)
 			}
 
 			endT := strings.TrimSpace(unparsedMeeting.end)
 			if endT == "" {
 				meeting.End = ""
-				meeting.End12 = ""
 			} else {
 				endTime, err := time.Parse(twentyFourHour, endT)
 				if err != nil {
@@ -361,7 +355,6 @@ func ParseCatalog(catalog []byte) ([]Course, error) {
 				}
 
 				meeting.End = endTime.Format(twentyFourHour)
-				meeting.End12 = endTime.Format(twelveHour)
 			}
 
 			meeting.Facil = trimTitle(unparsedMeeting.facility)
