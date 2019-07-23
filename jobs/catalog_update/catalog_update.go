@@ -1,11 +1,17 @@
-package lib
+package catalog_update
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"fmt"
+	"io"
 	"net/http"
 	"strings"
 	"time"
+)
+
+const (
+	CatalogURL = "https://catalog.williams.edu/wp-json/courses/v1/year"
+	hourFormat       = "15:04"
 )
 
 // Instructor holds the url and name of the isntructors
@@ -19,7 +25,7 @@ type Meeting struct {
 	Days  string `json:"days"`
 	Start string `json:"start"`
 	End   string `json:"end"`
-	Facil string `json:"facil"`
+	Facility string `json:"facil"`
 }
 
 // Attributes consolidates the divisional/distributional/additional options as boolean variables
@@ -58,10 +64,10 @@ type Course struct {
 	Prereqs           string       `json:"prereqs"`
 	DepartmentNotes   string       `json:"departmentNotes"`
 	DescriptionSearch string       `json:"descriptionSearch"`
-	EnrlPref          string       `json:"enrlPref"`
+	EnrolmentPreferences          string       `json:"enrlPref"`
 }
 
-type uCourse struct {
+type RawCourse struct {
 	AcademicYear         int    `json:"WMS_ACAD_YEAR,string"`
 	Offered              string `json:"Offered"`
 	STRM                 int    `json:"STRM,string"`
@@ -142,42 +148,12 @@ type exportCourses struct {
 	UpdateTime string   `json:"updateTime"`
 }
 
-const (
-	fallSemesterID   = 1201
-	winterSemesterID = 1202
-	springSemesterID = 1203
-	twentyFourHour   = "15:04"
-)
-
-// capitalize capitalizes the first letter of the string
-func capitalize(str string) string {
-	if str == "" {
-		return ""
-	}
-	return strings.ToUpper(str[:1]) + str[1:]
-}
-
-// trimCapitalize trims leading/following white spaces and Capitalizes the first letter of the string
-func trimCapitalize(str string) string {
-	return capitalize(strings.TrimSpace(str))
-}
-
-// trimTitle trims leading/following white spaces and Title Cases the string
-func trimTitle(str string) string {
-	return strings.Title(strings.TrimSpace(str))
-}
-
 // ParseCatalog processes the raw byte data from the JSON endpoint to obtain Course objects
-func ParseCatalog(catalog []byte) ([]Course, error) {
-	var unparsedCourses = []uCourse{}
-	err := json.Unmarshal(catalog, &unparsedCourses)
-	if err != nil {
-		return nil, err
-	}
-
+func ParseCatalog(catalog []RawCourse, fallSemID, winterSemID, springSemID int) ([]Course, error) {
+	// Initialize the slice this way in order to ensure it will never respond as a nil slice
 	courses := []Course{}
 
-	for _, unparsed := range unparsedCourses {
+	for _, unparsed := range catalog {
 		if unparsed.Offered != "Y" || unparsed.Facility1 == "Cancelled" {
 			continue
 		}
@@ -187,11 +163,11 @@ func ParseCatalog(catalog []byte) ([]Course, error) {
 
 		semID := unparsed.STRM
 		switch semID {
-		case fallSemesterID:
+		case fallSemID:
 			course.Semester = "FALL"
-		case winterSemesterID:
+		case winterSemID:
 			course.Semester = "WINTER"
-		case springSemesterID:
+		case springSemID:
 			course.Semester = "SPRING"
 		default:
 			course.Semester = "UNKNOWN"
@@ -250,31 +226,19 @@ func ParseCatalog(catalog []byte) ([]Course, error) {
 		course.TitleLong = trimTitle(unparsed.CourseTitleLong)
 		course.TitleShort = trimTitle(unparsed.Description)
 
-		course.Instructors = []Instructor{}
+		// Instructors
 
 		names := []struct {
 			firstName  string
 			middleName string
 			lastName   string
 		}{
-			{
-				unparsed.FirstName1, unparsed.MiddleName1, unparsed.LastName1,
-			},
-			{
-				unparsed.FirstName2, unparsed.MiddleName2, unparsed.LastName2,
-			},
-			{
-				unparsed.FirstName3, unparsed.MiddleName3, unparsed.LastName3,
-			},
-			{
-				unparsed.FirstName4, unparsed.MiddleName4, unparsed.LastName4,
-			},
-			{
-				unparsed.FirstName5, unparsed.MiddleName5, unparsed.LastName5,
-			},
-			{
-				unparsed.FirstName6, unparsed.MiddleName6, unparsed.LastName6,
-			},
+			{unparsed.FirstName1, unparsed.MiddleName1, unparsed.LastName1},
+			{unparsed.FirstName2, unparsed.MiddleName2, unparsed.LastName2},
+			{unparsed.FirstName3, unparsed.MiddleName3, unparsed.LastName3},
+			{unparsed.FirstName4, unparsed.MiddleName4, unparsed.LastName4},
+			{unparsed.FirstName5, unparsed.MiddleName5, unparsed.LastName5},
+			{unparsed.FirstName6, unparsed.MiddleName6, unparsed.LastName6},
 		}
 
 		/*
@@ -283,23 +247,16 @@ func ParseCatalog(catalog []byte) ([]Course, error) {
 			there cannot be a scenario where the names are in WMS_X_NAME1 and WMS_X_NAME3 but not
 			WMS_X_NAME2)
 		*/
-		count := 0
 		for _, instructorName := range names {
-			if strings.TrimSpace(instructorName.firstName) == "" {
-				break
-			}
-			count++
-		}
-
-		course.Instructors = make([]Instructor, count)
-
-		for i := 0; i < count; i++ {
 			instructor := Instructor{}
-			instructorName := names[i]
 
 			fn := strings.TrimSpace(instructorName.firstName)
 			mn := strings.TrimSpace(instructorName.middleName)
 			ln := strings.TrimSpace(instructorName.lastName)
+
+			if fn == "" {
+				break
+			}
 
 			name := fn
 			if mn != "" {
@@ -312,8 +269,10 @@ func ParseCatalog(catalog []byte) ([]Course, error) {
 			// @TODO include factrak search
 			instructor.URL = ""
 
-			course.Instructors[i] = instructor
+			course.Instructors = append(course.Instructors, instructor)
 		}
+
+		// Class Meetings
 
 		unparsedMeetings := []struct {
 			days     string
@@ -321,33 +280,13 @@ func ParseCatalog(catalog []byte) ([]Course, error) {
 			end      string
 			facility string
 		}{
-			{
-				unparsed.StandardMeeting1, unparsed.StartTime1, unparsed.EndTime1, unparsed.Facility1,
-			},
-			{
-				unparsed.StandardMeeting2, unparsed.StartTime2, unparsed.EndTime2, unparsed.Facility2,
-			},
-			{
-				unparsed.StandardMeeting3, unparsed.StartTime3, unparsed.EndTime3, unparsed.Facility3,
-			},
+			{unparsed.StandardMeeting1, unparsed.StartTime1, unparsed.EndTime1, unparsed.Facility1},
+			{unparsed.StandardMeeting2, unparsed.StartTime2, unparsed.EndTime2, unparsed.Facility2},
+			{unparsed.StandardMeeting3, unparsed.StartTime3, unparsed.EndTime3, unparsed.Facility3},
 		}
 
-		// Count number of meetings.
-		count = 0
 		for _, unparsedMeeting := range unparsedMeetings {
-			if strings.TrimSpace(unparsedMeeting.days) == "" {
-				continue
-			} else if strings.TrimSpace(unparsedMeeting.days) == "TBA" {
-				break
-			}
-			count++
-		}
-
-		course.Meetings = make([]Meeting, count)
-
-		for i := 0; i < count; i++ {
 			meeting := Meeting{}
-			unparsedMeeting := unparsedMeetings[i]
 
 			// Different options: MW, ,TR,MWF,W,TF,TBA,MR,T,M,R,M-F,F
 			days := strings.TrimSpace(unparsedMeeting.days)
@@ -363,28 +302,28 @@ func ParseCatalog(catalog []byte) ([]Course, error) {
 			if startT == "" {
 				meeting.Start = ""
 			} else {
-				startTime, err := time.Parse(twentyFourHour, startT)
+				startTime, err := time.Parse(hourFormat, startT)
 				if err != nil {
 					return nil, err
 				}
 
-				meeting.Start = startTime.Format(twentyFourHour)
+				meeting.Start = startTime.Format(hourFormat)
 			}
 
 			endT := strings.TrimSpace(unparsedMeeting.end)
 			if endT == "" {
 				meeting.End = ""
 			} else {
-				endTime, err := time.Parse(twentyFourHour, endT)
+				endTime, err := time.Parse(hourFormat, endT)
 				if err != nil {
 					return nil, err
 				}
 
-				meeting.End = endTime.Format(twentyFourHour)
+				meeting.End = endTime.Format(hourFormat)
 			}
 
-			meeting.Facil = trimTitle(unparsedMeeting.facility)
-			course.Meetings[i] = meeting
+			meeting.Facility = trimTitle(unparsedMeeting.facility)
+			course.Meetings = append(course.Meetings, meeting)
 		}
 
 		unparsedAttributes := unparsed.AttributesSearch
@@ -411,7 +350,7 @@ func ParseCatalog(catalog []byte) ([]Course, error) {
 		course.DepartmentNotes = trimCapitalize(unparsed.DepartmentNotes)
 
 		course.DescriptionSearch = trimCapitalize(unparsed.DescriptionSearch)
-		course.EnrlPref = trimCapitalize(unparsed.EnrollmentPreference)
+		course.EnrolmentPreferences = trimCapitalize(unparsed.EnrollmentPreference)
 
 		courses = append(courses, course)
 	}
@@ -419,13 +358,12 @@ func ParseCatalog(catalog []byte) ([]Course, error) {
 	return courses, nil
 }
 
-func grabCatalog() ([]byte, error) {
-
-	url := "https://catalog.williams.edu/wp-json/courses/v1/year/1920"
-
+func GetCatalog(academicYear int) ([]RawCourse, error) {
 	catalogClient := &http.Client{
 		Timeout: time.Second * 30, // Maximum of 30 seconds
 	}
+
+	url := fmt.Sprintf("%s/%d", CatalogURL, academicYear)
 
 	// Send the GET request and get back the response
 	res, err := catalogClient.Get(url)
@@ -433,35 +371,37 @@ func grabCatalog() ([]byte, error) {
 		return nil, err
 	}
 
-	// Parse the body into []byte
-	return ioutil.ReadAll(res.Body)
+	var rawCourses []RawCourse
+	err = json.NewDecoder(res.Body).Decode(&rawCourses)
+	if err != nil {
+		return nil, err
+	}
+
+	return rawCourses, nil
 }
 
-func exportCatalog(courses []Course) error {
+func SaveCatalog(w io.Writer, courses []Course) error {
 	var catalog = exportCourses{}
 	catalog.Courses = courses
 	catalog.UpdateTime = time.Now().Format(time.RFC850)
 
-	catalogJSON, err := json.Marshal(catalog)
-	if err != nil {
-		return err
-	}
-	err = ioutil.WriteFile("courses.json", catalogJSON, 0644)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return json.NewEncoder(w).Encode(catalog)
 }
 
-func updateCatalog() error {
-	responseBody, err := grabCatalog()
-	if err != nil {
-		return err
+// capitalize capitalizes the first letter of the string
+func capitalize(str string) string {
+	if str == "" {
+		return ""
 	}
-	courses, err := ParseCatalog(responseBody)
-	if err != nil {
-		return err
-	}
-	return exportCatalog(courses)
+	return strings.ToUpper(str[:1]) + str[1:]
+}
+
+// trimCapitalize trims leading/following white spaces and Capitalizes the first letter of the string
+func trimCapitalize(str string) string {
+	return capitalize(strings.TrimSpace(str))
+}
+
+// trimTitle trims leading/following white spaces and Title Cases the string
+func trimTitle(str string) string {
+	return strings.Title(strings.TrimSpace(str))
 }

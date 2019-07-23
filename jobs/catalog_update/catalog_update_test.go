@@ -1,10 +1,17 @@
-package lib
+package catalog_update_test
 
 import (
 	"encoding/json"
 	"testing"
 
+	. "github.com/WilliamsStudentsOnline/wso-go/jobs/catalog_update"
 	testify "github.com/stretchr/testify/assert"
+)
+
+const (
+	fallSemesterID = 1201
+	winterSemesterID = 1202
+	springSemesterID = 1203
 )
 
 func TestParse(t *testing.T) {
@@ -12,12 +19,16 @@ func TestParse(t *testing.T) {
 	assertParse := func(catalog string, expected string, t *testing.T) {
 		assert := testify.New(t)
 
-		courses, err := ParseCatalog([]byte(catalog))
+		var rawCourses []RawCourse
+		err := json.Unmarshal([]byte(catalog), &rawCourses)
 		assert.NoError(err)
-		b, _ := json.Marshal(courses)
-		actual := string(b)
 
-		assert.Equal(expected, actual)
+		courses, err := ParseCatalog(rawCourses, fallSemesterID, winterSemesterID, springSemesterID)
+		assert.NoError(err)
+		b, err := json.Marshal(courses)
+		assert.NoError(err)
+
+		assert.Equal(expected, string(b))
 
 	}
 
