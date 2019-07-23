@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 const (
 	BulletinTypeLostAndFound = "lostAndFound"
 	BulletinTypeJob          = "job"
@@ -11,11 +13,11 @@ const (
 // Bulletin Model Schema
 type Bulletin struct {
 	BaseSchema
-	Type      string `json:"type"`
-	Title     string `json:"title"`
-	Body      string `gorm:"size:65535" json:"body"`
-	StartDate string `json:"startDate"` // Date??
-	EndDate   string `json:"endDate"`
+	Type      string    `json:"type"`
+	Title     string    `json:"title"`
+	Body      string    `gorm:"size:65535" json:"body"`
+	StartDate time.Time `json:"startDate"`
+	EndDate   time.Time `json:"endDate"`
 
 	// Author information
 	UserID uint `json:"userID"`
