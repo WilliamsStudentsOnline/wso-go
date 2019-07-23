@@ -4,22 +4,17 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 )
 
+// Instructor holds the url and name of the isntructors
 type Instructor struct {
-	URL  string
+	URL  string `json:"url"`
 	Name string `json:"name"`
 }
 
-type name struct {
-	firstName  string
-	middleName string
-	lastName   string
-}
-
+// Meeting holds the information relevant to the weekly class meetings
 type Meeting struct {
 	Days     string `json:"days"`
 	Start    string `json:"start"`
@@ -30,13 +25,7 @@ type Meeting struct {
 	Facil    string `json:"facil"`
 }
 
-type uMeeting struct {
-	days     string
-	start    string
-	end      string
-	facility string
-}
-
+// Attributes consolidates the divisional/distributional/additional options as boolean variables
 type Attributes struct {
 	Div1        bool `json:"div1"`
 	Div2        bool `json:"div2"`
@@ -48,11 +37,12 @@ type Attributes struct {
 	FifthCourse bool `json:"fifthCourse"`
 }
 
+// Course represents the parsed useful information of a Williams Course
 type Course struct {
 	Year              int          `json:"year"`
 	Semester          string       `json:"semester"`
-	CourseID          int          `json:"courseID"`
-	Department        string       `json:"departmnet"`
+	CourseID          string       `json:"courseID"`
+	Department        string       `json:"department"`
 	Number            int          `json:"number"`
 	Section           string       `json:"section"`
 	PeoplesoftNumber  int          `json:"peoplesoftNumber"`
@@ -75,79 +65,79 @@ type Course struct {
 }
 
 type uCourse struct {
-	WMSACADYEAR     string `json:"WMS_ACAD_YEAR"`
-	OFFERED         string `json:"OFFERED"`
-	STRM            string `json:"STRM"`
-	CRSEID          string `json:"CRSE_ID"`
-	EFFDT           string `json:"EFFDT"`
-	SUBJECT         string `json:"SUBJECT"`
-	CATALOGNBR      string `json:"CATALOG_NBR"`
-	WMSCRSELETTER   string `json:"WMS_CRSE_LETTER"`
-	CLASSSECTION    string `json:"CLASS_SECTION"`
-	CLASSNBR        string `json:"CLASS_NBR"`
-	CONSENT         string `json:"CONSENT"`
-	GRADINGBASIS    string `json:"GRADING_BASIS"`
-	SSRCOMPONENT    string `json:"SSR_COMPONENT"`
-	DESCR           string `json:"DESCR"`
-	UNITSMINIMUM    string `json:"UNITS_MINIMUM"`
-	COURSETITLELONG string `json:"COURSE_TITLE_LONG"`
-	WMSFIRSTNAME1   string `json:"WMS_FIRST_NAME1"`
-	WMSMIDNAME1     string `json:"WMS_MID_NAME1"`
-	WMSLASTNAME1    string `json:"WMS_LAST_NAME1"`
-	URL1            string `json:"URL_1"`
-	WMSFIRSTNAME2   string `json:"WMS_FIRST_NAME2"`
-	WMSMIDNAME2     string `json:"WMS_MID_NAME2"`
-	WMSLASTNAME2    string `json:"WMS_LAST_NAME2"`
-	URL2            string `json:"URL_2"`
-	WMSFIRSTNAME3   string `json:"WMS_FIRST_NAME3"`
-	WMSMIDNAME3     string `json:"WMS_MID_NAME3"`
-	WMSLASTNAME3    string `json:"WMS_LAST_NAME3"`
-	URL3            string `json:"URL_3"`
-	WMSFIRSTNAME4   string `json:"WMS_FIRST_NAME4"`
-	WMSMIDNAME4     string `json:"WMS_MID_NAME4"`
-	WMSLASTNAME4    string `json:"WMS_LAST_NAME4"`
-	URL4            string `json:"URL_4"`
-	WMSFIRSTNAME5   string `json:"WMS_FIRST_NAME5"`
-	WMSMIDNAME5     string `json:"WMS_MID_NAME5"`
-	WMSLASTNAME5    string `json:"WMS_LAST_NAME5"`
-	URL5            string `json:"URL_5"`
-	WMSFIRSTNAME6   string `json:"WMS_FIRST_NAME6"`
-	WMSMIDNAME6     string `json:"WMS_MID_NAME6"`
-	WMSLASTNAME6    string `json:"WMS_LAST_NAME6"`
-	URL6            string `json:"URL_6"`
-	WMSSTNDMTGPAT1  string `json:"WMS_STND_MTG_PAT1"`
-	WMSSTARTTIME1   string `json:"WMS_START_TIME1"`
-	WMSENDTIME1     string `json:"WMS_END_TIME1"`
-	WMSFACILDESCR1  string `json:"WMS_FACIL_DESCR1"`
-	WMSSTNDMTGPAT2  string `json:"WMS_STND_MTG_PAT2"`
-	WMSSTARTTIME2   string `json:"WMS_START_TIME2"`
-	WMSENDTIME2     string `json:"WMS_END_TIME2"`
-	WMSFACILDESCR2  string `json:"WMS_FACIL_DESCR2"`
-	WMSSTNDMTGPAT3  string `json:"WMS_STND_MTG_PAT3"`
-	WMSSTARTTIME3   string `json:"WMS_START_TIME3"`
-	WMSENDTIME3     string `json:"WMS_END_TIME3"`
-	WMSFACILDESCR3  string `json:"WMS_FACIL_DESCR3"`
-	WMSATTRSRCH     string `json:"WMS_ATTR_SRCH"`
-	WMSCLASSFORMAT  string `json:"WMS_CLASS_FORMAT"`
-	WMSRQMTEVAL     string `json:"WMS_RQMT_EVAL"`
-	WMSEXTRAINFO    string `json:"WMS_EXTRA_INFO"`
-	WMSEXTRAINFO2   string `json:"WMS_EXTRA_INFO2"`
-	WMSINSTROTH     string `json:"WMS_INSTR_OTH"`
-	WMSPREREQS      string `json:"WMS_PREREQS"`
-	WMSENRLPREF     string `json:"WMS_ENRL_PREF"`
-	WMSDEPTNOTES    string `json:"WMS_DEPT_NOTES"`
-	WMSMATLFEE      string `json:"WMS_MATL_FEE"`
-	WMSEXPENRL      string `json:"WMS_EXP_ENRL"`
-	WMSENRLLIMIT    string `json:"WMS_ENRL_LIMIT"`
-	WMSNC           string `json:"WMS_NC"`
-	CAMPUS          string `json:"CAMPUS"`
-	WMSDESCR140     string `json:"WMS_DESCR140"`
-	WMSSHORTDESCR   string `json:"WMS_SHORT_DESCR"`
-	WMSDISTRIBNT1   string `json:"WMS_DISTRIB_NT1"`
-	WMSDISTRIBNT2   string `json:"WMS_DISTRIB_NT2"`
-	WMSDISTRIBNT3   string `json:"WMS_DISTRIB_NT3"`
-	WMSDESCRSRCH    string `json:"WMS_DESCR_SRCH"`
-	WMSDISTRIBNOTES string `json:"WMS_DISTRIB_NOTES"`
+	AcademicYear         int    `json:"WMS_ACAD_YEAR,string"`
+	Offered              string `json:"Offered"`
+	STRM                 int    `json:"STRM,string"`
+	CourseID             string `json:"CRSE_ID"`
+	EffectiveDate        string `json:"EFFDT"`
+	Subject              string `json:"SUBJECT"`
+	CatalogNumber        int    `json:"CATALOG_NBR,string"`
+	CourseLetter         string `json:"WMS_CRSE_LETTER"`
+	ClassSection         string `json:"CLASS_SECTION"`
+	ClassNumber          int    `json:"CLASS_NBR,string"`
+	Consent              string `json:"CONSENT"`
+	GradingBasis         string `json:"GRADING_BASIS"`
+	SSRComponent         string `json:"SSR_COMPONENT"`
+	Description          string `json:"DESCR"`
+	UnitsMinimum         string `json:"UNITS_MINIMUM"`
+	CourseTitleLong      string `json:"COURSE_TITLE_LONG"`
+	FirstName1           string `json:"WMS_FIRST_NAME1"`
+	MiddleName1          string `json:"WMS_MID_NAME1"`
+	LastName1            string `json:"WMS_LAST_NAME1"`
+	URL1                 string `json:"URL_1"`
+	FirstName2           string `json:"WMS_FIRST_NAME2"`
+	MiddleName2          string `json:"WMS_MID_NAME2"`
+	LastName2            string `json:"WMS_LAST_NAME2"`
+	URL2                 string `json:"URL_2"`
+	FirstName3           string `json:"WMS_FIRST_NAME3"`
+	MiddleName3          string `json:"WMS_MID_NAME3"`
+	LastName3            string `json:"WMS_LAST_NAME3"`
+	URL3                 string `json:"URL_3"`
+	FirstName4           string `json:"WMS_FIRST_NAME4"`
+	MiddleName4          string `json:"WMS_MID_NAME4"`
+	LastName4            string `json:"WMS_LAST_NAME4"`
+	URL4                 string `json:"URL_4"`
+	FirstName5           string `json:"WMS_FIRST_NAME5"`
+	MiddleName5          string `json:"WMS_MID_NAME5"`
+	LastName5            string `json:"WMS_LAST_NAME5"`
+	URL5                 string `json:"URL_5"`
+	FirstName6           string `json:"WMS_FIRST_NAME6"`
+	MiddleName6          string `json:"WMS_MID_NAME6"`
+	LastName6            string `json:"WMS_LAST_NAME6"`
+	URL6                 string `json:"URL_6"`
+	StandardMeeting1     string `json:"WMS_STND_MTG_PAT1"`
+	StartTime1           string `json:"WMS_START_TIME1"`
+	EndTime1             string `json:"WMS_END_TIME1"`
+	Facility1            string `json:"WMS_FACIL_DESCR1"`
+	StandardMeeting2     string `json:"WMS_STND_MTG_PAT2"`
+	StartTime2           string `json:"WMS_START_TIME2"`
+	EndTime2             string `json:"WMS_END_TIME2"`
+	Facility2            string `json:"WMS_FACIL_DESCR2"`
+	StandardMeeting3     string `json:"WMS_STND_MTG_PAT3"`
+	StartTime3           string `json:"WMS_START_TIME3"`
+	EndTime3             string `json:"WMS_END_TIME3"`
+	Facility3            string `json:"WMS_FACIL_DESCR"`
+	AttributesSearch     string `json:"WMS_ATTR_SRCH"`
+	ClassFormat          string `json:"WMS_CLASS_FORMAT"`
+	Evaluation           string `json:"WMS_RQMT_EVAL"`
+	ExtraInfo            string `json:"WMS_EXTRA_INFO"`
+	ExtraInfo2           string `json:"WMS_EXTRA_INFO2"`
+	WMSINSTROTH          string `json:"WMS_INSTR_OTH"` // No idea what this is
+	PreReqs              string `json:"WMS_PREREQS"`
+	EnrollmentPreference string `json:"WMS_ENRL_PREF"`
+	DepartmentNotes      string `json:"WMS_DEPT_NOTES"`
+	MaterialFee          string `json:"WMS_MATL_FEE"`
+	ExperientialLearning string `json:"WMS_EXP_ENRL"`
+	EnrollmentLimit      string `json:"WMS_ENRL_LIMIT"`
+	WMSNC                string `json:"WMS_NC"` // No idea what this is
+	Campus               string `json:"CAMPUS"`
+	Description140       string `json:"WMS_DESCR140"`
+	ShortDescription     string `json:"WMS_SHORT_DESCR"`
+	DistributionNote1    string `json:"WMS_DISTRIB_NT1"`
+	DistributionNote2    string `json:"WMS_DISTRIB_NT2"`
+	DistributionNote3    string `json:"WMS_DISTRIB_NT3"`
+	DescriptionSearch    string `json:"WMS_DESCR_SRCH"`
+	DistributionNotes    string `json:"WMS_DISTRIB_NOTES"`
 }
 
 type exportCourses struct {
@@ -159,8 +149,11 @@ const (
 	fallSemesterID   = 1201
 	winterSemesterID = 1202
 	springSemesterID = 1203
+	twentyFourHour   = "15:04"
+	twelveHour       = "3:04pm"
 )
 
+// ParseCatalog processes the raw byte data from the JSON endpoint to obtain Course objects
 func ParseCatalog(catalog []byte) ([]Course, error) {
 	var unparsedCourses = []uCourse{}
 	err := json.Unmarshal(catalog, &unparsedCourses)
@@ -171,20 +164,14 @@ func ParseCatalog(catalog []byte) ([]Course, error) {
 	courses := []Course{}
 
 	for _, unparsed := range unparsedCourses {
-		if unparsed.OFFERED != "Y" || unparsed.WMSFACILDESCR1 == "Cancelled" {
+		if unparsed.Offered != "Y" || unparsed.Facility1 == "Cancelled" {
 			continue
 		}
 		course := Course{}
 
-		course.Year, err = strconv.Atoi(unparsed.WMSACADYEAR)
-		if err != nil {
-			return nil, err
-		}
-		semID, err := strconv.Atoi(unparsed.STRM)
-		if err != nil {
-			return nil, err
-		}
+		course.Year = unparsed.AcademicYear
 
+		semID := unparsed.STRM
 		switch semID {
 		case fallSemesterID:
 			course.Semester = "FALL"
@@ -196,28 +183,19 @@ func ParseCatalog(catalog []byte) ([]Course, error) {
 			course.Semester = "UNKNOWN"
 		}
 
-		course.CourseID, err = strconv.Atoi(unparsed.CRSEID)
-		if err != nil {
-			return nil, err
-		}
-		course.Department = unparsed.SUBJECT
-		course.Number, err = strconv.Atoi(unparsed.CATALOGNBR)
-		if err != nil {
-			return nil, err
-		}
+		course.CourseID = unparsed.CourseID
+		course.Department = unparsed.Subject
+		course.Number = unparsed.CatalogNumber
 
 		// Tutorial sections start with 'T'
-		course.Section = unparsed.CLASSSECTION
-		course.PeoplesoftNumber, err = strconv.Atoi(unparsed.CLASSNBR)
-		if err != nil {
-			return nil, err
-		}
+		course.Section = unparsed.ClassSection
+		course.PeoplesoftNumber = unparsed.ClassNumber
 
-		// Options for CONSENT are 'N', ' ', 'D
-		course.Consent = unparsed.CONSENT
+		// Options for Consent are 'N', ' ', 'D
+		course.Consent = unparsed.Consent
 
 		// Options for GRADING_BASIS are OPT,GRD,OPX,OPP, ,WPP,PF4,NON,PNP,XEG,PF5
-		course.GradingBasis = unparsed.GRADINGBASIS
+		course.GradingBasis = unparsed.GradingBasis
 		passFail := false
 		fifthCourse := false
 		switch course.GradingBasis {
@@ -235,11 +213,9 @@ func ParseCatalog(catalog []byte) ([]Course, error) {
 		case "OPP":
 			course.GradingBasis = "Pass/Fail Available, Fifth Course Unavailable"
 			passFail = true
-		default:
-			course.GradingBasis = ""
 		}
 
-		ssrComponent := unparsed.SSRCOMPONENT
+		ssrComponent := unparsed.SSRComponent
 		switch ssrComponent {
 		case "LEC":
 			course.ClassType = "Lecture"
@@ -257,40 +233,44 @@ func ParseCatalog(catalog []byte) ([]Course, error) {
 			course.ClassType = ssrComponent
 		}
 
-		course.TitleLong = unparsed.COURSETITLELONG
-		course.TitleShort = unparsed.DESCR
+		course.TitleLong = unparsed.CourseTitleLong
+		course.TitleShort = unparsed.Description
 
 		course.Instructors = []Instructor{}
 
-		names := []name{
+		names := []struct {
+			firstName  string
+			middleName string
+			lastName   string
+		}{
 			{
-				unparsed.WMSFIRSTNAME1, unparsed.WMSMIDNAME1, unparsed.WMSLASTNAME1,
+				unparsed.FirstName1, unparsed.MiddleName1, unparsed.LastName1,
 			},
 			{
-				unparsed.WMSFIRSTNAME2, unparsed.WMSMIDNAME2, unparsed.WMSLASTNAME2,
+				unparsed.FirstName2, unparsed.MiddleName2, unparsed.LastName2,
 			},
 			{
-				unparsed.WMSFIRSTNAME3, unparsed.WMSMIDNAME3, unparsed.WMSLASTNAME3,
+				unparsed.FirstName3, unparsed.MiddleName3, unparsed.LastName3,
 			},
 			{
-				unparsed.WMSFIRSTNAME4, unparsed.WMSMIDNAME4, unparsed.WMSLASTNAME4,
+				unparsed.FirstName4, unparsed.MiddleName4, unparsed.LastName4,
 			},
 			{
-				unparsed.WMSFIRSTNAME5, unparsed.WMSMIDNAME5, unparsed.WMSLASTNAME5,
+				unparsed.FirstName5, unparsed.MiddleName5, unparsed.LastName5,
 			},
 			{
-				unparsed.WMSFIRSTNAME6, unparsed.WMSMIDNAME6, unparsed.WMSLASTNAME6,
+				unparsed.FirstName6, unparsed.MiddleName6, unparsed.LastName6,
 			},
 		}
 
 		for _, instructorName := range names {
 			instructor := Instructor{}
 
-			fn := instructorName.firstName
-			mn := instructorName.middleName
-			ln := instructorName.lastName
+			fn := strings.TrimSpace(instructorName.firstName)
+			mn := strings.TrimSpace(instructorName.middleName)
+			ln := strings.TrimSpace(instructorName.lastName)
 
-			if fn == " " {
+			if fn == "" {
 				continue
 			}
 
@@ -309,15 +289,20 @@ func ParseCatalog(catalog []byte) ([]Course, error) {
 		}
 
 		course.Meetings = []Meeting{}
-		unparsedMeetings := []uMeeting{
+		unparsedMeetings := []struct {
+			days     string
+			start    string
+			end      string
+			facility string
+		}{
 			{
-				unparsed.WMSSTNDMTGPAT1, unparsed.WMSSTARTTIME1, unparsed.WMSENDTIME1, unparsed.WMSFACILDESCR1,
+				unparsed.StandardMeeting1, unparsed.StartTime1, unparsed.EndTime1, unparsed.Facility1,
 			},
 			{
-				unparsed.WMSSTNDMTGPAT2, unparsed.WMSSTARTTIME2, unparsed.WMSENDTIME2, unparsed.WMSFACILDESCR2,
+				unparsed.StandardMeeting2, unparsed.StartTime2, unparsed.EndTime2, unparsed.Facility2,
 			},
 			{
-				unparsed.WMSSTNDMTGPAT3, unparsed.WMSSTARTTIME3, unparsed.WMSENDTIME3, unparsed.WMSFACILDESCR3,
+				unparsed.StandardMeeting3, unparsed.StartTime3, unparsed.EndTime3, unparsed.Facility3,
 			},
 		}
 
@@ -325,8 +310,8 @@ func ParseCatalog(catalog []byte) ([]Course, error) {
 			meeting := Meeting{}
 
 			// Different options: MW, ,TR,MWF,W,TF,TBA,MR,T,M,R,M-F,F
-			days := unparsedMeeting.days
-			if days == " " {
+			days := strings.TrimSpace(unparsedMeeting.days)
+			if days == "" {
 				continue
 			} else if days == "TBA" {
 				break
@@ -334,11 +319,8 @@ func ParseCatalog(catalog []byte) ([]Course, error) {
 
 			meeting.Days = days
 
-			const twentyFourHour = "15:04"
-			const twelveHour = "3:04pm"
-
-			startT := unparsedMeeting.start
-			if startT == " " {
+			startT := strings.TrimSpace(unparsedMeeting.start)
+			if startT == "" {
 				meeting.Start = ""
 				meeting.Start12 = ""
 			} else {
@@ -351,8 +333,8 @@ func ParseCatalog(catalog []byte) ([]Course, error) {
 				meeting.Start12 = startTime.Format(twelveHour)
 			}
 
-			endT := unparsedMeeting.end
-			if endT == " " {
+			endT := strings.TrimSpace(unparsedMeeting.end)
+			if endT == "" {
 				meeting.End = ""
 				meeting.End12 = ""
 			} else {
@@ -369,7 +351,7 @@ func ParseCatalog(catalog []byte) ([]Course, error) {
 			course.Meetings = append(course.Meetings, meeting)
 		}
 
-		unparsedAttributes := unparsed.WMSATTRSRCH
+		unparsedAttributes := unparsed.AttributesSearch
 		course.CourseAttributes = Attributes{
 			Div1:        strings.Contains(unparsedAttributes, "DIV_D1"),
 			Div2:        strings.Contains(unparsedAttributes, "DIV_D2"),
@@ -381,23 +363,19 @@ func ParseCatalog(catalog []byte) ([]Course, error) {
 			FifthCourse: fifthCourse,
 		}
 
-		course.ClassFormat = unparsed.WMSCLASSFORMAT
-		if unparsed.WMSRQMTEVAL == " " {
-			course.ClassReqEval = ""
-		} else {
-			course.ClassReqEval = unparsed.WMSRQMTEVAL
+		course.ClassFormat = unparsed.ClassFormat
+		course.ClassReqEval = strings.TrimSpace(unparsed.Evaluation)
+
+		course.ExtraInfo = unparsed.ExtraInfo
+		if strings.TrimSpace(unparsed.ExtraInfo2) != "" {
+			course.ExtraInfo += "; " + unparsed.ExtraInfo2
 		}
 
-		course.ExtraInfo = unparsed.WMSEXTRAINFO
-		if unparsed.WMSEXTRAINFO2 != " " {
-			course.ExtraInfo += "; " + unparsed.WMSEXTRAINFO2
-		}
+		course.Prereqs = unparsed.PreReqs
+		course.DepartmentNotes = unparsed.DepartmentNotes
 
-		course.Prereqs = unparsed.WMSPREREQS
-		course.DepartmentNotes = unparsed.WMSDEPTNOTES
-
-		course.DescriptionSearch = unparsed.WMSDESCRSRCH
-		course.EnrlPref = unparsed.WMSENRLPREF
+		course.DescriptionSearch = unparsed.DescriptionSearch
+		course.EnrlPref = unparsed.EnrollmentPreference
 
 		courses = append(courses, course)
 	}
@@ -409,29 +387,18 @@ func grabCatalog() ([]byte, error) {
 
 	url := "https://catalog.williams.edu/wp-json/courses/v1/year/1920"
 
-	catalogClient := http.Client{
+	catalogClient := &http.Client{
 		Timeout: time.Second * 30, // Maximum of 30 seconds
 	}
 
-	// Craft a GET request
-	req, err := http.NewRequest(http.MethodGet, url, nil)
-	if err != nil {
-		return nil, err
-	}
-
 	// Send the GET request and get back the response
-	res, err := catalogClient.Do(req)
+	res, err := catalogClient.Get(url)
 	if err != nil {
 		return nil, err
 	}
 
 	// Parse the body into []byte
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	return body, nil
+	return ioutil.ReadAll(res.Body)
 }
 
 func exportCatalog(courses []Course) error {
@@ -460,7 +427,5 @@ func updateCatalog() error {
 	if err != nil {
 		return err
 	}
-	exportCatalog(courses)
-
-	return nil
+	return exportCatalog(courses)
 }
