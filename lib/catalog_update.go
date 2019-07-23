@@ -277,16 +277,29 @@ func ParseCatalog(catalog []byte) ([]Course, error) {
 			},
 		}
 
+		/*
+			Count number of instructors
+			Assumes 1) all instructors have first names, no gaps between instructors (i.e.
+			there cannot be a scenario where the names are in WMS_X_NAME1 and WMS_X_NAME3 but not
+			WMS_X_NAME2)
+		*/
+		count := 0
 		for _, instructorName := range names {
+			if strings.TrimSpace(instructorName.firstName) == "" {
+				break
+			}
+			count++
+		}
+
+		course.Instructors = make([]Instructor, count)
+
+		for i := 0; i < count; i++ {
 			instructor := Instructor{}
+			instructorName := names[i]
 
 			fn := strings.TrimSpace(instructorName.firstName)
 			mn := strings.TrimSpace(instructorName.middleName)
 			ln := strings.TrimSpace(instructorName.lastName)
-
-			if fn == "" {
-				continue
-			}
 
 			name := fn
 			if mn != "" {
@@ -299,10 +312,9 @@ func ParseCatalog(catalog []byte) ([]Course, error) {
 			// @TODO include factrak search
 			instructor.URL = ""
 
-			course.Instructors = append(course.Instructors, instructor)
+			course.Instructors[i] = instructor
 		}
 
-		course.Meetings = []Meeting{}
 		unparsedMeetings := []struct {
 			days     string
 			start    string
@@ -320,8 +332,22 @@ func ParseCatalog(catalog []byte) ([]Course, error) {
 			},
 		}
 
+		// Count number of meetings.
+		count = 0
 		for _, unparsedMeeting := range unparsedMeetings {
+			if strings.TrimSpace(unparsedMeeting.days) == "" {
+				continue
+			} else if strings.TrimSpace(unparsedMeeting.days) == "TBA" {
+				break
+			}
+			count++
+		}
+
+		course.Meetings = make([]Meeting, count)
+
+		for i := 0; i < count; i++ {
 			meeting := Meeting{}
+			unparsedMeeting := unparsedMeetings[i]
 
 			// Different options: MW, ,TR,MWF,W,TF,TBA,MR,T,M,R,M-F,F
 			days := strings.TrimSpace(unparsedMeeting.days)
@@ -358,7 +384,7 @@ func ParseCatalog(catalog []byte) ([]Course, error) {
 			}
 
 			meeting.Facil = trimTitle(unparsedMeeting.facility)
-			course.Meetings = append(course.Meetings, meeting)
+			course.Meetings[i] = meeting
 		}
 
 		unparsedAttributes := unparsed.AttributesSearch
