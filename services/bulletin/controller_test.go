@@ -238,6 +238,7 @@ func TestController_UpdateBulletin(t *testing.T) {
 	// Update test bulletin
 	w, err = utils.DoHTTPReq(router, http.MethodPut, "/1", bytes.NewBuffer(jsonStr))
 	assert.NoError(err)
+	t.Log(w.HeaderMap)
 
 	// Status is okay
 	assert.Equal(http.StatusOK, w.Code)

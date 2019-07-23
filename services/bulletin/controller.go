@@ -28,7 +28,7 @@ func NewController(db *gorm.DB) *Controller {
 
 // Fetch all bulletins
 func (t *Controller) FetchAllBulletins(c *gin.Context) {
-	bulletinType := c.DefaultQuery("type", "")
+	bulletinType := c.Query("type")
 
 	var bulletins []models.Bulletin
 	var err error
@@ -53,7 +53,7 @@ func (t *Controller) GetBulletin(c *gin.Context) {
 	var err error
 
 	// Decode bulletinID.
-	bulletinID, err = services.GetUIntParam("bulletin_id", c)
+	bulletinID, err = services.GetUIntParam("bulletinID", c)
 	if err != nil {
 		t.RespondError(http.StatusBadRequest, errors.New("could not parse bulletin id"), c)
 		return
@@ -61,7 +61,7 @@ func (t *Controller) GetBulletin(c *gin.Context) {
 
 	// Do database query
 	var bulletin models.Bulletin
-	err = t.bulletinModel.GetBulletinByID(uint(bulletinID), &bulletin)
+	err = t.bulletinModel.GetBulletinByID(bulletinID, &bulletin)
 	if err != nil {
 		t.RespondError(http.StatusInternalServerError, err, c)
 		return
@@ -73,7 +73,7 @@ func (t *Controller) GetBulletin(c *gin.Context) {
 // UpdateBulletin Updates bulletin by id
 func (t *Controller) UpdateBulletin(c *gin.Context) {
 	// Decode parameter
-	bulletinID, err := services.GetUIntParam("bulletin_id", c)
+	bulletinID, err := services.GetUIntParam("bulletinID", c)
 	if err != nil {
 		t.RespondError(http.StatusBadRequest, errors.New("could not parse bulletin id"), c)
 		return
@@ -107,7 +107,7 @@ func (t *Controller) DeleteBulletin(c *gin.Context) {
 	var err error
 
 	// Decode bulletinID.
-	bulletinID, err = services.GetUIntParam("bulletin_id", c)
+	bulletinID, err = services.GetUIntParam("bulletinID", c)
 	if err != nil {
 		t.RespondError(http.StatusBadRequest, errors.New("could not parse bulletin id"), c)
 		return
@@ -115,7 +115,7 @@ func (t *Controller) DeleteBulletin(c *gin.Context) {
 
 	// Do database query
 	var bulletin models.Bulletin
-	err = t.bulletinModel.DeleteBulletinByID(uint(bulletinID), &bulletin)
+	err = t.bulletinModel.DeleteBulletinByID(bulletinID, &bulletin)
 	if err != nil {
 		t.RespondError(http.StatusInternalServerError, err, c)
 		return

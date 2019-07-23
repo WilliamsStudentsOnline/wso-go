@@ -24,9 +24,9 @@ var CreateBulletins20190722202201 = &gormigrate.Migration{
 			Type      string `json:"type"`
 			Title     string `json:"title"`
 			Body      string `gorm:"size:65535" json:"body"`
-			StartDate string `json:"start_date"` // Date??
-			EndDate   string `json:"end_date"`
-			UserID    uint   `json:user_id`
+			StartDate string `json:"startDate"` // Date??
+			EndDate   string `json:"endDate"`
+			UserID    uint   `json:"userID"`
 		}
 
 		return tx.AutoMigrate(&Bulletin{}).Error

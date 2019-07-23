@@ -16,6 +16,7 @@ func MigrateDB(db *gorm.DB) error {
 		migrations.CreateDorms20190721040956,
 		migrations.CreateDormRooms20190721041007,
 		migrations.CreateOffices20190721060106,
+		migrations.CreateBulletins20190722202201,
 	})
 
 	// This initializes the entire current schema with all migrations up to day.

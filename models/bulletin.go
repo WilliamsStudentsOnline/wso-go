@@ -23,13 +23,13 @@ func (m *BulletinModel) GetBulletinByID(id uint, b *Bulletin) (err error) {
 }
 
 func (m *BulletinModel) DeleteBulletinByID(id uint, b *Bulletin) (err error) {
-	err = m.DB.Delete(&b, "id LIKE ?", id).Error
+	err = m.DB.Delete(NewBulletinWithID(id)).Error
 	return
 }
 
 // Update the bulletin. Only allow specific keys to be passed
 func (m *BulletinModel) UpdateBulletin(id uint, update map[string]interface{}) (err error) {
-	MapPermit(update, "title", "body", "start_date", "end_date")
+	MapPermit(update, "title", "body", "startDate", "endDate")
 	err = m.DB.Model(NewBulletinWithID(id)).Updates(update).Error
 	return
 }

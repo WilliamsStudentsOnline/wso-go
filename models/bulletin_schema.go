@@ -14,11 +14,11 @@ type Bulletin struct {
 	Type      string `json:"type"`
 	Title     string `json:"title"`
 	Body      string `gorm:"size:65535" json:"body"`
-	StartDate string `json:"start_date"` // Date??
-	EndDate   string `json:"end_date"`
+	StartDate string `json:"startDate"` // Date??
+	EndDate   string `json:"endDate"`
 
 	// Author information
-	UserID uint `json:user_id`
+	UserID uint `json:"userID"`
 	User   User `json:"user,omitempty"`
 }
 
