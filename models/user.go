@@ -18,7 +18,7 @@ type UserModel struct {
 }
 
 func (m *UserModel) GetAllUsers(u *[]User) (err error) {
-	err = m.DB.Find(u).Error
+	err = m.DB.Scopes(m.scopeVisible, m.scopeAtWilliams).Find(u).Error
 	return
 }
 
@@ -461,15 +461,15 @@ func (m *UserModel) UpdateServerDeficit(user *User) error {
 }
 
 func (*UserModel) scopeVisible(db *gorm.DB) *gorm.DB {
-	return db.Where("visible = ?", true)
+	return db.Where("users.visible = ?", true)
 }
 
 func (*UserModel) scopeAtWilliams(db *gorm.DB) *gorm.DB {
-	return db.Where("at_williams = ?", true)
+	return db.Where("users.at_williams = ?", true)
 }
 
 func (*UserModel) scopeAlphabetical(db *gorm.DB) *gorm.DB {
-	return db.Order("name DESC")
+	return db.Order("users.name DESC")
 }
 
 // Updates users that are not found in LDAP anymore (alumni usually) by searching for them on NDS,

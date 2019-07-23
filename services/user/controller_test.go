@@ -36,10 +36,11 @@ func TestController_GetUser(t *testing.T) {
 	assert.NoError(err)
 
 	// Status is okay
+	t.Log(utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error)
 	assert.Equal(http.StatusOK, w.Code)
 
 	// Decode response
-	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes()).Data
 	respUser := models.User{}
 	err = json.Unmarshal(respData, &respUser)
 	assert.NoError(err)

@@ -7,8 +7,36 @@ import (
 
 func SetupRouter(r gin.IRouter, db *gorm.DB) {
 	c := NewController(db)
-	// Example route:
-	/*
-	r.GET("/", c.FetchAllUsers)
-	*/
+
+	r.GET("/professors", c.FetchAllProfessors)
+	r.GET("/professors/:professorID", c.GetProfessor) // Get specific prof; give it the statistics
+	r.GET("/professors/:professorID/surveys") // Get surveys for a professor. just reuse inner methods of /surveys; include agreements
+	r.GET("/professors/:professorID/courses") // List prof's courses
+
+	r.GET("/courses") // List courses
+	r.GET("/courses/:courseID") // Get specific course; give it the statistics
+	r.GET("/courses/:courseID/surveys") // Get surveys for a course; include agreements
+	r.GET("/courses/:courseID/professors") // Get professors for a course
+
+	r.GET("/departments") // List departments
+	r.GET("/departments/:departmentID") // Get specific department
+	r.GET("/departments/:departmentID/professors") // Get department's professors
+	r.GET("/departments/:departmentID/courses") // Get department's courses
+
+	r.GET("/areas-of-study") // List areas
+	r.GET("/areas-of-study/:areaOfStudyID") // Get area
+	r.GET("/areas-of-study/:areaOfStudyID/professors") // Get area's professors
+	r.GET("/areas-of-study/:areaOfStudyID/courses") // Get area's courses
+
+	r.GET("/surveys") // List surveys
+	r.GET("/surveys/:surveyID") // Get specific one (have agreements as a count)
+	r.POST("/surveys") // Create
+	r.PUT("/surveys/:surveyID") // Edit
+	r.DELETE("/surveys/:surveyID") // Delete
+	r.GET("/surveys/:surveyID/agreements") // Get survey agreements
+
+	r.GET("/agreements/:agreementID") // Get agreement
+	r.POST("/agreements") // Add agreement
+	r.PUT("/agreements/:agreementID") // Edit agreemenr
+	r.DELETE("/agreements/:agreementID") // Delete agreement
 }

@@ -9,7 +9,7 @@ type ProfessorModel struct {
 	*UserModel
 }
 func (m *ProfessorModel) GetAllProfessors(u *[]User) (err error) {
-	err = m.DB.Scopes(m.scopeDefault).Find(u).Error
+	err = m.DB.Scopes(m.scopeDefault, m.scopeAtWilliams).Find(u).Error
 	return
 }
 
