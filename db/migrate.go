@@ -31,6 +31,7 @@ func MigrateDB(db *gorm.DB) error {
 			&models.Dorm{},
 			&models.DormRoom{},
 			&models.Office{},
+			&models.Bulletin{},
 		).Error
 		if err != nil {
 			return err

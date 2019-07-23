@@ -2,14 +2,15 @@ package test_utils
 
 import (
 	"encoding/json"
+	"io"
+	"net/http"
+	"net/http/httptest"
+
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	migrate "github.com/WilliamsStudentsOnline/wso-go/db"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
-	"io"
-	"net/http"
-	"net/http/httptest"
 )
 
 func SetupServiceTest(assert *assert.Assertions) *gorm.DB {

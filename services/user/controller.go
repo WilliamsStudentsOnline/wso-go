@@ -86,7 +86,7 @@ func (t *Controller) UpdateUser(c *gin.Context) {
 	var update map[string]interface{}
 	err = c.ShouldBind(&update)
 	if err != nil {
-		t.RespondError(http.StatusBadRequest, errors.New("could not parse user id"), c)
+		t.RespondError(http.StatusBadRequest, errors.New("could not bind update params"), c)
 		return
 	}
 
