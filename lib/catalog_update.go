@@ -16,13 +16,12 @@ type Instructor struct {
 
 // Meeting holds the information relevant to the weekly class meetings
 type Meeting struct {
-	Days     string `json:"days"`
-	Start    string `json:"start"`
-	Start12  string `json:"start12"`
-	End      string `json:"end"`
-	End12    string `json:"end12"`
-	FacDescr string `json:"facDescr"`
-	Facil    string `json:"facil"`
+	Days    string `json:"days"`
+	Start   string `json:"start"`
+	Start12 string `json:"start12"`
+	End     string `json:"end"`
+	End12   string `json:"end12"`
+	Facil   string `json:"facil"`
 }
 
 // Attributes consolidates the divisional/distributional/additional options as boolean variables
@@ -153,6 +152,24 @@ const (
 	twelveHour       = "3:04pm"
 )
 
+// capitalize capitalizes the first letter of the string
+func capitalize(str string) string {
+	if str == "" {
+		return ""
+	}
+	return strings.ToUpper(str[:1]) + str[1:]
+}
+
+// trimCapitalize trims leading/following white spaces and Capitalizes the first letter of the string
+func trimCapitalize(str string) string {
+	return capitalize(strings.TrimSpace(str))
+}
+
+// trimTitle trims leading/following white spaces and Title Cases the string
+func trimTitle(str string) string {
+	return strings.Title(strings.TrimSpace(str))
+}
+
 // ParseCatalog processes the raw byte data from the JSON endpoint to obtain Course objects
 func ParseCatalog(catalog []byte) ([]Course, error) {
 	var unparsedCourses = []uCourse{}
@@ -200,18 +217,18 @@ func ParseCatalog(catalog []byte) ([]Course, error) {
 		fifthCourse := false
 		switch course.GradingBasis {
 		case "WPP":
-			course.GradingBasis = "W"
+			course.GradingBasisDesc = "Winter Study"
 		case "GRD":
-			course.GradingBasis = "No Pass/Fail and No Fifth Course"
+			course.GradingBasisDesc = "No Pass/Fail and No Fifth Course"
 		case "OPT":
-			course.GradingBasis = "Pass/Fail Available, Fifth Course Available"
+			course.GradingBasisDesc = "Pass/Fail Available, Fifth Course Available"
 			passFail = true
 			fifthCourse = true
 		case "OPX":
-			course.GradingBasis = "Pass/Fail Unavailable, Fifth Course Available"
+			course.GradingBasisDesc = "Pass/Fail Unavailable, Fifth Course Available"
 			fifthCourse = true
 		case "OPP":
-			course.GradingBasis = "Pass/Fail Available, Fifth Course Unavailable"
+			course.GradingBasisDesc = "Pass/Fail Available, Fifth Course Unavailable"
 			passFail = true
 		}
 
@@ -233,8 +250,8 @@ func ParseCatalog(catalog []byte) ([]Course, error) {
 			course.ClassType = ssrComponent
 		}
 
-		course.TitleLong = strings.TrimSpace(unparsed.CourseTitleLong)
-		course.TitleShort = strings.TrimSpace(unparsed.Description)
+		course.TitleLong = trimTitle(unparsed.CourseTitleLong)
+		course.TitleShort = trimTitle(unparsed.Description)
 
 		course.Instructors = []Instructor{}
 
@@ -347,7 +364,7 @@ func ParseCatalog(catalog []byte) ([]Course, error) {
 				meeting.End12 = endTime.Format(twelveHour)
 			}
 
-			meeting.Facil = unparsedMeeting.facility
+			meeting.Facil = trimTitle(unparsedMeeting.facility)
 			course.Meetings = append(course.Meetings, meeting)
 		}
 
@@ -363,19 +380,19 @@ func ParseCatalog(catalog []byte) ([]Course, error) {
 			FifthCourse: fifthCourse,
 		}
 
-		course.ClassFormat = strings.TrimSpace(unparsed.ClassFormat)
-		course.ClassReqEval = strings.TrimSpace(unparsed.Evaluation)
+		course.ClassFormat = trimTitle(unparsed.ClassFormat)
+		course.ClassReqEval = trimCapitalize(unparsed.Evaluation)
 
 		course.ExtraInfo = strings.TrimSpace(unparsed.ExtraInfo)
 		if strings.TrimSpace(unparsed.ExtraInfo2) != "" {
 			course.ExtraInfo += "; " + strings.TrimSpace(unparsed.ExtraInfo2)
 		}
 
-		course.Prereqs = strings.TrimSpace(unparsed.PreReqs)
-		course.DepartmentNotes = strings.TrimSpace(unparsed.DepartmentNotes)
+		course.Prereqs = trimCapitalize(unparsed.PreReqs)
+		course.DepartmentNotes = trimCapitalize(unparsed.DepartmentNotes)
 
-		course.DescriptionSearch = strings.TrimSpace(unparsed.DescriptionSearch)
-		course.EnrlPref = strings.TrimSpace(unparsed.EnrollmentPreference)
+		course.DescriptionSearch = trimCapitalize(unparsed.DescriptionSearch)
+		course.EnrlPref = trimCapitalize(unparsed.EnrollmentPreference)
 
 		courses = append(courses, course)
 	}
