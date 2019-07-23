@@ -69,8 +69,8 @@ type Course struct {
 
 type RawCourse struct {
 	AcademicYear         int    `json:"WMS_ACAD_YEAR,string"`
-	Offered              string `json:"Offered"`
-	STRM                 int    `json:"STRM,string"`
+	Offered              string `json:"OFFERED"`
+	Semester                 int    `json:"STRM,string"`
 	CourseID             string `json:"CRSE_ID"`
 	EffectiveDate        string `json:"EFFDT"`
 	Subject              string `json:"SUBJECT"`
@@ -125,14 +125,12 @@ type RawCourse struct {
 	Evaluation           string `json:"WMS_RQMT_EVAL"`
 	ExtraInfo            string `json:"WMS_EXTRA_INFO"`
 	ExtraInfo2           string `json:"WMS_EXTRA_INFO2"`
-	WMSINSTROTH          string `json:"WMS_INSTR_OTH"` // No idea what this is
 	PreReqs              string `json:"WMS_PREREQS"`
 	EnrollmentPreference string `json:"WMS_ENRL_PREF"`
 	DepartmentNotes      string `json:"WMS_DEPT_NOTES"`
 	MaterialFee          string `json:"WMS_MATL_FEE"`
 	ExperientialLearning string `json:"WMS_EXP_ENRL"`
 	EnrollmentLimit      string `json:"WMS_ENRL_LIMIT"`
-	WMSNC                string `json:"WMS_NC"` // No idea what this is
 	Campus               string `json:"CAMPUS"`
 	Description140       string `json:"WMS_DESCR140"`
 	ShortDescription     string `json:"WMS_SHORT_DESCR"`
@@ -161,7 +159,7 @@ func ParseCatalog(catalog []RawCourse, fallSemID, winterSemID, springSemID int) 
 
 		course.Year = unparsed.AcademicYear
 
-		semID := unparsed.STRM
+		semID := unparsed.Semester
 		switch semID {
 		case fallSemID:
 			course.Semester = "FALL"

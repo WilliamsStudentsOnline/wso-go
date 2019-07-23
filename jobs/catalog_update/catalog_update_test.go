@@ -28,7 +28,7 @@ func TestParse(t *testing.T) {
 		b, err := json.Marshal(courses)
 		assert.NoError(err)
 
-		assert.Equal(expected, string(b))
+		assert.JSONEq(expected, string(b))
 
 	}
 
@@ -111,7 +111,7 @@ func TestParse(t *testing.T) {
 			}
 		  ]`
 
-		expected := `[{"year":2020,"semester":"FALL","courseID":"020209","department":"AFR","number":105,"section":"01","peoplesoftNumber":1089,"consent":"N","gradingBasis":"OPT","gradingBasisDesc":"Pass/Fail Available, Fifth Course Available","classType":"Lecture","titleLong":"Materials, Meanings, And Messages In The Arts Of Africa","titleShort":"African Art Survey","instructors":[{"url":"","name":"Michelle M. Apotsos"}],"meetings":[{"days":"MW","start":"11:00","end":"12:15","facil":""}],"courseAttributes":{"div1":false,"div2":true,"div3":false,"dpe":true,"qfr":false,"wac":false,"passFail":true,"fifthCourse":true},"classFormat":"Lecture","classReqEval":"Three 2-page response papers, class journal on WCMA objects, finals","extraInfo":"","prereqs":"None","departmentNotes":"","descriptionSearch":"Lorem Ipsum.","enrlPref":"Art History and African Studies majors"}]`
+		expected := `[{"year":2020,"semester":"FALL","courseID":"020209","department":"AFR","number":105,"section":"01","peoplesoftNumber":1089,"consent":"N","gradingBasis":"OPT","gradingBasisDesc":"Pass/Fail Available, Fifth Course Available","classType":"Lecture","titleLong":"Materials, Meanings, And Messages In The Arts Of Africa","titleShort":"African Art Survey","instructors":[{"url":"","name":"Michelle M. Apotsos"}],"meetings":[{"days":"MW","start":"11:00","end":"12:15","facility":""}],"courseAttributes":{"div1":false,"div2":true,"div3":false,"dpe":true,"qfr":false,"wac":false,"passFail":true,"fifthCourse":true},"classFormat":"Lecture","classReqEval":"Three 2-page response papers, class journal on WCMA objects, finals","extraInfo":"","prereqs":"None","departmentNotes":"","descriptionSearch":"Lorem Ipsum.","enrolmentPreferences":"Art History and African Studies majors"}]`
 		assertParse(catalog, expected, t)
 	})
 
