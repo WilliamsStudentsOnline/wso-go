@@ -6,5 +6,5 @@ import (
 )
 
 func SetupRouter(r gin.IRouter, authMiddleware *jwt.GinJWTMiddleware) {
-	r.GET("/refresh_token", authMiddleware.RefreshHandler)
+	r.GET("/refresh-token", authMiddleware.RefreshHandler)
 }

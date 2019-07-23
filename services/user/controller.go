@@ -41,16 +41,16 @@ func (t *Controller) FetchAllUsers(c *gin.Context) {
 
 // Get user by id. Pass "me" if you want to get self
 func (t *Controller) GetUser(c *gin.Context) {
-	userIDStr := c.Param("user_id")
+	userIDStr := c.Param("userID")
 
 	var userID uint
 	var err error
 
 	// Decode userID or self.
 	if userIDStr == "me" {
-		userID = (c.MustGet("user_id")).(uint)
+		userID = services.GetUserID(c)
 	} else {
-		userID, err = services.GetUIntParam("user_id", c)
+		userID, err = services.GetUIntParam("userID", c)
 		if err != nil {
 			t.RespondError(http.StatusBadRequest, errors.New("could not parse user id"), c)
 			return
@@ -70,7 +70,7 @@ func (t *Controller) GetUser(c *gin.Context) {
 
 func (t *Controller) UpdateUser(c *gin.Context) {
 	// Decode parameter
-	userID, err := services.GetUIntParam("user_id", c)
+	userID, err := services.GetUIntParam("userID", c)
 	if err != nil {
 		t.RespondError(http.StatusBadRequest, errors.New("could not parse user id"), c)
 		return

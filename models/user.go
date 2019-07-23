@@ -29,8 +29,13 @@ func (m *UserModel) GetUserByID(id uint, u *User) (err error) {
 
 // Update the user. Only allow specific keys to be passed
 func (m *UserModel) UpdateUser(id uint, update map[string]interface{}) (err error) {
-	MapPermit(update, "visible", "dorm_visible", "home_visible", "pronoun", "off_cycle")
-	err = m.DB.Model(NewUserWithID(id)).Updates(update).Error
+	err = m.DB.Model(NewUserWithID(id)).Updates(map[string]interface{}{
+		"visible":      update["visible"],
+		"dorm_visible": update["dormVisible"],
+		"home_visible": update["homeVisible"],
+		"pronoun":      update["pronoun"],
+		"off_cycle":    update["offCycle"],
+	}).Error
 	return
 }
 

@@ -152,7 +152,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 		userID := uint(claims["id"].(float64))
 		user := models.NewUserWithID(userID)
 		c.Set("user", &user)
-		c.Set("user_id", userID)
+		c.Set("userID", userID)
 		c.Next()
 	})
 

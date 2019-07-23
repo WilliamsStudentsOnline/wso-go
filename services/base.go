@@ -18,7 +18,7 @@ type BaseResponse struct {
 }
 
 type RespError struct {
-	ErrorCode int    `json:"error_code"`
+	ErrorCode int    `json:"errorCode"`
 	Message   string `json:"message"`
 }
 
@@ -69,5 +69,5 @@ func GetUIntParam(key string, ctx *gin.Context) (uint, error) {
 
 // Get the User ID from context store
 func GetUserID(ctx *gin.Context) uint {
-	return (ctx.MustGet("user_id")).(uint)
+	return (ctx.MustGet("userID")).(uint)
 }
