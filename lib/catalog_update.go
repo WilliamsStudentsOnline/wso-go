@@ -183,19 +183,19 @@ func ParseCatalog(catalog []byte) ([]Course, error) {
 			course.Semester = "UNKNOWN"
 		}
 
-		course.CourseID = unparsed.CourseID
-		course.Department = unparsed.Subject
+		course.CourseID = strings.TrimSpace(unparsed.CourseID)
+		course.Department = strings.TrimSpace(unparsed.Subject)
 		course.Number = unparsed.CatalogNumber
 
 		// Tutorial sections start with 'T'
-		course.Section = unparsed.ClassSection
+		course.Section = strings.TrimSpace(unparsed.ClassSection)
 		course.PeoplesoftNumber = unparsed.ClassNumber
 
 		// Options for Consent are 'N', ' ', 'D
-		course.Consent = unparsed.Consent
+		course.Consent = strings.TrimSpace(unparsed.Consent)
 
 		// Options for GRADING_BASIS are OPT,GRD,OPX,OPP, ,WPP,PF4,NON,PNP,XEG,PF5
-		course.GradingBasis = unparsed.GradingBasis
+		course.GradingBasis = strings.TrimSpace(unparsed.GradingBasis)
 		passFail := false
 		fifthCourse := false
 		switch course.GradingBasis {
@@ -215,7 +215,7 @@ func ParseCatalog(catalog []byte) ([]Course, error) {
 			passFail = true
 		}
 
-		ssrComponent := unparsed.SSRComponent
+		ssrComponent := strings.TrimSpace(unparsed.SSRComponent)
 		switch ssrComponent {
 		case "LEC":
 			course.ClassType = "Lecture"
@@ -233,8 +233,8 @@ func ParseCatalog(catalog []byte) ([]Course, error) {
 			course.ClassType = ssrComponent
 		}
 
-		course.TitleLong = unparsed.CourseTitleLong
-		course.TitleShort = unparsed.Description
+		course.TitleLong = strings.TrimSpace(unparsed.CourseTitleLong)
+		course.TitleShort = strings.TrimSpace(unparsed.Description)
 
 		course.Instructors = []Instructor{}
 
@@ -363,19 +363,19 @@ func ParseCatalog(catalog []byte) ([]Course, error) {
 			FifthCourse: fifthCourse,
 		}
 
-		course.ClassFormat = unparsed.ClassFormat
+		course.ClassFormat = strings.TrimSpace(unparsed.ClassFormat)
 		course.ClassReqEval = strings.TrimSpace(unparsed.Evaluation)
 
-		course.ExtraInfo = unparsed.ExtraInfo
+		course.ExtraInfo = strings.TrimSpace(unparsed.ExtraInfo)
 		if strings.TrimSpace(unparsed.ExtraInfo2) != "" {
-			course.ExtraInfo += "; " + unparsed.ExtraInfo2
+			course.ExtraInfo += "; " + strings.TrimSpace(unparsed.ExtraInfo2)
 		}
 
-		course.Prereqs = unparsed.PreReqs
-		course.DepartmentNotes = unparsed.DepartmentNotes
+		course.Prereqs = strings.TrimSpace(unparsed.PreReqs)
+		course.DepartmentNotes = strings.TrimSpace(unparsed.DepartmentNotes)
 
-		course.DescriptionSearch = unparsed.DescriptionSearch
-		course.EnrlPref = unparsed.EnrollmentPreference
+		course.DescriptionSearch = strings.TrimSpace(unparsed.DescriptionSearch)
+		course.EnrlPref = strings.TrimSpace(unparsed.EnrollmentPreference)
 
 		courses = append(courses, course)
 	}
