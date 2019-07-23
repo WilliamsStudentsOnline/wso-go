@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 )
@@ -22,22 +23,6 @@ type RespError struct {
 	Message   string `json:"message"`
 }
 
-type APIError struct {
-	Code int
-	Message string
-}
-
-func NewAPIError(code int, message string) *APIError {
-	return &APIError{
-		Code: code,
-		Message: message,
-	}
-}
-
-func (e *APIError) Error() string {
-	return e.Message
-}
-
 // Respond to a request with an OK and some data
 func (BaseController) RespondOK(c *gin.Context, data interface{}) {
 	c.JSON(http.StatusOK, BaseResponse{
@@ -50,7 +35,7 @@ func (BaseController) RespondOK(c *gin.Context, data interface{}) {
 // Base controller object for outside packages to call to access methods
 var Base = BaseController{}
 
-func (BaseController) RespondAPIError(c *gin.Context, err *APIError) {
+func (BaseController) RespondAPIError(c *gin.Context, err *lib.APIError) {
 	c.AbortWithStatusJSON(http.StatusBadRequest, BaseResponse{
 		Status: err.Code,
 		Error: &RespError{
@@ -61,7 +46,14 @@ func (BaseController) RespondAPIError(c *gin.Context, err *APIError) {
 }
 
 // Respond to request with an error and abort
-func (BaseController) RespondError(c *gin.Context, code int, err error) {
+func (b BaseController) RespondError(c *gin.Context, code int, err error) {
+
+	// If it is an API error, return like that
+	if apiErr, ok := err.(*lib.APIError); ok {
+		b.RespondAPIError(c, apiErr)
+		return
+	}
+
 	// If the error is that the DB could not find a record, return a not found error
 	if gorm.IsRecordNotFoundError(err) {
 		code = http.StatusNotFound

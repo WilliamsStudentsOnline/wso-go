@@ -16,7 +16,7 @@ const (
 
 // Student Model
 type StudentModel struct {
-	UserModel
+	*UserModel
 }
 
 func (*StudentModel) SeniorYear() int {

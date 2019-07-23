@@ -22,6 +22,11 @@ func (m *UserModel) GetAllUsers(u *[]User) (err error) {
 	return
 }
 
+func (m *UserModel) GetAllUsersByType(u *[]User, userType string) (err error) {
+	err = m.DB.Where("users.type = ?", userType).Find(u).Error
+	return
+}
+
 func (m *UserModel) GetUserByID(id uint, u *User) (err error) {
 	err = m.DB.Where(NewUserWithID(id)).Preload("Tags").First(u).Error
 	return

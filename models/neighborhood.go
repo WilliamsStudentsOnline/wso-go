@@ -12,6 +12,6 @@ type NeighborhoodModel struct {
 	BaseModel
 }
 
-func (*NeighborhoodModel) Trakked(db *gorm.DB) *gorm.DB {
+func (*NeighborhoodModel) scopeTrakked(db *gorm.DB) *gorm.DB {
 	return db.Not("name = ?", NeighborhoodFirstYear).Not("name = ?", NeighborhoodCoop)
 }

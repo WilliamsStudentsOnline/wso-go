@@ -47,7 +47,7 @@ type User struct {
 	Office   *Office `json:"office,omitempty"`
 
 	// belongs_to Dorm Room
-	DormRoomID *uint     `gorm:"index_rooms_on_dorm_room_id" json:"dormRoomID"`
+	DormRoomID *uint     `gorm:"index:index_rooms_on_dorm_room_id" json:"dormRoomID"`
 	DormRoom   *DormRoom `json:"dormRoom,omitempty"`
 
 	Pronoun              *string `json:"pronoun"`
@@ -58,7 +58,17 @@ type User struct {
 	OptOutEphcatch      bool `gorm:"DEFAULT:false" json:"optOutEphcatch"`
 	EphcatchEligibility bool `gorm:"DEFAULT:false" json:"ephcatchEligibility"`
 
+	// Has many tags
 	Tags []*Tag `gorm:"many2many:tags_users;" json:"tags,omitempty"`
+
+	// Has many factrak surveys
+	FactrakSurveys []*FactrakSurvey `json:"factrakSurveys,omitempty"`
+
+	// Has many factrak agreements
+	FactrakAgreements []*FactrakAgreement `json:"factrakAgreements,omitempty"`
+	
+	// Professors have many courses
+	Courses []*Course `json:"courses,omitempty"`
 }
 
 func (*User) TableName() string {

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
@@ -56,12 +57,12 @@ func (t *Controller) GetUser(c *gin.Context) {
 	}
 
 	if !user.Visible {
-		t.RespondAPIError(c, ErrorNotVisible)
+		t.RespondAPIError(c, lib.ErrorUserNotVisible)
 		return
 	}
 
 	if !user.AtWilliams {
-		t.RespondAPIError(c, ErrorNotAtWilliams)
+		t.RespondAPIError(c, lib.ErrorUserNotAtWilliams)
 		return
 	}
 
