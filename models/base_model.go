@@ -26,3 +26,11 @@ func MapPermit(m map[string]interface{}, permits ...string) {
 		}
 	}
 }
+
+func DeleteNilFields(m map[string]interface{}) {
+	for key, value := range m {
+		if value == nil {
+			delete(m, key)
+		}
+	}
+}

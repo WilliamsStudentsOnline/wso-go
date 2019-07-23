@@ -11,7 +11,7 @@ func LoadDatabase(cfg *Config) *gorm.DB {
 	// Database params passed by config
 	db, err := gorm.Open(cfg.DatabaseType, cfg.DatabaseArgs)
 	if err != nil {
-		log.Fatalln("failed to connect database")
+		log.WithError(err).Fatal("failed to connect database")
 	}
 
 	if cfg.IsDevelopment() || cfg.IsTest() {
@@ -26,6 +26,6 @@ func LoadDatabase(cfg *Config) *gorm.DB {
 // Safely closes DB when done
 func CloseDatabase(db *gorm.DB) {
 	if err := db.Close(); err != nil {
-		log.Fatalln(err)
+		log.Fatal(err)
 	}
 }

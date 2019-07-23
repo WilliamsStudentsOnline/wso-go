@@ -40,11 +40,11 @@ func (t *Controller) FetchAllBulletins(c *gin.Context) {
 	}
 
 	if err != nil {
-		t.RespondError(http.StatusInternalServerError, err, c)
+		t.RespondError(c, http.StatusInternalServerError, err)
 		return
 	}
 
-	t.RespondOK(bulletins, c)
+	t.RespondOK(c, bulletins)
 }
 
 // Get bulletin by id
@@ -53,9 +53,9 @@ func (t *Controller) GetBulletin(c *gin.Context) {
 	var err error
 
 	// Decode bulletinID.
-	bulletinID, err = services.GetUIntParam("bulletin_id", c)
+	bulletinID, err = services.GetUIntParam(c, "bulletin_id")
 	if err != nil {
-		t.RespondError(http.StatusBadRequest, errors.New("could not parse bulletin id"), c)
+		t.RespondError(c, http.StatusBadRequest, errors.New("could not parse bulletin id"))
 		return
 	}
 
@@ -63,19 +63,19 @@ func (t *Controller) GetBulletin(c *gin.Context) {
 	var bulletin models.Bulletin
 	err = t.bulletinModel.GetBulletinByID(uint(bulletinID), &bulletin)
 	if err != nil {
-		t.RespondError(http.StatusInternalServerError, err, c)
+		t.RespondError(c, http.StatusInternalServerError, err)
 		return
 	}
 
-	t.RespondOK(bulletin, c)
+	t.RespondOK(c, bulletin)
 }
 
 // UpdateBulletin Updates bulletin by id
 func (t *Controller) UpdateBulletin(c *gin.Context) {
 	// Decode parameter
-	bulletinID, err := services.GetUIntParam("bulletin_id", c)
+	bulletinID, err := services.GetUIntParam(c, "bulletin_id")
 	if err != nil {
-		t.RespondError(http.StatusBadRequest, errors.New("could not parse bulletin id"), c)
+		t.RespondError(c, http.StatusBadRequest, errors.New("could not parse bulletin id"))
 		return
 	}
 
@@ -84,19 +84,19 @@ func (t *Controller) UpdateBulletin(c *gin.Context) {
 
 	err = c.ShouldBind(&update)
 	if err != nil {
-		t.RespondError(http.StatusBadRequest, errors.New("could not bind update params"), c)
+		t.RespondError(c, http.StatusBadRequest, errors.New("could not parse malformed request data"))
 		return
 	}
 
 	// Update the bulletin in the db
 	err = t.bulletinModel.UpdateBulletin(bulletinID, update)
 	if err != nil {
-		t.RespondError(http.StatusInternalServerError, err, c)
+		t.RespondError(c, http.StatusInternalServerError, err)
 		return
 	}
 
 	// Return nothing
-	t.RespondOK(nil, c)
+	t.RespondOK(c, nil)
 
 }
 
@@ -106,9 +106,9 @@ func (t *Controller) DeleteBulletin(c *gin.Context) {
 	var err error
 
 	// Decode bulletinID.
-	bulletinID, err = services.GetUIntParam("bulletin_id", c)
+	bulletinID, err = services.GetUIntParam(c, "bulletin_id")
 	if err != nil {
-		t.RespondError(http.StatusBadRequest, errors.New("could not parse bulletin id"), c)
+		t.RespondError(c, http.StatusBadRequest, errors.New("could not parse bulletin id"))
 		return
 	}
 
@@ -116,9 +116,9 @@ func (t *Controller) DeleteBulletin(c *gin.Context) {
 	var bulletin models.Bulletin
 	err = t.bulletinModel.DeleteBulletinByID(uint(bulletinID), &bulletin)
 	if err != nil {
-		t.RespondError(http.StatusInternalServerError, err, c)
+		t.RespondError(c, http.StatusInternalServerError, err)
 		return
 	}
 
-	t.RespondOK(bulletinID, c)
+	t.RespondOK(c, bulletinID)
 }

@@ -21,26 +21,26 @@ var CreateDormRooms20190721041007 = &gormigrate.Migration{
 		// with those fields.
 		type DormRoom struct {
 			models.BaseSchema
-			DormID           uint     `gorm:"index:index_dorm_rooms_on_dorm_id" json:"dorm_id"`
+			DormID           uint     `gorm:"index:index_dorm_rooms_on_dorm_id" json:"dormID"`
 			Number           string   `json:"number"`
 			Closet           *string  `json:"closet"`
 			Flooring         *string  `json:"flooring"`
-			CommonRoomAccess *bool    `json:"common_room_access"`
-			CommonRoomDesc   *string  `gorm:"size:65535" json:"common_room_desc"`
+			CommonRoomAccess *bool    `json:"commonRoomAccess"`
+			CommonRoomDesc   *string  `gorm:"size:65535" json:"commonRoomDesc"`
 			ThermostatAccess *bool    `json:"thermostat_access"`
-			ThermostatDesc   *string  `gorm:"size:65535" json:"thermostat_desc"`
-			OutletsDesc      *string  `gorm:"size:65535" json:"outlets_desc"`
-			KeyOrCard        *string  `json:"key_or_card"`
+			ThermostatDesc   *string  `gorm:"size:65535" json:"thermostatDesc"`
+			OutletsDesc      *string  `gorm:"size:65535" json:"outletsDesc"`
+			KeyOrCard        *string  `json:"keyOrCard"`
 			Faces            *string  `json:"faces"`
 			Noise            *string  `gorm:"size:65535" json:"noise"`
 			BedAdjustable    *bool    `json:"bed_adjustable"`
 			HC               *bool    `json:"hc"`
-			PrivateBathroom  *bool    `json:"private_bathroom"`
-			FloorNumber      *int     `json:"floor_number"`
+			PrivateBathroom  *bool    `json:"privateBathroom"`
+			FloorNumber      *int     `json:"floorNumber"`
 			Area             *int     `json:"area"`
 			Walkthrough      *bool    `json:"walkthrough"`
-			BathroomDesc     *string  `gorm:"size:65535" json:"bathroom_desc"`
-			NumFlag          *bool    `json:"num_flag"`
+			BathroomDesc     *string  `gorm:"size:65535" json:"bathroomDesc"`
+			NumFlag          *bool    `json:"numFlag"`
 			Picture          *string  `json:"picture"`
 			Comfort          *float64 `json:"comfort"`
 			Loudness         *float64 `json:"loudness"`
@@ -48,7 +48,7 @@ var CreateDormRooms20190721041007 = &gormigrate.Migration{
 			Wifi             *float64 `json:"wifi"`
 			Location         *float64 `json:"location"`
 			Satisfaction     *float64 `json:"satisfaction"`
-			RoomType         *string  `json:"room_type"`
+			RoomType         *string  `json:"roomType"`
 		}
 		return tx.AutoMigrate(&DormRoom{}).Error
 	},

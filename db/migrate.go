@@ -7,16 +7,23 @@ import (
 	"gopkg.in/gormigrate.v1"
 )
 
+// List all migrations here.
+var Migrations = []*gormigrate.Migration{
+	migrations.CreateUsers20190719211808,
+	migrations.CreateDepartments20190719212645,
+	migrations.CreateNeighborhoods20190721040940,
+	migrations.CreateDorms20190721040956,
+	migrations.CreateDormRooms20190721041007,
+	migrations.CreateOffices20190721060106,
+	migrations.CreateBulletins20190722202201,
+	migrations.CreateTagsAndTagsUsers20190723012050,
+}
+
+var MigrationGormOptions = gormigrate.DefaultOptions
+
 func MigrateDB(db *gorm.DB) error {
-	// List all migrations here.
-	m := gormigrate.New(db, gormigrate.DefaultOptions, []*gormigrate.Migration{
-		migrations.CreateUsers20190719211808,
-		migrations.CreateDepartments20190719212645,
-		migrations.CreateNeighborhoods20190721040940,
-		migrations.CreateDorms20190721040956,
-		migrations.CreateDormRooms20190721041007,
-		migrations.CreateOffices20190721060106,
-	})
+	// Create migrator
+	m := gormigrate.New(db, MigrationGormOptions, Migrations)
 
 	// This initializes the entire current schema with all migrations up to day.
 	// Useful for starting the testing database.
@@ -32,6 +39,7 @@ func MigrateDB(db *gorm.DB) error {
 			&models.DormRoom{},
 			&models.Office{},
 			&models.Bulletin{},
+			&models.Tag{},
 		).Error
 		if err != nil {
 			return err
@@ -42,4 +50,34 @@ func MigrateDB(db *gorm.DB) error {
 	})
 
 	return m.Migrate()
+}
+
+// Gets last migration id from the migrations table
+func LastMigration(opts *gormigrate.Options, db *gorm.DB) (string, error) {
+	rows, err := db.Table(opts.TableName).Select(opts.IDColumnName).Rows()
+	if err != nil {
+		return "", err
+	}
+	defer rows.Close()
+
+	var migrationIDs []string
+
+	for rows.Next() {
+		migrationID := struct {
+			ID string
+		}{}
+		// ScanRows scan a row into migrationID
+		err = db.ScanRows(rows, &migrationID)
+		if err != nil {
+			return "", err
+		}
+
+		migrationIDs = append(migrationIDs, migrationID.ID)
+	}
+
+	if len(migrationIDs) == 0 {
+		return "", nil
+	}
+
+	return migrationIDs[len(migrationIDs) - 1], nil
 }

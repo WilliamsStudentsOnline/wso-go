@@ -7,27 +7,27 @@ import (
 	"gopkg.in/ldap.v3"
 )
 
-const AuthServer = "adldap.williams.edu"
-const AuthServerPort = 636
+const LDAPServer = "adldap.williams.edu"
+const LDAPServerPort = 636
 
 // Given a unix ID and a password, will check if the credentials are valid by
 // authenticating into the OIT LDAP server.
 // Returns a boolean where false means unauthenticated, true means authenticated.
 // Also returns an error, such that if the error is not nil, we have an internal
 // server error about the connection.
-func AuthOIT(unix, password string) (bool, error) {
-	return AuthLDAP(
-		AuthServer,
+func OITAuth(unix, password string) (bool, error) {
+	return LDAPAuth(
+		LDAPServer,
 		fmt.Sprintf("AD_WILLIAMS\\%s", unix),
 		password,
-		AuthServerPort)
+		LDAPServerPort)
 }
 
 // Authenticates into an LDAP server (TLS) by binding a DN and password.
 // Returns a boolean where false means unauthenticated, true means authenticated.
 // Also returns an error, such that if the error is not nil, we have an internal
 // server error about the connection.
-func AuthLDAP(server, bindDN, password string, port int) (bool, error) {
+func LDAPAuth(server, bindDN, password string, port int) (bool, error) {
 	// Password cannot be blank
 	if password == "" {
 		return false, nil

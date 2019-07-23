@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 const StudentCutoffMonth = time.July // The month after which rising X are now X
 
@@ -32,7 +34,7 @@ type Student struct {
 
 func (s *Student) YearNumber() int {
 	if s.ClassYear == nil {
-		return 0
+		return StudentYearFrosh
 	} else {
 		return 4 - (*s.ClassYear - (&StudentModel{}).SeniorYear())
 	}
@@ -44,4 +46,47 @@ func (s *Student) Prefrosh() bool {
 
 func (s *Student) Frosh() bool {
 	return s.YearNumber() == StudentYearFrosh
+}
+
+// The Factrak survey requirement count
+// To be excluded from the 2 surveys requirement this sem, you must have submitted
+// at least N - 2 reviews, where N is the number of classes you've taken.
+// N is not linear with class year because people might be abroad all jr year.
+// it allows 2 non-reviews per semester to account for people taking fewer than 4 courses
+// per semester -- we don't want to force them to review more classes than they've had
+func (s *Student) surveyTheshold() int {
+	// Check semester
+	if time.Now().Local().Month() >= StudentCutoffMonth {
+		// Fall Semester
+		switch s.YearNumber() {
+		case StudentYearPrefrosh:
+			return 0
+		case StudentYearFrosh:
+			return 0
+		case StudentYearSophomore:
+			return 6
+		case StudentYearJunior:
+			return 14
+		case StudentYearSenior:
+			return 14
+		default:
+			return 0
+		}
+	} else {
+		// Spring Semester
+		switch s.YearNumber() {
+		case StudentYearPrefrosh:
+			return 0
+		case StudentYearFrosh:
+			return 2
+		case StudentYearSophomore:
+			return 10
+		case StudentYearJunior:
+			return 14
+		case StudentYearSenior:
+			return 18
+		default:
+			return 0
+		}
+	}
 }
