@@ -71,53 +71,12 @@ func TestController_GetBulletinByID(t *testing.T) {
 
 func TestController_FetchAllBulletins(t *testing.T) {
 
-	t.Run("Fetches all Bulletins", func(t *testing.T) {
-		// Setup (can copy and paste this basically)
-		assert := testify.New(t)
-		db := utils.SetupServiceTest(assert)
-		router := gin.Default()
-		SetupRouter(router, db)
+	bulletins := []models.Bulletin{
+		bulletin1, bulletin2, bulletin3,
+	}
 
-		// Insert test bulletin into db
-		err := db.FirstOrCreate(&bulletin1).Error
-		assert.NoError(err)
-		err = db.FirstOrCreate(&bulletin2).Error
-		assert.NoError(err)
-		err = db.FirstOrCreate(&bulletin3).Error
-		assert.NoError(err)
-
-		// Get test bulletin
-		w, err := utils.DoHTTPReq(router, http.MethodGet, "/", nil)
-		assert.NoError(err)
-
-		// Status is okay
-		assert.Equal(http.StatusOK, w.Code)
-
-		// Decode response
-		respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
-		var respBulletin = []models.Bulletin{}
-		err = json.Unmarshal(respData, &respBulletin)
-		assert.NoError(err)
-
-		// Check if all bulletins are obtained
-		assert.Equal(len(respBulletin), 3)
-
-		// Check if all the bulletins titles and bodies were obtained correctly
-		assert.Equal(bulletin1.ID, respBulletin[0].ID)
-		assert.Equal(bulletin1.Title, respBulletin[0].Title)
-		assert.Equal(bulletin1.Body, respBulletin[0].Body)
-
-		assert.Equal(bulletin2.ID, respBulletin[1].ID)
-		assert.Equal(bulletin2.Title, respBulletin[1].Title)
-		assert.Equal(bulletin2.Body, respBulletin[1].Body)
-
-		assert.Equal(bulletin3.ID, respBulletin[2].ID)
-		assert.Equal(bulletin3.Title, respBulletin[2].Title)
-		assert.Equal(bulletin3.Body, respBulletin[2].Body)
-	})
-
-	t.Run("Fetches only the Lost and Found Bulletins",
-		func(t *testing.T) {
+	testFetch := func(url string, expected []models.Bulletin) func(*testing.T) {
+		return func(t *testing.T) {
 			// Setup (can copy and paste this basically)
 			assert := testify.New(t)
 			db := utils.SetupServiceTest(assert)
@@ -125,15 +84,13 @@ func TestController_FetchAllBulletins(t *testing.T) {
 			SetupRouter(router, db)
 
 			// Insert test bulletin into db
-			err := db.FirstOrCreate(&bulletin1).Error
-			assert.NoError(err)
-			err = db.FirstOrCreate(&bulletin2).Error
-			assert.NoError(err)
-			err = db.FirstOrCreate(&bulletin3).Error
-			assert.NoError(err)
+			for i := 0; i < len(bulletins); i++ {
+				err := db.FirstOrCreate(&bulletins[i]).Error
+				assert.NoError(err)
+			}
 
-			// Get test bulletin
-			w, err := utils.DoHTTPReq(router, http.MethodGet, "/?type=lostAndFound", nil)
+			// Get test bulletins
+			w, err := utils.DoHTTPReq(router, http.MethodGet, url, nil)
 			assert.NoError(err)
 
 			// Status is okay
@@ -145,20 +102,22 @@ func TestController_FetchAllBulletins(t *testing.T) {
 			err = json.Unmarshal(respData, &respBulletin)
 			assert.NoError(err)
 
-			t.Log(respBulletin)
-
-			// Check if all lost and found bulletins (1 and 3) are obtained
-			assert.Equal(2, len(respBulletin))
+			// Check if length of bulletin obtained matches expectations
+			assert.Equal(len(respBulletin), len(expected))
 
 			// Check if all the bulletins titles and bodies were obtained correctly
-			assert.Equal(bulletin1.ID, respBulletin[0].ID)
-			assert.Equal(bulletin1.Title, respBulletin[0].Title)
-			assert.Equal(bulletin1.Body, respBulletin[0].Body)
+			for i := 0; i < len(respBulletin); i++ {
+				assert.Equal(expected[i].ID, respBulletin[i].ID)
+				assert.Equal(expected[i].Title, respBulletin[i].Title)
+				assert.Equal(expected[i].Body, respBulletin[i].Body)
+			}
+		}
+	}
 
-			assert.Equal(bulletin3.ID, respBulletin[1].ID)
-			assert.Equal(bulletin3.Title, respBulletin[1].Title)
-			assert.Equal(bulletin3.Body, respBulletin[1].Body)
-		})
+	t.Run("Fetches all Bulletins", testFetch("/", []models.Bulletin{bulletin1, bulletin2, bulletin3}))
+	t.Run("Fetches only the Lost and Found Bulletins", testFetch("/?type=lostAndFound",
+		[]models.Bulletin{bulletin1, bulletin3}))
+
 }
 
 func TestController_DeleteBulletin(t *testing.T) {
@@ -238,7 +197,6 @@ func TestController_UpdateBulletin(t *testing.T) {
 	// Update test bulletin
 	w, err = utils.DoHTTPReq(router, http.MethodPut, "/1", bytes.NewBuffer(jsonStr))
 	assert.NoError(err)
-	t.Log(w.HeaderMap)
 
 	// Status is okay
 	assert.Equal(http.StatusOK, w.Code)
