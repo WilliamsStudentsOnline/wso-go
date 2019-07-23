@@ -40,6 +40,11 @@ func DoHTTPReq(router *gin.Engine, method, url string, body io.Reader) (*httptes
 		return nil, err
 	}
 
+	// If we have a body, set the Content Type of the request to JSON
+	if body != nil {
+		req.Header.Set("Content-Type", gin.MIMEJSON)
+	}
+
 	router.ServeHTTP(w, req)
 	return w, nil
 }
