@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	FixedFallSemesterID = 1201
+	FixedFallSemesterID   = 1201
 	FixedFallSemesterYear = 2019
 )
 
@@ -35,7 +35,7 @@ func main() {
 	// Set the academic year from the last 2 digits of the year and the last 2 digits of the next year
 	if academicYear == 0 {
 		// Converts a real year's 2018 to 1819 (aabb to bb(bb+1))
-		academicYear = (year % 100)*100 + (year % 100) + 1
+		academicYear = (year%100)*100 + (year % 100) + 1
 	}
 
 	// Set the fall semester ID to be a linear scale (+10 every year) starting at a fixed point

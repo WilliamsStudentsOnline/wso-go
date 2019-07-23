@@ -11,7 +11,7 @@ import (
 
 const (
 	CatalogURL = "https://catalog.williams.edu/wp-json/courses/v1/year"
-	hourFormat       = "15:04"
+	hourFormat = "15:04"
 )
 
 // Instructor holds the url and name of the isntructors
@@ -22,10 +22,10 @@ type Instructor struct {
 
 // Meeting holds the information relevant to the weekly class meetings
 type Meeting struct {
-	Days  string `json:"days"`
-	Start string `json:"start"`
-	End   string `json:"end"`
-	Facility string `json:"facil"`
+	Days     string `json:"days"`
+	Start    string `json:"start"`
+	End      string `json:"end"`
+	Facility string `json:"facility"`
 }
 
 // Attributes consolidates the divisional/distributional/additional options as boolean variables
@@ -42,29 +42,29 @@ type Attributes struct {
 
 // Course represents the parsed useful information of a Williams Course
 type Course struct {
-	Year              int          `json:"year"`
-	Semester          string       `json:"semester"`
-	CourseID          string       `json:"courseID"`
-	Department        string       `json:"department"`
-	Number            int          `json:"number"`
-	Section           string       `json:"section"`
-	PeoplesoftNumber  int          `json:"peoplesoftNumber"`
-	Consent           string       `json:"consent"`
-	GradingBasis      string       `json:"gradingBasis"`
-	GradingBasisDesc  string       `json:"gradingBasisDesc"`
-	ClassType         string       `json:"classType"`
-	TitleLong         string       `json:"titleLong"`
-	TitleShort        string       `json:"titleShort"`
-	Instructors       []Instructor `json:"instructors"`
-	Meetings          []Meeting    `json:"meetings"`
-	CourseAttributes  Attributes   `json:"courseAttributes"`
-	ClassFormat       string       `json:"classFormat"`
-	ClassReqEval      string       `json:"classReqEval"`
-	ExtraInfo         string       `json:"extraInfo"`
-	Prereqs           string       `json:"prereqs"`
-	DepartmentNotes   string       `json:"departmentNotes"`
-	DescriptionSearch string       `json:"descriptionSearch"`
-	EnrolmentPreferences          string       `json:"enrlPref"`
+	Year                 int          `json:"year"`
+	Semester             string       `json:"semester"`
+	CourseID             string       `json:"courseID"`
+	Department           string       `json:"department"`
+	Number               int          `json:"number"`
+	Section              string       `json:"section"`
+	PeoplesoftNumber     int          `json:"peoplesoftNumber"`
+	Consent              string       `json:"consent"`
+	GradingBasis         string       `json:"gradingBasis"`
+	GradingBasisDesc     string       `json:"gradingBasisDesc"`
+	ClassType            string       `json:"classType"`
+	TitleLong            string       `json:"titleLong"`
+	TitleShort           string       `json:"titleShort"`
+	Instructors          []Instructor `json:"instructors"`
+	Meetings             []Meeting    `json:"meetings"`
+	CourseAttributes     Attributes   `json:"courseAttributes"`
+	ClassFormat          string       `json:"classFormat"`
+	ClassReqEval         string       `json:"classReqEval"`
+	ExtraInfo            string       `json:"extraInfo"`
+	Prereqs              string       `json:"prereqs"`
+	DepartmentNotes      string       `json:"departmentNotes"`
+	DescriptionSearch    string       `json:"descriptionSearch"`
+	EnrolmentPreferences string       `json:"enrolmentPreferences"`
 }
 
 type RawCourse struct {

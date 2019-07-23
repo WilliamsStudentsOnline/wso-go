@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	fallSemesterID = 1201
+	fallSemesterID   = 1201
 	winterSemesterID = 1202
 	springSemesterID = 1203
 )
