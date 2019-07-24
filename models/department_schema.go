@@ -3,7 +3,7 @@ package models
 type Department struct {
 	BaseSchema
 	Name string `gorm:"not null" json:"name"`
-	
+
 	// Has many professors & staff
 	Users []*User `json:"users,omitempty"`
 

@@ -81,5 +81,5 @@ func LastMigration(opts *gormigrate.Options, db *gorm.DB) (string, error) {
 		return "", nil
 	}
 
-	return migrationIDs[len(migrationIDs) - 1], nil
+	return migrationIDs[len(migrationIDs)-1], nil
 }

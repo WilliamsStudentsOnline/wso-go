@@ -20,7 +20,7 @@ type Controller struct {
 func NewController(db *gorm.DB, cfg *config.Config) *Controller {
 	return &Controller{
 		userModel: models.NewUserModel(db),
-		cfg: cfg,
+		cfg:       cfg,
 	}
 }
 

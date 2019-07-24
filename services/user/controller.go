@@ -148,7 +148,7 @@ func getUserIDParamOrSelf(c *gin.Context) (uint, error) {
 	if userIDStr == "me" {
 		userID = services.GetUserID(c)
 	} else {
-		userID, err = services.GetUIntParam(c,"userID")
+		userID, err = services.GetUIntParam(c, "userID")
 		if err != nil {
 			return 0, errors.New("could not parse user id")
 		}

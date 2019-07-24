@@ -14,7 +14,7 @@ type FactrakSurvey struct {
 	User   *User `json:"user,omitempty"`
 
 	// Belongs to professor
-	ProfessorID uint `gorm:"index:index_factrak_surveys_on_professor_id;not null" json:"professorID"`
+	ProfessorID uint  `gorm:"index:index_factrak_surveys_on_professor_id;not null" json:"professorID"`
 	Professor   *User `gorm:"foreignkey:ProfessorID" json:"professor,omitempty"`
 
 	// Belongs to course
@@ -35,16 +35,15 @@ type FactrakSurvey struct {
 
 	// Has many agreements
 	Agreements []*FactrakAgreement `json:"agreements,omitempty"`
-	
+
 	// Not looked at by GORM, just for returning in JSON
-	TotalAgree int `gorm:"-" json:"totalAgree,omitempty"`
+	TotalAgree    int `gorm:"-" json:"totalAgree,omitempty"`
 	TotalDisagree int `gorm:"-" json:"totalDisagree,omitempty"`
 }
 
 func (*FactrakSurvey) TableName() string {
 	return "factrak_surveys"
 }
-
 
 // TODO: add not_same_prof_and_course to controller
 // TODO: make comment be min 100 in controller

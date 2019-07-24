@@ -26,23 +26,23 @@ func TestController_ListCourses(t *testing.T) {
 		Name: "Computer Science",
 	}
 	area := models.AreaOfStudy{
-		Name: "Computer Science",
+		Name:         "Computer Science",
 		Abbreviation: "CSCI",
-		Department: &dept,
+		Department:   &dept,
 	}
 	assert.NoError(db.Create(&dept).Create(&area).Error)
 
 	// Insert test user into db
 	c1 := models.Course{
-		Number: "Course 1",
+		Number:      "Course 1",
 		AreaOfStudy: &area,
 	}
 	c2 := models.Course{
-		Number: "Course 2",
+		Number:      "Course 2",
 		AreaOfStudy: &area,
 	}
 	c3 := models.Course{
-		Number: "Course 3",
+		Number:      "Course 3",
 		AreaOfStudy: &area,
 	}
 
@@ -75,7 +75,6 @@ func TestController_GetCourse(t *testing.T) {
 	router := gin.Default()
 	SetupRouter(router, db)
 
-
 	p1 := models.User{
 		Type:       models.UserTypeProfessor,
 		Name:       "Professor 1",
@@ -95,35 +94,35 @@ func TestController_GetCourse(t *testing.T) {
 		Name: "Computer Science",
 	}
 	area := models.AreaOfStudy{
-		Name: "Computer Science",
+		Name:         "Computer Science",
 		Abbreviation: "CSCI",
-		Department: &dept,
+		Department:   &dept,
 	}
 	assert.NoError(db.Create(&dept).Create(&area).Create(&s1).Create(&p1).Error)
 
 	// Insert test user into db
 	c1 := models.Course{
-		Number: "Course 1",
+		Number:      "Course 1",
 		AreaOfStudy: &area,
 	}
 	c2 := models.Course{
-		Number: "Course 2",
+		Number:      "Course 2",
 		AreaOfStudy: &area,
 	}
 
 	assert.NoError(db.Create(&c1).Create(&c2).Error)
 
 	fs1 := models.FactrakSurvey{
-		User: &s1,
+		User:      &s1,
 		Professor: &p1,
-		Course: &c1,
-		Comment: "Survey 1",
+		Course:    &c1,
+		Comment:   "Survey 1",
 	}
 	fs2 := models.FactrakSurvey{
-		User: &s1,
+		User:      &s1,
 		Professor: &p1,
-		Course: &c1,
-		Comment: "Survey 2",
+		Course:    &c1,
+		Comment:   "Survey 2",
 	}
 
 	assert.NoError(db.Create(&fs1).Create(&fs2).Error)
@@ -200,47 +199,47 @@ func TestController_GetCourseWithProfessor(t *testing.T) {
 		Name: "Computer Science",
 	}
 	area := models.AreaOfStudy{
-		Name: "Computer Science",
+		Name:         "Computer Science",
 		Abbreviation: "CSCI",
-		Department: &dept,
+		Department:   &dept,
 	}
 	assert.NoError(db.Create(&dept).Create(&area).Error)
 
 	// Insert test course into db
 	c1 := models.Course{
-		Number: "Course 1",
+		Number:      "Course 1",
 		AreaOfStudy: &area,
 	}
 	c2 := models.Course{
-		Number: "Course 2",
+		Number:      "Course 2",
 		AreaOfStudy: &area,
 	}
 
 	assert.NoError(db.Create(&c1).Create(&c2).Error)
 
 	fs1 := models.FactrakSurvey{
-		User: &s1,
+		User:      &s1,
 		Professor: &p1,
-		Course: &c1,
-		Comment: "Survey 1",
+		Course:    &c1,
+		Comment:   "Survey 1",
 	}
 	fs2 := models.FactrakSurvey{
-		User: &s1,
+		User:      &s1,
 		Professor: &p2,
-		Course: &c1,
-		Comment: "Survey 2",
+		Course:    &c1,
+		Comment:   "Survey 2",
 	}
 	fs3 := models.FactrakSurvey{
-		User: &s1,
+		User:      &s1,
 		Professor: &p1,
-		Course: &c2,
-		Comment: "Survey 3",
+		Course:    &c2,
+		Comment:   "Survey 3",
 	}
 	fs4 := models.FactrakSurvey{
-		User: &s1,
+		User:      &s1,
 		Professor: &p1,
-		Course: &c1,
-		Comment: "Survey 4",
+		Course:    &c1,
+		Comment:   "Survey 4",
 	}
 
 	assert.NoError(db.Create(&fs1).Create(&fs2).Create(&fs3).Create(&fs4).Error)
@@ -313,41 +312,41 @@ func TestController_ListCourseSurveys(t *testing.T) {
 		Name: "Computer Science",
 	}
 	area := models.AreaOfStudy{
-		Name: "Computer Science",
+		Name:         "Computer Science",
 		Abbreviation: "CSCI",
-		Department: &dept,
+		Department:   &dept,
 	}
 	assert.NoError(db.Create(&dept).Create(&area).Create(&s1).Create(&p1).Error)
 
 	// Insert test user into db
 	c1 := models.Course{
-		Number: "Course 1",
+		Number:      "Course 1",
 		AreaOfStudy: &area,
 	}
 	c2 := models.Course{
-		Number: "Course 2",
+		Number:      "Course 2",
 		AreaOfStudy: &area,
 	}
 
 	assert.NoError(db.Create(&c1).Create(&c2).Error)
 
 	fs1 := models.FactrakSurvey{
-		User: &s1,
+		User:      &s1,
 		Professor: &p1,
-		Course: &c1,
-		Comment: "Survey 1",
+		Course:    &c1,
+		Comment:   "Survey 1",
 	}
 	fs2 := models.FactrakSurvey{
-		User: &s1,
+		User:      &s1,
 		Professor: &p1,
-		Course: &c2,
-		Comment: "Survey 2",
+		Course:    &c2,
+		Comment:   "Survey 2",
 	}
 	fs3 := models.FactrakSurvey{
-		User: &s1,
+		User:      &s1,
 		Professor: &p1,
-		Course: &c1,
-		Comment: "Survey 3",
+		Course:    &c1,
+		Comment:   "Survey 3",
 	}
 
 	assert.NoError(db.Create(&fs1).Create(&fs2).Create(&fs3).Error)
@@ -440,47 +439,47 @@ func TestController_ListCourseSurveysWithProfessor(t *testing.T) {
 		Name: "Computer Science",
 	}
 	area := models.AreaOfStudy{
-		Name: "Computer Science",
+		Name:         "Computer Science",
 		Abbreviation: "CSCI",
-		Department: &dept,
+		Department:   &dept,
 	}
 	assert.NoError(db.Create(&dept).Create(&area).Error)
 
 	// Insert test course into db
 	c1 := models.Course{
-		Number: "Course 1",
+		Number:      "Course 1",
 		AreaOfStudy: &area,
 	}
 	c2 := models.Course{
-		Number: "Course 2",
+		Number:      "Course 2",
 		AreaOfStudy: &area,
 	}
 
 	assert.NoError(db.Create(&c1).Create(&c2).Error)
 
 	fs1 := models.FactrakSurvey{
-		User: &s1,
+		User:      &s1,
 		Professor: &p1,
-		Course: &c1,
-		Comment: "Survey 1",
+		Course:    &c1,
+		Comment:   "Survey 1",
 	}
 	fs2 := models.FactrakSurvey{
-		User: &s1,
+		User:      &s1,
 		Professor: &p2,
-		Course: &c1,
-		Comment: "Survey 2",
+		Course:    &c1,
+		Comment:   "Survey 2",
 	}
 	fs3 := models.FactrakSurvey{
-		User: &s1,
+		User:      &s1,
 		Professor: &p1,
-		Course: &c2,
-		Comment: "Survey 3",
+		Course:    &c2,
+		Comment:   "Survey 3",
 	}
 	fs4 := models.FactrakSurvey{
-		User: &s1,
+		User:      &s1,
 		Professor: &p1,
-		Course: &c1,
-		Comment: "Survey 4",
+		Course:    &c1,
+		Comment:   "Survey 4",
 	}
 
 	assert.NoError(db.Create(&fs1).Create(&fs2).Create(&fs3).Create(&fs4).Error)
@@ -568,55 +567,55 @@ func TestController_ListCourseProfessors(t *testing.T) {
 		Name: "Computer Science",
 	}
 	area := models.AreaOfStudy{
-		Name: "Computer Science",
+		Name:         "Computer Science",
 		Abbreviation: "CSCI",
-		Department: &dept,
+		Department:   &dept,
 	}
 	assert.NoError(db.Create(&dept).Create(&area).Error)
 
 	c1 := models.Course{
-		Number: "Course 1 by p1",
+		Number:      "Course 1 by p1",
 		AreaOfStudy: &area,
 	}
 	c2 := models.Course{
-		Number: "Course 2 by p2",
+		Number:      "Course 2 by p2",
 		AreaOfStudy: &area,
 	}
 	c3 := models.Course{
-		Number: "Course 3 by p1, p2",
+		Number:      "Course 3 by p1, p2",
 		AreaOfStudy: &area,
 	}
 	assert.NoError(db.Create(&c1).Create(&c2).Create(&c3).Error)
 
 	fs1 := models.FactrakSurvey{
-		User: &s1,
+		User:      &s1,
 		Professor: &p1,
-		Course: &c1,
-		Comment: "Survey 1",
+		Course:    &c1,
+		Comment:   "Survey 1",
 	}
 	fs2 := models.FactrakSurvey{
-		User: &s2,
+		User:      &s2,
 		Professor: &p1,
-		Course: &c1,
-		Comment: "Survey 2",
+		Course:    &c1,
+		Comment:   "Survey 2",
 	}
 	fs3 := models.FactrakSurvey{
-		User: &s1,
+		User:      &s1,
 		Professor: &p2,
-		Course: &c2,
-		Comment: "Survey 3",
+		Course:    &c2,
+		Comment:   "Survey 3",
 	}
 	fs4 := models.FactrakSurvey{
-		User: &s2,
+		User:      &s2,
 		Professor: &p1,
-		Course: &c3,
-		Comment: "Survey 4",
+		Course:    &c3,
+		Comment:   "Survey 4",
 	}
 	fs5 := models.FactrakSurvey{
-		User: &s1,
+		User:      &s1,
 		Professor: &p2,
-		Course: &c3,
-		Comment: "Survey 5",
+		Course:    &c3,
+		Comment:   "Survey 5",
 	}
 
 	assert.NoError(db.Create(&fs1).Create(&fs2).Create(&fs3).Create(&fs4).Create(&fs5).Error)
@@ -692,93 +691,93 @@ func TestController_GetCourseRatings(t *testing.T) {
 		Name: "Computer Science",
 	}
 	area := models.AreaOfStudy{
-		Name: "Computer Science",
+		Name:         "Computer Science",
 		Abbreviation: "CSCI",
-		Department: &dept,
+		Department:   &dept,
 	}
 	assert.NoError(db.Create(&dept).Create(&area).Create(&s1).Create(&p1).Error)
 
 	// Insert test user into db
 	c1 := models.Course{
-		Number: "Course 1",
+		Number:      "Course 1",
 		AreaOfStudy: &area,
 	}
 	c2 := models.Course{
-		Number: "Course 2",
+		Number:      "Course 2",
 		AreaOfStudy: &area,
 	}
 
 	assert.NoError(db.Create(&c1).Create(&c2).Error)
 
 	fs1 := models.FactrakSurvey{
-		User: &s1,
-		Professor: &p1,
-		Course: &c1,
-		Comment: "Survey 1",
+		User:                 &s1,
+		Professor:            &p1,
+		Course:               &c1,
+		Comment:              "Survey 1",
 		WouldRecommendCourse: lib.BoolToPtr(true),
-		CourseWorkload: lib.IntToPtr(0),
-		CourseStimulating: lib.IntToPtr(1),
-		WouldTakeAnother: lib.BoolToPtr(false),
-		Approachability: lib.IntToPtr(1),
-		LeadLecture: lib.IntToPtr(7),
-		PromoteDiscussion: lib.IntToPtr(4),
-		OutsideHelpfulness: nil,
+		CourseWorkload:       lib.IntToPtr(0),
+		CourseStimulating:    lib.IntToPtr(1),
+		WouldTakeAnother:     lib.BoolToPtr(false),
+		Approachability:      lib.IntToPtr(1),
+		LeadLecture:          lib.IntToPtr(7),
+		PromoteDiscussion:    lib.IntToPtr(4),
+		OutsideHelpfulness:   nil,
 	}
 	fs2 := models.FactrakSurvey{
-		User: &s1,
-		Professor: &p1,
-		Course: &c1,
-		Comment: "Survey 2",
+		User:                 &s1,
+		Professor:            &p1,
+		Course:               &c1,
+		Comment:              "Survey 2",
 		WouldRecommendCourse: lib.BoolToPtr(true),
-		CourseWorkload: lib.IntToPtr(0),
-		CourseStimulating: lib.IntToPtr(3),
-		WouldTakeAnother: lib.BoolToPtr(false),
-		Approachability: lib.IntToPtr(2),
-		LeadLecture: lib.IntToPtr(7),
-		PromoteDiscussion: lib.IntToPtr(6),
-		OutsideHelpfulness: lib.IntToPtr(1),
+		CourseWorkload:       lib.IntToPtr(0),
+		CourseStimulating:    lib.IntToPtr(3),
+		WouldTakeAnother:     lib.BoolToPtr(false),
+		Approachability:      lib.IntToPtr(2),
+		LeadLecture:          lib.IntToPtr(7),
+		PromoteDiscussion:    lib.IntToPtr(6),
+		OutsideHelpfulness:   lib.IntToPtr(1),
 	}
 	fs3 := models.FactrakSurvey{
-		User: &s1,
-		Professor: &p1,
-		Course: &c1,
-		Comment: "Survey 3",
+		User:                 &s1,
+		Professor:            &p1,
+		Course:               &c1,
+		Comment:              "Survey 3",
 		WouldRecommendCourse: lib.BoolToPtr(true),
-		CourseWorkload: lib.IntToPtr(0),
-		CourseStimulating: lib.IntToPtr(5),
-		WouldTakeAnother: lib.BoolToPtr(false),
-		Approachability: lib.IntToPtr(3),
-		LeadLecture: lib.IntToPtr(7),
-		PromoteDiscussion: lib.IntToPtr(4),
-		OutsideHelpfulness: lib.IntToPtr(3),
+		CourseWorkload:       lib.IntToPtr(0),
+		CourseStimulating:    lib.IntToPtr(5),
+		WouldTakeAnother:     lib.BoolToPtr(false),
+		Approachability:      lib.IntToPtr(3),
+		LeadLecture:          lib.IntToPtr(7),
+		PromoteDiscussion:    lib.IntToPtr(4),
+		OutsideHelpfulness:   lib.IntToPtr(3),
 	}
 	fs4 := models.FactrakSurvey{
-		User: &s1,
-		Professor: &p1,
-		Course: &c1,
-		Comment: "Survey 4",
+		User:                 &s1,
+		Professor:            &p1,
+		Course:               &c1,
+		Comment:              "Survey 4",
 		WouldRecommendCourse: lib.BoolToPtr(false),
-		CourseWorkload: lib.IntToPtr(0),
-		CourseStimulating: lib.IntToPtr(7),
-		WouldTakeAnother: lib.BoolToPtr(false),
-		Approachability: lib.IntToPtr(7),
-		LeadLecture: lib.IntToPtr(7),
-		PromoteDiscussion: lib.IntToPtr(6),
-		OutsideHelpfulness: lib.IntToPtr(4),
+		CourseWorkload:       lib.IntToPtr(0),
+		CourseStimulating:    lib.IntToPtr(7),
+		WouldTakeAnother:     lib.BoolToPtr(false),
+		Approachability:      lib.IntToPtr(7),
+		LeadLecture:          lib.IntToPtr(7),
+		PromoteDiscussion:    lib.IntToPtr(6),
+		OutsideHelpfulness:   lib.IntToPtr(4),
 	}
 	fs5 := models.FactrakSurvey{
-		User: &s1,
-		Professor: &p1,
-		Course: &c2,
-		Comment: "Survey 5",
+		User:                 &s1,
+		Professor:            &p1,
+		Course:               &c2,
+		Comment:              "Survey 5",
 		WouldRecommendCourse: lib.BoolToPtr(true),
-		CourseWorkload: lib.IntToPtr(7),
-		CourseStimulating: lib.IntToPtr(7),
-		WouldTakeAnother: lib.BoolToPtr(true),
-		Approachability: lib.IntToPtr(7),
-		LeadLecture: lib.IntToPtr(7),
-		PromoteDiscussion: lib.IntToPtr(7),
-		OutsideHelpfulness: lib.IntToPtr(7),
+		CourseWorkload:       lib.IntToPtr(7),
+		CourseStimulating:    lib.IntToPtr(7),
+		WouldTakeAnother:     lib.BoolToPtr(true),
+		Approachability:      lib.IntToPtr(7),
+		LeadLecture:          lib.IntToPtr(7),
+		PromoteDiscussion:    lib.IntToPtr(7),
+		OutsideHelpfulness:   lib.IntToPtr(7),
 	}
 
 	assert.NoError(db.Create(&fs1).Create(&fs2).Create(&fs3).Create(&fs4).Create(&fs5).Error)
@@ -799,20 +798,20 @@ func TestController_GetCourseRatings(t *testing.T) {
 	assert.Equal(models.FactrakSurveyAvgRatings{
 		AvgWouldRecommendCourse: 0.75,
 		NumWouldRecommendCourse: 4,
-		AvgCourseWorkload: 0,
-		NumCourseWorkload: 4,
-		AvgCourseStimulating: 4,
-		NumCourseStimulating: 4,
-		AvgWouldTakeAnother: 0,
-		NumWouldTakeAnother: 4,
-		AvgApproachability: 3.25,
-		NumApproachability: 4,
-		AvgLeadLecture: 7,
-		NumLeadLecture: 4,
-		AvgPromoteDiscussion: 5,
-		NumPromoteDiscussion: 4,
-		AvgOutsideHelpfulness: 2.6666666666666665,
-		NumOutsideHelpfulness: 3,
+		AvgCourseWorkload:       0,
+		NumCourseWorkload:       4,
+		AvgCourseStimulating:    4,
+		NumCourseStimulating:    4,
+		AvgWouldTakeAnother:     0,
+		NumWouldTakeAnother:     4,
+		AvgApproachability:      3.25,
+		NumApproachability:      4,
+		AvgLeadLecture:          7,
+		NumLeadLecture:          4,
+		AvgPromoteDiscussion:    5,
+		NumPromoteDiscussion:    4,
+		AvgOutsideHelpfulness:   2.6666666666666665,
+		NumOutsideHelpfulness:   3,
 	}, resp)
 }
 
@@ -855,55 +854,55 @@ func TestController_GetCourseRatingsWithProfessor(t *testing.T) {
 		Name: "Computer Science",
 	}
 	area := models.AreaOfStudy{
-		Name: "Computer Science",
+		Name:         "Computer Science",
 		Abbreviation: "CSCI",
-		Department: &dept,
+		Department:   &dept,
 	}
 	assert.NoError(db.Create(&dept).Create(&area).Error)
 
 	// Insert test course into db
 	c1 := models.Course{
-		Number: "Course 1",
+		Number:      "Course 1",
 		AreaOfStudy: &area,
 	}
 	c2 := models.Course{
-		Number: "Course 2",
+		Number:      "Course 2",
 		AreaOfStudy: &area,
 	}
 
 	assert.NoError(db.Create(&c1).Create(&c2).Error)
 
 	fs1 := models.FactrakSurvey{
-		User: &s1,
-		Professor: &p1,
-		Course: &c1,
-		Comment: "Survey 1",
+		User:                 &s1,
+		Professor:            &p1,
+		Course:               &c1,
+		Comment:              "Survey 1",
 		WouldRecommendCourse: lib.BoolToPtr(true),
-		CourseWorkload: lib.IntToPtr(2),
+		CourseWorkload:       lib.IntToPtr(2),
 	}
 	fs2 := models.FactrakSurvey{
-		User: &s1,
-		Professor: &p2,
-		Course: &c1,
-		Comment: "Survey 2",
+		User:                 &s1,
+		Professor:            &p2,
+		Course:               &c1,
+		Comment:              "Survey 2",
 		WouldRecommendCourse: lib.BoolToPtr(true),
-		CourseWorkload: lib.IntToPtr(7),
+		CourseWorkload:       lib.IntToPtr(7),
 	}
 	fs3 := models.FactrakSurvey{
-		User: &s1,
-		Professor: &p1,
-		Course: &c2,
-		Comment: "Survey 3",
+		User:                 &s1,
+		Professor:            &p1,
+		Course:               &c2,
+		Comment:              "Survey 3",
 		WouldRecommendCourse: lib.BoolToPtr(true),
-		CourseWorkload: lib.IntToPtr(7),
+		CourseWorkload:       lib.IntToPtr(7),
 	}
 	fs4 := models.FactrakSurvey{
-		User: &s1,
-		Professor: &p1,
-		Course: &c1,
-		Comment: "Survey 4",
+		User:                 &s1,
+		Professor:            &p1,
+		Course:               &c1,
+		Comment:              "Survey 4",
 		WouldRecommendCourse: lib.BoolToPtr(false),
-		CourseWorkload: lib.IntToPtr(5),
+		CourseWorkload:       lib.IntToPtr(5),
 	}
 
 	assert.NoError(db.Create(&fs1).Create(&fs2).Create(&fs3).Create(&fs4).Error)

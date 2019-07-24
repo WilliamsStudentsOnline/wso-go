@@ -13,23 +13,23 @@ import (
 type Controller struct {
 	services.BaseController
 	// Put models here:
-	professorModel *models.ProfessorModel
-	userModel *models.UserModel
+	professorModel  *models.ProfessorModel
+	userModel       *models.UserModel
 	departmentModel *models.DepartmentModel
-	courseModel *models.CourseModel
-	agreementModel *models.FactrakAgreementModel
-	surveyModel *models.FactrakSurveyModel
+	courseModel     *models.CourseModel
+	agreementModel  *models.FactrakAgreementModel
+	surveyModel     *models.FactrakSurveyModel
 }
 
 // Construct a new user controller
 func NewController(db *gorm.DB) *Controller {
 	return &Controller{
-		professorModel: models.NewProfessorModel(db),
-		userModel: models.NewUserModel(db),
+		professorModel:  models.NewProfessorModel(db),
+		userModel:       models.NewUserModel(db),
 		departmentModel: models.NewDepartmentModel(db),
-		courseModel: models.NewCourseModel(db),
-		agreementModel: models.NewFactrakAgreementModel(db),
-		surveyModel: models.NewFactrakSurveyModel(db),
+		courseModel:     models.NewCourseModel(db),
+		agreementModel:  models.NewFactrakAgreementModel(db),
+		surveyModel:     models.NewFactrakSurveyModel(db),
 	}
 }
 

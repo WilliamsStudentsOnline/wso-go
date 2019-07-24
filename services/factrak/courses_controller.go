@@ -22,7 +22,6 @@ func (t *Controller) ListCourses(c *gin.Context) {
 	t.RespondOK(c, courses)
 }
 
-
 // Get one professor
 func (t *Controller) GetCourse(c *gin.Context) {
 	// Decode courseID.

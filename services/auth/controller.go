@@ -23,16 +23,16 @@ type Login struct {
 
 type Controller struct {
 	services.BaseController
-	cfg *config.Config
-	DB  *gorm.DB
+	cfg       *config.Config
+	DB        *gorm.DB
 	userModel *models.UserModel
 }
 
 // Construct a new user controller
 func NewController(cfg *config.Config, db *gorm.DB) *Controller {
 	return &Controller{
-		cfg: cfg,
-		DB:  db,
+		cfg:       cfg,
+		DB:        db,
 		userModel: models.NewUserModel(db),
 	}
 }

@@ -87,7 +87,7 @@ func (m *FactrakSurveyModel) getSurveyRatings(ratings *FactrakSurveyAvgRatings, 
 	queries := make([]string, 2*len(surveyFields))
 	for i, field := range surveyFields {
 		queries[2*i] = fmt.Sprintf("avg(%s) AS avg_%s", field, field)
-		queries[2*i + 1] = fmt.Sprintf("count(%s) AS num_%s", field, field)
+		queries[2*i+1] = fmt.Sprintf("count(%s) AS num_%s", field, field)
 	}
 
 	q := strings.Join(queries, ", ")

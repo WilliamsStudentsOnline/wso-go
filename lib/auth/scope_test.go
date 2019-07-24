@@ -18,8 +18,8 @@ func BenchmarkRequireScopes(b *testing.B) {
 		c, _ := gin.CreateTestContext(w)
 
 		c.Set("JWT_PAYLOAD", jwt.MapClaims{
-			"exp": 1563662038,
-			"id": 2,
+			"exp":      1563662038,
+			"id":       2,
 			"orig_iat": 1563658438,
 			"scope": []interface{}{
 				"read:all",

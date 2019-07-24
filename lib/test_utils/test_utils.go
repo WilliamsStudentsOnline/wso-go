@@ -49,9 +49,9 @@ func DoHTTPReq(router *gin.Engine, method, url string, body io.Reader) (*httptes
 }
 
 type APITestResp struct {
-	Status int         `json:"status"`
-	Data   json.RawMessage `json:"data,omitempty"`
-	Error  *services.RespError  `json:"error,omitempty"`
+	Status int                 `json:"status"`
+	Data   json.RawMessage     `json:"data,omitempty"`
+	Error  *services.RespError `json:"error,omitempty"`
 }
 
 func GetHTTPDataResp(assert *assert.Assertions, body []byte) APITestResp {

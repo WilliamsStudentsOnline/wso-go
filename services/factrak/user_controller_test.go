@@ -1,7 +1,6 @@
 package factrak_test
 
-import
-(
+import (
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -54,19 +53,19 @@ func TestController_ListUserSurveys(t *testing.T) {
 	assert.NoError(db.Create(&p1).Create(&s1).Create(&s2).Create(&p2).Error)
 
 	fs1 := models.FactrakSurvey{
-		User: &s1,
+		User:      &s1,
 		Professor: &p1,
-		Comment: "Survey 1",
+		Comment:   "Survey 1",
 	}
 	fs2 := models.FactrakSurvey{
-		User: &s2,
+		User:      &s2,
 		Professor: &p1,
-		Comment: "Survey 2",
+		Comment:   "Survey 2",
 	}
 	fs3 := models.FactrakSurvey{
-		User: &s1,
+		User:      &s1,
 		Professor: &p2,
-		Comment: "Survey 3",
+		Comment:   "Survey 3",
 	}
 
 	assert.NoError(db.Create(&fs1).Create(&fs2).Create(&fs3).Error)

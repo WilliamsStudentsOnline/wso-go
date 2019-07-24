@@ -6,8 +6,8 @@ type Course struct {
 	Number string `gorm:"not null" json:"number"`
 
 	// Belongs to area of study
-	AreaOfStudyID *uint `gorm:"not null" json:"areaOfStudyID"`
-	AreaOfStudy *AreaOfStudy `json:"areaOfStudy,omitempty"`
+	AreaOfStudyID *uint        `gorm:"not null" json:"areaOfStudyID"`
+	AreaOfStudy   *AreaOfStudy `json:"areaOfStudy,omitempty"`
 
 	// Has many factrak surveys
 	FactrakSurveys []*FactrakSurvey `json:"factrakSurveys"`
