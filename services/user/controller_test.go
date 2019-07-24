@@ -24,31 +24,31 @@ func TestController_ListUsers(t *testing.T) {
 
 	// Insert test users into db
 	u1 := models.User{
-		Name:      "Test 1",
-		UnixID: "u1",
-		ClassYear: lib.IntToPtr(3),
-		Visible: true,
+		Name:       "Test 1",
+		UnixID:     "u1",
+		ClassYear:  lib.IntToPtr(3),
+		Visible:    true,
 		AtWilliams: true,
 	}
 	u2 := models.User{
-		Name:      "Test 2",
-		UnixID: "u2",
-		ClassYear: lib.IntToPtr(3),
-		Visible: false,
+		Name:       "Test 2",
+		UnixID:     "u2",
+		ClassYear:  lib.IntToPtr(3),
+		Visible:    false,
 		AtWilliams: true,
 	}
 	u3 := models.User{
-		Name:      "Test 3",
-		UnixID: "u3",
-		ClassYear: lib.IntToPtr(3),
-		Visible: true,
+		Name:       "Test 3",
+		UnixID:     "u3",
+		ClassYear:  lib.IntToPtr(3),
+		Visible:    true,
 		AtWilliams: false,
 	}
 	u4 := models.User{
-		Name:      "Test 4",
-		UnixID: "u4",
-		ClassYear: lib.IntToPtr(3),
-		Visible: true,
+		Name:       "Test 4",
+		UnixID:     "u4",
+		ClassYear:  lib.IntToPtr(3),
+		Visible:    true,
 		AtWilliams: true,
 	}
 	assert.NoError(db.Create(&u1).Create(&u2).Create(&u3).Create(&u4).Error)
@@ -57,7 +57,7 @@ func TestController_ListUsers(t *testing.T) {
 	assert.NoError(db.Model(&u3).Update("at_williams", false).Error)
 
 	// Get test user (expect success)
-	w, err := utils.DoHTTPReq(router, http.MethodGet,"/", nil)
+	w, err := utils.DoHTTPReq(router, http.MethodGet, "/", nil)
 	assert.NoError(err)
 
 	// Status is okay
@@ -82,24 +82,24 @@ func TestController_GetUser(t *testing.T) {
 
 	// Insert test users into db
 	u1 := models.User{
-		Name:      "Test 1",
-		UnixID: "u1",
-		ClassYear: lib.IntToPtr(3),
-		Visible: true,
+		Name:       "Test 1",
+		UnixID:     "u1",
+		ClassYear:  lib.IntToPtr(3),
+		Visible:    true,
 		AtWilliams: true,
 	}
 	u2 := models.User{
-		Name:      "Test 2",
-		UnixID: "u2",
-		ClassYear: lib.IntToPtr(3),
-		Visible: false,
+		Name:       "Test 2",
+		UnixID:     "u2",
+		ClassYear:  lib.IntToPtr(3),
+		Visible:    false,
 		AtWilliams: true,
 	}
 	u3 := models.User{
-		Name:      "Test 3",
-		UnixID: "u3",
-		ClassYear: lib.IntToPtr(3),
-		Visible: true,
+		Name:       "Test 3",
+		UnixID:     "u3",
+		ClassYear:  lib.IntToPtr(3),
+		Visible:    true,
 		AtWilliams: false,
 	}
 	assert.NoError(db.Create(&u1).Create(&u2).Create(&u3).Error)
@@ -167,7 +167,6 @@ func TestController_GetUser(t *testing.T) {
 	assert.Equal(http.StatusNotFound, w.Code)
 }
 
-
 func TestController_UpdateUser(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
@@ -175,19 +174,19 @@ func TestController_UpdateUser(t *testing.T) {
 
 	// Insert test users into db
 	u1 := models.User{
-		Name:      "Test 1",
-		UnixID: "u1",
-		ClassYear: lib.IntToPtr(3),
-		Visible: true,
-		AtWilliams: true,
+		Name:        "Test 1",
+		UnixID:      "u1",
+		ClassYear:   lib.IntToPtr(3),
+		Visible:     true,
+		AtWilliams:  true,
 		DormVisible: true,
-		OffCycle: false,
+		OffCycle:    false,
 	}
 	u2 := models.User{
-		Name:      "Test 2",
-		UnixID: "u2",
-		ClassYear: lib.IntToPtr(3),
-		Visible: true,
+		Name:       "Test 2",
+		UnixID:     "u2",
+		ClassYear:  lib.IntToPtr(3),
+		Visible:    true,
 		AtWilliams: true,
 	}
 	assert.NoError(db.Create(&u1).Create(&u2).Error)
@@ -197,12 +196,12 @@ func TestController_UpdateUser(t *testing.T) {
 	SetupRouter(router, db)
 
 	postData, err := json.Marshal(map[string]interface{}{
-		"visible": false,
+		"visible":     false,
 		"dormVisible": false,
 		"homeVisible": true,
-		"offCycle": true,
-		"pronoun": "foobar",
-		"name": "baz",
+		"offCycle":    true,
+		"pronoun":     "foobar",
+		"name":        "baz",
 	})
 	assert.NoError(err)
 

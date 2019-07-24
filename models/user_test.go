@@ -1,10 +1,11 @@
 package models
 
 import (
+	"testing"
+
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/jinzhu/gorm"
 	testify "github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func testSetup(assert *testify.Assertions) (cfg *config.Config, db *gorm.DB) {
@@ -63,7 +64,7 @@ func TestUserModel_Students(t *testing.T) {
 
 	assert.Len(students, 2)
 	assert.Equal(students[0].Name, "foo")
-	assert.Equal(students[1].Name,"baz")
+	assert.Equal(students[1].Name, "baz")
 }
 
 func TestUserModel_LDAPLookup(t *testing.T) {

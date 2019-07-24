@@ -27,14 +27,14 @@ func (m *UserModel) GetUserByID(id uint, u *User) (err error) {
 	return
 }
 
-
 type UpdateUserParams struct {
-	Visible *bool `json:"visible"`
-	DormVisible *bool `json:"dormVisible"`
-	HomeVisible *bool `json:"homeVisible"`
-	Pronoun *string `json:"pronoun"`
-	OffCycle *bool `json:"offCycle"`
+	Visible     *bool   `json:"visible"`
+	DormVisible *bool   `json:"dormVisible"`
+	HomeVisible *bool   `json:"homeVisible"`
+	Pronoun     *string `json:"pronoun"`
+	OffCycle    *bool   `json:"offCycle"`
 }
+
 // Update the user. Only allow specific keys to be passed
 func (m *UserModel) UpdateUser(id uint, update *UpdateUserParams) (err error) {
 	dbUpdate := map[string]interface{}{
