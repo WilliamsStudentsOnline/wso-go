@@ -172,13 +172,13 @@ func ParseCatalog(catalog []RawCourse, fallSemID, winterSemID, springSemID int) 
 		semID := unparsed.Semester
 		switch semID {
 		case fallSemID:
-			course.Semester = "FALL"
+			course.Semester = "Fall"
 		case winterSemID:
-			course.Semester = "WINTER"
+			course.Semester = "Winter"
 		case springSemID:
-			course.Semester = "SPRING"
+			course.Semester = "Spring"
 		default:
-			course.Semester = "UNKNOWN"
+			course.Semester = "Unknown"
 		}
 
 		course.CourseID = strings.TrimSpace(unparsed.CourseID)
