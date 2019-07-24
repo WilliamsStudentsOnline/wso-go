@@ -53,7 +53,6 @@ type Course struct {
 	Section              string       `json:"section"`
 	PeoplesoftNumber     int          `json:"peoplesoftNumber"`
 	Consent              string       `json:"consent"`
-	GradingBasis         string       `json:"gradingBasis"`
 	GradingBasisDesc     string       `json:"gradingBasisDesc"`
 	ClassType            string       `json:"classType"`
 	TitleLong            string       `json:"titleLong"`
@@ -193,10 +192,9 @@ func ParseCatalog(catalog []RawCourse, fallSemID, winterSemID, springSemID int) 
 		course.Consent = strings.TrimSpace(unparsed.Consent)
 
 		// Options for GRADING_BASIS are OPT,GRD,OPX,OPP, ,WPP,PF4,NON,PNP,XEG,PF5
-		course.GradingBasis = strings.TrimSpace(unparsed.GradingBasis)
 		passFail := false
 		fifthCourse := false
-		switch course.GradingBasis {
+		switch strings.TrimSpace(unparsed.GradingBasis) {
 		case "WPP":
 			course.GradingBasisDesc = "Winter Study"
 		case "GRD":
