@@ -7,13 +7,13 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/WilliamsStudentsOnline/wso-go/services/auth"
+	authService "github.com/WilliamsStudentsOnline/wso-go/services/auth"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	migrate "github.com/WilliamsStudentsOnline/wso-go/db"
-	"github.com/WilliamsStudentsOnline/wso-go/models"
+	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	adminService "github.com/WilliamsStudentsOnline/wso-go/services/admin"
 	userService "github.com/WilliamsStudentsOnline/wso-go/services/user"
@@ -51,6 +51,8 @@ func main() {
 		log.SetLevel(log.WarnLevel)
 	} else if cfg.IsDevelopment() {
 		log.SetLevel(log.DebugLevel)
+	} else if cfg.IsTest() {
+		log.SetLevel(log.TraceLevel)
 	} else {
 		log.SetLevel(log.InfoLevel)
 	}
@@ -125,7 +127,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 	r.Use(gin.Recovery())
 
 	// Build JWT auth middleware
-	authMiddleware, err := auth.LoadAuthMiddleware(cfg, db)
+	authMiddleware, err := authService.LoadAuthMiddleware(cfg, db)
 	if err != nil {
 		return nil, errors.New("JWT Error: " + err.Error())
 	}
@@ -139,7 +141,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 	r.NoRoute(authMiddleware.MiddlewareFunc(), func(c *gin.Context) {
 		claims := jwt.ExtractClaims(c)
 		log.Infof("NoRoute claims: %#v\n", claims)
-		services.Base.RespondError(c, http.StatusNotFound, errors.New("page not found"))
+		services.Base.RespondErrorCode(c, http.StatusNotFound, errors.New("page not found"))
 	})
 
 	// Wrap everything else in authentication
@@ -150,9 +152,24 @@ func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 	router.Use(func(c *gin.Context) {
 		claims := jwt.ExtractClaims(c)
 		userID := uint(claims["id"].(float64))
-		user := models.NewUserWithID(userID)
-		c.Set("user", &user)
 		c.Set("userID", userID)
+
+		// Extract the scope
+		jwtScopesIface, ok := (claims["scope"]).([]interface{})
+		if !ok {
+			return
+		}
+
+		jwtScopes := make([]string, len(jwtScopesIface))
+		for i, v := range jwtScopesIface {
+			jwtScopes[i], ok = v.(string)
+			if !ok {
+				return
+			}
+		}
+
+		c.Set("jwtScopes", jwtScopes)
+
 		c.Next()
 	})
 
@@ -160,7 +177,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 	v1 := router.Group("/api/v1")
 	{
 		// Authentication for refresh user & other auth commands for already logged in users
-		auth.SetupRouter(v1.Group("/auth"), authMiddleware)
+		authService.SetupRouter(v1.Group("/auth"), authMiddleware)
 
 		// User API group
 		userService.SetupRouter(v1.Group("/user"), db)

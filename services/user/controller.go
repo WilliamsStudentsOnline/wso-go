@@ -19,11 +19,7 @@ type Controller struct {
 // Construct a new user controller
 func NewController(db *gorm.DB) *Controller {
 	return &Controller{
-		userModel: &models.UserModel{
-			BaseModel: models.BaseModel{
-				DB: db,
-			},
-		},
+		userModel: models.NewUserModel(db),
 	}
 }
 
@@ -33,7 +29,7 @@ func (t *Controller) FetchAllUsers(c *gin.Context) {
 	err := t.userModel.GetAllUsers(&users)
 
 	if err != nil {
-		t.RespondError(c, http.StatusInternalServerError, err)
+		t.RespondErrorCode(c, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -45,14 +41,14 @@ func (t *Controller) GetUser(c *gin.Context) {
 	// Decode userID or self.
 	userID, err := getUserIDParamOrSelf(c)
 	if err != nil {
-		t.RespondError(c, http.StatusBadRequest, err)
+		t.RespondErrorCode(c, http.StatusBadRequest, err)
 	}
 
 	// Do database query
 	var user models.User
 	err = t.userModel.GetUserByID(userID, &user)
 	if err != nil {
-		t.RespondError(c, http.StatusInternalServerError, err)
+		t.RespondErrorCode(c, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -73,12 +69,12 @@ func (t *Controller) UpdateUser(c *gin.Context) {
 	// Decode userID or self.
 	userID, err := getUserIDParamOrSelf(c)
 	if err != nil {
-		t.RespondError(c, http.StatusBadRequest, err)
+		t.RespondErrorCode(c, http.StatusBadRequest, err)
 	}
 
 	// Must only be able to update self
 	if userID != services.GetUserID(c) {
-		t.RespondError(c, http.StatusForbidden, errors.New("can only update self"))
+		t.RespondErrorCode(c, http.StatusForbidden, lib.ErrorMustBeSelf)
 		return
 	}
 
@@ -86,14 +82,14 @@ func (t *Controller) UpdateUser(c *gin.Context) {
 	var update map[string]interface{}
 	err = c.ShouldBind(&update)
 	if err != nil {
-		t.RespondError(c, http.StatusBadRequest, errors.New("could not parse malformed request data"))
+		t.RespondErrorCode(c, http.StatusBadRequest, errors.New("could not parse malformed request data"))
 		return
 	}
 
 	// Update the user in the db
 	err = t.userModel.UpdateUser(userID, update)
 	if err != nil {
-		t.RespondError(c, http.StatusInternalServerError, err)
+		t.RespondErrorCode(c, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -105,12 +101,12 @@ func (t *Controller) UpdateUserTags(c *gin.Context) {
 	// Decode userID or self.
 	userID, err := getUserIDParamOrSelf(c)
 	if err != nil {
-		t.RespondError(c, http.StatusBadRequest, err)
+		t.RespondErrorCode(c, http.StatusBadRequest, err)
 	}
 
 	// Must only be able to update self
 	if userID != services.GetUserID(c) {
-		t.RespondError(c, http.StatusForbidden, errors.New("can only update self"))
+		t.RespondErrorCode(c, http.StatusForbidden, lib.ErrorMustBeSelf)
 		return
 	}
 
@@ -118,7 +114,7 @@ func (t *Controller) UpdateUserTags(c *gin.Context) {
 	var update []string
 	err = c.ShouldBind(&update)
 	if err != nil {
-		t.RespondError(c, http.StatusBadRequest, errors.New("could not parse malformed request data"))
+		t.RespondErrorCode(c, http.StatusBadRequest, errors.New("could not parse malformed request data"))
 		return
 	}
 
@@ -126,11 +122,11 @@ func (t *Controller) UpdateUserTags(c *gin.Context) {
 	err = t.userModel.UpdateUserTags(userID, update)
 	if err != nil {
 		if err.Error() == "invalid user tag" {
-			t.RespondError(c, http.StatusBadRequest, err)
+			t.RespondErrorCode(c, http.StatusBadRequest, err)
 			return
 		}
 
-		t.RespondError(c, http.StatusInternalServerError, err)
+		t.RespondErrorCode(c, http.StatusInternalServerError, err)
 		return
 	}
 

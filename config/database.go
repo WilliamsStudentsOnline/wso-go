@@ -1,6 +1,9 @@
 package config
 
 import (
+	"bytes"
+	"fmt"
+
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
@@ -18,7 +21,7 @@ func LoadDatabase(cfg *Config) *gorm.DB {
 		db.LogMode(true)
 	}
 
-	db.SetLogger(log.StandardLogger())
+	db.SetLogger(DBLogger{})
 
 	return db
 }
@@ -28,4 +31,19 @@ func CloseDatabase(db *gorm.DB) {
 	if err := db.Close(); err != nil {
 		log.Fatal(err)
 	}
+}
+
+type DBLogger struct {
+	gorm.Logger
+}
+
+func (DBLogger) Print(v ...interface{}) {
+	buf := new(bytes.Buffer)
+	for argNum, arg := range v {
+		if argNum > 0 {
+			buf.WriteByte(' ')
+		}
+		buf.WriteString(fmt.Sprint(arg))
+	}
+	log.Debug(buf.String())
 }

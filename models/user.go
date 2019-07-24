@@ -14,7 +14,13 @@ import (
 
 // User Model
 type UserModel struct {
-	BaseModel
+	*BaseModel
+}
+
+func NewUserModel(db *gorm.DB) *UserModel {
+	return &UserModel{
+		BaseModel: NewBaseModel(db),
+	}
 }
 
 func (m *UserModel) GetAllUsers(u *[]User) (err error) {

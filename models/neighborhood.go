@@ -9,7 +9,13 @@ const (
 
 // Neighborhood Model
 type NeighborhoodModel struct {
-	BaseModel
+	*BaseModel
+}
+
+func NewNeighborhoodModel(db *gorm.DB) *NeighborhoodModel {
+	return &NeighborhoodModel{
+		BaseModel: NewBaseModel(db),
+	}
 }
 
 func (*NeighborhoodModel) scopeTrakked(db *gorm.DB) *gorm.DB {

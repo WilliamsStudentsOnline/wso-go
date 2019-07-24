@@ -8,8 +8,20 @@ import (
 
 // FactrakSurvey Model
 type FactrakSurveyModel struct {
-	BaseModel
+	*BaseModel
 }
+
+func NewFactrakSurveyModel(db *gorm.DB) *FactrakSurveyModel {
+	return &FactrakSurveyModel{
+		BaseModel: NewBaseModel(db),
+	}
+}
+
+func (m *FactrakSurveyModel) GetSurveysByProfessor(profID uint, u *[]*FactrakSurvey) (err error) {
+	err = m.DB.Scopes(m.scopeDefault, m.scopeCurrent).Where(&FactrakSurvey{ProfessorID: profID}).Find(u).Error
+	return
+}
+
 
 func (*FactrakSurveyModel) registrationStart() time.Time {
 	// if changed, also change scheduled update user stuff
@@ -42,10 +54,10 @@ func (*FactrakSurveyModel) scopeProfAtWilliams(db *gorm.DB) *gorm.DB {
 	return db.Joins("JOIN users AS professors ON professors.id = factrak_surveys.professor_id").Where("professors.at_williams = ?", true)
 }
 
-func (s *FactrakSurveyModel) scopeThisSemester(db *gorm.DB) *gorm.DB {
-	return db.Where("factrak_surveys.created_at = ?", s.registrationStart())
+func (m *FactrakSurveyModel) scopeThisSemester(db *gorm.DB) *gorm.DB {
+	return db.Where("factrak_surveys.created_at = ?", m.registrationStart())
 }
 
-func (s *FactrakSurveyModel) scopeCurrent(db *gorm.DB) *gorm.DB {
+func (*FactrakSurveyModel) scopeCurrent(db *gorm.DB) *gorm.DB {
 	return db.Where("factrak_surveys.created_at >= ?", time.Now().AddDate(-5, 0, 0))
 }

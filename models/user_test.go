@@ -4,6 +4,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/jinzhu/gorm"
 	testify "github.com/stretchr/testify/assert"
+	"fmt"
 	"testing"
 )
 
@@ -52,11 +53,7 @@ func TestUserModel_Students(t *testing.T) {
 		Name: "baz",
 	})
 
-	userModel := &UserModel{
-		BaseModel{
-			DB: db,
-		},
-	}
+	userModel := NewUserModel(db)
 
 	students, err := userModel.Students()
 	assert.NoError(err)
@@ -66,18 +63,38 @@ func TestUserModel_Students(t *testing.T) {
 	assert.Equal(students[1].Name,"baz")
 }
 
-func TestUserModel_LDAPLookup(t *testing.T) {
-	assert := testify.New(t)
-	cfg, db := testSetup(assert)
-
-	userModel := &UserModel{
-		BaseModel{
-			DB: db,
+func ExampleUserModel_LDAPLookup() {
+	cfg := &config.Config{
+		Env:          "test",
+		GinMode:      "test",
+		JWTRealm:     "wso-go-test",
+		DatabaseType: "sqlite3",
+		DatabaseArgs: ":memory:",
+		Secrets: &config.Secrets{
+			JWTSecretKey: "wso-jwt-test-secret",
 		},
 	}
 
-	users, err := userModel.LDAPLookup("10rem", cfg)
-	assert.NoError(err)
+	db := config.LoadDatabase(cfg)
+	db.LogMode(true)
+	err := db.AutoMigrate(
+		User{},
+		Department{},
+		Neighborhood{},
+		Dorm{},
+		DormRoom{},
+		Office{},
+	).Error
+	if err != nil {
+		panic(err)
+	}
 
-	_ = users
+	userModel := NewUserModel(db)
+
+	users, err := userModel.LDAPLookup("al15", cfg)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(users)
 }

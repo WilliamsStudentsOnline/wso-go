@@ -1,7 +1,6 @@
 package services
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
@@ -36,7 +35,7 @@ func (BaseController) RespondOK(c *gin.Context, data interface{}) {
 var Base = BaseController{}
 
 func (BaseController) RespondAPIError(c *gin.Context, err *lib.APIError) {
-	c.AbortWithStatusJSON(http.StatusBadRequest, BaseResponse{
+	c.AbortWithStatusJSON(err.HTTPCode, BaseResponse{
 		Status: err.Code,
 		Error: &RespError{
 			ErrorCode: err.Code,
@@ -46,8 +45,12 @@ func (BaseController) RespondAPIError(c *gin.Context, err *lib.APIError) {
 }
 
 // Respond to request with an error and abort
-func (b BaseController) RespondError(c *gin.Context, code int, err error) {
+func (b BaseController) RespondError(c *gin.Context, err error) {
+	b.RespondErrorCode(c, http.StatusInternalServerError, err)
+}
 
+// Respond to request with an error and abort
+func (b BaseController) RespondErrorCode(c *gin.Context, code int, err error) {
 	// If it is an API error, return like that
 	if apiErr, ok := err.(*lib.APIError); ok {
 		b.RespondAPIError(c, apiErr)
@@ -56,13 +59,14 @@ func (b BaseController) RespondError(c *gin.Context, code int, err error) {
 
 	// If the error is that the DB could not find a record, return a not found error
 	if gorm.IsRecordNotFoundError(err) {
-		code = http.StatusNotFound
+		b.RespondAPIError(c, lib.ErrorRecordNotFound)
+		return
 	}
 
 	// We don't want clients knowing what's happening here, so just log the error and return something inconspicuous
 	if code >= http.StatusInternalServerError {
 		_ = c.Error(err)
-		err = errors.New("internal server error")
+		err = lib.ErrorInternalServerError
 	}
 
 	c.AbortWithStatusJSON(code, BaseResponse{
@@ -87,5 +91,9 @@ func GetUIntParam(c *gin.Context, key string) (uint, error) {
 
 // Get the User ID from context store
 func GetUserID(ctx *gin.Context) uint {
-	return (ctx.MustGet("userID")).(uint)
+	val, ok := ctx.Get("userID")
+	if !ok {
+		return 0
+	}
+	return val.(uint)
 }

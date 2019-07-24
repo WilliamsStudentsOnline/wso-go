@@ -2,15 +2,18 @@ package test_utils
 
 import (
 	"encoding/json"
+	"io"
+	"log"
+	"net/http"
+	"net/http/httptest"
+	"os"
+
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	migrate "github.com/WilliamsStudentsOnline/wso-go/db"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
-	"io"
-	"net/http"
-	"net/http/httptest"
 )
 
 func SetupServiceTest(assert *assert.Assertions) *gorm.DB {
@@ -27,6 +30,7 @@ func SetupServiceTest(assert *assert.Assertions) *gorm.DB {
 	}
 
 	db := config.LoadDatabase(cfg)
+	db.SetLogger(gorm.Logger{LogWriter: log.New(os.Stdout, "\r\n", 0)})
 	err := migrate.MigrateDB(db)
 	assert.NoError(err)
 

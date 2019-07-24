@@ -2,6 +2,8 @@ package models
 
 import (
 	"time"
+
+	"github.com/jinzhu/gorm"
 )
 
 const StudentCutoffMonth = time.July // The month after which rising X are now X
@@ -17,6 +19,12 @@ const (
 // Student Model
 type StudentModel struct {
 	*UserModel
+}
+
+func NewStudentModel(db *gorm.DB) *StudentModel {
+	return &StudentModel{
+		UserModel: NewUserModel(db),
+	}
 }
 
 func (*StudentModel) SeniorYear() int {

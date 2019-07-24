@@ -72,11 +72,7 @@ func main() {
 	}
 
 	// Do the actual stuff
-	userModel := models.UserModel{
-		BaseModel: models.BaseModel{
-			DB: db,
-		},
-	}
+	userModel := models.NewUserModel(db)
 
 	err = userModel.UpdateAllFromLDAP(cfg)
 	if err != nil {

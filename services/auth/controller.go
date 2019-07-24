@@ -25,6 +25,7 @@ type Controller struct {
 	services.BaseController
 	cfg *config.Config
 	DB  *gorm.DB
+	userModel *models.UserModel
 }
 
 // Construct a new user controller
@@ -32,6 +33,7 @@ func NewController(cfg *config.Config, db *gorm.DB) *Controller {
 	return &Controller{
 		cfg: cfg,
 		DB:  db,
+		userModel: models.NewUserModel(db),
 	}
 }
 
@@ -86,15 +88,8 @@ func (t *Controller) Authenticator(c *gin.Context) (interface{}, error) {
 		return nil, ErrorFailedAuthentication
 	}
 
-	// Get the user model
-	userModel := &models.UserModel{
-		BaseModel: models.BaseModel{
-			DB: t.DB,
-		},
-	}
-
 	// Check if user exists in DB and create the entry if it doesnt exist in DB
-	user, err = userModel.FirstOrCreateFromUnixID(unixID, t.cfg)
+	user, err = t.userModel.FirstOrCreateFromUnixID(unixID, t.cfg)
 	if err != nil {
 		// Record the error in the log, as it is an internal server error (but response will be an unauthorized error)
 		_ = c.Error(err)

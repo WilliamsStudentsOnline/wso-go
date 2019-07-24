@@ -8,10 +8,12 @@ import (
 func SetupRouter(r gin.IRouter, db *gorm.DB) {
 	c := NewController(db)
 
-	r.GET("/professors", c.FetchAllProfessors)
+	r.GET("/professors", c.ListProfessors) // List professors
 	r.GET("/professors/:professorID", c.GetProfessor) // Get specific prof; give it the statistics
-	r.GET("/professors/:professorID/surveys") // Get surveys for a professor. just reuse inner methods of /surveys; include agreements
-	r.GET("/professors/:professorID/courses") // List prof's courses
+	r.GET("/professors/:professorID/surveys", c.ListProfessorSurveys) // Get surveys for a professor. just reuse inner methods of /surveys; include agreements
+	r.GET("/professors/:professorID/courses", c.ListProfessorCourses) // List prof's courses
+
+	r.GET("/users/:userID/surveys") // List user (students/alum) surveys
 
 	r.GET("/courses") // List courses
 	r.GET("/courses/:courseID") // Get specific course; give it the statistics
@@ -34,6 +36,8 @@ func SetupRouter(r gin.IRouter, db *gorm.DB) {
 	r.PUT("/surveys/:surveyID") // Edit
 	r.DELETE("/surveys/:surveyID") // Delete
 	r.GET("/surveys/:surveyID/agreements") // Get survey agreements
+	r.POST("/surveys/:surveyID/flag") // Flag survey
+	r.DELETE("/surveys/:surveyID/flag") // Delete survey flags
 
 	r.GET("/agreements/:agreementID") // Get agreement
 	r.POST("/agreements") // Add agreement

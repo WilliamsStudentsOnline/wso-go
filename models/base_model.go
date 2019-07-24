@@ -11,6 +11,10 @@ type BaseModel struct {
 	DB *gorm.DB
 }
 
+func NewBaseModel(db *gorm.DB) *BaseModel {
+	return &BaseModel{db}
+}
+
 type BaseSchema struct {
 	ID        uint       `gorm:"primary_key" json:"id"`
 	CreatedAt time.Time  `json:"-"`

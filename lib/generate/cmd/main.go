@@ -241,7 +241,7 @@ func (t *Controller) FetchAllUsers(c *gin.Context) {
 	err := t.userModel.GetAllUsers(&users)
 	
 	if err != nil {
-		t.RespondError(http.StatusInternalServerError, err, c)
+		t.RespondErrorCode(http.StatusInternalServerError, err, c)
 		return
 	}
 

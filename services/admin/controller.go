@@ -19,11 +19,7 @@ type Controller struct {
 // Construct a new user controller
 func NewController(db *gorm.DB, cfg *config.Config) *Controller {
 	return &Controller{
-		userModel: &models.UserModel{
-			BaseModel: models.BaseModel{
-				DB: db,
-			},
-		},
+		userModel: models.NewUserModel(db),
 		cfg: cfg,
 	}
 }
@@ -35,7 +31,7 @@ func (t *Controller) UpdateAllUsersFromLDAP(c *gin.Context) {
 	err := t.userModel.UpdateAllFromLDAP(t.cfg)
 
 	if err != nil {
-		t.RespondError(c, http.StatusInternalServerError, err)
+		t.RespondErrorCode(c, http.StatusInternalServerError, err)
 		return
 	}
 

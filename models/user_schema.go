@@ -61,14 +61,14 @@ type User struct {
 	// Has many tags
 	Tags []*Tag `gorm:"many2many:tags_users;" json:"tags,omitempty"`
 
-	// Has many factrak surveys
-	FactrakSurveys []*FactrakSurvey `json:"factrakSurveys,omitempty"`
+	// Has many factrak surveys (if student)
+	StudentFactrakSurveys []*FactrakSurvey `gorm:"foreignkey:UserID" json:"factrakSurveys,omitempty"`
+
+	// Has many factrak surveys (if professor)
+	ProfessorFactrakSurveys []*FactrakSurvey `gorm:"foreignkey:ProfessorID" json:"factrakSurveys,omitempty"`
 
 	// Has many factrak agreements
 	FactrakAgreements []*FactrakAgreement `json:"factrakAgreements,omitempty"`
-	
-	// Professors have many courses
-	Courses []*Course `json:"courses,omitempty"`
 }
 
 func (*User) TableName() string {
@@ -109,8 +109,7 @@ func (u *User) AfterCreate(scope *gorm.Scope) (err error) {
 	if u.IsStudent() {
 		// Update survey deficit
 		// This way, only student get a default, non-nil value for this
-		userModel := &UserModel{}
-		userModel.DB = scope.DB()
+		userModel := NewUserModel(scope.DB())
 
 		err = userModel.UpdateServerDeficit(u)
 		if err != nil {

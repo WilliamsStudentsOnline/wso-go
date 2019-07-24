@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
+	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	jwt "github.com/appleboy/gin-jwt/v2"
@@ -25,17 +26,16 @@ func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB) (authMiddleware *jwt.Gi
 			// We take the data (which is a User) and create the payload
 			if v, ok := data.(*models.User); ok {
 				// Set scopes here
-				scope := []string{ScopeReadAll}
+				scope := []string{auth.ScopeReadAll}
 
 				if v.ID > 0 {
-					scope = append(scope, ScopeWriteSelf)
+					scope = append(scope, auth.ScopeWriteSelf)
 				}
 				if v.Admin {
-					scope = append(scope, ScopeAdminAll)
-					scope = append(scope, ScopeAdminFactrak)
-				}
-				if v.FactrakAdmin {
-					scope = append(scope, ScopeAdminFactrak)
+					scope = append(scope, auth.ScopeAdminAll)
+					scope = append(scope, auth.ScopeAdminFactrak)
+				} else if v.FactrakAdmin {
+					scope = append(scope, auth.ScopeAdminFactrak)
 				}
 
 				// This is the final payload
@@ -57,7 +57,7 @@ func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB) (authMiddleware *jwt.Gi
 		Authenticator: NewController(cfg, db).Authenticator,
 		// What to do when a JWT is unauthorized
 		Unauthorized: func(c *gin.Context, statusCode int, errorMsg string) {
-			services.Base.RespondError(c, statusCode, errors.New(errorMsg))
+			services.Base.RespondErrorCode(c, statusCode, errors.New(errorMsg))
 		},
 		// Called every request; ignore this for now
 		Authorizator: func(data interface{}, c *gin.Context) bool {

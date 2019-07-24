@@ -11,15 +11,15 @@ type FactrakSurvey struct {
 
 	// Belongs to user (student)
 	UserID uint  `gorm:"index:index_factrak_surveys_on_user_id;not null" json:"userID"`
-	User   *User `json:"user"`
+	User   *User `json:"user,omitempty"`
 
 	// Belongs to professor
 	ProfessorID uint `gorm:"index:index_factrak_surveys_on_professor_id;not null" json:"professorID"`
-	Professor   *User `gorm:"foreignkey:ProfessorID" json:"professor"`
+	Professor   *User `gorm:"foreignkey:ProfessorID" json:"professor,omitempty"`
 
 	// Belongs to course
 	CourseID uint    `gorm:"index:index_factrak_surveys_on_course_id;not null" json:"courseID"`
-	Course   *Course `json:"course"`
+	Course   *Course `json:"course,omitempty"`
 
 	WouldRecommendCourse *bool   `json:"wouldRecommendCourse"`
 	CourseWorkload       *int    `json:"courseWorkload"`
@@ -34,7 +34,11 @@ type FactrakSurvey struct {
 	GradeReceived        *string `json:"gradeReceived"`
 
 	// Has many agreements
-	Agreements []*FactrakAgreement
+	Agreements []*FactrakAgreement `json:"agreements,omitempty"`
+	
+	// Not looked at by GORM, just for returning in JSON
+	TotalAgree int `gorm:"-" json:"totalAgree,omitempty"`
+	TotalDisagree int `gorm:"-" json:"totalDisagree,omitempty"`
 }
 
 func (*FactrakSurvey) TableName() string {

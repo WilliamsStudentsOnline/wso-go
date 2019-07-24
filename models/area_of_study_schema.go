@@ -3,8 +3,8 @@ package models
 // AreaOfStudy Schema
 type AreaOfStudy struct {
 	BaseSchema
-	Name string `gorm:"size:4;unique;not null" json:"name"`
-	Abbreviation string `gorm:"column:abbrev;unique;not null" json:"abbreviation"`
+	Name string `gorm:"unique;not null" json:"name"`
+	Abbreviation string `gorm:"size:4;column:abbrev;unique;not null" json:"abbreviation"`
 
 	// Belongs to department
 	DepartmentID *uint `gorm:"not null" json:"departmentID"`
