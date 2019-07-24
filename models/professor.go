@@ -28,7 +28,32 @@ func (m *ProfessorModel) DoesProfessorExist(id uint) (exists bool, err error) {
 }
 
 func (m *ProfessorModel) GetProfessorByID(id uint, u *User) (err error) {
-	err = m.DB.Scopes(m.scopeDefault).Preload("ProfessorFactrakSurveys").Where(NewUserWithID(id)).First(u).Error
+	return m.GetProfessorByIDWithCourse(id, u, nil)
+}
+
+// When preloading, must adhere to preloading rules defined in FactrakSurveyModel.preloadDefault()
+func (m *ProfessorModel) GetProfessorByIDWithCourse(id uint, u *User, courseID *uint) (err error) {
+	fsM := &FactrakSurveyModel{}
+
+	preloadScopes := []interface{}{
+		fsM.preloadDefault,
+	}
+	if courseID != nil {
+		preloadScopes = append(preloadScopes, fsM.withCourseID(*courseID))
+	}
+
+	err = m.DB.Scopes(m.scopeDefault).Preload(
+		"ProfessorFactrakSurveys", preloadScopes...).Where(NewUserWithID(id)).First(u).Error
+	return
+}
+
+func (m *ProfessorModel) GetProfessorsByCourse(courseID uint, professors *[]User) (err error) {
+	err = m.DB.Where(
+		"users.id in (?)",
+		m.DB.Table("factrak_surveys").Select("professor_id").Where(
+			"course_id = ?", courseID,
+		).QueryExpr(),
+	).Find(professors).Error
 	return
 }
 

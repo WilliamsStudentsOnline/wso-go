@@ -1,6 +1,8 @@
 package factrak
 
 import (
+	"net/http"
+
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
@@ -31,6 +33,7 @@ func NewController(db *gorm.DB) *Controller {
 	}
 }
 
+// TODO: Add testing for this
 // Remove sensitive data, like userID from surveys. Unless scope admin or the survey is your own
 func RemoveUserIDFromSurveys(c *gin.Context, s []*models.FactrakSurvey) {
 	if auth.HasScope(c, auth.ScopeAdminAll, auth.ScopeAdminFactrak) {
@@ -46,4 +49,22 @@ func RemoveUserIDFromSurveys(c *gin.Context, s []*models.FactrakSurvey) {
 		survey.UserID = 0
 		survey.User = nil
 	}
+}
+
+// Get specified query ID (eg courseID). If it does not exist, return nil. If there is an error, abort.
+// Be sure to check if the context has been aborted after calling this.
+func (t *Controller) getQueryID(c *gin.Context, key string) *uint {
+	// If there is no query ID, return nil
+	if _, queryIDExists := c.GetQuery(key); !queryIDExists {
+		return nil
+	}
+
+	// If there is a query ID, look at that.
+	queryID, err := services.GetUIntQuery(c, key)
+	if err != nil {
+		t.RespondErrorCode(c, http.StatusBadRequest, err)
+		return nil
+	}
+
+	return &queryID
 }

@@ -15,6 +15,7 @@ func (t *Controller) ListUserSurveys(c *gin.Context) {
 	userID, err := services.GetUIntParam(c, "userID")
 	if err != nil {
 		t.RespondErrorCode(c, http.StatusBadRequest, err)
+		return
 	}
 
 	// Check if professor exists

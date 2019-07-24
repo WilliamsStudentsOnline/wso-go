@@ -14,53 +14,42 @@ import (
 	testify "github.com/stretchr/testify/assert"
 )
 
-func TestController_ListProfessors(t *testing.T) {
+func TestController_ListCourses(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 	router := gin.Default()
 	SetupRouter(router, db)
 
-	// Insert test user into db
-	p1 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Prof1",
-		UnixID:     "p1",
-		Visible:    true,
-		AtWilliams: true,
+	// Need this to satisfy not null
+	dept := models.Department{
+		Name: "Computer Science",
 	}
-	p2 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Prof2",
-		UnixID:     "p2",
-		Visible:    true,
-		AtWilliams: true,
+	area := models.AreaOfStudy{
+		Name: "Computer Science",
+		Abbreviation: "CSCI",
+		Department: &dept,
 	}
-	// Should not show up
-	s1 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student1",
-		UnixID:     "s1",
-		Visible:    true,
-		AtWilliams: true,
-	}
-	// Not at williams
-	p3 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Prof3",
-		UnixID:     "p3",
-		Visible:    true,
-		AtWilliams: false,
-	}
-	err := db.Create(&p1).Create(&p2).Create(&s1).Create(&p3).Error
-	assert.NoError(err)
+	assert.NoError(db.Create(&dept).Create(&area).Error)
 
-	// Have to do this because at_williams is not a pointer. TODO: Change at_williams to a pointer
-	err = db.Model(&p3).Update("at_williams", false).Error
-	assert.NoError(err)
+	// Insert test user into db
+	c1 := models.Course{
+		Number: "Course 1",
+		AreaOfStudy: &area,
+	}
+	c2 := models.Course{
+		Number: "Course 2",
+		AreaOfStudy: &area,
+	}
+	c3 := models.Course{
+		Number: "Course 3",
+		AreaOfStudy: &area,
+	}
+
+	assert.NoError(db.Create(&c1).Create(&c2).Create(&c3).Error)
 
 	// Get test user
-	w, err := utils.DoHTTPReq(router, http.MethodGet, "/professors", nil)
+	w, err := utils.DoHTTPReq(router, http.MethodGet, "/courses", nil)
 	assert.NoError(err)
 
 	// Status is okay
@@ -69,33 +58,31 @@ func TestController_ListProfessors(t *testing.T) {
 	// Decode response
 	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
 	assert.Nil(respData.Error)
-	var resp []models.User
+	var resp []models.Course
 	assert.NoError(json.Unmarshal(respData.Data, &resp))
 
 	// Check if correct users
-	assert.Len(resp, 2)
-	assert.Equal(p1.ID, resp[0].ID)
-	assert.Equal(p1.UnixID, resp[0].UnixID)
-	assert.Equal(p2.ID, resp[1].ID)
-	assert.Equal(p2.UnixID, resp[1].UnixID)
+	assert.Len(resp, 3)
+	assert.Equal(c1.ID, resp[0].ID)
+	assert.Equal(c2.ID, resp[1].ID)
+	assert.Equal(c3.ID, resp[2].ID)
 }
 
-func TestController_GetProfessor(t *testing.T) {
+func TestController_GetCourse(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 	router := gin.Default()
 	SetupRouter(router, db)
 
-	// Insert test user into db
+
 	p1 := models.User{
 		Type:       models.UserTypeProfessor,
-		Name:       "Professor",
+		Name:       "Professor 1",
 		UnixID:     "p1",
 		Visible:    true,
 		AtWilliams: true,
 	}
-	// Should not show up
 	s1 := models.User{
 		Type:       models.UserTypeStudent,
 		Name:       "Student",
@@ -103,35 +90,46 @@ func TestController_GetProfessor(t *testing.T) {
 		Visible:    true,
 		AtWilliams: true,
 	}
-	// Not at williams
-	p2 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor Not At Williams",
-		UnixID:     "p2",
-		Visible:    true,
-		AtWilliams: false,
+	// Need this to satisfy not null
+	dept := models.Department{
+		Name: "Computer Science",
 	}
-	err := db.Create(&p1).Create(&s1).Create(&p2).Error
-	assert.NoError(err)
+	area := models.AreaOfStudy{
+		Name: "Computer Science",
+		Abbreviation: "CSCI",
+		Department: &dept,
+	}
+	assert.NoError(db.Create(&dept).Create(&area).Create(&s1).Create(&p1).Error)
 
-	// Have to do this because at_williams is not a pointer. TODO: Change at_williams to a pointer
-	err = db.Model(&p2).Update("at_williams", false).Error
-	assert.NoError(err)
+	// Insert test user into db
+	c1 := models.Course{
+		Number: "Course 1",
+		AreaOfStudy: &area,
+	}
+	c2 := models.Course{
+		Number: "Course 2",
+		AreaOfStudy: &area,
+	}
+
+	assert.NoError(db.Create(&c1).Create(&c2).Error)
 
 	fs1 := models.FactrakSurvey{
 		User: &s1,
 		Professor: &p1,
+		Course: &c1,
 		Comment: "Survey 1",
 	}
 	fs2 := models.FactrakSurvey{
 		User: &s1,
 		Professor: &p1,
+		Course: &c1,
 		Comment: "Survey 2",
 	}
+
 	assert.NoError(db.Create(&fs1).Create(&fs2).Error)
 
-	/* Get test prof 1 (expect success) */
-	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/professors/%d", p1.ID), nil)
+	// Get test user
+	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/courses/%d", c1.ID), nil)
 	assert.NoError(err)
 
 	// Status is okay
@@ -140,37 +138,30 @@ func TestController_GetProfessor(t *testing.T) {
 	// Decode response
 	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
 	assert.Nil(respData.Error)
-	resp := models.User{}
+	var resp models.Course
 	assert.NoError(json.Unmarshal(respData.Data, &resp))
 
-	// Check if correct prof
-	assert.Equal(p1.ID, resp.ID)
-	assert.Len(resp.ProfessorFactrakSurveys, 2)
+	// Check if correct course
+	assert.Equal(c1.Number, resp.Number)
+	assert.Len(resp.FactrakSurveys, 2)
 
 	// Check if we got surveys (in reverse order)
-	assert.Equal(resp.ProfessorFactrakSurveys[0].Comment, fs2.Comment)
-	assert.Equal(resp.ProfessorFactrakSurveys[1].Comment, fs1.Comment)
+	assert.Equal(resp.FactrakSurveys[0].Comment, fs2.Comment)
+	assert.Equal(resp.FactrakSurveys[1].Comment, fs1.Comment)
 
 	// Check if we removed sensitive user data
-	assert.Zero(resp.ProfessorFactrakSurveys[0].UserID)
-	assert.Nil(resp.ProfessorFactrakSurveys[0].User)
+	assert.Zero(resp.FactrakSurveys[0].UserID)
+	assert.Nil(resp.FactrakSurveys[0].User)
 
-	/* Get test student 1 (expect failure) */
-	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/professors/%d", s1.ID), nil)
+	/* Get test bad course id (expect failure) */
+	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/courses/%d", 42), nil)
 	assert.NoError(err)
 
 	// Status is not found
 	assert.Equal(http.StatusNotFound, w.Code)
-
-	/* Get test prof 2 (expect failure) */
-	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/professors/%d", p2.ID), nil)
-	assert.NoError(err)
-
-	// Status is not found
-	assert.Equal(http.StatusBadRequest, w.Code)
 }
 
-func TestController_GetProfessorWithCourse(t *testing.T) {
+func TestController_GetCourseWithProfessor(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
@@ -255,7 +246,7 @@ func TestController_GetProfessorWithCourse(t *testing.T) {
 	assert.NoError(db.Create(&fs1).Create(&fs2).Create(&fs3).Create(&fs4).Error)
 
 	/* Get test prof 1 (expect success) */
-	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/professors/%d?courseID=%d", p1.ID, c1.ID), nil)
+	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/courses/%d?professorID=%d", c1.ID, p1.ID), nil)
 	assert.NoError(err)
 
 	// Status is okay
@@ -264,23 +255,23 @@ func TestController_GetProfessorWithCourse(t *testing.T) {
 	// Decode response
 	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
 	assert.Nil(respData.Error)
-	resp := models.User{}
+	resp := models.Course{}
 	assert.NoError(json.Unmarshal(respData.Data, &resp))
 
-	// Check if correct prof
-	assert.Equal(p1.ID, resp.ID)
-	assert.Len(resp.ProfessorFactrakSurveys, 2)
+	// Check if correct course
+	assert.Equal(c1.ID, resp.ID)
+	assert.Len(resp.FactrakSurveys, 2)
 
 	// Check if we got surveys (only courses) (in reverse order)
-	assert.Equal(resp.ProfessorFactrakSurveys[0].Comment, fs4.Comment)
-	assert.Equal(resp.ProfessorFactrakSurveys[1].Comment, fs1.Comment)
+	assert.Equal(resp.FactrakSurveys[0].Comment, fs4.Comment)
+	assert.Equal(resp.FactrakSurveys[1].Comment, fs1.Comment)
 
 	// Check if we removed sensitive user data
-	assert.Zero(resp.ProfessorFactrakSurveys[0].UserID)
-	assert.Nil(resp.ProfessorFactrakSurveys[0].User)
+	assert.Zero(resp.FactrakSurveys[0].UserID)
+	assert.Nil(resp.FactrakSurveys[0].User)
 
 	/* Get prof 1 with a random course (expect empty) */
-	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/professors/%d?courseID=%d", p1.ID, 42), nil)
+	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/courses/%d?professorID=%d", c1.ID, 42), nil)
 	assert.NoError(err)
 
 	// Status is not found
@@ -288,22 +279,21 @@ func TestController_GetProfessorWithCourse(t *testing.T) {
 
 	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
 	assert.Nil(respData.Error)
-	resp = models.User{}
+	resp = models.Course{}
 	assert.NoError(json.Unmarshal(respData.Data, &resp))
 
 	// Check if correct prof
 	assert.Equal(p1.ID, resp.ID)
-	assert.Len(resp.ProfessorFactrakSurveys, 0)
+	assert.Len(resp.FactrakSurveys, 0)
 }
 
-func TestController_ListProfessorSurveys(t *testing.T) {
+func TestController_ListCourseSurveys(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 	router := gin.Default()
 	SetupRouter(router, db)
 
-	// Insert test user into db
 	p1 := models.User{
 		Type:       models.UserTypeProfessor,
 		Name:       "Professor 1",
@@ -313,47 +303,57 @@ func TestController_ListProfessorSurveys(t *testing.T) {
 	}
 	s1 := models.User{
 		Type:       models.UserTypeStudent,
-		Name:       "Student",
+		Name:       "Student 1",
 		UnixID:     "s1",
 		Visible:    true,
 		AtWilliams: true,
 	}
-	s2 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student",
-		UnixID:     "s2",
-		Visible:    true,
-		AtWilliams: true,
+	// Need this to satisfy not null
+	dept := models.Department{
+		Name: "Computer Science",
 	}
-	p2 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 2",
-		UnixID:     "p2",
-		Visible:    true,
-		AtWilliams: true,
+	area := models.AreaOfStudy{
+		Name: "Computer Science",
+		Abbreviation: "CSCI",
+		Department: &dept,
 	}
-	assert.NoError(db.Create(&p1).Create(&s1).Create(&s2).Create(&p2).Error)
+	assert.NoError(db.Create(&dept).Create(&area).Create(&s1).Create(&p1).Error)
+
+	// Insert test user into db
+	c1 := models.Course{
+		Number: "Course 1",
+		AreaOfStudy: &area,
+	}
+	c2 := models.Course{
+		Number: "Course 2",
+		AreaOfStudy: &area,
+	}
+
+	assert.NoError(db.Create(&c1).Create(&c2).Error)
 
 	fs1 := models.FactrakSurvey{
 		User: &s1,
 		Professor: &p1,
+		Course: &c1,
 		Comment: "Survey 1",
 	}
 	fs2 := models.FactrakSurvey{
-		User: &s2,
+		User: &s1,
 		Professor: &p1,
+		Course: &c2,
 		Comment: "Survey 2",
 	}
 	fs3 := models.FactrakSurvey{
 		User: &s1,
-		Professor: &p2,
+		Professor: &p1,
+		Course: &c1,
 		Comment: "Survey 3",
 	}
 
 	assert.NoError(db.Create(&fs1).Create(&fs2).Create(&fs3).Error)
 
 	/* Get test prof 1 (expect success) */
-	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/professors/%d/surveys", p1.ID), nil)
+	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/courses/%d/surveys", c1.ID), nil)
 	assert.NoError(err)
 
 	// Status is okay
@@ -370,21 +370,21 @@ func TestController_ListProfessorSurveys(t *testing.T) {
 
 	// It should be in order of created first to created last
 	assert.Equal(fs1.Comment, resp[1].Comment)
-	assert.Equal(fs2.Comment, resp[0].Comment)
+	assert.Equal(fs3.Comment, resp[0].Comment)
 
 	// Assert that userID is not returned
 	assert.Zero(resp[0].UserID)
 	assert.Nil(resp[0].User)
 
-	/* Get test student 1 (expect failure) */
-	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/professors/%d/surveys", s1.ID), nil)
+	/* Get random course (expect failure) */
+	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/courses/%d/surveys", 42), nil)
 	assert.NoError(err)
 
 	// Status is not found
 	assert.Equal(http.StatusNotFound, w.Code)
 
-	/* Get test prof 2 (expect success) */
-	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/professors/%d/surveys", p2.ID), nil)
+	/* Get test course 2 (expect success) */
+	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/courses/%d/surveys", c2.ID), nil)
 	assert.NoError(err)
 
 	// Status is okay
@@ -398,10 +398,10 @@ func TestController_ListProfessorSurveys(t *testing.T) {
 
 	// Check if is survey 3
 	assert.Len(resp, 1)
-	assert.Equal(fs3.Comment, resp[0].Comment)
+	assert.Equal(fs2.Comment, resp[0].Comment)
 }
 
-func TestController_ListProfessorSurveysWithCourse(t *testing.T) {
+func TestController_ListCourseSurveysWithProfessor(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
@@ -525,7 +525,7 @@ func TestController_ListProfessorSurveysWithCourse(t *testing.T) {
 	assert.Len(resp, 0)
 }
 
-func TestController_ListProfessorCourses(t *testing.T) {
+func TestController_ListCourseProfessors(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
@@ -621,8 +621,8 @@ func TestController_ListProfessorCourses(t *testing.T) {
 
 	assert.NoError(db.Create(&fs1).Create(&fs2).Create(&fs3).Create(&fs4).Create(&fs5).Error)
 
-	/* Get test prof 1 (expect success) */
-	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/professors/%d/courses", p1.ID), nil)
+	/* Get test course 3 (expect success) */
+	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/courses/%d/professors", c3.ID), nil)
 	assert.NoError(err)
 
 	// Status is okay
@@ -631,25 +631,25 @@ func TestController_ListProfessorCourses(t *testing.T) {
 	// Decode response
 	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
 	assert.Nil(respData.Error)
-	var resp []models.Course
+	var resp []models.User
 	assert.NoError(json.Unmarshal(respData.Data, &resp))
 
-	// Check if is survey 1 and 2
+	// Check if is profs 1 and 2
 	assert.Len(resp, 2)
 
 	// It should be in order of created first to created last
-	assert.Equal(c1.Number, resp[0].Number)
-	assert.Equal(c3.Number, resp[1].Number)
+	assert.Equal(p1.UnixID, resp[0].UnixID)
+	assert.Equal(p2.UnixID, resp[1].UnixID)
 
-	/* Get test student 1 (expect failure) */
-	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/professors/%d/courses", s1.ID), nil)
+	/* Get bad course (expect failure) */
+	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/courses/%d/professors", 42), nil)
 	assert.NoError(err)
 
 	// Status is not found
 	assert.Equal(http.StatusNotFound, w.Code)
 
 	/* Get test prof 2 (expect success) */
-	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/professors/%d/courses", p2.ID), nil)
+	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/courses/%d/professors", c1.ID), nil)
 	assert.NoError(err)
 
 	// Status is okay
@@ -658,23 +658,21 @@ func TestController_ListProfessorCourses(t *testing.T) {
 	// Decode response
 	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
 	assert.Nil(respData.Error)
-	resp = []models.Course{}
+	resp = []models.User{}
 	assert.NoError(json.Unmarshal(respData.Data, &resp))
 
 	// Check if is survey 3
-	assert.Len(resp, 2)
-	assert.Equal(c2.Number, resp[0].Number)
-	assert.Equal(c3.Number, resp[1].Number)
+	assert.Len(resp, 1)
+	assert.Equal(p1.UnixID, resp[0].UnixID)
 }
 
-func TestController_GetProfessorRatings(t *testing.T) {
+func TestController_GetCourseRatings(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 	router := gin.Default()
 	SetupRouter(router, db)
 
-	// Insert test user into db
 	p1 := models.User{
 		Type:       models.UserTypeProfessor,
 		Name:       "Professor 1",
@@ -684,23 +682,38 @@ func TestController_GetProfessorRatings(t *testing.T) {
 	}
 	s1 := models.User{
 		Type:       models.UserTypeStudent,
-		Name:       "Student",
+		Name:       "Student 1",
 		UnixID:     "s1",
 		Visible:    true,
 		AtWilliams: true,
 	}
-	p2 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 2",
-		UnixID:     "p2",
-		Visible:    true,
-		AtWilliams: true,
+	// Need this to satisfy not null
+	dept := models.Department{
+		Name: "Computer Science",
 	}
-	assert.NoError(db.Create(&p1).Create(&s1).Create(&p2).Error)
+	area := models.AreaOfStudy{
+		Name: "Computer Science",
+		Abbreviation: "CSCI",
+		Department: &dept,
+	}
+	assert.NoError(db.Create(&dept).Create(&area).Create(&s1).Create(&p1).Error)
+
+	// Insert test user into db
+	c1 := models.Course{
+		Number: "Course 1",
+		AreaOfStudy: &area,
+	}
+	c2 := models.Course{
+		Number: "Course 2",
+		AreaOfStudy: &area,
+	}
+
+	assert.NoError(db.Create(&c1).Create(&c2).Error)
 
 	fs1 := models.FactrakSurvey{
 		User: &s1,
 		Professor: &p1,
+		Course: &c1,
 		Comment: "Survey 1",
 		WouldRecommendCourse: lib.BoolToPtr(true),
 		CourseWorkload: lib.IntToPtr(0),
@@ -714,6 +727,7 @@ func TestController_GetProfessorRatings(t *testing.T) {
 	fs2 := models.FactrakSurvey{
 		User: &s1,
 		Professor: &p1,
+		Course: &c1,
 		Comment: "Survey 2",
 		WouldRecommendCourse: lib.BoolToPtr(true),
 		CourseWorkload: lib.IntToPtr(0),
@@ -727,6 +741,7 @@ func TestController_GetProfessorRatings(t *testing.T) {
 	fs3 := models.FactrakSurvey{
 		User: &s1,
 		Professor: &p1,
+		Course: &c1,
 		Comment: "Survey 3",
 		WouldRecommendCourse: lib.BoolToPtr(true),
 		CourseWorkload: lib.IntToPtr(0),
@@ -740,6 +755,7 @@ func TestController_GetProfessorRatings(t *testing.T) {
 	fs4 := models.FactrakSurvey{
 		User: &s1,
 		Professor: &p1,
+		Course: &c1,
 		Comment: "Survey 4",
 		WouldRecommendCourse: lib.BoolToPtr(false),
 		CourseWorkload: lib.IntToPtr(0),
@@ -752,7 +768,8 @@ func TestController_GetProfessorRatings(t *testing.T) {
 	}
 	fs5 := models.FactrakSurvey{
 		User: &s1,
-		Professor: &p2,
+		Professor: &p1,
+		Course: &c2,
 		Comment: "Survey 5",
 		WouldRecommendCourse: lib.BoolToPtr(true),
 		CourseWorkload: lib.IntToPtr(7),
@@ -767,7 +784,7 @@ func TestController_GetProfessorRatings(t *testing.T) {
 	assert.NoError(db.Create(&fs1).Create(&fs2).Create(&fs3).Create(&fs4).Create(&fs5).Error)
 
 	/* Get test prof 1 (expect success) */
-	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/professors/%d/ratings", p1.ID), nil)
+	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/courses/%d/ratings", c1.ID), nil)
 	assert.NoError(err)
 
 	// Status is okay
@@ -799,7 +816,7 @@ func TestController_GetProfessorRatings(t *testing.T) {
 	}, resp)
 }
 
-func TestController_GetProfessorRatingsWithCourse(t *testing.T) {
+func TestController_GetCourseRatingsWithProfessor(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)

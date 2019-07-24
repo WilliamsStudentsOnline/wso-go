@@ -42,6 +42,7 @@ func (t *Controller) GetUser(c *gin.Context) {
 	userID, err := getUserIDParamOrSelf(c)
 	if err != nil {
 		t.RespondErrorCode(c, http.StatusBadRequest, err)
+		return
 	}
 
 	// Do database query
@@ -70,6 +71,7 @@ func (t *Controller) UpdateUser(c *gin.Context) {
 	userID, err := getUserIDParamOrSelf(c)
 	if err != nil {
 		t.RespondErrorCode(c, http.StatusBadRequest, err)
+		return
 	}
 
 	// Must only be able to update self
@@ -102,6 +104,7 @@ func (t *Controller) UpdateUserTags(c *gin.Context) {
 	userID, err := getUserIDParamOrSelf(c)
 	if err != nil {
 		t.RespondErrorCode(c, http.StatusBadRequest, err)
+		return
 	}
 
 	// Must only be able to update self

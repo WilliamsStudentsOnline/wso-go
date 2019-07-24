@@ -62,10 +62,10 @@ type User struct {
 	Tags []*Tag `gorm:"many2many:tags_users;" json:"tags,omitempty"`
 
 	// Has many factrak surveys (if student)
-	StudentFactrakSurveys []*FactrakSurvey `gorm:"foreignkey:UserID" json:"factrakSurveys,omitempty"`
+	StudentFactrakSurveys []*FactrakSurvey `gorm:"foreignkey:UserID" json:"studentFactrakSurveys,omitempty"`
 
 	// Has many factrak surveys (if professor)
-	ProfessorFactrakSurveys []*FactrakSurvey `gorm:"foreignkey:ProfessorID" json:"factrakSurveys,omitempty"`
+	ProfessorFactrakSurveys []*FactrakSurvey `gorm:"foreignkey:ProfessorID" json:"professorFactrakSurveys,omitempty"`
 
 	// Has many factrak agreements
 	FactrakAgreements []*FactrakAgreement `json:"factrakAgreements,omitempty"`

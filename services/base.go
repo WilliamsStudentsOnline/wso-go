@@ -97,3 +97,13 @@ func GetUserID(ctx *gin.Context) uint {
 	}
 	return val.(uint)
 }
+
+func GetUIntQuery(c *gin.Context, key string) (uint, error) {
+	query := c.Query(key)
+	queryInt, err := strconv.Atoi(query)
+	if err != nil {
+		return 0, err
+	}
+
+	return uint(queryInt), nil
+}

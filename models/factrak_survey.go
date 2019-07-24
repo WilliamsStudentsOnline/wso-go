@@ -1,6 +1,9 @@
 package models
 
 import (
+	"errors"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -17,13 +20,79 @@ func NewFactrakSurveyModel(db *gorm.DB) *FactrakSurveyModel {
 	}
 }
 
+// Gets surveys by professor id, course id, or both
+func (m *FactrakSurveyModel) GetSurveysByProfessorOrCourse(profID *uint, courseID *uint, fs *[]*FactrakSurvey) (err error) {
+	scopes := []func(db *gorm.DB) *gorm.DB{
+		m.scopeDefault,
+	}
+	if profID == nil && courseID == nil {
+		return errors.New("must have at least one of profID and courseID")
+	}
+	if profID != nil {
+		scopes = append(scopes, m.withProfessorID(*profID))
+	}
+	if courseID != nil {
+		scopes = append(scopes, m.withCourseID(*courseID))
+	}
+
+	err = m.DB.Scopes(scopes...).Find(fs).Error
+	return
+}
+
 func (m *FactrakSurveyModel) GetSurveysByProfessor(profID uint, fs *[]*FactrakSurvey) (err error) {
-	err = m.DB.Scopes(m.scopeDefault, m.scopeCurrent).Where(&FactrakSurvey{ProfessorID: profID}).Find(fs).Error
+	err = m.DB.Scopes(m.scopeDefault, m.withProfessorID(profID)).Find(fs).Error
 	return
 }
 
 func (m *FactrakSurveyModel) GetSurveysByAuthor(authorUserID uint, fs *[]*FactrakSurvey) (err error) {
-	err = m.DB.Scopes(m.scopeDefault, m.scopeCurrent).Where(&FactrakSurvey{UserID: authorUserID}).Find(fs).Error
+	err = m.DB.Scopes(m.scopeDefault, m.withAuthorID(authorUserID)).Find(fs).Error
+	return
+}
+
+func (m *FactrakSurveyModel) GetSurveysByCourse(courseID uint, fs *[]*FactrakSurvey) (err error) {
+	err = m.DB.Scopes(m.scopeDefault, m.withCourseID(courseID)).Find(fs).Error
+	return
+}
+
+var surveyFields = []string{
+	"would_recommend_course",
+	"course_workload",
+	"course_stimulating",
+	"would_take_another",
+	"approachability",
+	"lead_lecture",
+	"promote_discussion",
+	"outside_helpfulness",
+}
+
+// Gets average survey ratings by professor id, course id, or both.
+func (m *FactrakSurveyModel) GetSurveyRatingsByProfessorOrCourse(profID *uint, courseID *uint, ratings *FactrakSurveyAvgRatings) (err error) {
+	scopes := []func(db *gorm.DB) *gorm.DB{
+		m.scopeCurrent,
+	}
+	if profID == nil && courseID == nil {
+		return errors.New("must have at least one of profID and courseID")
+	}
+	if profID != nil {
+		scopes = append(scopes, m.withProfessorID(*profID))
+	}
+	if courseID != nil {
+		scopes = append(scopes, m.withCourseID(*courseID))
+	}
+
+	return m.getSurveyRatings(ratings, scopes...)
+}
+
+func (m *FactrakSurveyModel) getSurveyRatings(ratings *FactrakSurveyAvgRatings, scopes ...func(*gorm.DB) *gorm.DB) (err error) {
+	queries := make([]string, 2*len(surveyFields))
+	for i, field := range surveyFields {
+		queries[2*i] = fmt.Sprintf("avg(%s) AS avg_%s", field, field)
+		queries[2*i + 1] = fmt.Sprintf("count(%s) AS num_%s", field, field)
+	}
+
+	q := strings.Join(queries, ", ")
+
+	err = m.DB.Table("factrak_surveys").Select(q).Scopes(scopes...).Scan(&ratings).Error
 	return
 }
 
@@ -46,8 +115,36 @@ func (*FactrakSurveyModel) registrationStart() time.Time {
 	}
 }
 
-func (*FactrakSurveyModel) scopeDefault(db *gorm.DB) *gorm.DB {
+// Default for scopes preloading factrak surveys. YOU MUST USE THESE UNLESS YOU HAVE EXPLICIT REASONS NOT TO.
+func (m *FactrakSurveyModel) preloadDefault(db *gorm.DB) *gorm.DB {
+	return m.scopeDefault(db)
+}
+
+func (m *FactrakSurveyModel) scopeDefault(db *gorm.DB) *gorm.DB {
+	db = m.scopeOrderDefault(db)
+	return m.scopeCurrent(db)
+}
+
+func (*FactrakSurveyModel) scopeOrderDefault(db *gorm.DB) *gorm.DB {
 	return db.Order("factrak_surveys.created_at desc")
+}
+
+func (*FactrakSurveyModel) withProfessorID(profID uint) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where(&FactrakSurvey{ProfessorID: profID})
+	}
+}
+
+func (*FactrakSurveyModel) withAuthorID(authorID uint) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where(&FactrakSurvey{UserID: authorID})
+	}
+}
+
+func (*FactrakSurveyModel) withCourseID(courseID uint) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where(&FactrakSurvey{CourseID: courseID})
+	}
 }
 
 func (*FactrakSurveyModel) scopeFlagged(db *gorm.DB) *gorm.DB {
@@ -64,4 +161,23 @@ func (m *FactrakSurveyModel) scopeThisSemester(db *gorm.DB) *gorm.DB {
 
 func (*FactrakSurveyModel) scopeCurrent(db *gorm.DB) *gorm.DB {
 	return db.Where("factrak_surveys.created_at >= ?", time.Now().AddDate(-5, 0, 0))
+}
+
+type FactrakSurveyAvgRatings struct {
+	AvgWouldRecommendCourse float64 `json:"avgWouldRecommendCourse"`
+	NumWouldRecommendCourse int     `json:"numWouldRecommendCourse"`
+	AvgCourseWorkload       float64 `json:"avgCourseWorkload"`
+	NumCourseWorkload       int     `json:"numCourseWorkload"`
+	AvgCourseStimulating    float64 `json:"avgCourseStimulating"`
+	NumCourseStimulating    int     `json:"numCourseStimulating"`
+	AvgWouldTakeAnother     float64 `json:"avgWouldTakeAnother"`
+	NumWouldTakeAnother     int     `json:"numWouldTakeAnother"`
+	AvgApproachability      float64 `json:"avgApproachability"`
+	NumApproachability      int     `json:"numApproachability"`
+	AvgLeadLecture          float64 `json:"avgLeadLecture"`
+	NumLeadLecture          int     `json:"numLeadLecture"`
+	AvgPromoteDiscussion    float64 `json:"avgPromoteDiscussion"`
+	NumPromoteDiscussion    int     `json:"numPromoteDiscussion"`
+	AvgOutsideHelpfulness   float64 `json:"avgOutsideHelpfulness"`
+	NumOutsideHelpfulness   int     `json:"numOutsideHelpfulness"`
 }
