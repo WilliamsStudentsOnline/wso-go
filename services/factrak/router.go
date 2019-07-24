@@ -13,7 +13,7 @@ func SetupRouter(r gin.IRouter, db *gorm.DB) {
 	r.GET("/professors/:professorID/surveys", c.ListProfessorSurveys) // Get surveys for a professor. just reuse inner methods of /surveys; include agreements
 	r.GET("/professors/:professorID/courses", c.ListProfessorCourses) // List prof's courses
 
-	r.GET("/users/:userID/surveys") // List user (students/alum) surveys
+	r.GET("/users/:userID/surveys", c.ListUserSurveys) // List user (students/alum) surveys
 
 	r.GET("/courses") // List courses
 	r.GET("/courses/:courseID") // Get specific course; give it the statistics

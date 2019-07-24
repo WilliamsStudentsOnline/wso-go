@@ -38,6 +38,13 @@ func (m *UserModel) GetUserByID(id uint, u *User) (err error) {
 	return
 }
 
+func (m *UserModel) DoesUserExist(id uint) (exists bool, err error) {
+	var count int
+	err = m.DB.Model(&User{}).Scopes(m.scopeVisible, m.scopeAtWilliams).Where("users.id = ?", id).Count(&count).Error
+	exists = count > 0
+	return
+}
+
 // Update the user. Only allow specific keys to be passed
 func (m *UserModel) UpdateUser(id uint, update map[string]interface{}) (err error) {
 	dbUpdate := map[string]interface{}{

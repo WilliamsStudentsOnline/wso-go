@@ -17,11 +17,15 @@ func NewFactrakSurveyModel(db *gorm.DB) *FactrakSurveyModel {
 	}
 }
 
-func (m *FactrakSurveyModel) GetSurveysByProfessor(profID uint, u *[]*FactrakSurvey) (err error) {
-	err = m.DB.Scopes(m.scopeDefault, m.scopeCurrent).Where(&FactrakSurvey{ProfessorID: profID}).Find(u).Error
+func (m *FactrakSurveyModel) GetSurveysByProfessor(profID uint, fs *[]*FactrakSurvey) (err error) {
+	err = m.DB.Scopes(m.scopeDefault, m.scopeCurrent).Where(&FactrakSurvey{ProfessorID: profID}).Find(fs).Error
 	return
 }
 
+func (m *FactrakSurveyModel) GetSurveysByAuthor(authorUserID uint, fs *[]*FactrakSurvey) (err error) {
+	err = m.DB.Scopes(m.scopeDefault, m.scopeCurrent).Where(&FactrakSurvey{UserID: authorUserID}).Find(fs).Error
+	return
+}
 
 func (*FactrakSurveyModel) registrationStart() time.Time {
 	// if changed, also change scheduled update user stuff
