@@ -5,16 +5,19 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"sort"
+	"strconv"
 	"strings"
 	"time"
 )
 
 const (
+	// CatalogURL stores the endpoint for the catalog
 	CatalogURL = "https://catalog.williams.edu/wp-json/courses/v1/year"
 	hourFormat = "15:04"
 )
 
-// Instructor holds the url and name of the isntructors
+// Instructor holds the url and name of the instructors
 type Instructor struct {
 	URL  string `json:"url"`
 	Name string `json:"name"`
@@ -65,12 +68,19 @@ type Course struct {
 	DepartmentNotes      string       `json:"departmentNotes"`
 	DescriptionSearch    string       `json:"descriptionSearch"`
 	EnrolmentPreferences string       `json:"enrolmentPreferences"`
+	CrossListing         []string     `json:"crossListing"`
+	Components           []string     `json:"components"`
+
+	// These camelCase (as opposed to ParselCase) variables will not be exported
+	crossListingMap map[string]bool
+	componentsMap   map[string]bool
 }
 
+// RawCourse represents the unparsed course information we get from the catalog endpoint.
 type RawCourse struct {
 	AcademicYear         int    `json:"WMS_ACAD_YEAR,string"`
 	Offered              string `json:"OFFERED"`
-	Semester                 int    `json:"STRM,string"`
+	Semester             int    `json:"STRM,string"`
 	CourseID             string `json:"CRSE_ID"`
 	EffectiveDate        string `json:"EFFDT"`
 	Subject              string `json:"SUBJECT"`
@@ -239,12 +249,8 @@ func ParseCatalog(catalog []RawCourse, fallSemID, winterSemID, springSemID int) 
 			{unparsed.FirstName6, unparsed.MiddleName6, unparsed.LastName6},
 		}
 
-		/*
-			Count number of instructors
-			Assumes 1) all instructors have first names, no gaps between instructors (i.e.
-			there cannot be a scenario where the names are in WMS_X_NAME1 and WMS_X_NAME3 but not
-			WMS_X_NAME2)
-		*/
+		// Parse instructors
+
 		for _, instructorName := range names {
 			instructor := Instructor{}
 
@@ -353,9 +359,67 @@ func ParseCatalog(catalog []RawCourse, fallSemID, winterSemID, springSemID int) 
 		courses = append(courses, course)
 	}
 
+	UpdateCrossListing(courses)
+
 	return courses, nil
 }
 
+// UpdateCrossListing takes the parsed array of courses and updates their cross-listing information.
+func UpdateCrossListing(courses []Course) ([]Course, error) {
+	// Sort courses by CourseID, since cross-listed courses all have the same CourseID, so we
+	// only need to do one pass through the array
+	sort.SliceStable(courses, func(i, j int) bool {
+		return courses[i].CourseID < courses[j].CourseID
+	})
+
+	currCourse := ""
+
+	// These maps act as sets to collect and store the information throughout cross-listings
+	var crossListings = map[string]bool{}
+	var components = map[string]bool{}
+
+	for i := range courses {
+		// If the current course has a different CourseID, then we must have finished finding all
+		// cross-listings
+		if currCourse != courses[i].CourseID {
+			currCourse = courses[i].CourseID
+			crossListings = make(map[string]bool)
+			components = make(map[string]bool)
+		}
+
+		crossListings[courses[i].Department+" "+strconv.Itoa(courses[i].Number)] = true
+		components[courses[i].ClassType] = true
+		courses[i].crossListingMap = crossListings
+		courses[i].componentsMap = components
+	}
+
+	// After the maps are populated, go through the array again to populate the exportable arrays.
+	for i := range courses {
+		courses[i].CrossListing = make([]string, len(courses[i].crossListingMap))
+		j := 0
+		for k := range courses[i].crossListingMap {
+			courses[i].CrossListing[j] = k
+			j++
+		}
+
+		courses[i].Components = make([]string, len(courses[i].componentsMap))
+		j = 0
+		for k := range courses[i].componentsMap {
+			courses[i].Components[j] = k
+			j++
+		}
+	}
+
+	// Sort by course code before returning
+	sort.SliceStable(courses, func(i, j int) bool {
+		return (courses[i].Department < courses[j].Department) ||
+			(courses[i].Department == courses[j].Department && courses[i].Number < courses[j].Number)
+	})
+
+	return courses, nil
+}
+
+// GetCatalog fetches the json from the CatalogURL endpoint and parses it into an array of RawCourses.
 func GetCatalog(academicYear int) ([]RawCourse, error) {
 	catalogClient := &http.Client{
 		Timeout: time.Second * 30, // Maximum of 30 seconds
@@ -378,6 +442,7 @@ func GetCatalog(academicYear int) ([]RawCourse, error) {
 	return rawCourses, nil
 }
 
+// SaveCatalog writes the array of courses and the update time into the provided writer.
 func SaveCatalog(w io.Writer, courses []Course) error {
 	var catalog = exportCourses{}
 	catalog.Courses = courses
@@ -386,7 +451,7 @@ func SaveCatalog(w io.Writer, courses []Course) error {
 	return json.NewEncoder(w).Encode(catalog)
 }
 
-// capitalize capitalizes the first letter of the string
+// capitalize capitalizes the first letter of the string.
 func capitalize(str string) string {
 	if str == "" {
 		return ""
@@ -394,12 +459,12 @@ func capitalize(str string) string {
 	return strings.ToUpper(str[:1]) + str[1:]
 }
 
-// trimCapitalize trims leading/following white spaces and Capitalizes the first letter of the string
+// trimCapitalize trims leading/following white spaces and Capitalizes the first letter of the string.
 func trimCapitalize(str string) string {
 	return capitalize(strings.TrimSpace(str))
 }
 
-// trimTitle trims leading/following white spaces and Title Cases the string
+// trimTitle trims leading/following white spaces and Title Cases the string.
 func trimTitle(str string) string {
 	return strings.Title(strings.TrimSpace(str))
 }
