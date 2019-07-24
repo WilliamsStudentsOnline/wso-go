@@ -26,7 +26,7 @@ func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB) (authMiddleware *jwt.Gi
 			// We take the data (which is a User) and create the payload
 			if v, ok := data.(*models.User); ok {
 				// Set scopes here
-				scope := []string{auth.ScopeReadAll}
+				scope := []auth.Scope{auth.ScopeReadAll}
 
 				if v.ID > 0 {
 					scope = append(scope, auth.ScopeWriteSelf)
