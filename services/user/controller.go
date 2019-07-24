@@ -26,8 +26,8 @@ func NewController(db *gorm.DB) *Controller {
 	}
 }
 
-// Fetch all users
-func (t *Controller) FetchAllUsers(c *gin.Context) {
+// List users
+func (t *Controller) ListUsers(c *gin.Context) {
 	var users []models.User
 	err := t.userModel.GetAllUsers(&users)
 
@@ -73,6 +73,7 @@ func (t *Controller) UpdateUser(c *gin.Context) {
 	userID, err := getUserIDParamOrSelf(c)
 	if err != nil {
 		t.RespondError(c, http.StatusBadRequest, err)
+		return
 	}
 
 	// Must only be able to update self
@@ -82,7 +83,7 @@ func (t *Controller) UpdateUser(c *gin.Context) {
 	}
 
 	// Bind update params
-	var update map[string]interface{}
+	update := models.UpdateUserParams{}
 	err = c.ShouldBind(&update)
 	if err != nil {
 		t.RespondError(c, http.StatusBadRequest, errors.New("could not parse malformed request data"))
@@ -90,7 +91,7 @@ func (t *Controller) UpdateUser(c *gin.Context) {
 	}
 
 	// Update the user in the db
-	err = t.userModel.UpdateUser(userID, update)
+	err = t.userModel.UpdateUser(userID, &update)
 	if err != nil {
 		t.RespondError(c, http.StatusInternalServerError, err)
 		return

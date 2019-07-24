@@ -2,14 +2,15 @@ package test_utils
 
 import (
 	"encoding/json"
+	"io"
+	"net/http"
+	"net/http/httptest"
+
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	migrate "github.com/WilliamsStudentsOnline/wso-go/db"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
-	"io"
-	"net/http"
-	"net/http/httptest"
 )
 
 func SetupServiceTest(assert *assert.Assertions) *gorm.DB {
@@ -32,11 +33,22 @@ func SetupServiceTest(assert *assert.Assertions) *gorm.DB {
 	return db
 }
 
+func AddUserContexts(router *gin.Engine, userID uint) {
+	router.Use(func(c *gin.Context) {
+		c.Set("userID", userID)
+		c.Next()
+	})
+}
+
 func DoHTTPReq(router *gin.Engine, method, url string, body io.Reader) (*httptest.ResponseRecorder, error) {
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest(method, url, body)
 	if err != nil {
 		return nil, err
+	}
+
+	if body != nil {
+		req.Header.Set("Content-Type", gin.MIMEJSON)
 	}
 
 	router.ServeHTTP(w, req)

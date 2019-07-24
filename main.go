@@ -13,7 +13,6 @@ import (
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	migrate "github.com/WilliamsStudentsOnline/wso-go/db"
-	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	adminService "github.com/WilliamsStudentsOnline/wso-go/services/admin"
 	userService "github.com/WilliamsStudentsOnline/wso-go/services/user"
@@ -150,8 +149,6 @@ func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 	router.Use(func(c *gin.Context) {
 		claims := jwt.ExtractClaims(c)
 		userID := uint(claims["id"].(float64))
-		user := models.NewUserWithID(userID)
-		c.Set("user", &user)
 		c.Set("userID", userID)
 		c.Next()
 	})
