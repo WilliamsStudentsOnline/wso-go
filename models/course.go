@@ -1,6 +1,10 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import (
+	"strings"
+
+	"github.com/jinzhu/gorm"
+)
 
 // Course Model
 type CourseModel struct {
@@ -31,7 +35,10 @@ func (m *CourseModel) FindOrCreate(c *Course) (err error) {
 	}).Error
 }
 
+// Finds the relevant course by the title, like CSCI 136. Automatically capitalizes the area.
 func (m *CourseModel) FindByAbbrevAndNumber(areaAbbreviation string, number string, c *Course) (err error) {
+	areaAbbreviation = strings.ToUpper(areaAbbreviation)
+
 	err = m.DB.
 		Preload("AreaOfStudy").
 		Preload("AreaOfStudy.Department").

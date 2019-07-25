@@ -62,6 +62,24 @@ func (m *ProfessorModel) GetProfessorsByDepartment(deptID uint, professors *[]Us
 	return
 }
 
+// Gets area of study's professors by looking at its courses. This query is an absolute unit so try not to use it.
+// Please note that this will only get professors in the factrak system, rather than all professors belonging to this
+// area of study.
+func (m *ProfessorModel) GetProfessorsByAreaOfStudyViaCourses(areaID uint, professors *[]User) (err error) {
+	err = m.DB.Scopes(m.scopeDefault).Where("users.id in (?)",
+		m.DB.Table("factrak_surveys").
+		Select("factrak_surveys.professor_id").
+		Where("factrak_surveys.course_id in (?)",
+			m.DB.Table("courses").
+			Select("courses.id").
+			Where("courses.area_of_study_id = ?", areaID).QueryExpr(),
+		).QueryExpr(),
+	).Find(professors).Error
+	return
+}
+
+// Gets area of study's professors by looking at its department(s). For now, this is the default. However, please notice
+// that this will get all department professors, rather than just ones belonging to the area of study.
 func (m *ProfessorModel) GetProfessorsByAreaOfStudy(areaID uint, professors *[]User) (err error) {
 	err = m.DB.Scopes(m.scopeDefault).Where(
 		"department_id in (?)",
