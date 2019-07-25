@@ -18,7 +18,7 @@ type UserModel struct {
 }
 
 func (m *UserModel) GetAllUsers(u *[]User) (err error) {
-	err = m.DB.Find(u).Error
+	err = m.DB.Scopes(m.scopeVisible, m.scopeAtWilliams).Find(u).Error
 	return
 }
 
@@ -27,14 +27,22 @@ func (m *UserModel) GetUserByID(id uint, u *User) (err error) {
 	return
 }
 
+type UpdateUserParams struct {
+	Visible     *bool   `json:"visible"`
+	DormVisible *bool   `json:"dormVisible"`
+	HomeVisible *bool   `json:"homeVisible"`
+	Pronoun     *string `json:"pronoun"`
+	OffCycle    *bool   `json:"offCycle"`
+}
+
 // Update the user. Only allow specific keys to be passed
-func (m *UserModel) UpdateUser(id uint, update map[string]interface{}) (err error) {
+func (m *UserModel) UpdateUser(id uint, update *UpdateUserParams) (err error) {
 	dbUpdate := map[string]interface{}{
-		"visible":      update["visible"],
-		"dorm_visible": update["dormVisible"],
-		"home_visible": update["homeVisible"],
-		"pronoun":      update["pronoun"],
-		"off_cycle":    update["offCycle"],
+		"visible":      update.Visible,
+		"dorm_visible": update.DormVisible,
+		"home_visible": update.HomeVisible,
+		"pronoun":      update.Pronoun,
+		"off_cycle":    update.OffCycle,
 	}
 	DeleteNilFields(dbUpdate)
 

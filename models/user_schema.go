@@ -47,7 +47,7 @@ type User struct {
 	Office   *Office `json:"office,omitempty"`
 
 	// belongs_to Dorm Room
-	DormRoomID *uint     `gorm:"index_rooms_on_dorm_room_id" json:"dormRoomID"`
+	DormRoomID *uint     `gorm:"index:index_rooms_on_dorm_room_id" json:"dormRoomID"`
 	DormRoom   *DormRoom `json:"dormRoom,omitempty"`
 
 	Pronoun              *string `json:"pronoun"`

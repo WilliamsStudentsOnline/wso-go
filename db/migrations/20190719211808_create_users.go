@@ -50,7 +50,7 @@ var CreateUsers20190719211808 = &gormigrate.Migration{
 
 			OfficeID *uint
 
-			DormRoomID *uint `gorm:"index_rooms_on_dorm_room_id"`
+			DormRoomID *uint `gorm:"index:index_rooms_on_dorm_room_id"`
 
 			Pronoun              *string
 			AtWilliams           bool `gorm:"DEFAULT:true"`
