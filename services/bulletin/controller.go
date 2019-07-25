@@ -53,7 +53,7 @@ func (t *Controller) GetBulletin(c *gin.Context) {
 	var err error
 
 	// Decode bulletinID.
-	bulletinID, err = services.GetUIntParam(c, "bulletin_id")
+	bulletinID, err = services.GetUIntParam(c, "bulletinID")
 	if err != nil {
 		t.RespondError(c, http.StatusBadRequest, errors.New("could not parse bulletin id"))
 		return
@@ -73,7 +73,7 @@ func (t *Controller) GetBulletin(c *gin.Context) {
 // UpdateBulletin Updates bulletin by id
 func (t *Controller) UpdateBulletin(c *gin.Context) {
 	// Decode parameter
-	bulletinID, err := services.GetUIntParam(c, "bulletin_id")
+	bulletinID, err := services.GetUIntParam(c, "bulletinID")
 	if err != nil {
 		t.RespondError(c, http.StatusBadRequest, errors.New("could not parse bulletin id"))
 		return
@@ -107,7 +107,7 @@ func (t *Controller) DeleteBulletin(c *gin.Context) {
 	var err error
 
 	// Decode bulletinID.
-	bulletinID, err = services.GetUIntParam(c, "bulletin_id")
+	bulletinID, err = services.GetUIntParam(c, "bulletinID")
 	if err != nil {
 		t.RespondError(c, http.StatusBadRequest, errors.New("could not parse bulletin id"))
 		return
