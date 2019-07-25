@@ -29,10 +29,10 @@ func SetupRouter(r gin.IRouter, db *gorm.DB) {
 	// Not this one, though:
 	r.GET("/courses/:courseID/professors", c.ListCourseProfessors) // Get professors for a course
 
-	r.GET("/departments")                          // List departments
-	r.GET("/departments/:departmentID")            // Get specific department
-	r.GET("/departments/:departmentID/professors") // Get department's professors
-	r.GET("/departments/:departmentID/courses")    // Get department's courses
+	r.GET("/departments", c.ListDepartments)                                   // List departments
+	r.GET("/departments/:departmentID", c.GetDepartment)                       // Get specific department
+	r.GET("/departments/:departmentID/professors", c.ListDepartmentProfessors) // Get department's professors
+	r.GET("/departments/:departmentID/courses", c.ListDepartmentCourses)       // Get department's courses
 
 	r.GET("/areas-of-study")                           // List areas
 	r.GET("/areas-of-study/:areaOfStudyID")            // Get area

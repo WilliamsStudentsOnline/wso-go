@@ -83,7 +83,7 @@ func (t *Controller) ListProfessorSurveys(c *gin.Context) {
 	// Do database query
 	var surveys []*models.FactrakSurvey
 
-	err = t.surveyModel.GetSurveysByProfessorOrCourse(&profID, courseID, &surveys)
+	err = t.surveyModel.GetSurveysByProfessorOrCourse(&profID, courseID, false, &surveys)
 	if err != nil {
 		t.RespondError(c, err)
 		return

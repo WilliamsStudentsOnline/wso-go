@@ -145,8 +145,8 @@ func TestController_GetCourse(t *testing.T) {
 	assert.Len(resp.FactrakSurveys, 2)
 
 	// Check if we got surveys (in reverse order)
-	assert.Equal(resp.FactrakSurveys[0].Comment, fs2.Comment)
-	assert.Equal(resp.FactrakSurveys[1].Comment, fs1.Comment)
+	assert.Equal(fs2.Comment, resp.FactrakSurveys[0].Comment)
+	assert.Equal(fs1.Comment, resp.FactrakSurveys[1].Comment)
 
 	// Check if we removed sensitive user data
 	assert.Zero(resp.FactrakSurveys[0].UserID)
@@ -262,8 +262,8 @@ func TestController_GetCourseWithProfessor(t *testing.T) {
 	assert.Len(resp.FactrakSurveys, 2)
 
 	// Check if we got surveys (only courses) (in reverse order)
-	assert.Equal(resp.FactrakSurveys[0].Comment, fs4.Comment)
-	assert.Equal(resp.FactrakSurveys[1].Comment, fs1.Comment)
+	assert.Equal(fs4.Comment, resp.FactrakSurveys[0].Comment)
+	assert.Equal(fs1.Comment, resp.FactrakSurveys[1].Comment)
 
 	// Check if we removed sensitive user data
 	assert.Zero(resp.FactrakSurveys[0].UserID)

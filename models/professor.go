@@ -16,13 +16,13 @@ func NewProfessorModel(db *gorm.DB) *ProfessorModel {
 }
 
 func (m *ProfessorModel) GetAllProfessors(u *[]User) (err error) {
-	err = m.DB.Scopes(m.scopeDefault, m.scopeAtWilliams).Find(u).Error
+	err = m.DB.Scopes(m.scopeDefault).Find(u).Error
 	return
 }
 
 func (m *ProfessorModel) DoesProfessorExist(id uint) (exists bool, err error) {
 	var count int
-	err = m.DB.Model(&User{}).Scopes(m.scopeDefault, m.scopeAtWilliams).Where("users.id = ?", id).Count(&count).Error
+	err = m.DB.Model(&User{}).Scopes(m.scopeDefault).Where("users.id = ?", id).Count(&count).Error
 	exists = count > 0
 	return
 }
@@ -57,6 +57,16 @@ func (m *ProfessorModel) GetProfessorsByCourse(courseID uint, professors *[]User
 	return
 }
 
+func (m *ProfessorModel) GetProfessorsByDepartment(deptID uint, professors *[]User) (err error) {
+	err = m.DB.Scopes(m.scopeDefault).Where(&User{DepartmentID: &deptID}).Find(&professors).Error
+	return
+}
+
+// Default scope: at williams and is professor
 func (m *ProfessorModel) scopeDefault(db *gorm.DB) *gorm.DB {
+	return m.scopeAtWilliams(m.scopeIsProfessor(db))
+}
+
+func (m *ProfessorModel) scopeIsProfessor(db *gorm.DB) *gorm.DB {
 	return db.Where("users.type = ?", UserTypeProfessor)
 }

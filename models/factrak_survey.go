@@ -20,8 +20,8 @@ func NewFactrakSurveyModel(db *gorm.DB) *FactrakSurveyModel {
 	}
 }
 
-// Gets surveys by professor id, course id, or both
-func (m *FactrakSurveyModel) GetSurveysByProfessorOrCourse(profID *uint, courseID *uint, fs *[]*FactrakSurvey) (err error) {
+// Gets surveys by professor id, course id, or both.
+func (m *FactrakSurveyModel) GetSurveysByProfessorOrCourse(profID *uint, courseID *uint, profAtWilliams bool, fs *[]*FactrakSurvey) (err error) {
 	scopes := []func(db *gorm.DB) *gorm.DB{
 		m.scopeDefault,
 	}
@@ -33,6 +33,9 @@ func (m *FactrakSurveyModel) GetSurveysByProfessorOrCourse(profID *uint, courseI
 	}
 	if courseID != nil {
 		scopes = append(scopes, m.withCourseID(*courseID))
+	}
+	if profAtWilliams {
+		scopes = append(scopes, m.scopeProfAtWilliams)
 	}
 
 	err = m.DB.Scopes(scopes...).Find(fs).Error

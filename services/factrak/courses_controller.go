@@ -22,7 +22,7 @@ func (t *Controller) ListCourses(c *gin.Context) {
 	t.RespondOK(c, courses)
 }
 
-// Get one professor
+// Get one course
 func (t *Controller) GetCourse(c *gin.Context) {
 	// Decode courseID.
 	courseID, err := services.GetUIntParam(c, "courseID")
@@ -75,7 +75,7 @@ func (t *Controller) ListCourseSurveys(c *gin.Context) {
 	// Do database query
 	var surveys []*models.FactrakSurvey
 
-	err = t.surveyModel.GetSurveysByProfessorOrCourse(profID, &courseID, &surveys)
+	err = t.surveyModel.GetSurveysByProfessorOrCourse(profID, &courseID, true, &surveys)
 	if err != nil {
 		t.RespondError(c, err)
 		return
