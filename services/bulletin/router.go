@@ -8,7 +8,7 @@ import (
 func SetupRouter(r gin.IRouter, db *gorm.DB) {
 	c := NewController(db)
 	r.GET("/", c.FetchAllBulletins)
-	r.GET("/:bulletinID", c.GetBulletin)
-	r.PUT("/:bulletinID", c.UpdateBulletin)
-	r.DELETE("/:bulletinID", c.DeleteBulletin)
+	r.GET("/:bulletin_id", c.GetBulletin)
+	r.PUT("/:bulletin_id", c.UpdateBulletin)
+	r.DELETE("/:bulletin_id", c.DeleteBulletin)
 }

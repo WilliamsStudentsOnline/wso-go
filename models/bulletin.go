@@ -29,7 +29,14 @@ func (m *BulletinModel) DeleteBulletinByID(id uint, b *Bulletin) (err error) {
 
 // Update the bulletin. Only allow specific keys to be passed
 func (m *BulletinModel) UpdateBulletin(id uint, update map[string]interface{}) (err error) {
-	MapPermit(update, "title", "body", "startDate", "endDate")
-	err = m.DB.Model(NewBulletinWithID(id)).Updates(update).Error
+	dbUpdate := map[string]interface{}{
+		"title":     update["title"],
+		"body":      update["body"],
+		"startDate": update["startDate"],
+		"endDate":   update["endDate"],
+	}
+	DeleteNilFields(dbUpdate)
+
+	err = m.DB.Model(NewBulletinWithID(id)).Updates(dbUpdate).Error
 	return
 }

@@ -101,6 +101,7 @@ func (t *Controller) UpdateBulletin(c *gin.Context) {
 }
 
 // Delete bulletin by id
+// TODO: adding scoping to only allow if admin
 func (t *Controller) DeleteBulletin(c *gin.Context) {
 	var bulletinID uint
 	var err error

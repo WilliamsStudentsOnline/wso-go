@@ -192,7 +192,7 @@ func TestController_UpdateBulletin(t *testing.T) {
 	assert.Equal(bulletin1.Title, respBulletin.Title)
 
 	// Construct update params
-	var jsonStr = []byte(`{"title":"ByeWSO."}`)
+	var jsonStr = []byte(`{"title":"HelloWSO.","type":"job"}`)
 
 	// Update test bulletin
 	w, err = utils.DoHTTPReq(router, http.MethodPut, "/1", bytes.NewBuffer(jsonStr))
@@ -211,8 +211,9 @@ func TestController_UpdateBulletin(t *testing.T) {
 	err = json.Unmarshal(respData, &respBulletin)
 	assert.NoError(err)
 
-	// Check if correct bulletin
-	assert.Equal("ByeWSO.", respBulletin.Title)
-}
+	// Check if bulletin title is updated
+	assert.Equal("HelloWSO.", respBulletin.Title)
 
-// TODO: Tests: 1) Unable to update forbidden fields
+	// Check if bulletin type is not updated
+	assert.Equal(bulletin1.Type, respBulletin.Type)
+}
