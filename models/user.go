@@ -23,15 +23,109 @@ func (m *UserModel) GetAllUsers(u *[]User) (err error) {
 }
 
 func (m *UserModel) GetUserByID(id uint, u *User) (err error) {
-	err = m.DB.Where(NewUserWithID(id)).First(u).Error
+	err = m.DB.Where(NewUserWithID(id)).Preload("Tags").First(u).Error
 	return
 }
 
 // Update the user. Only allow specific keys to be passed
 func (m *UserModel) UpdateUser(id uint, update map[string]interface{}) (err error) {
-	MapPermit(update, "visible", "dorm_visible", "home_visible", "pronoun", "off_cycle")
-	err = m.DB.Model(NewUserWithID(id)).Updates(update).Error
+	dbUpdate := map[string]interface{}{
+		"visible":      update["visible"],
+		"dorm_visible": update["dormVisible"],
+		"home_visible": update["homeVisible"],
+		"pronoun":      update["pronoun"],
+		"off_cycle":    update["offCycle"],
+	}
+	DeleteNilFields(dbUpdate)
+
+	err = m.DB.Model(NewUserWithID(id)).Updates(dbUpdate).Error
 	return
+}
+
+func (m *UserModel) UpdateUserTags(id uint, tags []string) (err error) {
+	// Get user
+	user := new(User)
+	err = m.DB.First(&user, id).Error
+	if err != nil {
+		return err
+	}
+
+	// Start transaction
+	tx := m.DB.Begin()
+	if err = tx.Error; err != nil {
+		return err
+	}
+
+	// Clear previous tags
+	err = tx.Model(&user).Association("Tags").Clear().Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// Add new tags
+	for _, tagName := range tags {
+		// Get tag
+		tag := new(Tag)
+		err = m.DB.Where(&Tag{
+			Name: tagName,
+		}).First(tag).Error
+
+		// If we don't have the tag, error
+		if err != nil {
+			tx.Rollback()
+			if gorm.IsRecordNotFoundError(err) {
+				return errors.New("invalid user tag")
+			}
+			return err
+		}
+
+		// If we do have the tag, add it
+		err = tx.Model(&user).Association("Tags").Append(tag).Error
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	return tx.Commit().Error
+}
+
+func (m *UserModel) updateUserUnsafe(dbUser *User, toUser *User) error {
+	if toUser.Type != dbUser.Type {
+		log.Infof("Changing type of user %s from %s to %s", dbUser.UnixID, dbUser.Type, toUser.Type)
+		dbUser.Type = toUser.Type
+	}
+
+	// 100% Could do this is a less verbose way, but this way is much more secure
+	dbUser.Name = toUser.Name
+	dbUser.CellPhone = toUser.CellPhone
+	dbUser.CampusPhoneExt = toUser.CampusPhoneExt
+	dbUser.WilliamsEmail = toUser.WilliamsEmail
+	dbUser.Title = toUser.Title
+	dbUser.Visible = toUser.Visible
+	dbUser.ClassYear = toUser.ClassYear
+	dbUser.DepartmentID = toUser.DepartmentID
+	dbUser.Department = toUser.Department
+	dbUser.HomeTown = toUser.HomeTown
+	dbUser.HomeZip = toUser.HomeZip
+	dbUser.HomePhone = toUser.HomePhone
+	dbUser.HomeState = toUser.HomeState
+	dbUser.HomeCountry = toUser.HomeCountry
+	dbUser.Major = toUser.Major
+	dbUser.SUBox = toUser.SUBox
+	dbUser.OfficeID = toUser.OfficeID
+	dbUser.Office = toUser.Office
+	dbUser.DormRoomID = toUser.DormRoomID
+	dbUser.DormRoom = toUser.DormRoom
+	dbUser.AtWilliams = toUser.AtWilliams
+
+	// Don't remove entry, but can update it
+	if toUser.Entry != nil {
+		dbUser.Entry = toUser.Entry
+	}
+
+	return m.DB.Save(dbUser).Error
 }
 
 func (m *UserModel) FirstOrCreateFromUnixID(unixID string, config *config.Config) (*User, error) {
@@ -91,6 +185,10 @@ func (m *UserModel) Students() ([]*Student, error) {
 
 // TODO: AIDAN ENSURE THAT NIL FIELDS DON'T OVERWRITE CURRENT USER FIELDS (AT LEAST FOR ENTRY)
 func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*User, error) {
+	if config.DisableLDAP {
+		return nil, errors.New("LDAP is disabled in config")
+	}
+
 	// Initialize LDAPs
 	willyLdap := lib.NewWilliamsLDAP()
 	ndsLdap := lib.NewNDSLDAP()
@@ -108,11 +206,13 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 	}
 	defer willyLdap.Close()
 
+	log.Info("Start Willy LDAP each")
 	// Get all users from Willy LDAP
 	userEntries, err := willyLdap.Each("uid", unixSearch)
 	if err != nil {
 		return nil, err
 	}
+	log.Info("End Willy LDAP each")
 
 	// Connect the NDS LDAP
 	err = ndsLdap.Connect()
@@ -132,7 +232,7 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 			WilliamsEmail: entry.GetAttributeValue("mail"),
 			Visible:       parseBool(entry.GetAttributeValue("visible")),
 			// User is in Ldap, therefore is at williams.
-			//  Explicitly set this to handle alums who return as fac/staff
+			// Explicitly set this to handle alums who return as fac/staff
 			AtWilliams: true,
 			// By default we set everyone as staff, as there are many edge case affiliations.
 			Type: UserTypeStaff,
@@ -206,7 +306,7 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 
 				if err != nil {
 					if gorm.IsRecordNotFoundError(err) {
-						log.Warnln("Encountered unknown dorm:", dormName)
+						log.Warn("Encountered unknown dorm:", dormName)
 						user.DormRoomID = nil
 						user.DormRoom = nil
 					} else if err != nil {
@@ -276,7 +376,122 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 	return users, nil
 }
 
-//func (m *UserModel) UpdateAllFromLDAP
+func (m *UserModel) UpdateAllFromLDAP(cfg *config.Config) error {
+	log.Info("Begin user update from LDAP")
+	unixesAtWilliams := make(map[string]bool)
+
+	log.Info("Start LDAP lookup")
+	toUsers, err := m.LDAPLookup("*", cfg)
+	if err != nil {
+		return err
+	}
+	log.Info("End LDAP lookup")
+
+	for _, toUser := range toUsers {
+		unixesAtWilliams[toUser.UnixID] = true
+		dbUser := new(User)
+
+		query := m.DB.Where(&User{
+			UnixID: toUser.UnixID,
+		}).First(dbUser)
+		// Error if it is a real error
+		if query.Error != nil && !query.RecordNotFound() {
+			return query.Error
+		}
+
+		// Either update or create the LDAP user
+		if !query.RecordNotFound() {
+			// If the user exists
+			// TODO: Figure out a way to batch these calls
+			err = m.updateUserUnsafe(dbUser, toUser)
+			if err != nil {
+				log.WithError(err).Errorf("Could not save user %s with %#+v", toUser.UnixID, toUser)
+			}
+		} else {
+			// If the user does not exist
+			log.Infof("Creating new user %s type %s", toUser.UnixID, toUser.Type)
+			err = m.DB.Create(toUser).Error
+			if err != nil {
+				log.WithError(err).Errorf("Could not create user %s with %#+v", toUser.UnixID, toUser)
+			}
+		}
+	}
+
+	// Get database users
+	var users []User
+	if err = m.DB.Find(&users).Error; err != nil {
+		return err
+	}
+
+	// Connect to NDS
+	ndsLdap := lib.NewNDSLDAP()
+	err = ndsLdap.Connect()
+	if err != nil {
+		return err
+	}
+	defer ndsLdap.Close()
+
+	for _, user := range users {
+		// If user's unix was not found in the LDAP
+		if _, ok := unixesAtWilliams[user.UnixID]; !ok {
+			// Update not in LDAP:
+			// TODO: Figure out a way to batch these calls
+			err = m.updateNotInLDAP(&user, ndsLdap)
+			if err != nil {
+				log.WithError(err).Errorf("Could not update (not in LDAP) user %s with %#+v", user.UnixID, user)
+			}
+		}
+	}
+
+	log.Info("Finished user update from LDAP")
+	return nil
+}
+
+// TODO: Add this once Factrak is done
+func (m *UserModel) UpdateServerDeficit(user *User) error {
+	if !user.IsStudent() {
+		return errors.New("user must be student")
+	}
+	return nil
+}
+
+func (*UserModel) scopeVisible(db *gorm.DB) *gorm.DB {
+	return db.Where("visible = ?", true)
+}
+
+func (*UserModel) scopeAtWilliams(db *gorm.DB) *gorm.DB {
+	return db.Where("at_williams = ?", true)
+}
+
+func (*UserModel) scopeAlphabetical(db *gorm.DB) *gorm.DB {
+	return db.Order("name DESC")
+}
+
+// Updates users that are not found in LDAP anymore (alumni usually) by searching for them on NDS,
+// finding their type, and then updating the user.
+func (m *UserModel) updateNotInLDAP(user *User, ndsLdap *lib.LDAP) error {
+	user.AtWilliams = false
+	entry, err := ndsLdap.Get("uid", user.UnixID)
+	if err != nil {
+		return err
+	}
+
+	// if LDAP returned anything
+	if entry != nil {
+		assocType := userAssociationType(entry)
+		if user.Type != assocType {
+			log.Infof("Changing type of missing user %s from %s to %s", user.UnixID, user.Type, assocType)
+		}
+		user.Type = assocType
+	}
+
+	user.DormRoom = nil
+	user.DormRoomID = nil
+	user.Office = nil
+	user.OfficeID = nil
+
+	return m.DB.Save(user).Error
+}
 
 func userAssociationType(ndsUser *ldap.Entry) string {
 	ua := lib.NewUserAssociation(

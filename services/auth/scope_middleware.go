@@ -1,4 +1,4 @@
-package config
+package auth
 
 import (
 	"errors"
@@ -43,8 +43,8 @@ func RequireScopes(scopes ...string) func(c *gin.Context) {
 
 		// If it isn't, abort with error
 		if !authed {
-			services.Base.RespondError(
-				http.StatusForbidden, errors.New("user does not have scope authorization"), c)
+			services.Base.RespondError(c,
+				http.StatusForbidden, errors.New("user does not have scope authorization"))
 			return
 		}
 

@@ -3,18 +3,19 @@ package main
 import (
 	"errors"
 	"flag"
-	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 	"net/http"
 	"os"
 	"path/filepath"
 
-	authService "github.com/WilliamsStudentsOnline/wso-go/services/auth"
+	"github.com/WilliamsStudentsOnline/wso-go/services/auth"
+	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	migrate "github.com/WilliamsStudentsOnline/wso-go/db"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
+	adminService "github.com/WilliamsStudentsOnline/wso-go/services/admin"
 	userService "github.com/WilliamsStudentsOnline/wso-go/services/user"
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/fvbock/endless"
@@ -36,11 +37,14 @@ func main() {
 
 	/* Logging */
 	log.SetOutput(os.Stdout)
+	log.SetFormatter(&log.TextFormatter{
+		FullTimestamp: true,
+	})
 
 	/* Config */
 	cfg, err := config.GetConfig(env, configPath)
 	if err != nil {
-		log.Fatalln("Config Error: " + err.Error())
+		log.Fatal("Config Error: " + err.Error())
 	}
 
 	if cfg.IsProduction() {
@@ -56,18 +60,18 @@ func main() {
 		// If secrets file exists, parse it
 		secrets, err := config.GetSecrets(secretsPath)
 		if err != nil {
-			log.Fatalln("Secrets Error: " + err.Error())
+			log.Fatal("Secrets Error: " + err.Error())
 		}
 		cfg.Secrets = secrets
 	} else if !cfg.IsProduction() {
-		log.Warnln("Secrets file not found; generating stubs based on defaults")
+		log.Warn("Secrets file not found; generating stubs based on defaults")
 		// If secrets file does not exist, but we are not in production, stub the required secrets
 		cfg.Secrets = &config.Secrets{
 			JWTSecretKey: "wso-jwt-" + cfg.Env + "-secret",
 		}
 	} else {
 		// If secrets file does not exist, and we are in production, fail
-		log.Fatalln("Secrets file must exist in production")
+		log.Fatal("Secrets file must exist in production")
 	}
 
 	/* DATABASE */
@@ -77,7 +81,7 @@ func main() {
 	/* Database Migrations */
 	err = migrate.MigrateDB(db)
 	if err != nil {
-		log.Fatalln("Migration Error: " + err.Error())
+		log.Fatal("Migration Error: " + err.Error())
 	}
 
 	/* Gin Mode */
@@ -95,14 +99,14 @@ func main() {
 	/* Router */
 	r, err := SetupRouter(cfg, db)
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatal(err)
 	}
 
 	// Would change this to be more production-friendly in real life. I'd use something like endless to keep
 	// the server running even when it crashes
 	err = endless.ListenAndServe(":"+cfg.Port, r) // listen and serve on 0.0.0.0:8080
 	if err != nil {
-		log.Fatalln("Server Error: " + err.Error())
+		log.Fatal("Server Error: " + err.Error())
 	}
 }
 
@@ -121,7 +125,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 	r.Use(gin.Recovery())
 
 	// Build JWT auth middleware
-	authMiddleware, err := authService.LoadAuthMiddleware(cfg, db)
+	authMiddleware, err := auth.LoadAuthMiddleware(cfg, db)
 	if err != nil {
 		return nil, errors.New("JWT Error: " + err.Error())
 	}
@@ -135,7 +139,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 	r.NoRoute(authMiddleware.MiddlewareFunc(), func(c *gin.Context) {
 		claims := jwt.ExtractClaims(c)
 		log.Infof("NoRoute claims: %#v\n", claims)
-		services.Base.RespondError(http.StatusNotFound, errors.New("page not found"), c)
+		services.Base.RespondError(c, http.StatusNotFound, errors.New("page not found"))
 	})
 
 	// Wrap everything else in authentication
@@ -148,7 +152,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 		userID := uint(claims["id"].(float64))
 		user := models.NewUserWithID(userID)
 		c.Set("user", &user)
-		c.Set("user_id", userID)
+		c.Set("userID", userID)
 		c.Next()
 	})
 
@@ -156,10 +160,15 @@ func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 	v1 := router.Group("/api/v1")
 	{
 		// Authentication for refresh user & other auth commands for already logged in users
-		authService.SetupRouter(v1.Group("/auth"), authMiddleware)
+		auth.SetupRouter(v1.Group("/auth"), authMiddleware)
 
 		// User API group
 		userService.SetupRouter(v1.Group("/user"), db)
+
+		// Admin API group
+		adminGroup := v1.Group("/admin")
+		adminGroup.Use(auth.RequireScopes(auth.ScopeAdminAll))
+		adminService.SetupRouter(adminGroup, db, cfg)
 	}
 
 	return r, nil

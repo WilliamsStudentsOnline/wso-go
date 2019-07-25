@@ -32,53 +32,52 @@ func (t *Controller) FetchAllUsers(c *gin.Context) {
 	err := t.userModel.GetAllUsers(&users)
 
 	if err != nil {
-		t.RespondError(http.StatusInternalServerError, err, c)
+		t.RespondError(c, http.StatusInternalServerError, err)
 		return
 	}
 
-	t.RespondOK(users, c)
+	t.RespondOK(c, users)
 }
 
 // Get user by id. Pass "me" if you want to get self
 func (t *Controller) GetUser(c *gin.Context) {
-	userIDStr := c.Param("user_id")
-
-	var userID uint
-	var err error
-
 	// Decode userID or self.
-	if userIDStr == "me" {
-		userID = (c.MustGet("user_id")).(uint)
-	} else {
-		userID, err = services.GetUIntParam("user_id", c)
-		if err != nil {
-			t.RespondError(http.StatusBadRequest, errors.New("could not parse user id"), c)
-			return
-		}
+	userID, err := getUserIDParamOrSelf(c)
+	if err != nil {
+		t.RespondError(c, http.StatusBadRequest, err)
 	}
 
 	// Do database query
 	var user models.User
-	err = t.userModel.GetUserByID(uint(userID), &user)
+	err = t.userModel.GetUserByID(userID, &user)
 	if err != nil {
-		t.RespondError(http.StatusInternalServerError, err, c)
+		t.RespondError(c, http.StatusInternalServerError, err)
 		return
 	}
 
-	t.RespondOK(user, c)
+	if !user.Visible {
+		t.RespondAPIError(c, ErrorNotVisible)
+		return
+	}
+
+	if !user.AtWilliams {
+		t.RespondAPIError(c, ErrorNotAtWilliams)
+		return
+	}
+
+	t.RespondOK(c, user)
 }
 
 func (t *Controller) UpdateUser(c *gin.Context) {
-	// Decode parameter
-	userID, err := services.GetUIntParam("user_id", c)
+	// Decode userID or self.
+	userID, err := getUserIDParamOrSelf(c)
 	if err != nil {
-		t.RespondError(http.StatusBadRequest, errors.New("could not parse user id"), c)
-		return
+		t.RespondError(c, http.StatusBadRequest, err)
 	}
 
 	// Must only be able to update self
 	if userID != services.GetUserID(c) {
-		t.RespondError(http.StatusForbidden, errors.New("can only update self"), c)
+		t.RespondError(c, http.StatusForbidden, errors.New("can only update self"))
 		return
 	}
 
@@ -86,17 +85,74 @@ func (t *Controller) UpdateUser(c *gin.Context) {
 	var update map[string]interface{}
 	err = c.ShouldBind(&update)
 	if err != nil {
-		t.RespondError(http.StatusBadRequest, errors.New("could not bind update params"), c)
+		t.RespondError(c, http.StatusBadRequest, errors.New("could not parse malformed request data"))
 		return
 	}
 
 	// Update the user in the db
 	err = t.userModel.UpdateUser(userID, update)
 	if err != nil {
-		t.RespondError(http.StatusInternalServerError, err, c)
+		t.RespondError(c, http.StatusInternalServerError, err)
 		return
 	}
 
 	// Return nothing
-	t.RespondOK(nil, c)
+	t.RespondOK(c, nil)
+}
+
+func (t *Controller) UpdateUserTags(c *gin.Context) {
+	// Decode userID or self.
+	userID, err := getUserIDParamOrSelf(c)
+	if err != nil {
+		t.RespondError(c, http.StatusBadRequest, err)
+	}
+
+	// Must only be able to update self
+	if userID != services.GetUserID(c) {
+		t.RespondError(c, http.StatusForbidden, errors.New("can only update self"))
+		return
+	}
+
+	// Bind update params
+	var update []string
+	err = c.ShouldBind(&update)
+	if err != nil {
+		t.RespondError(c, http.StatusBadRequest, errors.New("could not parse malformed request data"))
+		return
+	}
+
+	// Update the user in the db
+	err = t.userModel.UpdateUserTags(userID, update)
+	if err != nil {
+		if err.Error() == "invalid user tag" {
+			t.RespondError(c, http.StatusBadRequest, err)
+			return
+		}
+
+		t.RespondError(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	// Return nothing
+	t.RespondOK(c, nil)
+}
+
+// Decode userID from passed param or get self's userID if param="me".
+func getUserIDParamOrSelf(c *gin.Context) (uint, error) {
+	userIDStr := c.Param("userID")
+
+	var userID uint
+	var err error
+
+	// Decode userID or self.
+	if userIDStr == "me" {
+		userID = services.GetUserID(c)
+	} else {
+		userID, err = services.GetUIntParam(c,"userID")
+		if err != nil {
+			return 0, errors.New("could not parse user id")
+		}
+	}
+
+	return userID, nil
 }
