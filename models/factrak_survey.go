@@ -43,9 +43,9 @@ func (m *FactrakSurveyModel) DoesSurveyExist(id uint) (exists bool, err error) {
 func (m *FactrakSurveyModel) CheckDuplicateSurvey(userID uint, profID uint, courseID uint) (duplicate bool, err error) {
 	var count int
 	err = m.DB.Model(&FactrakSurvey{}).Where(&FactrakSurvey{
-		UserID: userID,
+		UserID:      userID,
 		ProfessorID: profID,
-		CourseID: courseID,
+		CourseID:    courseID,
 	}).Count(&count).Error
 	duplicate = count > 0
 	return
@@ -66,7 +66,6 @@ func (m *FactrakSurveyModel) CreateSurvey(p *FactrakSurvey) (err error) {
 		Find(p).Error
 	return
 }
-
 
 // Gets surveys by professor id, course id, or both.
 func (m *FactrakSurveyModel) GetSurveysByProfessorOrCourse(profID *uint, courseID *uint, profAtWilliams bool, fs *[]*FactrakSurvey) (err error) {

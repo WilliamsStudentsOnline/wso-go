@@ -44,7 +44,6 @@ func (*FactrakSurvey) TableName() string {
 	return "factrak_surveys"
 }
 
-
 func (s *FactrakSurvey) AfterDelete(tx *gorm.DB) (err error) {
 	// Delete (permanent) factrack agreements
 	err = tx.Unscoped().Where(FactrakAgreement{FactrakSurveyID: s.ID}).Delete(&FactrakAgreement{}).Error

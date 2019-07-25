@@ -40,14 +40,14 @@ func SetupRouter(r gin.IRouter, db *gorm.DB) {
 	r.GET("/areas-of-study/:areaOfStudyID/professors", c.ListAreaOfStudyProfessors) // Get area's professors
 	r.GET("/areas-of-study/:areaOfStudyID/courses", c.ListAreaOfStudyCourses)       // Get area's courses
 
-	r.GET("/surveys", c.ListSurveys)                      // List surveys
-	r.GET("/surveys/:surveyID", c.GetSurvey)            // Get specific one (have agreements as a count)
+	r.GET("/surveys", c.ListSurveys)         // List surveys
+	r.GET("/surveys/:surveyID", c.GetSurvey) // Get specific one (have agreements as a count)
 
 	// Current workflow is to post data to survey (where it creates a course if necessary).
 	// TODO: Could also do this (which one is better?):
 	// GET/POST to course to get a valid course
 	// POST survey model to surveys
-	r.POST("/surveys", c.CreateSurvey)                     // Create
+	r.POST("/surveys", c.CreateSurvey) // Create
 
 	r.PUT("/surveys/:surveyID")            // Edit
 	r.DELETE("/surveys/:surveyID")         // Delete

@@ -26,7 +26,7 @@ func TestController_ListSurveys(t *testing.T) {
 	c1 := models.Course{
 		Number: "c1",
 		AreaOfStudy: &models.AreaOfStudy{
-			Name: "Computer Science",
+			Name:         "Computer Science",
 			Abbreviation: "CSCI",
 			Department: &models.Department{
 				Name: "Computer Science",
@@ -98,7 +98,7 @@ func TestController_GetSurvey(t *testing.T) {
 	c1 := models.Course{
 		Number: "c1",
 		AreaOfStudy: &models.AreaOfStudy{
-			Name: "Computer Science",
+			Name:         "Computer Science",
 			Abbreviation: "CSCI",
 			Department: &models.Department{
 				Name: "Computer Science",
@@ -202,7 +202,7 @@ func TestController_CreateSurvey(t *testing.T) {
 	c1 := models.Course{
 		Number: "c1",
 		AreaOfStudy: &models.AreaOfStudy{
-			Name: "Computer Science",
+			Name:         "Computer Science",
 			Abbreviation: "CSCI",
 			Department: &models.Department{
 				Name: "Computer Science",
@@ -212,7 +212,7 @@ func TestController_CreateSurvey(t *testing.T) {
 	c2 := models.Course{
 		Number: "c2",
 		AreaOfStudy: &models.AreaOfStudy{
-			Name: "Economics",
+			Name:         "Economics",
 			Abbreviation: "ECON",
 			Department: &models.Department{
 				Name: "Economics",
@@ -220,7 +220,7 @@ func TestController_CreateSurvey(t *testing.T) {
 		},
 	}
 	a1 := models.AreaOfStudy{
-		Name: "Mathematics",
+		Name:         "Mathematics",
 		Abbreviation: "MATH",
 		Department: &models.Department{
 			Name: "Mathematics & Statistics",
@@ -279,16 +279,16 @@ func TestController_CreateSurvey(t *testing.T) {
 
 	// Test 8: error on bad area of study abbrev
 	params = SurveyCreateParams{ProfessorID: &p1.ID, Comment: generateSurveyTestComment(),
-		CourseNumber: lib.StrToPtr("201"),
+		CourseNumber:            lib.StrToPtr("201"),
 		AreaOfStudyAbbreviation: lib.StrToPtr("PSCI"),
-		}
+	}
 	createSurveyExpectError(assert, router, params, lib.ErrorSurveyAreaOfStudyNotFound)
 
 	// Test 9: create survey via courseID
 	params = SurveyCreateParams{ProfessorID: &p1.ID, Comment: generateSurveyTestComment(),
-		CourseID: &c1.ID,
+		CourseID:         &c1.ID,
 		WouldTakeAnother: lib.BoolToPtr(false),
-		CourseWorkload: lib.IntToPtr(4),
+		CourseWorkload:   lib.IntToPtr(4),
 	}
 	resSurvey := createSurveyExpectSuccess(assert, router, params)
 
@@ -317,10 +317,10 @@ func TestController_CreateSurvey(t *testing.T) {
 
 	// Test 11: create survey via existing course number
 	params = SurveyCreateParams{ProfessorID: &p1.ID, Comment: generateSurveyTestComment(),
-		CourseNumber: &c2.Number,
+		CourseNumber:            &c2.Number,
 		AreaOfStudyAbbreviation: &c2.AreaOfStudy.Abbreviation,
-		WouldRecommendCourse: lib.BoolToPtr(true),
-		Approachability: lib.IntToPtr(0),
+		WouldRecommendCourse:    lib.BoolToPtr(true),
+		Approachability:         lib.IntToPtr(0),
 	}
 	resSurvey = createSurveyExpectSuccess(assert, router, params)
 
@@ -337,10 +337,10 @@ func TestController_CreateSurvey(t *testing.T) {
 
 	// Test 12: create survey via new course number
 	params = SurveyCreateParams{ProfessorID: &p1.ID, Comment: generateSurveyTestComment(),
-		CourseNumber: lib.StrToPtr("c3"),
+		CourseNumber:            lib.StrToPtr("c3"),
 		AreaOfStudyAbbreviation: &a1.Abbreviation,
-		WouldRecommendCourse: lib.BoolToPtr(true),
-		Approachability: lib.IntToPtr(7),
+		WouldRecommendCourse:    lib.BoolToPtr(true),
+		Approachability:         lib.IntToPtr(7),
 	}
 
 	resSurvey = createSurveyExpectSuccess(assert, router, params)
@@ -359,7 +359,7 @@ func TestController_CreateSurvey(t *testing.T) {
 func generateSurveyTestComment() string {
 	randBytes := make([]byte, 100)
 	for i := 0; i < 100; i++ {
-		randBytes[i] = byte(65 + rand.Intn(25))  //A=65 and Z = 65+25
+		randBytes[i] = byte(65 + rand.Intn(25)) //A=65 and Z = 65+25
 	}
 	return string(randBytes)
 }

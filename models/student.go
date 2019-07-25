@@ -50,7 +50,6 @@ func (m *StudentModel) scopeIsStudent(db *gorm.DB) *gorm.DB {
 	return db.Where("users.type = ?", UserTypeStudent)
 }
 
-
 type Student struct {
 	*User
 }

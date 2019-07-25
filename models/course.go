@@ -26,7 +26,7 @@ func (m *CourseModel) GetCourseByID(id uint, c *Course) (err error) {
 
 func (m *CourseModel) FindOrCreate(c *Course) (err error) {
 	return m.DB.FirstOrCreate(c, Course{
-		Number: c.Number,
+		Number:        c.Number,
 		AreaOfStudyID: c.AreaOfStudyID,
 	}).Error
 }

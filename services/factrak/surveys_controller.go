@@ -65,7 +65,7 @@ type SurveyCreateParams struct {
 
 	// Or this:
 	AreaOfStudyAbbreviation *string `json:"areaOfStudyAbbreviation"` // Like "CSCI"
-	CourseNumber *string `json:"courseNumber"` // Like "256"
+	CourseNumber            *string `json:"courseNumber"`            // Like "256"
 
 	// Must include this:
 	ProfessorID *uint `json:"professorID" binding:"required"`
@@ -158,7 +158,7 @@ func (t *Controller) CreateSurvey(c *gin.Context) {
 		// Create a course
 		// Check if area of study exists
 		area := new(models.AreaOfStudy)
-		if err = t.areaOfStudyModel.GetAreaOfStudyByAbbreviation(*createData.AreaOfStudyAbbreviation,area); err != nil {
+		if err = t.areaOfStudyModel.GetAreaOfStudyByAbbreviation(*createData.AreaOfStudyAbbreviation, area); err != nil {
 			// Don't return 404; instead, return area of study not found
 			if gorm.IsRecordNotFoundError(err) {
 				err = lib.ErrorSurveyAreaOfStudyNotFound
@@ -170,8 +170,8 @@ func (t *Controller) CreateSurvey(c *gin.Context) {
 
 		// "Create" the course, but don't stick it in the DB yet.
 		course = &models.Course{
-			Number: *createData.CourseNumber,
-			AreaOfStudy: area,
+			Number:        *createData.CourseNumber,
+			AreaOfStudy:   area,
 			AreaOfStudyID: &area.ID,
 		}
 
@@ -197,23 +197,23 @@ func (t *Controller) CreateSurvey(c *gin.Context) {
 
 	// Construct new survey
 	survey := models.FactrakSurvey{
-		UserID: user.ID,
+		UserID:      user.ID,
 		ProfessorID: prof.ID,
-		CourseID: course.ID,
+		CourseID:    course.ID,
 
-		Comment: createData.Comment,
+		Comment:              createData.Comment,
 		WouldRecommendCourse: createData.WouldRecommendCourse,
-		CourseWorkload: createData.CourseWorkload,
-		CourseStimulating: createData.CourseStimulating,
-		WouldTakeAnother: createData.WouldTakeAnother,
-		Approachability: createData.Approachability,
-		LeadLecture: createData.LeadLecture,
-		PromoteDiscussion: createData.PromoteDiscussion,
-		OutsideHelpfulness: createData.OutsideHelpfulness,
-		GradeReceived: createData.GradeReceived,
+		CourseWorkload:       createData.CourseWorkload,
+		CourseStimulating:    createData.CourseStimulating,
+		WouldTakeAnother:     createData.WouldTakeAnother,
+		Approachability:      createData.Approachability,
+		LeadLecture:          createData.LeadLecture,
+		PromoteDiscussion:    createData.PromoteDiscussion,
+		OutsideHelpfulness:   createData.OutsideHelpfulness,
+		GradeReceived:        createData.GradeReceived,
 
 		// Defaults
-		TotalAgree: 0,
+		TotalAgree:    0,
 		TotalDisagree: 0,
 	}
 
