@@ -45,11 +45,6 @@ func (t *Controller) GetProfessor(c *gin.Context) {
 		return
 	}
 
-	if !prof.AtWilliams {
-		t.RespondAPIError(c, lib.ErrorUserNotAtWilliams)
-		return
-	}
-
 	RemoveUserIDFromSurveys(c, prof.ProfessorFactrakSurveys)
 
 	t.RespondOK(c, prof)
@@ -83,6 +78,7 @@ func (t *Controller) ListProfessorSurveys(c *gin.Context) {
 	// Do database query
 	var surveys []*models.FactrakSurvey
 
+	// We already know prof is at williams, so we don't need ot do the join
 	err = t.surveyModel.GetSurveysByProfessorOrCourse(&profID, courseID, false, &surveys)
 	if err != nil {
 		t.RespondError(c, err)

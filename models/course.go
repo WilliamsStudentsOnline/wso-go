@@ -31,12 +31,25 @@ func (m *CourseModel) FindOrCreate(c *Course) (err error) {
 	}).Error
 }
 
+func (m *CourseModel) FindByAbbrevAndNumber(areaAbbreviation string, number string, c *Course) (err error) {
+	err = m.DB.
+		Preload("AreaOfStudy").
+		Preload("AreaOfStudy.Department").
+		Joins("JOIN areas_of_study ON areas_of_study.id = courses.area_of_study_id").
+		Where("areas_of_study.abbrev = ?", areaAbbreviation).
+		Where("courses.number = ?", number).
+		First(c).Error
+	return
+}
+
 // When preloading, must adhere to preloading rules defined in FactrakSurveyModel.preloadDefault()
 func (m *CourseModel) GetCourseByIDWithProfessor(id uint, c *Course, profID *uint) (err error) {
 	fsM := &FactrakSurveyModel{}
 
+	// Make sure we only return with surveys from profs at Williams
 	preloadScopes := []interface{}{
 		fsM.preloadDefault,
+		fsM.scopeProfAtWilliams,
 	}
 	if profID != nil {
 		preloadScopes = append(preloadScopes, fsM.withProfessorID(*profID))

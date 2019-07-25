@@ -78,10 +78,10 @@ func TestController_ListSurveys(t *testing.T) {
 	var resp []models.FactrakSurvey
 	assert.NoError(json.Unmarshal(respData.Data, &resp))
 
-	// Check if correct surveys
+	// Check if correct surveys (ordered by date)
 	assert.Len(resp, 2)
-	assert.Equal(fs1.Comment, resp[0].Comment)
-	assert.Equal(fs2.Comment, resp[1].Comment)
+	assert.Equal(fs2.Comment, resp[0].Comment)
+	assert.Equal(fs1.Comment, resp[1].Comment)
 
 	// Make sure anonymous
 	assert.Zero(resp[0].UserID)

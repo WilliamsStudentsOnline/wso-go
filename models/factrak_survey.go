@@ -22,19 +22,19 @@ func NewFactrakSurveyModel(db *gorm.DB) *FactrakSurveyModel {
 
 // Gets all surveys.
 func (m *FactrakSurveyModel) GetAllSurveys(p *[]*FactrakSurvey) (err error) {
-	err = m.DB.Find(p).Error
+	err = m.DB.Scopes(m.scopeProfAtWilliams, m.scopeDefault).Find(p).Error
 	return
 }
 
 // Gets survey by its id.
 func (m *FactrakSurveyModel) GetSurveyByID(id uint, p *FactrakSurvey) (err error) {
-	err = m.DB.First(p, id).Error
+	err = m.DB.Scopes(m.scopeProfAtWilliams, m.scopeDefault).First(p, id).Error
 	return
 }
 
 func (m *FactrakSurveyModel) DoesSurveyExist(id uint) (exists bool, err error) {
 	var count int
-	err = m.DB.Model(&FactrakSurvey{}).Where("facktrak_surveys.id = ?", id).Count(&count).Error
+	err = m.DB.Model(&FactrakSurvey{}).Scopes(m.scopeProfAtWilliams, m.scopeDefault).Where("facktrak_surveys.id = ?", id).Count(&count).Error
 	exists = count > 0
 	return
 }
@@ -90,7 +90,7 @@ func (m *FactrakSurveyModel) GetSurveysByProfessorOrCourse(profID *uint, courseI
 }
 
 func (m *FactrakSurveyModel) GetSurveysByProfessor(profID uint, fs *[]*FactrakSurvey) (err error) {
-	err = m.DB.Scopes(m.scopeDefault, m.withProfessorID(profID)).Find(fs).Error
+	err = m.DB.Scopes(m.scopeDefault, m.scopeProfAtWilliams, m.withProfessorID(profID)).Find(fs).Error
 	return
 }
 
@@ -100,7 +100,7 @@ func (m *FactrakSurveyModel) GetSurveysByAuthor(authorUserID uint, fs *[]*Factra
 }
 
 func (m *FactrakSurveyModel) GetSurveysByCourse(courseID uint, fs *[]*FactrakSurvey) (err error) {
-	err = m.DB.Scopes(m.scopeDefault, m.withCourseID(courseID)).Find(fs).Error
+	err = m.DB.Scopes(m.scopeDefault, m.scopeProfAtWilliams, m.withCourseID(courseID)).Find(fs).Error
 	return
 }
 

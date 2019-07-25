@@ -18,8 +18,6 @@ func TestController_ListUserSurveys(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := gin.Default()
-	SetupRouter(router, db)
 
 	// Insert test user into db
 	p1 := models.User{
@@ -70,6 +68,10 @@ func TestController_ListUserSurveys(t *testing.T) {
 
 	assert.NoError(db.Create(&fs1).Create(&fs2).Create(&fs3).Error)
 
+	router := gin.Default()
+	utils.AddUserContexts(router, s1.ID)
+	SetupRouter(router, db)
+
 	/* Get test student 1 (expect success) */
 	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/users/%d/surveys", s1.ID), nil)
 	assert.NoError(err)
@@ -90,12 +92,15 @@ func TestController_ListUserSurveys(t *testing.T) {
 	assert.Equal(fs1.Comment, resp[1].Comment)
 	assert.Equal(fs3.Comment, resp[0].Comment)
 
-	// Assert that userID is not returned
-	assert.Zero(resp[0].UserID)
-	assert.Nil(resp[0].User)
+	// Assert that userID is returned (as we are the owner)
+	assert.NotZero(resp[0].UserID)
 
 	/* Get test prof 1 (expect empty success) */
-	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/users/%d/surveys", p1.ID), nil)
+	r2 := gin.Default()
+	utils.AddUserContexts(r2, p1.ID)
+	SetupRouter(r2, db)
+
+	w, err = utils.DoHTTPReq(r2, http.MethodGet, fmt.Sprintf("/users/%d/surveys", p1.ID), nil)
 	assert.NoError(err)
 
 	// Status is okay
@@ -117,20 +122,10 @@ func TestController_ListUserSurveys(t *testing.T) {
 	// Status is not found
 	assert.Equal(http.StatusNotFound, w.Code)
 
-	/* Get test student 2 (expect success) */
+	/* Get test student 2 (expect forbidden) */
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/users/%d/surveys", s2.ID), nil)
 	assert.NoError(err)
 
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode response
-	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	resp = []models.FactrakSurvey{}
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-
-	// Check if is survey 2
-	assert.Len(resp, 1)
-	assert.Equal(fs2.Comment, resp[0].Comment)
+	// Status is forbidden
+	assert.Equal(http.StatusForbidden, w.Code)
 }

@@ -167,7 +167,7 @@ func TestController_GetProfessor(t *testing.T) {
 	assert.NoError(err)
 
 	// Status is not found
-	assert.Equal(http.StatusBadRequest, w.Code)
+	assert.Equal(http.StatusNotFound, w.Code)
 }
 
 func TestController_GetProfessorWithCourse(t *testing.T) {
