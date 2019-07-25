@@ -85,12 +85,12 @@ func TestController_ListUserSurveys(t *testing.T) {
 	var resp []models.FactrakSurvey
 	assert.NoError(json.Unmarshal(respData.Data, &resp))
 
-	// Check if is survey 1 and 3
+	// Check if is survey 3 and 1
 	assert.Len(resp, 2)
 
 	// It should be in order of created first to created last
-	assert.Equal(fs1.Comment, resp[1].Comment)
 	assert.Equal(fs3.Comment, resp[0].Comment)
+	assert.Equal(fs1.Comment, resp[1].Comment)
 
 	// Assert that userID is returned (as we are the owner)
 	assert.NotZero(resp[0].UserID)
@@ -112,7 +112,7 @@ func TestController_ListUserSurveys(t *testing.T) {
 	resp = []models.FactrakSurvey{}
 	assert.NoError(json.Unmarshal(respData.Data, &resp))
 
-	// Check if is survey 1 and 3
+	// Check if is empty
 	assert.Len(resp, 0)
 
 	/* Get random fake user (expect failure) */

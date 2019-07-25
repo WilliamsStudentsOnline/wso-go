@@ -12,7 +12,7 @@ import (
 
 // List user's surveys
 func (t *Controller) ListUserSurveys(c *gin.Context) {
-	// Decode professorID.
+	// Decode userID.
 	userID, err := services.GetUIntParam(c, "userID")
 	if err != nil {
 		t.RespondErrorCode(c, http.StatusBadRequest, err)

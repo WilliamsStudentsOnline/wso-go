@@ -41,7 +41,7 @@ func (m *StudentModel) GetStudentByID(id uint, u *User) (err error) {
 	return
 }
 
-// Default scope: at williams and is professor
+// Default scope: at williams and is student
 func (m *StudentModel) scopeDefault(db *gorm.DB) *gorm.DB {
 	return m.scopeAtWilliams(m.scopeIsStudent(db))
 }

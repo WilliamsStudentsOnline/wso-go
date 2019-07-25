@@ -157,7 +157,7 @@ func TestController_GetSurvey(t *testing.T) {
 	assert.Zero(resp.UserID)
 	assert.Nil(resp.User)
 
-	// Get bad survey (expect failure
+	// Get bad survey (expect failure)
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/surveys/%d", 42), nil)
 	assert.NoError(err)
 

@@ -68,12 +68,12 @@ func (m *ProfessorModel) GetProfessorsByDepartment(deptID uint, professors *[]Us
 func (m *ProfessorModel) GetProfessorsByAreaOfStudyViaCourses(areaID uint, professors *[]User) (err error) {
 	err = m.DB.Scopes(m.scopeDefault).Where("users.id in (?)",
 		m.DB.Table("factrak_surveys").
-		Select("factrak_surveys.professor_id").
-		Where("factrak_surveys.course_id in (?)",
-			m.DB.Table("courses").
-			Select("courses.id").
-			Where("courses.area_of_study_id = ?", areaID).QueryExpr(),
-		).QueryExpr(),
+			Select("factrak_surveys.professor_id").
+			Where("factrak_surveys.course_id in (?)",
+				m.DB.Table("courses").
+					Select("courses.id").
+					Where("courses.area_of_study_id = ?", areaID).QueryExpr(),
+			).QueryExpr(),
 	).Find(professors).Error
 	return
 }

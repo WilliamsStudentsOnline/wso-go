@@ -45,7 +45,7 @@ func TestController_ListAreasOfStudy(t *testing.T) {
 	}
 	assert.NoError(db.Create(&a1).Create(&a2).Create(&a3).Error)
 
-	// Get test dept
+	// Get test area
 	w, err := utils.DoHTTPReq(router, http.MethodGet, "/areas-of-study", nil)
 	assert.NoError(err)
 
@@ -58,7 +58,7 @@ func TestController_ListAreasOfStudy(t *testing.T) {
 	var resp []models.AreaOfStudy
 	assert.NoError(json.Unmarshal(respData.Data, &resp))
 
-	// Check if correct departments
+	// Check if correct area of study
 	assert.Len(resp, 3)
 	assert.Equal(a1.Name, resp[0].Name)
 	assert.Equal(a1.Abbreviation, resp[0].Abbreviation)
@@ -92,7 +92,7 @@ func TestController_GetAreaOfStudy(t *testing.T) {
 
 	assert.NoError(db.Create(&a1).Create(&a2).Error)
 
-	// Get test department
+	// Get test area of study
 	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/areas-of-study/%d", a1.ID), nil)
 	assert.NoError(err)
 
@@ -110,14 +110,14 @@ func TestController_GetAreaOfStudy(t *testing.T) {
 	assert.Equal(a1.Department.Name, resp.Department.Name)
 
 	/* Get test bad course id (expect failure) */
-	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/departments/%d", 42), nil)
+	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/areas-of-study/%d", 42), nil)
 	assert.NoError(err)
 
 	// Status is not found
 	assert.Equal(http.StatusNotFound, w.Code)
 }
 
-func TestController_ListAreaOfStudyProfessorsProfessors(t *testing.T) {
+func TestController_ListAreaOfStudyProfessors(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
@@ -197,7 +197,7 @@ func TestController_ListAreaOfStudyProfessorsProfessors(t *testing.T) {
 	}
 	assert.NoError(db.Create(&d1).Create(&d2).Error)
 
-	/* Get test dept 1 (expect success) */
+	/* Get test area 1 (expect success) */
 	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/areas-of-study/%d/professors", d1.AreasOfStudy[0].ID), nil)
 	assert.NoError(err)
 
@@ -224,7 +224,7 @@ func TestController_ListAreaOfStudyProfessorsProfessors(t *testing.T) {
 	// Status is not found
 	assert.Equal(http.StatusNotFound, w.Code)
 
-	/* Get test dept 2 (expect success) */
+	/* Get test area 2 (expect success) */
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/areas-of-study/%d/professors", d2.AreasOfStudy[0].ID), nil)
 	assert.NoError(err)
 
@@ -318,7 +318,7 @@ func TestController_ListAreaOfStudyCoursesCourses(t *testing.T) {
 	// Status is not found
 	assert.Equal(http.StatusNotFound, w.Code)
 
-	/* Get test dept 2 (expect success) */
+	/* Get test area 2 (expect success) */
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/areas-of-study/%d/courses", a3.ID), nil)
 	assert.NoError(err)
 

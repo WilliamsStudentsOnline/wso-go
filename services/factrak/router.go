@@ -57,6 +57,6 @@ func SetupRouter(r gin.IRouter, db *gorm.DB) {
 
 	r.GET("/agreements/:agreementID")    // Get agreement
 	r.POST("/agreements")                // Add agreement
-	r.PUT("/agreements/:agreementID")    // Edit agreemenr
+	r.PUT("/agreements/:agreementID")    // Edit agreement
 	r.DELETE("/agreements/:agreementID") // Delete agreement
 }
