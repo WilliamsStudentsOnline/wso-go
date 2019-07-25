@@ -58,11 +58,11 @@ func TestController_GetDepartment(t *testing.T) {
 		Name: "Computer Science",
 		AreasOfStudy: []*models.AreaOfStudy{
 			{
-				Name: "Computer Science",
+				Name:         "Computer Science",
 				Abbreviation: "CSCI",
 			},
 			{
-				Name: "Williams Students Online",
+				Name:         "Williams Students Online",
 				Abbreviation: "WSO",
 			},
 		},
@@ -135,18 +135,18 @@ func TestController_ListDepartmentProfessors(t *testing.T) {
 	}
 	// Other dept
 	p4 := models.User{
-		Type: models.UserTypeProfessor,
-		Name: "Professor 4",
-		UnixID: "p4",
-		Visible: true,
+		Type:       models.UserTypeProfessor,
+		Name:       "Professor 4",
+		UnixID:     "p4",
+		Visible:    true,
 		AtWilliams: true,
 	}
 	// Staff
 	s1 := models.User{
-		Type: models.UserTypeStaff,
-		Name: "Staff 1",
-		UnixID: "s1",
-		Visible: true,
+		Type:       models.UserTypeStaff,
+		Name:       "Staff 1",
+		UnixID:     "s1",
+		Visible:    true,
 		AtWilliams: true,
 	}
 	assert.NoError(db.Create(&p1).Create(&p2).Create(&p3).Create(&p4).Create(&s1).Error)
@@ -176,7 +176,6 @@ func TestController_ListDepartmentProfessors(t *testing.T) {
 		},
 	}
 	assert.NoError(db.Create(&d1).Create(&d2).Error)
-
 
 	/* Get test dept 1 (expect success) */
 	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/departments/%d/professors", d1.ID), nil)
@@ -242,17 +241,17 @@ func TestController_ListDepartmentCourses(t *testing.T) {
 	a1 := models.AreaOfStudy{
 		Name:         "Computer Science",
 		Abbreviation: "CSCI",
-		Department: &d1,
+		Department:   &d1,
 	}
 	a2 := models.AreaOfStudy{
 		Name:         "Williams Students Online",
 		Abbreviation: "WSO",
-		Department: &d1,
+		Department:   &d1,
 	}
 	a3 := models.AreaOfStudy{
 		Name:         "Economics",
 		Abbreviation: "ECON",
-		Department: &d2,
+		Department:   &d2,
 	}
 	assert.NoError(db.Create(&a1).Create(&a2).Create(&a3).Error)
 
