@@ -40,12 +40,12 @@ func (m *FactrakSurveyModel) DoesSurveyExist(id uint) (exists bool, err error) {
 }
 
 // Check if survey already exists by seeing if there is already a survey with that user, course, and professor id.
-func (m *FactrakSurveyModel) CheckDuplicateSurvey(userID uint, courseID uint, profID uint) (duplicate bool, err error) {
+func (m *FactrakSurveyModel) CheckDuplicateSurvey(userID uint, profID uint, courseID uint) (duplicate bool, err error) {
 	var count int
 	err = m.DB.Model(&FactrakSurvey{}).Where(&FactrakSurvey{
 		UserID: userID,
-		CourseID: courseID,
 		ProfessorID: profID,
+		CourseID: courseID,
 	}).Count(&count).Error
 	duplicate = count > 0
 	return
@@ -63,7 +63,7 @@ func (m *FactrakSurveyModel) CreateSurvey(p *FactrakSurvey) (err error) {
 		Preload("Course").
 		Preload("Course.AreaOfStudy").
 		Preload("Course.AreaOfStudy.Department").
-		Find(p, p.ID).Error
+		Find(p).Error
 	return
 }
 

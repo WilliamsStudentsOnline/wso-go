@@ -1,6 +1,7 @@
 package factrak
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
@@ -89,6 +90,7 @@ func (t *Controller) CreateSurvey(c *gin.Context) {
 	createData := SurveyCreateParams{}
 	err := c.ShouldBind(&createData)
 	if err != nil {
+		fmt.Println(err)
 		t.RespondError(c, lib.ErrorMalformedRequestData)
 		return
 	}
@@ -97,14 +99,17 @@ func (t *Controller) CreateSurvey(c *gin.Context) {
 	if createData.CourseID == nil && (createData.AreaOfStudyAbbreviation == nil || createData.CourseNumber == nil) {
 		t.RespondError(c, lib.ErrorSurveyMissingCourseParams)
 		return
-	} else if createData.CourseNumber != nil && *createData.CourseNumber == "" {
-		// Course number cannot be blank
+	}
+
+	// Course number & area abbreviation cannot be blank
+	if (createData.CourseNumber != nil && createData.AreaOfStudyAbbreviation != nil) &&
+		(*createData.CourseNumber == "" || *createData.AreaOfStudyAbbreviation == "") {
 		t.RespondError(c, lib.ErrorSurveyMissingCourseParams)
 		return
 	}
 
 	if len(createData.Comment) < 100 {
-		t.RespondError(c, lib.ErrorCommentTooSmall)
+		t.RespondError(c, lib.ErrorSurveyCommentTooSmall)
 		return
 	}
 
@@ -167,6 +172,7 @@ func (t *Controller) CreateSurvey(c *gin.Context) {
 		course = &models.Course{
 			Number: *createData.CourseNumber,
 			AreaOfStudy: area,
+			AreaOfStudyID: &area.ID,
 		}
 
 		// Note to future user: we can find or create this safely, as we have passed all validations except for
@@ -190,7 +196,7 @@ func (t *Controller) CreateSurvey(c *gin.Context) {
 	}
 
 	// Construct new survey
-	survey := &models.FactrakSurvey{
+	survey := models.FactrakSurvey{
 		UserID: user.ID,
 		ProfessorID: prof.ID,
 		CourseID: course.ID,
@@ -211,11 +217,11 @@ func (t *Controller) CreateSurvey(c *gin.Context) {
 		TotalDisagree: 0,
 	}
 
-	err = t.surveyModel.CreateSurvey(survey)
+	err = t.surveyModel.CreateSurvey(&survey)
 	if err != nil {
 		t.RespondError(c, err)
 		return
 	}
 
-	t.RespondOK(c, survey)
+	t.RespondCreated(c, survey)
 }

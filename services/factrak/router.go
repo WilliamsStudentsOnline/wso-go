@@ -47,7 +47,7 @@ func SetupRouter(r gin.IRouter, db *gorm.DB) {
 	// TODO: Could also do this (which one is better?):
 	// GET/POST to course to get a valid course
 	// POST survey model to surveys
-	r.POST("/surveys")                     // Create
+	r.POST("/surveys", c.CreateSurvey)                     // Create
 
 	r.PUT("/surveys/:surveyID")            // Edit
 	r.DELETE("/surveys/:surveyID")         // Delete

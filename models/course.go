@@ -25,7 +25,10 @@ func (m *CourseModel) GetCourseByID(id uint, c *Course) (err error) {
 }
 
 func (m *CourseModel) FindOrCreate(c *Course) (err error) {
-	return m.DB.FirstOrCreate(c).Error
+	return m.DB.FirstOrCreate(c, Course{
+		Number: c.Number,
+		AreaOfStudyID: c.AreaOfStudyID,
+	}).Error
 }
 
 // When preloading, must adhere to preloading rules defined in FactrakSurveyModel.preloadDefault()

@@ -31,6 +31,15 @@ func (BaseController) RespondOK(c *gin.Context, data interface{}) {
 	})
 }
 
+// Respond to a request with a no content
+func (BaseController) RespondCreated(c *gin.Context, data interface{}) {
+	c.JSON(http.StatusCreated, BaseResponse{
+		Status: http.StatusCreated,
+		Data:   data,
+		Error:  nil,
+	})
+}
+
 // Base controller object for outside packages to call to access methods
 var Base = BaseController{}
 

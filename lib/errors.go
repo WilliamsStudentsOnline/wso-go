@@ -49,10 +49,10 @@ var (
 
 	// 15** are factrak errors
 	ErrorSurveyMissingCourseParams = NewAPIError(1531, "missing course parameters in create data: courseID or (areaOfStudyAbbreviation and courseNumber)")
-	ErrorCommentTooSmall           = NewAPIError(1532, "comment must be 100 characters or more")
+	ErrorSurveyCommentTooSmall     = NewAPIError(1532, "comment must be 100 characters or more")
 	ErrorSurveyStudentNotFound     = NewAPIError(1533, "user must be a student and could not be found")
 	ErrorSurveyProfessorNotFound   = NewAPIError(1534, "passed professor must be a professor and could not be found")
 	ErrorSurveyCourseNotFound      = NewAPIError(1535, "passed course could not be found")
-	ErrorSurveyAreaOfStudyNotFound      = NewAPIError(1536, "passed area of study could not be found")
-	ErrorSurveyAlreadyExists = NewAPIError(1537, "survey already exists with passed user ID, professor ID, and course ID")
+	ErrorSurveyAreaOfStudyNotFound = NewAPIError(1536, "passed area of study could not be found")
+	ErrorSurveyAlreadyExists       = NewAPIError(1537, "survey already exists with passed user ID, professor ID, and course ID")
 )
