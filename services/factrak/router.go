@@ -34,10 +34,10 @@ func SetupRouter(r gin.IRouter, db *gorm.DB) {
 	r.GET("/departments/:departmentID/professors", c.ListDepartmentProfessors) // Get department's professors
 	r.GET("/departments/:departmentID/courses", c.ListDepartmentCourses)       // Get department's courses
 
-	r.GET("/areas-of-study")                           // List areas
-	r.GET("/areas-of-study/:areaOfStudyID")            // Get area
-	r.GET("/areas-of-study/:areaOfStudyID/professors") // Get area's professors
-	r.GET("/areas-of-study/:areaOfStudyID/courses")    // Get area's courses
+	r.GET("/areas-of-study", c.ListAreasOfStudy)                                    // List areas
+	r.GET("/areas-of-study/:areaOfStudyID", c.GetAreaOfStudy)                       // Get area
+	r.GET("/areas-of-study/:areaOfStudyID/professors", c.ListAreaOfStudyProfessors) // Get area's professors
+	r.GET("/areas-of-study/:areaOfStudyID/courses", c.ListAreaOfStudyCourses)       // Get area's courses
 
 	r.GET("/surveys")                      // List surveys
 	r.GET("/surveys/:surveyID")            // Get specific one (have agreements as a count)

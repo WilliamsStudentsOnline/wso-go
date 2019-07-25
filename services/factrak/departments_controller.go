@@ -24,7 +24,7 @@ func (t *Controller) ListDepartments(c *gin.Context) {
 
 // Get one department
 func (t *Controller) GetDepartment(c *gin.Context) {
-	// Decode courseID.
+	// Decode departmentID.
 	deptID, err := services.GetUIntParam(c, "departmentID")
 	if err != nil {
 		t.RespondErrorCode(c, http.StatusBadRequest, err)
@@ -44,14 +44,14 @@ func (t *Controller) GetDepartment(c *gin.Context) {
 
 // List department's professors
 func (t *Controller) ListDepartmentProfessors(c *gin.Context) {
-	// Decode courseID.
+	// Decode departmentID.
 	deptID, err := services.GetUIntParam(c, "departmentID")
 	if err != nil {
 		t.RespondErrorCode(c, http.StatusBadRequest, err)
 		return
 	}
 
-	// Check if course exists
+	// Check if dept exists
 	exists, err := t.departmentModel.DoesDepartmentExist(deptID)
 	if err != nil {
 		t.RespondError(c, err)
@@ -76,14 +76,14 @@ func (t *Controller) ListDepartmentProfessors(c *gin.Context) {
 
 // List department's courses.
 func (t *Controller) ListDepartmentCourses(c *gin.Context) {
-	// Decode professorID.
+	// Decode departmentID.
 	deptID, err := services.GetUIntParam(c, "departmentID")
 	if err != nil {
 		t.RespondErrorCode(c, http.StatusBadRequest, err)
 		return
 	}
 
-	// Check if professor exists
+	// Check if dept exists
 	exists, err := t.departmentModel.DoesDepartmentExist(deptID)
 	if err != nil {
 		t.RespondError(c, err)

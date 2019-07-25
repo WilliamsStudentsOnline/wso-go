@@ -62,6 +62,16 @@ func (m *ProfessorModel) GetProfessorsByDepartment(deptID uint, professors *[]Us
 	return
 }
 
+func (m *ProfessorModel) GetProfessorsByAreaOfStudy(areaID uint, professors *[]User) (err error) {
+	err = m.DB.Scopes(m.scopeDefault).Where(
+		"department_id in (?)",
+		m.DB.Table("areas_of_study").Select("department_id").Where(
+			"id = ?", areaID,
+		).QueryExpr(),
+	).Find(professors).Error
+	return
+}
+
 // Default scope: at williams and is professor
 func (m *ProfessorModel) scopeDefault(db *gorm.DB) *gorm.DB {
 	return m.scopeAtWilliams(m.scopeIsProfessor(db))
