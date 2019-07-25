@@ -89,6 +89,12 @@ func (t *Controller) ListProfessorSurveys(c *gin.Context) {
 		return
 	}
 
+	err = t.surveyModel.PopulateAgreementCountsSlice(surveys)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
 	RemoveUserIDFromSurveys(c, surveys)
 
 	t.RespondOK(c, surveys)

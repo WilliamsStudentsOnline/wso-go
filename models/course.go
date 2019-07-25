@@ -18,9 +18,14 @@ func (m *CourseModel) GetAllCourses(c *[]Course) (err error) {
 	return
 }
 
-// When preloading, must adhere to preloading rules defined in FactrakSurveyModel.preloadDefault()
+// Get course by ID. NOTE: does not preload. To preload (like in factrak/courses), call GetCourseByIDWithProfessor() and
+// set profID to nil.
 func (m *CourseModel) GetCourseByID(id uint, c *Course) (err error) {
-	return m.GetCourseByIDWithProfessor(id, c, nil)
+	return m.DB.First(c, id).Error
+}
+
+func (m *CourseModel) FindOrCreate(c *Course) (err error) {
+	return m.DB.FirstOrCreate(c).Error
 }
 
 // When preloading, must adhere to preloading rules defined in FactrakSurveyModel.preloadDefault()

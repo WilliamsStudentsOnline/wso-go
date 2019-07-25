@@ -20,6 +20,54 @@ func NewFactrakSurveyModel(db *gorm.DB) *FactrakSurveyModel {
 	}
 }
 
+// Gets all surveys.
+func (m *FactrakSurveyModel) GetAllSurveys(p *[]*FactrakSurvey) (err error) {
+	err = m.DB.Find(p).Error
+	return
+}
+
+// Gets survey by its id.
+func (m *FactrakSurveyModel) GetSurveyByID(id uint, p *FactrakSurvey) (err error) {
+	err = m.DB.First(p, id).Error
+	return
+}
+
+func (m *FactrakSurveyModel) DoesSurveyExist(id uint) (exists bool, err error) {
+	var count int
+	err = m.DB.Model(&FactrakSurvey{}).Where("facktrak_surveys.id = ?", id).Count(&count).Error
+	exists = count > 0
+	return
+}
+
+// Check if survey already exists by seeing if there is already a survey with that user, course, and professor id.
+func (m *FactrakSurveyModel) CheckDuplicateSurvey(userID uint, courseID uint, profID uint) (duplicate bool, err error) {
+	var count int
+	err = m.DB.Model(&FactrakSurvey{}).Where(&FactrakSurvey{
+		UserID: userID,
+		CourseID: courseID,
+		ProfessorID: profID,
+	}).Count(&count).Error
+	duplicate = count > 0
+	return
+}
+
+// Create a new survey.
+func (m *FactrakSurveyModel) CreateSurvey(p *FactrakSurvey) (err error) {
+	err = m.DB.Create(p).Error
+	if err != nil {
+		return err
+	}
+
+	err = m.DB.
+		Preload("Professor").
+		Preload("Course").
+		Preload("Course.AreaOfStudy").
+		Preload("Course.AreaOfStudy.Department").
+		Find(p, p.ID).Error
+	return
+}
+
+
 // Gets surveys by professor id, course id, or both.
 func (m *FactrakSurveyModel) GetSurveysByProfessorOrCourse(profID *uint, courseID *uint, profAtWilliams bool, fs *[]*FactrakSurvey) (err error) {
 	scopes := []func(db *gorm.DB) *gorm.DB{
@@ -84,6 +132,38 @@ func (m *FactrakSurveyModel) GetSurveyRatingsByProfessorOrCourse(profID *uint, c
 	}
 
 	return m.getSurveyRatings(ratings, scopes...)
+}
+
+// This will populate the agreement count fields for a slice of surveys. This does an extra 2*(num surveys) SQL
+// requests, which could be slow, so disable and make a new endpoint with this data if that is the case.
+func (m *FactrakSurveyModel) PopulateAgreementCountsSlice(surveys []*FactrakSurvey) (err error) {
+	for _, survey := range surveys {
+		err = m.PopulateAgreementCounts(survey)
+		if err != nil {
+			return err
+		}
+	}
+	return
+}
+
+// This will populate the agreement count fields. This does an extra 2 SQL requests, which could be slow,
+// so disable and make a new endpoint with this data if that is the case.
+func (m *FactrakSurveyModel) PopulateAgreementCounts(survey *FactrakSurvey) (err error) {
+	var posAgree int
+	m.DB.Table("factrak_agreements").Where(
+		"factrak_agreements.factrak_survey_id = ?",
+		survey.ID,
+	).Where("factrak_agreements.agrees = ?", true).Count(&posAgree)
+
+	var negAgree int
+	m.DB.Table("factrak_agreements").Where(
+		"factrak_agreements.factrak_survey_id = ?",
+		survey.ID,
+	).Where("factrak_agreements.agrees = ?", false).Count(&negAgree)
+
+	survey.TotalAgree = posAgree
+	survey.TotalDisagree = negAgree
+	return
 }
 
 func (m *FactrakSurveyModel) getSurveyRatings(ratings *FactrakSurveyAvgRatings, scopes ...func(*gorm.DB) *gorm.DB) (err error) {

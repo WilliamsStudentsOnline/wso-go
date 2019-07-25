@@ -45,6 +45,14 @@ func HasScope(c *gin.Context, scopes ...Scope) bool {
 	return authed
 }
 
+func CheckIDIsSelf(c *gin.Context, checkSelf uint) bool {
+	val, ok := c.Get("userID")
+	if !ok {
+		return false
+	}
+	return val.(uint) == checkSelf
+}
+
 // ContainsString returns true if a string is present.
 func containsString(s []string, v string) bool {
 	for _, vv := range s {

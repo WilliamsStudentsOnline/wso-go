@@ -36,6 +36,21 @@ func (*StudentModel) SeniorYear() int {
 	return locTime.Year()
 }
 
+func (m *StudentModel) GetStudentByID(id uint, u *User) (err error) {
+	err = m.DB.Scopes(m.scopeDefault).First(u, id).Error
+	return
+}
+
+// Default scope: at williams and is professor
+func (m *StudentModel) scopeDefault(db *gorm.DB) *gorm.DB {
+	return m.scopeAtWilliams(m.scopeIsStudent(db))
+}
+
+func (m *StudentModel) scopeIsStudent(db *gorm.DB) *gorm.DB {
+	return db.Where("users.type = ?", UserTypeStudent)
+}
+
+
 type Student struct {
 	*User
 }

@@ -20,6 +20,7 @@ type Controller struct {
 	areaOfStudyModel *models.AreaOfStudyModel
 	agreementModel   *models.FactrakAgreementModel
 	surveyModel      *models.FactrakSurveyModel
+	studentModel     *models.StudentModel
 }
 
 // Construct a new user controller
@@ -32,6 +33,7 @@ func NewController(db *gorm.DB) *Controller {
 		areaOfStudyModel: models.NewAreaOfStudyModel(db),
 		agreementModel:   models.NewFactrakAgreementModel(db),
 		surveyModel:      models.NewFactrakSurveyModel(db),
+		studentModel:     models.NewStudentModel(db),
 	}
 }
 

@@ -18,6 +18,7 @@ func SetupRouter(r gin.IRouter, db *gorm.DB) {
 	r.GET("/professors/:professorID/courses", c.ListProfessorCourses) // List prof's courses
 
 	// Users Endpoint
+	// SCOPE: self, admin, factrak_admin
 	r.GET("/users/:userID/surveys", c.ListUserSurveys) // List user (students/alum) surveys
 
 	// Courses Endpoint
@@ -39,9 +40,15 @@ func SetupRouter(r gin.IRouter, db *gorm.DB) {
 	r.GET("/areas-of-study/:areaOfStudyID/professors", c.ListAreaOfStudyProfessors) // Get area's professors
 	r.GET("/areas-of-study/:areaOfStudyID/courses", c.ListAreaOfStudyCourses)       // Get area's courses
 
-	r.GET("/surveys")                      // List surveys
-	r.GET("/surveys/:surveyID")            // Get specific one (have agreements as a count)
+	r.GET("/surveys", c.ListSurveys)                      // List surveys
+	r.GET("/surveys/:surveyID", c.GetSurvey)            // Get specific one (have agreements as a count)
+
+	// Current workflow is to post data to survey (where it creates a course if necessary).
+	// TODO: Could also do this (which one is better?):
+	// GET/POST to course to get a valid course
+	// POST survey model to surveys
 	r.POST("/surveys")                     // Create
+
 	r.PUT("/surveys/:surveyID")            // Edit
 	r.DELETE("/surveys/:surveyID")         // Delete
 	r.GET("/surveys/:surveyID/agreements") // Get survey agreements

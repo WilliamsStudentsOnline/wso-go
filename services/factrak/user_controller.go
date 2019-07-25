@@ -4,12 +4,13 @@ import (
 	"net/http"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
+	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 )
 
-// List professor's surveys
+// List user's surveys
 func (t *Controller) ListUserSurveys(c *gin.Context) {
 	// Decode professorID.
 	userID, err := services.GetUIntParam(c, "userID")
@@ -18,7 +19,7 @@ func (t *Controller) ListUserSurveys(c *gin.Context) {
 		return
 	}
 
-	// Check if professor exists
+	// Check if user exists
 	exists, err := t.userModel.DoesUserExist(userID)
 	if err != nil {
 		t.RespondError(c, err)
@@ -26,6 +27,12 @@ func (t *Controller) ListUserSurveys(c *gin.Context) {
 	}
 	if !exists {
 		t.RespondError(c, lib.ErrorRecordNotFound)
+		return
+	}
+
+	// Can only be view self (unless admin or factrak admin)
+	if userID != services.GetUserID(c) || auth.HasScope(c, auth.ScopeAdminAll, auth.ScopeAdminFactrak) {
+		t.RespondError(c, lib.ErrorMustBeSelf)
 		return
 	}
 
@@ -37,8 +44,6 @@ func (t *Controller) ListUserSurveys(c *gin.Context) {
 		t.RespondError(c, err)
 		return
 	}
-
-	RemoveUserIDFromSurveys(c, surveys)
 
 	t.RespondOK(c, surveys)
 }

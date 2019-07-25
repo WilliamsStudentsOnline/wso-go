@@ -1,7 +1,6 @@
 package models
 
 import (
-	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/jinzhu/gorm"
 )
 
@@ -45,18 +44,6 @@ func (*FactrakSurvey) TableName() string {
 	return "factrak_surveys"
 }
 
-// TODO: add not_same_prof_and_course to controller
-// TODO: make comment be min 100 in controller
-// TODO: check for valid course in model
-func (s *FactrakSurvey) BeforeCreate() (err error) {
-	if !s.User.IsStudent() {
-		err = lib.ErrorUserMustBeStudent
-	}
-	if s.User.Student().Prefrosh() {
-		err = lib.ErrorUserCannotBePrefrosh
-	}
-	return
-}
 
 func (s *FactrakSurvey) AfterDelete(tx *gorm.DB) (err error) {
 	// Delete (permanent) factrack agreements
