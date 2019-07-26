@@ -49,11 +49,16 @@ func SetupRouter(r gin.IRouter, db *gorm.DB) {
 	// POST survey model to surveys
 	r.POST("/surveys", c.CreateSurvey) // Create
 
-	r.PUT("/surveys/:surveyID")            // Edit
-	r.DELETE("/surveys/:surveyID")         // Delete
+	r.PATCH("/surveys/:surveyID")  // Edit
+	r.DELETE("/surveys/:surveyID") // Delete
+
+	r.POST("/surveys/:surveyID/flag") // Flag survey
+
+	// put these in factrak admin endpoint:
+	r.GET("/flagged_surveys")           // Get flagged surveys
+	r.DELETE("/surveys/:surveyID/flag") // Delete survey flags: require admin
+
 	r.GET("/surveys/:surveyID/agreements") // Get survey agreements
-	r.POST("/surveys/:surveyID/flag")      // Flag survey
-	r.DELETE("/surveys/:surveyID/flag")    // Delete survey flags
 
 	r.GET("/agreements/:agreementID")    // Get agreement
 	r.POST("/agreements")                // Add agreement

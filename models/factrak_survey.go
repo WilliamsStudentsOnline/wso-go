@@ -67,6 +67,63 @@ func (m *FactrakSurveyModel) CreateSurvey(p *FactrakSurvey) (err error) {
 	return
 }
 
+// Rails allows you to change the course, user, and professor of the survey. I don't like that, so you can only change
+// survey details here. I am open to the idea of changing courses, though (if for example a user
+// put a typo in their course number initially)
+type SurveyUpdateParams struct {
+	// Params:
+	Comment              *string `json:"comment"`
+	WouldRecommendCourse *bool   `json:"wouldRecommendCourse"`
+	CourseWorkload       *int    `json:"courseWorkload" binding:"gte=0,lte=7"`
+	CourseStimulating    *int    `json:"courseStimulating" binding:"gte=0,lte=7"`
+	WouldTakeAnother     *bool   `json:"wouldTakeAnother"`
+	Approachability      *int    `json:"approachability" binding:"gte=0,lte=7"`
+	LeadLecture          *int    `json:"leadLecture" binding:"gte=0,lte=7"`
+	PromoteDiscussion    *int    `json:"promoteDiscussion" binding:"gte=0,lte=7"`
+	OutsideHelpfulness   *int    `json:"outsideHelpfulness" binding:"gte=0,lte=7"`
+	GradeReceived        *string `json:"gradeReceived"`
+}
+
+func (m *FactrakSurveyModel) UpdateSurvey(p *FactrakSurvey, update *SurveyUpdateParams) (err error) {
+	dbUpdate := map[string]interface{}{
+		"comment":                update.Comment,
+		"would_recommend_course": update.WouldRecommendCourse,
+		"course_workload":        update.CourseWorkload,
+		"course_stimulating":     update.CourseStimulating,
+		"would_take_another":     update.WouldTakeAnother,
+		"approachability":        update.Approachability,
+		"lead_lecture":           update.LeadLecture,
+		"promote_discussion":     update.PromoteDiscussion,
+		"outside_helpfulness":    update.OutsideHelpfulness,
+		"grade_received":         update.GradeReceived,
+	}
+	DeleteNilFields(dbUpdate)
+
+	err = m.DB.Model(p).Updates(dbUpdate).Error
+	if err != nil {
+		return
+	}
+
+	err = m.DB.First(p, p.ID).Error
+	return
+}
+
+func (m *FactrakSurveyModel) DeleteSurvey(p *FactrakSurvey) (err error) {
+	// Clear agreements
+	err = m.DB.Model(p).Association("Agreements").Clear().Error
+	if err != nil {
+		return
+	}
+
+	err = m.DB.Delete(p).Error
+	return
+}
+
+func (m *FactrakSurveyModel) SetSurveyFlag(p *FactrakSurvey, flag bool) (err error) {
+	err = m.DB.Model(p).Update("flagged", flag).Error
+	return
+}
+
 // Gets surveys by professor id, course id, or both.
 func (m *FactrakSurveyModel) GetSurveysByProfessorOrCourse(profID *uint, courseID *uint, profAtWilliams bool, fs *[]*FactrakSurvey) (err error) {
 	scopes := []func(db *gorm.DB) *gorm.DB{

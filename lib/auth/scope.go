@@ -10,12 +10,24 @@ type Scope string
 
 // The current scopes
 const (
-	ScopeAdminAll      Scope = "admin:all"
-	ScopeReadAll       Scope = "read:all"
-	ScopeWriteSelf     Scope = "write:self"
-	ScopeReadEphcatch  Scope = "read:ephcatch"
-	ScopeWriteEphcatch Scope = "write:ephcatch"
-	ScopeAdminFactrak  Scope = "admin:factrak"
+	// General scopes:
+	ScopeAdminAll     Scope = "admin:all"
+	ScopeAdminFactrak Scope = "admin:factrak"
+	// Allows client to do write-level requests as long as it is scoped to models involving self, not all models
+	ScopeWriteSelf Scope = "write:self"
+
+	// Service scopes. Permits clients to access services read only
+	// Limited access to factrak for people with outstanding survey deficit
+	ScopeFactrakLimited Scope = "service:factrak:limited"
+	// Full access to factrak for people with no survey deficit
+	ScopeFactrakFull Scope = "service:factrak:full"
+	ScopeEphcatch    Scope = "service:ephcatch"
+	ScopeBulletins   Scope = "service:bulletins"
+	// This is for factrak & users
+	ScopeUsers    Scope = "service:users"
+	ScopeDormtrak Scope = "service:dormtrak"
+	// Allows you to access other services not mentioned above
+	ScopeAllOther Scope = "service:other"
 )
 
 // Require this endpoint to have a scope; multiple scopes mean an OR. For an AND, call this function multiple times

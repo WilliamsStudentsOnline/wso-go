@@ -1,7 +1,6 @@
 package factrak
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
@@ -90,7 +89,6 @@ func (t *Controller) CreateSurvey(c *gin.Context) {
 	createData := SurveyCreateParams{}
 	err := c.ShouldBind(&createData)
 	if err != nil {
-		fmt.Println(err)
 		t.RespondError(c, lib.ErrorMalformedRequestData)
 		return
 	}
@@ -224,4 +222,122 @@ func (t *Controller) CreateSurvey(c *gin.Context) {
 	}
 
 	t.RespondCreated(c, survey)
+}
+
+// Update survey data
+func (t *Controller) UpdateSurvey(c *gin.Context) {
+	userID := services.GetUserID(c)
+
+	surveyID, err := services.GetUIntParam(c, "surveyID")
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	// Bind update params
+	updateData := models.SurveyUpdateParams{}
+	err = c.ShouldBind(&updateData)
+	if err != nil {
+		t.RespondError(c, lib.ErrorMalformedRequestData)
+		return
+	}
+
+	// Do database query
+	var survey models.FactrakSurvey
+	err = t.surveyModel.GetSurveyByID(surveyID, &survey)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	// Survey must be owned by user id
+	if survey.UserID != userID {
+		t.RespondError(c, lib.ErrorMustBeSelf)
+		return
+	}
+
+	// Validate comment
+	if updateData.Comment != nil && len(*updateData.Comment) < 100 {
+		t.RespondError(c, lib.ErrorSurveyCommentTooSmall)
+		return
+	}
+
+	// Do DB update
+	err = t.surveyModel.UpdateSurvey(&survey, &updateData)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	// Populate response
+	err = t.surveyModel.PopulateAgreementCounts(&survey)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	// We know user is owner, so don't need to delete user fields
+	t.RespondOK(c, survey)
+}
+
+// Delete survey
+func (t *Controller) DeleteSurvey(c *gin.Context) {
+	userID := services.GetUserID(c)
+
+	surveyID, err := services.GetUIntParam(c, "surveyID")
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	// Do database query
+	var survey models.FactrakSurvey
+	err = t.surveyModel.GetSurveyByID(surveyID, &survey)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	// Survey must be owned by user id
+	if survey.UserID != userID {
+		t.RespondError(c, lib.ErrorMustBeSelf)
+		return
+	}
+
+	// Do DB delete
+	err = t.surveyModel.DeleteSurvey(&survey)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	// We know user is owner, so don't need to delete user fields
+	t.RespondOK(c, survey)
+}
+
+// Flag survey for mods
+func (t *Controller) FlagSurvey(c *gin.Context) {
+	surveyID, err := services.GetUIntParam(c, "surveyID")
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	// Do database query
+	var survey models.FactrakSurvey
+	err = t.surveyModel.GetSurveyByID(surveyID, &survey)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	// Do DB flag
+	err = t.surveyModel.SetSurveyFlag(&survey, true)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	// We know user is owner, so don't need to delete user fields
+	t.RespondOK(c, nil)
 }

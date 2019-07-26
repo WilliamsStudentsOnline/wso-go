@@ -13,6 +13,16 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+type TokenLevel int
+
+// Token signing levels for payload to give scopes
+const (
+	TokenLevelUnauthenticated TokenLevel = iota
+	TokenLevelOffCampus
+	TokenLevelOnCampus
+	TokenLevelSignedIn
+)
+
 func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB) (authMiddleware *jwt.GinJWTMiddleware, err error) {
 	// The JWT middleware
 	authMiddleware, err = jwt.New(&jwt.GinJWTMiddleware{
@@ -24,24 +34,73 @@ func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB) (authMiddleware *jwt.Gi
 		// Called on login to create JWT payload
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			// We take the data (which is a User) and create the payload
-			if v, ok := data.(*models.User); ok {
-				// Set scopes here
-				scope := []auth.Scope{auth.ScopeReadAll}
+			if v, ok := data.(*AuthenticatorPayload); ok {
+				var scope []auth.Scope
 
-				if v.ID > 0 {
-					scope = append(scope, auth.ScopeWriteSelf)
+				// By default, can access bulletins
+				if v.TokenLevel >= TokenLevelOffCampus {
+					scope = append(scope, auth.ScopeBulletins)
 				}
-				if v.Admin {
-					scope = append(scope, auth.ScopeAdminAll)
-					scope = append(scope, auth.ScopeAdminFactrak)
-				} else if v.FactrakAdmin {
-					scope = append(scope, auth.ScopeAdminFactrak)
+
+				// If on-campus, can access user info
+				if v.TokenLevel >= TokenLevelOnCampus {
+					scope = append(scope, auth.ScopeUsers)
+				}
+
+				// If signed in, can access: all other
+				if v.TokenLevel >= TokenLevelSignedIn {
+					scope = append(scope, auth.ScopeAllOther)
+				}
+
+				// If user exists that we signed in with
+				if v.TokenLevel >= TokenLevelSignedIn && v.User != nil {
+					// Allow writing
+					scope = append(scope, auth.ScopeWriteSelf)
+
+					// For ephcatch and factrak, user must be a student
+					if v.User.IsStudent() {
+						// If user is a senior or ephcatch eligible, add ephcatch scope
+						if v.User.Student().Senior() || v.User.EphcatchEligibility {
+							scope = append(scope, auth.ScopeEphcatch)
+						}
+
+						// For factrak, user must be student and user accepted factrak policy
+						if v.User.HasAcceptedFactrakPolicy {
+							// TODO: ensure limited cannot get access via preloading
+							// If no factrak survey deficit, give full access
+							if v.User.FactrakSurveyDeficit != nil && *v.User.FactrakSurveyDeficit == 0 {
+								scope = append(scope, auth.ScopeFactrakFull)
+							} else {
+								// Otherwise, give limited access
+								scope = append(scope, auth.ScopeFactrakLimited)
+							}
+						}
+					}
+
+					if v.User.HasAcceptedDormtrakPolicy {
+						scope = append(scope, auth.ScopeDormtrak)
+					}
+
+					// Add admin scope
+					if v.User.Admin {
+						scope = append(scope, auth.ScopeAdminAll)
+						scope = append(scope, auth.ScopeAdminFactrak)
+					} else if v.User.FactrakAdmin {
+						// If not admin, check if factrak admin
+						scope = append(scope, auth.ScopeAdminFactrak)
+					}
+				}
+
+				var jwtUserID uint = 0
+				if v.User != nil {
+					jwtUserID = v.User.ID
 				}
 
 				// This is the final payload
 				return jwt.MapClaims{
-					"id":    v.ID,
-					"scope": scope,
+					"id":         jwtUserID,
+					"tokenLevel": v.TokenLevel,
+					"scope":      scope,
 				}
 			}
 			return jwt.MapClaims{}
@@ -51,7 +110,7 @@ func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB) (authMiddleware *jwt.Gi
 			claims := jwt.ExtractClaims(c)
 			user := new(models.User)
 			user.ID = uint(claims["id"].(float64))
-			return user
+			return user.ID
 		},
 		// Called on login to authenticate
 		Authenticator: NewController(cfg, db).Authenticator,

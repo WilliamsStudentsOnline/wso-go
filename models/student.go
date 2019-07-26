@@ -70,6 +70,10 @@ func (s *Student) Frosh() bool {
 	return s.YearNumber() == StudentYearFrosh
 }
 
+func (s *Student) Senior() bool {
+	return s.YearNumber() == StudentYearSenior
+}
+
 // The Factrak survey requirement count
 // To be excluded from the 2 surveys requirement this sem, you must have submitted
 // at least N - 2 reviews, where N is the number of classes you've taken.
