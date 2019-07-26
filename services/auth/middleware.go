@@ -6,7 +6,6 @@ import (
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
-	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
@@ -35,7 +34,7 @@ func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB) (authMiddleware *jwt.Gi
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			// We take the data (which is a User) and create the payload
 			if v, ok := data.(*AuthenticatorPayload); ok {
-				var scope []auth.Scope
+				var scope []string
 
 				// By default, can access bulletins
 				if v.TokenLevel >= TokenLevelOffCampus {
@@ -84,10 +83,10 @@ func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB) (authMiddleware *jwt.Gi
 					// Add admin scope
 					if v.User.Admin {
 						scope = append(scope, auth.ScopeAdminAll)
-						scope = append(scope, auth.ScopeAdminFactrak)
+						scope = append(scope, auth.ScopeFactrakAdmin)
 					} else if v.User.FactrakAdmin {
 						// If not admin, check if factrak admin
-						scope = append(scope, auth.ScopeAdminFactrak)
+						scope = append(scope, auth.ScopeFactrakAdmin)
 					}
 				}
 
@@ -108,9 +107,19 @@ func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB) (authMiddleware *jwt.Gi
 		// Called every request to get user's id
 		IdentityHandler: func(c *gin.Context) interface{} {
 			claims := jwt.ExtractClaims(c)
-			user := new(models.User)
-			user.ID = uint(claims["id"].(float64))
-			return user.ID
+
+			// Set scope as a context variable
+			jwtScopesIface := (claims["scope"]).([]interface{})
+
+			jwtScopes := make([]string, len(jwtScopesIface))
+			for i, v := range jwtScopesIface {
+				jwtScopes[i] = v.(string)
+			}
+			c.Set("scopes", jwtScopes)
+
+			// Set "id" -> userID as the identity in the context
+			userID := claims["id"].(float64)
+			return userID
 		},
 		// Called on login to authenticate
 		Authenticator: NewController(cfg, db).Authenticator,
@@ -143,3 +152,58 @@ func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB) (authMiddleware *jwt.Gi
 
 	return
 }
+
+/*func RegenerateToken(mw *jwt.GinJWTMiddleware) func (c *gin.Context) (string, time.Time, error) {
+	// RefreshToken refresh token and check if token is expired
+	return func (c *gin.Context) (string, time.Time, error) {
+		claims, err := mw.CheckIfTokenExpire(c)
+		if err != nil {
+			return "", time.Now(), err
+		}
+
+		// Create the token
+		newToken := jwtTokenizer.New(jwtTokenizer.GetSigningMethod(mw.SigningAlgorithm))
+		newClaims := newToken.Claims.(jwtTokenizer.MapClaims)
+
+		for key := range claims {
+			newClaims[key] = claims[key]
+		}
+
+		expire := mw.TimeFunc().Add(mw.Timeout)
+		newClaims["exp"] = expire.Unix()
+		newClaims["orig_iat"] = mw.TimeFunc().Unix()
+		tokenString, err := mw.signedString(newToken)
+
+		if err != nil {
+			return "", time.Now(), err
+		}
+
+		// set cookie
+		if mw.SendCookie {
+			maxage := int(expire.Unix() - time.Now().Unix())
+			c.SetCookie(
+				mw.CookieName,
+				tokenString,
+				maxage,
+				"/",
+				mw.CookieDomain,
+				mw.SecureCookie,
+				mw.CookieHTTPOnly,
+			)
+		}
+
+		return tokenString, expire, nil
+	}
+}
+
+// Copied from github.com/appleboy/gin-jwt/v2
+func signedString(mw *jwt.GinJWTMiddleware, token *jwtTokenizer.Token) (string, error) {
+	var tokenString string
+	var err error
+	if mw.usingPublicKeyAlgo() {
+		tokenString, err = token.SignedString(mw.privKey)
+	} else {
+		tokenString, err = token.SignedString(mw.Key)
+	}
+	return tokenString, err
+}*/

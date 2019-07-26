@@ -6,10 +6,10 @@ import (
 	"testing"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
+	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 
-	"github.com/gin-gonic/gin"
 	testify "github.com/stretchr/testify/assert"
 )
 
@@ -17,7 +17,7 @@ func TestController_GetUser(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := gin.Default()
+	router := utils.SetupRouter(auth.ScopeUsers, auth.ScopeWriteSelf)
 	SetupRouter(router, db)
 
 	// Insert test user into db
@@ -26,6 +26,8 @@ func TestController_GetUser(t *testing.T) {
 			ID: 1,
 		},
 		Name:      "Test",
+		UnixID:    "u1",
+		Visible:   true,
 		ClassYear: lib.IntToPtr(3),
 	}
 	err := db.FirstOrCreate(&user).Error
@@ -36,13 +38,14 @@ func TestController_GetUser(t *testing.T) {
 	assert.NoError(err)
 
 	// Status is okay
-	t.Log(utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error)
 	assert.Equal(http.StatusOK, w.Code)
 
 	// Decode response
-	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes()).Data
+	resp := utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(resp.Error)
+
 	respUser := models.User{}
-	err = json.Unmarshal(respData, &respUser)
+	err = json.Unmarshal(resp.Data, &respUser)
 	assert.NoError(err)
 
 	// Check if correct user

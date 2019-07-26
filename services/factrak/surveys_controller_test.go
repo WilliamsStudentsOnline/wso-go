@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
+	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	. "github.com/WilliamsStudentsOnline/wso-go/services/factrak"
@@ -20,7 +21,7 @@ func TestController_ListSurveys(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := gin.Default()
+	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	SetupRouter(router, db)
 
 	c1 := models.Course{
@@ -92,7 +93,7 @@ func TestController_GetSurvey(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := gin.Default()
+	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	SetupRouter(router, db)
 
 	c1 := models.Course{
@@ -229,7 +230,7 @@ func TestController_CreateSurvey(t *testing.T) {
 	assert.NoError(db.Create(&s1).Create(&s2).Create(&p1).Create(&p2).Create(&c1).Create(&c2).Create(&a1).Error)
 
 	// Setup router
-	router := gin.Default()
+	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(router, s1.ID)
 	SetupRouter(router, db)
 
@@ -252,7 +253,7 @@ func TestController_CreateSurvey(t *testing.T) {
 	// Test 4: error on bad student
 	params = SurveyCreateParams{ProfessorID: &p1.ID, CourseID: &c1.ID, Comment: generateSurveyTestComment()}
 	// Setup bad student router
-	r1 := gin.Default()
+	r1 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(r1, p2.ID)
 	SetupRouter(r1, db)
 	createSurveyExpectError(assert, r1, params, lib.ErrorSurveyStudentNotFound)

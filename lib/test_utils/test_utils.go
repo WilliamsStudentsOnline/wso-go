@@ -37,9 +37,20 @@ func SetupServiceTest(assert *assert.Assertions) *gorm.DB {
 	return db
 }
 
+func SetupRouter(scopes ...string) *gin.Engine {
+	router := gin.Default()
+
+	router.Use(func(c *gin.Context) {
+		c.Set("scopes", scopes)
+		c.Next()
+	})
+
+	return router
+}
+
 func AddUserContexts(router *gin.Engine, userID uint) {
 	router.Use(func(c *gin.Context) {
-		c.Set("userID", userID)
+		c.Set("id", userID)
 		c.Next()
 	})
 }

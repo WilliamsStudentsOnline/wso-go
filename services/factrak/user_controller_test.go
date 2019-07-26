@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
-	"github.com/gin-gonic/gin"
 	testify "github.com/stretchr/testify/assert"
 
 	. "github.com/WilliamsStudentsOnline/wso-go/services/factrak"
@@ -68,7 +68,7 @@ func TestController_ListUserSurveys(t *testing.T) {
 
 	assert.NoError(db.Create(&fs1).Create(&fs2).Create(&fs3).Error)
 
-	router := gin.Default()
+	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(router, s1.ID)
 	SetupRouter(router, db)
 
@@ -96,7 +96,7 @@ func TestController_ListUserSurveys(t *testing.T) {
 	assert.NotZero(resp[0].UserID)
 
 	/* Get test prof 1 (expect empty success) */
-	r2 := gin.Default()
+	r2 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(r2, p1.ID)
 	SetupRouter(r2, db)
 

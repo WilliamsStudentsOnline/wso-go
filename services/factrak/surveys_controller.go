@@ -50,7 +50,7 @@ func (t *Controller) GetSurvey(c *gin.Context) {
 	}
 
 	// Remove user info unless self, admin, or admin factrak
-	if !auth.CheckIDIsSelf(c, survey.UserID) && !auth.HasScope(c, auth.ScopeAdminAll, auth.ScopeAdminFactrak) {
+	if !auth.CheckIDIsSelf(c, survey.UserID) && !auth.HasScope(c, auth.ScopeAdminAll, auth.ScopeFactrakAdmin) {
 		survey.UserID = 0
 		survey.User = nil
 	}

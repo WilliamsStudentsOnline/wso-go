@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	. "github.com/WilliamsStudentsOnline/wso-go/services/factrak"
-	"github.com/gin-gonic/gin"
 	testify "github.com/stretchr/testify/assert"
 )
 
@@ -17,7 +17,7 @@ func TestController_ListAreasOfStudy(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := gin.Default()
+	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	SetupRouter(router, db)
 
 	d1 := models.Department{
@@ -72,7 +72,7 @@ func TestController_GetAreaOfStudy(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := gin.Default()
+	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	SetupRouter(router, db)
 
 	a1 := models.AreaOfStudy{
@@ -121,7 +121,7 @@ func TestController_ListAreaOfStudyProfessors(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := gin.Default()
+	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	SetupRouter(router, db)
 
 	// Insert test user into db
@@ -246,7 +246,7 @@ func TestController_ListAreaOfStudyCoursesCourses(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := gin.Default()
+	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	SetupRouter(router, db)
 
 	// Need this to satisfy not null

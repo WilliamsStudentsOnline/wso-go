@@ -6,32 +6,36 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Scope string
-
 // The current scopes
 const (
-	// General scopes:
-	ScopeAdminAll     Scope = "admin:all"
-	ScopeAdminFactrak Scope = "admin:factrak"
+	// Global scopes:
+	ScopeAdminAll = "admin:all"
 	// Allows client to do write-level requests as long as it is scoped to models involving self, not all models
-	ScopeWriteSelf Scope = "write:self"
+	ScopeWriteSelf = "write:self"
 
-	// Service scopes. Permits clients to access services read only
+	// Service scopes. Permits clients to access services read only. If it is included with the global write-self scope,
+	// allows write access to service, iff it is scoped to models owned and allowed to be edited by self.
+
+	// Service: Factrak
 	// Limited access to factrak for people with outstanding survey deficit
-	ScopeFactrakLimited Scope = "service:factrak:limited"
-	// Full access to factrak for people with no survey deficit
-	ScopeFactrakFull Scope = "service:factrak:full"
-	ScopeEphcatch    Scope = "service:ephcatch"
-	ScopeBulletins   Scope = "service:bulletins"
-	// This is for factrak & users
-	ScopeUsers    Scope = "service:users"
-	ScopeDormtrak Scope = "service:dormtrak"
+	ScopeFactrakLimited = "service:factrak:limited"
+	// Full access to factrak for people with no survey deficit. Includes everything from ScopeFactrakLimited.
+	ScopeFactrakFull = "service:factrak:full"
+	// Allows admin access to factrak. This includes everything from ScopeFactrakFull, while also opening up
+	// admin endpoints and allowing certain admin-level write actions (need write-self for normal actions, though).
+	ScopeFactrakAdmin = "service:factrak:admin"
+
+	ScopeEphcatch  = "service:ephcatch"
+	ScopeBulletins = "service:bulletins"
+	// This is for facebook & users
+	ScopeUsers    = "service:users"
+	ScopeDormtrak = "service:dormtrak"
 	// Allows you to access other services not mentioned above
-	ScopeAllOther Scope = "service:other"
+	ScopeAllOther = "service:other"
 )
 
 // Require this endpoint to have a scope; multiple scopes mean an OR. For an AND, call this function multiple times
-func RequireScopes(scopes ...Scope) func(c *gin.Context) {
+func RequireScopes(scopes ...string) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		// If scope isn't valid, abort with error
 		if !HasScope(c, scopes...) {
@@ -43,13 +47,13 @@ func RequireScopes(scopes ...Scope) func(c *gin.Context) {
 	}
 }
 
-func HasScope(c *gin.Context, scopes ...Scope) bool {
-	jwtScopes := c.GetStringSlice("jwtScopes")
+func HasScope(c *gin.Context, scopes ...string) bool {
+	jwtScopes := c.GetStringSlice("scopes")
 
 	// Check if the scope is valid
 	authed := false
 	for _, scope := range scopes {
-		if authed = containsString(jwtScopes, string(scope)); authed {
+		if authed = containsString(jwtScopes, scope); authed {
 			break
 		}
 	}

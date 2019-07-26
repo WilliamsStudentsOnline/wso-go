@@ -40,18 +40,21 @@ func TestUserModel_Students(t *testing.T) {
 	_, db := testSetup(assert)
 
 	db.Create(&User{
-		Type: "student",
-		Name: "foo",
+		Type:   "student",
+		Name:   "foo",
+		UnixID: "u1",
 	})
 
 	db.Create(&User{
-		Type: "alum",
-		Name: "bar",
+		Type:   "alum",
+		Name:   "bar",
+		UnixID: "u2",
 	})
 
 	db.Create(&User{
-		Type: "student",
-		Name: "baz",
+		Type:   "student",
+		Name:   "baz",
+		UnixID: "u3",
 	})
 
 	userModel := NewUserModel(db)

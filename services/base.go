@@ -100,7 +100,7 @@ func GetUIntParam(c *gin.Context, key string) (uint, error) {
 
 // Get the User ID from context store
 func GetUserID(ctx *gin.Context) uint {
-	val, ok := ctx.Get("userID")
+	val, ok := ctx.Get("id")
 	if !ok {
 		return 0
 	}

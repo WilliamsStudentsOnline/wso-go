@@ -16,6 +16,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	adminService "github.com/WilliamsStudentsOnline/wso-go/services/admin"
+	factrakService "github.com/WilliamsStudentsOnline/wso-go/services/factrak"
 	userService "github.com/WilliamsStudentsOnline/wso-go/services/user"
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/fvbock/endless"
@@ -148,31 +149,6 @@ func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 	router := r.Group("")
 	router.Use(authMiddleware.MiddlewareFunc())
 
-	// Middleware to set the user and user id with the context
-	router.Use(func(c *gin.Context) {
-		claims := jwt.ExtractClaims(c)
-		userID := uint(claims["id"].(float64))
-		c.Set("userID", userID)
-
-		// Extract the scope
-		jwtScopesIface, ok := (claims["scope"]).([]interface{})
-		if !ok {
-			return
-		}
-
-		jwtScopes := make([]string, len(jwtScopesIface))
-		for i, v := range jwtScopesIface {
-			jwtScopes[i], ok = v.(string)
-			if !ok {
-				return
-			}
-		}
-
-		c.Set("jwtScopes", jwtScopes)
-
-		c.Next()
-	})
-
 	// Actual API routing
 	v1 := router.Group("/api/v1")
 	{
@@ -188,6 +164,11 @@ func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 		adminGroup := v1.Group("/admin")
 		adminGroup.Use(auth.RequireScopes(auth.ScopeAdminAll))
 		adminService.SetupRouter(adminGroup, db, cfg)
+
+		// Factrak Service
+		factrakGroup := v1.Group("/factrak")
+		factrakGroup.Use(auth.RequireScopes(auth.ScopeFactrakLimited, auth.ScopeFactrakFull))
+		factrakService.SetupRouter(factrakGroup, db)
 	}
 
 	return r, nil
