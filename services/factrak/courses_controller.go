@@ -46,6 +46,11 @@ func (t *Controller) GetCourse(c *gin.Context) {
 
 	RemoveUserIDFromSurveys(c, course.FactrakSurveys)
 
+	// Remove surveys preload if limited scope
+	if IsScopeLimited(c) {
+		course.FactrakSurveys = nil
+	}
+
 	t.RespondOK(c, course)
 }
 

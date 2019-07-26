@@ -55,6 +55,10 @@ func RemoveUserIDFromSurveys(c *gin.Context, s []*models.FactrakSurvey) {
 	}
 }
 
+func IsScopeLimited(c *gin.Context) bool {
+	return !auth.HasScope(c, auth.ScopeAdminAll, auth.ScopeFactrakAdmin, auth.ScopeFactrakFull)
+}
+
 // Get specified query ID (eg courseID). If it does not exist, return nil. If there is an error, abort.
 // Be sure to check if the context has been aborted after calling this.
 func (t *Controller) getQueryID(c *gin.Context, key string) *uint {

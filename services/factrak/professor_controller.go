@@ -47,6 +47,11 @@ func (t *Controller) GetProfessor(c *gin.Context) {
 
 	RemoveUserIDFromSurveys(c, prof.ProfessorFactrakSurveys)
 
+	// Remove surveys preload if limited scope
+	if IsScopeLimited(c) {
+		prof.ProfessorFactrakSurveys = nil
+	}
+
 	t.RespondOK(c, prof)
 }
 
