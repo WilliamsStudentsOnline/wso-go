@@ -1,8 +1,16 @@
 package models
 
+import "github.com/jinzhu/gorm"
+
 // BulletinModel models a bulletin
 type BulletinModel struct {
-	BaseModel
+	*BaseModel
+}
+
+func NewBulletinModel(db *gorm.DB) *BulletinModel {
+	return &BulletinModel{
+		BaseModel: NewBaseModel(db),
+	}
 }
 
 // CreateBulletin creates a survey

@@ -23,13 +23,13 @@ type RespError struct {
 }
 
 type APIError struct {
-	Code int
+	Code    int
 	Message string
 }
 
 func NewAPIError(code int, message string) *APIError {
 	return &APIError{
-		Code: code,
+		Code:    code,
 		Message: message,
 	}
 }
@@ -42,6 +42,15 @@ func (e *APIError) Error() string {
 func (BaseController) RespondOK(c *gin.Context, data interface{}) {
 	c.JSON(http.StatusOK, BaseResponse{
 		Status: http.StatusOK,
+		Data:   data,
+		Error:  nil,
+	})
+}
+
+// Respond to a request with a no content
+func (BaseController) RespondCreated(c *gin.Context, data interface{}) {
+	c.JSON(http.StatusCreated, BaseResponse{
+		Status: http.StatusCreated,
 		Data:   data,
 		Error:  nil,
 	})

@@ -2,7 +2,6 @@ package bulletin
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -22,14 +21,12 @@ type Controller struct {
 // NewController constructs a new user controller
 func NewController(db *gorm.DB) *Controller {
 	return &Controller{
-		bulletinModel: &models.BulletinModel{
-			BaseModel: models.BaseModel{
-				DB: db,
-			},
-		},
+		bulletinModel: models.NewBulletinModel(db),
+		userModel:     models.NewUserModel(db),
 	}
 }
 
+// BulletinCreateParams is a struct to hold the parameters used to create a bulletin.
 type BulletinCreateParams struct {
 	Type      string    `json:"type"`
 	Title     string    `json:"title"`
@@ -70,12 +67,12 @@ func (t *Controller) CreateBulletin(c *gin.Context) {
 	}
 
 	user := new(models.User)
+
 	if err = t.userModel.GetUserByID(userID, user); err != nil {
 		if gorm.IsRecordNotFoundError(err) {
 			t.RespondAPIError(c, ErrorBulletinUserNotFound)
 			return
 		}
-
 		t.RespondError(c, http.StatusInternalServerError, err)
 		return
 	}
@@ -99,8 +96,19 @@ func (t *Controller) CreateBulletin(c *gin.Context) {
 		return
 	}
 
-	// Todo: replace with respondcreated
-	t.RespondOK(c, bulletin)
+	if !checkValidType(bulletin) {
+		t.RespondAPIError(c, ErrorBulletinInvalidType)
+		return
+	}
+
+	t.RespondCreated(c, bulletin)
+}
+
+func checkValidType(b models.Bulletin) bool {
+	if b.IsAnnouncement() || b.IsExchange() || b.IsJob() || b.IsRide() || b.IsLostAndFound() {
+		return true
+	}
+	return false
 }
 
 // FetchAllBulletins Fetches all bulletins
@@ -166,7 +174,6 @@ func (t *Controller) UpdateBulletin(c *gin.Context) {
 
 	// Must only be able to update own bulletin
 	if userID := bulletin.UserID; userID != services.GetUserID(c) {
-		fmt.Println(userID)
 		t.RespondError(c, http.StatusForbidden, errors.New("can only update own bulletin"))
 		return
 	}
@@ -215,7 +222,6 @@ func (t *Controller) DeleteBulletin(c *gin.Context) {
 
 	// Must only be able to delete own bulletin
 	if userID := bulletin.UserID; userID != services.GetUserID(c) {
-		fmt.Println(userID)
 		t.RespondError(c, http.StatusForbidden, errors.New("can only update own bulletin"))
 		return
 	}

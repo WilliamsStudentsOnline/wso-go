@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
@@ -63,6 +64,91 @@ var (
 	}
 )
 
+func TestController_CreateBulletin(t *testing.T) {
+	// Setup (can copy and paste this basically)
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+
+	// Insert test user into db
+	assert.NoError(db.Create(&u1).Error)
+
+	router := gin.Default()
+	utils.AddUserContexts(router, u1.ID)
+	SetupRouter(router, db)
+
+	// First, run tests on validations
+
+	// Test 1: Error on missing bulletin params
+	params := BulletinCreateParams{Title: "hi"}
+	// Expect ErrorMissingBulletinParams
+	createBulletinExpectError(assert, router, params, 400, 1601)
+
+	// Test 2: Missing start/end dates
+	params = BulletinCreateParams{Title: "hi", Body: "WSO"}
+	// Expect ErrorMissingBulletinDates
+	createBulletinExpectError(assert, router, params, 400, 1602)
+
+	// Test 3: Invalid start/end dates
+	params = BulletinCreateParams{Title: "hi", Body: "WSO",
+		StartDate: time.Date(2019, time.November, 10, 23, 0, 0, 0, time.UTC),
+		EndDate:   time.Date(2019, time.October, 10, 23, 0, 0, 0, time.UTC)}
+	// Expect ErrorBulletinInvalidDates
+	createBulletinExpectError(assert, router, params, 400, 1603)
+
+	// Test 4: InvalidType
+	params = BulletinCreateParams{Title: "hi", Body: "WSO", Type: "wrongType",
+		StartDate: time.Date(2019, time.November, 10, 23, 0, 0, 0, time.UTC),
+		EndDate:   time.Date(2019, time.December, 10, 23, 0, 0, 0, time.UTC)}
+	// Expect ErrorBulletinInvalidDates
+	createBulletinExpectError(assert, router, params, 400, 1605)
+
+	// Test 5: Success
+	params = BulletinCreateParams{Title: "hi", Body: "WSO", Type: "lostAndFound",
+		StartDate: time.Date(2019, time.November, 10, 23, 0, 0, 0, time.UTC),
+		EndDate:   time.Date(2019, time.December, 10, 23, 0, 0, 0, time.UTC)}
+	// Expect Success
+	resBulletin := createBulletinExpectSuccess(assert, router, params)
+
+	// Assert these values:
+	assert.Equal(params.Body, resBulletin.Body)
+	assert.Equal(params.Title, resBulletin.Title)
+	assert.Equal(params.Type, resBulletin.Type)
+	assert.Equal(params.StartDate, resBulletin.StartDate)
+	assert.Equal(params.EndDate, resBulletin.EndDate)
+}
+
+// TODO: Update with lib APIError
+func createBulletinExpectError(assert *testify.Assertions, router *gin.Engine, params BulletinCreateParams, errHTTPCode, errCode int) {
+	paramsData, err := json.Marshal(&params)
+	assert.NoError(err)
+
+	// Get bad survey (expect failure)
+	w, err := utils.DoHTTPReq(router, http.MethodPost, "/bulletins", bytes.NewBuffer(paramsData))
+	assert.NoError(err)
+	assert.Equal(errHTTPCode, w.Code)
+	// Assert correct error
+	respErrCode := utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode
+	assert.Equal(errCode, respErrCode)
+}
+
+func createBulletinExpectSuccess(assert *testify.Assertions, router *gin.Engine, params BulletinCreateParams) models.Bulletin {
+	paramsData, err := json.Marshal(&params)
+	assert.NoError(err)
+
+	// Get bad survey (expect failure)
+	w, err := utils.DoHTTPReq(router, http.MethodPost, "/bulletins", bytes.NewBuffer(paramsData))
+	assert.NoError(err)
+	assert.Equal(http.StatusCreated, w.Code)
+
+	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+
+	var resp models.Bulletin
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+
+	return resp
+}
+
 func TestController_GetBulletinByID(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
@@ -84,7 +170,7 @@ func TestController_GetBulletinByID(t *testing.T) {
 	// Decode response
 	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
 	respBulletin := models.Bulletin{}
-	err = json.Unmarshal(respData, &respBulletin)
+	err = json.Unmarshal(respData.Data, &respBulletin)
 	assert.NoError(err)
 
 	// Check if correct bulletin
@@ -122,7 +208,7 @@ func TestController_FetchAllBulletins(t *testing.T) {
 			// Decode response
 			respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
 			var respBulletin = []models.Bulletin{}
-			err = json.Unmarshal(respData, &respBulletin)
+			err = json.Unmarshal(respData.Data, &respBulletin)
 			assert.NoError(err)
 
 			// Check if length of bulletin obtained matches expectations
@@ -170,7 +256,7 @@ func TestController_DeleteBulletin(t *testing.T) {
 	// Decode response
 	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
 	respBulletin := models.Bulletin{}
-	err = json.Unmarshal(respData, &respBulletin)
+	err = json.Unmarshal(respData.Data, &respBulletin)
 	assert.NoError(err)
 
 	// Check if correct bulletin
@@ -201,7 +287,7 @@ func TestController_DeleteBulletin(t *testing.T) {
 	// Decode response
 	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
 	respBulletin = models.Bulletin{}
-	err = json.Unmarshal(respData, &respBulletin)
+	err = json.Unmarshal(respData.Data, &respBulletin)
 	assert.NoError(err)
 
 	// Check if correct bulletin
@@ -249,7 +335,7 @@ func TestController_UpdateBulletin(t *testing.T) {
 	// Decode response
 	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
 	respBulletin := models.Bulletin{}
-	err = json.Unmarshal(respData, &respBulletin)
+	err = json.Unmarshal(respData.Data, &respBulletin)
 	assert.NoError(err)
 
 	// Check if correct bulletin
@@ -273,7 +359,7 @@ func TestController_UpdateBulletin(t *testing.T) {
 	// Decode response
 	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
 	respBulletin = models.Bulletin{}
-	err = json.Unmarshal(respData, &respBulletin)
+	err = json.Unmarshal(respData.Data, &respBulletin)
 	assert.NoError(err)
 
 	// Check if bulletin title is updated

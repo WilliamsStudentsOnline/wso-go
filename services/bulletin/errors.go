@@ -9,4 +9,5 @@ var (
 	ErrorBulletinMissingDates  = services.NewAPIError(1602, "missing bulletin parameters: start or end dates")
 	ErrorBulletinInvalidDates  = services.NewAPIError(1603, "start date cannot be after end date")
 	ErrorBulletinUserNotFound  = services.NewAPIError(1604, "user not found")
+	ErrorBulletinInvalidType   = services.NewAPIError(1605, "invalid  bulletin type")
 )
