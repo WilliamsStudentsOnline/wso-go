@@ -11,5 +11,6 @@ func SetupRouter(r gin.IRouter, db *gorm.DB) {
 	r.GET("/", c.FetchAllBulletins)
 	r.GET("/:bulletinID", c.GetBulletin)
 	r.PUT("/:bulletinID", c.UpdateBulletin)
+	r.POST("/bulletins", c.CreateBulletin)
 	r.DELETE("/:bulletinID", c.DeleteBulletin)
 }

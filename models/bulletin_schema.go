@@ -2,6 +2,7 @@ package models
 
 import "time"
 
+// Bulletin Types
 const (
 	BulletinTypeLostAndFound = "lostAndFound"
 	BulletinTypeJob          = "job"
@@ -24,10 +25,12 @@ type Bulletin struct {
 	User   *User `json:"user,omitempty"`
 }
 
+// TableName returns the name of the bulletins table
 func (*Bulletin) TableName() string {
 	return "bulletin"
 }
 
+// NewBulletinWithID creates a new bulletin with ID
 func NewBulletinWithID(bulletinID uint) Bulletin {
 	return Bulletin{
 		BaseSchema: BaseSchema{
@@ -36,22 +39,27 @@ func NewBulletinWithID(bulletinID uint) Bulletin {
 	}
 }
 
+// IsLostAndFound checks if the bulletin is a lost and found posting
 func (b *Bulletin) IsLostAndFound() bool {
 	return b.Type == BulletinTypeLostAndFound
 }
 
+// IsJob checks if the bulletin is a job posting
 func (b *Bulletin) IsJob() bool {
 	return b.Type == BulletinTypeJob
 }
 
+// IsRide checks if the bulletin is a ride offer/request
 func (b *Bulletin) IsRide() bool {
 	return b.Type == BulletinTypeRide
 }
 
+// IsExchange checks if the the bulletin is an exchange
 func (b *Bulletin) IsExchange() bool {
 	return b.Type == BulletinTypeExchange
 }
 
+// IsAnnouncement checks if the bulletin is an announcement
 func (b *Bulletin) IsAnnouncement() bool {
 	return b.Type == BulletinTypeAnnouncement
 }

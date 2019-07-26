@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
@@ -15,6 +16,7 @@ import (
 type Controller struct {
 	services.BaseController
 	bulletinModel *models.BulletinModel
+	userModel     *models.UserModel
 }
 
 // NewController constructs a new user controller
@@ -26,6 +28,79 @@ func NewController(db *gorm.DB) *Controller {
 			},
 		},
 	}
+}
+
+type BulletinCreateParams struct {
+	Type      string    `json:"type"`
+	Title     string    `json:"title"`
+	Body      string    `gorm:"size:65535" json:"body"`
+	StartDate time.Time `json:"startDate"`
+	EndDate   time.Time `json:"endDate"`
+}
+
+// CreateBulletin creates a bulletin
+func (t *Controller) CreateBulletin(c *gin.Context) {
+	userID := services.GetUserID(c)
+
+	// Bind update params
+	createData := BulletinCreateParams{}
+	err := c.ShouldBind(&createData)
+	if err != nil {
+		// TODO: Wait for errors to be implmented, use 1100
+		// t.RespondError(c, lib.ErrorMalformedRequestData)
+		return
+	}
+
+	// Title and Body cannot be blank
+	if createData.Title == "" || createData.Body == "" {
+		t.RespondAPIError(c, ErrorBulletinMissingParams)
+		return
+	}
+
+	// Start and End dates cannot be blank
+	if (createData.StartDate == time.Time{}) || (createData.EndDate == time.Time{}) {
+		t.RespondAPIError(c, ErrorBulletinMissingDates)
+		return
+	}
+
+	// Start Date has to be before end Date
+	if createData.StartDate.After(createData.EndDate) {
+		t.RespondAPIError(c, ErrorBulletinInvalidDates)
+		return
+	}
+
+	user := new(models.User)
+	if err = t.userModel.GetUserByID(userID, user); err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			t.RespondAPIError(c, ErrorBulletinUserNotFound)
+			return
+		}
+
+		t.RespondError(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	// Construct new bulletin
+	bulletin := models.Bulletin{
+		Type:      createData.Type,
+		Title:     createData.Title,
+		Body:      createData.Body,
+		StartDate: createData.StartDate,
+		EndDate:   createData.EndDate,
+
+		// Author information
+		UserID: user.ID,
+		User:   user,
+	}
+
+	err = t.bulletinModel.CreateBulletin(&bulletin)
+	if err != nil {
+		t.RespondError(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	// Todo: replace with respondcreated
+	t.RespondOK(c, bulletin)
 }
 
 // FetchAllBulletins Fetches all bulletins
