@@ -20,8 +20,8 @@ type Bulletin struct {
 	EndDate   time.Time `json:"endDate"`
 
 	// Author information
-	UserID uint `json:"userID"`
-	User   User `json:"user,omitempty"`
+	UserID uint  `json:"userID"`
+	User   *User `json:"user,omitempty"`
 }
 
 func (*Bulletin) TableName() string {
@@ -51,6 +51,7 @@ func (b *Bulletin) IsRide() bool {
 func (b *Bulletin) IsExchange() bool {
 	return b.Type == BulletinTypeExchange
 }
+
 func (b *Bulletin) IsAnnouncement() bool {
 	return b.Type == BulletinTypeAnnouncement
 }

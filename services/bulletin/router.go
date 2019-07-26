@@ -5,6 +5,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// SetupRouter sets up the router for Bulletins
 func SetupRouter(r gin.IRouter, db *gorm.DB) {
 	c := NewController(db)
 	r.GET("/", c.FetchAllBulletins)

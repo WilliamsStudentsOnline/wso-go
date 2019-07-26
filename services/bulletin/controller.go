@@ -2,6 +2,7 @@ package bulletin
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/WilliamsStudentsOnline/wso-go/models"
@@ -10,12 +11,13 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// Controller refers to the struct for the bulletinModel
 type Controller struct {
 	services.BaseController
 	bulletinModel *models.BulletinModel
 }
 
-// Construct a new user controller
+// NewController constructs a new user controller
 func NewController(db *gorm.DB) *Controller {
 	return &Controller{
 		bulletinModel: &models.BulletinModel{
@@ -26,7 +28,7 @@ func NewController(db *gorm.DB) *Controller {
 	}
 }
 
-// Fetch all bulletins
+// FetchAllBulletins Fetches all bulletins
 func (t *Controller) FetchAllBulletins(c *gin.Context) {
 	bulletinType := c.Query("type")
 
@@ -47,7 +49,7 @@ func (t *Controller) FetchAllBulletins(c *gin.Context) {
 	t.RespondOK(c, bulletins)
 }
 
-// Get bulletin by id
+// GetBulletin Gets bulletin by id
 func (t *Controller) GetBulletin(c *gin.Context) {
 	var bulletinID uint
 	var err error
@@ -79,6 +81,21 @@ func (t *Controller) UpdateBulletin(c *gin.Context) {
 		return
 	}
 
+	// Do database query to get bulletin
+	var bulletin models.Bulletin
+	err = t.bulletinModel.GetBulletinByID(bulletinID, &bulletin)
+	if err != nil {
+		t.RespondError(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	// Must only be able to update own bulletin
+	if userID := bulletin.UserID; userID != services.GetUserID(c) {
+		fmt.Println(userID)
+		t.RespondError(c, http.StatusForbidden, errors.New("can only update own bulletin"))
+		return
+	}
+
 	// Bind update params
 	var update map[string]interface{}
 
@@ -100,7 +117,7 @@ func (t *Controller) UpdateBulletin(c *gin.Context) {
 
 }
 
-// Delete bulletin by id
+// DeleteBulletin Deletes bulletin by id
 // TODO: adding scoping to only allow if admin
 func (t *Controller) DeleteBulletin(c *gin.Context) {
 	var bulletinID uint
@@ -113,8 +130,22 @@ func (t *Controller) DeleteBulletin(c *gin.Context) {
 		return
 	}
 
-	// Do database query
+	// Do database query to get bulletin
 	var bulletin models.Bulletin
+	err = t.bulletinModel.GetBulletinByID(bulletinID, &bulletin)
+	if err != nil {
+		t.RespondError(c, http.StatusInternalServerError, err)
+		return
+	}
+
+	// Must only be able to delete own bulletin
+	if userID := bulletin.UserID; userID != services.GetUserID(c) {
+		fmt.Println(userID)
+		t.RespondError(c, http.StatusForbidden, errors.New("can only update own bulletin"))
+		return
+	}
+
+	// Delete Bulletin
 	err = t.bulletinModel.DeleteBulletinByID(bulletinID, &bulletin)
 	if err != nil {
 		t.RespondError(c, http.StatusInternalServerError, err)

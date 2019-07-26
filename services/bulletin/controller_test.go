@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 
@@ -14,6 +15,25 @@ import (
 )
 
 var (
+	u1 = models.User{
+		Name:        "Test 1",
+		UnixID:      "u1",
+		ClassYear:   lib.IntToPtr(3),
+		Visible:     true,
+		AtWilliams:  true,
+		DormVisible: true,
+		OffCycle:    false,
+	}
+	u2 = models.User{
+		Name:        "Test 2",
+		UnixID:      "u2",
+		ClassYear:   lib.IntToPtr(2),
+		Visible:     true,
+		AtWilliams:  true,
+		DormVisible: true,
+		OffCycle:    false,
+	}
+
 	bulletin1 = models.Bulletin{
 		BaseSchema: models.BaseSchema{
 			ID: 1,
@@ -21,6 +41,7 @@ var (
 		Title: "Test",
 		Body:  "Hello WSO!",
 		Type:  "lostAndFound",
+		User:  &u1,
 	}
 	bulletin2 = models.Bulletin{
 		BaseSchema: models.BaseSchema{
@@ -29,6 +50,7 @@ var (
 		Title: "Test",
 		Body:  "Hello WSO!",
 		Type:  "job",
+		User:  &u1,
 	}
 	bulletin3 = models.Bulletin{
 		BaseSchema: models.BaseSchema{
@@ -37,6 +59,7 @@ var (
 		Title: "Test",
 		Body:  "Hello WSO!",
 		Type:  "lostAndFound",
+		User:  &u2,
 	}
 )
 
@@ -120,15 +143,21 @@ func TestController_FetchAllBulletins(t *testing.T) {
 
 }
 
+// Todo: Add test for admin scope when implemented
 func TestController_DeleteBulletin(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 	router := gin.Default()
+
+	// Insert test user into db
+	assert.NoError(db.Create(&u1).Error)
+
+	utils.AddUserContexts(router, u1.ID)
 	SetupRouter(router, db)
 
 	// Insert test bulletin into db
-	err := db.FirstOrCreate(&bulletin1).Error
+	err := db.FirstOrCreate(&bulletin1).FirstOrCreate(&bulletin3).Error
 	assert.NoError(err)
 
 	// Get test bulletin
@@ -161,13 +190,49 @@ func TestController_DeleteBulletin(t *testing.T) {
 
 	// Status not found because Bulletin is deleted
 	assert.Equal(http.StatusNotFound, w.Code)
+
+	// Get test bulletin
+	w, err = utils.DoHTTPReq(router, http.MethodGet, "/3", nil)
+	assert.NoError(err)
+
+	// Status is okay
+	assert.Equal(http.StatusOK, w.Code)
+
+	// Decode response
+	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	respBulletin = models.Bulletin{}
+	err = json.Unmarshal(respData, &respBulletin)
+	assert.NoError(err)
+
+	// Check if correct bulletin
+	assert.Equal(bulletin3.ID, respBulletin.ID)
+	assert.Equal(bulletin3.Title, respBulletin.Title)
+
+	// Attempt to delete test bulletin
+	w, err = utils.DoHTTPReq(router, http.MethodDelete, "/3", nil)
+	assert.NoError(err)
+
+	// Expect Forbidden since the user is incorrect
+	assert.Equal(http.StatusForbidden, w.Code)
+
+	// Get test bulletin
+	w, err = utils.DoHTTPReq(router, http.MethodGet, "/3", nil)
+	assert.NoError(err)
+
+	// Status found because Bulletin was not deleted
+	assert.Equal(http.StatusOK, w.Code)
 }
 
 func TestController_UpdateBulletin(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
+
+	// Insert test user into db
+	assert.NoError(db.Create(&u1).Error)
+
 	router := gin.Default()
+	utils.AddUserContexts(router, u1.ID)
 	SetupRouter(router, db)
 
 	// Insert test bulletin into db
