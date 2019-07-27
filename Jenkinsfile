@@ -3,7 +3,6 @@ pipeline {
   stages {
     stage('Build') {
       steps {
-       //sh 'go version '
        sh '''#!/bin/bash -l
 GOOS=linux go build -a -tags=jsoniter -o wso-go main.go'''
       }
@@ -11,7 +10,7 @@ GOOS=linux go build -a -tags=jsoniter -o wso-go main.go'''
     stage('Test') {
       steps {
         sh '''#!/bin/bash -l
-go test -race .'''
+go test -race ./...'''
       }
     }
   }
