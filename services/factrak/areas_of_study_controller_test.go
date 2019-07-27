@@ -242,7 +242,7 @@ func TestController_ListAreaOfStudyProfessors(t *testing.T) {
 	assert.Equal(p4.UnixID, resp[0].UnixID)
 }
 
-func TestController_ListAreaOfStudyCoursesCourses(t *testing.T) {
+func TestController_ListAreaOfStudyCourses(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)

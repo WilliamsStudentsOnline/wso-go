@@ -60,6 +60,7 @@ var (
 	ErrorUserNotAtWilliams    = NewAPIError(1404, "user not at williams")
 
 	// 15** are factrak errors
+	// Create/Update errors
 	ErrorSurveyMissingCourseParams = NewAPIError(1531, "missing course parameters in create data: courseID or (areaOfStudyAbbreviation and courseNumber)")
 	ErrorSurveyCommentTooSmall     = NewAPIError(1532, "comment must be 100 characters or more")
 	ErrorSurveyStudentNotFound     = NewAPIError(1533, "user must be a student and could not be found")
@@ -67,4 +68,7 @@ var (
 	ErrorSurveyCourseNotFound      = NewAPIError(1535, "passed course could not be found")
 	ErrorSurveyAreaOfStudyNotFound = NewAPIError(1536, "passed area of study could not be found")
 	ErrorSurveyAlreadyExists       = NewAPIError(1537, "survey already exists with passed user ID, professor ID, and course ID")
+	// Agreement errors
+	ErrorSurveyAgreementNotFound      = NewAPIErrorWithHTTP(1551, http.StatusNotFound, "survey agreement could not be found")
+	ErrorSurveyAgreementAlreadyExists = NewAPIError(1552, "survey agreement already exists for this user and survey")
 )

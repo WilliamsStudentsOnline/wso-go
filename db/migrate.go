@@ -40,8 +40,8 @@ func MigrateDB(db *gorm.DB) error {
 			&models.Tag{},
 			&models.AreaOfStudy{},
 			&models.Course{},
-			&models.FactrakAgreement{},
 			&models.FactrakSurvey{},
+			&models.FactrakAgreement{},
 		).Error
 		if err != nil {
 			return err

@@ -360,7 +360,7 @@ func (t *Controller) FlagSurvey(c *gin.Context) {
 		return
 	}
 
-	// Do database query
+	// Ensure survey exists
 	exists, err := t.surveyModel.DoesSurveyExist(surveyID)
 	if err != nil {
 		t.RespondError(c, err)

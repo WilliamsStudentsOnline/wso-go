@@ -47,7 +47,8 @@ func SetupRouter(r gin.IRouter, db *gorm.DB) {
 	r.GET("/areas-of-study/:areaOfStudyID/professors", c.ListAreaOfStudyProfessors) // Get area's professors
 	r.GET("/areas-of-study/:areaOfStudyID/courses", c.ListAreaOfStudyCourses)       // Get area's courses
 
-	full.GET("/surveys", c.ListSurveys)      // List surveys
+	full.GET("/surveys", c.ListSurveys) // List surveys
+	// Agreement counts are automatically attached to GET surveys
 	r.GET("/surveys/:surveyID", c.GetSurvey) // Get specific one (have agreements as a count)
 
 	// Current workflow is to post data to survey (where it creates a course if necessary).
@@ -56,21 +57,20 @@ func SetupRouter(r gin.IRouter, db *gorm.DB) {
 	// POST survey model to surveys
 	r.POST("/surveys", c.CreateSurvey) // Create
 
-	r.PATCH("/surveys/:surveyID", c.UpdateSurvey)  // Edit
-	r.DELETE("/surveys/:surveyID", c.DeleteSurvey) // Delete
-
+	r.PATCH("/surveys/:surveyID", c.UpdateSurvey)      // Edit
+	r.DELETE("/surveys/:surveyID", c.DeleteSurvey)     // Delete
 	full.POST("/surveys/:surveyID/flag", c.FlagSurvey) // Flag survey
+
+	// Agreements endpoint is part of surveys:
+	// Agreements should be anonymous.
+	full.GET("/surveys/:surveyID/agreement", c.GetAgreement)       // Get agreement (if user has one)
+	full.POST("/surveys/:surveyID/agreement", c.CreateAgreement)   // Add agreement to survey
+	full.PATCH("/surveys/:surveyID/agreement", c.UpdateAgreement)  // Edit agreement (either make it agree or disagree)
+	full.DELETE("/surveys/:surveyID/agreement", c.DeleteAgreement) // Delete agreement
 
 	// put these in factrak admin endpoint:
 	admin := r.Group("")
 	admin.Use(auth.RequireScopes(auth.ScopeFactrakAdmin, auth.ScopeAdminAll))
 	admin.GET("/flagged_surveys")           // Get flagged surveys
-	admin.DELETE("/surveys/:surveyID/flag") // Delete survey flags: require admin
-
-	full.GET("/surveys/:surveyID/agreements") // Get survey agreements
-
-	full.GET("/agreements/:agreementID")    // Get agreement
-	full.POST("/agreements")                // Add agreement
-	full.PUT("/agreements/:agreementID")    // Edit agreement
-	full.DELETE("/agreements/:agreementID") // Delete agreement
+	admin.DELETE("/surveys/:surveyID/flag") // Remove survey flag
 }
