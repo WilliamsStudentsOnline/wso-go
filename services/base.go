@@ -20,8 +20,8 @@ type BaseResponse struct {
 }
 
 type RespError struct {
-	ErrorCode int    `json:"errorCode"`
-	Message   string `json:"message"`
+	ErrorCode int      `json:"errorCode"`
+	Message   string   `json:"message"`
 	Errors    []string `json:"errors,omitempty"`
 }
 
@@ -60,7 +60,7 @@ func (BaseController) RespondAPIError(c *gin.Context, err *lib.APIError) {
 		Error: &RespError{
 			ErrorCode: err.Code,
 			Message:   err.Error(),
-			Errors: errs,
+			Errors:    errs,
 		},
 	})
 }

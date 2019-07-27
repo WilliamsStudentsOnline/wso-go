@@ -68,7 +68,7 @@ func (m *FactrakSurveyModel) CreateSurvey(p *FactrakSurvey) (err error) {
 }
 
 func (m *FactrakSurveyModel) UpdateSurvey(p *FactrakSurvey) (err error) {
-	err= m.DB.Save(&p).Error
+	err = m.DB.Save(&p).Error
 	if err != nil {
 		return
 	}

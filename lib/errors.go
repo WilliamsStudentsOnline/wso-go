@@ -8,7 +8,7 @@ type APIError struct {
 	Code     int
 	Message  string
 	HTTPCode int
-	Errors []error
+	Errors   []error
 }
 
 // Create a new API error. Default HTTP code is 400 Bad Request.
@@ -35,7 +35,7 @@ func NewErrorRequestDataValidationFailed(errs []error) *APIError {
 		Code:     ErrorRequestDataValidationFailed.Code,
 		Message:  ErrorRequestDataValidationFailed.Message,
 		HTTPCode: ErrorRequestDataValidationFailed.HTTPCode,
-		Errors: errs,
+		Errors:   errs,
 	}
 }
 
@@ -46,7 +46,7 @@ var (
 	ErrorInternalServerError = NewAPIErrorWithHTTP(0500, http.StatusInternalServerError, "internal server error")
 
 	// 11** are general errors
-	ErrorMalformedRequestData = NewAPIErrorWithHTTP(1100, http.StatusBadRequest, "could not parse malformed request data")
+	ErrorMalformedRequestData        = NewAPIErrorWithHTTP(1100, http.StatusBadRequest, "could not parse malformed request data")
 	ErrorRequestDataValidationFailed = NewAPIErrorWithHTTP(1101, http.StatusBadRequest, "request data validation failed")
 
 	// 13** are authorization errors

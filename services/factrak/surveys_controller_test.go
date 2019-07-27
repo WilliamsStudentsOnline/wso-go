@@ -411,14 +411,14 @@ func TestController_UpdateSurvey(t *testing.T) {
 		},
 	}
 	survey := models.FactrakSurvey{
-		User: &s1,
-		Professor: &p1,
-		Course: &c1,
-		Comment: generateSurveyTestComment(),
-		CourseWorkload: lib.IntToPtr(0),
+		User:              &s1,
+		Professor:         &p1,
+		Course:            &c1,
+		Comment:           generateSurveyTestComment(),
+		CourseWorkload:    lib.IntToPtr(0),
 		CourseStimulating: lib.IntToPtr(5),
-		Approachability: lib.IntToPtr(7),
-		WouldTakeAnother: lib.BoolToPtr(false),
+		Approachability:   lib.IntToPtr(7),
+		WouldTakeAnother:  lib.BoolToPtr(false),
 	}
 	assert.NoError(db.Create(&s1).Create(&s2).Create(&p1).Create(&c1).Create(&survey).Error)
 
@@ -455,13 +455,13 @@ func TestController_UpdateSurvey(t *testing.T) {
 
 	// Test 6: actually update and work
 	params = SurveyUpdateParams{
-		Comment: lib.StrToPtr(generateSurveyTestComment()),
-		CourseWorkload: lib.IntToPtr(6),
-		CourseStimulating: nil,
-		Approachability: lib.IntToPtr(2),
-		WouldTakeAnother: lib.BoolToPtr(true),
+		Comment:              lib.StrToPtr(generateSurveyTestComment()),
+		CourseWorkload:       lib.IntToPtr(6),
+		CourseStimulating:    nil,
+		Approachability:      lib.IntToPtr(2),
+		WouldTakeAnother:     lib.BoolToPtr(true),
 		WouldRecommendCourse: lib.BoolToPtr(false),
-		PromoteDiscussion: lib.IntToPtr(4),
+		PromoteDiscussion:    lib.IntToPtr(4),
 	}
 	paramsData, err := json.Marshal(&params)
 	assert.NoError(err)
@@ -539,14 +539,14 @@ func TestController_DeleteSurvey(t *testing.T) {
 		},
 	}
 	survey := models.FactrakSurvey{
-		User: &s1,
-		Professor: &p1,
-		Course: &c1,
-		Comment: generateSurveyTestComment(),
-		CourseWorkload: lib.IntToPtr(0),
+		User:              &s1,
+		Professor:         &p1,
+		Course:            &c1,
+		Comment:           generateSurveyTestComment(),
+		CourseWorkload:    lib.IntToPtr(0),
 		CourseStimulating: lib.IntToPtr(5),
-		Approachability: lib.IntToPtr(7),
-		WouldTakeAnother: lib.BoolToPtr(false),
+		Approachability:   lib.IntToPtr(7),
+		WouldTakeAnother:  lib.BoolToPtr(false),
 		Agreements: []*models.FactrakAgreement{
 			{
 				Agrees: true,
@@ -700,7 +700,6 @@ func updateSurveyExpectError(assert *testify.Assertions, router *gin.Engine, id 
 	// Assert correct error
 	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
 }
-
 
 func createSurveyExpectError(assert *testify.Assertions, router *gin.Engine, params SurveyCreateParams, apiErr *lib.APIError) {
 	paramsData, err := json.Marshal(&params)
