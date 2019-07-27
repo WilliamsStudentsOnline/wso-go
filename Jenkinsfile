@@ -3,7 +3,7 @@ pipeline {
   stages {
     stage('Build') {
       steps {
-       sh 'go version'
+       sh 'go version '
        sh '''#!/bin/bash -l
 GOOS=linux go build -a -mod vendor -tags=jsoniter -o wso-go main.go'''
       }
