@@ -310,6 +310,22 @@ func TestController_CreateSurvey(t *testing.T) {
 	assert.Equal(c1.AreaOfStudy.Abbreviation, resSurvey.Course.AreaOfStudy.Abbreviation)
 	assert.Equal(p1.UnixID, resSurvey.Professor.UnixID)
 
+	// Assert for database entry as well
+	var surveyInDB models.FactrakSurvey
+	assert.NoError(db.First(&surveyInDB, resSurvey.ID).Error)
+	// Assertions
+	assert.Equal(resSurvey.ID, surveyInDB.ID)
+	assert.Equal(*params.ProfessorID, surveyInDB.ProfessorID)
+	assert.Equal(*params.CourseID, surveyInDB.CourseID)
+	assert.Equal(s1.ID, surveyInDB.UserID)
+	assert.False(*surveyInDB.WouldTakeAnother)
+	assert.Equal(*params.CourseWorkload, *surveyInDB.CourseWorkload)
+	assert.Nil(surveyInDB.WouldRecommendCourse)
+	assert.Nil(surveyInDB.CourseStimulating)
+	assert.Zero(surveyInDB.TotalAgree)
+	assert.Zero(surveyInDB.TotalDisagree)
+	assert.False(surveyInDB.Flagged)
+
 	// Test 10: error on unique survey requirement
 	params = SurveyCreateParams{ProfessorID: &p1.ID, Comment: generateSurveyTestComment(),
 		CourseID: &c1.ID,
@@ -357,6 +373,314 @@ func TestController_CreateSurvey(t *testing.T) {
 	assert.Equal(*params.Approachability, *resSurvey.Approachability)
 }
 
+func TestController_UpdateSurvey(t *testing.T) {
+	// Setup (can copy and paste this basically)
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+
+	// Populate the database
+	s1 := models.User{
+		Type:       models.UserTypeStudent,
+		Name:       "Student 1",
+		UnixID:     "s1",
+		Visible:    true,
+		AtWilliams: true,
+	}
+	s2 := models.User{
+		Type:       models.UserTypeStudent,
+		Name:       "Student 2",
+		UnixID:     "s2",
+		Visible:    true,
+		AtWilliams: true,
+	}
+	p1 := models.User{
+		Type:       models.UserTypeProfessor,
+		Name:       "Professor 1",
+		UnixID:     "p1",
+		Visible:    true,
+		AtWilliams: true,
+	}
+	c1 := models.Course{
+		Number: "c1",
+		AreaOfStudy: &models.AreaOfStudy{
+			Name:         "Computer Science",
+			Abbreviation: "CSCI",
+			Department: &models.Department{
+				Name: "Computer Science",
+			},
+		},
+	}
+	survey := models.FactrakSurvey{
+		User: &s1,
+		Professor: &p1,
+		Course: &c1,
+		Comment: generateSurveyTestComment(),
+		CourseWorkload: lib.IntToPtr(0),
+		CourseStimulating: lib.IntToPtr(5),
+		Approachability: lib.IntToPtr(7),
+		WouldTakeAnother: lib.BoolToPtr(false),
+	}
+	assert.NoError(db.Create(&s1).Create(&s2).Create(&p1).Create(&c1).Create(&survey).Error)
+
+	// Setup router
+	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
+	utils.AddUserContexts(router, s1.ID)
+	SetupRouter(router, db)
+
+	// First, we run tests on validations
+
+	// Test 1: error on out of range values (upper bound)
+	params := SurveyUpdateParams{CourseStimulating: lib.IntToPtr(100)}
+	updateSurveyExpectError(assert, router, survey.ID, params, lib.ErrorRequestDataValidationFailed)
+
+	// Test 2: error on out of range values (lower bound)
+	params = SurveyUpdateParams{CourseStimulating: lib.IntToPtr(-1)}
+	updateSurveyExpectError(assert, router, survey.ID, params, lib.ErrorRequestDataValidationFailed)
+
+	// Test 3: error on bad survey
+	params = SurveyUpdateParams{CourseStimulating: lib.IntToPtr(3)}
+	updateSurveyExpectError(assert, router, 42, params, lib.ErrorRecordNotFound)
+
+	// Test 4: error on bad user
+	params = SurveyUpdateParams{CourseStimulating: lib.IntToPtr(3)}
+	r1 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
+	utils.AddUserContexts(r1, s2.ID)
+	SetupRouter(r1, db)
+	updateSurveyExpectError(assert, r1, survey.ID, params, lib.ErrorMustBeSelf)
+
+	// Test 5: error on too small comment
+	params = SurveyUpdateParams{CourseStimulating: lib.IntToPtr(3),
+		Comment: lib.StrToPtr("comment too small")}
+	updateSurveyExpectError(assert, router, survey.ID, params, lib.ErrorSurveyCommentTooSmall)
+
+	// Test 6: actually update and work
+	params = SurveyUpdateParams{
+		Comment: lib.StrToPtr(generateSurveyTestComment()),
+		CourseWorkload: lib.IntToPtr(6),
+		CourseStimulating: nil,
+		Approachability: lib.IntToPtr(2),
+		WouldTakeAnother: lib.BoolToPtr(true),
+		WouldRecommendCourse: lib.BoolToPtr(false),
+		PromoteDiscussion: lib.IntToPtr(4),
+	}
+	paramsData, err := json.Marshal(&params)
+	assert.NoError(err)
+
+	// Do HTTP
+	w, err := utils.DoHTTPReq(router,
+		http.MethodPatch, fmt.Sprintf("/surveys/%d", survey.ID), bytes.NewBuffer(paramsData))
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+
+	// Parse API response
+	var resp models.FactrakSurvey
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	// Assert for response
+	assert.Equal(survey.ID, resp.ID)
+	assert.Equal(*params.Comment, resp.Comment)
+	assert.Equal(6, *resp.CourseWorkload)
+	assert.Equal(5, *resp.CourseStimulating)
+	assert.Equal(2, *resp.Approachability)
+	assert.Equal(true, *resp.WouldTakeAnother)
+	assert.Equal(false, *resp.WouldRecommendCourse)
+	assert.Equal(4, *resp.PromoteDiscussion)
+
+	// Assert for database entry
+	var surveyInDB models.FactrakSurvey
+	assert.NoError(db.First(&surveyInDB, survey.ID).Error)
+	// Assertions
+	assert.Equal(survey.ID, surveyInDB.ID)
+	assert.Equal(*params.Comment, surveyInDB.Comment)
+	assert.Equal(6, *surveyInDB.CourseWorkload)
+	assert.Equal(5, *surveyInDB.CourseStimulating)
+	assert.Equal(2, *surveyInDB.Approachability)
+	assert.Equal(true, *surveyInDB.WouldTakeAnother)
+	assert.Equal(false, *surveyInDB.WouldRecommendCourse)
+	assert.Equal(4, *surveyInDB.PromoteDiscussion)
+}
+
+func TestController_DeleteSurvey(t *testing.T) {
+	// Setup (can copy and paste this basically)
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+
+	// Populate the database
+	s1 := models.User{
+		Type:       models.UserTypeStudent,
+		Name:       "Student 1",
+		UnixID:     "s1",
+		Visible:    true,
+		AtWilliams: true,
+	}
+	s2 := models.User{
+		Type:       models.UserTypeStudent,
+		Name:       "Student 2",
+		UnixID:     "s2",
+		Visible:    true,
+		AtWilliams: true,
+	}
+	p1 := models.User{
+		Type:       models.UserTypeProfessor,
+		Name:       "Professor 1",
+		UnixID:     "p1",
+		Visible:    true,
+		AtWilliams: true,
+	}
+	c1 := models.Course{
+		Number: "c1",
+		AreaOfStudy: &models.AreaOfStudy{
+			Name:         "Computer Science",
+			Abbreviation: "CSCI",
+			Department: &models.Department{
+				Name: "Computer Science",
+			},
+		},
+	}
+	survey := models.FactrakSurvey{
+		User: &s1,
+		Professor: &p1,
+		Course: &c1,
+		Comment: generateSurveyTestComment(),
+		CourseWorkload: lib.IntToPtr(0),
+		CourseStimulating: lib.IntToPtr(5),
+		Approachability: lib.IntToPtr(7),
+		WouldTakeAnother: lib.BoolToPtr(false),
+		Agreements: []*models.FactrakAgreement{
+			{
+				Agrees: true,
+				UserID: s2.ID,
+			},
+		},
+	}
+	assert.NoError(db.Create(&s1).Create(&s2).Create(&p1).Create(&c1).Create(&survey).Error)
+
+	// Setup router
+	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
+	utils.AddUserContexts(router, s1.ID)
+	SetupRouter(router, db)
+
+	// First, we run tests on validations
+
+	// Test 1: error on bad survey
+	apiErr := lib.ErrorRecordNotFound
+	w, err := utils.DoHTTPReq(router, http.MethodDelete, fmt.Sprintf("/surveys/%d", 42), nil)
+	assert.NoError(err)
+	assert.Equal(apiErr.HTTPCode, w.Code)
+	// Assert correct error
+	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+
+	// Test 2: error on user not self
+	apiErr = lib.ErrorMustBeSelf
+	r1 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
+	utils.AddUserContexts(r1, s2.ID)
+	SetupRouter(r1, db)
+	w, err = utils.DoHTTPReq(r1, http.MethodDelete, fmt.Sprintf("/surveys/%d", survey.ID), nil)
+	assert.NoError(err)
+	assert.Equal(apiErr.HTTPCode, w.Code)
+	// Assert correct error
+	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+
+	// Test 3: actually delete
+	w, err = utils.DoHTTPReq(router, http.MethodDelete, fmt.Sprintf("/surveys/%d", survey.ID), nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+
+	// Decode resp data
+	var resp models.FactrakSurvey
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	// Assert that we get the correct survey back
+	assert.Equal(survey.ID, resp.ID)
+	assert.Equal(survey.Comment, resp.Comment)
+	assert.Equal(1, resp.TotalAgree)
+
+	// Check to make sure it is not in DB
+	var count int
+	assert.NoError(db.Model(models.NewFactrakSurvey(survey.ID)).Count(&count).Error)
+	assert.Zero(count)
+
+	// Check to make sure agreements aren't there either.
+	var agreementCount int
+	assert.NoError(db.Table("factrak_agreements").Where(models.FactrakAgreement{
+		FactrakSurveyID: survey.ID,
+	}).Count(&agreementCount).Error)
+	assert.Zero(agreementCount)
+
+	// Check to make sure agreements completely deleted.
+	var fullDeleteAgreementCount int
+	assert.NoError(db.Table("factrak_agreements").Count(&agreementCount).Error)
+	assert.Zero(fullDeleteAgreementCount)
+}
+
+func TestController_FlagSurvey(t *testing.T) {
+	// Setup (can copy and paste this basically)
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+
+	// Populate the database
+	s1 := models.User{
+		Type:       models.UserTypeStudent,
+		Name:       "Student 1",
+		UnixID:     "s1",
+		Visible:    true,
+		AtWilliams: true,
+	}
+	survey := models.FactrakSurvey{
+		User: &s1,
+		Professor: &models.User{
+			Type:       models.UserTypeProfessor,
+			Name:       "Professor 1",
+			UnixID:     "p1",
+			Visible:    true,
+			AtWilliams: true,
+		},
+		Course: &models.Course{
+			Number: "c1",
+			AreaOfStudy: &models.AreaOfStudy{
+				Name:         "Computer Science",
+				Abbreviation: "CSCI",
+				Department: &models.Department{
+					Name: "Computer Science",
+				},
+			},
+		},
+		Comment: generateSurveyTestComment(),
+	}
+	assert.NoError(db.Create(&s1).Create(&survey).Error)
+
+	// Setup router
+	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
+	utils.AddUserContexts(router, s1.ID)
+	SetupRouter(router, db)
+
+	// First, we run tests on validations
+
+	// Test 1: error on bad survey
+	apiErr := lib.ErrorRecordNotFound
+	w, err := utils.DoHTTPReq(router, http.MethodPost, fmt.Sprintf("/surveys/%d/flag", 42), nil)
+	assert.NoError(err)
+	assert.Equal(apiErr.HTTPCode, w.Code)
+	// Assert correct error
+	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+
+	// Test 2: actually flag
+	w, err = utils.DoHTTPReq(router, http.MethodPost, fmt.Sprintf("/surveys/%d/flag", survey.ID), nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+
+	// Check to make sure it updated in the DB
+	// Assert for database entry
+	var surveyInDB models.FactrakSurvey
+	assert.NoError(db.First(&surveyInDB, survey.ID).Error)
+	// Assertions
+	assert.True(surveyInDB.Flagged)
+}
+
 func generateSurveyTestComment() string {
 	randBytes := make([]byte, 100)
 	for i := 0; i < 100; i++ {
@@ -364,6 +688,19 @@ func generateSurveyTestComment() string {
 	}
 	return string(randBytes)
 }
+
+func updateSurveyExpectError(assert *testify.Assertions, router *gin.Engine, id uint, params SurveyUpdateParams, apiErr *lib.APIError) {
+	paramsData, err := json.Marshal(&params)
+	assert.NoError(err)
+
+	// Get bad survey (expect failure)
+	w, err := utils.DoHTTPReq(router, http.MethodPatch, fmt.Sprintf("/surveys/%d", id), bytes.NewBuffer(paramsData))
+	assert.NoError(err)
+	assert.Equal(apiErr.HTTPCode, w.Code)
+	// Assert correct error
+	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+}
+
 
 func createSurveyExpectError(assert *testify.Assertions, router *gin.Engine, params SurveyCreateParams, apiErr *lib.APIError) {
 	paramsData, err := json.Marshal(&params)

@@ -1,9 +1,5 @@
 package models
 
-import (
-	"github.com/jinzhu/gorm"
-)
-
 // FactrakSurvey Schema
 type FactrakSurvey struct {
 	BaseSchema
@@ -44,8 +40,10 @@ func (*FactrakSurvey) TableName() string {
 	return "factrak_surveys"
 }
 
-func (s *FactrakSurvey) AfterDelete(tx *gorm.DB) (err error) {
-	// Delete (permanent) factrack agreements
-	err = tx.Unscoped().Where(FactrakAgreement{FactrakSurveyID: s.ID}).Delete(&FactrakAgreement{}).Error
-	return
+func NewFactrakSurvey(id uint) *FactrakSurvey {
+	return &FactrakSurvey{
+		BaseSchema: BaseSchema{
+			ID: id,
+		},
+	}
 }

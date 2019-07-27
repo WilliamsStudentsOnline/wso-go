@@ -2,6 +2,8 @@ package models
 
 import (
 	"fmt"
+	"log"
+	"os"
 	"testing"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
@@ -22,6 +24,7 @@ func testSetup(assert *testify.Assertions) (cfg *config.Config, db *gorm.DB) {
 	}
 
 	db = config.LoadDatabase(cfg)
+	db.SetLogger(gorm.Logger{LogWriter: log.New(os.Stdout, "\r\n", 0)})
 	db.LogMode(true)
 	err := db.AutoMigrate(
 		User{},

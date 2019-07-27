@@ -8,6 +8,7 @@ type APIError struct {
 	Code     int
 	Message  string
 	HTTPCode int
+	Errors []error
 }
 
 // Create a new API error. Default HTTP code is 400 Bad Request.
@@ -28,6 +29,16 @@ func (e *APIError) Error() string {
 	return e.Message
 }
 
+// This may have multiple errors, so pass them.
+func NewErrorRequestDataValidationFailed(errs []error) *APIError {
+	return &APIError{
+		Code:     ErrorRequestDataValidationFailed.Code,
+		Message:  ErrorRequestDataValidationFailed.Message,
+		HTTPCode: ErrorRequestDataValidationFailed.HTTPCode,
+		Errors: errs,
+	}
+}
+
 var (
 	// Standard HTTP error 0404
 	ErrorRecordNotFound = NewAPIErrorWithHTTP(0404, http.StatusNotFound, "record not found")
@@ -36,6 +47,7 @@ var (
 
 	// 11** are general errors
 	ErrorMalformedRequestData = NewAPIErrorWithHTTP(1100, http.StatusBadRequest, "could not parse malformed request data")
+	ErrorRequestDataValidationFailed = NewAPIErrorWithHTTP(1101, http.StatusBadRequest, "request data validation failed")
 
 	// 13** are authorization errors
 	ErrorNoScopeAuthorization = NewAPIErrorWithHTTP(1330, http.StatusForbidden, "no scope authorization")

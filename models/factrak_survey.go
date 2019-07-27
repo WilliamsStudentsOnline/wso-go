@@ -34,7 +34,7 @@ func (m *FactrakSurveyModel) GetSurveyByID(id uint, p *FactrakSurvey) (err error
 
 func (m *FactrakSurveyModel) DoesSurveyExist(id uint) (exists bool, err error) {
 	var count int
-	err = m.DB.Model(&FactrakSurvey{}).Scopes(m.scopeProfAtWilliams, m.scopeDefault).Where("facktrak_surveys.id = ?", id).Count(&count).Error
+	err = m.DB.Model(&FactrakSurvey{}).Scopes(m.scopeProfAtWilliams, m.scopeDefault).Where("factrak_surveys.id = ?", id).Count(&count).Error
 	exists = count > 0
 	return
 }
@@ -67,39 +67,8 @@ func (m *FactrakSurveyModel) CreateSurvey(p *FactrakSurvey) (err error) {
 	return
 }
 
-// Rails allows you to change the course, user, and professor of the survey. I don't like that, so you can only change
-// survey details here. I am open to the idea of changing courses, though (if for example a user
-// put a typo in their course number initially)
-type SurveyUpdateParams struct {
-	// Params:
-	Comment              *string `json:"comment"`
-	WouldRecommendCourse *bool   `json:"wouldRecommendCourse"`
-	CourseWorkload       *int    `json:"courseWorkload" binding:"gte=0,lte=7"`
-	CourseStimulating    *int    `json:"courseStimulating" binding:"gte=0,lte=7"`
-	WouldTakeAnother     *bool   `json:"wouldTakeAnother"`
-	Approachability      *int    `json:"approachability" binding:"gte=0,lte=7"`
-	LeadLecture          *int    `json:"leadLecture" binding:"gte=0,lte=7"`
-	PromoteDiscussion    *int    `json:"promoteDiscussion" binding:"gte=0,lte=7"`
-	OutsideHelpfulness   *int    `json:"outsideHelpfulness" binding:"gte=0,lte=7"`
-	GradeReceived        *string `json:"gradeReceived"`
-}
-
-func (m *FactrakSurveyModel) UpdateSurvey(p *FactrakSurvey, update *SurveyUpdateParams) (err error) {
-	dbUpdate := map[string]interface{}{
-		"comment":                update.Comment,
-		"would_recommend_course": update.WouldRecommendCourse,
-		"course_workload":        update.CourseWorkload,
-		"course_stimulating":     update.CourseStimulating,
-		"would_take_another":     update.WouldTakeAnother,
-		"approachability":        update.Approachability,
-		"lead_lecture":           update.LeadLecture,
-		"promote_discussion":     update.PromoteDiscussion,
-		"outside_helpfulness":    update.OutsideHelpfulness,
-		"grade_received":         update.GradeReceived,
-	}
-	DeleteNilFields(dbUpdate)
-
-	err = m.DB.Model(p).Updates(dbUpdate).Error
+func (m *FactrakSurveyModel) UpdateSurvey(p *FactrakSurvey) (err error) {
+	err= m.DB.Save(&p).Error
 	if err != nil {
 		return
 	}
@@ -119,8 +88,8 @@ func (m *FactrakSurveyModel) DeleteSurvey(p *FactrakSurvey) (err error) {
 	return
 }
 
-func (m *FactrakSurveyModel) SetSurveyFlag(p *FactrakSurvey, flag bool) (err error) {
-	err = m.DB.Model(p).Update("flagged", flag).Error
+func (m *FactrakSurveyModel) SetSurveyFlag(id uint, flag bool) (err error) {
+	err = m.DB.Model(NewFactrakSurvey(id)).Update("flagged", flag).Error
 	return
 }
 

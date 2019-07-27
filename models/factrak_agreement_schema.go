@@ -1,7 +1,5 @@
 package models
 
-import "github.com/WilliamsStudentsOnline/wso-go/lib"
-
 // FactrakAgreement Schema
 type FactrakAgreement struct {
 	BaseSchema
@@ -18,12 +16,4 @@ type FactrakAgreement struct {
 
 func (*FactrakAgreement) TableName() string {
 	return "factrak_agreements"
-}
-
-func (s *FactrakAgreement) BeforeCreate() (err error) {
-	if !s.User.IsStudent() {
-		err = lib.ErrorUserMustBeStudent
-	}
-
-	return
 }

@@ -72,13 +72,13 @@ type SurveyCreateParams struct {
 	// Params:
 	Comment              string  `json:"comment" binding:"required"`
 	WouldRecommendCourse *bool   `json:"wouldRecommendCourse"`
-	CourseWorkload       *int    `json:"courseWorkload"`
-	CourseStimulating    *int    `json:"courseStimulating"`
+	CourseWorkload       *int    `json:"courseWorkload" binding:"omitempty,gte=0,lte=7"`
+	CourseStimulating    *int    `json:"courseStimulating" binding:"omitempty,gte=0,lte=7"`
 	WouldTakeAnother     *bool   `json:"wouldTakeAnother"`
-	Approachability      *int    `json:"approachability"`
-	LeadLecture          *int    `json:"leadLecture"`
-	PromoteDiscussion    *int    `json:"promoteDiscussion"`
-	OutsideHelpfulness   *int    `json:"outsideHelpfulness"`
+	Approachability      *int    `json:"approachability" binding:"omitempty,gte=0,lte=7"`
+	LeadLecture          *int    `json:"leadLecture" binding:"omitempty,gte=0,lte=7"`
+	PromoteDiscussion    *int    `json:"promoteDiscussion" binding:"omitempty,gte=0,lte=7"`
+	OutsideHelpfulness   *int    `json:"outsideHelpfulness" binding:"omitempty,gte=0,lte=7"`
 	GradeReceived        *string `json:"gradeReceived"`
 }
 
@@ -89,7 +89,7 @@ func (t *Controller) CreateSurvey(c *gin.Context) {
 	createData := SurveyCreateParams{}
 	err := c.ShouldBind(&createData)
 	if err != nil {
-		t.RespondError(c, lib.ErrorMalformedRequestData)
+		t.RespondError(c, err)
 		return
 	}
 
@@ -224,6 +224,23 @@ func (t *Controller) CreateSurvey(c *gin.Context) {
 	t.RespondCreated(c, survey)
 }
 
+// Rails allows you to change the course, user, and professor of the survey. I don't like that, so you can only change
+// survey details here. I am open to the idea of changing courses, though (if for example a user
+// put a typo in their course number initially)
+type SurveyUpdateParams struct {
+	// Params:
+	Comment              *string `json:"comment"`
+	WouldRecommendCourse *bool   `json:"wouldRecommendCourse"`
+	CourseWorkload       *int    `json:"courseWorkload" binding:"omitempty,gte=0,lte=7"`
+	CourseStimulating    *int    `json:"courseStimulating" binding:"omitempty,gte=0,lte=7"`
+	WouldTakeAnother     *bool   `json:"wouldTakeAnother"`
+	Approachability      *int    `json:"approachability" binding:"omitempty,gte=0,lte=7"`
+	LeadLecture          *int    `json:"leadLecture" binding:"omitempty,gte=0,lte=7"`
+	PromoteDiscussion    *int    `json:"promoteDiscussion" binding:"omitempty,gte=0,lte=7"`
+	OutsideHelpfulness   *int    `json:"outsideHelpfulness" binding:"omitempty,gte=0,lte=7"`
+	GradeReceived        *string `json:"gradeReceived"`
+}
+
 // Update survey data
 func (t *Controller) UpdateSurvey(c *gin.Context) {
 	userID := services.GetUserID(c)
@@ -235,10 +252,10 @@ func (t *Controller) UpdateSurvey(c *gin.Context) {
 	}
 
 	// Bind update params
-	updateData := models.SurveyUpdateParams{}
+	updateData := SurveyUpdateParams{}
 	err = c.ShouldBind(&updateData)
 	if err != nil {
-		t.RespondError(c, lib.ErrorMalformedRequestData)
+		t.RespondError(c, err)
 		return
 	}
 
@@ -262,8 +279,20 @@ func (t *Controller) UpdateSurvey(c *gin.Context) {
 		return
 	}
 
+	// Update fields: this is a bit long and verbose, but I don't want to mess with reflect
+	survey.Comment = *lib.StrPtrDefaults(updateData.Comment, &survey.Comment)
+	survey.WouldRecommendCourse = lib.BoolPtrDefaults(updateData.WouldRecommendCourse, survey.WouldRecommendCourse)
+	survey.CourseWorkload = lib.IntPtrDefaults(updateData.CourseWorkload, survey.CourseWorkload)
+	survey.CourseStimulating = lib.IntPtrDefaults(updateData.CourseStimulating, survey.CourseStimulating)
+	survey.WouldTakeAnother = lib.BoolPtrDefaults(updateData.WouldTakeAnother, survey.WouldTakeAnother)
+	survey.Approachability = lib.IntPtrDefaults(updateData.Approachability, survey.Approachability)
+	survey.LeadLecture = lib.IntPtrDefaults(updateData.LeadLecture, survey.LeadLecture)
+	survey.PromoteDiscussion = lib.IntPtrDefaults(updateData.PromoteDiscussion, survey.PromoteDiscussion)
+	survey.OutsideHelpfulness = lib.IntPtrDefaults(updateData.OutsideHelpfulness, survey.OutsideHelpfulness)
+	survey.GradeReceived = lib.StrPtrDefaults(updateData.GradeReceived, survey.GradeReceived)
+
 	// Do DB update
-	err = t.surveyModel.UpdateSurvey(&survey, &updateData)
+	err = t.surveyModel.UpdateSurvey(&survey)
 	if err != nil {
 		t.RespondError(c, err)
 		return
@@ -304,6 +333,14 @@ func (t *Controller) DeleteSurvey(c *gin.Context) {
 		return
 	}
 
+	// Populate response (must do beforehand, as we then delete these agreements)
+	// I chose to include this so the client would know how many agreements they deleted
+	err = t.surveyModel.PopulateAgreementCounts(&survey)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
 	// Do DB delete
 	err = t.surveyModel.DeleteSurvey(&survey)
 	if err != nil {
@@ -324,15 +361,18 @@ func (t *Controller) FlagSurvey(c *gin.Context) {
 	}
 
 	// Do database query
-	var survey models.FactrakSurvey
-	err = t.surveyModel.GetSurveyByID(surveyID, &survey)
+	exists, err := t.surveyModel.DoesSurveyExist(surveyID)
 	if err != nil {
 		t.RespondError(c, err)
 		return
 	}
+	if !exists {
+		t.RespondError(c, lib.ErrorRecordNotFound)
+		return
+	}
 
 	// Do DB flag
-	err = t.surveyModel.SetSurveyFlag(&survey, true)
+	err = t.surveyModel.SetSurveyFlag(surveyID, true)
 	if err != nil {
 		t.RespondError(c, err)
 		return
