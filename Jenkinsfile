@@ -5,7 +5,7 @@ pipeline {
       steps {
        //sh 'go version '
        sh '''#!/bin/bash -l
-GOOS=linux go build -a -mod vendor -tags=jsoniter -o wso-go main.go'''
+GOOS=linux go build -a -tags=jsoniter -o wso-go main.go'''
       }
     }
     stage('Test') {
