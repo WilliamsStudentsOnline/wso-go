@@ -10,6 +10,8 @@ GOOS=linux go build -a -tags=jsoniter -o wso-go main.go'''
     stage('Test') {
       steps {
         sh '''#!/bin/bash -l
+mkdir tmp
+export TMPDIR=./tmp/
 GOCACHE=$PWD/cache GOOS=linux go test -race ./...'''
       }
     }
