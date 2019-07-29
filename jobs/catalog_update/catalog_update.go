@@ -363,7 +363,7 @@ func ParseCatalog(catalog []RawCourse, fallSemID, winterSemID, springSemID int) 
 }
 
 // UpdateCrossListing takes the parsed array of courses and updates their cross-listing information.
-func UpdateCrossListing(courses []Course) ([]Course, error) {
+func UpdateCrossListing(courses []Course) {
 	// Sort courses by CourseID, since cross-listed courses all have the same CourseID, so we
 	// only need to do one pass through the array
 	sort.SliceStable(courses, func(i, j int) bool {
@@ -413,8 +413,6 @@ func UpdateCrossListing(courses []Course) ([]Course, error) {
 		return (courses[i].Department < courses[j].Department) ||
 			(courses[i].Department == courses[j].Department && courses[i].Number < courses[j].Number)
 	})
-
-	return courses, nil
 }
 
 // GetCatalog fetches the json from the CatalogURL endpoint and parses it into an array of RawCourses.
