@@ -26,6 +26,14 @@ func (m *FactrakSurveyModel) GetAllSurveys(p *[]*FactrakSurvey) (err error) {
 	return
 }
 
+// Gets all flagged surveys.
+func (m *FactrakSurveyModel) GetAllFlaggedSurveys(p *[]*FactrakSurvey) (err error) {
+	err = m.DB.Scopes(m.scopeProfAtWilliams, m.scopeDefault).Where(
+		"factrak_surveys.flagged = ?", true,
+	).Find(p).Error
+	return
+}
+
 // Gets survey by its id.
 func (m *FactrakSurveyModel) GetSurveyByID(id uint, p *FactrakSurvey) (err error) {
 	err = m.DB.Scopes(m.scopeProfAtWilliams, m.scopeDefault).First(p, id).Error

@@ -19,46 +19,48 @@ var CreateUsers20190719211808 = &gormigrate.Migration{
 		// with those fields.
 		type User struct {
 			models.BaseSchema
-			Type           string
-			Name           string
-			CellPhone      *string
-			CampusPhoneExt *string
-			UnixID         string `gorm:"unique;"`
-			WilliamsEmail  string
-			Title          *string
-			Visible        bool
-			ClassYear      *int `gorm:"size:4"`
+			Type           string  `json:"type"`
+			Name           string  `json:"name"`
+			CellPhone      *string `json:"cellPhone"`
+			CampusPhoneExt *string `json:"campusPhoneEXT"`
+			UnixID         string  `gorm:"unique;not null;" json:"unixID"`
+			WilliamsEmail  string  `json:"williamsEmail"`
+			Title          *string `json:"title"`
+			Visible        bool    `json:"visible"`
+			ClassYear      *int    `gorm:"size:4" json:"classYear"`
 
 			// Equivalent to belongs_to Department
-			DepartmentID *uint
+			DepartmentID *uint `json:"departmentID"`
 
-			DormVisible bool `gorm:"DEFAULT:true"`
-			HomeTown    *string
-			HomeZip     *string
-			HomePhone   *string
-			HomeState   *string
-			HomeCountry *string
-			HomeVisible bool `gorm:"DEFAULT:true"`
+			DormVisible bool    `gorm:"DEFAULT:true" json:"dormVisible"`
+			HomeTown    *string `json:"homeTown"`
+			HomeZip     *string `json:"homeZip"`
+			HomePhone   *string `json:"homePhone"`
+			HomeState   *string `json:"homeState"`
+			HomeCountry *string `json:"homeCountry"`
+			HomeVisible bool    `gorm:"DEFAULT:true" json:"homeVisible"`
 
-			Major                     *string
-			SUBox                     *string
-			Entry                     *string
-			Admin                     bool `gorm:"DEFAULT:false"`
-			FactrakAdmin              bool `gorm:"DEFAULT:false"`
-			HasAcceptedFactrakPolicy  bool `gorm:"DEFAULT:false"`
-			HasAcceptedDormtrakPolicy bool `gorm:"DEFAULT:false"`
+			Major                     *string `json:"major"`
+			SUBox                     *string `json:"suBox"`
+			Entry                     *string `json:"entry"`
+			Admin                     bool    `gorm:"DEFAULT:false" json:"admin"`
+			FactrakAdmin              bool    `gorm:"DEFAULT:false" json:"factrakAdmin"`
+			HasAcceptedFactrakPolicy  bool    `gorm:"DEFAULT:false" json:"hasAcceptedFactrakPolicy"`
+			HasAcceptedDormtrakPolicy bool    `gorm:"DEFAULT:false" json:"hasAcceptedDormtrakPolicy"`
 
-			OfficeID *uint
+			// belongs_to Office
+			OfficeID *uint `json:"officeID"`
 
-			DormRoomID *uint `gorm:"index:index_rooms_on_dorm_room_id"`
+			// belongs_to Dorm Room
+			DormRoomID *uint `gorm:"index:index_rooms_on_dorm_room_id" json:"dormRoomID"`
 
-			Pronoun              *string
-			AtWilliams           bool `gorm:"DEFAULT:true"`
-			OffCycle             bool `gorm:"DEFAULT:false"`
-			FactrakSurveyDeficit *int
+			Pronoun              *string `json:"pronoun"`
+			AtWilliams           bool    `gorm:"DEFAULT:true" json:"atWilliams"`
+			OffCycle             bool    `gorm:"DEFAULT:false" json:"offCycle"`
+			FactrakSurveyDeficit *int    `json:"factrakSurveyDeficit"`
 
-			OptOutEphcatch      bool `gorm:"DEFAULT:false"`
-			EphcatchEligibility bool `gorm:"DEFAULT:false"`
+			OptOutEphcatch      bool `gorm:"DEFAULT:false" json:"optOutEphcatch"`
+			EphcatchEligibility bool `gorm:"DEFAULT:false" json:"ephcatchEligibility"`
 		}
 		return tx.AutoMigrate(&User{}).Error
 	},

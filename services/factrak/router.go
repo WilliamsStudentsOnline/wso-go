@@ -69,8 +69,8 @@ func SetupRouter(r gin.IRouter, db *gorm.DB) {
 	full.DELETE("/surveys/:surveyID/agreement", c.DeleteAgreement) // Delete agreement
 
 	// put these in factrak admin endpoint:
-	admin := r.Group("")
+	admin := r.Group("admin")
 	admin.Use(auth.RequireScopes(auth.ScopeFactrakAdmin, auth.ScopeAdminAll))
-	admin.GET("/flagged_surveys")           // Get flagged surveys
-	admin.DELETE("/surveys/:surveyID/flag") // Remove survey flag
+	admin.GET("/surveys", c.ListFlaggedSurveys)             // Get flagged surveys
+	admin.DELETE("/surveys/:surveyID/flag", c.UnflagSurvey) // Remove survey flag
 }
