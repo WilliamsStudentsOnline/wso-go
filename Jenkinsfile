@@ -1,16 +1,11 @@
 pipeline {
-  agent any
+  agent {
+    dockerfile true
+  }
   stages {
-    stage('Build') {
-      steps {
-       sh '''#!/bin/bash -l
-GOOS=linux go build -a -tags=jsoniter -o wso-go main.go'''
-      }
-    }
     stage('Test') {
       steps {
-        sh '''#!/bin/bash -l
-GOCACHE=$PWD/cache GOOS=linux go test -race ./...'''
+        sh '''go test -race ./...'''
       }
     }
   }
