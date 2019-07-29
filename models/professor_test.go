@@ -1,4 +1,4 @@
-package models
+package models_test
 
 import (
 	"log"
@@ -6,6 +6,8 @@ import (
 	"testing"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
+	"github.com/WilliamsStudentsOnline/wso-go/lib"
+	. "github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/jinzhu/gorm"
 	testify "github.com/stretchr/testify/assert"
 )
@@ -39,47 +41,35 @@ func TestProfessorModel_GetProfessorsByAreaOfStudy(t *testing.T) {
 
 	// Insert test user into db
 	p1 := User{
-		Type:       UserTypeProfessor,
-		Name:       "Professor 1",
-		UnixID:     "p1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   UserTypeProfessor,
+		Name:   "Professor 1",
+		UnixID: "p1",
 	}
 	p2 := User{
-		Type:       UserTypeProfessor,
-		Name:       "Professor 2",
-		UnixID:     "p2",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   UserTypeProfessor,
+		Name:   "Professor 2",
+		UnixID: "p2",
 	}
 	// Not at williams
 	p3 := User{
 		Type:       UserTypeProfessor,
 		Name:       "Professor 3",
 		UnixID:     "p3",
-		Visible:    true,
-		AtWilliams: false,
+		AtWilliams: lib.BoolToPtr(false),
 	}
 	// Other area/dept
 	p4 := User{
-		Type:       UserTypeProfessor,
-		Name:       "Professor 4",
-		UnixID:     "p4",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   UserTypeProfessor,
+		Name:   "Professor 4",
+		UnixID: "p4",
 	}
 	// Staff
 	s1 := User{
-		Type:       UserTypeStaff,
-		Name:       "Staff 1",
-		UnixID:     "s1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   UserTypeStaff,
+		Name:   "Staff 1",
+		UnixID: "s1",
 	}
 	assert.NoError(db.Create(&p1).Create(&p2).Create(&p3).Create(&p4).Create(&s1).Error)
-
-	// Have to do this because at_williams is not a pointer.
-	assert.NoError(db.Model(&p3).Update("at_williams", false).Error)
 
 	d1 := Department{
 		Name: "Computer Science",

@@ -5,11 +5,14 @@ import (
 	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
+	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
+	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
-	jwt "github.com/appleboy/gin-jwt/v2"
+	jwt "github.com/aidanlloydtucker/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	log "github.com/sirupsen/logrus"
 )
 
 type TokenLevel int
@@ -34,73 +37,7 @@ func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB) (authMiddleware *jwt.Gi
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			// We take the data (which is a User) and create the payload
 			if v, ok := data.(*AuthenticatorPayload); ok {
-				var scope []string
-
-				// By default, can access bulletins
-				if v.TokenLevel >= TokenLevelOffCampus {
-					scope = append(scope, auth.ScopeBulletins)
-				}
-
-				// If on-campus, can access user info
-				if v.TokenLevel >= TokenLevelOnCampus {
-					scope = append(scope, auth.ScopeUsers)
-				}
-
-				// If signed in, can access: all other
-				if v.TokenLevel >= TokenLevelSignedIn {
-					scope = append(scope, auth.ScopeAllOther)
-				}
-
-				// If user exists that we signed in with
-				if v.TokenLevel >= TokenLevelSignedIn && v.User != nil {
-					// Allow writing
-					scope = append(scope, auth.ScopeWriteSelf)
-
-					// For ephcatch and factrak, user must be a student
-					if v.User.IsStudent() {
-						// If user is a senior or ephcatch eligible, add ephcatch scope
-						if v.User.Student().Senior() || v.User.EphcatchEligibility {
-							scope = append(scope, auth.ScopeEphcatch)
-						}
-
-						// For factrak, user must be student and user accepted factrak policy
-						if v.User.HasAcceptedFactrakPolicy {
-							// TODO: ensure limited cannot get access via preloading
-							// If no factrak survey deficit, give full access
-							if v.User.FactrakSurveyDeficit != nil && *v.User.FactrakSurveyDeficit == 0 {
-								scope = append(scope, auth.ScopeFactrakFull)
-							} else {
-								// Otherwise, give limited access
-								scope = append(scope, auth.ScopeFactrakLimited)
-							}
-						}
-					}
-
-					if v.User.HasAcceptedDormtrakPolicy {
-						scope = append(scope, auth.ScopeDormtrak)
-					}
-
-					// Add admin scope
-					if v.User.Admin {
-						scope = append(scope, auth.ScopeAdminAll)
-						scope = append(scope, auth.ScopeFactrakAdmin)
-					} else if v.User.FactrakAdmin {
-						// If not admin, check if factrak admin
-						scope = append(scope, auth.ScopeFactrakAdmin)
-					}
-				}
-
-				var jwtUserID uint = 0
-				if v.User != nil {
-					jwtUserID = v.User.ID
-				}
-
-				// This is the final payload
-				return jwt.MapClaims{
-					"id":         jwtUserID,
-					"tokenLevel": v.TokenLevel,
-					"scope":      scope,
-				}
+				return GenerateClaims(v)
 			}
 			return jwt.MapClaims{}
 		},
@@ -117,6 +54,9 @@ func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB) (authMiddleware *jwt.Gi
 			}
 			c.Set("scopes", jwtScopes)
 
+			// Put the token level as a scope just for the authorizor
+			c.Set("tokenLevel", int(claims["tokenLevel"].(float64)))
+
 			// Set "id" -> userID as the identity in the context
 			userID := claims["id"].(float64)
 			return userID
@@ -129,8 +69,47 @@ func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB) (authMiddleware *jwt.Gi
 		},
 		// Called every request; ignore this for now
 		Authorizator: func(data interface{}, c *gin.Context) bool {
+			// Only allow token level authenticated and above
+			tokenLevel := c.GetInt("tokenLevel")
+			if TokenLevel(tokenLevel) == TokenLevelUnauthenticated {
+				return false
+			}
 			return true
 		},
+		// Update token calls this. It passes in identity data, like authorizor, and the gin
+		// context. From there, the function should work somewhat like payload func to generate
+		// a new payload.
+		UpdateClaims: func(claims jwt.MapClaims, c *gin.Context) (jwt.MapClaims, error) {
+			log.Warn(claims)
+			tokenLevel := TokenLevel(claims["tokenLevel"].(float64))
+
+			payload := new(AuthenticatorPayload)
+			payload.TokenLevel = tokenLevel
+
+			// Deal with special token-level data.
+			if tokenLevel == TokenLevelOffCampus || tokenLevel == TokenLevelOnCampus {
+				// If lower-level token, check if we must upgrade/downgrade the token's level
+				if lib.OnCampusIP(c.ClientIP()) {
+					payload.TokenLevel = TokenLevelOnCampus
+				} else {
+					payload.TokenLevel = TokenLevelOffCampus
+				}
+			} else if tokenLevel == TokenLevelSignedIn {
+				userID, ok := claims["id"].(float64)
+				if !ok {
+					return nil, errors.New("could not find user id in claim")
+				}
+
+				payload.User = &models.User{}
+				err := db.First(payload.User, int(userID)).Error
+				if err != nil {
+					return nil, err
+				}
+			}
+
+			return GenerateClaims(payload), nil
+		},
+
 		// TokenLookup is a string in the form of "<source>:<name>" that is used
 		// to extract token from the request.
 		// Optional. Default value "header:Authorization".
@@ -153,57 +132,72 @@ func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB) (authMiddleware *jwt.Gi
 	return
 }
 
-/*func RegenerateToken(mw *jwt.GinJWTMiddleware) func (c *gin.Context) (string, time.Time, error) {
-	// RefreshToken refresh token and check if token is expired
-	return func (c *gin.Context) (string, time.Time, error) {
-		claims, err := mw.CheckIfTokenExpire(c)
-		if err != nil {
-			return "", time.Now(), err
+func GenerateClaims(v *AuthenticatorPayload) jwt.MapClaims {
+	var scope []string
+
+	// By default, can access bulletins
+	if v.TokenLevel >= TokenLevelOffCampus {
+		scope = append(scope, auth.ScopeBulletins)
+	}
+
+	// If on-campus, can access user info
+	if v.TokenLevel >= TokenLevelOnCampus {
+		scope = append(scope, auth.ScopeUsers)
+	}
+
+	// If signed in, can access: all other
+	if v.TokenLevel >= TokenLevelSignedIn {
+		scope = append(scope, auth.ScopeAllOther)
+	}
+
+	// If user exists that we signed in with
+	if v.TokenLevel >= TokenLevelSignedIn && v.User != nil {
+		// Allow writing
+		scope = append(scope, auth.ScopeWriteSelf)
+
+		// For ephcatch and factrak, user must be a student
+		if v.User.IsStudent() {
+			// If user is a senior or ephcatch eligible, add ephcatch scope
+			if v.User.Student().Senior() || (v.User.EphcatchEligibility != nil && *v.User.EphcatchEligibility) {
+				scope = append(scope, auth.ScopeEphcatch)
+			}
+
+			// For factrak, user must be student and user accepted factrak policy
+			if v.User.HasAcceptedFactrakPolicy != nil && *v.User.HasAcceptedFactrakPolicy {
+				// TODO: ensure limited cannot get access via preloading
+				// If no factrak survey deficit, give full access
+				if v.User.FactrakSurveyDeficit != nil && *v.User.FactrakSurveyDeficit == 0 {
+					scope = append(scope, auth.ScopeFactrakFull)
+				} else {
+					// Otherwise, give limited access
+					scope = append(scope, auth.ScopeFactrakLimited)
+				}
+			}
 		}
 
-		// Create the token
-		newToken := jwtTokenizer.New(jwtTokenizer.GetSigningMethod(mw.SigningAlgorithm))
-		newClaims := newToken.Claims.(jwtTokenizer.MapClaims)
-
-		for key := range claims {
-			newClaims[key] = claims[key]
+		if v.User.HasAcceptedDormtrakPolicy != nil && *v.User.HasAcceptedDormtrakPolicy {
+			scope = append(scope, auth.ScopeDormtrak)
 		}
 
-		expire := mw.TimeFunc().Add(mw.Timeout)
-		newClaims["exp"] = expire.Unix()
-		newClaims["orig_iat"] = mw.TimeFunc().Unix()
-		tokenString, err := mw.signedString(newToken)
-
-		if err != nil {
-			return "", time.Now(), err
+		// Add admin scope
+		if v.User.Admin != nil && *v.User.Admin {
+			scope = append(scope, auth.ScopeAdminAll)
+			scope = append(scope, auth.ScopeFactrakAdmin)
+		} else if v.User.FactrakAdmin != nil && *v.User.FactrakAdmin {
+			// If not admin, check if factrak admin
+			scope = append(scope, auth.ScopeFactrakAdmin)
 		}
+	}
 
-		// set cookie
-		if mw.SendCookie {
-			maxage := int(expire.Unix() - time.Now().Unix())
-			c.SetCookie(
-				mw.CookieName,
-				tokenString,
-				maxage,
-				"/",
-				mw.CookieDomain,
-				mw.SecureCookie,
-				mw.CookieHTTPOnly,
-			)
-		}
+	var jwtUserID uint = 0
+	if v.User != nil {
+		jwtUserID = v.User.ID
+	}
 
-		return tokenString, expire, nil
+	// This is the final payload
+	return jwt.MapClaims{
+		"id":         jwtUserID,
+		"tokenLevel": v.TokenLevel,
+		"scope":      scope,
 	}
 }
-
-// Copied from github.com/appleboy/gin-jwt/v2
-func signedString(mw *jwt.GinJWTMiddleware, token *jwtTokenizer.Token) (string, error) {
-	var tokenString string
-	var err error
-	if mw.usingPublicKeyAlgo() {
-		tokenString, err = token.SignedString(mw.privKey)
-	} else {
-		tokenString, err = token.SignedString(mw.Key)
-	}
-	return tokenString, err
-}*/

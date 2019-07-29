@@ -1,61 +1,33 @@
-package models
+package models_test
 
 import (
 	"fmt"
-	"log"
-	"os"
 	"testing"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
-	"github.com/jinzhu/gorm"
+	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
+	. "github.com/WilliamsStudentsOnline/wso-go/models"
 	testify "github.com/stretchr/testify/assert"
 )
 
-func testSetup(assert *testify.Assertions) (cfg *config.Config, db *gorm.DB) {
-	cfg = &config.Config{
-		Env:          "test",
-		GinMode:      "test",
-		JWTRealm:     "wso-go-test",
-		DatabaseType: "sqlite3",
-		DatabaseArgs: ":memory:",
-		Secrets: &config.Secrets{
-			JWTSecretKey: "wso-jwt-test-secret",
-		},
-	}
-
-	db = config.LoadDatabase(cfg)
-	db.SetLogger(gorm.Logger{LogWriter: log.New(os.Stdout, "\r\n", 0)})
-	db.LogMode(true)
-	err := db.AutoMigrate(
-		User{},
-		Department{},
-		Neighborhood{},
-		Dorm{},
-		DormRoom{},
-		Office{},
-	).Error
-	assert.NoError(err)
-	return
-}
-
 func TestUserModel_Students(t *testing.T) {
 	assert := testify.New(t)
-	_, db := testSetup(assert)
+	db := utils.SetupServiceTest(assert)
 
 	db.Create(&User{
-		Type:   "student",
+		Type:   UserTypeStudent,
 		Name:   "foo",
 		UnixID: "u1",
 	})
 
 	db.Create(&User{
-		Type:   "alum",
+		Type:   UserTypeAlum,
 		Name:   "bar",
 		UnixID: "u2",
 	})
 
 	db.Create(&User{
-		Type:   "student",
+		Type:   UserTypeStudent,
 		Name:   "baz",
 		UnixID: "u3",
 	})

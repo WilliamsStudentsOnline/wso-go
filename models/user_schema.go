@@ -19,28 +19,28 @@ type User struct {
 	UnixID         string  `gorm:"unique;not null;" json:"unixID"`
 	WilliamsEmail  string  `json:"williamsEmail"`
 	Title          *string `json:"title"`
-	Visible        bool    `json:"visible"`
+	Visible        *bool   `gorm:"DEFAULT:true;not null" json:"visible"`
 	ClassYear      *int    `gorm:"size:4" json:"classYear"`
 
 	// Equivalent to belongs_to Department
 	DepartmentID *uint       `json:"departmentID"`
 	Department   *Department `json:"department,omitempty"`
 
-	DormVisible bool    `gorm:"DEFAULT:true" json:"dormVisible"`
+	DormVisible *bool   `gorm:"DEFAULT:true;not null" json:"dormVisible"`
 	HomeTown    *string `json:"homeTown"`
 	HomeZip     *string `json:"homeZip"`
 	HomePhone   *string `json:"homePhone"`
 	HomeState   *string `json:"homeState"`
 	HomeCountry *string `json:"homeCountry"`
-	HomeVisible bool    `gorm:"DEFAULT:true" json:"homeVisible"`
+	HomeVisible *bool   `gorm:"DEFAULT:true;not null" json:"homeVisible"`
 
 	Major                     *string `json:"major"`
 	SUBox                     *string `json:"suBox"`
 	Entry                     *string `json:"entry"`
-	Admin                     bool    `gorm:"DEFAULT:false" json:"admin"`
-	FactrakAdmin              bool    `gorm:"DEFAULT:false" json:"factrakAdmin"`
-	HasAcceptedFactrakPolicy  bool    `gorm:"DEFAULT:false" json:"hasAcceptedFactrakPolicy"`
-	HasAcceptedDormtrakPolicy bool    `gorm:"DEFAULT:false" json:"hasAcceptedDormtrakPolicy"`
+	Admin                     *bool   `gorm:"DEFAULT:false;not null" json:"admin"`
+	FactrakAdmin              *bool   `gorm:"DEFAULT:false;not null" json:"factrakAdmin"`
+	HasAcceptedFactrakPolicy  *bool   `gorm:"DEFAULT:false;not null" json:"hasAcceptedFactrakPolicy"`
+	HasAcceptedDormtrakPolicy *bool   `gorm:"DEFAULT:false;not null" json:"hasAcceptedDormtrakPolicy"`
 
 	// belongs_to Office
 	OfficeID *uint   `json:"officeID"`
@@ -51,12 +51,12 @@ type User struct {
 	DormRoom   *DormRoom `json:"dormRoom,omitempty"`
 
 	Pronoun              *string `json:"pronoun"`
-	AtWilliams           bool    `gorm:"DEFAULT:true" json:"atWilliams"`
-	OffCycle             bool    `gorm:"DEFAULT:false" json:"offCycle"`
+	AtWilliams           *bool   `gorm:"DEFAULT:true;not null" json:"atWilliams"`
+	OffCycle             *bool   `gorm:"DEFAULT:false;not null" json:"offCycle"`
 	FactrakSurveyDeficit *int    `json:"factrakSurveyDeficit"`
 
-	OptOutEphcatch      bool `gorm:"DEFAULT:false" json:"optOutEphcatch"`
-	EphcatchEligibility bool `gorm:"DEFAULT:false" json:"ephcatchEligibility"`
+	OptOutEphcatch      *bool `gorm:"DEFAULT:false;not null" json:"optOutEphcatch"`
+	EphcatchEligibility *bool `gorm:"DEFAULT:false;not null" json:"ephcatchEligibility"`
 
 	// Has many tags
 	Tags []*Tag `gorm:"many2many:tags_users;" json:"tags,omitempty"`
@@ -105,13 +105,14 @@ func (u *User) Student() *Student {
 	}
 }
 
+// I hate hooks but I'm keeping this one here, as it is useful. Otherwise, put hooks in controllers.
 func (u *User) AfterCreate(scope *gorm.Scope) (err error) {
 	if u.IsStudent() {
 		// Update survey deficit
 		// This way, only student get a default, non-nil value for this
 		userModel := NewUserModel(scope.DB())
 
-		err = userModel.UpdateServerDeficit(u)
+		err = userModel.UpdateFactrakSurveyDeficit(u)
 		if err != nil {
 			return
 		}

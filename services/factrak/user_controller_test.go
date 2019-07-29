@@ -21,32 +21,24 @@ func TestController_ListUserSurveys(t *testing.T) {
 
 	// Insert test user into db
 	p1 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 1",
-		UnixID:     "p1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 1",
+		UnixID: "p1",
 	}
 	s1 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student",
-		UnixID:     "s1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student",
+		UnixID: "s1",
 	}
 	s2 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student",
-		UnixID:     "s2",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student",
+		UnixID: "s2",
 	}
 	p2 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 2",
-		UnixID:     "p2",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 2",
+		UnixID: "p2",
 	}
 	assert.NoError(db.Create(&p1).Create(&s1).Create(&s2).Create(&p2).Error)
 

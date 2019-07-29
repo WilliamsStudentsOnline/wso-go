@@ -45,26 +45,9 @@ func (m *UserModel) DoesUserExist(id uint) (exists bool, err error) {
 	return
 }
 
-type UpdateUserParams struct {
-	Visible     *bool   `json:"visible"`
-	DormVisible *bool   `json:"dormVisible"`
-	HomeVisible *bool   `json:"homeVisible"`
-	Pronoun     *string `json:"pronoun"`
-	OffCycle    *bool   `json:"offCycle"`
-}
-
 // Update the user. Only allow specific keys to be passed
-func (m *UserModel) UpdateUser(id uint, update *UpdateUserParams) (err error) {
-	dbUpdate := map[string]interface{}{
-		"visible":      update.Visible,
-		"dorm_visible": update.DormVisible,
-		"home_visible": update.HomeVisible,
-		"pronoun":      update.Pronoun,
-		"off_cycle":    update.OffCycle,
-	}
-	DeleteNilFields(dbUpdate)
-
-	err = m.DB.Model(NewUserWithID(id)).Updates(dbUpdate).Error
+func (m *UserModel) UpdateUser(user *User) (err error) {
+	err = m.DB.Save(user).Error
 	return
 }
 
@@ -188,7 +171,7 @@ func (m *UserModel) FirstOrCreateFromUnixID(unixID string, config *config.Config
 }
 
 func (m *UserModel) Students() ([]*Student, error) {
-	rows, err := m.DB.Model(&User{}).Where("type = ?", UserTypeStudent).Rows() // (*sql.Rows, error)
+	rows, err := m.DB.Model(&User{}).Where("users.type = ?", UserTypeStudent).Rows() // (*sql.Rows, error)
 	if err != nil {
 		return nil, err
 	}
@@ -256,10 +239,10 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 			UnixID:        entry.GetAttributeValue("uid"),
 			Name:          entry.GetAttributeValue("cn"),
 			WilliamsEmail: entry.GetAttributeValue("mail"),
-			Visible:       parseBool(entry.GetAttributeValue("visible")),
+			Visible:       lib.BoolToPtr(parseBool(entry.GetAttributeValue("visible"))),
 			// User is in Ldap, therefore is at williams.
 			// Explicitly set this to handle alums who return as fac/staff
-			AtWilliams: true,
+			AtWilliams: lib.BoolToPtr(true),
 			// By default we set everyone as staff, as there are many edge case affiliations.
 			Type: UserTypeStaff,
 		}
@@ -301,7 +284,7 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 		}
 
 		// If user is not visible, finish parsing here.
-		if !user.Visible {
+		if !*user.Visible {
 			users[idx] = user
 			break
 		}
@@ -474,11 +457,11 @@ func (m *UserModel) UpdateAllFromLDAP(cfg *config.Config) error {
 }
 
 // TODO: Add this once Factrak is done
-func (m *UserModel) UpdateServerDeficit(user *User) error {
+func (m *UserModel) UpdateFactrakSurveyDeficit(user *User) error {
 	if !user.IsStudent() {
 		return errors.New("user must be student")
 	}
-	return nil
+	return NewStudentModel(m.DB).UpdateFactrakSurveyDeficit(user)
 }
 
 func (*UserModel) scopeVisible(db *gorm.DB) *gorm.DB {
@@ -496,7 +479,7 @@ func (*UserModel) scopeAlphabetical(db *gorm.DB) *gorm.DB {
 // Updates users that are not found in LDAP anymore (alumni usually) by searching for them on NDS,
 // finding their type, and then updating the user.
 func (m *UserModel) updateNotInLDAP(user *User, ndsLdap *lib.LDAP) error {
-	user.AtWilliams = false
+	user.AtWilliams = lib.BoolToPtr(false)
 	entry, err := ndsLdap.Get("uid", user.UnixID)
 	if err != nil {
 		return err

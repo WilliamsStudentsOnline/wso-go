@@ -26,27 +26,27 @@ var CreateUsers20190719211808 = &gormigrate.Migration{
 			UnixID         string  `gorm:"unique;not null;" json:"unixID"`
 			WilliamsEmail  string  `json:"williamsEmail"`
 			Title          *string `json:"title"`
-			Visible        bool    `json:"visible"`
+			Visible        *bool   `gorm:"DEFAULT:true;not null" json:"visible"`
 			ClassYear      *int    `gorm:"size:4" json:"classYear"`
 
 			// Equivalent to belongs_to Department
 			DepartmentID *uint `json:"departmentID"`
 
-			DormVisible bool    `gorm:"DEFAULT:true" json:"dormVisible"`
+			DormVisible *bool   `gorm:"DEFAULT:true;not null" json:"dormVisible"`
 			HomeTown    *string `json:"homeTown"`
 			HomeZip     *string `json:"homeZip"`
 			HomePhone   *string `json:"homePhone"`
 			HomeState   *string `json:"homeState"`
 			HomeCountry *string `json:"homeCountry"`
-			HomeVisible bool    `gorm:"DEFAULT:true" json:"homeVisible"`
+			HomeVisible *bool   `gorm:"DEFAULT:true;not null" json:"homeVisible"`
 
 			Major                     *string `json:"major"`
 			SUBox                     *string `json:"suBox"`
 			Entry                     *string `json:"entry"`
-			Admin                     bool    `gorm:"DEFAULT:false" json:"admin"`
-			FactrakAdmin              bool    `gorm:"DEFAULT:false" json:"factrakAdmin"`
-			HasAcceptedFactrakPolicy  bool    `gorm:"DEFAULT:false" json:"hasAcceptedFactrakPolicy"`
-			HasAcceptedDormtrakPolicy bool    `gorm:"DEFAULT:false" json:"hasAcceptedDormtrakPolicy"`
+			Admin                     *bool   `gorm:"DEFAULT:false;not null" json:"admin"`
+			FactrakAdmin              *bool   `gorm:"DEFAULT:false;not null" json:"factrakAdmin"`
+			HasAcceptedFactrakPolicy  *bool   `gorm:"DEFAULT:false;not null" json:"hasAcceptedFactrakPolicy"`
+			HasAcceptedDormtrakPolicy *bool   `gorm:"DEFAULT:false;not null" json:"hasAcceptedDormtrakPolicy"`
 
 			// belongs_to Office
 			OfficeID *uint `json:"officeID"`
@@ -55,12 +55,12 @@ var CreateUsers20190719211808 = &gormigrate.Migration{
 			DormRoomID *uint `gorm:"index:index_rooms_on_dorm_room_id" json:"dormRoomID"`
 
 			Pronoun              *string `json:"pronoun"`
-			AtWilliams           bool    `gorm:"DEFAULT:true" json:"atWilliams"`
-			OffCycle             bool    `gorm:"DEFAULT:false" json:"offCycle"`
+			AtWilliams           *bool   `gorm:"DEFAULT:true;not null" json:"atWilliams"`
+			OffCycle             *bool   `gorm:"DEFAULT:false;not null" json:"offCycle"`
 			FactrakSurveyDeficit *int    `json:"factrakSurveyDeficit"`
 
-			OptOutEphcatch      bool `gorm:"DEFAULT:false" json:"optOutEphcatch"`
-			EphcatchEligibility bool `gorm:"DEFAULT:false" json:"ephcatchEligibility"`
+			OptOutEphcatch      *bool `gorm:"DEFAULT:false;not null" json:"optOutEphcatch"`
+			EphcatchEligibility *bool `gorm:"DEFAULT:false;not null" json:"ephcatchEligibility"`
 		}
 		return tx.AutoMigrate(&User{}).Error
 	},

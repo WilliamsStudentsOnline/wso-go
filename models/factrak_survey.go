@@ -47,6 +47,11 @@ func (m *FactrakSurveyModel) DoesSurveyExist(id uint) (exists bool, err error) {
 	return
 }
 
+func (m *FactrakSurveyModel) CountSurveysByUser(userID uint) (count int, err error) {
+	err = m.DB.Model(&FactrakSurvey{}).Where("factrak_surveys.user_id = ?", userID).Count(&count).Error
+	return
+}
+
 // Check if survey already exists by seeing if there is already a survey with that user, course, and professor id.
 func (m *FactrakSurveyModel) CheckDuplicateSurvey(userID uint, profID uint, courseID uint) (duplicate bool, err error) {
 	var count int
@@ -272,7 +277,7 @@ func (*FactrakSurveyModel) scopeProfAtWilliams(db *gorm.DB) *gorm.DB {
 }
 
 func (m *FactrakSurveyModel) scopeThisSemester(db *gorm.DB) *gorm.DB {
-	return db.Where("factrak_surveys.created_at = ?", m.registrationStart())
+	return db.Where("factrak_surveys.created_at >= ?", m.registrationStart())
 }
 
 func (*FactrakSurveyModel) scopeCurrent(db *gorm.DB) *gorm.DB {

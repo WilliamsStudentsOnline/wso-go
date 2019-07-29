@@ -22,27 +22,21 @@ func TestController_GetAgreement(t *testing.T) {
 
 	// Populate the database
 	s1 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student 1",
-		UnixID:     "s1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student 1",
+		UnixID: "s1",
 	}
 	s2 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student 2",
-		UnixID:     "s2",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student 2",
+		UnixID: "s2",
 	}
 	survey := models.FactrakSurvey{
 		User: &s1,
 		Professor: &models.User{
-			Type:       models.UserTypeProfessor,
-			Name:       "Professor 1",
-			UnixID:     "p1",
-			Visible:    true,
-			AtWilliams: true,
+			Type:   models.UserTypeProfessor,
+			Name:   "Professor 1",
+			UnixID: "p1",
 		},
 		Course: &models.Course{
 			Number: "c1",
@@ -113,27 +107,21 @@ func TestController_CreateAgreement(t *testing.T) {
 
 	// Populate the database
 	s1 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student 1",
-		UnixID:     "s1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student 1",
+		UnixID: "s1",
 	}
 	s2 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student 2",
-		UnixID:     "s2",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student 2",
+		UnixID: "s2",
 	}
 	survey := models.FactrakSurvey{
 		User: &s1,
 		Professor: &models.User{
-			Type:       models.UserTypeProfessor,
-			Name:       "Professor 1",
-			UnixID:     "p1",
-			Visible:    true,
-			AtWilliams: true,
+			Type:   models.UserTypeProfessor,
+			Name:   "Professor 1",
+			UnixID: "p1",
 		},
 		Course: &models.Course{
 			Number: "c1",
@@ -223,27 +211,21 @@ func TestController_UpdateAgreement(t *testing.T) {
 
 	// Populate the database
 	s1 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student 1",
-		UnixID:     "s1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student 1",
+		UnixID: "s1",
 	}
 	s2 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student 2",
-		UnixID:     "s2",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student 2",
+		UnixID: "s2",
 	}
 	survey := models.FactrakSurvey{
 		User: &s1,
 		Professor: &models.User{
-			Type:       models.UserTypeProfessor,
-			Name:       "Professor 1",
-			UnixID:     "p1",
-			Visible:    true,
-			AtWilliams: true,
+			Type:   models.UserTypeProfessor,
+			Name:   "Professor 1",
+			UnixID: "p1",
 		},
 		Course: &models.Course{
 			Number: "c1",
@@ -333,27 +315,21 @@ func TestController_DeleteAgreement(t *testing.T) {
 
 	// Populate the database
 	s1 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student 1",
-		UnixID:     "s1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student 1",
+		UnixID: "s1",
 	}
 	s2 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student 2",
-		UnixID:     "s2",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student 2",
+		UnixID: "s2",
 	}
 	survey := models.FactrakSurvey{
 		User: &s1,
 		Professor: &models.User{
-			Type:       models.UserTypeProfessor,
-			Name:       "Professor 1",
-			UnixID:     "p1",
-			Visible:    true,
-			AtWilliams: true,
+			Type:   models.UserTypeProfessor,
+			Name:   "Professor 1",
+			UnixID: "p1",
 		},
 		Course: &models.Course{
 			Number: "c1",

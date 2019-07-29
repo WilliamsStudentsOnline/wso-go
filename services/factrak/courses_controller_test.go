@@ -76,18 +76,14 @@ func TestController_GetCourse(t *testing.T) {
 	SetupRouter(router, db)
 
 	p1 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 1",
-		UnixID:     "p1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 1",
+		UnixID: "p1",
 	}
 	s1 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student",
-		UnixID:     "s1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student",
+		UnixID: "s1",
 	}
 	// Need this to satisfy not null
 	dept := models.Department{
@@ -169,27 +165,21 @@ func TestController_GetCourseWithProfessor(t *testing.T) {
 
 	// Insert test user into db
 	p1 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 1",
-		UnixID:     "p1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 1",
+		UnixID: "p1",
 	}
 	// Student
 	s1 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student 1",
-		UnixID:     "s1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student 1",
+		UnixID: "s1",
 	}
 	// Other prof
 	p2 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 2",
-		UnixID:     "p2",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 2",
+		UnixID: "p2",
 	}
 	err := db.Create(&p1).Create(&s1).Create(&p2).Error
 	assert.NoError(err)
@@ -294,18 +284,14 @@ func TestController_ListCourseSurveys(t *testing.T) {
 	SetupRouter(router, db)
 
 	p1 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 1",
-		UnixID:     "p1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 1",
+		UnixID: "p1",
 	}
 	s1 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student 1",
-		UnixID:     "s1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student 1",
+		UnixID: "s1",
 	}
 	// Need this to satisfy not null
 	dept := models.Department{
@@ -409,27 +395,21 @@ func TestController_ListCourseSurveysWithProfessor(t *testing.T) {
 
 	// Insert test user into db
 	p1 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 1",
-		UnixID:     "p1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 1",
+		UnixID: "p1",
 	}
 	// Student
 	s1 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student 1",
-		UnixID:     "s1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student 1",
+		UnixID: "s1",
 	}
 	// Other prof
 	p2 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 2",
-		UnixID:     "p2",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 2",
+		UnixID: "p2",
 	}
 	err := db.Create(&p1).Create(&s1).Create(&p2).Error
 	assert.NoError(err)
@@ -533,32 +513,24 @@ func TestController_ListCourseProfessors(t *testing.T) {
 
 	// Insert test user into db
 	p1 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 1",
-		UnixID:     "p1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 1",
+		UnixID: "p1",
 	}
 	s1 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student",
-		UnixID:     "s1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student",
+		UnixID: "s1",
 	}
 	s2 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student",
-		UnixID:     "s2",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student",
+		UnixID: "s2",
 	}
 	p2 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 2",
-		UnixID:     "p2",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 2",
+		UnixID: "p2",
 	}
 	assert.NoError(db.Create(&p1).Create(&s1).Create(&s2).Create(&p2).Error)
 
@@ -673,18 +645,14 @@ func TestController_GetCourseRatings(t *testing.T) {
 	SetupRouter(router, db)
 
 	p1 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 1",
-		UnixID:     "p1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 1",
+		UnixID: "p1",
 	}
 	s1 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student 1",
-		UnixID:     "s1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student 1",
+		UnixID: "s1",
 	}
 	// Need this to satisfy not null
 	dept := models.Department{
@@ -824,27 +792,21 @@ func TestController_GetCourseRatingsWithProfessor(t *testing.T) {
 
 	// Insert test user into db
 	p1 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 1",
-		UnixID:     "p1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 1",
+		UnixID: "p1",
 	}
 	// Student
 	s1 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student 1",
-		UnixID:     "s1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student 1",
+		UnixID: "s1",
 	}
 	// Other prof
 	p2 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 2",
-		UnixID:     "p2",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 2",
+		UnixID: "p2",
 	}
 	err := db.Create(&p1).Create(&s1).Create(&p2).Error
 	assert.NoError(err)

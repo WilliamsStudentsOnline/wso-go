@@ -221,6 +221,18 @@ func (t *Controller) CreateSurvey(c *gin.Context) {
 		return
 	}
 
+	// Update the survey deficit. This might be more expensive, as it calculates the net surveys, rather than just
+	// taking the current deficit less one, but the more we calculate the net surveys, the more accurate our
+	// results should be.
+	err = t.studentModel.UpdateFactrakSurveyDeficit(user)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	// We should update the token, as we created a survey
+	c.Set(services.UpdateTokenKey, true)
+
 	t.RespondCreated(c, survey)
 }
 
@@ -309,7 +321,7 @@ func (t *Controller) UpdateSurvey(c *gin.Context) {
 	t.RespondOK(c, survey)
 }
 
-// Delete survey
+// Delete survey. Can either do this to self if a user, or to everything if admin
 func (t *Controller) DeleteSurvey(c *gin.Context) {
 	userID := services.GetUserID(c)
 
@@ -327,8 +339,8 @@ func (t *Controller) DeleteSurvey(c *gin.Context) {
 		return
 	}
 
-	// Survey must be owned by user id
-	if survey.UserID != userID {
+	// Survey must be owned by user id or admin
+	if survey.UserID != userID && !IsScopeAdmin(c) {
 		t.RespondError(c, lib.ErrorMustBeSelf)
 		return
 	}
@@ -347,6 +359,20 @@ func (t *Controller) DeleteSurvey(c *gin.Context) {
 		t.RespondError(c, err)
 		return
 	}
+
+	// Update the survey deficit. This might be more expensive, as it calculates the net surveys, rather than just
+	// taking the current deficit plus one, but the more we calculate the net surveys, the more accurate our
+	// results should be.
+	user := new(models.User)
+	user.ID = userID
+	err = t.studentModel.UpdateFactrakSurveyDeficit(user)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	// We should update the token, as we deleted a course.
+	c.Set(services.UpdateTokenKey, true)
 
 	// We know user is owner, so don't need to delete user fields
 	t.RespondOK(c, survey)

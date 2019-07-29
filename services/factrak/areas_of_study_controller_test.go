@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
@@ -126,42 +127,33 @@ func TestController_ListAreaOfStudyProfessors(t *testing.T) {
 
 	// Insert test user into db
 	p1 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 1",
-		UnixID:     "p1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 1",
+		UnixID: "p1",
 	}
 	p2 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 2",
-		UnixID:     "p2",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 2",
+		UnixID: "p2",
 	}
 	// Not at williams
 	p3 := models.User{
 		Type:       models.UserTypeProfessor,
 		Name:       "Professor 3",
 		UnixID:     "p3",
-		Visible:    true,
-		AtWilliams: false,
+		AtWilliams: lib.BoolToPtr(false),
 	}
 	// Other area/dept
 	p4 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 4",
-		UnixID:     "p4",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 4",
+		UnixID: "p4",
 	}
 	// Staff
 	s1 := models.User{
-		Type:       models.UserTypeStaff,
-		Name:       "Staff 1",
-		UnixID:     "s1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStaff,
+		Name:   "Staff 1",
+		UnixID: "s1",
 	}
 	assert.NoError(db.Create(&p1).Create(&p2).Create(&p3).Create(&p4).Create(&s1).Error)
 

@@ -33,18 +33,14 @@ func TestController_ListFlaggedSurveys(t *testing.T) {
 	}
 
 	p1 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 1",
-		UnixID:     "p1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 1",
+		UnixID: "p1",
 	}
 	s1 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student",
-		UnixID:     "s1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student",
+		UnixID: "s1",
 	}
 	assert.NoError(db.Create(&p1).Create(&s1).Error)
 
@@ -97,20 +93,16 @@ func TestController_UnflagSurvey(t *testing.T) {
 
 	// Populate the database
 	s1 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student 1",
-		UnixID:     "s1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student 1",
+		UnixID: "s1",
 	}
 	survey := models.FactrakSurvey{
 		User: &s1,
 		Professor: &models.User{
-			Type:       models.UserTypeProfessor,
-			Name:       "Professor 1",
-			UnixID:     "p1",
-			Visible:    true,
-			AtWilliams: true,
+			Type:   models.UserTypeProfessor,
+			Name:   "Professor 1",
+			UnixID: "p1",
 		},
 		Course: &models.Course{
 			Number: "c1",

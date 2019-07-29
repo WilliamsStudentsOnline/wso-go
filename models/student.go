@@ -27,6 +27,34 @@ func NewStudentModel(db *gorm.DB) *StudentModel {
 	}
 }
 
+// Given a user, update its survey deficit. This version allows for students to write all of their surveys
+// at one time, but I doubt most people will do this.
+// Doing this differently than the Rails version. In Rails, we ran this every semester and put however many needed.
+// Instead, we will run full calculations and put surveys required less surveys written, rather than two less
+// number of surveys written this semester.
+func (m *StudentModel) UpdateFactrakSurveyDeficit(user *User) (err error) {
+	// Get current owed surveys
+	deficit := user.Student().surveyTheshold()
+
+	// Count written surveys
+	fsM := NewFactrakSurveyModel(m.DB)
+	surveyCount, err := fsM.CountSurveysByUser(user.ID)
+	if err != nil {
+		return
+	}
+
+	// Calculate the remaining deficit
+	deficit = deficit - surveyCount
+
+	// Minimum 0 deficit
+	if deficit < 0 {
+		deficit = 0
+	}
+
+	err = m.DB.Model(&user).Update("factrak_survey_deficit", deficit).Error
+	return
+}
+
 func (*StudentModel) SeniorYear() int {
 	locTime := time.Now().Local()
 	if locTime.Month() >= StudentCutoffMonth {
@@ -48,6 +76,22 @@ func (m *StudentModel) scopeDefault(db *gorm.DB) *gorm.DB {
 
 func (m *StudentModel) scopeIsStudent(db *gorm.DB) *gorm.DB {
 	return db.Where("users.type = ?", UserTypeStudent)
+}
+
+func (m *StudentModel) UpdateAllFactrakSurveyDeficits() (err error) {
+	var students []User
+	err = m.GetAllUsersByType(&students, UserTypeStudent)
+	if err != nil {
+		return
+	}
+
+	for _, student := range students {
+		err = m.UpdateFactrakSurveyDeficit(&student)
+		if err != nil {
+			return
+		}
+	}
+	return
 }
 
 type Student struct {

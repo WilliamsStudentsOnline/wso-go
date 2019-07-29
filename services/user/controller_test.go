@@ -25,32 +25,26 @@ func TestController_ListUsers(t *testing.T) {
 
 	// Insert test users into db
 	u1 := models.User{
-		Name:       "Test 1",
-		UnixID:     "u1",
-		ClassYear:  lib.IntToPtr(3),
-		Visible:    true,
-		AtWilliams: true,
+		Name:      "Test 1",
+		UnixID:    "u1",
+		ClassYear: lib.IntToPtr(3),
 	}
 	u2 := models.User{
-		Name:       "Test 2",
-		UnixID:     "u2",
-		ClassYear:  lib.IntToPtr(3),
-		Visible:    false,
-		AtWilliams: true,
+		Name:      "Test 2",
+		UnixID:    "u2",
+		ClassYear: lib.IntToPtr(3),
+		Visible:   lib.BoolToPtr(false),
 	}
 	u3 := models.User{
 		Name:       "Test 3",
 		UnixID:     "u3",
 		ClassYear:  lib.IntToPtr(3),
-		Visible:    true,
-		AtWilliams: false,
+		AtWilliams: lib.BoolToPtr(false),
 	}
 	u4 := models.User{
-		Name:       "Test 4",
-		UnixID:     "u4",
-		ClassYear:  lib.IntToPtr(3),
-		Visible:    true,
-		AtWilliams: true,
+		Name:      "Test 4",
+		UnixID:    "u4",
+		ClassYear: lib.IntToPtr(3),
 	}
 	assert.NoError(db.Create(&u1).Create(&u2).Create(&u3).Create(&u4).Error)
 
@@ -84,25 +78,21 @@ func TestController_GetUser(t *testing.T) {
 
 	// Insert test users into db
 	u1 := models.User{
-		Name:       "Test 1",
-		UnixID:     "u1",
-		ClassYear:  lib.IntToPtr(3),
-		Visible:    true,
-		AtWilliams: true,
+		Name:      "Test 1",
+		UnixID:    "u1",
+		ClassYear: lib.IntToPtr(3),
 	}
 	u2 := models.User{
-		Name:       "Test 2",
-		UnixID:     "u2",
-		ClassYear:  lib.IntToPtr(3),
-		Visible:    false,
-		AtWilliams: true,
+		Name:      "Test 2",
+		UnixID:    "u2",
+		ClassYear: lib.IntToPtr(3),
+		Visible:   lib.BoolToPtr(false),
 	}
 	u3 := models.User{
 		Name:       "Test 3",
 		UnixID:     "u3",
 		ClassYear:  lib.IntToPtr(3),
-		Visible:    true,
-		AtWilliams: false,
+		AtWilliams: lib.BoolToPtr(false),
 	}
 	assert.NoError(db.Create(&u1).Create(&u2).Create(&u3).Error)
 
@@ -182,17 +172,15 @@ func TestController_UpdateUser(t *testing.T) {
 		Name:        "Test 1",
 		UnixID:      "u1",
 		ClassYear:   lib.IntToPtr(3),
-		Visible:     true,
-		AtWilliams:  true,
-		DormVisible: true,
-		OffCycle:    false,
+		Visible:     lib.BoolToPtr(true),
+		AtWilliams:  lib.BoolToPtr(true),
+		DormVisible: lib.BoolToPtr(true),
+		OffCycle:    lib.BoolToPtr(false),
 	}
 	u2 := models.User{
-		Name:       "Test 2",
-		UnixID:     "u2",
-		ClassYear:  lib.IntToPtr(3),
-		Visible:    true,
-		AtWilliams: true,
+		Name:      "Test 2",
+		UnixID:    "u2",
+		ClassYear: lib.IntToPtr(3),
 	}
 	assert.NoError(db.Create(&u1).Create(&u2).Error)
 
@@ -222,10 +210,10 @@ func TestController_UpdateUser(t *testing.T) {
 	assert.NoError(db.First(&res, u1.ID).Error)
 
 	// Check updated params
-	assert.False(res.Visible)
-	assert.False(res.DormVisible)
-	assert.True(res.HomeVisible)
-	assert.True(res.OffCycle)
+	assert.False(*res.Visible)
+	assert.False(*res.DormVisible)
+	assert.True(*res.HomeVisible)
+	assert.True(*res.OffCycle)
 	assert.Equal("foobar", *res.Pronoun)
 	// Assert that name did not change
 	assert.Equal(u1.Name, res.Name)

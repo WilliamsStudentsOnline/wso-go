@@ -11,12 +11,12 @@ github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym
 github.com/Knetic/govaluate v3.0.0+incompatible/go.mod h1:r7JcOSlj0wfOMncg0iLm8Leh48TZaKVeNIfJntJ2wa0=
 github.com/Shopify/sarama v1.19.0/go.mod h1:FVkBWblsNy7DGZRfXLU0O9RCGt5g3g3yEuWXgklEdEo=
 github.com/Shopify/toxiproxy v2.1.4+incompatible/go.mod h1:OXgGpZ6Cli1/URJOF1DMxUHB2q5Ap20/P/eIdh4G0pI=
+github.com/aidanlloydtucker/gin-jwt/v2 v2.6.3 h1:93mZ4obA2fug/JJDnr4XvYeptqM/l+86Xl+acYN99nE=
+github.com/aidanlloydtucker/gin-jwt/v2 v2.6.3/go.mod h1:oMmTlYbhZda7uQUbIxvR9vKPRzN4MZhmmvq5PZ0kDt0=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc h1:cAKDfWh5VpdgMhJosfJnn5/FoN2SRZ4p7fJNX58YPaU=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=
 github.com/apache/thrift v0.12.0/go.mod h1:cp2SuWMxlEZw2r+iP2GNCdIi4C1qmUzdZFSVb+bacwQ=
-github.com/appleboy/gin-jwt/v2 v2.6.2 h1:aW8jd9Zt5lU5W18GvLMO3/T9O8DETfW3O7GzGxcL6So=
-github.com/appleboy/gin-jwt/v2 v2.6.2/go.mod h1:fPyTIp4l5gtQnThEGuMBzCcfvMVSs9dsfrZlXsaTJMY=
 github.com/appleboy/gofight/v2 v2.1.1 h1:mBiMmXAofKf1GdEHxp8QkfrRaj/nBCoDnkwjn8axsq8=
 github.com/appleboy/gofight/v2 v2.1.1/go.mod h1:6E7pthKhmwss84j/zEixBNim8Q6ahhHcYOtmW5ts5vA=
 github.com/astaxie/beego v1.11.1/go.mod h1:i69hVzgauOPSw5qeyF4GVZhn7Od0yG5bbCGzmhbWxgQ=

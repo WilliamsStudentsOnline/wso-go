@@ -14,9 +14,10 @@ import (
 type BaseController struct{}
 
 type BaseResponse struct {
-	Status int         `json:"status"`
-	Data   interface{} `json:"data,omitempty"`
-	Error  *RespError  `json:"error,omitempty"`
+	Status      int         `json:"status"`
+	Data        interface{} `json:"data,omitempty"`
+	Error       *RespError  `json:"error,omitempty"`
+	UpdateToken bool        `json:"updateToken"`
 }
 
 type RespError struct {
@@ -25,12 +26,16 @@ type RespError struct {
 	Errors    []string `json:"errors,omitempty"`
 }
 
+const UpdateTokenKey = "updateToken"
+
 // Respond to a request with an OK and some data
 func (BaseController) RespondOK(c *gin.Context, data interface{}) {
 	c.JSON(http.StatusOK, BaseResponse{
 		Status: http.StatusOK,
 		Data:   data,
 		Error:  nil,
+		// We set this in the context at any point if we need to update the token
+		UpdateToken: c.GetBool(UpdateTokenKey),
 	})
 }
 
@@ -40,6 +45,8 @@ func (BaseController) RespondCreated(c *gin.Context, data interface{}) {
 		Status: http.StatusCreated,
 		Data:   data,
 		Error:  nil,
+		// We set this in the context at any point if we need to update the token
+		UpdateToken: c.GetBool(UpdateTokenKey),
 	})
 }
 
@@ -62,6 +69,8 @@ func (BaseController) RespondAPIError(c *gin.Context, err *lib.APIError) {
 			Message:   err.Error(),
 			Errors:    errs,
 		},
+		// We set this in the context at any point if we need to update the token
+		UpdateToken: c.GetBool(UpdateTokenKey),
 	})
 }
 
@@ -107,6 +116,8 @@ func (b BaseController) RespondErrorCode(c *gin.Context, code int, err error) {
 			ErrorCode: code,
 			Message:   err.Error(),
 		},
+		// We set this in the context at any point if we need to update the token
+		UpdateToken: c.GetBool(UpdateTokenKey),
 	})
 }
 

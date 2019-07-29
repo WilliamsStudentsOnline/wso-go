@@ -23,34 +23,27 @@ func TestController_ListProfessors(t *testing.T) {
 
 	// Insert test user into db
 	p1 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Prof1",
-		UnixID:     "p1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Prof1",
+		UnixID: "p1",
 	}
 	p2 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Prof2",
-		UnixID:     "p2",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Prof2",
+		UnixID: "p2",
 	}
 	// Should not show up
 	s1 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student1",
-		UnixID:     "s1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student1",
+		UnixID: "s1",
 	}
 	// Not at williams
 	p3 := models.User{
 		Type:       models.UserTypeProfessor,
 		Name:       "Prof3",
 		UnixID:     "p3",
-		Visible:    true,
-		AtWilliams: false,
+		AtWilliams: lib.BoolToPtr(false),
 	}
 	err := db.Create(&p1).Create(&p2).Create(&s1).Create(&p3).Error
 	assert.NoError(err)
@@ -89,27 +82,22 @@ func TestController_GetProfessor(t *testing.T) {
 
 	// Insert test user into db
 	p1 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor",
-		UnixID:     "p1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor",
+		UnixID: "p1",
 	}
 	// Should not show up
 	s1 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student",
-		UnixID:     "s1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student",
+		UnixID: "s1",
 	}
 	// Not at williams
 	p2 := models.User{
 		Type:       models.UserTypeProfessor,
 		Name:       "Professor Not At Williams",
 		UnixID:     "p2",
-		Visible:    true,
-		AtWilliams: false,
+		AtWilliams: lib.BoolToPtr(false),
 	}
 	err := db.Create(&p1).Create(&s1).Create(&p2).Error
 	assert.NoError(err)
@@ -179,27 +167,21 @@ func TestController_GetProfessorWithCourse(t *testing.T) {
 
 	// Insert test user into db
 	p1 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 1",
-		UnixID:     "p1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 1",
+		UnixID: "p1",
 	}
 	// Student
 	s1 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student 1",
-		UnixID:     "s1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student 1",
+		UnixID: "s1",
 	}
 	// Other prof
 	p2 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 2",
-		UnixID:     "p2",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 2",
+		UnixID: "p2",
 	}
 	err := db.Create(&p1).Create(&s1).Create(&p2).Error
 	assert.NoError(err)
@@ -305,32 +287,24 @@ func TestController_ListProfessorSurveys(t *testing.T) {
 
 	// Insert test user into db
 	p1 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 1",
-		UnixID:     "p1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 1",
+		UnixID: "p1",
 	}
 	s1 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student",
-		UnixID:     "s1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student",
+		UnixID: "s1",
 	}
 	s2 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student",
-		UnixID:     "s2",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student",
+		UnixID: "s2",
 	}
 	p2 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 2",
-		UnixID:     "p2",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 2",
+		UnixID: "p2",
 	}
 	assert.NoError(db.Create(&p1).Create(&s1).Create(&s2).Create(&p2).Error)
 
@@ -410,27 +384,21 @@ func TestController_ListProfessorSurveysWithCourse(t *testing.T) {
 
 	// Insert test user into db
 	p1 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 1",
-		UnixID:     "p1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 1",
+		UnixID: "p1",
 	}
 	// Student
 	s1 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student 1",
-		UnixID:     "s1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student 1",
+		UnixID: "s1",
 	}
 	// Other prof
 	p2 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 2",
-		UnixID:     "p2",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 2",
+		UnixID: "p2",
 	}
 	err := db.Create(&p1).Create(&s1).Create(&p2).Error
 	assert.NoError(err)
@@ -534,32 +502,24 @@ func TestController_ListProfessorCourses(t *testing.T) {
 
 	// Insert test user into db
 	p1 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 1",
-		UnixID:     "p1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 1",
+		UnixID: "p1",
 	}
 	s1 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student",
-		UnixID:     "s1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student",
+		UnixID: "s1",
 	}
 	s2 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student",
-		UnixID:     "s2",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student",
+		UnixID: "s2",
 	}
 	p2 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 2",
-		UnixID:     "p2",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 2",
+		UnixID: "p2",
 	}
 	assert.NoError(db.Create(&p1).Create(&s1).Create(&s2).Create(&p2).Error)
 
@@ -676,25 +636,19 @@ func TestController_GetProfessorRatings(t *testing.T) {
 
 	// Insert test user into db
 	p1 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 1",
-		UnixID:     "p1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 1",
+		UnixID: "p1",
 	}
 	s1 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student",
-		UnixID:     "s1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student",
+		UnixID: "s1",
 	}
 	p2 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 2",
-		UnixID:     "p2",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 2",
+		UnixID: "p2",
 	}
 	assert.NoError(db.Create(&p1).Create(&s1).Create(&p2).Error)
 
@@ -808,27 +762,21 @@ func TestController_GetProfessorRatingsWithCourse(t *testing.T) {
 
 	// Insert test user into db
 	p1 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 1",
-		UnixID:     "p1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 1",
+		UnixID: "p1",
 	}
 	// Student
 	s1 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student 1",
-		UnixID:     "s1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student 1",
+		UnixID: "s1",
 	}
 	// Other prof
 	p2 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 2",
-		UnixID:     "p2",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 2",
+		UnixID: "p2",
 	}
 	err := db.Create(&p1).Create(&s1).Create(&p2).Error
 	assert.NoError(err)

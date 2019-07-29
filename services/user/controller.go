@@ -53,17 +53,27 @@ func (t *Controller) GetUser(c *gin.Context) {
 		return
 	}
 
-	if !user.Visible {
+	if !*user.Visible {
 		t.RespondError(c, lib.ErrorUserNotVisible)
 		return
 	}
 
-	if !user.AtWilliams {
+	if !*user.AtWilliams {
 		t.RespondError(c, lib.ErrorUserNotAtWilliams)
 		return
 	}
 
 	t.RespondOK(c, user)
+}
+
+type UpdateUserParams struct {
+	Visible                   *bool   `json:"visible"`
+	DormVisible               *bool   `json:"dormVisible"`
+	HomeVisible               *bool   `json:"homeVisible"`
+	Pronoun                   *string `json:"pronoun"`
+	OffCycle                  *bool   `json:"offCycle"`
+	HasAcceptedFactrakPolicy  *bool   `json:"hasAcceptedFactrakPolicy"`
+	HasAcceptedDormtrakPolicy *bool   `json:"hasAcceptedDormtrakPolicy"`
 }
 
 func (t *Controller) UpdateUser(c *gin.Context) {
@@ -81,22 +91,39 @@ func (t *Controller) UpdateUser(c *gin.Context) {
 	}
 
 	// Bind update params
-	update := models.UpdateUserParams{}
-	err = c.ShouldBind(&update)
-	if err != nil {
-		t.RespondError(c, lib.ErrorMalformedRequestData)
-		return
-	}
-
-	// Update the user in the db
-	err = t.userModel.UpdateUser(userID, &update)
+	updateData := UpdateUserParams{}
+	err = c.ShouldBind(&updateData)
 	if err != nil {
 		t.RespondError(c, err)
 		return
 	}
 
-	// Return nothing
-	t.RespondOK(c, nil)
+	// Do database query to get the user
+	var user models.User
+	err = t.userModel.GetUserByID(userID, &user)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	// Update fields: this is a bit long and verbose, but I don't want to mess with reflect
+	user.Visible = lib.BoolPtrDefaults(updateData.Visible, user.Visible)
+	user.DormVisible = lib.BoolPtrDefaults(updateData.DormVisible, user.DormVisible)
+	user.HomeVisible = lib.BoolPtrDefaults(updateData.HomeVisible, user.HomeVisible)
+	user.Pronoun = lib.StrPtrDefaults(updateData.Pronoun, user.Pronoun)
+	user.OffCycle = lib.BoolPtrDefaults(updateData.OffCycle, user.OffCycle)
+	user.HasAcceptedFactrakPolicy = lib.BoolPtrDefaults(updateData.HasAcceptedFactrakPolicy, user.HasAcceptedFactrakPolicy)
+	user.HasAcceptedDormtrakPolicy = lib.BoolPtrDefaults(updateData.HasAcceptedDormtrakPolicy, user.HasAcceptedDormtrakPolicy)
+
+	// Update the user in the db
+	err = t.userModel.UpdateUser(&user)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	// Return updated user
+	t.RespondOK(c, user)
 }
 
 func (t *Controller) UpdateUserTags(c *gin.Context) {

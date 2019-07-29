@@ -49,7 +49,6 @@ func main() {
 	/* Secrets */
 	if _, err := os.Stat(secretsPath); os.IsNotExist(err) {
 		log.Fatal("Secrets file must exist")
-
 	}
 
 	// If secrets file exists, parse it
@@ -75,10 +74,10 @@ func main() {
 	}
 
 	// Do the actual stuff
-	userModel := models.NewUserModel(db)
+	studentModel := models.NewStudentModel(db)
 
-	err = userModel.UpdateAllFromLDAP(cfg)
+	err = studentModel.UpdateAllFactrakSurveyDeficits()
 	if err != nil {
-		log.Fatal("Update All From LDAP Error: " + err.Error())
+		log.Fatal("Update All Factrak Survey Deficits Error: " + err.Error())
 	}
 }

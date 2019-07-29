@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	. "github.com/WilliamsStudentsOnline/wso-go/lib/auth"
-	jwt "github.com/appleboy/gin-jwt/v2"
+	jwt "github.com/aidanlloydtucker/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 )
 

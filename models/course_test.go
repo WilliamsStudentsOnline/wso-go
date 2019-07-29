@@ -1,9 +1,10 @@
-package models
+package models_test
 
 import (
 	"testing"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
+	. "github.com/WilliamsStudentsOnline/wso-go/models"
 	testify "github.com/stretchr/testify/assert"
 )
 

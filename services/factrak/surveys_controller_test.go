@@ -36,18 +36,14 @@ func TestController_ListSurveys(t *testing.T) {
 	}
 
 	p1 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 1",
-		UnixID:     "p1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 1",
+		UnixID: "p1",
 	}
 	s1 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student",
-		UnixID:     "s1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student",
+		UnixID: "s1",
 	}
 	assert.NoError(db.Create(&p1).Create(&s1).Error)
 
@@ -108,18 +104,14 @@ func TestController_GetSurvey(t *testing.T) {
 	}
 
 	p1 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 1",
-		UnixID:     "p1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 1",
+		UnixID: "p1",
 	}
 	s1 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student",
-		UnixID:     "s1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student",
+		UnixID: "s1",
 	}
 	assert.NoError(db.Create(&p1).Create(&s1).Error)
 
@@ -173,32 +165,24 @@ func TestController_CreateSurvey(t *testing.T) {
 
 	// Populate the database
 	s1 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student 1",
-		UnixID:     "s1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student 1",
+		UnixID: "s1",
 	}
 	s2 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student 2",
-		UnixID:     "s2",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student 2",
+		UnixID: "s2",
 	}
 	p1 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 1",
-		UnixID:     "p1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 1",
+		UnixID: "p1",
 	}
 	p2 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 2",
-		UnixID:     "p2",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 2",
+		UnixID: "p2",
 	}
 	c1 := models.Course{
 		Number: "c1",
@@ -380,25 +364,19 @@ func TestController_UpdateSurvey(t *testing.T) {
 
 	// Populate the database
 	s1 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student 1",
-		UnixID:     "s1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student 1",
+		UnixID: "s1",
 	}
 	s2 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student 2",
-		UnixID:     "s2",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student 2",
+		UnixID: "s2",
 	}
 	p1 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 1",
-		UnixID:     "p1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 1",
+		UnixID: "p1",
 	}
 	c1 := models.Course{
 		Number: "c1",
@@ -508,25 +486,19 @@ func TestController_DeleteSurvey(t *testing.T) {
 
 	// Populate the database
 	s1 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student 1",
-		UnixID:     "s1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student 1",
+		UnixID: "s1",
 	}
 	s2 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student 2",
-		UnixID:     "s2",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student 2",
+		UnixID: "s2",
 	}
 	p1 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 1",
-		UnixID:     "p1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 1",
+		UnixID: "p1",
 	}
 	c1 := models.Course{
 		Number: "c1",
@@ -622,20 +594,16 @@ func TestController_FlagSurvey(t *testing.T) {
 
 	// Populate the database
 	s1 := models.User{
-		Type:       models.UserTypeStudent,
-		Name:       "Student 1",
-		UnixID:     "s1",
-		Visible:    true,
-		AtWilliams: true,
+		Type:   models.UserTypeStudent,
+		Name:   "Student 1",
+		UnixID: "s1",
 	}
 	survey := models.FactrakSurvey{
 		User: &s1,
 		Professor: &models.User{
-			Type:       models.UserTypeProfessor,
-			Name:       "Professor 1",
-			UnixID:     "p1",
-			Visible:    true,
-			AtWilliams: true,
+			Type:   models.UserTypeProfessor,
+			Name:   "Professor 1",
+			UnixID: "p1",
 		},
 		Course: &models.Course{
 			Number: "c1",

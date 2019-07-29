@@ -18,7 +18,7 @@ import (
 	adminService "github.com/WilliamsStudentsOnline/wso-go/services/admin"
 	factrakService "github.com/WilliamsStudentsOnline/wso-go/services/factrak"
 	userService "github.com/WilliamsStudentsOnline/wso-go/services/user"
-	jwt "github.com/appleboy/gin-jwt/v2"
+	jwt "github.com/aidanlloydtucker/gin-jwt/v2"
 	"github.com/fvbock/endless"
 	log "github.com/sirupsen/logrus"
 )
@@ -46,6 +46,7 @@ func main() {
 	cfg, err := config.GetConfig(env, configPath)
 	if err != nil {
 		log.Fatal("Config Error: " + err.Error())
+		return
 	}
 
 	if cfg.IsProduction() {
@@ -64,6 +65,7 @@ func main() {
 		secrets, err := config.GetSecrets(secretsPath)
 		if err != nil {
 			log.Fatal("Secrets Error: " + err.Error())
+			return
 		}
 		cfg.Secrets = secrets
 	} else if !cfg.IsProduction() {
@@ -75,6 +77,7 @@ func main() {
 	} else {
 		// If secrets file does not exist, and we are in production, fail
 		log.Fatal("Secrets file must exist in production")
+		return
 	}
 
 	/* DATABASE */
@@ -85,6 +88,7 @@ func main() {
 	err = migrate.MigrateDB(db)
 	if err != nil {
 		log.Fatal("Migration Error: " + err.Error())
+		return
 	}
 
 	/* Gin Mode */
@@ -103,6 +107,7 @@ func main() {
 	r, err := SetupRouter(cfg, db)
 	if err != nil {
 		log.Fatal(err)
+		return
 	}
 
 	// Would change this to be more production-friendly in real life. I'd use something like endless to keep
@@ -110,6 +115,7 @@ func main() {
 	err = endless.ListenAndServe(":"+cfg.Port, r) // listen and serve on 0.0.0.0:8080
 	if err != nil {
 		log.Fatal("Server Error: " + err.Error())
+		return
 	}
 }
 
