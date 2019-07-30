@@ -33,6 +33,11 @@ The model struct (e.g. `user.go` or `UserModel{}`) is the database adapter for t
 #### Schema
 Note that in the schema is defined following the [GORM guidelines](https://gorm.io/docs/models). Optional fields are pointer-type, and associations are documented [here](https://gorm.io/docs/belongs_to.html). When working with any optional fields, you can easily convert a literal value into a pointer by using the `lib/to_pointer.go` file, which has functions like `lib.StrToPtr(str string) *string`.
 
+### REST-API Guidelines
+* Use plural names for resources (when nouns): e.g. use `/users`, rather than `/user`.
+* When resources are verbs or adjectives, use whatever fits best.
+* Use dashes when resources must be more than one word: e.g. use `/areas-of-study`, rather than `/area_of_study` or `/areaOfStudy`.
+
 ### Auto-Generate
 You can use the auto-generator to generate a services and models. Usage is as follows:
 
@@ -57,15 +62,15 @@ To build the Go binary, run `go build -tags=jsoniter -o wso-go main.go`. You can
 ## API Endpoints
 Get All Users:
 ```http request
-GET localhost:8080/api/v1/user
+GET localhost:8080/api/v1/users
 ```
 Get User:
 ```http request
-GET localhost:8080/api/v1/user/:user_id
+GET localhost:8080/api/v1/users/:user_id
 ```
 Update User:
 ```http request
-PUT localhost:8080/api/v1/user/:user_id
+PUT localhost:8080/api/v1/users/:user_id
 {
     "visible": true,
     "dorm_visible": true,
@@ -115,3 +120,11 @@ We use something called a [JWT](jwt.io), or JSON Web Token for the API. This all
 - `lib/` library files (helpful functions, etc.)
 - `test.db` the database of generated data the demo server uses
 - `main.go` the entry-point of the code; contains all routing information
+
+## Local Kubernetes Deployment
+This is a guide to how to set up and run a local kubernetes deployment. Usually if you are just working on the API, 
+it is okay to run the backend locally with `go build` and `go run`. But, if you need to make changes to the 
+infrastructure, or you want to run the backend as if it was on production, this is your best bet. Please note that 
+wso-dev can also function as a place to test your code in a kubernetes environment.
+
+How-to guide coming soon.

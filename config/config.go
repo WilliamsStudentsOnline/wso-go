@@ -100,7 +100,7 @@ func SetupConfigDefaults(c *Config) error {
 		return errors.New("missing JWT key signature: either need pub key & priv key, or secret key")
 	}
 
-	if !c.JWTUseAsymmetric && (c.JWTPrivateKeyFile == "" || c.JWTPublicKeyFile == "") {
+	if c.JWTUseAsymmetric && (c.JWTPrivateKeyFile == "" || c.JWTPublicKeyFile == "") {
 		return errors.New("missing JWT priv or pub key for asymmetric algorithm")
 	}
 

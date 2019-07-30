@@ -160,7 +160,7 @@ func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB) (authMiddleware *jwt.Gi
 		// - "query:<name>"
 		// - "cookie:<name>"
 		// - "param:<name>"
-		TokenLookup: "header: Authorization, query: token, cookie: jwt",
+		TokenLookup: "header: Authorization, query: token",
 		// TokenLookup: "query:token",
 		// TokenLookup: "cookie:token",
 
