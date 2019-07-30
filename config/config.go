@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 
@@ -9,14 +10,25 @@ import (
 
 // Our configuration
 type Config struct {
-	Env          string   `yaml:"env"`
-	DatabaseType string   `yaml:"database_type"`
-	DatabaseArgs string   `yaml:"database_args"`
-	JWTRealm     string   `yaml:"jwt_realm"`
-	GinMode      string   `yaml:"gin_mode"`
-	Port         string   `yaml:"port"`
-	DisableLDAP  bool     `yaml:"disable_ldap"`
-	Secrets      *Secrets `yaml:"-"`
+	Env string `yaml:"env"`
+
+	// Database
+	DatabaseType string `yaml:"database_type"`
+	DatabaseArgs string `yaml:"database_args"`
+
+	// JWT
+	JWTRealm string `yaml:"jwt_realm"`
+	// Timeout in hours
+	JWTTimeoutHours int `yaml:"jwt_timeout_hours"`
+	// Asymmetric algorithm setup
+	JWTPublicKeyFile  string `yaml:"jwt_public_key_file"`
+	JWTPrivateKeyFile string `yaml:"jwt_private_key_file"`
+	JWTUseAsymmetric  bool   `yaml:"jwt_use_asymmetric"`
+
+	GinMode     string   `yaml:"gin_mode"`
+	Port        string   `yaml:"port"`
+	DisableLDAP bool     `yaml:"disable_ldap"`
+	Secrets     *Secrets `yaml:"-"`
 }
 
 // Check what environment our config is in
@@ -77,4 +89,20 @@ func GetConfig(env string, configPath string) (*Config, error) {
 	}
 
 	return cfg, nil
+}
+
+func SetupConfigDefaults(c *Config) error {
+	if c.JWTTimeoutHours == 0 {
+		c.JWTTimeoutHours = 1
+	}
+
+	if (c.JWTPublicKeyFile == "" || c.JWTPrivateKeyFile == "") && c.Secrets.JWTSecretKey == "" {
+		return errors.New("missing JWT key signature: either need pub key & priv key, or secret key")
+	}
+
+	if !c.JWTUseAsymmetric && (c.JWTPrivateKeyFile == "" || c.JWTPublicKeyFile == "") {
+		return errors.New("missing JWT priv or pub key for asymmetric algorithm")
+	}
+
+	return nil
 }

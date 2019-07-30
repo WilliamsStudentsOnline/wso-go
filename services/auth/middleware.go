@@ -25,14 +25,34 @@ const (
 	TokenLevelSignedIn
 )
 
+type AuthResponse struct {
+	Token  string    `json:"token"`
+	Expire time.Time `json:"expire"`
+}
+
 func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB) (authMiddleware *jwt.GinJWTMiddleware, err error) {
+	algo := "HS256"
+	if cfg.JWTUseAsymmetric {
+		algo = "RS256"
+	}
+
 	// The JWT middleware
 	authMiddleware, err = jwt.New(&jwt.GinJWTMiddleware{
-		Realm:       cfg.JWTRealm,
-		Key:         []byte(cfg.Secrets.JWTSecretKey),
-		Timeout:     time.Hour,
-		MaxRefresh:  time.Hour,
+		Realm: cfg.JWTRealm,
+
+		// Signing algorithm setup. Contains both secret key and pub/priv keys
+		SigningAlgorithm: algo,
+		Key:              []byte(cfg.Secrets.JWTSecretKey),
+		PubKeyFile:       cfg.JWTPublicKeyFile,
+		PrivKeyFile:      cfg.JWTPrivateKeyFile,
+
+		// Refreshing and timeout have same duration
+		Timeout:    time.Duration(cfg.JWTTimeoutHours) * time.Hour,
+		MaxRefresh: time.Duration(cfg.JWTTimeoutHours) * time.Hour,
+
+		// How are we distinguishing signed in users: by user id
 		IdentityKey: "id",
+
 		// Called on login to create JWT payload
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			// We take the data (which is a User) and create the payload
@@ -41,6 +61,7 @@ func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB) (authMiddleware *jwt.Gi
 			}
 			return jwt.MapClaims{}
 		},
+
 		// Called every request to get user's id
 		IdentityHandler: func(c *gin.Context) interface{} {
 			claims := jwt.ExtractClaims(c)
@@ -61,12 +82,31 @@ func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB) (authMiddleware *jwt.Gi
 			userID := claims["id"].(float64)
 			return userID
 		},
+
 		// Called on login to authenticate
 		Authenticator: NewController(cfg, db).Authenticator,
+
 		// What to do when a JWT is unauthorized
 		Unauthorized: func(c *gin.Context, statusCode int, errorMsg string) {
 			services.Base.RespondErrorCode(c, statusCode, errors.New(errorMsg))
 		},
+
+		// What to do when a login works
+		LoginResponse: func(c *gin.Context, statusCode int, token string, expire time.Time) {
+			services.Base.RespondOK(c, AuthResponse{
+				Token:  token,
+				Expire: expire,
+			})
+		},
+
+		// What to do when a refresh works
+		RefreshResponse: func(c *gin.Context, statusCode int, token string, expire time.Time) {
+			services.Base.RespondOK(c, AuthResponse{
+				Token:  token,
+				Expire: expire,
+			})
+		},
+
 		// Called every request; ignore this for now
 		Authorizator: func(data interface{}, c *gin.Context) bool {
 			// Only allow token level authenticated and above
@@ -76,6 +116,7 @@ func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB) (authMiddleware *jwt.Gi
 			}
 			return true
 		},
+
 		// Update token calls this. It passes in identity data, like authorizor, and the gin
 		// context. From there, the function should work somewhat like payload func to generate
 		// a new payload.
@@ -95,6 +136,7 @@ func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB) (authMiddleware *jwt.Gi
 					payload.TokenLevel = TokenLevelOffCampus
 				}
 			} else if tokenLevel == TokenLevelSignedIn {
+				// If signed in token, get userID and find it in DB.
 				userID, ok := claims["id"].(float64)
 				if !ok {
 					return nil, errors.New("could not find user id in claim")

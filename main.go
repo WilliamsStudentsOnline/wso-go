@@ -80,6 +80,12 @@ func main() {
 		return
 	}
 
+	err = config.SetupConfigDefaults(cfg)
+	if err != nil {
+		log.Fatal("Config Error: " + err.Error())
+		return
+	}
+
 	/* DATABASE */
 	db := config.LoadDatabase(cfg)
 	defer config.CloseDatabase(db)
