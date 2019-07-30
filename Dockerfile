@@ -8,6 +8,8 @@ ENV GO111MODULE=on
 
 # Need this for go caching
 ENV XDG_CACHE_HOME=/tmp/.cache
+RUN mkdir /tmp/.cache
+RUN chmod 775 /tmp/.cache
 
 RUN go mod download
 RUN go mod verify
