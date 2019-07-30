@@ -4,6 +4,8 @@ ADD . /go/src/github.com/WilliamsStudentsOnline/wso-go
 
 WORKDIR /go/src/github.com/WilliamsStudentsOnline/wso-go
 
+ENV GO111MODULE=on
+
 RUN go mod download
 RUN go mod verify
 
