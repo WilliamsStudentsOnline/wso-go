@@ -62,7 +62,7 @@ func HasScope(c *gin.Context, scopes ...string) bool {
 }
 
 func CheckIDIsSelf(c *gin.Context, checkSelf uint) bool {
-	val, ok := c.Get("userID")
+	val, ok := c.Get("id")
 	if !ok {
 		return false
 	}
