@@ -1,0 +1,8 @@
+commonLabels:
+  app: wso
+
+resources:
+  - backend-deployment.yaml
+  - backend-service.yaml
+  - mysql-deployment.yaml
+  - mysql-sv.yaml

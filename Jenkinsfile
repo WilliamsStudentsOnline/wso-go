@@ -2,7 +2,7 @@ pipeline {
   agent {
     dockerfile {
       filename 'Dockerfile'
-      args '-u root:sudo'
+      args '-u root:sudo --rm'
     }
 
   }
@@ -17,6 +17,7 @@ pipeline {
   post {
     cleanup {
       cleanWs()
+      sh '''docker system prune --all'''
     }
   }
 }

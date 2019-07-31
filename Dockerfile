@@ -19,7 +19,7 @@ RUN go mod verify
 COPY . .
 
 # Build the go file
-RUN GOOS=linux go build -ldflags "-w -s" -tags=jsoniter -o /go/bin/wso-go
+RUN GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o /go/bin/wso-go
 
 # Default entrypoint. TODO: move this binary to a scratch deployment for minimal size (issue with cgo?)
 ENTRYPOINT ["/go/bin/wso-go"]

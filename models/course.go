@@ -18,7 +18,7 @@ func NewCourseModel(db *gorm.DB) *CourseModel {
 }
 
 func (m *CourseModel) GetAllCourses(c *[]Course) (err error) {
-	err = m.DB.Find(c).Error
+	err = m.DB.Preload("AreaOfStudy").Find(c).Error
 	return
 }
 

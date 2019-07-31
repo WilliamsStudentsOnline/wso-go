@@ -10,7 +10,7 @@ type Course struct {
 	AreaOfStudy   *AreaOfStudy `json:"areaOfStudy,omitempty"`
 
 	// Has many factrak surveys
-	FactrakSurveys []*FactrakSurvey `json:"factrakSurveys"`
+	FactrakSurveys []*FactrakSurvey `json:"factrakSurveys,omitempty"`
 }
 
 func (*Course) TableName() string {

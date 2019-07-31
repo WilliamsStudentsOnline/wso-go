@@ -37,7 +37,6 @@ func NewController(db *gorm.DB) *Controller {
 	}
 }
 
-// TODO: Add testing for this
 // Remove sensitive data, like userID from surveys. Unless scope admin or the survey is your own
 func RemoveUserIDFromSurveys(c *gin.Context, s []*models.FactrakSurvey) {
 	if auth.HasScope(c, auth.ScopeAdminAll, auth.ScopeFactrakAdmin) {

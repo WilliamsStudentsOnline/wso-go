@@ -12,7 +12,6 @@ import (
 	jwt "github.com/aidanlloydtucker/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
-	log "github.com/sirupsen/logrus"
 )
 
 type TokenLevel int
@@ -79,7 +78,7 @@ func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB) (authMiddleware *jwt.Gi
 			c.Set("tokenLevel", int(claims["tokenLevel"].(float64)))
 
 			// Set "id" -> userID as the identity in the context
-			userID := claims["id"].(float64)
+			userID := uint(claims["id"].(float64))
 			return userID
 		},
 
@@ -121,7 +120,6 @@ func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB) (authMiddleware *jwt.Gi
 		// context. From there, the function should work somewhat like payload func to generate
 		// a new payload.
 		UpdateClaims: func(claims jwt.MapClaims, c *gin.Context) (jwt.MapClaims, error) {
-			log.Warn(claims)
 			tokenLevel := TokenLevel(claims["tokenLevel"].(float64))
 
 			payload := new(AuthenticatorPayload)

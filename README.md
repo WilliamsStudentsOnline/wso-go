@@ -128,3 +128,6 @@ infrastructure, or you want to run the backend as if it was on production, this 
 wso-dev can also function as a place to test your code in a kubernetes environment.
 
 How-to guide coming soon.
+`eval $(minikube docker-env)`
+`create database development character set utf8mb4 collate utf8mb4_bin;`
+`docker build -t wso-backend:dev-latest .`

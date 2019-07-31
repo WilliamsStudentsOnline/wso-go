@@ -1,22 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: wso-backend-deployment
+  name: backend
 spec:
   selector:
     matchLabels:
-      app: wso-go
       tier: backend
   replicas: 1 # tells deployment to run X pods matching the template
   template:
     metadata:
       labels:
-        app: wso-go
         tier: backend
     spec:
       containers:
         - name: wso-go
-          image: wso-backend:0.0.1
+          image: wso-backend:dev-latest
+          args: ["--env=local-k8-development"]
           imagePullPolicy: Never
           ports:
             - name: http

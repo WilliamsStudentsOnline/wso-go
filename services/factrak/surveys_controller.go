@@ -43,6 +43,12 @@ func (t *Controller) GetSurvey(c *gin.Context) {
 		return
 	}
 
+	// If the scope is limited and the scope is not by the user, error so the user doesn't get access to it
+	if IsScopeLimited(c) && survey.UserID != services.GetUserID(c) {
+		t.RespondError(c, lib.ErrorNoScopeAuthorization)
+		return
+	}
+
 	err = t.surveyModel.PopulateAgreementCounts(&survey)
 	if err != nil {
 		t.RespondError(c, err)
