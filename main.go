@@ -7,21 +7,37 @@ import (
 	"os"
 	"path/filepath"
 
-	authService "github.com/WilliamsStudentsOnline/wso-go/services/auth"
-	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
-
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	migrate "github.com/WilliamsStudentsOnline/wso-go/db"
+	_ "github.com/WilliamsStudentsOnline/wso-go/docs"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	adminService "github.com/WilliamsStudentsOnline/wso-go/services/admin"
+	authService "github.com/WilliamsStudentsOnline/wso-go/services/auth"
 	factrakService "github.com/WilliamsStudentsOnline/wso-go/services/factrak"
 	userService "github.com/WilliamsStudentsOnline/wso-go/services/user"
 	jwt "github.com/aidanlloydtucker/gin-jwt/v2"
 	"github.com/fvbock/endless"
+	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 	log "github.com/sirupsen/logrus"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
+
+// @title WSO API
+// @version 0.1.0
+// @description API for WSO services like factrak, facebook, dormtrak, course scheduler, and others.
+
+// @contact.name WSO Dev
+// @contact.email wso-dev@wso.williams.edu
+
+// @host localhost:8080
+// @BasePath /api/v1
+
+// @securityDefinitions.apikey Bearer
+// @in header
+// @name Authorization
 
 func main() {
 	/* Flags */
@@ -149,6 +165,12 @@ func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 
 	// Initialize login
 	r.POST("/api/v1/auth/login", authMiddleware.LoginHandler)
+
+	// Run API docs if it is enabled
+	if cfg.EnableAPIDocs {
+		// Use ginSwagger middleware to serve the API docs.
+		r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	}
 
 	// Require authentication for 404s
 	r.NoRoute(authMiddleware.MiddlewareFunc(), func(c *gin.Context) {

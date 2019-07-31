@@ -1,9 +1,6 @@
 package user
 
 import (
-	"errors"
-	"net/http"
-
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
@@ -23,7 +20,17 @@ func NewController(db *gorm.DB) *Controller {
 	}
 }
 
-// List users
+// ListUsers godoc
+// @Summary List users
+// @Description get all users that are visible and at williams
+// @ID list-users
+// @Tags users
+// @Accept  json
+// @Produce  json
+// @Success 200 {array} models.User
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /users [get]
 func (t *Controller) ListUsers(c *gin.Context) {
 	var users []models.User
 	err := t.userModel.GetAllUsers(&users)
@@ -37,11 +44,27 @@ func (t *Controller) ListUsers(c *gin.Context) {
 }
 
 // Get user by id. Pass "me" if you want to get self
+// GetUser godoc
+// @Summary Get user by user id
+// @Description get a user by user id that is visible and at williams. Also loads tags. Pass "me" if you want to get self
+// @ID get-user
+// @Tags users
+// @Accept  json
+// @Produce  json
+// @Param userID path uint true "User ID"
+// @Success 200 {object} models.User
+// @Failure 1403 {object} lib.APIError "user not visible"
+// @Failure 1404 {object} lib.APIError "user not at williams"
+// @Failure 1405 {object} lib.APIError "user id could not be parsed"
+// @Failure 404 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /users/{userID} [get]
 func (t *Controller) GetUser(c *gin.Context) {
 	// Decode userID or self.
 	userID, err := getUserIDParamOrSelf(c)
 	if err != nil {
-		t.RespondErrorCode(c, http.StatusBadRequest, err)
+		t.RespondError(c, err)
 		return
 	}
 
@@ -76,11 +99,28 @@ type UpdateUserParams struct {
 	HasAcceptedDormtrakPolicy *bool   `json:"hasAcceptedDormtrakPolicy"`
 }
 
+// UpdateUser godoc
+// @Summary Update user by user id
+// @Description updates a user by user id. You may only update yourself. You may pass "me" to get self as well.
+// @ID update-user
+// @Tags users
+// @Accept  json
+// @Produce  json
+// @Param userID path uint true "User ID"
+// @Param updateParams body user.UpdateUserParams true "Update User Parameters"
+// @Success 200 {object} models.User
+// @Failure 1405 {object} lib.APIError "user id could not be parsed"
+// @Failure 1331 {object} lib.APIError "must be self"
+// @Failure 1100 {object} lib.APIError "could not parse malformed request data"
+// @Failure 404 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /users/{userID} [patch]
 func (t *Controller) UpdateUser(c *gin.Context) {
 	// Decode userID or self.
 	userID, err := getUserIDParamOrSelf(c)
 	if err != nil {
-		t.RespondErrorCode(c, http.StatusBadRequest, err)
+		t.RespondError(c, err)
 		return
 	}
 
@@ -94,7 +134,7 @@ func (t *Controller) UpdateUser(c *gin.Context) {
 	updateData := UpdateUserParams{}
 	err = c.ShouldBind(&updateData)
 	if err != nil {
-		t.RespondError(c, err)
+		t.RespondError(c, lib.ErrorMalformedRequestData)
 		return
 	}
 
@@ -126,11 +166,34 @@ func (t *Controller) UpdateUser(c *gin.Context) {
 	t.RespondOK(c, user)
 }
 
+type UpdateUserTagsParams struct {
+	Tags []string `json:"tags"`
+}
+
+// UpdateUserTags godoc
+// @Summary Update user tags by user id
+// @Description updates a user's tags by user id. You may only update yourself. You may pass "me" to get self as well.
+// @ID update-user-tags
+// @Tags users
+// @Accept  json
+// @Produce  json
+// @Param userID path uint true "User ID"
+// @Param updateTagsParams body user.UpdateUserTagsParams true "Update Tags Params"
+// @Success 200 {object} models.User
+// @Failure 1405 {object} lib.APIError "user id could not be parsed"
+// @Failure 1331 {object} lib.APIError "must be self"
+// @Failure 1100 {object} lib.APIError "could not parse malformed request data"
+// @Failure 1406 {object} lib.APIError "invalid user tag"
+// @Failure 400 {object} lib.APIError
+// @Failure 404 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /users/{userID}/tags [put]
 func (t *Controller) UpdateUserTags(c *gin.Context) {
 	// Decode userID or self.
 	userID, err := getUserIDParamOrSelf(c)
 	if err != nil {
-		t.RespondErrorCode(c, http.StatusBadRequest, err)
+		t.RespondError(c, err)
 		return
 	}
 
@@ -141,7 +204,7 @@ func (t *Controller) UpdateUserTags(c *gin.Context) {
 	}
 
 	// Bind update params
-	var update []string
+	var update UpdateUserTagsParams
 	err = c.ShouldBind(&update)
 	if err != nil {
 		t.RespondError(c, lib.ErrorMalformedRequestData)
@@ -149,14 +212,8 @@ func (t *Controller) UpdateUserTags(c *gin.Context) {
 	}
 
 	// Update the user in the db
-	err = t.userModel.UpdateUserTags(userID, update)
+	err = t.userModel.UpdateUserTags(userID, update.Tags)
 	if err != nil {
-		// TODO: make this error an API error
-		if err.Error() == "invalid user tag" {
-			t.RespondErrorCode(c, http.StatusBadRequest, err)
-			return
-		}
-
 		t.RespondError(c, err)
 		return
 	}
@@ -179,7 +236,7 @@ func getUserIDParamOrSelf(c *gin.Context) (uint, error) {
 		userID, err = services.GetUIntParam(c, "userID")
 		if err != nil {
 			// TODO: make this an API error
-			return 0, errors.New("could not parse user id")
+			return 0, lib.ErrorUserIDNoParse
 		}
 	}
 

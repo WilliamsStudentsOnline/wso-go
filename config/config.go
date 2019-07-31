@@ -25,6 +25,8 @@ type Config struct {
 	JWTPrivateKeyFile string `yaml:"jwt_private_key_file"`
 	JWTUseAsymmetric  bool   `yaml:"jwt_use_asymmetric"`
 
+	EnableAPIDocs bool `yaml:"enable_api_docs"`
+
 	GinMode     string   `yaml:"gin_mode"`
 	Port        string   `yaml:"port"`
 	DisableLDAP bool     `yaml:"disable_ldap"`

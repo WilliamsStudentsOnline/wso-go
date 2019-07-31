@@ -6,3 +6,4 @@ jwt_realm: wso-go-dev
 port: 8080
 disable_ldap: true
 jwt_timeout_hours: 168
+enable_api_docs: true

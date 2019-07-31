@@ -53,11 +53,13 @@ var (
 	ErrorNoScopeAuthorization = NewAPIErrorWithHTTP(1330, http.StatusForbidden, "no scope authorization")
 	ErrorMustBeSelf           = NewAPIErrorWithHTTP(1331, http.StatusForbidden, "must be self")
 
-	// 14** are user errors
+	// 14** are user service errors
 	ErrorUserMustBeStudent    = NewAPIError(1401, "user must be a student")
 	ErrorUserCannotBePrefrosh = NewAPIError(1402, "user cannot be prefrosh")
 	ErrorUserNotVisible       = NewAPIError(1403, "user not visible")
 	ErrorUserNotAtWilliams    = NewAPIError(1404, "user not at williams")
+	ErrorUserIDNoParse        = NewAPIError(1405, "user id could not be parsed")
+	ErrorInvalidUserTag       = NewAPIError(1406, "invalid user tag")
 
 	// 15** are factrak errors
 	// Create/Update errors

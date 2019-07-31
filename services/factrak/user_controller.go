@@ -11,6 +11,21 @@ import (
 )
 
 // List user's surveys
+// ListUserSurveys godoc
+// @Summary List user surveys
+// @Description list one user's surveys
+// @ID factrak-list-user-surveys
+// @Tags factrak
+// @Accept  json
+// @Produce  json
+// @Param userID path uint true "User ID"
+// @Success 200 {array} models.FactrakSurvey
+// @Failure 1331 {object} lib.APIError "must be self"
+// @Failure 400 {object} lib.APIError
+// @Failure 404 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /factrak/users/{userID}/surveys [get]
 func (t *Controller) ListUserSurveys(c *gin.Context) {
 	// Decode userID.
 	userID, err := services.GetUIntParam(c, "userID")
