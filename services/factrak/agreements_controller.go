@@ -12,6 +12,21 @@ import (
 )
 
 // Get agreement if user has one
+// GetSurveyAgreement godoc
+// @Summary Get survey agreement by self
+// @Description gets the agreement about a survey made by the self user
+// @ID factrak-get-agreement
+// @Tags factrak
+// @Accept  json
+// @Produce  json
+// @Param surveyID path uint true "Survey ID"
+// @Success 200 {object} models.FactrakAgreement
+// @Failure 1551 {object} lib.APIError "survey agreement could not be found"
+// @Failure 400 {object} lib.APIError
+// @Failure 404 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /factrak/surveys/{surveyID}/agreement [get]
 func (t *Controller) GetAgreement(c *gin.Context) {
 	userID := services.GetUserID(c)
 
@@ -56,6 +71,24 @@ type AgreementCreateParams struct {
 }
 
 // Create an agreement if user does not have one
+// CreateSurveyAgreement godoc
+// @Summary Create survey agreement
+// @Description creates an agreement about a survey made by the self user
+// @ID factrak-create-agreement
+// @Tags factrak
+// @Accept  json
+// @Produce  json
+// @Param surveyID path uint true "Survey ID"
+// @Param createParams body factrak.AgreementCreateParams true "Create Agreement Params"
+// @Success 201 {object} models.FactrakAgreement
+// @Failure 1553 {object} lib.APIError "cannot create survey agreement with your own survey"
+// @Failure 1552 {object} lib.APIError "survey agreement already exists for this user and survey"
+// @Failure 1100 {object} lib.APIError "could not parse malformed request data"
+// @Failure 400 {object} lib.APIError
+// @Failure 404 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /factrak/surveys/{surveyID}/agreement [post]
 func (t *Controller) CreateAgreement(c *gin.Context) {
 	userID := services.GetUserID(c)
 
@@ -124,6 +157,23 @@ type AgreementUpdateParams struct {
 }
 
 // Update an agreement if user has one
+// UpdateSurveyAgreement godoc
+// @Summary Update survey agreement
+// @Description updates an agreement about a survey made by the self user
+// @ID factrak-update-agreement
+// @Tags factrak
+// @Accept  json
+// @Produce  json
+// @Param surveyID path uint true "Survey ID"
+// @Param updateParams body factrak.AgreementUpdateParams true "Update Agreement Params"
+// @Success 200 {object} models.FactrakAgreement
+// @Failure 1551 {object} lib.APIError "survey agreement could not be found"
+// @Failure 1100 {object} lib.APIError "could not parse malformed request data"
+// @Failure 400 {object} lib.APIError
+// @Failure 404 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /factrak/surveys/{surveyID}/agreement [patch]
 func (t *Controller) UpdateAgreement(c *gin.Context) {
 	userID := services.GetUserID(c)
 
@@ -184,6 +234,21 @@ func (t *Controller) UpdateAgreement(c *gin.Context) {
 }
 
 // Delete an agreement if user has one
+// DeleteSurveyAgreement godoc
+// @Summary Delete survey agreement
+// @Description deletes an agreement about a survey made by the self user
+// @ID factrak-delete-agreement
+// @Tags factrak
+// @Accept  json
+// @Produce  json
+// @Param surveyID path uint true "Survey ID"
+// @Success 200 {object} models.FactrakAgreement
+// @Failure 1551 {object} lib.APIError "survey agreement could not be found"
+// @Failure 400 {object} lib.APIError
+// @Failure 404 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /factrak/surveys/{surveyID}/agreement [delete]
 func (t *Controller) DeleteAgreement(c *gin.Context) {
 	userID := services.GetUserID(c)
 

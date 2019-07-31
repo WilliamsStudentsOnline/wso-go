@@ -12,6 +12,16 @@ import (
 )
 
 // List all surveys
+// @Summary List surveys
+// @Description lists all surveys where the professor is at Williams and the survey is current. Order by creation date.
+// @ID factrak-list-surveys
+// @Tags factrak
+// @Accept  json
+// @Produce  json
+// @Success 200 {array} models.FactrakSurvey
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /factrak/surveys [get]
 func (t *Controller) ListSurveys(c *gin.Context) {
 	var surveys []*models.FactrakSurvey
 	err := t.surveyModel.GetAllSurveys(&surveys)
@@ -27,6 +37,20 @@ func (t *Controller) ListSurveys(c *gin.Context) {
 }
 
 // Get one survey
+// @Summary Get survey
+// @Description get one survey
+// @ID factrak-get-survey
+// @Tags factrak
+// @Accept  json
+// @Produce  json
+// @Param surveyID path uint true "Survey ID"
+// @Success 200 {object} models.FactrakSurvey
+// @Failure 1330 {object} lib.APIError "no scope authorization"
+// @Failure 400 {object} lib.APIError
+// @Failure 404 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /factrak/surveys/{surveyID} [get]
 func (t *Controller) GetSurvey(c *gin.Context) {
 	// Decode surveyID.
 	surveyID, err := services.GetUIntParam(c, "surveyID")
@@ -88,6 +112,27 @@ type SurveyCreateParams struct {
 	GradeReceived        *string `json:"gradeReceived"`
 }
 
+// @Summary Create survey
+// @Description create a survey
+// @ID factrak-create-survey
+// @Tags factrak
+// @Accept  json
+// @Produce  json
+// @Param createParams body factrak.SurveyCreateParams true "Create Survey Params"
+// @Success 201 {object} models.FactrakSurvey
+// @Failure 1531 {object} lib.APIError "missing course parameters in create data: courseID or (areaOfStudyAbbreviation and courseNumber)"
+// @Failure 1532 {object} lib.APIError "comment must be 100 characters or more"
+// @Failure 1533 {object} lib.APIError "user must be a student and could not be found"
+// @Failure 1534 {object} lib.APIError "passed professor must be a professor and could not be found"
+// @Failure 1535 {object} lib.APIError "passed course could not be found"
+// @Failure 1536 {object} lib.APIError "passed area of study could not be found"
+// @Failure 1537 {object} lib.APIError "survey already exists with passed user ID, professor ID, and course ID"
+// @Failure 1101 {object} lib.APIError "request data validation failed"
+// @Failure 400 {object} lib.APIError
+// @Failure 404 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /factrak/surveys [post]
 func (t *Controller) CreateSurvey(c *gin.Context) {
 	userID := services.GetUserID(c)
 
@@ -260,6 +305,23 @@ type SurveyUpdateParams struct {
 }
 
 // Update survey data
+// @Summary Update survey
+// @Description update a survey's data
+// @ID factrak-update-survey
+// @Tags factrak
+// @Accept  json
+// @Produce  json
+// @Param updateParams body factrak.SurveyUpdateParams true "Update Survey Params"
+// @Param surveyID path uint true "Survey ID"
+// @Success 200 {object} models.FactrakSurvey
+// @Failure 1532 {object} lib.APIError "comment must be 100 characters or more"
+// @Failure 1101 {object} lib.APIError "request data validation failed"
+// @Failure 1331 {object} lib.APIError "must be self"
+// @Failure 400 {object} lib.APIError
+// @Failure 404 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /factrak/surveys/{surveyID} [patch]
 func (t *Controller) UpdateSurvey(c *gin.Context) {
 	userID := services.GetUserID(c)
 
@@ -328,6 +390,20 @@ func (t *Controller) UpdateSurvey(c *gin.Context) {
 }
 
 // Delete survey. Can either do this to self if a user, or to everything if admin
+// @Summary Delete survey
+// @Description delete a survey
+// @ID factrak-delete-survey
+// @Tags factrak,factrak-admin,admin
+// @Accept  json
+// @Produce  json
+// @Param surveyID path uint true "Survey ID"
+// @Success 200 {object} models.FactrakSurvey
+// @Failure 1331 {object} lib.APIError "must be self"
+// @Failure 400 {object} lib.APIError
+// @Failure 404 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /factrak/surveys/{surveyID} [delete]
 func (t *Controller) DeleteSurvey(c *gin.Context) {
 	userID := services.GetUserID(c)
 
@@ -387,6 +463,19 @@ func (t *Controller) DeleteSurvey(c *gin.Context) {
 }
 
 // Flag survey for mods
+// @Summary Flag survey
+// @Description flag a survey for mods
+// @ID factrak-flag-survey
+// @Tags factrak
+// @Accept  json
+// @Produce  json
+// @Param surveyID path uint true "Survey ID"
+// @Success 200
+// @Failure 400 {object} lib.APIError
+// @Failure 404 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /factrak/surveys/{surveyID}/flag [post]
 func (t *Controller) FlagSurvey(c *gin.Context) {
 	surveyID, err := services.GetUIntParam(c, "surveyID")
 	if err != nil {

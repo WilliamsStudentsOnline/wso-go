@@ -10,6 +10,17 @@ import (
 )
 
 // List all courses
+// ListCourses godoc
+// @Summary List courses
+// @Description lists all courses
+// @ID factrak-list-courses
+// @Tags factrak
+// @Accept  json
+// @Produce  json
+// @Success 200 {array} models.Course
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /factrak/courses [get]
 func (t *Controller) ListCourses(c *gin.Context) {
 	var courses []models.Course
 	err := t.courseModel.GetAllCourses(&courses)
@@ -23,6 +34,22 @@ func (t *Controller) ListCourses(c *gin.Context) {
 }
 
 // Get one course
+// GetCourse godoc
+// @Summary Get course
+// @Description get one course with factrak surveys, area of study preloaded.
+// @Description May pass an optional "?professorID=XXX" parameter to limit preload scope to a professor and a course.
+// @ID factrak-get-course
+// @Tags factrak
+// @Accept  json
+// @Produce  json
+// @Param professorID query uint false "Professor ID"
+// @Param courseID path uint true "Course ID"
+// @Success 200 {object} models.Course
+// @Failure 400 {object} lib.APIError
+// @Failure 404 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /factrak/courses/{courseID} [get]
 func (t *Controller) GetCourse(c *gin.Context) {
 	// Decode courseID.
 	courseID, err := services.GetUIntParam(c, "courseID")
@@ -54,6 +81,21 @@ func (t *Controller) GetCourse(c *gin.Context) {
 	t.RespondOK(c, course)
 }
 
+// ListCourseSurveys godoc
+// @Summary List course surveys
+// @Description list one course's surveys
+// @ID factrak-list-course-surveys
+// @Tags factrak
+// @Accept  json
+// @Produce  json
+// @Param professorID query uint false "Professor ID"
+// @Param courseID path uint true "Course ID"
+// @Success 200 {array} models.FactrakSurvey
+// @Failure 400 {object} lib.APIError
+// @Failure 404 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /factrak/courses/{courseID}/surveys [get]
 func (t *Controller) ListCourseSurveys(c *gin.Context) {
 	// Decode courseID.
 	courseID, err := services.GetUIntParam(c, "courseID")
@@ -98,6 +140,19 @@ func (t *Controller) ListCourseSurveys(c *gin.Context) {
 }
 
 // List course's professors
+// @Summary List course professors
+// @Description list one course's professors
+// @ID factrak-list-course-professors
+// @Tags factrak
+// @Accept  json
+// @Produce  json
+// @Param courseID path uint true "Course ID"
+// @Success 200 {array} models.User
+// @Failure 400 {object} lib.APIError
+// @Failure 404 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /factrak/courses/{courseID}/professors [get]
 func (t *Controller) ListCourseProfessors(c *gin.Context) {
 	// Decode courseID.
 	courseID, err := services.GetUIntParam(c, "courseID")
@@ -131,6 +186,20 @@ func (t *Controller) ListCourseProfessors(c *gin.Context) {
 
 // Gets average ratings for a course. May pass an optional "?professorID=XXX" parameter to limit scope to a
 // course and professor
+// @Summary Get course ratings
+// @Description get one course's ratings
+// @ID factrak-get-course-ratings
+// @Tags factrak
+// @Accept  json
+// @Produce  json
+// @Param professorID query uint false "Professor ID"
+// @Param courseID path uint true "Course ID"
+// @Success 200 {object} models.FactrakSurveyAvgRatings
+// @Failure 400 {object} lib.APIError
+// @Failure 404 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /factrak/courses/{courseID}/ratings [get]
 func (t *Controller) GetCourseRatings(c *gin.Context) {
 	// Decode courseID.
 	courseID, err := services.GetUIntParam(c, "courseID")

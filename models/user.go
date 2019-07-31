@@ -84,7 +84,7 @@ func (m *UserModel) UpdateUserTags(id uint, tags []string) (err error) {
 		if err != nil {
 			tx.Rollback()
 			if gorm.IsRecordNotFoundError(err) {
-				return errors.New("invalid user tag")
+				return lib.ErrorInvalidUserTag
 			}
 			return err
 		}

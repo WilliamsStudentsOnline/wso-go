@@ -10,6 +10,17 @@ import (
 )
 
 // List all professors. This, like all methods here, scopes professors to AtWilliams = true.
+// ListProfessors godoc
+// @Summary List professors
+// @Description lists all professors at Williams
+// @ID factrak-list-professors
+// @Tags factrak
+// @Accept  json
+// @Produce  json
+// @Success 200 {array} models.User
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /factrak/professors [get]
 func (t *Controller) ListProfessors(c *gin.Context) {
 	var profs []models.User
 	err := t.professorModel.GetAllProfessors(&profs)
@@ -24,6 +35,22 @@ func (t *Controller) ListProfessors(c *gin.Context) {
 
 // Get a professor. May pass an optional "?courseID=XXX" parameter to limit preload (ProfessorFactrakSurveys)
 // scope to a professor and a course.
+// GetProfessor godoc
+// @Summary Get professor
+// @Description get one course with factrak surveys, area of study preloaded,
+// @Description May pass an optional "?courseID=XXX" parameter to limit preload scope to a professor and a course.
+// @ID factrak-get-professor
+// @Tags factrak
+// @Accept  json
+// @Produce  json
+// @Param courseID query uint false "Course ID"
+// @Param professorID path uint true "Professor ID"
+// @Success 200 {object} models.User
+// @Failure 400 {object} lib.APIError
+// @Failure 404 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /factrak/professors/{professorID} [get]
 func (t *Controller) GetProfessor(c *gin.Context) {
 	// Decode professorID.
 	profID, err := services.GetUIntParam(c, "professorID")
@@ -56,6 +83,21 @@ func (t *Controller) GetProfessor(c *gin.Context) {
 }
 
 // List professor's surveys. May pass an optional "?courseID=XXX" parameter to limit scope to a professor and a course.
+// ListProfessorSurveys godoc
+// @Summary List professor surveys
+// @Description list one professor's surveys
+// @ID factrak-list-professor-surveys
+// @Tags factrak
+// @Accept  json
+// @Produce  json
+// @Param courseID query uint false "Course ID"
+// @Param professorID path uint true "Professor ID"
+// @Success 200 {array} models.FactrakSurvey
+// @Failure 400 {object} lib.APIError
+// @Failure 404 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /factrak/professors/{professorID}/surveys [get]
 func (t *Controller) ListProfessorSurveys(c *gin.Context) {
 	// Decode professorID.
 	profID, err := services.GetUIntParam(c, "professorID")
@@ -102,6 +144,21 @@ func (t *Controller) ListProfessorSurveys(c *gin.Context) {
 }
 
 // List professor's courses.
+// ListProfessorCourses godoc
+// @Summary List professor courses
+// @Description list one professor's courses
+// @ID factrak-list-professor-courses
+// @Tags factrak
+// @Accept  json
+// @Produce  json
+// @Param courseID query uint false "Course ID"
+// @Param professorID path uint true "Professor ID"
+// @Success 200 {array} models.Course
+// @Failure 400 {object} lib.APIError
+// @Failure 404 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /factrak/professors/{professorID}/courses [get]
 func (t *Controller) ListProfessorCourses(c *gin.Context) {
 	// Decode professorID.
 	profID, err := services.GetUIntParam(c, "professorID")
@@ -135,6 +192,20 @@ func (t *Controller) ListProfessorCourses(c *gin.Context) {
 
 // Gets average ratings for a professor. May pass an optional "?courseID=XXX" parameter to limit scope to a
 // professor and a course.
+// @Summary Get professor ratings
+// @Description get one professor's ratings
+// @ID factrak-get-professor-ratings
+// @Tags factrak
+// @Accept  json
+// @Produce  json
+// @Param courseID query uint false "Course ID"
+// @Param professorID path uint true "Professor ID"
+// @Success 200 {object} models.FactrakSurveyAvgRatings
+// @Failure 400 {object} lib.APIError
+// @Failure 404 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /factrak/professor/{professorID}/ratings [get]
 func (t *Controller) GetProfessorRatings(c *gin.Context) {
 	// Decode professorID.
 	profID, err := services.GetUIntParam(c, "professorID")
