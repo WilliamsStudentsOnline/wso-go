@@ -199,7 +199,7 @@ func TestController_UpdateUser(t *testing.T) {
 	assert.NoError(err)
 
 	// Update test user 1 (expect success)
-	w, err := utils.DoHTTPReq(router, http.MethodPut, fmt.Sprintf("/%d", u1.ID), bytes.NewBuffer(postData))
+	w, err := utils.DoHTTPReq(router, http.MethodPatch, fmt.Sprintf("/%d", u1.ID), bytes.NewBuffer(postData))
 	assert.NoError(err)
 
 	// Status is okay
@@ -219,7 +219,7 @@ func TestController_UpdateUser(t *testing.T) {
 	assert.Equal(u1.Name, res.Name)
 
 	// Update test user 2 (expect failure, unauthed)
-	w, err = utils.DoHTTPReq(router, http.MethodPut, fmt.Sprintf("/%d", u2.ID), bytes.NewBuffer(postData))
+	w, err = utils.DoHTTPReq(router, http.MethodPatch, fmt.Sprintf("/%d", u2.ID), bytes.NewBuffer(postData))
 	assert.NoError(err)
 
 	// Status is okay
