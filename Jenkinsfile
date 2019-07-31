@@ -7,7 +7,7 @@ pipeline {
 
   }
   stages {
-    /*stage('Lint') {
+    stage('Lint') {
       steps {
         sh '''wget -O - -q https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s v1.17.1'''
         sh '''golangci-lint run --out-format checkstyle > golint-checkstyle.xml || true'''
@@ -17,12 +17,12 @@ pipeline {
           recordIssues enabledForFailure: true, tools: [checkstyle(pattern: 'golint-checkstyle.xml')]
         }
       }
-    }*/
+    }
     stage('Test') {
       steps {
         sh '''go get -u github.com/jstemmer/go-junit-report'''
         sh '''go get -u github.com/axw/gocov/gocov'''
-        sh '''go get -u go get github.com/AlekSi/gocov-xml"
+        sh '''go get -u go get github.com/AlekSi/gocov-xml'''
         sh '''go test -v -coverprofile=c.out -race ./... 2>&1 | go-junit-report > report.xml'''
       }
       post {
