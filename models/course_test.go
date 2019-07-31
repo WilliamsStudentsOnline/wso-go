@@ -3,37 +3,130 @@ package models_test
 import (
 	"testing"
 
-	"github.com/WilliamsStudentsOnline/wso-go/config"
+	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	. "github.com/WilliamsStudentsOnline/wso-go/models"
 	testify "github.com/stretchr/testify/assert"
 )
 
-func TestCourseModel_FindByAbbrevAndNumber(t *testing.T) {
+func TestCourseModel_GetAllCourses(t *testing.T) {
 	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
 
-	cfg := &config.Config{
-		Env:          "test",
-		GinMode:      "test",
-		JWTRealm:     "wso-go-test",
-		DatabaseType: "sqlite3",
-		DatabaseArgs: ":memory:",
-		Secrets: &config.Secrets{
-			JWTSecretKey: "wso-jwt-test-secret",
+	m := NewCourseModel(db)
+
+	courses := []Course{
+		{
+			Number: "256",
+			AreaOfStudy: &AreaOfStudy{
+				Name:         "Computer Science",
+				Abbreviation: "CSCI",
+				Department: &Department{
+					Name: "Computer Science",
+				},
+			},
+		},
+		{
+			Number: "120",
+			AreaOfStudy: &AreaOfStudy{
+				Name:         "Economics",
+				Abbreviation: "ECON",
+				Department: &Department{
+					Name: "Economics",
+				},
+			},
 		},
 	}
 
-	db := config.LoadDatabase(cfg)
-	db.LogMode(true)
-	err := db.AutoMigrate(
-		User{},
-		Department{},
-		Course{},
-		AreaOfStudy{},
-		FactrakSurvey{},
-		Neighborhood{},
-		FactrakAgreement{},
-	).Error
-	assert.NoError(err)
+	for i := range courses {
+		assert.NoError(db.Create(&courses[i]).Error)
+	}
+
+	var res []Course
+	assert.NoError(m.GetAllCourses(&res))
+
+	for i := range courses {
+		assert.Equal(courses[i].ID, res[i].ID)
+		assert.Equal(courses[i].Number, res[i].Number)
+		// Check preload
+		assert.Equal(courses[i].AreaOfStudy.ID, res[i].AreaOfStudy.ID)
+		assert.Equal(courses[i].AreaOfStudy.Name, res[i].AreaOfStudy.Name)
+		assert.Equal(courses[i].AreaOfStudy.Abbreviation, res[i].AreaOfStudy.Abbreviation)
+	}
+}
+
+func TestCourseModel_GetCourseByID(t *testing.T) {
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+
+	m := NewCourseModel(db)
+
+	course := Course{
+		Number: "256",
+		AreaOfStudy: &AreaOfStudy{
+			Name:         "Computer Science",
+			Abbreviation: "CSCI",
+			Department: &Department{
+				Name: "Computer Science",
+			},
+		},
+	}
+
+	assert.NoError(db.Create(&course).Error)
+
+	var res Course
+	assert.NoError(m.GetCourseByID(course.ID, &res))
+
+	assert.Equal(course.ID, res.ID)
+	assert.Equal(course.Number, res.Number)
+	// Does not preload
+	assert.Nil(res.AreaOfStudy)
+}
+
+func TestCourseModel_FindOrCreate(t *testing.T) {
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+
+	m := NewCourseModel(db)
+
+	course := Course{
+		Number: "256",
+		AreaOfStudy: &AreaOfStudy{
+			Name:         "Computer Science",
+			Abbreviation: "CSCI",
+			Department: &Department{
+				Name: "Computer Science",
+			},
+		},
+	}
+
+	assert.NoError(db.Create(&course).Error)
+
+	// Find
+	c1 := Course{
+		Number:        "256",
+		AreaOfStudyID: course.AreaOfStudyID,
+	}
+	assert.NoError(m.FindOrCreate(&c1))
+
+	assert.Equal(course.ID, c1.ID)
+	assert.Equal(course.Number, c1.Number)
+
+	// Create
+	c2 := Course{
+		Number:        "236",
+		AreaOfStudyID: course.AreaOfStudyID,
+	}
+	assert.NoError(m.FindOrCreate(&c2))
+
+	assert.Equal(uint(2), c2.ID)
+	assert.Equal("236", c2.Number)
+}
+
+func TestCourseModel_FindByAbbrevAndNumber(t *testing.T) {
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+
+	m := NewCourseModel(db)
 
 	a1 := AreaOfStudy{
 		Name:         "Computer Science",
@@ -63,10 +156,9 @@ func TestCourseModel_FindByAbbrevAndNumber(t *testing.T) {
 		AreaOfStudy: &a1, // Same dept
 	}
 
-	err = db.Create(&c1).Create(&c2).Create(&c3).Error
+	err := db.Create(&c1).Create(&c2).Create(&c3).Error
 	assert.NoError(err)
 
-	m := NewCourseModel(db)
 	var resC Course
 	err = m.FindByAbbrevAndNumber("CSCI", "136", &resC)
 	assert.NoError(err)
