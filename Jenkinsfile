@@ -17,7 +17,6 @@ pipeline {
   post {
     cleanup {
       cleanWs()
-      sh '''docker system prune --all'''
     }
   }
 }
