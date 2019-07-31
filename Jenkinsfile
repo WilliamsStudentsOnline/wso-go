@@ -14,7 +14,7 @@ pipeline {
       }
       post {
         always {
-          recordIssues enabledForFailure: true, tools: [checkstyle(pattern: 'golint-checkstyle.xml')]
+          recordIssues enabledForFailure: true, tools: [checkStyle(pattern: 'golint-checkstyle.xml')]
         }
       }
     }
