@@ -22,8 +22,8 @@ func (t *Controller) ListProfessors(c *gin.Context) {
 	t.RespondOK(c, profs)
 }
 
-// Get a professor. May pass an optional "?courseID=XXX" parameter to limit preload
-// (professorFactrakSurveys) scope to a professor and a course.
+// Get a professor. May pass an optional "?courseID=XXX" parameter to limit preload (ProfessorFactrakSurveys)
+// scope to a professor and a course.
 func (t *Controller) GetProfessor(c *gin.Context) {
 	// Decode professorID.
 	profID, err := services.GetUIntParam(c, "professorID")
@@ -45,11 +45,11 @@ func (t *Controller) GetProfessor(c *gin.Context) {
 		return
 	}
 
-	RemoveUserIDFromSurveys(c, prof.ProfessorFactrakSurveys)
+	RemoveUserIDFromSurveys(c, prof.FactrakSurveys)
 
 	// Remove surveys preload if limited scope
 	if IsScopeLimited(c) {
-		prof.ProfessorFactrakSurveys = nil
+		prof.FactrakSurveys = nil
 	}
 
 	t.RespondOK(c, prof)

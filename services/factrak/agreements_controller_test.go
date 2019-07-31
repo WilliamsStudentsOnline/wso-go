@@ -116,6 +116,11 @@ func TestController_CreateAgreement(t *testing.T) {
 		Name:   "Student 2",
 		UnixID: "s2",
 	}
+	s3 := models.User{
+		Type:   models.UserTypeStudent,
+		Name:   "Student 3",
+		UnixID: "s3",
+	}
 	survey := models.FactrakSurvey{
 		User: &s1,
 		Professor: &models.User{
@@ -138,13 +143,13 @@ func TestController_CreateAgreement(t *testing.T) {
 	a1 := models.FactrakAgreement{
 		Agrees:        true,
 		FactrakSurvey: &survey,
-		User:          &s2,
+		User:          &s3,
 	}
-	assert.NoError(db.Create(&s1).Create(&s2).Create(&survey).Create(&a1).Error)
+	assert.NoError(db.Create(&s1).Create(&s2).Create(&s3).Create(&survey).Create(&a1).Error)
 
 	// Setup router
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	utils.AddUserContexts(router, s1.ID)
+	utils.AddUserContexts(router, s2.ID)
 	SetupRouter(router, db)
 
 	// First, we run tests on validations
@@ -160,7 +165,6 @@ func TestController_CreateAgreement(t *testing.T) {
 
 	// Test 2: error on bad survey
 	apiErr = lib.ErrorRecordNotFound
-
 	params := AgreementCreateParams{Agree: lib.BoolToPtr(false)}
 	paramsData, err := json.Marshal(params)
 	assert.NoError(err)
@@ -173,9 +177,20 @@ func TestController_CreateAgreement(t *testing.T) {
 	// Test 3: error on existing agreement (via other user)
 	apiErr = lib.ErrorSurveyAgreementAlreadyExists
 	r1 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	utils.AddUserContexts(r1, s2.ID)
+	utils.AddUserContexts(r1, s3.ID)
 	SetupRouter(r1, db)
 	w, err = utils.DoHTTPReq(r1, http.MethodPost, fmt.Sprintf("/surveys/%d/agreement", survey.ID), bytes.NewBuffer(paramsData))
+	assert.NoError(err)
+	assert.Equal(apiErr.HTTPCode, w.Code)
+	// Assert correct error
+	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+
+	// Test 3.5: error on self survey
+	apiErr = lib.ErrorSurveyAgreementNoSelf
+	r2 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
+	utils.AddUserContexts(r2, s1.ID)
+	SetupRouter(r2, db)
+	w, err = utils.DoHTTPReq(r2, http.MethodPost, fmt.Sprintf("/surveys/%d/agreement", survey.ID), bytes.NewBuffer(paramsData))
 	assert.NoError(err)
 	assert.Equal(apiErr.HTTPCode, w.Code)
 	// Assert correct error
@@ -193,14 +208,14 @@ func TestController_CreateAgreement(t *testing.T) {
 	assert.NoError(json.Unmarshal(respData.Data, &resp))
 	// Assertions
 	assert.Equal(survey.ID, resp.FactrakSurveyID)
-	assert.Equal(s1.ID, resp.UserID)
+	assert.Equal(s2.ID, resp.UserID)
 	assert.Equal(false, resp.Agrees)
 
 	// Make sure it's in the db
 	var agrDB models.FactrakAgreement
 	assert.NoError(db.First(&agrDB, resp.ID).Error)
 	assert.Equal(survey.ID, agrDB.FactrakSurveyID)
-	assert.Equal(s1.ID, agrDB.UserID)
+	assert.Equal(s2.ID, agrDB.UserID)
 	assert.Equal(false, agrDB.Agrees)
 }
 

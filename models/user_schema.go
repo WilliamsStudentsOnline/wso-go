@@ -61,11 +61,14 @@ type User struct {
 	// Has many tags
 	Tags []*Tag `gorm:"many2many:tags_users;" json:"tags,omitempty"`
 
+	// These factrak survey fields are for GORM only: JSON will use the factrakSurveys field below.
 	// Has many factrak surveys (if student)
-	StudentFactrakSurveys []*FactrakSurvey `gorm:"foreignkey:UserID" json:"studentFactrakSurveys,omitempty"`
-
+	StudentFactrakSurveys []*FactrakSurvey `gorm:"foreignkey:UserID" json:"-"`
 	// Has many factrak surveys (if professor)
-	ProfessorFactrakSurveys []*FactrakSurvey `gorm:"foreignkey:ProfessorID" json:"professorFactrakSurveys,omitempty"`
+	ProfessorFactrakSurveys []*FactrakSurvey `gorm:"foreignkey:ProfessorID" json:"-"`
+	// As we cannot be both a student and a professor, this combines either a student or a professor's factrak survey.
+	// We populate this field as a hook AfterFind.
+	FactrakSurveys []*FactrakSurvey `gorm:"-" json:"factrakSurveys"`
 
 	// Has many factrak agreements
 	FactrakAgreements []*FactrakAgreement `json:"factrakAgreements,omitempty"`
@@ -116,6 +119,20 @@ func (u *User) AfterCreate(scope *gorm.Scope) (err error) {
 		if err != nil {
 			return
 		}
+	}
+	return
+}
+
+// Again, I hate hooks but this is the best way.
+// This populates the factrak surveys field: please don't use this field for database updates.
+// Factrak surveys are StudentFactrakSurveys if type=student, ProfessorFactrakSurveys if type=professor,
+// and ProfessorFactrakSurveys if both StudentFactrakSurveys and ProfessorFactrakSurveys exist.
+func (u *User) AfterFind() (err error) {
+	if u.StudentFactrakSurveys != nil {
+		u.FactrakSurveys = u.StudentFactrakSurveys
+	}
+	if u.ProfessorFactrakSurveys != nil {
+		u.FactrakSurveys = u.ProfessorFactrakSurveys
 	}
 	return
 }

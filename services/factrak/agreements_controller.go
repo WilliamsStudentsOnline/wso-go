@@ -50,6 +50,7 @@ func (t *Controller) GetAgreement(c *gin.Context) {
 	t.RespondOK(c, agreement)
 }
 
+// Parameters for POST agreement
 type AgreementCreateParams struct {
 	Agree *bool `json:"agree"`
 }
@@ -65,14 +66,17 @@ func (t *Controller) CreateAgreement(c *gin.Context) {
 		return
 	}
 
-	// Ensure survey exists
-	exists, err := t.surveyModel.DoesSurveyExist(surveyID)
+	// Get survey
+	var survey models.FactrakSurvey
+	err = t.surveyModel.GetSurveyByID(surveyID, &survey)
 	if err != nil {
 		t.RespondError(c, err)
 		return
 	}
-	if !exists {
-		t.RespondError(c, lib.ErrorRecordNotFound)
+
+	// Cannot make agreement on own survey, so error if we try to
+	if survey.UserID == userID {
+		t.RespondError(c, lib.ErrorSurveyAgreementNoSelf)
 		return
 	}
 
@@ -90,7 +94,7 @@ func (t *Controller) CreateAgreement(c *gin.Context) {
 	}
 
 	// Check if agreement already exists
-	exists, err = t.agreementModel.DoesAgreementByUserAndSurveyExist(userID, surveyID)
+	exists, err := t.agreementModel.DoesAgreementByUserAndSurveyExist(userID, surveyID)
 	if err != nil {
 		t.RespondError(c, err)
 		return

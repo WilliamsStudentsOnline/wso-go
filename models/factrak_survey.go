@@ -91,8 +91,8 @@ func (m *FactrakSurveyModel) UpdateSurvey(p *FactrakSurvey) (err error) {
 }
 
 func (m *FactrakSurveyModel) DeleteSurvey(p *FactrakSurvey) (err error) {
-	// Clear agreements
-	err = m.DB.Model(p).Association("Agreements").Clear().Error
+	// Delete agreements
+	err = m.DB.Unscoped().Where(FactrakAgreement{FactrakSurveyID: p.ID}).Delete(&FactrakAgreement{}).Error
 	if err != nil {
 		return
 	}

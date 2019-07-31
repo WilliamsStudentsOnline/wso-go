@@ -526,7 +526,23 @@ func TestController_DeleteSurvey(t *testing.T) {
 			},
 		},
 	}
-	assert.NoError(db.Create(&s1).Create(&s2).Create(&p1).Create(&c1).Create(&survey).Error)
+	survey2 := models.FactrakSurvey{
+		User:              &s2,
+		Professor:         &p1,
+		Course:            &c1,
+		Comment:           generateSurveyTestComment(),
+		CourseWorkload:    lib.IntToPtr(1),
+		CourseStimulating: lib.IntToPtr(2),
+		Approachability:   lib.IntToPtr(3),
+		WouldTakeAnother:  lib.BoolToPtr(true),
+		Agreements: []*models.FactrakAgreement{
+			{
+				Agrees: false,
+				UserID: s1.ID,
+			},
+		},
+	}
+	assert.NoError(db.Create(&s1).Create(&s2).Create(&p1).Create(&c1).Create(&survey).Create(&survey2).Error)
 
 	// Setup router
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
@@ -545,10 +561,7 @@ func TestController_DeleteSurvey(t *testing.T) {
 
 	// Test 2: error on user not self
 	apiErr = lib.ErrorMustBeSelf
-	r1 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	utils.AddUserContexts(r1, s2.ID)
-	SetupRouter(r1, db)
-	w, err = utils.DoHTTPReq(r1, http.MethodDelete, fmt.Sprintf("/surveys/%d", survey.ID), nil)
+	w, err = utils.DoHTTPReq(router, http.MethodDelete, fmt.Sprintf("/surveys/%d", survey2.ID), nil)
 	assert.NoError(err)
 	assert.Equal(apiErr.HTTPCode, w.Code)
 	// Assert correct error
@@ -585,6 +598,14 @@ func TestController_DeleteSurvey(t *testing.T) {
 	var fullDeleteAgreementCount int
 	assert.NoError(db.Table("factrak_agreements").Count(&agreementCount).Error)
 	assert.Zero(fullDeleteAgreementCount)
+
+	// Test 4: delete when admin
+	adminR := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf, auth.ScopeFactrakAdmin)
+	SetupRouter(adminR, db)
+	w, err = utils.DoHTTPReq(adminR, http.MethodDelete,
+		fmt.Sprintf("/surveys/%d", survey2.ID), nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
 }
 
 func TestController_FlagSurvey(t *testing.T) {

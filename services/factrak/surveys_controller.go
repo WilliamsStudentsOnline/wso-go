@@ -370,7 +370,9 @@ func (t *Controller) DeleteSurvey(c *gin.Context) {
 	// taking the current deficit plus one, but the more we calculate the net surveys, the more accurate our
 	// results should be.
 	user := new(models.User)
-	user.ID = userID
+	// We assign the user id to be the owner of the survey, rather than the user who calls the function, as admins may
+	// call this function, and we don't want them impacted.
+	user.ID = survey.UserID
 	err = t.studentModel.UpdateFactrakSurveyDeficit(user)
 	if err != nil {
 		t.RespondError(c, err)

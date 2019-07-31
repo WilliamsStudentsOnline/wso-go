@@ -67,8 +67,15 @@ func TestController_ListFlaggedSurveys(t *testing.T) {
 
 	assert.NoError(db.Create(&fs1).Create(&fs2).Create(&fs3).Error)
 
+	// Fail on no admin
+	noAdminR := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
+	SetupRouter(noAdminR, db)
+	w, err := utils.DoHTTPReq(noAdminR, http.MethodGet, "/admin/surveys", nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusForbidden, w.Code)
+
 	// Get test surveys
-	w, err := utils.DoHTTPReq(router, http.MethodGet, "/admin/surveys", nil)
+	w, err = utils.DoHTTPReq(router, http.MethodGet, "/admin/surveys", nil)
 	assert.NoError(err)
 
 	// Status is okay
@@ -126,9 +133,17 @@ func TestController_UnflagSurvey(t *testing.T) {
 
 	// First, we run tests on validations
 
+	// Test 0: Fail on no admin
+	noAdminR := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
+	SetupRouter(noAdminR, db)
+	w, err := utils.DoHTTPReq(noAdminR, http.MethodDelete,
+		fmt.Sprintf("/admin/surveys/%d/flag", survey.ID), nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusForbidden, w.Code)
+
 	// Test 1: error on bad survey
 	apiErr := lib.ErrorRecordNotFound
-	w, err := utils.DoHTTPReq(router, http.MethodDelete, fmt.Sprintf("/admin/surveys/%d/flag", 42), nil)
+	w, err = utils.DoHTTPReq(router, http.MethodDelete, fmt.Sprintf("/admin/surveys/%d/flag", 42), nil)
 	assert.NoError(err)
 	assert.Equal(apiErr.HTTPCode, w.Code)
 	// Assert correct error

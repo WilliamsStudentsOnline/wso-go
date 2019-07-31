@@ -133,15 +133,17 @@ func TestController_GetProfessor(t *testing.T) {
 
 	// Check if correct prof
 	assert.Equal(p1.ID, resp.ID)
-	assert.Len(resp.ProfessorFactrakSurveys, 2)
+	assert.Len(resp.FactrakSurveys, 2)
+	// Assert that we don't include ProfessorFactrakSurveys
+	assert.Nil(resp.ProfessorFactrakSurveys)
 
 	// Check if we got surveys (in reverse order)
-	assert.Equal(resp.ProfessorFactrakSurveys[0].Comment, fs2.Comment)
-	assert.Equal(resp.ProfessorFactrakSurveys[1].Comment, fs1.Comment)
+	assert.Equal(resp.FactrakSurveys[0].Comment, fs2.Comment)
+	assert.Equal(resp.FactrakSurveys[1].Comment, fs1.Comment)
 
 	// Check if we removed sensitive user data
-	assert.Zero(resp.ProfessorFactrakSurveys[0].UserID)
-	assert.Nil(resp.ProfessorFactrakSurveys[0].User)
+	assert.Zero(resp.FactrakSurveys[0].UserID)
+	assert.Nil(resp.FactrakSurveys[0].User)
 
 	/* Get test student 1 (expect failure) */
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/professors/%d", s1.ID), nil)
@@ -251,15 +253,17 @@ func TestController_GetProfessorWithCourse(t *testing.T) {
 
 	// Check if correct prof
 	assert.Equal(p1.ID, resp.ID)
-	assert.Len(resp.ProfessorFactrakSurveys, 2)
+	assert.Len(resp.FactrakSurveys, 2)
+	// Assert that we don't include ProfessorFactrakSurveys
+	assert.Nil(resp.ProfessorFactrakSurveys)
 
 	// Check if we got surveys (only courses) (in reverse order)
-	assert.Equal(resp.ProfessorFactrakSurveys[0].Comment, fs4.Comment)
-	assert.Equal(resp.ProfessorFactrakSurveys[1].Comment, fs1.Comment)
+	assert.Equal(resp.FactrakSurveys[0].Comment, fs4.Comment)
+	assert.Equal(resp.FactrakSurveys[1].Comment, fs1.Comment)
 
 	// Check if we removed sensitive user data
-	assert.Zero(resp.ProfessorFactrakSurveys[0].UserID)
-	assert.Nil(resp.ProfessorFactrakSurveys[0].User)
+	assert.Zero(resp.FactrakSurveys[0].UserID)
+	assert.Nil(resp.FactrakSurveys[0].User)
 
 	/* Get prof 1 with a random course (expect empty) */
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/professors/%d?courseID=%d", p1.ID, 42), nil)
@@ -275,7 +279,7 @@ func TestController_GetProfessorWithCourse(t *testing.T) {
 
 	// Check if correct prof
 	assert.Equal(p1.ID, resp.ID)
-	assert.Len(resp.ProfessorFactrakSurveys, 0)
+	assert.Len(resp.FactrakSurveys, 0)
 }
 
 func TestController_ListProfessorSurveys(t *testing.T) {
