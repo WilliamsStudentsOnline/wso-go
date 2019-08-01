@@ -29,3 +29,12 @@ docker-builder:
 .PHONY: docker-build-dev
 docker-build-dev: docker-builder
 	docker build -t wso-backend:dev-latest -f Dockerfile.release .
+
+.PHONY: k8-apply-dev
+k8-apply-dev:
+	kubectl apply -k k8s/development
+	minikube service backend -n development --url
+
+.PHONY: k8-delete-dev
+k8-delete-dev:
+	kubectl delete -k k8s/development

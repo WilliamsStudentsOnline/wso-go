@@ -7,9 +7,5 @@ resources:
   - backend-deployment.yaml
   - backend-service.yaml
   - mysql-deployment.yaml
-  - mysql-sv.yaml
-
-secretGenerator:
-  - name: backend-config-secrets
-    files:
-      - secrets.yaml
+  - mysql-service.yaml
+  - mysql-pvc.yaml
