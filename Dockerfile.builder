@@ -1,4 +1,4 @@
-FROM golang:1.12.7
+FROM golang:1.12.7 AS builder
 
 # Turn on modules
 ENV GO111MODULE=on
@@ -15,11 +15,17 @@ COPY go.sum .
 RUN go mod download
 RUN go mod verify
 
+# Get documentation maker
+RUN go get -u github.com/swaggo/swag/cmd/swag
+
 # Copy the rest of the project into the file
 COPY . .
 
+# Generate API documentation
+RUN swag init -g server/router.go
+
 # Build the go file
-RUN GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o /go/bin/wso-go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o /go/bin/wso-backend /go/src/github.com/WilliamsStudentsOnline/wso-go/server/cmd
 
 # Default entrypoint. TODO: move this binary to a scratch deployment for minimal size (issue with cgo?)
-ENTRYPOINT ["/go/bin/wso-go"]
+#ENTRYPOINT ["/go/bin/wso-backend"]

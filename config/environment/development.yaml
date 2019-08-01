@@ -1,7 +1,8 @@
 ---
 env: development
+secrets_file: config/secrets_example.yaml
 database_type: sqlite3
-database_args: db/development.db
+sqlite_file: db/development.db
 jwt_realm: wso-go-dev
 port: 8080
 disable_ldap: true

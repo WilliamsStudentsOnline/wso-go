@@ -3,9 +3,9 @@ The new flagship back-end for WSO's services. The WSO backend rewrite proposal i
 
 ## Running
 
-To run the server, simply do `go run -tags=jsoniter . -env=development`.
+To run the server, simply do `make run-dev` or `./wso-backend --development`.
 
-If you want to include secrets in your build, run `cp config/secrets_example.yml config/secrets.yml` and edit the fields from there
+Note: you must include a secrets file. So, run `cp config/secrets_example.yaml config/secrets.yaml` and edit the fields from there. You can also just set the environment variable `WSO_SECRET_JWT_SECRET_KEY=wso-jwt-development-secret`, which will work.
 
 ### Current Go Version: 1.12
 It is worth noting that you should install Go via the official site, not a package repository like apt-get or brew, which often have outdated versions. You can find info on how to install Go [here](https://golang.org/doc/install).

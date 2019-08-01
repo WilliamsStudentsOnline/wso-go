@@ -1,26 +1,31 @@
-GOCMD=go
-GOBUILD=$(GOCMD) build
-GOCLEAN=$(GOCMD) clean
-GOTEST=$(GOCMD) test
-
-BINARY_NAME=wso-go
+BINARY_NAME=wso-backend
 
 .PHONY: build-docs
 build-docs:
-	swag init
+	swag init -g server/router.go
 
 .PHONY: build
 build: build-docs
-	$(GOBUILD) -tags=jsoniter -o $(BINARY_NAME) main.go
+	go build -tags=jsoniter -o $(BINARY_NAME) ./server/cmd
 
 run: build
 	./$(BINARY_NAME)
 
+run-dev: build
+	./$(BINARY_NAME) --development
+
 .PHONY: test
 test:
-	$(GOTEST) ./...
+	go test -race ./...
 
+.PHONY: mod
 mod:
-	$(GOCMD) mod tidy
-	$(GOCMD) mod download
-	$(GOCMD) mod vendor
+	go mod tidy
+	go mod download
+
+docker-builder:
+	docker build -t wso-backend/builder -f Dockerfile.builder
+
+.PHONY: docker-build-dev
+docker-build-dev: docker-builder
+	docker build -t wso-backend:dev-latest -f Dockerfile.release .

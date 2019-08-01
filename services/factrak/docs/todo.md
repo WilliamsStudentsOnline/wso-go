@@ -2,7 +2,6 @@
 
 * Test factrak survey deficit
 * Add model tests/documentation
-  * Area of study
   * Course
   * Department
   * Factrak agreement

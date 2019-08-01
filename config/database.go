@@ -3,6 +3,7 @@ package config
 import (
 	"bytes"
 	"fmt"
+	url "net/url"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
@@ -31,6 +32,44 @@ func CloseDatabase(db *gorm.DB) {
 	if err := db.Close(); err != nil {
 		log.Fatal(err)
 	}
+}
+
+// This function sets up the database arguments for MySQL in the config file
+func SetupMySQLConfig(cfg *Config) {
+	// If database arguments already set, use those
+	if cfg.DatabaseArgs != "" {
+		return
+	}
+
+	cfg.MySQLUser = setDefaultStr(cfg.MySQLUser, "root")
+	if cfg.MySQLPort == 0 {
+		cfg.MySQLPort = 3306
+	}
+
+	// Setup arguments
+	qs := url.Values{}
+	for key, val := range cfg.MySQLArgs {
+		qs.Add(key, val)
+	}
+
+	cfg.DatabaseArgs = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?%s",
+		cfg.MySQLUser,
+		cfg.Secrets.MySQLPassword,
+		cfg.MySQLHost,
+		cfg.MySQLPort,
+		cfg.MySQLDatabase,
+		qs.Encode(),
+	)
+}
+
+// This function sets up the database arguments for MySQL in the config file
+func SetupSQLiteConfig(cfg *Config) {
+	// If database arguments already set, use those
+	if cfg.DatabaseArgs != "" {
+		return
+	}
+
+	cfg.DatabaseArgs = cfg.SQLiteFile
 }
 
 type DBLogger struct {

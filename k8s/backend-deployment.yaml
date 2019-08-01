@@ -15,9 +15,17 @@ spec:
       containers:
         - name: wso-go
           image: wso-backend:dev-latest
-          args: ["--env=local-k8-development"]
+          args: ["--config=/config/local-k8-development.yaml"]
           imagePullPolicy: Never
           ports:
             - name: http
               containerPort: 8080
               protocol: TCP
+          volumeMounts:
+            - mountPath: "/etc/config-secrets"
+              name: config-secret
+              readOnly: true
+      volumes:
+        - name: config-secret
+          secret:
+            secretName: backend-config-secrets

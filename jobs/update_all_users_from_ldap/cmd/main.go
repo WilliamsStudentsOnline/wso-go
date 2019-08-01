@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"os"
-	"path/filepath"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	migrate "github.com/WilliamsStudentsOnline/wso-go/db"
@@ -13,14 +12,11 @@ import (
 
 func main() {
 	/* Flags */
-	var env string
 	var configPath string
-	var secretsPath string
 
 	// Command-line flags
-	flag.StringVar(&env, "env", "development", "environment of server")
+	// Note: these can be overridden by env vars
 	flag.StringVar(&configPath, "config", "", "path to config file")
-	flag.StringVar(&secretsPath, "secrets", filepath.Join("config", "secrets.yml"), "path to secrets file")
 
 	flag.Parse()
 
@@ -31,33 +27,14 @@ func main() {
 	})
 
 	/* Config */
-	cfg, err := config.GetConfig(env, configPath)
+	cfg, err := config.LoadConfig(configPath)
 	if err != nil {
 		log.Fatal("Config Error: " + err.Error())
+		return
 	}
 
-	if cfg.IsProduction() {
-		log.SetLevel(log.WarnLevel)
-	} else if cfg.IsDevelopment() {
-		log.SetLevel(log.DebugLevel)
-	} else if cfg.IsTest() {
-		log.SetLevel(log.TraceLevel)
-	} else {
-		log.SetLevel(log.InfoLevel)
-	}
-
-	/* Secrets */
-	if _, err := os.Stat(secretsPath); os.IsNotExist(err) {
-		log.Fatal("Secrets file must exist")
-
-	}
-
-	// If secrets file exists, parse it
-	secrets, err := config.GetSecrets(secretsPath)
-	if err != nil {
-		log.Fatal("Secrets Error: " + err.Error())
-	}
-	cfg.Secrets = secrets
+	/* Set Logging Level */
+	log.SetLevel(cfg.LogLevelParsed)
 
 	/* DATABASE */
 	db := config.LoadDatabase(cfg)

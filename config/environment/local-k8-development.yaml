@@ -1,0 +1,19 @@
+---
+env: development
+secrets_file: /etc/config-secrets/secrets.yaml
+database_type: mysql
+mysql_user: root
+mysql_host: mysql
+mysql_port: 3306
+mysql_database: development
+mysql_args:
+  charset: utf8mb4
+  parseTime: 'True'
+  loc: Local
+jwt_realm: wso-backend-development
+port: 8080
+disable_ldap: true
+jwt_timeout_hours: 168
+enable_api_docs: true
+gin_mode: debug
+log_level: debug

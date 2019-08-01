@@ -1,9 +1,0 @@
----
-env: development
-database_type: mysql
-database_args: root:password@tcp(mysql:3306)/development?charset=utf8mb4&parseTime=True&loc=Local
-jwt_realm: wso-go-dev
-port: 8080
-disable_ldap: true
-jwt_timeout_hours: 168
-enable_api_docs: true

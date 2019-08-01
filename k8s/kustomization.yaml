@@ -1,3 +1,5 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
 commonLabels:
   app: wso
 
@@ -6,3 +8,8 @@ resources:
   - backend-service.yaml
   - mysql-deployment.yaml
   - mysql-sv.yaml
+
+secretGenerator:
+  - name: backend-config-secrets
+    files:
+      - secrets.yaml
