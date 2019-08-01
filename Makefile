@@ -24,7 +24,7 @@ mod:
 	go mod download
 
 docker-builder:
-	docker build -t wso-backend/builder -f Dockerfile.builder
+	docker build -t wso-backend/builder -f Dockerfile.builder .
 
 .PHONY: docker-build-dev
 docker-build-dev: docker-builder
