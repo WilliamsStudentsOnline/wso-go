@@ -49,9 +49,12 @@ type Config struct {
 	Port    int    `yaml:"port" envconfig:"port"`
 
 	/* Server */
-	EnableAPIDocs bool   `yaml:"enable_api_docs" envconfig:"enable_api_docs"`
-	DisableLDAP   bool   `yaml:"disable_ldap" envconfig:"disable_ldap"`
-	LogLevel      string `yaml:"log_level" envconfig:"log_level"`
+	EnableAPIDocs       bool   `yaml:"enable_api_docs" envconfig:"enable_api_docs"`
+	DisableLDAP         bool   `yaml:"disable_ldap" envconfig:"disable_ldap"`
+	LogLevel            string `yaml:"log_level" envconfig:"log_level"`
+	KubernetesEnabled   bool   `yaml:"kubernetes_enabled" envconfig:"kubernetes_enabled"`
+	KubeNamespace       string `yaml:"kube_namespace" envconfig:"kube_namespace"`
+	KubeJobImageVersion string `yaml:"kube_job_image_version" envconfig:"kube_job_image_version"`
 
 	Secrets        *Secrets     `yaml:"-" envconfig:"-"`
 	LogLevelParsed logrus.Level `yaml:"-" envconfig:"-"`
@@ -197,6 +200,11 @@ func SetupConfig(c *Config) error {
 	case "sqlite":
 		c.DatabaseType = "sqlite3"
 		SetupSQLiteConfig(c)
+	}
+
+	// Default to latest
+	if c.KubeJobImageVersion == "" {
+		c.KubeJobImageVersion = "latest"
 	}
 
 	return nil

@@ -29,6 +29,13 @@ docker-builder:
 .PHONY: docker-build-dev
 docker-build-dev: docker-builder
 	docker build -t wso-backend:dev-latest -f Dockerfile.release .
+	docker build -t wso-backend-jobs:dev-latest -f Dockerfile.release_jobs .
+
+docker-build-rel-dev: docker-builder
+	docker build -t wso-backend:dev-latest -f Dockerfile.release .
+
+docker-build-jobs-dev: docker-builder
+	docker build -t wso-backend-jobs:dev-latest -f Dockerfile.release_jobs .
 
 .PHONY: k8-apply-dev
 k8-apply-dev:

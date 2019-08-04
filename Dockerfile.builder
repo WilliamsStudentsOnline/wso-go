@@ -1,9 +1,10 @@
-FROM golang:1.12.7
+FROM golang:1.12.7 AS builder
 
 # Turn on modules
 ENV GO111MODULE=on
 
 # Create our workspace
+RUN mkdir -p /wso/jobs
 RUN mkdir -p /go/src/github.com/WilliamsStudentsOnline/wso-go
 WORKDIR /go/src/github.com/WilliamsStudentsOnline/wso-go
 
@@ -24,8 +25,26 @@ COPY . .
 # Generate API documentation
 RUN swag init -g server/router.go
 
-# Build the go file
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o /go/bin/wso-backend /go/src/github.com/WilliamsStudentsOnline/wso-go/server/cmd
+ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
 
-# Default entrypoint. TODO: move this binary to a scratch deployment for minimal size (issue with cgo?)
-#ENTRYPOINT ["/go/bin/wso-backend"]
+# Build the go file
+RUN go build -ldflags "-w -s" -tags=jsoniter \
+    -o /wso/wso-backend /go/src/github.com/WilliamsStudentsOnline/wso-go/server/cmd
+
+### Build the jobs ###
+# Catalog Update
+RUN go build -ldflags "-w -s" -tags=jsoniter \
+    -o /wso/jobs/catalog-update /go/src/github.com/WilliamsStudentsOnline/wso-go/jobs/catalog_update/cmd
+# Update all factrak survey deficits
+RUN go build -ldflags "-w -s" -tags=jsoniter \
+    -o /wso/jobs/update-all-factrak-survey-deficits \
+    /go/src/github.com/WilliamsStudentsOnline/wso-go/jobs/update_all_factrak_survey_deficits/cmd
+# Update all users from LDAP
+RUN go build -ldflags "-w -s" -tags=jsoniter \
+    -o /wso/jobs/update-all-users-from-ldap \
+    /go/src/github.com/WilliamsStudentsOnline/wso-go/jobs/update_all_users_from_ldap/cmd
+
+# Add trusted certificates
+FROM alpine:3.10 AS certs
+COPY --from=builder /wso/ /wso
+RUN apk --update add ca-certificates

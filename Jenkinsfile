@@ -2,7 +2,7 @@ pipeline {
   agent {
     dockerfile {
       filename 'Dockerfile.builder'
-      args '-u root:sudo'
+      args '-u root:sudo --target builder'
     }
 
   }

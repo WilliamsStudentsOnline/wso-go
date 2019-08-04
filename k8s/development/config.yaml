@@ -17,3 +17,6 @@ jwt_timeout_hours: 168
 enable_api_docs: true
 gin_mode: debug
 log_level: debug
+kubernetes_enabled: true
+kube_namespace: development
+kube_job_image_version: "dev-latest"

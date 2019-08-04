@@ -4,6 +4,10 @@ func IntToPtr(i int) *int {
 	return &i
 }
 
+func Int32ToPtr(i int32) *int32 {
+	return &i
+}
+
 func StrToPtr(s string) *string {
 	return &s
 }

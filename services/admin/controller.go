@@ -2,6 +2,7 @@ package admin
 
 import (
 	"github.com/WilliamsStudentsOnline/wso-go/config"
+	"github.com/WilliamsStudentsOnline/wso-go/jobs"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
@@ -22,6 +23,29 @@ func NewController(db *gorm.DB, cfg *config.Config) *Controller {
 		studentModel: models.NewStudentModel(db),
 		cfg:          cfg,
 	}
+}
+
+// Updates the course catalog
+// CatalogUpdate godoc
+// @Summary Updates the course catalog
+// @Description executes a kubernetes job that updates the course catalog
+// @ID catalog-update
+// @Tags admin
+// @Accept  json
+// @Produce  json
+// @Success 200 "Job completed"
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /admin/catalog-update [post]
+func (t *Controller) CatalogUpdate(c *gin.Context) {
+	job, err := jobs.RunCatalogUpdateJob(t.cfg)
+
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	t.RespondOK(c, job)
 }
 
 // Calls the UpdateAllFromLDAP from Users
