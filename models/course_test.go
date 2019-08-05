@@ -249,5 +249,5 @@ func TestCourseModel_GetCoursesByAreaOfStudyAndProfessors(t *testing.T) {
 
 	profIDsC1 := []uint{resC[0].Professors[0].ID, resC[0].Professors[1].ID}
 
-	assert.Equal([]uint{p1.ID, p2.ID}, profIDsC1)
+	assert.ElementsMatch([]uint{p1.ID, p2.ID}, profIDsC1)
 }
