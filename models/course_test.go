@@ -168,3 +168,84 @@ func TestCourseModel_FindByAbbrevAndNumber(t *testing.T) {
 	assert.Equal("CSCI", resC.AreaOfStudy.Abbreviation)
 	assert.Equal("Computer Science", resC.AreaOfStudy.Department.Name)
 }
+
+func TestCourseModel_GetCoursesByAreaOfStudyAndProfessors(t *testing.T) {
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+
+	m := NewCourseModel(db)
+
+	a1 := AreaOfStudy{
+		Name:         "Computer Science",
+		Abbreviation: "CSCI",
+		Department: &Department{
+			Name: "Computer Science",
+		},
+	}
+
+	p1 := User{
+		UnixID: "p1",
+		Name:   "Professor 1",
+		Type:   UserTypeProfessor,
+	}
+	p2 := User{
+		UnixID: "p2",
+		Name:   "Professor 2",
+		Type:   UserTypeProfessor,
+	}
+	s1 := User{
+		UnixID: "s1",
+		Name:   "Student 1",
+		Type:   UserTypeStudent,
+	}
+
+	// Populate
+	c1 := Course{
+		Number:      "136",
+		AreaOfStudy: &a1,
+	}
+	c2 := Course{
+		Number:      "256",
+		AreaOfStudy: &a1, // Same dept
+	}
+
+	fsC1 := []*FactrakSurvey{
+		{
+			Course:    &c1,
+			User:      &s1,
+			Professor: &p1,
+		},
+		{
+			Course:    &c1,
+			User:      &s1,
+			Professor: &p2,
+		},
+		{
+			Course:    &c2,
+			User:      &s1,
+			Professor: &p1,
+		},
+		{
+			Course:    &c1,
+			User:      &s1,
+			Professor: &p1,
+		},
+	}
+
+	err := db.Create(&a1).Create(&c1).Create(&c2).Create(&p1).Create(&p2).Create(&s1).Error
+	assert.NoError(err)
+
+	for _, fs := range fsC1 {
+		assert.NoError(db.Create(fs).Error)
+	}
+
+	var resC []*Course
+	err = m.GetCoursesByAreaOfStudyAndProfessors(a1.ID, &resC)
+	assert.NoError(err)
+
+	assert.Len(resC, 2)
+	assert.Len(resC[0].Professors, 2)
+	assert.Len(resC[1].Professors, 1)
+	assert.Equal(resC[0].Professors[0].ID, p1.ID)
+	assert.Equal(resC[0].Professors[1].ID, p2.ID)
+}

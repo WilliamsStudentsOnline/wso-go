@@ -522,7 +522,7 @@
                         "Bearer": []
                     }
                 ],
-                "description": "list one area of study's courses",
+                "description": "list one area of study's courses and the course's professors.\nPlease note: unlike other GetCourses endpoints, this one also returns a list of each courses professors.",
                 "consumes": [
                     "application/json"
                 ],
@@ -2792,6 +2792,13 @@
                 },
                 "number": {
                     "type": "string"
+                },
+                "professors": {
+                    "description": "Has many professors (thru factrak surveys). Ignore this in Gorm. Populate this only whenever needed.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.User"
+                    }
                 }
             }
         },
@@ -3063,6 +3070,10 @@
                 },
                 "courseWorkload": {
                     "type": "integer"
+                },
+                "createdTime": {
+                    "description": "Pass the created time: not looked at by GORM",
+                    "type": "string"
                 },
                 "flagged": {
                     "type": "boolean"

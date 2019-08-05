@@ -98,3 +98,26 @@ func (m *CourseModel) GetCoursesByAreaOfStudy(areaID uint, courses *[]Course) (e
 	err = m.DB.Where("area_of_study_id = ?", areaID).Find(courses).Error
 	return
 }
+
+func (m *CourseModel) GetCoursesByAreaOfStudyAndProfessors(areaID uint, courses *[]*Course) (err error) {
+	err = m.DB.Where("area_of_study_id = ?", areaID).Preload("FactrakSurveys.Professor").Find(courses).Error
+
+	// Go through all preloaded survey professors and make a unique list of profs
+	for _, course := range *courses {
+		// Unique set of professors of all surveys in this course
+		profsSet := make(map[uint]*User)
+		for _, survey := range course.FactrakSurveys {
+			profsSet[survey.Professor.ID] = survey.Professor
+		}
+		// Now make that set a slice
+		profs := make([]*User, len(profsSet))
+		i := 0
+		for _, prof := range profsSet {
+			profs[i] = prof
+			i++
+		}
+		// Now populate the (usually) hidden professors field
+		course.Professors = profs
+	}
+	return
+}

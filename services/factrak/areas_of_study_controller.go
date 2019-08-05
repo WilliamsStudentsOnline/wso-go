@@ -116,7 +116,8 @@ func (t *Controller) ListAreaOfStudyProfessors(c *gin.Context) {
 // List area of study's courses.
 // ListAreaOfStudyCourses godoc
 // @Summary List area of study courses
-// @Description list one area of study's courses
+// @Description list one area of study's courses and the course's professors.
+// @Description Please note: unlike other GetCourses endpoints, this one also returns a list of each courses professors.
 // @ID factrak-list-area-of-study-courses
 // @Tags factrak
 // @Accept  json
@@ -148,9 +149,9 @@ func (t *Controller) ListAreaOfStudyCourses(c *gin.Context) {
 	}
 
 	// Do database query
-	var courses []models.Course
+	var courses []*models.Course
 
-	err = t.courseModel.GetCoursesByAreaOfStudy(areaID, &courses)
+	err = t.courseModel.GetCoursesByAreaOfStudyAndProfessors(areaID, &courses)
 	if err != nil {
 		t.RespondError(c, err)
 		return

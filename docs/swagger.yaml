@@ -153,6 +153,12 @@ definitions:
         type: integer
       number:
         type: string
+      professors:
+        description: Has many professors (thru factrak surveys). Ignore this in Gorm.
+          Populate this only whenever needed.
+        items:
+          $ref: '#/definitions/models.User'
+        type: array
     type: object
   models.Department:
     properties:
@@ -336,6 +342,9 @@ definitions:
         type: integer
       courseWorkload:
         type: integer
+      createdTime:
+        description: 'Pass the created time: not looked at by GORM'
+        type: string
       flagged:
         type: boolean
       gradeReceived:
@@ -910,7 +919,9 @@ paths:
     get:
       consumes:
       - application/json
-      description: list one area of study's courses
+      description: |-
+        list one area of study's courses and the course's professors.
+        Please note: unlike other GetCourses endpoints, this one also returns a list of each courses professors.
       operationId: factrak-list-area-of-study-courses
       parameters:
       - description: Area of Study ID
