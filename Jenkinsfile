@@ -7,6 +7,9 @@ pipeline {
 
   }
   stages {
+    environment {
+      CGO_ENABLED = 1
+    }
     stage('Lint') {
       steps {
         sh '''wget -O - -q https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s v1.17.1'''
@@ -25,7 +28,6 @@ pipeline {
         sh '''go get -u github.com/AlekSi/gocov-xml'''
         sh '''go test -v -coverprofile=c.out -race ./...'''
         sh '''go test -v -coverprofile=c.out -race ./... 2>&1 | go-junit-report > report.xml'''
-        sh '''ls'''
       }
       post {
         always {
