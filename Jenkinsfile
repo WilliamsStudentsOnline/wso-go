@@ -6,10 +6,10 @@ pipeline {
     }
 
   }
+  environment {
+    CGO_ENABLED = 1
+  }
   stages {
-    environment {
-      CGO_ENABLED = 1
-    }
     stage('Lint') {
       steps {
         sh '''wget -O - -q https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s v1.17.1'''
