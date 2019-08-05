@@ -1,5 +1,10 @@
 basePath: /api/v1
 definitions:
+  admin.KubeJobReturn:
+    properties:
+      jobID:
+        type: string
+    type: object
   auth.AuthResponse:
     properties:
       expire:
@@ -566,6 +571,61 @@ info:
   title: WSO API
   version: 0.1.0
 paths:
+  /admin/catalog-update:
+    post:
+      consumes:
+      - application/json
+      description: executes a kubernetes job that updates the course catalog
+      operationId: catalog-update
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/admin.KubeJobReturn'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+            type: object
+      security:
+      - Bearer: []
+      summary: Updates the course catalog
+      tags:
+      - admin
+  /admin/jobs/{jobID}/status:
+    get:
+      consumes:
+      - application/json
+      description: connects to Kubernetes to get the status of a running (or recently
+        finished) job given an id
+      operationId: get-job-status
+      parameters:
+      - description: Kubernetes Job ID
+        in: path
+        name: jobID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/k8s.io/api/batch/v1.JobStatus'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+            type: object
+      security:
+      - Bearer: []
+      summary: Gets status of a job
+      tags:
+      - admin
   /admin/update-all-factrak-survey-deficits:
     post:
       consumes:
@@ -596,8 +656,11 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: Job completed
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/admin.KubeJobReturn'
+            type: object
         "500":
           description: Internal Server Error
           schema:

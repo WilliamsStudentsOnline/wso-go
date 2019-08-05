@@ -82,3 +82,19 @@ func RunJob(cfg *config.Config, name string, command string, args []string) (*ba
 
 	return job, nil
 }
+
+func GetJob(cfg *config.Config, jobName string) (*batchv1.Job, error) {
+	kubeConfig, err := rest.InClusterConfig()
+	if err != nil {
+		return nil, err
+	}
+	// creates the clientset
+	clientset, err := kubernetes.NewForConfig(kubeConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	jobsClient := clientset.BatchV1().Jobs(cfg.KubeNamespace)
+
+	return jobsClient.Get(jobName, metav1.GetOptions{})
+}

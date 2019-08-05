@@ -13,6 +13,89 @@
     "host": "localhost:8080",
     "basePath": "/api/v1",
     "paths": {
+        "/admin/catalog-update": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "executes a kubernetes job that updates the course catalog",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Updates the course catalog",
+                "operationId": "catalog-update",
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/admin.KubeJobReturn"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/jobs/{jobID}/status": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "connects to Kubernetes to get the status of a running (or recently finished) job given an id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Gets status of a job",
+                "operationId": "get-job-status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Kubernetes Job ID",
+                        "name": "jobID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/k8s.io/api/batch/v1.JobStatus"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/update-all-factrak-survey-deficits": {
             "post": {
                 "security": [
@@ -66,8 +149,12 @@
                 "summary": "Updates all users from LDAP",
                 "operationId": "update-all-users-from-ldap",
                 "responses": {
-                    "200": {
-                        "description": "Job completed"
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/admin.KubeJobReturn"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -2483,6 +2570,14 @@
         }
     },
     "definitions": {
+        "admin.KubeJobReturn": {
+            "type": "object",
+            "properties": {
+                "jobID": {
+                    "type": "string"
+                }
+            }
+        },
         "auth.AuthResponse": {
             "type": "object",
             "properties": {

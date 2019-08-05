@@ -26,6 +26,10 @@ func NewController(db *gorm.DB, cfg *config.Config) *Controller {
 	}
 }
 
+type KubeJobReturn struct {
+	JobID string `json:"jobID"`
+}
+
 // Updates the course catalog
 // CatalogUpdate godoc
 // @Summary Updates the course catalog
@@ -34,13 +38,14 @@ func NewController(db *gorm.DB, cfg *config.Config) *Controller {
 // @Tags admin
 // @Accept  json
 // @Produce  json
-// @Success 200 "Job completed"
+// @Success 201 {object} admin.KubeJobReturn
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
 // @Router /admin/catalog-update [post]
 func (t *Controller) CatalogUpdate(c *gin.Context) {
 	var job *v1.Job
 	var err error
+	var resp KubeJobReturn
 
 	if t.cfg.KubernetesEnabled {
 		job, err = jobs.RunCatalogUpdateJob(t.cfg)
@@ -51,7 +56,13 @@ func (t *Controller) CatalogUpdate(c *gin.Context) {
 		return
 	}
 
-	t.RespondOK(c, job)
+	if job != nil {
+		resp = KubeJobReturn{
+			JobID: job.Name,
+		}
+	}
+
+	t.RespondCreated(c, resp)
 }
 
 // Calls the UpdateAllFromLDAP from Users
@@ -64,13 +75,14 @@ func (t *Controller) CatalogUpdate(c *gin.Context) {
 // @Tags admin
 // @Accept  json
 // @Produce  json
-// @Success 200 "Job completed"
+// @Success 201 {object} admin.KubeJobReturn
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
 // @Router /admin/update-all-users-from-ldap [post]
 func (t *Controller) UpdateAllUsersFromLDAP(c *gin.Context) {
 	var job *v1.Job
 	var err error
+	var resp KubeJobReturn
 
 	if t.cfg.KubernetesEnabled {
 		job, err = jobs.RunUpdateAllUsersFromLDAPJob(t.cfg)
@@ -83,7 +95,13 @@ func (t *Controller) UpdateAllUsersFromLDAP(c *gin.Context) {
 		return
 	}
 
-	t.RespondOK(c, job)
+	if job != nil {
+		resp = KubeJobReturn{
+			JobID: job.Name,
+		}
+	}
+
+	t.RespondCreated(c, resp)
 }
 
 // Calls the UpdateAllFactrakSurveyDeficits from Students

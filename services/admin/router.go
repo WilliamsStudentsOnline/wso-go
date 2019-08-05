@@ -11,4 +11,5 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config) {
 	r.POST("/catalog-update", c.CatalogUpdate)
 	r.POST("/update-all-users-from-ldap", c.UpdateAllUsersFromLDAP)
 	r.POST("/update-all-factrak-survey-deficits", c.UpdateAllFactrakSurveyDeficits)
+	r.GET("/jobs/:jobID/status", c.GetJobStatus)
 }
