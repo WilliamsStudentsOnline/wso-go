@@ -49,7 +49,7 @@ func (m *CourseModel) FindByAbbrevAndNumber(areaAbbreviation string, number stri
 	return
 }
 
-// When preloading, must adhere to preloading rules defined in FactrakSurveyModel.preloadDefault()
+// When preloading, must adhere to preloading rules defined in FactrakSurveyModel.scopePreloadDefault()
 func (m *CourseModel) GetCourseByIDWithProfessor(id uint, c *Course, profID *uint) (err error) {
 	fsM := &FactrakSurveyModel{}
 
@@ -57,6 +57,7 @@ func (m *CourseModel) GetCourseByIDWithProfessor(id uint, c *Course, profID *uin
 	preloadScopes := []interface{}{
 		fsM.preloadDefault,
 		fsM.scopeProfAtWilliams,
+		fsM.preloadProfessor,
 	}
 	if profID != nil {
 		preloadScopes = append(preloadScopes, fsM.withProfessorID(*profID))

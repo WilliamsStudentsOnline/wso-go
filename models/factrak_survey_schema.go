@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 // FactrakSurvey Schema
 type FactrakSurvey struct {
 	BaseSchema
@@ -34,6 +36,9 @@ type FactrakSurvey struct {
 	// Not looked at by GORM, just for returning in JSON
 	TotalAgree    int `gorm:"-" json:"totalAgree,omitempty"`
 	TotalDisagree int `gorm:"-" json:"totalDisagree,omitempty"`
+
+	// Pass the created time: not looked at by GORM
+	CreatedTime time.Time `gorm:"-" json:"createdTime"`
 }
 
 func (*FactrakSurvey) TableName() string {
@@ -46,4 +51,11 @@ func NewFactrakSurvey(id uint) *FactrakSurvey {
 			ID: id,
 		},
 	}
+}
+
+// Again, I hate hooks but this is the best way.
+// This populates the createdTime field: please don't use this field for database updates.
+func (m *FactrakSurvey) AfterFind() (err error) {
+	m.CreatedTime = m.CreatedAt
+	return
 }

@@ -36,7 +36,7 @@ func (m *FactrakSurveyModel) GetAllFlaggedSurveys(p *[]*FactrakSurvey) (err erro
 
 // Gets survey by its id.
 func (m *FactrakSurveyModel) GetSurveyByID(id uint, p *FactrakSurvey) (err error) {
-	err = m.DB.Scopes(m.scopeProfAtWilliams, m.scopeDefault).First(p, id).Error
+	err = m.DB.Scopes(m.scopeProfAtWilliams, m.scopePreloadDefault).First(p, id).Error
 	return
 }
 
@@ -114,8 +114,14 @@ func (m *FactrakSurveyModel) GetSurveysByProfessorOrCourse(profID *uint, courseI
 	if profID == nil && courseID == nil {
 		return errors.New("must have at least one of profID and courseID")
 	}
+	if profID == nil {
+		scopes = append(scopes, m.preloadProfessor)
+	}
 	if profID != nil {
 		scopes = append(scopes, m.withProfessorID(*profID))
+	}
+	if courseID == nil {
+		scopes = append(scopes, m.preloadCourse)
 	}
 	if courseID != nil {
 		scopes = append(scopes, m.withCourseID(*courseID))
@@ -129,17 +135,17 @@ func (m *FactrakSurveyModel) GetSurveysByProfessorOrCourse(profID *uint, courseI
 }
 
 func (m *FactrakSurveyModel) GetSurveysByProfessor(profID uint, fs *[]*FactrakSurvey) (err error) {
-	err = m.DB.Scopes(m.scopeDefault, m.scopeProfAtWilliams, m.withProfessorID(profID)).Find(fs).Error
+	err = m.DB.Scopes(m.scopePreloadDefault, m.scopeProfAtWilliams, m.withProfessorID(profID)).Find(fs).Error
 	return
 }
 
 func (m *FactrakSurveyModel) GetSurveysByAuthor(authorUserID uint, fs *[]*FactrakSurvey) (err error) {
-	err = m.DB.Scopes(m.scopeDefault, m.withAuthorID(authorUserID)).Find(fs).Error
+	err = m.DB.Scopes(m.scopePreloadDefault, m.withAuthorID(authorUserID)).Find(fs).Error
 	return
 }
 
 func (m *FactrakSurveyModel) GetSurveysByCourse(courseID uint, fs *[]*FactrakSurvey) (err error) {
-	err = m.DB.Scopes(m.scopeDefault, m.scopeProfAtWilliams, m.withCourseID(courseID)).Find(fs).Error
+	err = m.DB.Scopes(m.scopePreloadDefault, m.scopeProfAtWilliams, m.withCourseID(courseID)).Find(fs).Error
 	return
 }
 
@@ -236,7 +242,25 @@ func (*FactrakSurveyModel) registrationStart() time.Time {
 	}
 }
 
-// Default for scopes preloading factrak surveys. YOU MUST USE THESE UNLESS YOU HAVE EXPLICIT REASONS NOT TO.
+// Default for scopes factrak surveys to preload other objects.
+func (m *FactrakSurveyModel) scopePreloadDefault(db *gorm.DB) *gorm.DB {
+	db = m.preloadProfessor(db)
+	db = m.preloadCourse(db)
+	return m.scopeDefault(db)
+}
+
+// Preloads professor
+func (m *FactrakSurveyModel) preloadProfessor(db *gorm.DB) *gorm.DB {
+	return db.Preload("Professor")
+}
+
+// Preloads course
+func (m *FactrakSurveyModel) preloadCourse(db *gorm.DB) *gorm.DB {
+	return db.Preload("Course").
+		Preload("Course.AreaOfStudy")
+}
+
+// Default for scopes preloading factrak surveys via another object. YOU MUST USE THESE UNLESS YOU HAVE EXPLICIT REASONS NOT TO.
 func (m *FactrakSurveyModel) preloadDefault(db *gorm.DB) *gorm.DB {
 	return m.scopeDefault(db)
 }

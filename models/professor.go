@@ -31,12 +31,13 @@ func (m *ProfessorModel) GetProfessorByID(id uint, u *User) (err error) {
 	return m.GetProfessorByIDWithCourse(id, u, nil)
 }
 
-// When preloading, must adhere to preloading rules defined in FactrakSurveyModel.preloadDefault()
+// When preloading, must adhere to preloading rules defined in FactrakSurveyModel.scopePreloadDefault()
 func (m *ProfessorModel) GetProfessorByIDWithCourse(id uint, u *User, courseID *uint) (err error) {
 	fsM := &FactrakSurveyModel{}
 
 	preloadScopes := []interface{}{
 		fsM.preloadDefault,
+		fsM.preloadCourse,
 	}
 	if courseID != nil {
 		preloadScopes = append(preloadScopes, fsM.withCourseID(*courseID))
