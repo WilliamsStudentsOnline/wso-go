@@ -118,6 +118,9 @@ func (m *CourseModel) GetCoursesByAreaOfStudyAndProfessors(areaID uint, courses 
 		}
 		// Now populate the (usually) hidden professors field
 		course.Professors = profs
+
+		// Now delete the attached factrak surveys because that is bloated
+		course.FactrakSurveys = nil
 	}
 	return
 }
