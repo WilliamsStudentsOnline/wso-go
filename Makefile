@@ -25,6 +25,7 @@ mod:
 
 docker-builder:
 	docker build -t wso-backend/builder -f Dockerfile.builder .
+	docker build -t wso-backend/builder-cert -f Dockerfile.cert .
 
 .PHONY: docker-build-dev
 docker-build-dev: docker-builder

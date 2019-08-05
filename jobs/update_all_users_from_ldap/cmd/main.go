@@ -13,10 +13,12 @@ import (
 func main() {
 	/* Flags */
 	var configPath string
+	var disableMigrationCheck bool
 
 	// Command-line flags
 	// Note: these can be overridden by env vars
 	flag.StringVar(&configPath, "config", "", "path to config file")
+	flag.BoolVar(&disableMigrationCheck, "disable-migration-check", false, "don't check for outdated migrations")
 
 	flag.Parse()
 
@@ -47,8 +49,14 @@ func main() {
 		log.Fatal("Migration Checking Error: " + err.Error())
 	}
 
-	if lastMigrationID != migrate.Migrations[len(migrate.Migrations)-1].ID {
-		log.Fatal("Database migrations are not up to date")
+	codeLastMgr := migrate.Migrations[len(migrate.Migrations)-1].ID
+
+	if lastMigrationID != codeLastMgr {
+		if disableMigrationCheck {
+			log.Warnf("Database migrations are not up to date: database (%s) and code (%s)", lastMigrationID, codeLastMgr)
+		} else {
+			log.Fatalf("Database migrations are not up to date: database (%s) and code (%s)", lastMigrationID, codeLastMgr)
+		}
 	}
 
 	// Do the actual stuff

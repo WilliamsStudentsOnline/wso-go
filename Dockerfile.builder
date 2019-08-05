@@ -1,4 +1,4 @@
-FROM golang:1.12.7 AS builder
+FROM golang:1.12.7
 
 # Turn on modules
 ENV GO111MODULE=on
@@ -43,8 +43,3 @@ RUN go build -ldflags "-w -s" -tags=jsoniter \
 RUN go build -ldflags "-w -s" -tags=jsoniter \
     -o /wso/jobs/update-all-users-from-ldap \
     /go/src/github.com/WilliamsStudentsOnline/wso-go/jobs/update_all_users_from_ldap/cmd
-
-# Add trusted certificates
-FROM alpine:3.10 AS certs
-COPY --from=builder /wso/ /wso
-RUN apk --update add ca-certificates

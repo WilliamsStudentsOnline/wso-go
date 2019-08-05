@@ -12,7 +12,7 @@ mysql_args:
   loc: Local
 jwt_realm: wso-backend-development
 port: 8080
-disable_ldap: true
+disable_ldap: false
 jwt_timeout_hours: 168
 enable_api_docs: true
 gin_mode: debug

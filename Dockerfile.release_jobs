@@ -1,4 +1,4 @@
-FROM wso-backend/builder AS builder
+FROM wso-backend/builder-cert AS builder
 FROM alpine:3.10
 RUN mkdir /wso-jobs
 COPY --from=builder /wso/jobs /wso-jobs

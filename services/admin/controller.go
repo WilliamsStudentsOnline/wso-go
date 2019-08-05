@@ -7,6 +7,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	v1 "k8s.io/api/batch/v1"
 )
 
 type Controller struct {
@@ -38,7 +39,12 @@ func NewController(db *gorm.DB, cfg *config.Config) *Controller {
 // @Security Bearer
 // @Router /admin/catalog-update [post]
 func (t *Controller) CatalogUpdate(c *gin.Context) {
-	job, err := jobs.RunCatalogUpdateJob(t.cfg)
+	var job *v1.Job
+	var err error
+
+	if t.cfg.KubernetesEnabled {
+		job, err = jobs.RunCatalogUpdateJob(t.cfg)
+	}
 
 	if err != nil {
 		t.RespondError(c, err)
@@ -63,14 +69,21 @@ func (t *Controller) CatalogUpdate(c *gin.Context) {
 // @Security Bearer
 // @Router /admin/update-all-users-from-ldap [post]
 func (t *Controller) UpdateAllUsersFromLDAP(c *gin.Context) {
-	err := t.userModel.UpdateAllFromLDAP(t.cfg)
+	var job *v1.Job
+	var err error
+
+	if t.cfg.KubernetesEnabled {
+		job, err = jobs.RunUpdateAllUsersFromLDAPJob(t.cfg)
+	} else {
+		err = t.userModel.UpdateAllFromLDAP(t.cfg)
+	}
 
 	if err != nil {
 		t.RespondError(c, err)
 		return
 	}
 
-	t.RespondOK(c, nil)
+	t.RespondOK(c, job)
 }
 
 // Calls the UpdateAllFactrakSurveyDeficits from Students
