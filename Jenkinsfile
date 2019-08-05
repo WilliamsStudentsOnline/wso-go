@@ -26,7 +26,6 @@ pipeline {
         sh '''go get -u github.com/jstemmer/go-junit-report'''
         sh '''go get -u github.com/axw/gocov/gocov'''
         sh '''go get -u github.com/AlekSi/gocov-xml'''
-        sh '''go test -v -coverprofile=c.out -race ./...'''
         sh '''go test -v -coverprofile=c.out -race ./... 2>&1 | go-junit-report > report.xml'''
       }
       post {
