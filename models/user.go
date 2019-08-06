@@ -23,8 +23,12 @@ func NewUserModel(db *gorm.DB) *UserModel {
 	}
 }
 
-func (m *UserModel) GetAllUsers(u *[]User) (err error) {
-	err = m.DB.Scopes(m.scopeVisible, m.scopeAtWilliams).Find(u).Error
+func (m *UserModel) GetAllUsers(u *[]User, paginator Paginator) (err error) {
+	db := m.DB.Scopes(m.scopeVisible, m.scopeAtWilliams)
+	if paginator != nil {
+		db = db.Scopes(paginator.Paginate)
+	}
+	err = db.Find(u).Error
 	return
 }
 
@@ -456,12 +460,39 @@ func (m *UserModel) UpdateAllFromLDAP(cfg *config.Config) error {
 	return nil
 }
 
-// TODO: Add this once Factrak is done
 func (m *UserModel) UpdateFactrakSurveyDeficit(user *User) error {
 	if !user.IsStudent() {
 		return errors.New("user must be student")
 	}
 	return NewStudentModel(m.DB).UpdateFactrakSurveyDeficit(user)
+}
+
+type UserPaginator struct {
+	Offset uint
+	Limit  uint
+}
+
+func (p *UserPaginator) Order(db *gorm.DB) *gorm.DB {
+	return db.Order("id ASC")
+}
+
+func (p *UserPaginator) Paginate(db *gorm.DB) *gorm.DB {
+	db = p.Order(db).Offset(p.Offset).Limit(p.Limit)
+	return db
+}
+
+func (m *UserModel) NewUserPaginate(offset int, limit int) Paginator {
+	o := uint(offset)
+	l := uint(limit)
+
+	if l == 0 {
+		return &NoPaginator{}
+	}
+
+	return &UserPaginator{
+		Offset: o,
+		Limit:  l,
+	}
 }
 
 func (*UserModel) scopeVisible(db *gorm.DB) *gorm.DB {

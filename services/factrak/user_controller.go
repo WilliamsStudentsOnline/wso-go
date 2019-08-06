@@ -19,6 +19,8 @@ import (
 // @Accept  json
 // @Produce  json
 // @Param userID path uint true "User ID"
+// @Param offset query time.Time false "Offset Pagination"
+// @Param limit query int false "Limit Pagination"
 // @Success 200 {array} models.FactrakSurvey
 // @Failure 1331 {object} lib.APIError "must be self"
 // @Failure 400 {object} lib.APIError
@@ -54,7 +56,13 @@ func (t *Controller) ListUserSurveys(c *gin.Context) {
 	// Do database query
 	var surveys []*models.FactrakSurvey
 
-	err = t.surveyModel.GetSurveysByAuthor(userID, &surveys)
+	pOff, pLim, err := GetSurveyPaginationParams(c)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	err = t.surveyModel.GetSurveysByAuthor(userID, &surveys, t.surveyModel.NewSurveyPaginate(pOff, pLim))
 	if err != nil {
 		t.RespondError(c, err)
 		return

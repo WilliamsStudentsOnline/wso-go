@@ -796,6 +796,15 @@ paths:
       - application/json
       description: lists all surveys that are flagged
       operationId: factrak-list-flagged-surveys
+      parameters:
+      - description: Offset Pagination
+        in: query
+        name: offset
+        type: time.Time
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
@@ -1171,6 +1180,14 @@ paths:
         name: courseID
         required: true
         type: integer
+      - description: Offset Pagination
+        in: query
+        name: offset
+        type: time.Time
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
@@ -1523,6 +1540,14 @@ paths:
         name: professorID
         required: true
         type: integer
+      - description: Offset Pagination
+        in: query
+        name: offset
+        type: time.Time
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
@@ -1559,6 +1584,15 @@ paths:
       description: lists all surveys where the professor is at Williams and the survey
         is current. Order by creation date.
       operationId: factrak-list-surveys
+      parameters:
+      - description: Offset Pagination
+        in: query
+        name: offset
+        type: time.Time
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
@@ -2067,6 +2101,14 @@ paths:
         name: userID
         required: true
         type: integer
+      - description: Offset Pagination
+        in: query
+        name: offset
+        type: time.Time
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
@@ -2107,6 +2149,15 @@ paths:
       - application/json
       description: get all users that are visible and at williams
       operationId: list-users
+      parameters:
+      - description: Offset Pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:

@@ -2,6 +2,7 @@ package factrak
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
@@ -18,13 +19,21 @@ import (
 // @Tags factrak
 // @Accept  json
 // @Produce  json
+// @Param offset query time.Time false "Offset Pagination"
+// @Param limit query int false "Limit Pagination"
 // @Success 200 {array} models.FactrakSurvey
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
 // @Router /factrak/surveys [get]
 func (t *Controller) ListSurveys(c *gin.Context) {
 	var surveys []*models.FactrakSurvey
-	err := t.surveyModel.GetAllSurveys(&surveys)
+	pOff, pLim, err := GetSurveyPaginationParams(c)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	err = t.surveyModel.GetAllSurveys(&surveys, t.surveyModel.NewSurveyPaginate(pOff, pLim))
 
 	if err != nil {
 		t.RespondError(c, err)
@@ -503,4 +512,32 @@ func (t *Controller) FlagSurvey(c *gin.Context) {
 
 	// We know user is owner, so don't need to delete user fields
 	t.RespondOK(c, nil)
+}
+
+type SurveyPaginationParams struct {
+	Offset *time.Time `json:"offset"`
+	Limit  *int       `json:"limit"`
+}
+
+func GetSurveyPaginationParams(ctx *gin.Context) (offset time.Time, limit int, err error) {
+	pp := SurveyPaginationParams{}
+
+	err = ctx.ShouldBindQuery(&pp)
+	if err != nil {
+		return
+	}
+
+	if pp.Limit == nil {
+		return
+	}
+
+	if pp.Offset != nil {
+		offset = *pp.Offset
+	}
+
+	if pp.Limit != nil {
+		limit = *pp.Limit
+	}
+
+	return
 }

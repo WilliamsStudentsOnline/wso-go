@@ -90,6 +90,8 @@ func (t *Controller) GetCourse(c *gin.Context) {
 // @Produce  json
 // @Param professorID query uint false "Professor ID"
 // @Param courseID path uint true "Course ID"
+// @Param offset query time.Time false "Offset Pagination"
+// @Param limit query int false "Limit Pagination"
 // @Success 200 {array} models.FactrakSurvey
 // @Failure 400 {object} lib.APIError
 // @Failure 404 {object} lib.APIError
@@ -122,7 +124,13 @@ func (t *Controller) ListCourseSurveys(c *gin.Context) {
 	// Do database query
 	var surveys []*models.FactrakSurvey
 
-	err = t.surveyModel.GetSurveysByProfessorOrCourse(profID, &courseID, true, &surveys)
+	pOff, pLim, err := GetSurveyPaginationParams(c)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	err = t.surveyModel.GetSurveysByProfessorOrCourse(profID, &courseID, true, &surveys, t.surveyModel.NewSurveyPaginate(pOff, pLim))
 	if err != nil {
 		t.RespondError(c, err)
 		return

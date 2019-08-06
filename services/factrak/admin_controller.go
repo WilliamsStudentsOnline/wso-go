@@ -14,13 +14,21 @@ import (
 // @Tags factrak,factrak-admin,admin
 // @Accept  json
 // @Produce  json
+// @Param offset query time.Time false "Offset Pagination"
+// @Param limit query int false "Limit Pagination"
 // @Success 200 {array} models.FactrakSurvey
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
 // @Router /factrak/admin/surveys [get]
 func (t *Controller) ListFlaggedSurveys(c *gin.Context) {
 	var surveys []*models.FactrakSurvey
-	err := t.surveyModel.GetAllFlaggedSurveys(&surveys)
+	pOff, pLim, err := GetSurveyPaginationParams(c)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	err = t.surveyModel.GetAllFlaggedSurveys(&surveys, t.surveyModel.NewSurveyPaginate(pOff, pLim))
 
 	if err != nil {
 		t.RespondError(c, err)

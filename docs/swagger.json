@@ -347,6 +347,20 @@
                 ],
                 "summary": "List flagged surveys",
                 "operationId": "factrak-list-flagged-surveys",
+                "parameters": [
+                    {
+                        "type": "time.Time",
+                        "description": "Offset Pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -904,6 +918,18 @@
                         "name": "courseID",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "time.Time",
+                        "description": "Offset Pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1434,6 +1460,18 @@
                         "name": "professorID",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "time.Time",
+                        "description": "Offset Pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1489,6 +1527,20 @@
                 ],
                 "summary": "List surveys",
                 "operationId": "factrak-list-surveys",
+                "parameters": [
+                    {
+                        "type": "time.Time",
+                        "description": "Offset Pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -2232,6 +2284,18 @@
                         "name": "userID",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "time.Time",
+                        "description": "Offset Pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2294,6 +2358,20 @@
                 ],
                 "summary": "List users",
                 "operationId": "list-users",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Offset Pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",

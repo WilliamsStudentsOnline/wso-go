@@ -14,10 +14,11 @@ import (
 type BaseController struct{}
 
 type BaseResponse struct {
-	Status      int         `json:"status"`
-	Data        interface{} `json:"data,omitempty"`
-	Error       *RespError  `json:"error,omitempty"`
-	UpdateToken bool        `json:"updateToken"`
+	Status           int         `json:"status"`
+	Data             interface{} `json:"data,omitempty"`
+	Error            *RespError  `json:"error,omitempty"`
+	UpdateToken      bool        `json:"updateToken"`
+	PaginationOffset uint        `json:"paginationOffset,omitempty"`
 }
 
 type RespError struct {
@@ -149,4 +150,27 @@ func GetUIntQuery(c *gin.Context, key string) (uint, error) {
 	}
 
 	return uint(queryInt), nil
+}
+
+func GetPaginationParams(ctx *gin.Context) (offset, limit int, err error) {
+	offsetStr := ctx.Query("offset")
+	limitStr := ctx.Query("limit")
+
+	if limitStr == "" {
+		return
+	}
+
+	if offsetStr != "" {
+		offset, err = strconv.Atoi(offsetStr)
+		if err != nil {
+			return
+		}
+	}
+
+	limit, err = strconv.Atoi(limitStr)
+	if err != nil {
+		return
+	}
+
+	return
 }

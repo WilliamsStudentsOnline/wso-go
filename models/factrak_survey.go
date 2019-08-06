@@ -21,16 +21,24 @@ func NewFactrakSurveyModel(db *gorm.DB) *FactrakSurveyModel {
 }
 
 // Gets all surveys.
-func (m *FactrakSurveyModel) GetAllSurveys(p *[]*FactrakSurvey) (err error) {
-	err = m.DB.Scopes(m.scopeProfAtWilliams, m.scopeDefault).Find(p).Error
+func (m *FactrakSurveyModel) GetAllSurveys(p *[]*FactrakSurvey, paginator Paginator) (err error) {
+	db := m.DB.Scopes(m.scopeProfAtWilliams, m.scopeDefault)
+	if paginator != nil {
+		db = db.Scopes(paginator.Paginate)
+	}
+	err = db.Find(p).Error
 	return
 }
 
 // Gets all flagged surveys.
-func (m *FactrakSurveyModel) GetAllFlaggedSurveys(p *[]*FactrakSurvey) (err error) {
-	err = m.DB.Scopes(m.scopeProfAtWilliams, m.scopeDefault).Where(
+func (m *FactrakSurveyModel) GetAllFlaggedSurveys(p *[]*FactrakSurvey, paginator Paginator) (err error) {
+	db := m.DB.Scopes(m.scopeProfAtWilliams, m.scopeDefault).Where(
 		"factrak_surveys.flagged = ?", true,
-	).Find(p).Error
+	)
+	if paginator != nil {
+		db = db.Scopes(paginator.Paginate)
+	}
+	err = db.Find(p).Error
 	return
 }
 
@@ -107,7 +115,7 @@ func (m *FactrakSurveyModel) SetSurveyFlag(id uint, flag bool) (err error) {
 }
 
 // Gets surveys by professor id, course id, or both.
-func (m *FactrakSurveyModel) GetSurveysByProfessorOrCourse(profID *uint, courseID *uint, profAtWilliams bool, fs *[]*FactrakSurvey) (err error) {
+func (m *FactrakSurveyModel) GetSurveysByProfessorOrCourse(profID *uint, courseID *uint, profAtWilliams bool, fs *[]*FactrakSurvey, paginator Paginator) (err error) {
 	scopes := []func(db *gorm.DB) *gorm.DB{
 		m.scopeDefault,
 	}
@@ -130,22 +138,38 @@ func (m *FactrakSurveyModel) GetSurveysByProfessorOrCourse(profID *uint, courseI
 		scopes = append(scopes, m.scopeProfAtWilliams)
 	}
 
-	err = m.DB.Scopes(scopes...).Find(fs).Error
+	db := m.DB.Scopes(scopes...)
+	if paginator != nil {
+		db = db.Scopes(paginator.Paginate)
+	}
+	err = db.Find(fs).Error
 	return
 }
 
-func (m *FactrakSurveyModel) GetSurveysByProfessor(profID uint, fs *[]*FactrakSurvey) (err error) {
-	err = m.DB.Scopes(m.scopePreloadDefault, m.scopeProfAtWilliams, m.withProfessorID(profID)).Find(fs).Error
+func (m *FactrakSurveyModel) GetSurveysByProfessor(profID uint, fs *[]*FactrakSurvey, paginator Paginator) (err error) {
+	db := m.DB.Scopes(m.scopePreloadDefault, m.scopeProfAtWilliams, m.withProfessorID(profID))
+	if paginator != nil {
+		db = db.Scopes(paginator.Paginate)
+	}
+	err = db.Find(fs).Error
 	return
 }
 
-func (m *FactrakSurveyModel) GetSurveysByAuthor(authorUserID uint, fs *[]*FactrakSurvey) (err error) {
-	err = m.DB.Scopes(m.scopePreloadDefault, m.withAuthorID(authorUserID)).Find(fs).Error
+func (m *FactrakSurveyModel) GetSurveysByAuthor(authorUserID uint, fs *[]*FactrakSurvey, paginator Paginator) (err error) {
+	db := m.DB.Scopes(m.scopePreloadDefault, m.withAuthorID(authorUserID))
+	if paginator != nil {
+		db = db.Scopes(paginator.Paginate)
+	}
+	err = db.Find(fs).Error
 	return
 }
 
-func (m *FactrakSurveyModel) GetSurveysByCourse(courseID uint, fs *[]*FactrakSurvey) (err error) {
-	err = m.DB.Scopes(m.scopePreloadDefault, m.scopeProfAtWilliams, m.withCourseID(courseID)).Find(fs).Error
+func (m *FactrakSurveyModel) GetSurveysByCourse(courseID uint, fs *[]*FactrakSurvey, paginator Paginator) (err error) {
+	db := m.DB.Scopes(m.scopePreloadDefault, m.scopeProfAtWilliams, m.withCourseID(courseID))
+	if paginator != nil {
+		db = db.Scopes(paginator.Paginate)
+	}
+	err = db.Find(fs).Error
 	return
 }
 
@@ -306,6 +330,33 @@ func (m *FactrakSurveyModel) scopeThisSemester(db *gorm.DB) *gorm.DB {
 
 func (*FactrakSurveyModel) scopeCurrent(db *gorm.DB) *gorm.DB {
 	return db.Where("factrak_surveys.created_at >= ?", time.Now().AddDate(-5, 0, 0))
+}
+
+type FactrakSurveyPaginator struct {
+	Offset time.Time
+	Limit  uint
+}
+
+func (p *FactrakSurveyPaginator) Order(db *gorm.DB) *gorm.DB {
+	return db.Order("factrak_surveys.created_at desc")
+}
+
+func (p *FactrakSurveyPaginator) Paginate(db *gorm.DB) *gorm.DB {
+	db = p.Order(db).Limit(p.Limit).Where("factrak_surveys.created_at > ?", p.Offset)
+	return db
+}
+
+func (m *FactrakSurveyModel) NewSurveyPaginate(offset time.Time, limit int) Paginator {
+	l := uint(limit)
+
+	if l == 0 {
+		return &NoPaginator{}
+	}
+
+	return &FactrakSurveyPaginator{
+		Offset: offset,
+		Limit:  l,
+	}
 }
 
 type FactrakSurveyAvgRatings struct {

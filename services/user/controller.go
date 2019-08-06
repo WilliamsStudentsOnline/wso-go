@@ -27,13 +27,21 @@ func NewController(db *gorm.DB) *Controller {
 // @Tags users
 // @Accept  json
 // @Produce  json
+// @Param offset query int false "Offset Pagination"
+// @Param limit query int false "Limit Pagination"
 // @Success 200 {array} models.User
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
 // @Router /users [get]
 func (t *Controller) ListUsers(c *gin.Context) {
 	var users []models.User
-	err := t.userModel.GetAllUsers(&users)
+	pOff, pLim, err := services.GetPaginationParams(c)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	err = t.userModel.GetAllUsers(&users, t.userModel.NewUserPaginate(pOff, pLim))
 
 	if err != nil {
 		t.RespondError(c, err)

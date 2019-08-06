@@ -92,6 +92,8 @@ func (t *Controller) GetProfessor(c *gin.Context) {
 // @Produce  json
 // @Param courseID query uint false "Course ID"
 // @Param professorID path uint true "Professor ID"
+// @Param offset query time.Time false "Offset Pagination"
+// @Param limit query int false "Limit Pagination"
 // @Success 200 {array} models.FactrakSurvey
 // @Failure 400 {object} lib.APIError
 // @Failure 404 {object} lib.APIError
@@ -125,8 +127,14 @@ func (t *Controller) ListProfessorSurveys(c *gin.Context) {
 	// Do database query
 	var surveys []*models.FactrakSurvey
 
+	pOff, pLim, err := GetSurveyPaginationParams(c)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
 	// We already know prof is at williams, so we don't need ot do the join
-	err = t.surveyModel.GetSurveysByProfessorOrCourse(&profID, courseID, false, &surveys)
+	err = t.surveyModel.GetSurveysByProfessorOrCourse(&profID, courseID, false, &surveys, t.surveyModel.NewSurveyPaginate(pOff, pLim))
 	if err != nil {
 		t.RespondError(c, err)
 		return
