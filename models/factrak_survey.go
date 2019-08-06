@@ -22,7 +22,7 @@ func NewFactrakSurveyModel(db *gorm.DB) *FactrakSurveyModel {
 
 // Gets all surveys.
 func (m *FactrakSurveyModel) GetAllSurveys(p *[]*FactrakSurvey, paginator Paginator) (err error) {
-	db := m.DB.Scopes(m.scopeProfAtWilliams, m.scopeDefault)
+	db := m.DB.Scopes(m.scopeProfAtWilliams, m.scopeDefault, m.preloadCourse)
 	if paginator != nil {
 		db = db.Scopes(paginator.Paginate)
 	}
@@ -32,7 +32,7 @@ func (m *FactrakSurveyModel) GetAllSurveys(p *[]*FactrakSurvey, paginator Pagina
 
 // Gets all flagged surveys.
 func (m *FactrakSurveyModel) GetAllFlaggedSurveys(p *[]*FactrakSurvey, paginator Paginator) (err error) {
-	db := m.DB.Scopes(m.scopeProfAtWilliams, m.scopeDefault).Where(
+	db := m.DB.Scopes(m.scopeProfAtWilliams, m.scopeDefault, m.preloadCourse).Where(
 		"factrak_surveys.flagged = ?", true,
 	)
 	if paginator != nil {
