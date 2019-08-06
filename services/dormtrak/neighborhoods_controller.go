@@ -47,7 +47,7 @@ func (t *Controller) ListNeighborhoods(c *gin.Context) {
 // @Security Bearer
 // @Router /dormtrak/neighborhoods/{neighborhoodID} [get]
 func (t *Controller) GetNeighborhood(c *gin.Context) {
-	// Decode departmentID.
+	// Decode neighborhoodID.
 	neighborhoodID, err := services.GetUIntParam(c, "neighborhoodID")
 	if err != nil {
 		t.RespondErrorCode(c, http.StatusBadRequest, err)

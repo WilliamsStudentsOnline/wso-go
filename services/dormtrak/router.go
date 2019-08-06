@@ -17,9 +17,10 @@ func SetupRouter(r gin.IRouter, db *gorm.DB) {
 	r.GET("/neighborhoods", c.ListNeighborhoods)
 	r.GET("/neighborhoods/:neighborhoodID", c.GetNeighborhood)
 
-	r.GET("/dorms")
-	r.GET("/dorms/:dormID")
-	r.GET("/dorms/:dormID/rooms")
+	// Dorms endpoint
+	r.GET("/dorms", c.ListDorms)
+	r.GET("/dorms/:dormID", c.GetDorm)
+	r.GET("/dorms/:dormID/rooms", c.GetDormRooms)
 
 	// Get rankings by dormID, neighborhoodID, overall
 	r.GET("/rankings")

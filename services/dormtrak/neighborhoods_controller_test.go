@@ -1,4 +1,4 @@
-package dormtrak
+package dormtrak_test
 
 import (
 	"encoding/json"
@@ -10,6 +10,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
+	. "github.com/WilliamsStudentsOnline/wso-go/services/dormtrak"
 	testify "github.com/stretchr/testify/assert"
 )
 
