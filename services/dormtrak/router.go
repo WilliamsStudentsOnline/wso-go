@@ -13,8 +13,9 @@ func SetupRouter(r gin.IRouter, db *gorm.DB) {
 	// Models:
 	// Neighborhoods, dorms, dorm rooms, dormtrak reviews
 
-	r.GET("/neighborhoods")
-	r.GET("/neighborhoods/:neighborhoodID")
+	// Neighborhoods endpoint
+	r.GET("/neighborhoods", c.ListNeighborhoods)
+	r.GET("/neighborhoods/:neighborhoodID", c.GetNeighborhood)
 
 	r.GET("/dorms")
 	r.GET("/dorms/:dormID")

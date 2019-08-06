@@ -22,25 +22,25 @@ func main() {
 
 	app.Commands = []cli.Command{
 		{
-			Name: "service",
-			Usage: "generate a service",
-			Action: generateService,
+			Name:      "service",
+			Usage:     "generate a service",
+			Action:    generateService,
 			ArgsUsage: "[service_name]",
 			Flags: []cli.Flag{
 				cli.StringFlag{
-					Name: "model,m",
+					Name:  "model,m",
 					Usage: "a model that the service depends on",
 				},
 			},
 		},
 		{
-			Name: "model",
-			Usage: "generate a model",
-			Action: generateModel,
+			Name:      "model",
+			Usage:     "generate a model",
+			Action:    generateModel,
 			ArgsUsage: "[ModelName]",
 			Flags: []cli.Flag{
 				cli.StringFlag{
-					Name: "table,t",
+					Name:  "table,t",
 					Usage: "the model's table",
 				},
 			},
@@ -75,7 +75,7 @@ func generateModel(c *cli.Context) error {
 	}
 
 	// Schema path
-	schemaPath := filepath.Join(path, nameLC + "_schema.go")
+	schemaPath := filepath.Join(path, nameLC+"_schema.go")
 
 	// Template the schema file
 	schemTmpl, err := template.New("schema").Parse(modelSchemaTmpl)
@@ -90,7 +90,7 @@ func generateModel(c *cli.Context) error {
 	defer schemaFile.Close()
 
 	err = schemTmpl.Execute(schemaFile, map[string]interface{}{
-		"name": name,
+		"name":  name,
 		"table": table,
 	})
 	if err != nil {
@@ -98,7 +98,7 @@ func generateModel(c *cli.Context) error {
 	}
 
 	// Model path
-	modelPath := filepath.Join(path, nameLC + ".go")
+	modelPath := filepath.Join(path, nameLC+".go")
 
 	// Template the model file
 	modTmpl, err := template.New("model").Parse(modelModelTmpl)
@@ -119,7 +119,6 @@ func generateModel(c *cli.Context) error {
 		return err
 	}
 
-
 	log.Println("Schema generated at", schemaPath)
 	log.Println("Model generated at", modelPath)
 	log.Println("Please edit these files with new data")
@@ -133,8 +132,6 @@ func generateService(c *cli.Context) error {
 	if name == "" {
 		return errors.New("a name is required")
 	}
-
-
 
 	model := c.String("model")
 	if model == "" {
@@ -168,8 +165,8 @@ func generateService(c *cli.Context) error {
 	defer ctrlFile.Close()
 
 	err = ctrlTmpl.Execute(ctrlFile, map[string]interface{}{
-		"name": name,
-		"model": model,
+		"name":    name,
+		"model":   model,
 		"modelDC": strings.ToLower(model[:1]) + model[1:],
 	})
 	if err != nil {
@@ -197,7 +194,6 @@ func generateService(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-
 
 	log.Println("Service generated at", path)
 	log.Println("Please edit these files with new data")
@@ -284,6 +280,12 @@ var modelModelTmpl = `package models
 
 // {{.name}} Model
 type {{.name}}Model struct {
-	BaseModel
+	*BaseModel
+}
+
+func New{{.name}}Model(db *gorm.DB) *{{.name}}Model {
+	return &{{.name}}Model{
+		BaseModel: NewBaseModel(db),
+	}
 }
 `

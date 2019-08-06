@@ -2,6 +2,7 @@ package factrak
 
 import (
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
@@ -259,7 +260,8 @@ func (t *Controller) CreateSurvey(c *gin.Context) {
 		ProfessorID: prof.ID,
 		CourseID:    course.ID,
 
-		Comment:              createData.Comment,
+		// Trim comment of leading/trailing whitespaces
+		Comment:              strings.TrimSpace(createData.Comment),
 		WouldRecommendCourse: createData.WouldRecommendCourse,
 		CourseWorkload:       createData.CourseWorkload,
 		CourseStimulating:    createData.CourseStimulating,
@@ -369,7 +371,9 @@ func (t *Controller) UpdateSurvey(c *gin.Context) {
 	}
 
 	// Update fields: this is a bit long and verbose, but I don't want to mess with reflect
-	survey.Comment = *lib.StrPtrDefaults(updateData.Comment, &survey.Comment)
+
+	// Trim comment of leading/trailing whitespaces
+	survey.Comment = strings.TrimSpace(*lib.StrPtrDefaults(updateData.Comment, &survey.Comment))
 	survey.WouldRecommendCourse = lib.BoolPtrDefaults(updateData.WouldRecommendCourse, survey.WouldRecommendCourse)
 	survey.CourseWorkload = lib.IntPtrDefaults(updateData.CourseWorkload, survey.CourseWorkload)
 	survey.CourseStimulating = lib.IntPtrDefaults(updateData.CourseStimulating, survey.CourseStimulating)

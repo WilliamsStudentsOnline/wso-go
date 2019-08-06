@@ -22,10 +22,6 @@ type User struct {
 	Visible        *bool   `gorm:"DEFAULT:true;not null" json:"visible"`
 	ClassYear      *int    `gorm:"size:4" json:"classYear"`
 
-	// Equivalent to belongs_to Department
-	DepartmentID *uint       `json:"departmentID"`
-	Department   *Department `json:"department,omitempty"`
-
 	DormVisible *bool   `gorm:"DEFAULT:true;not null" json:"dormVisible"`
 	HomeTown    *string `json:"homeTown"`
 	HomeZip     *string `json:"homeZip"`
@@ -42,11 +38,15 @@ type User struct {
 	HasAcceptedFactrakPolicy  *bool   `gorm:"DEFAULT:false;not null" json:"hasAcceptedFactrakPolicy"`
 	HasAcceptedDormtrakPolicy *bool   `gorm:"DEFAULT:false;not null" json:"hasAcceptedDormtrakPolicy"`
 
-	// belongs_to Office
+	// Belongs to Department iff professor
+	DepartmentID *uint       `json:"departmentID"`
+	Department   *Department `json:"department,omitempty"`
+
+	// Belongs to Office iff staff/professor
 	OfficeID *uint   `json:"officeID"`
 	Office   *Office `json:"office,omitempty"`
 
-	// belongs_to Dorm Room
+	// Belongs to Dorm Room iff student
 	DormRoomID *uint     `gorm:"index:index_rooms_on_dorm_room_id" json:"dormRoomID"`
 	DormRoom   *DormRoom `json:"dormRoom,omitempty"`
 
@@ -72,6 +72,9 @@ type User struct {
 
 	// Has many factrak agreements
 	FactrakAgreements []*FactrakAgreement `json:"factrakAgreements,omitempty"`
+
+	// Has many dormtrak reviews
+	DormtrakReviews []*DormtrakReview `json:"dormtrakReviews,omitempty"`
 }
 
 func (*User) TableName() string {

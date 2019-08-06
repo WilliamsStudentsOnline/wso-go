@@ -8,9 +8,13 @@ const (
 
 type DormRoom struct {
 	BaseSchema
-	DormID           uint     `gorm:"index:index_dorm_rooms_on_dorm_id" json:"dormID"`
-	Dorm             Dorm     `json:"dorm,omitempty"`
-	Number           string   `json:"number"`
+
+	// Belongs to dorm
+	DormID uint  `gorm:"index:index_dorm_rooms_on_dorm_id;not null" json:"dormID"`
+	Dorm   *Dorm `json:"dorm,omitempty"`
+
+	Number string `json:"number"`
+
 	Closet           *string  `json:"closet"`
 	Flooring         *string  `json:"flooring"`
 	CommonRoomAccess *bool    `json:"commonRoomAccess"`
@@ -39,7 +43,10 @@ type DormRoom struct {
 	RoomType         *string  `json:"roomType"`
 
 	// Has many students
-	Users []User `json:"users,omitempty"`
+	Users []*User `json:"users,omitempty"`
+
+	// Has many Dormtrak reviews
+	DormtrakReviews []*DormtrakReview `json:"dormtrakReviews,omitempty"`
 }
 
 func (*DormRoom) TableName() string {
