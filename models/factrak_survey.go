@@ -32,7 +32,7 @@ func (m *FactrakSurveyModel) GetAllSurveys(p *[]*FactrakSurvey, paginator Pagina
 
 // Gets all flagged surveys.
 func (m *FactrakSurveyModel) GetAllFlaggedSurveys(p *[]*FactrakSurvey, paginator Paginator) (err error) {
-	db := m.DB.Scopes(m.scopeProfAtWilliams, m.scopeDefault, m.preloadCourse).Where(
+	db := m.DB.Scopes(m.scopeProfAtWilliams, m.scopePreloadDefault).Where(
 		"factrak_surveys.flagged = ?", true,
 	)
 	if paginator != nil {
