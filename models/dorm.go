@@ -1,6 +1,11 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import (
+	"math"
+
+	"github.com/WilliamsStudentsOnline/wso-go/lib"
+	"github.com/jinzhu/gorm"
+)
 
 // Dorm Model
 type DormModel struct {
@@ -32,6 +37,10 @@ func (m *DormModel) DoesDormExist(id uint) (exists bool, err error) {
 	return
 }
 
+// This updates the dorm statistics on room sizes and numbers. This function is expensive and it is currently called
+// on every dorm update change. Luckily, this function is only called when the server is updating the dorm list,
+// so it cannot be called by clients.
+// TODO: Figure out a less-expensive way of calling this function: maybe a job queue that runs every minute?
 func (m *DormModel) UpdateDormFacts(id uint) (err error) {
 	var dorm Dorm
 	err = m.DB.First(&dorm, id).Error
@@ -39,92 +48,99 @@ func (m *DormModel) UpdateDormFacts(id uint) (err error) {
 		return
 	}
 
+	type dormFacts struct {
+		AvgSinglesArea  *float64
+		AvgDoublesArea  *float64
+		NumSingles      int
+		NumDoubles      int
+		NumFlexes       int
+		ModeSinglesArea *int
+		ModeDoublesArea *int
+	}
+
+	facts := dormFacts{}
+
 	// Update average areas
 	// Singles
-	var avgSingArea []interface{}
 	err = m.DB.Model(&DormRoom{}).Where("dorm_rooms.dorm_id = ?", id).
 		Where("dorm_rooms.room_type = ?", DormRoomTypeSingle).
-		Select("avg(area) AS avg_singles_area").Pluck("avg_singles_area", &avgSingArea).Error
+		Select("avg(dorm_rooms.area) AS avg_singles_area").Scan(&facts).Error
 	if err != nil {
 		return
-	}
-	if len(avgSingArea) > 0 {
-		if val, ok := avgSingArea[0].(int); ok {
-			dorm.AverageSingleArea = &val
-		}
 	}
 	// Doubles
-	var avgDoubArea []interface{}
 	err = m.DB.Model(&DormRoom{}).Where("dorm_rooms.dorm_id = ?", id).
 		Where("dorm_rooms.room_type = ?", DormRoomTypeDouble).
-		Select("avg(area) AS avg_doubles_area").Pluck("avg_doubles_area", &avgDoubArea).Error
+		Select("avg(dorm_rooms.area) AS avg_doubles_area").Scan(&facts).Error
 	if err != nil {
 		return
-	}
-	if len(avgDoubArea) > 0 {
-		if val, ok := avgDoubArea[0].(int); ok {
-			dorm.AverageDoubleArea = &val
-		}
 	}
 
 	// Update room type counts
 	// Single
-	var numSing int
 	err = m.DB.Model(&DormRoom{}).Where("dorm_rooms.dorm_id = ?", id).
 		Where("dorm_rooms.room_type = ?", DormRoomTypeSingle).
-		Count(&numSing).Error
+		Count(&facts.NumSingles).Error
 	if err != nil {
 		return
 	}
-	dorm.NumberSingles = &numSing
 	// Double
-	var numDoub int
 	err = m.DB.Model(&DormRoom{}).Where("dorm_rooms.dorm_id = ?", id).
 		Where("dorm_rooms.room_type = ?", DormRoomTypeDouble).
-		Count(&numDoub).Error
+		Count(&facts.NumDoubles).Error
 	if err != nil {
 		return
 	}
-	dorm.NumberDoubles = &numDoub
 	// Flex
-	var numFlex int
 	err = m.DB.Model(&DormRoom{}).Where("dorm_rooms.dorm_id = ?", id).
 		Where("dorm_rooms.room_type = ?", DormRoomTypeFlex).
-		Count(&numFlex).Error
+		Count(&facts.NumFlexes).Error
 	if err != nil {
 		return
 	}
-	dorm.NumberFlex = &numFlex
 
-	// update mode areas
+	// Update mode areas. We only error if it is not a record not found error, as if there are no rooms of that type,
+	// we will get a record not found error, which is expected.
 	// Singles
-	var modeSingArea []interface{}
-	err = m.DB.Model(&DormRoom{}).Where("dorm_rooms.dorm_id = ?", id).
+	err = m.DB.Model(&DormRoom{}).
+		Select("area AS mode_singles_area").
+		Where("dorm_rooms.dorm_id = ?", id).
 		Where("dorm_rooms.room_type = ?", DormRoomTypeSingle).
-		Group("dorm_rooms.area").Limit(1).Pluck("area", &modeSingArea).Error
-	if err != nil {
+		Group("dorm_rooms.area").Limit(1).
+		Order("COUNT(*) DESC").
+		Scan(&facts).Error
+	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		return
 	}
-	if len(modeSingArea) > 0 {
-		if val, ok := modeSingArea[0].(int); ok {
-			dorm.ModeSingleArea = &val
-		}
-	}
-
 	// Doubles
-	var modeDoubArea []interface{}
-	err = m.DB.Model(&DormRoom{}).Where("dorm_rooms.dorm_id = ?", id).
+	err = m.DB.Model(&DormRoom{}).
+		Select("area AS mode_doubles_area").
+		Where("dorm_rooms.dorm_id = ?", id).
 		Where("dorm_rooms.room_type = ?", DormRoomTypeDouble).
-		Group("dorm_rooms.area").Limit(1).Pluck("area", &modeDoubArea).Error
-	if err != nil {
+		Group("dorm_rooms.area").Limit(1).
+		Order("COUNT(*) DESC").
+		Scan(&facts).Error
+	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		return
 	}
-	if len(modeDoubArea) > 0 {
-		if val, ok := modeDoubArea[0].(int); ok {
-			dorm.ModeDoubleArea = &val
-		}
-	}
 
-	err = m.DB.Save(dorm).Error
+	// Have to cast float ptr to int ptr here. If nil, we ensure that it is also nil in the dorm
+	if facts.AvgSinglesArea != nil {
+		dorm.AverageSingleArea = lib.IntToPtr(int(math.Round(*facts.AvgSinglesArea)))
+	} else {
+		dorm.AverageSingleArea = nil
+	}
+	if facts.AvgDoublesArea != nil {
+		dorm.AverageDoubleArea = lib.IntToPtr(int(math.Round(*facts.AvgDoublesArea)))
+	} else {
+		dorm.AverageDoubleArea = nil
+	}
+	dorm.NumberSingles = &facts.NumSingles
+	dorm.NumberDoubles = &facts.NumDoubles
+	dorm.NumberFlex = &facts.NumFlexes
+	dorm.ModeSingleArea = facts.ModeSinglesArea
+	dorm.ModeDoubleArea = facts.ModeDoublesArea
+
+	err = m.DB.Save(&dorm).Error
 	return
 }

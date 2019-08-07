@@ -42,7 +42,8 @@ type DormRoom struct {
 	Wifi             *float64 `json:"wifi"`
 	Location         *float64 `json:"location"`
 	Satisfaction     *float64 `json:"satisfaction"`
-	RoomType         *string  `json:"roomType"`
+
+	RoomType string `gorm:"not null" json:"roomType"`
 
 	// Has many students
 	Users []*User `json:"users,omitempty"`

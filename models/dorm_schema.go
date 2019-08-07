@@ -1,9 +1,5 @@
 package models
 
-import (
-	"github.com/WilliamsStudentsOnline/wso-go/lib"
-)
-
 type Dorm struct {
 	BaseSchema
 
@@ -16,12 +12,12 @@ type Dorm struct {
 	KeyOrCard         *string  `json:"keyOrCard"`
 	Description       *string  `gorm:"size:65535" json:"description"`
 	Built             *int     `json:"built"`
-	Capacity          *int     `json:"capacity"`
-	NumberBathrooms   *int     `json:"numberBathrooms"`
-	NumberSingles     *int     `json:"numberSingles"`
-	NumberDoubles     *int     `json:"numberDoubles"`
-	NumberFlex        *int     `json:"numberFlex"`
-	NumberWashers     *int     `json:"numberWashers"`
+	Capacity          *int     `gorm:"DEFAULT:0;not null" json:"capacity"`
+	NumberBathrooms   *int     `gorm:"DEFAULT:0;not null" json:"numberBathrooms"`
+	NumberSingles     *int     `gorm:"DEFAULT:0;not null" json:"numberSingles"`
+	NumberDoubles     *int     `gorm:"DEFAULT:0;not null" json:"numberDoubles"`
+	NumberFlex        *int     `gorm:"DEFAULT:0;not null" json:"numberFlex"`
+	NumberWashers     *int     `gorm:"DEFAULT:0;not null" json:"numberWashers"`
 	BathroomRatio     *float64 `json:"bathroomRatio"`
 	Comfort           *int     `json:"comfort"`
 	Loudness          *int     `json:"loudness"`
@@ -58,7 +54,8 @@ func (r *Dorm) BeforeSave() (err error) {
 		nf = *r.NumberFlex
 	}
 
-	r.Capacity = lib.IntToPtr(ns + 2*nd + 2*nf)
+	capacity := ns + 2*nd + 2*nf
+	r.Capacity = &capacity
 
 	// Set bathroom ratio
 	if r.NumberBathrooms != nil && *r.NumberBathrooms != 0 && r.Capacity != nil {
