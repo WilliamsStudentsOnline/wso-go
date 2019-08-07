@@ -148,7 +148,7 @@ func authLogin() {}
 // @Failure 401 {object} lib.APIError
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
-// @Router /auth/update-token [post]
+// @Router /auth/update-token [get]
 func authUpdate() {}
 
 // AuthRefresh godoc
@@ -163,5 +163,5 @@ func authUpdate() {}
 // @Failure 401 {object} lib.APIError
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
-// @Router /auth/refresh-token [post]
+// @Router /auth/refresh-token [get]
 func authRefresh() {}
