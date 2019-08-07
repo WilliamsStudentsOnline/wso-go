@@ -34,6 +34,15 @@ type DormFacts struct {
 	AverageSatisfaction *float64 `json:"averageSatisfaction"`
 }
 
+func NewDormFacts() *DormFacts {
+	return &DormFacts{
+		BiggestSingle:  &DormRoom{},
+		SmallestSingle: &DormRoom{},
+		BiggestDouble:  &DormRoom{},
+		SmallestDouble: &DormRoom{},
+	}
+}
+
 // Get dorm fast-facts. Some of these are found also in GetDorm, which is a lightweight operation, but this
 // gives us more in-depth info on the dorm. But, this does do a number of SQL queries, so be wary.
 func (m *DormModel) GetDormFacts(id uint, p *DormFacts) (err error) {

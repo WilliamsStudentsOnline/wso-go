@@ -161,8 +161,8 @@ func TestDormModel_GetDormFacts(t *testing.T) {
 	assert.NoError(db.Create(&dorm).Error)
 
 	// Test 0: Missing dorm facts
-	var res DormFacts
-	assert.NoError(m.GetDormFacts(dorm.ID, &res))
+	res := NewDormFacts()
+	assert.NoError(m.GetDormFacts(dorm.ID, res))
 	assert.Equal(0, res.SinglesCount)
 	assert.Equal(0, res.DoublesCount)
 	assert.Equal(0, res.FlexCount)
@@ -207,8 +207,8 @@ func TestDormModel_GetDormFacts(t *testing.T) {
 		assert.NoError(db.Create(&t1[i]).Error)
 	}
 
-	res = DormFacts{}
-	assert.NoError(m.GetDormFacts(dorm.ID, &res))
+	res = NewDormFacts()
+	assert.NoError(m.GetDormFacts(dorm.ID, res))
 	assert.Equal(1, res.SinglesCount)
 	assert.Equal(0, res.DoublesCount)
 	assert.Equal(0, res.FlexCount)
@@ -326,8 +326,8 @@ func TestDormModel_GetDormFacts(t *testing.T) {
 		assert.NoError(db.Create(&t2[i]).Error)
 	}
 
-	res = DormFacts{}
-	assert.NoError(m.GetDormFacts(dorm.ID, &res))
+	res = NewDormFacts()
+	assert.NoError(m.GetDormFacts(dorm.ID, res))
 	assert.Equal(3, res.SinglesCount)
 	assert.Equal(1, res.DoublesCount)
 	assert.Equal(1, res.FlexCount)

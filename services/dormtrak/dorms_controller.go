@@ -140,8 +140,8 @@ func (t *Controller) GetDormFacts(c *gin.Context) {
 	}
 
 	// Do database query
-	var facts models.DormFacts
-	err = t.dormModel.GetDormFacts(dormID, &facts)
+	facts := models.NewDormFacts()
+	err = t.dormModel.GetDormFacts(dormID, facts)
 	if err != nil {
 		t.RespondError(c, err)
 		return

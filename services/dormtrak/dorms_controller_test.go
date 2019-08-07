@@ -311,7 +311,7 @@ func TestController_GetDormFacts(t *testing.T) {
 		assert.NoError(db.Create(&rooms[i]).Error)
 	}
 
-	// Get test neighborhood
+	// Get test dorm
 	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/dorms/%d/facts", dorm.ID), nil)
 	assert.NoError(err)
 
