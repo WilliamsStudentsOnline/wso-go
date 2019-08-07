@@ -116,3 +116,36 @@ func (t *Controller) GetDormRooms(c *gin.Context) {
 
 	t.RespondOK(c, rooms)
 }
+
+// GetDormFacts godoc
+// @Summary Get dorm facts
+// @Description gets dorm facts of one dorm building. Some of these facts are in GetDorm, while others are generated here.
+// @ID dormtrak-get-dorm-facts
+// @Tags dormtrak
+// @Accept  json
+// @Produce  json
+// @Param dormID path uint true "Dorm ID"
+// @Success 200 {array} models.DormFacts
+// @Failure 400 {object} lib.APIError
+// @Failure 404 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /dormtrak/dorms/{dormID}/facts [get]
+func (t *Controller) GetDormFacts(c *gin.Context) {
+	// Decode dormID.
+	dormID, err := services.GetUIntParam(c, "dormID")
+	if err != nil {
+		t.RespondErrorCode(c, http.StatusBadRequest, err)
+		return
+	}
+
+	// Do database query
+	var facts models.DormFacts
+	err = t.dormModel.GetDormFacts(dormID, &facts)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	t.RespondOK(c, facts)
+}

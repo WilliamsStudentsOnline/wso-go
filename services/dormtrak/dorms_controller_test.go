@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"testing"
 
+	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
@@ -189,6 +191,158 @@ func TestController_GetDormRooms(t *testing.T) {
 
 	/* Get test bad dorm id (expect failure) */
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/dorms/%d/rooms", 42), nil)
+	assert.NoError(err)
+
+	// Status is not found
+	assert.Equal(http.StatusNotFound, w.Code)
+}
+
+func TestController_GetDormFacts(t *testing.T) {
+	// Setup (can copy and paste this basically)
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+	router := utils.SetupRouter(auth.ScopeDormtrak, auth.ScopeWriteSelf)
+	SetupRouter(router, db)
+
+	dorm := models.Dorm{
+		Neighborhood: &models.Neighborhood{
+			Name: "Currier",
+		},
+		Name:      "East",
+		KeyOrCard: lib.StrToPtr("key"),
+	}
+	assert.NoError(db.Create(&dorm).Error)
+
+	srYear := models.NewStudentModel(db).SeniorYear()
+
+	rooms := []*models.DormRoom{
+		{
+			Dorm:             &dorm,
+			RoomType:         models.DormRoomTypeSingle,
+			CommonRoomAccess: lib.BoolToPtr(true),
+			Area:             lib.IntToPtr(100),
+			Wifi:             lib.Float64ToPtr(1),
+			Location:         lib.Float64ToPtr(2),
+			Loudness:         lib.Float64ToPtr(7),
+			Satisfaction:     lib.Float64ToPtr(1),
+			Users: []*models.User{
+				{
+					Type:      models.UserTypeStudent,
+					ClassYear: lib.IntToPtr(srYear + 2), // Sophomore
+				},
+			},
+		},
+		{
+			Dorm:             &dorm,
+			RoomType:         models.DormRoomTypeSingle,
+			CommonRoomAccess: lib.BoolToPtr(true),
+			Area:             lib.IntToPtr(80),
+			Wifi:             lib.Float64ToPtr(3),
+			Location:         lib.Float64ToPtr(4),
+			Loudness:         lib.Float64ToPtr(4),
+			Satisfaction:     lib.Float64ToPtr(2),
+			Users: []*models.User{
+				{
+					Type:      models.UserTypeStudent,
+					ClassYear: lib.IntToPtr(srYear + 0), // senior
+				},
+			},
+		},
+		{
+			Dorm:             &dorm,
+			RoomType:         models.DormRoomTypeSingle,
+			CommonRoomAccess: lib.BoolToPtr(false),
+			Area:             lib.IntToPtr(80),
+			Wifi:             lib.Float64ToPtr(5),
+			Location:         lib.Float64ToPtr(6),
+			Loudness:         lib.Float64ToPtr(3),
+			Satisfaction:     lib.Float64ToPtr(3),
+			Users: []*models.User{
+				{
+					Type:      models.UserTypeStudent,
+					ClassYear: lib.IntToPtr(srYear + 1), // Junior
+				},
+			},
+		},
+		{
+			Dorm:             &dorm,
+			RoomType:         models.DormRoomTypeDouble,
+			CommonRoomAccess: lib.BoolToPtr(true),
+			Area:             lib.IntToPtr(250),
+			Wifi:             lib.Float64ToPtr(7),
+			Location:         lib.Float64ToPtr(7),
+			Loudness:         lib.Float64ToPtr(6),
+			Satisfaction:     lib.Float64ToPtr(1),
+			Users: []*models.User{
+				{
+					Type:      models.UserTypeStudent,
+					ClassYear: lib.IntToPtr(srYear + 2), // Sophomore
+				},
+				{
+					Type:      models.UserTypeStudent,
+					ClassYear: lib.IntToPtr(srYear + 1), // Junior
+				},
+			},
+		},
+		{
+			Dorm:             &dorm,
+			RoomType:         models.DormRoomTypeFlex,
+			CommonRoomAccess: lib.BoolToPtr(false),
+			Area:             lib.IntToPtr(190),
+			Wifi:             lib.Float64ToPtr(2),
+			Location:         lib.Float64ToPtr(5),
+			Loudness:         lib.Float64ToPtr(1),
+			Satisfaction:     lib.Float64ToPtr(7),
+			Users: []*models.User{
+				{
+					Type:      models.UserTypeStudent,
+					ClassYear: lib.IntToPtr(srYear + 2), // Sophomore
+				},
+			},
+		},
+	}
+
+	for i := range rooms {
+		rooms[i].Number = strconv.Itoa(i)
+		for j := range rooms[i].Users {
+			rooms[i].Users[j].UnixID = strconv.Itoa(i) + "_" + strconv.Itoa(j)
+			rooms[i].Users[j].Name = strconv.Itoa(i) + " User " + strconv.Itoa(j)
+		}
+		assert.NoError(db.Create(&rooms[i]).Error)
+	}
+
+	// Get test neighborhood
+	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/dorms/%d/facts", dorm.ID), nil)
+	assert.NoError(err)
+
+	// Status is okay
+	assert.Equal(http.StatusOK, w.Code)
+
+	// Decode response
+	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+	var resp models.DormFacts
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+
+	// Check if correct dorm facts
+	assert.Equal(3, resp.SinglesCount)
+	assert.Equal(1, resp.DoublesCount)
+	assert.Equal(1, resp.FlexCount)
+	assert.Equal(7, resp.Capacity)
+	assert.Equal(*dorm.KeyOrCard, *resp.KeyOrCard)
+	assert.Equal(87, *resp.AverageSinglesArea)
+	assert.Equal(80, *resp.ModeSinglesArea)
+	assert.Equal(3, resp.SophomoreCount)
+	assert.Equal(2, resp.JuniorCount)
+	assert.Equal(1, resp.SeniorCount)
+	assert.Equal(3.0/5.0, *resp.CommonRoomAccessRatio)
+	assert.Equal(float64(2+7+5+3+1)/5.0, *resp.AverageWifi)
+	assert.Equal(4.8, *resp.AverageLocation)
+	assert.Equal(4.2, *resp.AverageLoudness)
+	assert.Equal(2.8, *resp.AverageSatisfaction)
+
+	/* Get test bad dorm id (expect failure) */
+	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/dorms/%d/facts", 42), nil)
 	assert.NoError(err)
 
 	// Status is not found
