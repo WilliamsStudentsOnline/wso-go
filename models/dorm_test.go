@@ -141,5 +141,5 @@ func TestDormModel_UpdateDormFacts(t *testing.T) {
 }
 
 func TestDorm_BeforeSave(t *testing.T) {
-
+	t.SkipNow()
 }

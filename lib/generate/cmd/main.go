@@ -3,13 +3,14 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/jinzhu/inflection"
-	"github.com/urfave/cli"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 	"text/template"
+
+	"github.com/jinzhu/inflection"
+	"github.com/urfave/cli"
 )
 
 func main() {
