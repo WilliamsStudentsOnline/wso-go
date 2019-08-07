@@ -721,7 +721,7 @@ paths:
       tags:
       - auth
   /auth/refresh-token:
-    post:
+    get:
       consumes:
       - application/json
       description: attempts to get a JWT by taking an existing JWT and refreshing
@@ -756,7 +756,7 @@ paths:
       tags:
       - auth
   /auth/update-token:
-    post:
+    get:
       consumes:
       - application/json
       description: attempts to get a JWT by taking an existing JWT and updating the

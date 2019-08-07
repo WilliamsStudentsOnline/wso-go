@@ -225,7 +225,7 @@
             }
         },
         "/auth/refresh-token": {
-            "post": {
+            "get": {
                 "security": [
                     {
                         "Bearer": []
@@ -276,7 +276,7 @@
             }
         },
         "/auth/update-token": {
-            "post": {
+            "get": {
                 "security": [
                     {
                         "Bearer": []
