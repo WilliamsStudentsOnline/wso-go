@@ -235,6 +235,59 @@ definitions:
       wifi:
         type: number
     type: object
+  models.DormFacts:
+    properties:
+      averageDoublesArea:
+        type: integer
+      averageLocation:
+        type: number
+      averageLoudness:
+        type: number
+      averageSatisfaction:
+        type: number
+      averageSinglesArea:
+        type: integer
+      averageWifi:
+        type: number
+      biggestDouble:
+        $ref: '#/definitions/models.DormRoom'
+        type: object
+      biggestSingle:
+        $ref: '#/definitions/models.DormRoom'
+        type: object
+      capacity:
+        type: integer
+      commonRoomAccessRatio:
+        type: number
+      doublesCount:
+        type: integer
+      flexCount:
+        type: integer
+      juniorCount:
+        type: integer
+      keyOrCard:
+        type: string
+      modeDoublesArea:
+        type: integer
+      modeSinglesArea:
+        type: integer
+      seniorCount:
+        type: integer
+      singlesCount:
+        type: integer
+      smallestDouble:
+        $ref: '#/definitions/models.DormRoom'
+        type: object
+      smallestSingle:
+        $ref: '#/definitions/models.DormRoom'
+        type: object
+      sophomoreCount:
+        type: integer
+      studentToBathroomRatio:
+        type: number
+      washersCount:
+        type: integer
+    type: object
   models.DormRoom:
     properties:
       area:
@@ -309,6 +362,57 @@ definitions:
         type: boolean
       wifi:
         type: number
+    type: object
+  models.DormtrakRanking:
+    properties:
+      biggestDoubles:
+        items:
+          $ref: '#/definitions/models.DormRoom'
+        type: array
+      biggestSingles:
+        items:
+          $ref: '#/definitions/models.DormRoom'
+        type: array
+      fewestBathrooms:
+        items:
+          $ref: '#/definitions/models.Dorm'
+        type: array
+      maxMeanDoubleSize:
+        items:
+          $ref: '#/definitions/models.Dorm'
+        type: array
+      maxMeanSingleSize:
+        items:
+          $ref: '#/definitions/models.Dorm'
+        type: array
+      minMeanDoubleSize:
+        items:
+          $ref: '#/definitions/models.Dorm'
+        type: array
+      minMeanSingleSize:
+        items:
+          $ref: '#/definitions/models.Dorm'
+        type: array
+      mostBathrooms:
+        items:
+          $ref: '#/definitions/models.Dorm'
+        type: array
+      mostDoubles:
+        items:
+          $ref: '#/definitions/models.Dorm'
+        type: array
+      mostSingles:
+        items:
+          $ref: '#/definitions/models.Dorm'
+        type: array
+      smallestDoubles:
+        items:
+          $ref: '#/definitions/models.DormRoom'
+        type: array
+      smallestSingles:
+        items:
+          $ref: '#/definitions/models.DormRoom'
+        type: array
     type: object
   models.DormtrakReview:
     properties:
@@ -934,6 +1038,48 @@ paths:
       summary: Get dorm
       tags:
       - dormtrak
+  /dormtrak/dorms/{dormID}/facts:
+    get:
+      consumes:
+      - application/json
+      description: gets dorm facts of one dorm building. Some of these facts are in
+        GetDorm, while others are generated here.
+      operationId: dormtrak-get-dorm-facts
+      parameters:
+      - description: Dorm ID
+        in: path
+        name: dormID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.DormFacts'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+            type: object
+      security:
+      - Bearer: []
+      summary: Get dorm facts
+      tags:
+      - dormtrak
   /dormtrak/dorms/{dormID}/rooms:
     get:
       consumes:
@@ -1046,6 +1192,31 @@ paths:
       security:
       - Bearer: []
       summary: Get neighborhood
+      tags:
+      - dormtrak
+  /dormtrak/rankings:
+    get:
+      consumes:
+      - application/json
+      description: gets rankings of dorms by specific metrics.
+      operationId: dormtrak-get-rankings
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.DormtrakRanking'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+            type: object
+      security:
+      - Bearer: []
+      summary: Get rankings
       tags:
       - dormtrak
   /factrak/admin/surveys:

@@ -425,6 +425,68 @@
                 }
             }
         },
+        "/dormtrak/dorms/{dormID}/facts": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "gets dorm facts of one dorm building. Some of these facts are in GetDorm, while others are generated here.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dormtrak"
+                ],
+                "summary": "Get dorm facts",
+                "operationId": "dormtrak-get-dorm-facts",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Dorm ID",
+                        "name": "dormID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.DormFacts"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
         "/dormtrak/dorms/{dormID}/rooms": {
             "get": {
                 "security": [
@@ -586,6 +648,45 @@
                         "schema": {
                             "type": "object",
                             "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/dormtrak/rankings": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "gets rankings of dorms by specific metrics.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dormtrak"
+                ],
+                "summary": "Get rankings",
+                "operationId": "dormtrak-get-rankings",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.DormtrakRanking"
+                            }
                         }
                     },
                     "500": {
@@ -3263,6 +3364,84 @@
                 }
             }
         },
+        "models.DormFacts": {
+            "type": "object",
+            "properties": {
+                "averageDoublesArea": {
+                    "type": "integer"
+                },
+                "averageLocation": {
+                    "type": "number"
+                },
+                "averageLoudness": {
+                    "type": "number"
+                },
+                "averageSatisfaction": {
+                    "type": "number"
+                },
+                "averageSinglesArea": {
+                    "type": "integer"
+                },
+                "averageWifi": {
+                    "type": "number"
+                },
+                "biggestDouble": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.DormRoom"
+                },
+                "biggestSingle": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.DormRoom"
+                },
+                "capacity": {
+                    "type": "integer"
+                },
+                "commonRoomAccessRatio": {
+                    "type": "number"
+                },
+                "doublesCount": {
+                    "type": "integer"
+                },
+                "flexCount": {
+                    "type": "integer"
+                },
+                "juniorCount": {
+                    "type": "integer"
+                },
+                "keyOrCard": {
+                    "type": "string"
+                },
+                "modeDoublesArea": {
+                    "type": "integer"
+                },
+                "modeSinglesArea": {
+                    "type": "integer"
+                },
+                "seniorCount": {
+                    "type": "integer"
+                },
+                "singlesCount": {
+                    "type": "integer"
+                },
+                "smallestDouble": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.DormRoom"
+                },
+                "smallestSingle": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.DormRoom"
+                },
+                "sophomoreCount": {
+                    "type": "integer"
+                },
+                "studentToBathroomRatio": {
+                    "type": "number"
+                },
+                "washersCount": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.DormRoom": {
             "type": "object",
             "properties": {
@@ -3371,6 +3550,83 @@
                 },
                 "wifi": {
                     "type": "number"
+                }
+            }
+        },
+        "models.DormtrakRanking": {
+            "type": "object",
+            "properties": {
+                "biggestDoubles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.DormRoom"
+                    }
+                },
+                "biggestSingles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.DormRoom"
+                    }
+                },
+                "fewestBathrooms": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Dorm"
+                    }
+                },
+                "maxMeanDoubleSize": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Dorm"
+                    }
+                },
+                "maxMeanSingleSize": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Dorm"
+                    }
+                },
+                "minMeanDoubleSize": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Dorm"
+                    }
+                },
+                "minMeanSingleSize": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Dorm"
+                    }
+                },
+                "mostBathrooms": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Dorm"
+                    }
+                },
+                "mostDoubles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Dorm"
+                    }
+                },
+                "mostSingles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Dorm"
+                    }
+                },
+                "smallestDoubles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.DormRoom"
+                    }
+                },
+                "smallestSingles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.DormRoom"
+                    }
                 }
             }
         },
