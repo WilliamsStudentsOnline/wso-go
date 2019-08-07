@@ -218,13 +218,13 @@ func (m *FactrakSurveyModel) PopulateAgreementCountsSlice(surveys []*FactrakSurv
 // so disable and make a new endpoint with this data if that is the case.
 func (m *FactrakSurveyModel) PopulateAgreementCounts(survey *FactrakSurvey) (err error) {
 	var posAgree int
-	m.DB.Table("factrak_agreements").Where(
+	m.DB.Model(&FactrakAgreement{}).Where(
 		"factrak_agreements.factrak_survey_id = ?",
 		survey.ID,
 	).Where("factrak_agreements.agrees = ?", true).Count(&posAgree)
 
 	var negAgree int
-	m.DB.Table("factrak_agreements").Where(
+	m.DB.Model(&FactrakAgreement{}).Where(
 		"factrak_agreements.factrak_survey_id = ?",
 		survey.ID,
 	).Where("factrak_agreements.agrees = ?", false).Count(&negAgree)
@@ -243,7 +243,7 @@ func (m *FactrakSurveyModel) getSurveyRatings(ratings *FactrakSurveyAvgRatings, 
 
 	q := strings.Join(queries, ", ")
 
-	err = m.DB.Table("factrak_surveys").Select(q).Scopes(scopes...).Scan(&ratings).Error
+	err = m.DB.Model(&FactrakSurvey{}).Select(q).Scopes(scopes...).Scan(&ratings).Error
 	return
 }
 
