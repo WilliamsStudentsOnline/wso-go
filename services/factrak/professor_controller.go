@@ -213,7 +213,7 @@ func (t *Controller) ListProfessorCourses(c *gin.Context) {
 // @Failure 404 {object} lib.APIError
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
-// @Router /factrak/professor/{professorID}/ratings [get]
+// @Router /factrak/professors/{professorID}/ratings [get]
 func (t *Controller) GetProfessorRatings(c *gin.Context) {
 	// Decode professorID.
 	profID, err := services.GetUIntParam(c, "professorID")

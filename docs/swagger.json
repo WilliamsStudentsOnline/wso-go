@@ -225,7 +225,7 @@
             }
         },
         "/auth/refresh-token": {
-            "post": {
+            "get": {
                 "security": [
                     {
                         "Bearer": []
@@ -276,7 +276,7 @@
             }
         },
         "/auth/update-token": {
-            "post": {
+            "get": {
                 "security": [
                     {
                         "Bearer": []
@@ -1461,72 +1461,6 @@
                 }
             }
         },
-        "/factrak/professor/{professorID}/ratings": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "get one professor's ratings",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "factrak"
-                ],
-                "summary": "Get professor ratings",
-                "operationId": "factrak-get-professor-ratings",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Course ID",
-                        "name": "courseID",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Professor ID",
-                        "name": "professorID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "$ref": "#/definitions/models.FactrakSurveyAvgRatings"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "$ref": "#/definitions/lib.APIError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "object",
-                            "$ref": "#/definitions/lib.APIError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "$ref": "#/definitions/lib.APIError"
-                        }
-                    }
-                }
-            }
-        },
         "/factrak/professors": {
             "get": {
                 "security": [
@@ -1674,6 +1608,72 @@
                             "items": {
                                 "$ref": "#/definitions/models.Course"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/factrak/professors/{professorID}/ratings": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "get one professor's ratings",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "factrak"
+                ],
+                "summary": "Get professor ratings",
+                "operationId": "factrak-get-professor-ratings",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Course ID",
+                        "name": "courseID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Professor ID",
+                        "name": "professorID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/models.FactrakSurveyAvgRatings"
                         }
                     },
                     "400": {

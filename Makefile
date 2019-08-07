@@ -3,6 +3,14 @@ BINARY_NAME=wso-backend
 .PHONY: build-docs
 build-docs:
 	swag init -g server/router.go
+	goimports -w docs/docs.go
+
+.PHONY: fmt
+fmt:
+	goimports -w ./
+
+.PHONY: commit
+commit: build-docs fmt
 
 .PHONY: build
 build: build-docs
