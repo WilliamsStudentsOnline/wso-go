@@ -1,5 +1,7 @@
 package models
 
+import "github.com/jinzhu/gorm"
+
 const (
 	DormRoomTypeSingle = "s"
 	DormRoomTypeDouble = "d"
@@ -51,4 +53,10 @@ type DormRoom struct {
 
 func (*DormRoom) TableName() string {
 	return "dorm_rooms"
+}
+
+// This updates the dorm after we change the dorm room
+func (r *DormRoom) AfterSave(tx *gorm.DB) (err error) {
+	err = NewDormModel(tx).UpdateDormFacts(r.DormID)
+	return
 }

@@ -1,5 +1,9 @@
 package models
 
+import (
+	"github.com/WilliamsStudentsOnline/wso-go/lib"
+)
+
 type Dorm struct {
 	BaseSchema
 
@@ -36,4 +40,30 @@ type Dorm struct {
 
 func (*Dorm) TableName() string {
 	return "dorms"
+}
+
+// This updates the dorm before we save it. It sets capacity and bathroom size
+func (r *Dorm) BeforeSave() (err error) {
+	// Set capacity
+	ns := 0
+	if r.NumberSingles != nil {
+		ns = *r.NumberSingles
+	}
+	nd := 0
+	if r.NumberDoubles != nil {
+		nd = *r.NumberDoubles
+	}
+	nf := 0
+	if r.NumberFlex != nil {
+		nf = *r.NumberFlex
+	}
+
+	r.Capacity = lib.IntToPtr(ns + 2*nd + 2*nf)
+
+	// Set bathroom ratio
+	if r.NumberBathrooms != nil && *r.NumberBathrooms != 0 && r.Capacity != nil {
+		ratio := float64(*r.Capacity) / float64(*r.NumberBathrooms)
+		r.BathroomRatio = &ratio
+	}
+	return
 }

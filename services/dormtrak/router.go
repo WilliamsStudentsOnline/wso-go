@@ -21,8 +21,9 @@ func SetupRouter(r gin.IRouter, db *gorm.DB) {
 	r.GET("/dorms", c.ListDorms)
 	r.GET("/dorms/:dormID", c.GetDorm)
 	r.GET("/dorms/:dormID/rooms", c.GetDormRooms)
+	r.GET("/dorms/:dormID/facts")
 
-	// Get rankings by dormID, neighborhoodID, overall
+	// Get rankings overall
 	r.GET("/rankings")
 
 	// Must be logged in:
