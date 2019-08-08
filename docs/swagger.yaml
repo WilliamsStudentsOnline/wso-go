@@ -416,8 +416,6 @@ definitions:
     type: object
   models.DormtrakReview:
     properties:
-      anonymous:
-        type: boolean
       bathroomDesc:
         type: string
       bedAdjustable:
@@ -436,6 +434,9 @@ definitions:
         type: string
       convenience:
         type: integer
+      createdTime:
+        description: 'Pass the created time: not looked at by GORM'
+        type: string
       dormRoom:
         $ref: '#/definitions/models.DormRoom'
         type: object
@@ -1217,6 +1218,61 @@ paths:
       security:
       - Bearer: []
       summary: Get rankings
+      tags:
+      - dormtrak
+  /dormtrak/reviews:
+    get:
+      consumes:
+      - application/json
+      description: lists all reviews
+      operationId: dormtrak-list-reviews
+      parameters:
+      - description: Dorm ID
+        in: query
+        name: dormID
+        type: integer
+      - description: Dorm Room ID
+        in: query
+        name: dormRoomID
+        type: integer
+      - description: User ID
+        in: query
+        name: userID
+        type: integer
+      - description: Offset Pagination
+        in: query
+        name: offset
+        type: time.Time
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      - description: Restrict to commented reviews
+        in: query
+        name: commented
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.DormtrakReview'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+            type: object
+      security:
+      - Bearer: []
+      summary: List reviews
       tags:
       - dormtrak
   /factrak/admin/surveys:

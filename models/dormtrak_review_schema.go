@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 // DormtrakReview Schema
 type DormtrakReview struct {
 	BaseSchema
@@ -25,7 +27,6 @@ type DormtrakReview struct {
 	KeyOrCard        *string `json:"keyOrCard"`
 	Noise            *string `gorm:"size:65535" json:"noise"`
 	BedAdjustable    *bool   `json:"bedAdjustable"`
-	Anonymous        *bool   `gorm:"not null" json:"anonymous"`
 	Faces            *string `json:"faces"`
 	PrivateBathroom  *bool   `json:"privateBathroom"`
 	BathroomDesc     *string `gorm:"size:65535" json:"bathroomDesc"`
@@ -35,8 +36,20 @@ type DormtrakReview struct {
 	Wifi             *int    `json:"wifi"`
 	Location         *int    `json:"location"`
 	Satisfaction     *int    `json:"satisfaction"`
+
+	// Removing the anonymous column  and just treating it as anonymous by default
+
+	// Pass the created time: not looked at by GORM
+	CreatedTime time.Time `gorm:"-" json:"createdTime"`
 }
 
 func (*DormtrakReview) TableName() string {
 	return "dormtrak_reviews"
+}
+
+// Again, I hate hooks but this is the best way.
+// This populates the createdTime field: please don't use this field for database updates.
+func (m *DormtrakReview) AfterFind() (err error) {
+	m.CreatedTime = m.CreatedAt
+	return
 }

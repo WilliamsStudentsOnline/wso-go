@@ -15,7 +15,7 @@ type DormRoom struct {
 	DormID uint  `gorm:"index:index_dorm_rooms_on_dorm_id;not null" json:"dormID"`
 	Dorm   *Dorm `json:"dorm,omitempty"`
 
-	Number string `json:"number"`
+	Number string `gorm:"not null" json:"number"`
 
 	Closet           *string  `json:"closet"`
 	Flooring         *string  `json:"flooring"`

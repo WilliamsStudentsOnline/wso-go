@@ -1,8 +1,10 @@
 package dormtrak
 
 import (
+	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
+	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 )
 
@@ -12,13 +14,31 @@ type Controller struct {
 	neighborhoodModel *models.NeighborhoodModel
 	dormModel         *models.DormModel
 	dormRoomModel     *models.DormRoomModel
+	reviewModel       *models.DormtrakReviewModel
 }
 
-// Construct a new user controller
+// Construct a new dormtrak controller
 func NewController(db *gorm.DB) *Controller {
 	return &Controller{
 		neighborhoodModel: models.NewNeighborhoodModel(db),
 		dormModel:         models.NewDormModel(db),
 		dormRoomModel:     models.NewDormRoomModel(db),
+		reviewModel:       models.NewDormtrakReviewModel(db),
+	}
+}
+
+func RemoveUserIDFromReviews(c *gin.Context, r []*models.DormtrakReview) {
+	if auth.HasScope(c, auth.ScopeAdminAll, auth.ScopeFactrakAdmin) {
+		return
+	}
+
+	userID := services.GetUserID(c)
+
+	for _, review := range r {
+		if review.UserID == userID {
+			continue
+		}
+		review.UserID = 0
+		review.User = nil
 	}
 }

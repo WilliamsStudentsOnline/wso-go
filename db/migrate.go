@@ -46,6 +46,7 @@ func MigrateDB(db *gorm.DB) error {
 			&models.Course{},
 			&models.FactrakAgreement{},
 			&models.FactrakSurvey{},
+			&models.DormtrakReview{},
 		).Error
 		if err != nil {
 			return err

@@ -699,6 +699,90 @@
                 }
             }
         },
+        "/dormtrak/reviews": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "lists all reviews",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dormtrak"
+                ],
+                "summary": "List reviews",
+                "operationId": "dormtrak-list-reviews",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Dorm ID",
+                        "name": "dormID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Dorm Room ID",
+                        "name": "dormRoomID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "userID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "time.Time",
+                        "description": "Offset Pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Restrict to commented reviews",
+                        "name": "commented",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.DormtrakReview"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
         "/factrak/admin/surveys": {
             "get": {
                 "security": [
@@ -3633,9 +3717,6 @@
         "models.DormtrakReview": {
             "type": "object",
             "properties": {
-                "anonymous": {
-                    "type": "boolean"
-                },
                 "bathroomDesc": {
                     "type": "string"
                 },
@@ -3662,6 +3743,10 @@
                 },
                 "convenience": {
                     "type": "integer"
+                },
+                "createdTime": {
+                    "description": "Pass the created time: not looked at by GORM",
+                    "type": "string"
                 },
                 "dormRoom": {
                     "type": "object",

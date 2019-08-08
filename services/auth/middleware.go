@@ -213,10 +213,16 @@ func GenerateClaims(v *AuthenticatorPayload) jwt.MapClaims {
 					scope = append(scope, auth.ScopeFactrakLimited)
 				}
 			}
-		}
 
-		if v.User.HasAcceptedDormtrakPolicy != nil && *v.User.HasAcceptedDormtrakPolicy {
-			scope = append(scope, auth.ScopeDormtrak)
+			// For dormtrak, user must be a student and user accepted dormtrak policy
+			if v.User.HasAcceptedDormtrakPolicy != nil && *v.User.HasAcceptedDormtrakPolicy {
+				scope = append(scope, auth.ScopeDormtrak)
+
+				// If the student is upper class, they can write reviews
+				if v.User.Student().IsUpperClass() {
+					scope = append(scope, auth.ScopeDormtrakWrite)
+				}
+			}
 		}
 
 		// Add admin scope
