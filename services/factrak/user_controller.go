@@ -48,7 +48,7 @@ func (t *Controller) ListUserSurveys(c *gin.Context) {
 	}
 
 	// Can only be view self (unless admin or factrak admin)
-	if userID != services.GetUserID(c) || auth.HasScope(c, auth.ScopeAdminAll, auth.ScopeFactrakAdmin) {
+	if userID != services.GetUserID(c) && !auth.HasScope(c, auth.ScopeAdminAll, auth.ScopeFactrakAdmin) {
 		t.RespondError(c, lib.ErrorMustBeSelf)
 		return
 	}
