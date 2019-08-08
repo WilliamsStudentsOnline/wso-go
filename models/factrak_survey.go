@@ -341,8 +341,9 @@ func (p *FactrakSurveyPaginator) Order(db *gorm.DB) *gorm.DB {
 	return db.Order("factrak_surveys.created_at desc")
 }
 
+// Pagination starts at most recent and goes down from there
 func (p *FactrakSurveyPaginator) Paginate(db *gorm.DB) *gorm.DB {
-	db = p.Order(db).Limit(p.Limit).Where("factrak_surveys.created_at > ?", p.Offset)
+	db = p.Order(db).Limit(p.Limit).Where("factrak_surveys.created_at < ?", p.Offset)
 	return db
 }
 
