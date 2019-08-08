@@ -23,6 +23,12 @@ func (m *DormtrakReviewModel) GetAllReviews(p *[]*DormtrakReview) (err error) {
 	return
 }
 
+// Get a review by the id. Preload the dorm room and dorm.
+func (m *DormtrakReviewModel) GetReviewByID(id uint, p *DormtrakReview) (err error) {
+	err = m.DB.Preload("DormRoom").Preload("DormRoom.Dorm").First(p, id).Error
+	return
+}
+
 type GetAllDormtrakReviewsOptions struct {
 	// Scopes for specific areas
 	DormID     *uint `json:"dormID" form:"dormID"`

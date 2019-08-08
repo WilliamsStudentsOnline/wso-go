@@ -1,6 +1,8 @@
 package dormtrak
 
 import (
+	"net/http"
+
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
@@ -51,4 +53,42 @@ func (t *Controller) ListReviews(c *gin.Context) {
 	RemoveUserIDFromReviews(c, reviews)
 
 	t.RespondOK(c, reviews)
+}
+
+// GetReview godoc
+// @Summary Get review
+// @Description get one review
+// @ID dormtrak-get-review
+// @Tags dormtrak
+// @Accept  json
+// @Produce  json
+// @Param reviewID path uint true "Review ID"
+// @Success 200 {object} models.DormtrakReview
+// @Failure 400 {object} lib.APIError
+// @Failure 404 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /dormtrak/reviews/{reviewID} [get]
+func (t *Controller) GetReview(c *gin.Context) {
+	// Decode reviewID.
+	reviewID, err := services.GetUIntParam(c, "reviewID")
+	if err != nil {
+		t.RespondErrorCode(c, http.StatusBadRequest, err)
+		return
+	}
+
+	// Do database query
+	var review models.DormtrakReview
+	err = t.reviewModel.GetReviewByID(reviewID, &review)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+	// Remove user info unless self or admin
+	if !auth.CheckIDIsSelf(c, review.UserID) && !auth.HasScope(c, auth.ScopeAdminAll) {
+		review.UserID = 0
+		review.User = nil
+	}
+
+	t.RespondOK(c, review)
 }

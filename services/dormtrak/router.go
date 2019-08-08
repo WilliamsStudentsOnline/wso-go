@@ -29,7 +29,7 @@ func SetupRouter(r gin.IRouter, db *gorm.DB) {
 	// Must be logged in:
 	// Get reviews by dormID, dormRoomID, userID, pagination
 	r.GET("/reviews", c.ListReviews)
-	r.GET("/reviews/:reviewID")
+	r.GET("/reviews/:reviewID", c.GetReview)
 	// Must be student, ensure_upperclassman, ensure_dorm, ensure_new_review
 	r.POST("/reviews")
 	//

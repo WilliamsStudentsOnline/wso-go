@@ -134,11 +134,11 @@ func TestController_ListReviews(t *testing.T) {
 	// Check that reviews are correct
 	assert.Len(resp, 7)
 	for i := range resp {
-		assert.Equal(orderedReviews[i].ID, orderedReviews[i].ID)
+		assert.Equal(orderedReviews[i].ID, resp[i].ID)
 		if orderedReviews[i].Comment != nil {
-			assert.Equal(*orderedReviews[i].Comment, *orderedReviews[i].Comment)
+			assert.Equal(*orderedReviews[i].Comment, *resp[i].Comment)
 		} else {
-			assert.Nil(orderedReviews[i].Comment)
+			assert.Nil(resp[i].Comment)
 		}
 
 		// Ensure we hide userID if not user 1 (self)
@@ -256,6 +256,103 @@ func TestController_ListReviews(t *testing.T) {
 	assert.Len(resp, 2)
 	assert.Equal(reviews[3].ID, resp[0].ID)
 	assert.Equal(reviews[2].ID, resp[1].ID)
+}
+
+func TestController_GetReview(t *testing.T) {
+	// Setup (can copy and paste this basically)
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+
+	u1 := models.User{
+		Type:   models.UserTypeStudent,
+		Name:   "User 1",
+		UnixID: "u1",
+	}
+	u2 := models.User{
+		Type:   models.UserTypeStudent,
+		Name:   "User 2",
+		UnixID: "u2",
+	}
+
+	dr1 := models.DormRoom{
+		Dorm: &models.Dorm{
+			Neighborhood: &models.Neighborhood{
+				Name: "Currier",
+			},
+			Name: "East",
+		},
+		Number: "DormRoom.1",
+	}
+
+	assert.NoError(db.Create(&u1).Create(&u2).Create(&dr1).Error)
+
+	reviews := []*models.DormtrakReview{
+		{
+			User:     &u1,
+			DormRoom: &dr1,
+			Comment:  generateReviewTestComment(),
+		},
+		{
+			User:     &u2,
+			DormRoom: &dr1,
+			Comment:  generateReviewTestComment(),
+		},
+	}
+
+	for i := range reviews {
+		assert.NoError(db.Create(&reviews[i]).Error)
+	}
+
+	// Setup routing. Be user 1
+	router := utils.SetupRouter(auth.ScopeDormtrak, auth.ScopeWriteSelf)
+	utils.AddUserContexts(router, u1.ID)
+	SetupRouter(router, db)
+
+	// Test 1: Get review
+	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/reviews/%d", reviews[0].ID), nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+
+	// Decode response
+	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+	var resp models.DormtrakReview
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+
+	assert.Equal(reviews[0].ID, resp.ID)
+	assert.Equal(*reviews[0].Comment, *resp.Comment)
+	// Preloads dorm room
+	assert.Equal(reviews[0].DormRoom.ID, resp.DormRoom.ID)
+	// Preloads dorm
+	assert.Equal(reviews[0].DormRoom.Dorm.ID, resp.DormRoom.Dorm.ID)
+	// Contains user info, as self
+	assert.Equal(reviews[0].UserID, resp.UserID)
+
+	// Test 2: Get review created by other user
+	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/reviews/%d", reviews[1].ID), nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+
+	// Decode response
+	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+	resp = models.DormtrakReview{}
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+
+	assert.Equal(reviews[1].ID, resp.ID)
+	assert.Equal(*reviews[1].Comment, *resp.Comment)
+	// Preloads dorm room
+	assert.Equal(reviews[1].DormRoom.ID, resp.DormRoom.ID)
+	// Preloads dorm
+	assert.Equal(reviews[1].DormRoom.Dorm.ID, resp.DormRoom.Dorm.ID)
+	// Missing user info, as self
+	assert.Zero(resp.UserID)
+	assert.Nil(resp.User)
+
+	// Test 3: Fail on missing review
+	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/reviews/%d", 42), nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusNotFound, w.Code)
 }
 
 func generateReviewTestComment() *string {

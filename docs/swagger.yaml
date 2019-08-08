@@ -1275,6 +1275,46 @@ paths:
       summary: List reviews
       tags:
       - dormtrak
+  /dormtrak/reviews/{reviewID}:
+    get:
+      consumes:
+      - application/json
+      description: get one review
+      operationId: dormtrak-get-review
+      parameters:
+      - description: Review ID
+        in: path
+        name: reviewID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DormtrakReview'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+            type: object
+      security:
+      - Bearer: []
+      summary: Get review
+      tags:
+      - dormtrak
   /factrak/admin/surveys:
     get:
       consumes:
