@@ -32,6 +32,8 @@ type DormFacts struct {
 	AverageLocation     *float64 `json:"averageLocation"`
 	AverageLoudness     *float64 `json:"averageLoudness"`
 	AverageSatisfaction *float64 `json:"averageSatisfaction"`
+	AverageConvenience  *float64 `json:"averageConvenience"`
+	AverageComfort      *float64 `json:"averageComfort"`
 }
 
 func NewDormFacts() *DormFacts {
@@ -71,6 +73,12 @@ func (m *DormModel) GetDormFacts(id uint, p *DormFacts) (err error) {
 	p.StudentToBathroomRatio = dorm.BathroomRatio
 	p.KeyOrCard = dorm.KeyOrCard
 	p.WashersCount = dorm.NumberWashers
+	p.AverageWifi = dorm.Wifi
+	p.AverageSatisfaction = dorm.Satisfaction
+	p.AverageLoudness = dorm.Loudness
+	p.AverageLocation = dorm.Location
+	p.AverageConvenience = dorm.Convenience
+	p.AverageComfort = dorm.Comfort
 
 	studModel := NewStudentModel(m.DB)
 
@@ -108,14 +116,6 @@ func (m *DormModel) GetDormFacts(id uint, p *DormFacts) (err error) {
 			Where("dorm_rooms.dorm_id = ?", id).
 			Where("dorm_rooms.common_room_access = ?", true).
 			Count(&commonRoomAccessCount),
-
-		m.DB.Model(&DormRoom{}).
-			Where("dorm_rooms.dorm_id = ?", id).
-			Select("avg(dorm_rooms.wifi) AS average_wifi, " +
-				"avg(dorm_rooms.location) AS average_location, " +
-				"avg(dorm_rooms.loudness) AS average_loudness, " +
-				"avg(dorm_rooms.satisfaction) AS average_satisfaction").
-			Scan(&p),
 	}
 
 	for _, query := range queries {

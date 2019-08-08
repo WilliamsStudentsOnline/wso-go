@@ -15,6 +15,7 @@ type Controller struct {
 	dormModel         *models.DormModel
 	dormRoomModel     *models.DormRoomModel
 	reviewModel       *models.DormtrakReviewModel
+	userModel         *models.UserModel
 }
 
 // Construct a new dormtrak controller
@@ -24,6 +25,7 @@ func NewController(db *gorm.DB) *Controller {
 		dormModel:         models.NewDormModel(db),
 		dormRoomModel:     models.NewDormRoomModel(db),
 		reviewModel:       models.NewDormtrakReviewModel(db),
+		userModel:         models.NewUserModel(db),
 	}
 }
 

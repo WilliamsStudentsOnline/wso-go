@@ -1,17 +1,13 @@
 package dormtrak
 
 import (
+	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 )
 
 func SetupRouter(r gin.IRouter, db *gorm.DB) {
 	c := NewController(db)
-
-	// ALL: must be logged in, must have dormtrak auth
-
-	// Models:
-	// Neighborhoods, dorms, dorm rooms, dormtrak reviews
 
 	// Neighborhoods endpoint
 	r.GET("/neighborhoods", c.ListNeighborhoods)
@@ -30,10 +26,12 @@ func SetupRouter(r gin.IRouter, db *gorm.DB) {
 	// Get reviews by dormID, dormRoomID, userID, pagination
 	r.GET("/reviews", c.ListReviews)
 	r.GET("/reviews/:reviewID", c.GetReview)
-	// Must be student, ensure_upperclassman, ensure_dorm, ensure_new_review
-	r.POST("/reviews")
-	//
-	r.PATCH("/reviews/:reviewID")
-	r.DELETE("/reviews/:reviewID")
 
+	// ScopeDormtrakWrite ensures that the person is a student and in the upperclasses
+	writer := r.Group("")
+	writer.Use(auth.RequireScopes(auth.ScopeDormtrakWrite))
+	// Writing review operations
+	writer.POST("/reviews", c.CreateReview)
+	writer.PATCH("/reviews/:reviewID", c.UpdateReview)
+	writer.DELETE("/reviews/:reviewID", c.DeleteReview)
 }

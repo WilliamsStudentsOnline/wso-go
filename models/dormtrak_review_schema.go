@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/jinzhu/gorm"
+)
 
 // DormtrakReview Schema
 type DormtrakReview struct {
@@ -14,7 +18,8 @@ type DormtrakReview struct {
 	DormRoomID uint      `gorm:"index:index_dormtrak_reviews_on_dorm_room_id;not null" json:"dormRoomID"`
 	DormRoom   *DormRoom `json:"dormRoom,omitempty"`
 
-	Comment          *string `gorm:"size:65535" json:"comment"`
+	Comment *string `gorm:"size:65535" json:"comment"`
+
 	LivedHere        *bool   `json:"livedHere"`
 	Closet           *string `json:"closet"`
 	ClosetDesc       *string `gorm:"size:65535" json:"closetDesc"`
@@ -27,7 +32,6 @@ type DormtrakReview struct {
 	KeyOrCard        *string `json:"keyOrCard"`
 	Noise            *string `gorm:"size:65535" json:"noise"`
 	BedAdjustable    *bool   `json:"bedAdjustable"`
-	Faces            *string `json:"faces"`
 	PrivateBathroom  *bool   `json:"privateBathroom"`
 	BathroomDesc     *string `gorm:"size:65535" json:"bathroomDesc"`
 	Comfort          *int    `json:"comfort"`
@@ -47,9 +51,29 @@ func (*DormtrakReview) TableName() string {
 	return "dormtrak_reviews"
 }
 
+func NewDormtrakReview(id uint) *DormtrakReview {
+	return &DormtrakReview{
+		BaseSchema: BaseSchema{
+			ID: id,
+		},
+	}
+}
+
 // Again, I hate hooks but this is the best way.
 // This populates the createdTime field: please don't use this field for database updates.
 func (m *DormtrakReview) AfterFind() (err error) {
 	m.CreatedTime = m.CreatedAt
+	return
+}
+
+// This updates the dorm room after we update the review. It also chains to update the dorm as well
+func (r *DormtrakReview) AfterSave(tx *gorm.DB) (err error) {
+	err = NewDormRoomModel(tx).ReloadStatistics(r.DormRoomID)
+	return
+}
+
+// This updates the dorm room after we delete a review. It also chains to update the dorm as well
+func (r *DormtrakReview) AfterDelete(tx *gorm.DB) (err error) {
+	err = NewDormRoomModel(tx).ReloadStatistics(r.DormRoomID)
 	return
 }

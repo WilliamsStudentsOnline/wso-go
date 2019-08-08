@@ -23,9 +23,57 @@ func (m *DormtrakReviewModel) GetAllReviews(p *[]*DormtrakReview) (err error) {
 	return
 }
 
-// Get a review by the id. Preload the dorm room and dorm.
+// Get a review by the id. Preload the dorm room, dorm, and neighborhood
 func (m *DormtrakReviewModel) GetReviewByID(id uint, p *DormtrakReview) (err error) {
-	err = m.DB.Preload("DormRoom").Preload("DormRoom.Dorm").First(p, id).Error
+	err = m.DB.Preload("DormRoom").
+		Preload("DormRoom.Dorm").
+		Preload("DormRoom.Dorm.Neighborhood").
+		First(p, id).Error
+	return
+}
+
+// Check if review already exists by seeing if there is already a review with that user and dorm room.
+func (m *DormtrakReviewModel) CheckDuplicateReview(userID uint, dormRoomID uint) (duplicate bool, err error) {
+	var count int
+	err = m.DB.Model(&DormtrakReview{}).Where(&DormtrakReview{
+		UserID:     userID,
+		DormRoomID: dormRoomID,
+	}).Count(&count).Error
+	duplicate = count > 0
+	return
+}
+
+// Create a new review.
+func (m *DormtrakReviewModel) CreateReview(p *DormtrakReview) (err error) {
+	err = m.DB.Create(p).Error
+	if err != nil {
+		return err
+	}
+
+	err = m.DB.
+		Preload("DormRoom").
+		Preload("DormRoom.Dorm").
+		Preload("DormRoom.Dorm.Neighborhood").
+		First(p).Error
+	return
+}
+
+func (m *DormtrakReviewModel) UpdateReview(p *DormtrakReview) (err error) {
+	err = m.DB.Save(&p).Error
+	if err != nil {
+		return
+	}
+
+	err = m.DB.
+		Preload("DormRoom").
+		Preload("DormRoom.Dorm").
+		Preload("DormRoom.Dorm.Neighborhood").
+		First(p, p.ID).Error
+	return
+}
+
+func (m *DormtrakReviewModel) DeleteReview(p *DormtrakReview) (err error) {
+	err = m.DB.Delete(p).Error
 	return
 }
 
@@ -39,7 +87,7 @@ type GetAllDormtrakReviewsOptions struct {
 	Offset time.Time `json:"offset" form:"offset"`
 	Limit  uint      `json:"limit" form:"limit"`
 
-	// Scope to only get commented surveys. True means only get commented; false/empty means ignore this scope.
+	// Scope to only get commented reviews. True means only get commented; false/empty means ignore this scope.
 	Commented bool `json:"commented" form:"commented"`
 }
 

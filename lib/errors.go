@@ -74,4 +74,11 @@ var (
 	ErrorSurveyAgreementNotFound      = NewAPIErrorWithHTTP(1551, http.StatusNotFound, "survey agreement could not be found")
 	ErrorSurveyAgreementAlreadyExists = NewAPIError(1552, "survey agreement already exists for this user and survey")
 	ErrorSurveyAgreementNoSelf        = NewAPIError(1553, "cannot create survey agreement with your own survey")
+
+	// 16** are dormtrak errors
+	// Create/Update errors
+	ErrorReviewStudentNotFound = NewAPIError(1633, "user must be a student and could not be found")
+	ErrorReviewMissingDorm     = NewAPIError(1634, "user is missing dorm field")
+	ErrorReviewDormNotOwner    = NewAPIError(1635, "user does not own this dorm room")
+	ErrorReviewAlreadyExists   = NewAPIError(1536, "review already exists with passed user ID and dorm room ID")
 )

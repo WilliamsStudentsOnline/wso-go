@@ -2,12 +2,14 @@ package dormtrak
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 )
 
 // ListReviews godoc
@@ -91,4 +93,304 @@ func (t *Controller) GetReview(c *gin.Context) {
 	}
 
 	t.RespondOK(c, review)
+}
+
+type ReviewCreateParams struct {
+	// Must include this:
+	DormRoomID *uint `json:"dormRoomID" binding:"required"`
+
+	// Params:
+	Comment          *string `json:"comment"`
+	LivedHere        *bool   `json:"livedHere"`
+	Closet           *string `json:"closet"`
+	ClosetDesc       *string `gorm:"size:65535" json:"closetDesc"`
+	Flooring         *string `json:"flooring"`
+	CommonRoomAccess *bool   `json:"commonRoomAccess"`
+	CommonRoomDesc   *string `gorm:"size:65535" json:"commonRoomDesc"`
+	ThermostatAccess *bool   `json:"thermostatAccess"`
+	ThermostatDesc   *string `gorm:"size:65535" json:"thermostatDesc"`
+	OutletsDesc      *string `gorm:"size:65535" json:"outletsDesc"`
+	KeyOrCard        *string `json:"keyOrCard"`
+	Noise            *string `gorm:"size:65535" json:"noise"`
+	BedAdjustable    *bool   `json:"bedAdjustable"`
+	PrivateBathroom  *bool   `json:"privateBathroom"`
+	BathroomDesc     *string `gorm:"size:65535" json:"bathroomDesc"`
+	Comfort          *int    `json:"comfort" binding:"omitempty,gte=0,lte=7"`
+	Loudness         *int    `json:"loudness" binding:"omitempty,gte=0,lte=7"`
+	Convenience      *int    `json:"convenience" binding:"omitempty,gte=0,lte=7"`
+	Wifi             *int    `json:"wifi" binding:"omitempty,gte=0,lte=7"`
+	Location         *int    `json:"location" binding:"omitempty,gte=0,lte=7"`
+	Satisfaction     *int    `json:"satisfaction" binding:"omitempty,gte=0,lte=7"`
+}
+
+// CreateReview godoc
+// @Summary Create review
+// @Description create a review
+// @ID dormtrak-create-review
+// @Tags dormtrak
+// @Accept  json
+// @Produce  json
+// @Param createParams body dormtrak.ReviewCreateParams true "Create Review Params"
+// @Success 201 {object} models.DormtrakReview
+// @Failure 1633 {object} lib.APIError "user must be a student and could not be found"
+// @Failure 1634 {object} lib.APIError "user is missing dorm field"
+// @Failure 1635 {object} lib.APIError "user does not own this dorm room"
+// @Failure 1636 {object} lib.APIError "review already exists with passed user ID and dorm room ID"
+// @Failure 1101 {object} lib.APIError "request data validation failed"
+// @Failure 400 {object} lib.APIError
+// @Failure 404 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /dormtrak/reviews [post]
+func (t *Controller) CreateReview(c *gin.Context) {
+	userID := services.GetUserID(c)
+
+	// Bind update params
+	createData := ReviewCreateParams{}
+	err := c.ShouldBind(&createData)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	// Get the user
+	user := new(models.User)
+	if err = t.userModel.GetUserByID(userID, user); err != nil {
+		// Don't return 404; instead, return student not found
+		if gorm.IsRecordNotFoundError(err) {
+			err = lib.ErrorReviewStudentNotFound
+		}
+
+		t.RespondError(c, err)
+		return
+	}
+
+	// User must own a dorm
+	if user.DormRoomID == nil {
+		t.RespondError(c, lib.ErrorReviewMissingDorm)
+		return
+	}
+
+	// Ensure that you can only review your own dorm.
+	// TODO: figure out what to do for reviewing old dorms
+	if *createData.DormRoomID != *user.DormRoomID {
+		t.RespondError(c, lib.ErrorReviewDormNotOwner)
+		return
+	}
+
+	dup, err := t.reviewModel.CheckDuplicateReview(user.ID, *createData.DormRoomID)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	// If duplicate review, return
+	if dup {
+		t.RespondError(c, lib.ErrorReviewAlreadyExists)
+		return
+	}
+
+	// Trim spaces off of comment
+
+	// Construct new review
+	review := models.DormtrakReview{
+		UserID:     user.ID,
+		DormRoomID: *createData.DormRoomID,
+
+		// Trim comment of leading/trailing whitespaces
+		Comment:          trimIfNotNil(createData.Comment),
+		LivedHere:        createData.LivedHere,
+		Closet:           trimIfNotNil(createData.Closet),
+		ClosetDesc:       trimIfNotNil(createData.ClosetDesc),
+		Flooring:         trimIfNotNil(createData.Flooring),
+		CommonRoomAccess: createData.CommonRoomAccess,
+		CommonRoomDesc:   trimIfNotNil(createData.CommonRoomDesc),
+		ThermostatAccess: createData.ThermostatAccess,
+		ThermostatDesc:   trimIfNotNil(createData.ThermostatDesc),
+		OutletsDesc:      trimIfNotNil(createData.OutletsDesc),
+		KeyOrCard:        trimIfNotNil(createData.KeyOrCard),
+		Noise:            trimIfNotNil(createData.Noise),
+		BedAdjustable:    createData.BedAdjustable,
+		PrivateBathroom:  createData.PrivateBathroom,
+		BathroomDesc:     trimIfNotNil(createData.BathroomDesc),
+		Comfort:          createData.Comfort,
+		Loudness:         createData.Loudness,
+		Convenience:      createData.Convenience,
+		Wifi:             createData.Wifi,
+		Location:         createData.Location,
+		Satisfaction:     createData.Satisfaction,
+	}
+
+	err = t.reviewModel.CreateReview(&review)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	t.RespondCreated(c, review)
+}
+
+type ReviewUpdateParams struct {
+	Comment          *string `json:"comment"`
+	LivedHere        *bool   `json:"livedHere"`
+	Closet           *string `json:"closet"`
+	ClosetDesc       *string `gorm:"size:65535" json:"closetDesc"`
+	Flooring         *string `json:"flooring"`
+	CommonRoomAccess *bool   `json:"commonRoomAccess"`
+	CommonRoomDesc   *string `gorm:"size:65535" json:"commonRoomDesc"`
+	ThermostatAccess *bool   `json:"thermostatAccess"`
+	ThermostatDesc   *string `gorm:"size:65535" json:"thermostatDesc"`
+	OutletsDesc      *string `gorm:"size:65535" json:"outletsDesc"`
+	KeyOrCard        *string `json:"keyOrCard"`
+	Noise            *string `gorm:"size:65535" json:"noise"`
+	BedAdjustable    *bool   `json:"bedAdjustable"`
+	PrivateBathroom  *bool   `json:"privateBathroom"`
+	BathroomDesc     *string `gorm:"size:65535" json:"bathroomDesc"`
+	Comfort          *int    `json:"comfort" binding:"omitempty,gte=0,lte=7"`
+	Loudness         *int    `json:"loudness" binding:"omitempty,gte=0,lte=7"`
+	Convenience      *int    `json:"convenience" binding:"omitempty,gte=0,lte=7"`
+	Wifi             *int    `json:"wifi" binding:"omitempty,gte=0,lte=7"`
+	Location         *int    `json:"location" binding:"omitempty,gte=0,lte=7"`
+	Satisfaction     *int    `json:"satisfaction" binding:"omitempty,gte=0,lte=7"`
+}
+
+// UpdateReview godoc
+// @Summary Update review
+// @Description update a review's data
+// @ID dormtrak-update-review
+// @Tags dormtrak
+// @Accept  json
+// @Produce  json
+// @Param updateParams body dormtrak.ReviewUpdateParams true "Update Review Params"
+// @Param reviewID path uint true "review ID"
+// @Success 200 {object} models.DormtrakReview
+// @Failure 1101 {object} lib.APIError "request data validation failed"
+// @Failure 1331 {object} lib.APIError "must be self"
+// @Failure 400 {object} lib.APIError
+// @Failure 404 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /dormtrak/reviews/{reviewID} [patch]
+func (t *Controller) UpdateReview(c *gin.Context) {
+	userID := services.GetUserID(c)
+
+	reviewID, err := services.GetUIntParam(c, "reviewID")
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	// Bind update params
+	updateData := ReviewUpdateParams{}
+	err = c.ShouldBind(&updateData)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	// Do database query
+	var review models.DormtrakReview
+	err = t.reviewModel.GetReviewByID(reviewID, &review)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	// Survey must be owned by user id
+	if review.UserID != userID {
+		t.RespondError(c, lib.ErrorMustBeSelf)
+		return
+	}
+
+	// Update fields: this is a bit long and verbose, but I don't want to mess with reflect
+
+	// Trim comment of leading/trailing whitespaces
+	review.Comment = lib.StrPtrDefaults(trimIfNotNil(updateData.Comment), review.Comment)
+	review.LivedHere = lib.BoolPtrDefaults(updateData.LivedHere, review.LivedHere)
+	review.Closet = lib.StrPtrDefaults(trimIfNotNil(updateData.Closet), review.Closet)
+	review.ClosetDesc = lib.StrPtrDefaults(trimIfNotNil(updateData.ClosetDesc), review.ClosetDesc)
+	review.Flooring = lib.StrPtrDefaults(trimIfNotNil(updateData.Flooring), review.Flooring)
+	review.CommonRoomAccess = lib.BoolPtrDefaults(updateData.CommonRoomAccess, review.CommonRoomAccess)
+	review.CommonRoomDesc = lib.StrPtrDefaults(trimIfNotNil(updateData.CommonRoomDesc), review.CommonRoomDesc)
+	review.ThermostatAccess = lib.BoolPtrDefaults(updateData.ThermostatAccess, review.ThermostatAccess)
+	review.ThermostatDesc = lib.StrPtrDefaults(trimIfNotNil(updateData.ThermostatDesc), review.ThermostatDesc)
+	review.OutletsDesc = lib.StrPtrDefaults(trimIfNotNil(updateData.OutletsDesc), review.OutletsDesc)
+	review.KeyOrCard = lib.StrPtrDefaults(trimIfNotNil(updateData.KeyOrCard), review.KeyOrCard)
+	review.Noise = lib.StrPtrDefaults(trimIfNotNil(updateData.Noise), review.Noise)
+	review.BedAdjustable = lib.BoolPtrDefaults(updateData.BedAdjustable, review.BedAdjustable)
+	review.PrivateBathroom = lib.BoolPtrDefaults(updateData.PrivateBathroom, review.PrivateBathroom)
+	review.BathroomDesc = lib.StrPtrDefaults(trimIfNotNil(updateData.BathroomDesc), review.BathroomDesc)
+	review.Comfort = lib.IntPtrDefaults(updateData.Comfort, review.Comfort)
+	review.Loudness = lib.IntPtrDefaults(updateData.Loudness, review.Loudness)
+	review.Convenience = lib.IntPtrDefaults(updateData.Convenience, review.Convenience)
+	review.Wifi = lib.IntPtrDefaults(updateData.Wifi, review.Wifi)
+	review.Location = lib.IntPtrDefaults(updateData.Location, review.Location)
+	review.Satisfaction = lib.IntPtrDefaults(updateData.Satisfaction, review.Satisfaction)
+
+	// Do DB update
+	err = t.reviewModel.UpdateReview(&review)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	// We know user is owner, so don't need to delete user fields
+	t.RespondOK(c, review)
+}
+
+// DeleteReview godoc
+// @Summary Delete review
+// @Description delete a review
+// @ID dormtrak-delete-review
+// @Tags dormtrak
+// @Accept  json
+// @Produce  json
+// @Param reviewID path uint true "Review ID"
+// @Success 200 {object} models.DormtrakReview
+// @Failure 1331 {object} lib.APIError "must be self"
+// @Failure 400 {object} lib.APIError
+// @Failure 404 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /dormtrak/reviews/{reviewID} [delete]
+func (t *Controller) DeleteReview(c *gin.Context) {
+	userID := services.GetUserID(c)
+
+	reviewID, err := services.GetUIntParam(c, "reviewID")
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	// Do database query
+	var review models.DormtrakReview
+	err = t.reviewModel.GetReviewByID(reviewID, &review)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	// Survey must be owned by user id or admin
+	if review.UserID != userID {
+		t.RespondError(c, lib.ErrorMustBeSelf)
+		return
+	}
+
+	// Do DB delete
+	err = t.reviewModel.DeleteReview(&review)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	// We know user is owner, so don't need to delete user fields
+	t.RespondOK(c, review)
+}
+
+func trimIfNotNil(str *string) *string {
+	if str != nil {
+		trimmed := strings.TrimSpace(*str)
+		return &trimmed
+	}
+	return str
 }

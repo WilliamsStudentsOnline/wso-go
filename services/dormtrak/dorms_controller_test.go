@@ -211,7 +211,12 @@ func TestController_GetDormFacts(t *testing.T) {
 		Name:      "East",
 		KeyOrCard: lib.StrToPtr("key"),
 	}
-	assert.NoError(db.Create(&dorm).Error)
+	// User
+	u1 := models.User{
+		Name:   "User 1",
+		UnixID: "u1",
+	}
+	assert.NoError(db.Create(&dorm).Create(&u1).Error)
 
 	srYear := models.NewStudentModel(db).SeniorYear()
 
@@ -221,10 +226,15 @@ func TestController_GetDormFacts(t *testing.T) {
 			RoomType:         models.DormRoomTypeSingle,
 			CommonRoomAccess: lib.BoolToPtr(true),
 			Area:             lib.IntToPtr(100),
-			Wifi:             lib.Float64ToPtr(1),
-			Location:         lib.Float64ToPtr(2),
-			Loudness:         lib.Float64ToPtr(7),
-			Satisfaction:     lib.Float64ToPtr(1),
+			DormtrakReviews: []*models.DormtrakReview{
+				{
+					User:         &u1,
+					Wifi:         lib.IntToPtr(1),
+					Location:     lib.IntToPtr(2),
+					Loudness:     lib.IntToPtr(7),
+					Satisfaction: lib.IntToPtr(1),
+				},
+			},
 			Users: []*models.User{
 				{
 					Type:      models.UserTypeStudent,
@@ -237,10 +247,15 @@ func TestController_GetDormFacts(t *testing.T) {
 			RoomType:         models.DormRoomTypeSingle,
 			CommonRoomAccess: lib.BoolToPtr(true),
 			Area:             lib.IntToPtr(80),
-			Wifi:             lib.Float64ToPtr(3),
-			Location:         lib.Float64ToPtr(4),
-			Loudness:         lib.Float64ToPtr(4),
-			Satisfaction:     lib.Float64ToPtr(2),
+			DormtrakReviews: []*models.DormtrakReview{
+				{
+					User:         &u1,
+					Wifi:         lib.IntToPtr(3),
+					Location:     lib.IntToPtr(4),
+					Loudness:     lib.IntToPtr(4),
+					Satisfaction: lib.IntToPtr(2),
+				},
+			},
 			Users: []*models.User{
 				{
 					Type:      models.UserTypeStudent,
@@ -253,10 +268,15 @@ func TestController_GetDormFacts(t *testing.T) {
 			RoomType:         models.DormRoomTypeSingle,
 			CommonRoomAccess: lib.BoolToPtr(false),
 			Area:             lib.IntToPtr(80),
-			Wifi:             lib.Float64ToPtr(5),
-			Location:         lib.Float64ToPtr(6),
-			Loudness:         lib.Float64ToPtr(3),
-			Satisfaction:     lib.Float64ToPtr(3),
+			DormtrakReviews: []*models.DormtrakReview{
+				{
+					User:         &u1,
+					Wifi:         lib.IntToPtr(5),
+					Location:     lib.IntToPtr(6),
+					Loudness:     lib.IntToPtr(3),
+					Satisfaction: lib.IntToPtr(3),
+				},
+			},
 			Users: []*models.User{
 				{
 					Type:      models.UserTypeStudent,
@@ -269,10 +289,15 @@ func TestController_GetDormFacts(t *testing.T) {
 			RoomType:         models.DormRoomTypeDouble,
 			CommonRoomAccess: lib.BoolToPtr(true),
 			Area:             lib.IntToPtr(250),
-			Wifi:             lib.Float64ToPtr(7),
-			Location:         lib.Float64ToPtr(7),
-			Loudness:         lib.Float64ToPtr(6),
-			Satisfaction:     lib.Float64ToPtr(1),
+			DormtrakReviews: []*models.DormtrakReview{
+				{
+					User:         &u1,
+					Wifi:         lib.IntToPtr(7),
+					Location:     lib.IntToPtr(7),
+					Loudness:     lib.IntToPtr(6),
+					Satisfaction: lib.IntToPtr(1),
+				},
+			},
 			Users: []*models.User{
 				{
 					Type:      models.UserTypeStudent,
@@ -289,10 +314,15 @@ func TestController_GetDormFacts(t *testing.T) {
 			RoomType:         models.DormRoomTypeFlex,
 			CommonRoomAccess: lib.BoolToPtr(false),
 			Area:             lib.IntToPtr(190),
-			Wifi:             lib.Float64ToPtr(2),
-			Location:         lib.Float64ToPtr(5),
-			Loudness:         lib.Float64ToPtr(1),
-			Satisfaction:     lib.Float64ToPtr(7),
+			DormtrakReviews: []*models.DormtrakReview{
+				{
+					User:         &u1,
+					Wifi:         lib.IntToPtr(2),
+					Location:     lib.IntToPtr(5),
+					Loudness:     lib.IntToPtr(1),
+					Satisfaction: lib.IntToPtr(7),
+				},
+			},
 			Users: []*models.User{
 				{
 					Type:      models.UserTypeStudent,

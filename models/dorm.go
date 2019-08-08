@@ -37,6 +37,32 @@ func (m *DormModel) DoesDormExist(id uint) (exists bool, err error) {
 	return
 }
 
+// This updates the dorm review statistics.
+func (m *DormModel) ReloadStatistics(id uint) (err error) {
+	var dorm Dorm
+	err = m.DB.First(&dorm, id).Error
+	if err != nil {
+		return
+	}
+
+	m.DB.Model(&DormtrakReview{}).
+		Where("dormtrak_reviews.dorm_room_id in (?)",
+			m.DB.Model(&DormRoom{}).
+				Select("dorm_rooms.id").
+				Where("dorm_rooms.dorm_id = ?", id).QueryExpr(),
+		).
+		Select("avg(dormtrak_reviews.wifi) AS wifi, " +
+			"avg(dormtrak_reviews.comfort) AS comfort, " +
+			"avg(dormtrak_reviews.convenience) AS convenience, " +
+			"avg(dormtrak_reviews.location) AS location, " +
+			"avg(dormtrak_reviews.loudness) AS loudness, " +
+			"avg(dormtrak_reviews.satisfaction) AS satisfaction").
+		Scan(&dorm)
+
+	err = m.DB.Save(&dorm).Error
+	return
+}
+
 // This updates the dorm statistics on room sizes and numbers. This function is expensive and it is currently called
 // on every dorm update change. Luckily, this function is only called when the server is updating the dorm list,
 // so it cannot be called by clients.

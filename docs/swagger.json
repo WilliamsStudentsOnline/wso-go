@@ -781,6 +781,102 @@
                         }
                     }
                 }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "create a review",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dormtrak"
+                ],
+                "summary": "Create review",
+                "operationId": "dormtrak-create-review",
+                "parameters": [
+                    {
+                        "description": "Create Review Params",
+                        "name": "createParams",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/dormtrak.ReviewCreateParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "1101": {
+                        "description": "request data validation failed",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1633": {
+                        "description": "user must be a student and could not be found",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1634": {
+                        "description": "user is missing dorm field",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1635": {
+                        "description": "user does not own this dorm room",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1636": {
+                        "description": "review already exists with passed user ID and dorm room ID",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/models.DormtrakReview"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
             }
         },
         "/dormtrak/reviews/{reviewID}": {
@@ -812,6 +908,153 @@
                     }
                 ],
                 "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/models.DormtrakReview"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "delete a review",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dormtrak"
+                ],
+                "summary": "Delete review",
+                "operationId": "dormtrak-delete-review",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Review ID",
+                        "name": "reviewID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "1331": {
+                        "description": "must be self",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/models.DormtrakReview"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "update a review's data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dormtrak"
+                ],
+                "summary": "Update review",
+                "operationId": "dormtrak-update-review",
+                "parameters": [
+                    {
+                        "description": "Update Review Params",
+                        "name": "updateParams",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/dormtrak.ReviewUpdateParams"
+                        }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "review ID",
+                        "name": "reviewID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "1101": {
+                        "description": "request data validation failed",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1331": {
+                        "description": "must be self",
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
                     "200": {
                         "description": "OK",
                         "schema": {
@@ -3207,6 +3450,150 @@
                 }
             }
         },
+        "dormtrak.ReviewCreateParams": {
+            "type": "object",
+            "required": [
+                "dormRoomID"
+            ],
+            "properties": {
+                "bathroomDesc": {
+                    "type": "string"
+                },
+                "bedAdjustable": {
+                    "type": "boolean"
+                },
+                "closet": {
+                    "type": "string"
+                },
+                "closetDesc": {
+                    "type": "string"
+                },
+                "comfort": {
+                    "type": "integer"
+                },
+                "comment": {
+                    "description": "Params:",
+                    "type": "string"
+                },
+                "commonRoomAccess": {
+                    "type": "boolean"
+                },
+                "commonRoomDesc": {
+                    "type": "string"
+                },
+                "convenience": {
+                    "type": "integer"
+                },
+                "dormRoomID": {
+                    "description": "Must include this:",
+                    "type": "integer"
+                },
+                "flooring": {
+                    "type": "string"
+                },
+                "keyOrCard": {
+                    "type": "string"
+                },
+                "livedHere": {
+                    "type": "boolean"
+                },
+                "location": {
+                    "type": "integer"
+                },
+                "loudness": {
+                    "type": "integer"
+                },
+                "noise": {
+                    "type": "string"
+                },
+                "outletsDesc": {
+                    "type": "string"
+                },
+                "privateBathroom": {
+                    "type": "boolean"
+                },
+                "satisfaction": {
+                    "type": "integer"
+                },
+                "thermostatAccess": {
+                    "type": "boolean"
+                },
+                "thermostatDesc": {
+                    "type": "string"
+                },
+                "wifi": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dormtrak.ReviewUpdateParams": {
+            "type": "object",
+            "properties": {
+                "bathroomDesc": {
+                    "type": "string"
+                },
+                "bedAdjustable": {
+                    "type": "boolean"
+                },
+                "closet": {
+                    "type": "string"
+                },
+                "closetDesc": {
+                    "type": "string"
+                },
+                "comfort": {
+                    "type": "integer"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "commonRoomAccess": {
+                    "type": "boolean"
+                },
+                "commonRoomDesc": {
+                    "type": "string"
+                },
+                "convenience": {
+                    "type": "integer"
+                },
+                "flooring": {
+                    "type": "string"
+                },
+                "keyOrCard": {
+                    "type": "string"
+                },
+                "livedHere": {
+                    "type": "boolean"
+                },
+                "location": {
+                    "type": "integer"
+                },
+                "loudness": {
+                    "type": "integer"
+                },
+                "noise": {
+                    "type": "string"
+                },
+                "outletsDesc": {
+                    "type": "string"
+                },
+                "privateBathroom": {
+                    "type": "boolean"
+                },
+                "satisfaction": {
+                    "type": "integer"
+                },
+                "thermostatAccess": {
+                    "type": "boolean"
+                },
+                "thermostatDesc": {
+                    "type": "string"
+                },
+                "wifi": {
+                    "type": "integer"
+                }
+            }
+        },
         "factrak.AgreementCreateParams": {
             "type": "object",
             "properties": {
@@ -3441,10 +3828,11 @@
                     "type": "integer"
                 },
                 "comfort": {
-                    "type": "integer"
+                    "description": "These are average statistics from dorm reviews",
+                    "type": "number"
                 },
                 "convenience": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "description": {
                     "type": "string"
@@ -3466,7 +3854,7 @@
                     "type": "number"
                 },
                 "loudness": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "modeDoubleArea": {
                     "type": "integer"
@@ -3511,6 +3899,12 @@
         "models.DormFacts": {
             "type": "object",
             "properties": {
+                "averageComfort": {
+                    "type": "number"
+                },
+                "averageConvenience": {
+                    "type": "number"
+                },
                 "averageDoublesArea": {
                     "type": "integer"
                 },
@@ -3601,17 +3995,11 @@
                 "closet": {
                     "type": "string"
                 },
-                "comfort": {
-                    "type": "number"
-                },
                 "commonRoomAccess": {
                     "type": "boolean"
                 },
                 "commonRoomDesc": {
                     "type": "string"
-                },
-                "convenience": {
-                    "type": "number"
                 },
                 "dorm": {
                     "type": "object",
@@ -3646,16 +4034,11 @@
                 "keyOrCard": {
                     "type": "string"
                 },
-                "location": {
-                    "type": "number"
-                },
-                "loudness": {
-                    "type": "number"
-                },
                 "noise": {
                     "type": "string"
                 },
                 "numFlag": {
+                    "description": "No clue what this does",
                     "type": "boolean"
                 },
                 "number": {
@@ -3673,9 +4056,6 @@
                 "roomType": {
                     "type": "string"
                 },
-                "satisfaction": {
-                    "type": "number"
-                },
                 "thermostatDesc": {
                     "type": "string"
                 },
@@ -3691,9 +4071,6 @@
                 },
                 "walkthrough": {
                     "type": "boolean"
-                },
-                "wifi": {
-                    "type": "number"
                 }
             }
         },
@@ -3815,9 +4192,6 @@
                 "dormRoomID": {
                     "description": "Belongs to dorm room",
                     "type": "integer"
-                },
-                "faces": {
-                    "type": "string"
                 },
                 "flooring": {
                     "type": "string"

@@ -1,6 +1,7 @@
 package dormtrak_test
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"math/rand"
@@ -8,10 +9,12 @@ import (
 	"testing"
 	"time"
 
+	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	. "github.com/WilliamsStudentsOnline/wso-go/services/dormtrak"
+	"github.com/gin-gonic/gin"
 	testify "github.com/stretchr/testify/assert"
 )
 
@@ -355,6 +358,326 @@ func TestController_GetReview(t *testing.T) {
 	assert.Equal(http.StatusNotFound, w.Code)
 }
 
+func TestController_CreateReview(t *testing.T) {
+	// Setup (can copy and paste this basically)
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+
+	// Populate the database
+	dr1 := models.DormRoom{
+		Dorm: &models.Dorm{
+			Neighborhood: &models.Neighborhood{
+				Name: "Currier",
+			},
+			Name: "East",
+		},
+		Number: "103",
+	}
+	dr2 := models.DormRoom{
+		Dorm: &models.Dorm{
+			Neighborhood: &models.Neighborhood{
+				Name: "Dodd",
+			},
+			Name: "Hubbel",
+		},
+		Number: "1A",
+	}
+	u1 := models.User{
+		Type:     models.UserTypeStudent,
+		Name:     "User 1",
+		UnixID:   "u1",
+		DormRoom: &dr1,
+	}
+	u2 := models.User{
+		Type:     models.UserTypeStudent,
+		Name:     "User 2",
+		UnixID:   "u2",
+		DormRoom: &dr2,
+	}
+	dtr1 := models.DormtrakReview{
+		User:     &u2,
+		DormRoom: &dr2,
+		Comment:  generateReviewTestComment(),
+	}
+	assert.NoError(db.Create(&dr1).Create(&dr2).Create(&u1).Create(&u2).Create(&dtr1).Error)
+
+	// Setup router
+	router := utils.SetupRouter(auth.ScopeDormtrak, auth.ScopeDormtrakWrite)
+	utils.AddUserContexts(router, u1.ID)
+	SetupRouter(router, db)
+
+	// First, we run tests on validations
+
+	// Test 1: error on missing dorm room ID
+	params := ReviewCreateParams{}
+	createReviewExpectError(assert, router, params, lib.ErrorRequestDataValidationFailed)
+
+	// Test 2: error on unowned dorm room
+	params = ReviewCreateParams{DormRoomID: u2.DormRoomID}
+	createReviewExpectError(assert, router, params, lib.ErrorReviewDormNotOwner)
+
+	// Test 3: error on existing review
+	params = ReviewCreateParams{DormRoomID: u2.DormRoomID, Comment: generateReviewTestComment()}
+	// Setup bad student router
+	r1 := utils.SetupRouter(auth.ScopeDormtrak, auth.ScopeDormtrakWrite)
+	utils.AddUserContexts(r1, u2.ID)
+	SetupRouter(r1, db)
+	createReviewExpectError(assert, r1, params, lib.ErrorReviewAlreadyExists)
+
+	// Test 4: create review
+	params = ReviewCreateParams{DormRoomID: u1.DormRoomID, Comment: generateReviewTestComment(),
+		LivedHere:        lib.BoolToPtr(false),
+		Closet:           lib.StrToPtr("foobar"),
+		ThermostatAccess: lib.BoolToPtr(true),
+		Location:         lib.IntToPtr(4),
+	}
+
+	paramsData, err := json.Marshal(&params)
+	assert.NoError(err)
+
+	// Post review
+	w, err := utils.DoHTTPReq(router, http.MethodPost, "/reviews", bytes.NewBuffer(paramsData))
+	assert.NoError(err)
+	assert.Equal(http.StatusCreated, w.Code)
+
+	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+
+	var resp models.DormtrakReview
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+
+	// Assert these values:
+	assert.Equal(*params.Comment, *resp.Comment)
+	assert.Equal(*params.DormRoomID, resp.DormRoomID)
+	assert.Equal(u1.ID, resp.UserID)
+	assert.Equal(*params.LivedHere, *resp.LivedHere)
+	assert.Equal(*params.Closet, *resp.Closet)
+	assert.Equal(*params.ThermostatAccess, *resp.ThermostatAccess)
+	assert.Equal(*params.Location, *resp.Location)
+	// Assert that we preload dorm room, dorm, and neighborhood
+	assert.Equal(dr1.ID, resp.DormRoom.ID)
+	assert.Equal(dr1.Dorm.ID, resp.DormRoom.Dorm.ID)
+	assert.Equal(dr1.Dorm.Neighborhood.ID, resp.DormRoom.Dorm.Neighborhood.ID)
+	// Assert that dorm room and dorm were updated with new review data
+	assert.Equal(*params.Closet, *resp.DormRoom.Closet)
+	assert.Equal(*params.ThermostatAccess, *resp.DormRoom.ThermostatAccess)
+	assert.Equal(float64(*params.Location), *resp.DormRoom.Dorm.Location)
+}
+
+func TestController_UpdateReview(t *testing.T) {
+	// Setup (can copy and paste this basically)
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+
+	// Populate the database
+	u1 := models.User{
+		Type:   models.UserTypeStudent,
+		Name:   "User 1",
+		UnixID: "u1",
+	}
+	u2 := models.User{
+		Type:   models.UserTypeStudent,
+		Name:   "User 2",
+		UnixID: "u2",
+	}
+	review := models.DormtrakReview{
+		User: &u1,
+		DormRoom: &models.DormRoom{
+			Number: "103",
+			Dorm: &models.Dorm{
+				Neighborhood: &models.Neighborhood{
+					Name: "Currier",
+				},
+				Name: "East",
+			},
+		},
+		Comment:          generateReviewTestComment(),
+		LivedHere:        lib.BoolToPtr(false),
+		Closet:           lib.StrToPtr("foobar"),
+		ThermostatAccess: lib.BoolToPtr(true),
+		Location:         lib.IntToPtr(4),
+		Wifi:             lib.IntToPtr(7),
+	}
+	assert.NoError(db.Create(&u1).Create(&u2).Create(&review).Error)
+
+	// Setup router
+	router := utils.SetupRouter(auth.ScopeDormtrak, auth.ScopeDormtrakWrite)
+	utils.AddUserContexts(router, u1.ID)
+	SetupRouter(router, db)
+
+	// First, we run tests on validations
+
+	// Test 1: error on out of range values (upper bound)
+	params := ReviewUpdateParams{Location: lib.IntToPtr(100)}
+	paramsData, err := json.Marshal(&params)
+	assert.NoError(err)
+	// Get bad review (expect failure)
+	apiErr := lib.ErrorRequestDataValidationFailed
+	w, err := utils.DoHTTPReq(router, http.MethodPatch, fmt.Sprintf("/reviews/%d", review.ID), bytes.NewBuffer(paramsData))
+	assert.NoError(err)
+	assert.Equal(apiErr.HTTPCode, w.Code)
+	// Assert correct error
+	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+
+	// Test 2: error on out of range values (lower bound)
+	params = ReviewUpdateParams{Location: lib.IntToPtr(-1)}
+	paramsData, err = json.Marshal(&params)
+	assert.NoError(err)
+	// Get bad review (expect failure)
+	apiErr = lib.ErrorRequestDataValidationFailed
+	w, err = utils.DoHTTPReq(router, http.MethodPatch, fmt.Sprintf("/reviews/%d", review.ID), bytes.NewBuffer(paramsData))
+	assert.NoError(err)
+	assert.Equal(apiErr.HTTPCode, w.Code)
+	// Assert correct error
+	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+
+	// Test 3: error on missing review
+	params = ReviewUpdateParams{Location: lib.IntToPtr(3)}
+	paramsData, err = json.Marshal(&params)
+	assert.NoError(err)
+	// Get bad review (expect failure)
+	apiErr = lib.ErrorRecordNotFound
+	w, err = utils.DoHTTPReq(router, http.MethodPatch, fmt.Sprintf("/reviews/%d", 42), bytes.NewBuffer(paramsData))
+	assert.NoError(err)
+	assert.Equal(apiErr.HTTPCode, w.Code)
+	// Assert correct error
+	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+
+	// Test 4: error on bad user
+	params = ReviewUpdateParams{Location: lib.IntToPtr(3)}
+	r1 := utils.SetupRouter(auth.ScopeDormtrak, auth.ScopeDormtrakWrite)
+	utils.AddUserContexts(r1, u2.ID)
+	SetupRouter(r1, db)
+	paramsData, err = json.Marshal(&params)
+	assert.NoError(err)
+	// Get bad review (expect failure)
+	apiErr = lib.ErrorMustBeSelf
+	w, err = utils.DoHTTPReq(r1, http.MethodPatch, fmt.Sprintf("/reviews/%d", review.ID), bytes.NewBuffer(paramsData))
+	assert.NoError(err)
+	assert.Equal(apiErr.HTTPCode, w.Code)
+	// Assert correct error
+	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+
+	// Test 5: actually update and work
+	params = ReviewUpdateParams{
+		Comment:          generateReviewTestComment(),
+		LivedHere:        lib.BoolToPtr(true),
+		Closet:           lib.StrToPtr("baz"),
+		ThermostatAccess: lib.BoolToPtr(false),
+		Location:         lib.IntToPtr(6),
+	}
+	paramsData, err = json.Marshal(&params)
+	assert.NoError(err)
+
+	// Do HTTP
+	w, err = utils.DoHTTPReq(router,
+		http.MethodPatch, fmt.Sprintf("/reviews/%d", review.ID), bytes.NewBuffer(paramsData))
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+
+	// Parse API response
+	var resp models.DormtrakReview
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	// Assert for response
+	assert.Equal(review.ID, resp.ID)
+	assert.Equal(*params.Comment, *resp.Comment)
+	assert.Equal(*params.LivedHere, *resp.LivedHere)
+	assert.Equal(*params.Closet, *resp.Closet)
+	assert.Equal(*params.ThermostatAccess, *resp.ThermostatAccess)
+	assert.Equal(*params.Location, *resp.Location)
+	assert.Equal(*review.Wifi, *resp.Wifi)
+	// Preload/ensure room and dorm updated
+	assert.Equal(*params.Closet, *resp.DormRoom.Closet)
+	assert.Equal(*params.ThermostatAccess, *resp.DormRoom.ThermostatAccess)
+	assert.Equal(float64(*params.Location), *resp.DormRoom.Dorm.Location)
+	assert.Equal(float64(*review.Wifi), *resp.DormRoom.Dorm.Wifi)
+	assert.NotNil(resp.DormRoom.Dorm.Neighborhood)
+}
+
+func TestController_DeleteReview(t *testing.T) {
+	// Setup (can copy and paste this basically)
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+
+	// Populate the database
+	u1 := models.User{
+		Type:   models.UserTypeStudent,
+		Name:   "User 1",
+		UnixID: "u1",
+	}
+	u2 := models.User{
+		Type:   models.UserTypeStudent,
+		Name:   "User 2",
+		UnixID: "u2",
+	}
+	review := models.DormtrakReview{
+		User: &u1,
+		DormRoom: &models.DormRoom{
+			Number: "103",
+			Dorm: &models.Dorm{
+				Neighborhood: &models.Neighborhood{
+					Name: "Currier",
+				},
+				Name: "East",
+			},
+		},
+		Comment:          generateReviewTestComment(),
+		LivedHere:        lib.BoolToPtr(false),
+		Closet:           lib.StrToPtr("foobar"),
+		ThermostatAccess: lib.BoolToPtr(true),
+		Location:         lib.IntToPtr(4),
+		Wifi:             lib.IntToPtr(7),
+	}
+	assert.NoError(db.Create(&u1).Create(&u2).Create(&review).Error)
+
+	// Setup router
+	router := utils.SetupRouter(auth.ScopeDormtrak, auth.ScopeDormtrakWrite)
+	utils.AddUserContexts(router, u1.ID)
+	SetupRouter(router, db)
+
+	// First, we run tests on validations
+
+	// Test 1: error on missing review
+	apiErr := lib.ErrorRecordNotFound
+	w, err := utils.DoHTTPReq(router, http.MethodDelete, fmt.Sprintf("/reviews/%d", 42), nil)
+	assert.NoError(err)
+	assert.Equal(apiErr.HTTPCode, w.Code)
+	// Assert correct error
+	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+
+	// Test 2: error on bad user
+	r1 := utils.SetupRouter(auth.ScopeDormtrak, auth.ScopeDormtrakWrite)
+	utils.AddUserContexts(r1, u2.ID)
+	SetupRouter(r1, db)
+	apiErr = lib.ErrorMustBeSelf
+	w, err = utils.DoHTTPReq(r1, http.MethodDelete, fmt.Sprintf("/reviews/%d", review.ID), nil)
+	assert.NoError(err)
+	assert.Equal(apiErr.HTTPCode, w.Code)
+	// Assert correct error
+	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+
+	// Test 3: actually update and work
+	w, err = utils.DoHTTPReq(router,
+		http.MethodDelete, fmt.Sprintf("/reviews/%d", review.ID), nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+
+	// Parse API response
+	var resp models.DormtrakReview
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	// Assert for response
+	assert.Equal(review.ID, resp.ID)
+
+	// Check to make sure it is not in DB
+	var count int
+	assert.NoError(db.Model(models.NewDormtrakReview(review.ID)).Count(&count).Error)
+	assert.Zero(count)
+}
+
 func generateReviewTestComment() *string {
 	randBytes := make([]byte, 100)
 	for i := 0; i < 100; i++ {
@@ -362,4 +685,17 @@ func generateReviewTestComment() *string {
 	}
 	str := string(randBytes)
 	return &str
+}
+
+func createReviewExpectError(assert *testify.Assertions, router *gin.Engine, params ReviewCreateParams, apiErr *lib.APIError) {
+	paramsData, err := json.Marshal(&params)
+	assert.NoError(err)
+
+	// Get bad review (expect failure)
+	w, err := utils.DoHTTPReq(router, http.MethodPost, "/reviews", bytes.NewBuffer(paramsData))
+	assert.NoError(err)
+	assert.Equal(apiErr.HTTPCode, w.Code)
+	// Assert correct error
+	respErrCode := utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode
+	assert.Equal(apiErr.Code, respErrCode)
 }

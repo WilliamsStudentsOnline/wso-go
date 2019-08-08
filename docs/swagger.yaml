@@ -30,6 +30,102 @@ definitions:
     - password
     - unixID
     type: object
+  dormtrak.ReviewCreateParams:
+    properties:
+      bathroomDesc:
+        type: string
+      bedAdjustable:
+        type: boolean
+      closet:
+        type: string
+      closetDesc:
+        type: string
+      comfort:
+        type: integer
+      comment:
+        description: 'Params:'
+        type: string
+      commonRoomAccess:
+        type: boolean
+      commonRoomDesc:
+        type: string
+      convenience:
+        type: integer
+      dormRoomID:
+        description: 'Must include this:'
+        type: integer
+      flooring:
+        type: string
+      keyOrCard:
+        type: string
+      livedHere:
+        type: boolean
+      location:
+        type: integer
+      loudness:
+        type: integer
+      noise:
+        type: string
+      outletsDesc:
+        type: string
+      privateBathroom:
+        type: boolean
+      satisfaction:
+        type: integer
+      thermostatAccess:
+        type: boolean
+      thermostatDesc:
+        type: string
+      wifi:
+        type: integer
+    required:
+    - dormRoomID
+    type: object
+  dormtrak.ReviewUpdateParams:
+    properties:
+      bathroomDesc:
+        type: string
+      bedAdjustable:
+        type: boolean
+      closet:
+        type: string
+      closetDesc:
+        type: string
+      comfort:
+        type: integer
+      comment:
+        type: string
+      commonRoomAccess:
+        type: boolean
+      commonRoomDesc:
+        type: string
+      convenience:
+        type: integer
+      flooring:
+        type: string
+      keyOrCard:
+        type: string
+      livedHere:
+        type: boolean
+      location:
+        type: integer
+      loudness:
+        type: integer
+      noise:
+        type: string
+      outletsDesc:
+        type: string
+      privateBathroom:
+        type: boolean
+      satisfaction:
+        type: integer
+      thermostatAccess:
+        type: boolean
+      thermostatDesc:
+        type: string
+      wifi:
+        type: integer
+    type: object
   factrak.AgreementCreateParams:
     properties:
       agree:
@@ -190,9 +286,10 @@ definitions:
       capacity:
         type: integer
       comfort:
-        type: integer
+        description: These are average statistics from dorm reviews
+        type: number
       convenience:
-        type: integer
+        type: number
       description:
         type: string
       dormRooms:
@@ -207,7 +304,7 @@ definitions:
       location:
         type: number
       loudness:
-        type: integer
+        type: number
       modeDoubleArea:
         type: integer
       modeSingleArea:
@@ -237,6 +334,10 @@ definitions:
     type: object
   models.DormFacts:
     properties:
+      averageComfort:
+        type: number
+      averageConvenience:
+        type: number
       averageDoublesArea:
         type: integer
       averageLocation:
@@ -298,14 +399,10 @@ definitions:
         type: boolean
       closet:
         type: string
-      comfort:
-        type: number
       commonRoomAccess:
         type: boolean
       commonRoomDesc:
         type: string
-      convenience:
-        type: number
       dorm:
         $ref: '#/definitions/models.Dorm'
         type: object
@@ -329,13 +426,10 @@ definitions:
         type: integer
       keyOrCard:
         type: string
-      location:
-        type: number
-      loudness:
-        type: number
       noise:
         type: string
       numFlag:
+        description: No clue what this does
         type: boolean
       number:
         type: string
@@ -347,8 +441,6 @@ definitions:
         type: boolean
       roomType:
         type: string
-      satisfaction:
-        type: number
       thermostat_access:
         type: boolean
       thermostatDesc:
@@ -360,8 +452,6 @@ definitions:
         type: array
       walkthrough:
         type: boolean
-      wifi:
-        type: number
     type: object
   models.DormtrakRanking:
     properties:
@@ -443,8 +533,6 @@ definitions:
       dormRoomID:
         description: Belongs to dorm room
         type: integer
-      faces:
-        type: string
       flooring:
         type: string
       id:
@@ -1275,7 +1363,117 @@ paths:
       summary: List reviews
       tags:
       - dormtrak
+    post:
+      consumes:
+      - application/json
+      description: create a review
+      operationId: dormtrak-create-review
+      parameters:
+      - description: Create Review Params
+        in: body
+        name: createParams
+        required: true
+        schema:
+          $ref: '#/definitions/dormtrak.ReviewCreateParams'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.DormtrakReview'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+            type: object
+        "1101":
+          description: request data validation failed
+          schema:
+            $ref: '#/definitions/lib.APIError'
+            type: object
+        "1633":
+          description: user must be a student and could not be found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+            type: object
+        "1634":
+          description: user is missing dorm field
+          schema:
+            $ref: '#/definitions/lib.APIError'
+            type: object
+        "1635":
+          description: user does not own this dorm room
+          schema:
+            $ref: '#/definitions/lib.APIError'
+            type: object
+        "1636":
+          description: review already exists with passed user ID and dorm room ID
+          schema:
+            $ref: '#/definitions/lib.APIError'
+            type: object
+      security:
+      - Bearer: []
+      summary: Create review
+      tags:
+      - dormtrak
   /dormtrak/reviews/{reviewID}:
+    delete:
+      consumes:
+      - application/json
+      description: delete a review
+      operationId: dormtrak-delete-review
+      parameters:
+      - description: Review ID
+        in: path
+        name: reviewID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DormtrakReview'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+            type: object
+        "1331":
+          description: must be self
+          schema:
+            $ref: '#/definitions/lib.APIError'
+            type: object
+      security:
+      - Bearer: []
+      summary: Delete review
+      tags:
+      - dormtrak
     get:
       consumes:
       - application/json
@@ -1313,6 +1511,62 @@ paths:
       security:
       - Bearer: []
       summary: Get review
+      tags:
+      - dormtrak
+    patch:
+      consumes:
+      - application/json
+      description: update a review's data
+      operationId: dormtrak-update-review
+      parameters:
+      - description: Update Review Params
+        in: body
+        name: updateParams
+        required: true
+        schema:
+          $ref: '#/definitions/dormtrak.ReviewUpdateParams'
+          type: object
+      - description: review ID
+        in: path
+        name: reviewID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DormtrakReview'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+            type: object
+        "1101":
+          description: request data validation failed
+          schema:
+            $ref: '#/definitions/lib.APIError'
+            type: object
+        "1331":
+          description: must be self
+          schema:
+            $ref: '#/definitions/lib.APIError'
+            type: object
+      security:
+      - Bearer: []
+      summary: Update review
       tags:
       - dormtrak
   /factrak/admin/surveys:
