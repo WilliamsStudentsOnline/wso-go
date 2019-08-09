@@ -1,0 +1,8 @@
+number,floor,type,faces,area,common_room_access
+101,1,d,w,235,1
+102,1,d,w,235,1
+103,1,s,e,170,1
+201,2,d,"w,s",240,0
+202,2,s,w,150,0
+203,2,d,"n,e",303,0
+204,2,d,"s,e",265,0

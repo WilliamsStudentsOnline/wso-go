@@ -170,3 +170,9 @@ func (m *DormModel) UpdateDormFacts(id uint) (err error) {
 	err = m.DB.Save(&dorm).Error
 	return
 }
+
+func (*DormModel) scopeTrakked(db *gorm.DB) *gorm.DB {
+	return db.
+		Joins("JOIN neighborhoods ON neighborhoods.id = dorms.neighborhood_id").
+		Where("neighborhoods.trakked = ?", true)
+}
