@@ -22,23 +22,104 @@ func NewFactrakSurveyModel(db *gorm.DB) *FactrakSurveyModel {
 
 // Gets all surveys.
 func (m *FactrakSurveyModel) GetAllSurveys(p *[]*FactrakSurvey, paginator Paginator) (err error) {
-	db := m.DB.Scopes(m.scopeProfAtWilliams, m.scopeDefault, m.preloadCourse)
-	if paginator != nil {
-		db = db.Scopes(paginator.Paginate)
+	err = m.GetAllSurveysWithOptions(p, &GetAllFactrakSurveysOptions{
+		Paginator:      paginator,
+		ProfAtWilliams: true,
+		Preload:        []string{"course"},
+	})
+	return
+}
+
+type GetAllFactrakSurveysOptions struct {
+	// Scopes for specific areas
+	ProfessorID *uint `json:"professorID" form:"professorID"`
+	CourseID    *uint `json:"courseID" form:"courseID"`
+	UserID      *uint `json:"userID" form:"userID"`
+
+	// Pagination
+	Offset time.Time `json:"offset" form:"offset"`
+	Limit  uint      `json:"limit" form:"limit"`
+	// Or plug in an already existing paginator
+	Paginator Paginator
+
+	// Preloading
+	Preload []string `json:"preload" form:"preload"`
+
+	// Scope to only get flagged surveys. True means only get flagged; false/empty means ignore this scope.
+	Flagged bool `json:"commented" form:"commented"`
+
+	// Scope to only get surveys where the professor is at williams. True means only get profs at Williams;
+	// false/empty means ignore this scope.
+	ProfAtWilliams bool `json:"profAtWilliams" form:"profAtWilliams"`
+}
+
+func (p *GetAllFactrakSurveysOptions) Order(db *gorm.DB) *gorm.DB {
+	return db.Order("dormtrak_reviews.created_at desc")
+}
+
+// Pagination starts at most recent and goes down from there
+func (p *GetAllFactrakSurveysOptions) Paginate(db *gorm.DB) *gorm.DB {
+	db = p.Order(db).Limit(p.Limit).Where("dormtrak_reviews.created_at < ?", p.Offset)
+	return db
+}
+
+// Preload specifically allowed parts if requested
+func (p *GetAllFactrakSurveysOptions) Preloader(db *gorm.DB) *gorm.DB {
+	fsM := NewFactrakSurveyModel(nil)
+	var scopes []func(*gorm.DB) *gorm.DB
+
+	if stringsContains(p.Preload, "professor") {
+		scopes = append(scopes, fsM.preloadProfessor)
 	}
-	err = db.Find(p).Error
+	if stringsContains(p.Preload, "course") {
+		scopes = append(scopes, fsM.preloadCourse)
+	}
+
+	return db.Scopes(scopes...)
+}
+
+// Gets all surveys with options
+func (m *FactrakSurveyModel) GetAllSurveysWithOptions(p *[]*FactrakSurvey, opts *GetAllFactrakSurveysOptions) (err error) {
+	scopes := []func(*gorm.DB) *gorm.DB{
+		m.scopeDefault,
+	}
+
+	if opts != nil {
+		if opts.Paginator != nil {
+			scopes = append(scopes, opts.Paginator.Paginate)
+		} else if opts.Limit > 0 {
+			scopes = append(scopes, opts.Paginate)
+		}
+
+		if opts.ProfessorID != nil {
+			scopes = append(scopes, m.withProfessorID(*opts.ProfessorID))
+		}
+		if opts.CourseID != nil {
+			scopes = append(scopes, m.withCourseID(*opts.CourseID))
+		}
+		if opts.UserID != nil {
+			scopes = append(scopes, m.withAuthorID(*opts.UserID))
+		}
+		if opts.Flagged {
+			scopes = append(scopes, m.scopeFlagged)
+		}
+		if opts.ProfAtWilliams {
+			scopes = append(scopes, m.scopeProfAtWilliams)
+		}
+	}
+
+	err = m.DB.Scopes(scopes...).Find(p).Error
 	return
 }
 
 // Gets all flagged surveys.
 func (m *FactrakSurveyModel) GetAllFlaggedSurveys(p *[]*FactrakSurvey, paginator Paginator) (err error) {
-	db := m.DB.Scopes(m.scopeProfAtWilliams, m.scopePreloadDefault).Where(
-		"factrak_surveys.flagged = ?", true,
-	)
-	if paginator != nil {
-		db = db.Scopes(paginator.Paginate)
-	}
-	err = db.Find(p).Error
+	err = m.GetAllSurveysWithOptions(p, &GetAllFactrakSurveysOptions{
+		Paginator:      paginator,
+		ProfAtWilliams: true,
+		Flagged:        true,
+		Preload:        []string{"course", "professor"},
+	})
 	return
 }
 
@@ -116,60 +197,51 @@ func (m *FactrakSurveyModel) SetSurveyFlag(id uint, flag bool) (err error) {
 
 // Gets surveys by professor id, course id, or both.
 func (m *FactrakSurveyModel) GetSurveysByProfessorOrCourse(profID *uint, courseID *uint, profAtWilliams bool, fs *[]*FactrakSurvey, paginator Paginator) (err error) {
-	scopes := []func(db *gorm.DB) *gorm.DB{
-		m.scopeDefault,
-	}
-	if profID == nil && courseID == nil {
-		return errors.New("must have at least one of profID and courseID")
-	}
+	var preload []string
 	if profID == nil {
-		scopes = append(scopes, m.preloadProfessor)
-	}
-	if profID != nil {
-		scopes = append(scopes, m.withProfessorID(*profID))
+		preload = append(preload, "professor")
 	}
 	if courseID == nil {
-		scopes = append(scopes, m.preloadCourse)
-	}
-	if courseID != nil {
-		scopes = append(scopes, m.withCourseID(*courseID))
-	}
-	if profAtWilliams {
-		scopes = append(scopes, m.scopeProfAtWilliams)
+		preload = append(preload, "course")
 	}
 
-	db := m.DB.Scopes(scopes...)
-	if paginator != nil {
-		db = db.Scopes(paginator.Paginate)
-	}
-	err = db.Find(fs).Error
+	err = m.GetAllSurveysWithOptions(fs, &GetAllFactrakSurveysOptions{
+		Paginator:      paginator,
+		ProfAtWilliams: profAtWilliams,
+		ProfessorID:    profID,
+		CourseID:       courseID,
+		Preload:        preload,
+	})
 	return
 }
 
 func (m *FactrakSurveyModel) GetSurveysByProfessor(profID uint, fs *[]*FactrakSurvey, paginator Paginator) (err error) {
-	db := m.DB.Scopes(m.scopePreloadDefault, m.scopeProfAtWilliams, m.withProfessorID(profID))
-	if paginator != nil {
-		db = db.Scopes(paginator.Paginate)
-	}
-	err = db.Find(fs).Error
+	err = m.GetAllSurveysWithOptions(fs, &GetAllFactrakSurveysOptions{
+		Paginator:      paginator,
+		ProfAtWilliams: true,
+		ProfessorID:    &profID,
+		Preload:        []string{"course"},
+	})
 	return
 }
 
 func (m *FactrakSurveyModel) GetSurveysByAuthor(authorUserID uint, fs *[]*FactrakSurvey, paginator Paginator) (err error) {
-	db := m.DB.Scopes(m.scopePreloadDefault, m.withAuthorID(authorUserID))
-	if paginator != nil {
-		db = db.Scopes(paginator.Paginate)
-	}
-	err = db.Find(fs).Error
+	err = m.GetAllSurveysWithOptions(fs, &GetAllFactrakSurveysOptions{
+		Paginator:      paginator,
+		ProfAtWilliams: true,
+		UserID:         &authorUserID,
+		Preload:        []string{"course", "professor"},
+	})
 	return
 }
 
 func (m *FactrakSurveyModel) GetSurveysByCourse(courseID uint, fs *[]*FactrakSurvey, paginator Paginator) (err error) {
-	db := m.DB.Scopes(m.scopePreloadDefault, m.scopeProfAtWilliams, m.withCourseID(courseID))
-	if paginator != nil {
-		db = db.Scopes(paginator.Paginate)
-	}
-	err = db.Find(fs).Error
+	err = m.GetAllSurveysWithOptions(fs, &GetAllFactrakSurveysOptions{
+		Paginator:      paginator,
+		ProfAtWilliams: true,
+		CourseID:       &courseID,
+		Preload:        []string{"professor"},
+	})
 	return
 }
 
