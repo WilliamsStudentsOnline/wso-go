@@ -73,33 +73,33 @@ Update User:
 PUT localhost:8080/api/v1/users/:user_id
 {
     "visible": true,
-    "dorm_visible": true,
-    "home_visible": true,
+    "dormVisible": true,
+    "homeVisible": true,
     "pronoun": "",
-    "off_cycle": false
+    "offCycle": false
 }
 ```
 Authenticate/Login:
 ```http request
 POST localhost:8080/api/v1/auth/login
 {
-    "unix_id": "admin",
+    "unixID": "admin",
     "password": "doesnt matter"
 }
 ```
 Refresh JWT Token:
 ```http request
-GET localhost:8080/api/v1/auth/refresh_token
+GET localhost:8080/api/v1/auth/refresh-token
 ```
 
 ### Authentication Flow
 We use something called a [JWT](jwt.io), or JSON Web Token for the API. This allows us to keep sessions and verify user identities without cookies or database queries. It works like this:
 1. A user will request a token from the `auth/login` endpoint. They will pass in their login credentials, which will be checked with LDAP (not implemented yet).
-1. If the user is verified, the server will then pull their user from the DB and create a payload. This payload will consist of the user's ID and the scopes the user is allowed (e.g. if the user is a senior, they can go to ephcatch; if the user is an admin, they can do other queries; if the user is not signed in but on school wifi, they can be read only).
-1. The server will then take this payload and sign it with its secret key, before handing the JWT back to the user.
-1. The user now can add the header `Authorization: Bearer <JWT GOES HERE>` to any request and be authenticated and allowed to access other API endpoints (like `user`)
-1. The JWT has a one hour timeout (we can change this). After an hour, the JWT becomes invalid and the user must sign in again.
-1. Alternatively, before the hour is up, a user can query the `auth/refresh_token` endpoint to get a new token without having to sign in again.
+2. If the user is verified, the server will then pull their user from the DB and create a payload. This payload will consist of the user's ID and the scopes the user is allowed (e.g. if the user is a senior, they can go to ephcatch; if the user is an admin, they can do other queries; if the user is not signed in but on school wifi, they can be read only).
+3. The server will then take this payload and sign it with its secret key, before handing the JWT back to the user.
+4. The user now can add the header `Authorization: Bearer <JWT GOES HERE>` to any request and be authenticated and allowed to access other API endpoints (like `user`)
+5. The JWT has a one hour timeout (we can change this). After an hour, the JWT becomes invalid and the user must sign in again.
+6. Alternatively, before the hour is up, a user can query the `auth/refresh-token` endpoint to get a new token without having to sign in again.
 
 ## Structure
 
