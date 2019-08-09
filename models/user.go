@@ -328,7 +328,7 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 				} else {
 					var dormRoom DormRoom
 					err = m.DB.Where(&DormRoom{
-						Dorm:   dorm,
+						Dorm:   &dorm,
 						Number: entry.GetAttributeValue("wmsDormAddr2"),
 					}).FirstOrCreate(&dormRoom).Error
 					if err != nil {

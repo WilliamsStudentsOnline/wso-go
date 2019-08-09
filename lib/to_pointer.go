@@ -16,6 +16,10 @@ func BoolToPtr(b bool) *bool {
 	return &b
 }
 
+func Float64ToPtr(f float64) *float64 {
+	return &f
+}
+
 // Either goes with string if not blank or with default otherwise
 func StrDefaults(value, defaultVal string) string {
 	if value == "" {

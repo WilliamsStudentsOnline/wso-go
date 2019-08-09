@@ -8,16 +8,19 @@ import (
 	_ "github.com/WilliamsStudentsOnline/wso-go/docs"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
-	adminService "github.com/WilliamsStudentsOnline/wso-go/services/admin"
-	authService "github.com/WilliamsStudentsOnline/wso-go/services/auth"
-	factrakService "github.com/WilliamsStudentsOnline/wso-go/services/factrak"
-	userService "github.com/WilliamsStudentsOnline/wso-go/services/user"
 	jwt "github.com/aidanlloydtucker/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	log "github.com/sirupsen/logrus"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+
+	// Services
+	adminService "github.com/WilliamsStudentsOnline/wso-go/services/admin"
+	authService "github.com/WilliamsStudentsOnline/wso-go/services/auth"
+	dormtrakService "github.com/WilliamsStudentsOnline/wso-go/services/dormtrak"
+	factrakService "github.com/WilliamsStudentsOnline/wso-go/services/factrak"
+	userService "github.com/WilliamsStudentsOnline/wso-go/services/user"
 )
 
 // @title WSO API
@@ -92,6 +95,11 @@ func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 		factrakGroup := v1.Group("/factrak")
 		factrakGroup.Use(auth.RequireScopes(auth.ScopeFactrakLimited, auth.ScopeFactrakFull))
 		factrakService.SetupRouter(factrakGroup, db)
+
+		// Dormtrak Service
+		dormtrakGroup := v1.Group("/dormtrak")
+		dormtrakGroup.Use(auth.RequireScopes(auth.ScopeDormtrak))
+		dormtrakService.SetupRouter(dormtrakGroup, db)
 	}
 
 	return r, nil

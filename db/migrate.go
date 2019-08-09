@@ -20,6 +20,7 @@ var Migrations = []*gormigrate.Migration{
 	migrations.CreateCourses20190729142528,
 	migrations.CreateFactrakAgreements20190729142610,
 	migrations.CreateFactrakSurveys20190729142626,
+	migrations.CreateDormtrakReviews20190808235302,
 }
 
 var MigrationGormOptions = gormigrate.DefaultOptions
@@ -46,6 +47,7 @@ func MigrateDB(db *gorm.DB) error {
 			&models.Course{},
 			&models.FactrakAgreement{},
 			&models.FactrakSurvey{},
+			&models.DormtrakReview{},
 		).Error
 		if err != nil {
 			return err

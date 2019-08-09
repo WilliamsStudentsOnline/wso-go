@@ -84,7 +84,7 @@ func (m *FactrakSurveyModel) CreateSurvey(p *FactrakSurvey) (err error) {
 		Preload("Course").
 		Preload("Course.AreaOfStudy").
 		Preload("Course.AreaOfStudy.Department").
-		Find(p).Error
+		First(p).Error
 	return
 }
 

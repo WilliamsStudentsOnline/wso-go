@@ -281,6 +281,12 @@ var modelModelTmpl = `package models
 
 // {{.name}} Model
 type {{.name}}Model struct {
-	BaseModel
+	*BaseModel
+}
+
+func New{{.name}}Model(db *gorm.DB) *{{.name}}Model {
+	return &{{.name}}Model{
+		BaseModel: NewBaseModel(db),
+	}
 }
 `

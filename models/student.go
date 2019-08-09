@@ -114,8 +114,20 @@ func (s *Student) Frosh() bool {
 	return s.YearNumber() == StudentYearFrosh
 }
 
+func (s *Student) Sophomore() bool {
+	return s.YearNumber() == StudentYearSophomore
+}
+
+func (s *Student) Junior() bool {
+	return s.YearNumber() == StudentYearJunior
+}
+
 func (s *Student) Senior() bool {
 	return s.YearNumber() == StudentYearSenior
+}
+
+func (s *Student) IsUpperClass() bool {
+	return s.YearNumber() >= StudentYearSophomore
 }
 
 // The Factrak survey requirement count

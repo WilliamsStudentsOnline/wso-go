@@ -25,11 +25,16 @@ const (
 	// admin endpoints and allowing certain admin-level write actions (need write-self for normal actions, though).
 	ScopeFactrakAdmin = "service:factrak:admin"
 
+	// Service: Dormtrak
+	// Access to dormtrak reviews, etc.
+	ScopeDormtrak = "service:dormtrak"
+	// Ability to create reviews, etc. (must be upperclass)
+	ScopeDormtrakWrite = "service:dormtrak:write"
+
 	ScopeEphcatch  = "service:ephcatch"
 	ScopeBulletins = "service:bulletins"
 	// This is for facebook & users
-	ScopeUsers    = "service:users"
-	ScopeDormtrak = "service:dormtrak"
+	ScopeUsers = "service:users"
 	// Allows you to access other services not mentioned above
 	ScopeAllOther = "service:other"
 )
