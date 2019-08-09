@@ -77,7 +77,7 @@ func (m *CourseModel) DoesCourseExist(id uint) (exists bool, err error) {
 func (m *CourseModel) GetCoursesByProfessor(profID uint, courses *[]Course) (err error) {
 	err = m.DB.Where(
 		"id in (?)",
-		m.DB.Table("factrak_surveys").Select("course_id").Where(
+		m.DB.Model(&FactrakSurvey{}).Select("course_id").Where(
 			"professor_id = ?", profID,
 		).QueryExpr(),
 	).Find(courses).Error
@@ -87,7 +87,7 @@ func (m *CourseModel) GetCoursesByProfessor(profID uint, courses *[]Course) (err
 func (m *CourseModel) GetCoursesByDepartment(deptID uint, courses *[]Course) (err error) {
 	err = m.DB.Where(
 		"area_of_study_id in (?)",
-		m.DB.Table("areas_of_study").Select("id").Where(
+		m.DB.Model(&AreaOfStudy{}).Select("id").Where(
 			"department_id = ?", deptID,
 		).QueryExpr(),
 	).Find(courses).Error

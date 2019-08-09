@@ -519,8 +519,8 @@ func (t *Controller) FlagSurvey(c *gin.Context) {
 }
 
 type SurveyPaginationParams struct {
-	Offset *time.Time `json:"offset"`
-	Limit  *int       `json:"limit"`
+	Offset *time.Time `json:"offset" form:"offset"`
+	Limit  *int       `json:"limit" form:"limit"`
 }
 
 func GetSurveyPaginationParams(ctx *gin.Context) (offset time.Time, limit int, err error) {
