@@ -3,6 +3,7 @@ package models
 import (
 	"strings"
 
+	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/jinzhu/gorm"
 )
 
@@ -17,9 +18,57 @@ func NewCourseModel(db *gorm.DB) *CourseModel {
 	}
 }
 
-func (m *CourseModel) GetAllCourses(c *[]Course) (err error) {
-	err = m.DB.Preload("AreaOfStudy").Find(c).Error
+func (m *CourseModel) GetAllCourses(c *[]*Course, opts Options) (err error) {
+	db := m.DB
+	if opts != nil {
+		db = opts.Paginate(db)
+		db = opts.Preloader(db)
+	}
+	err = db.Find(c).Error
 	return
+}
+
+type GetAllCoursesOptions struct {
+	Offset *uint `json:"offset" form:"offset"`
+	Limit  *uint `json:"limit" form:"limit"`
+
+	// You can preload: areaOfStudy, professors, and surveys
+	Preload *[]string `json:"preload" form:"preload"`
+}
+
+// Preload specifically allowed parts if requested
+func (p *GetAllCoursesOptions) Preloader(db *gorm.DB) *gorm.DB {
+	var scopes []func(*gorm.DB) *gorm.DB
+
+	if p.Preload != nil {
+		if lib.StringsContains(*p.Preload, "areaOfStudy") {
+			db = db.Preload("AreaOfStudy")
+		}
+		if lib.StringsContains(*p.Preload, "professors") {
+			db = db.Preload("Professors")
+		}
+		if lib.StringsContains(*p.Preload, "surveys") {
+			db = db.Preload("FactrakSurveys")
+		}
+	}
+
+	return db.Scopes(scopes...)
+}
+
+func (p *GetAllCoursesOptions) Order(db *gorm.DB) *gorm.DB {
+	return db.Order("courses.id ASC")
+}
+
+func (p *GetAllCoursesOptions) Paginate(db *gorm.DB) *gorm.DB {
+	db = p.Order(db)
+	if p.Offset != nil {
+		db = db.Offset(p.Offset)
+	}
+	if p.Limit != nil {
+		db = db.Limit(p.Limit)
+	}
+
+	return db
 }
 
 // Get course by ID. NOTE: does not preload. To preload (like in factrak/courses), call GetCourseByIDWithProfessor() and

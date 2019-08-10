@@ -55,7 +55,7 @@ func (p *GetAllUsersOptions) Preloader(db *gorm.DB) *gorm.DB {
 }
 
 func (p *GetAllUsersOptions) Order(db *gorm.DB) *gorm.DB {
-	return db.Order("id ASC")
+	return db.Order("users.id ASC")
 }
 
 func (p *GetAllUsersOptions) Paginate(db *gorm.DB) *gorm.DB {

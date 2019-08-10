@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/jinzhu/gorm"
 )
 
@@ -15,9 +16,57 @@ func NewProfessorModel(db *gorm.DB) *ProfessorModel {
 	}
 }
 
-func (m *ProfessorModel) GetAllProfessors(u *[]User) (err error) {
-	err = m.DB.Scopes(m.scopeDefault).Find(u).Error
+func (m *ProfessorModel) GetAllProfessors(u *[]*User, opts Options) (err error) {
+	db := m.DB.Scopes(m.scopeDefault)
+	if opts != nil {
+		db = opts.Paginate(db)
+		db = opts.Preloader(db)
+	}
+	err = db.Find(u).Error
 	return
+}
+
+type GetAllProfessorsOptions struct {
+	Offset *uint `json:"offset" form:"offset"`
+	Limit  *uint `json:"limit" form:"limit"`
+
+	// You can preload: department, office, and surveys
+	Preload *[]string `json:"preload" form:"preload"`
+}
+
+// Preload specifically allowed parts if requested
+func (p *GetAllProfessorsOptions) Preloader(db *gorm.DB) *gorm.DB {
+	var scopes []func(*gorm.DB) *gorm.DB
+
+	if p.Preload != nil {
+		if lib.StringsContains(*p.Preload, "department") {
+			db = db.Preload("Department")
+		}
+		if lib.StringsContains(*p.Preload, "office") {
+			db = db.Preload("Office")
+		}
+		if lib.StringsContains(*p.Preload, "surveys") {
+			db = db.Preload("ProfessorFactrakSurveys")
+		}
+	}
+
+	return db.Scopes(scopes...)
+}
+
+func (p *GetAllProfessorsOptions) Order(db *gorm.DB) *gorm.DB {
+	return db.Order("users.id ASC")
+}
+
+func (p *GetAllProfessorsOptions) Paginate(db *gorm.DB) *gorm.DB {
+	db = p.Order(db)
+	if p.Offset != nil {
+		db = db.Offset(p.Offset)
+	}
+	if p.Limit != nil {
+		db = db.Limit(p.Limit)
+	}
+
+	return db
 }
 
 func (m *ProfessorModel) DoesProfessorExist(id uint) (exists bool, err error) {

@@ -799,10 +799,6 @@ definitions:
         type: boolean
       pronoun:
         type: string
-      searchFields:
-        description: Keep this in here as long as we want to maintain this type of
-          searching.
-        type: string
       suBox:
         type: string
       tags:
@@ -1053,6 +1049,25 @@ paths:
       - application/json
       description: lists all dorms
       operationId: dormtrak-list-dorms
+      parameters:
+      - description: Offset Pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      - description: Preload List
+        in: query
+        items:
+          type: string
+        name: preload
+        type: array
+      - description: Search Query
+        in: query
+        name: q
+        type: string
       produces:
       - application/json
       responses:
@@ -1721,6 +1736,25 @@ paths:
       - application/json
       description: lists all courses
       operationId: factrak-list-courses
+      parameters:
+      - description: Offset Pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      - description: Preload List
+        in: query
+        items:
+          type: string
+        name: preload
+        type: array
+      - description: Search Query
+        in: query
+        name: q
+        type: string
       produces:
       - application/json
       responses:
@@ -2051,6 +2085,25 @@ paths:
       - application/json
       description: lists all professors at Williams
       operationId: factrak-list-professors
+      parameters:
+      - description: Offset Pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      - description: Preload List
+        in: query
+        items:
+          type: string
+        name: preload
+        type: array
+      - description: Search Query
+        in: query
+        name: q
+        type: string
       produces:
       - application/json
       responses:

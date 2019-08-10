@@ -20,7 +20,8 @@ func TestController_ListDorms(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeDormtrak, auth.ScopeWriteSelf)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	n1 := models.Neighborhood{
 		Name: "Currier",
@@ -69,7 +70,8 @@ func TestController_GetDorm(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeDormtrak, auth.ScopeWriteSelf)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	n1 := models.Neighborhood{
 		Name: "Currier",
@@ -134,7 +136,8 @@ func TestController_GetDormRooms(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeDormtrak, auth.ScopeWriteSelf)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	n1 := models.Neighborhood{
 		Name: "Currier",
@@ -202,7 +205,8 @@ func TestController_GetDormFacts(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeDormtrak, auth.ScopeWriteSelf)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	dorm := models.Dorm{
 		Neighborhood: &models.Neighborhood{

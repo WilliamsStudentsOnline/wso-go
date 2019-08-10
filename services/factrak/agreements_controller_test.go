@@ -60,7 +60,8 @@ func TestController_GetAgreement(t *testing.T) {
 	// Setup router
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(router, s1.ID)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	// First, we run tests on validations
 
@@ -76,7 +77,7 @@ func TestController_GetAgreement(t *testing.T) {
 	apiErr = lib.ErrorSurveyAgreementNotFound
 	r1 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(r1, s2.ID)
-	SetupRouter(r1, db)
+	SetupRouter(r1, db, cfg)
 	w, err = utils.DoHTTPReq(r1, http.MethodGet, fmt.Sprintf("/surveys/%d/agreement", survey.ID), nil)
 	assert.NoError(err)
 	assert.Equal(apiErr.HTTPCode, w.Code)
@@ -150,7 +151,8 @@ func TestController_CreateAgreement(t *testing.T) {
 	// Setup router
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(router, s2.ID)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	// First, we run tests on validations
 
@@ -178,7 +180,7 @@ func TestController_CreateAgreement(t *testing.T) {
 	apiErr = lib.ErrorSurveyAgreementAlreadyExists
 	r1 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(r1, s3.ID)
-	SetupRouter(r1, db)
+	SetupRouter(r1, db, cfg)
 	w, err = utils.DoHTTPReq(r1, http.MethodPost, fmt.Sprintf("/surveys/%d/agreement", survey.ID), bytes.NewBuffer(paramsData))
 	assert.NoError(err)
 	assert.Equal(apiErr.HTTPCode, w.Code)
@@ -189,7 +191,7 @@ func TestController_CreateAgreement(t *testing.T) {
 	apiErr = lib.ErrorSurveyAgreementNoSelf
 	r2 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(r2, s1.ID)
-	SetupRouter(r2, db)
+	SetupRouter(r2, db, cfg)
 	w, err = utils.DoHTTPReq(r2, http.MethodPost, fmt.Sprintf("/surveys/%d/agreement", survey.ID), bytes.NewBuffer(paramsData))
 	assert.NoError(err)
 	assert.Equal(apiErr.HTTPCode, w.Code)
@@ -264,7 +266,8 @@ func TestController_UpdateAgreement(t *testing.T) {
 	// Setup router
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(router, s1.ID)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	// First, we run tests on validations
 
@@ -293,7 +296,7 @@ func TestController_UpdateAgreement(t *testing.T) {
 	apiErr = lib.ErrorSurveyAgreementNotFound
 	r1 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(r1, s2.ID)
-	SetupRouter(r1, db)
+	SetupRouter(r1, db, cfg)
 	w, err = utils.DoHTTPReq(r1, http.MethodPatch, fmt.Sprintf("/surveys/%d/agreement", survey.ID), bytes.NewBuffer(paramsData))
 	assert.NoError(err)
 	assert.Equal(apiErr.HTTPCode, w.Code)
@@ -368,7 +371,8 @@ func TestController_DeleteAgreement(t *testing.T) {
 	// Setup router
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(router, s1.ID)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	// First, we run tests on validations
 
@@ -384,7 +388,7 @@ func TestController_DeleteAgreement(t *testing.T) {
 	apiErr = lib.ErrorSurveyAgreementNotFound
 	r1 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(r1, s2.ID)
-	SetupRouter(r1, db)
+	SetupRouter(r1, db, cfg)
 	w, err = utils.DoHTTPReq(r1, http.MethodDelete, fmt.Sprintf("/surveys/%d/agreement", survey.ID), nil)
 	assert.NoError(err)
 	assert.Equal(apiErr.HTTPCode, w.Code)

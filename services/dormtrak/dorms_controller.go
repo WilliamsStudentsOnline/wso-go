@@ -16,13 +16,28 @@ import (
 // @Tags dormtrak
 // @Accept  json
 // @Produce  json
+// @Param offset query int false "Offset Pagination"
+// @Param limit query int false "Limit Pagination"
+// @Param preload query []string false "Preload List"
+// @Param q query string false "Search Query"
 // @Success 200 {array} models.Dorm
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
 // @Router /dormtrak/dorms [get]
 func (t *Controller) ListDorms(c *gin.Context) {
 	var dorms []*models.Dorm
-	err := t.dormModel.GetAllDorms(&dorms)
+	var err error
+
+	opts := models.GetAllDormsOptions{}
+	if err = c.ShouldBindQuery(&opts); err != nil {
+		return
+	}
+
+	if query, ok := c.GetQuery("q"); ok {
+		err = t.dormtrakSearch.SearchDorms(query, &dorms, &opts)
+	} else {
+		err = t.dormModel.GetAllDorms(&dorms, &opts)
+	}
 
 	if err != nil {
 		t.RespondError(c, err)

@@ -19,7 +19,8 @@ func TestController_GetRankings(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeDormtrak, auth.ScopeWriteSelf)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	neighborhood := &models.Neighborhood{
 		Name: "Currier",

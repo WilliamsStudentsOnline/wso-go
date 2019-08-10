@@ -41,8 +41,9 @@ func TestCourseModel_GetAllCourses(t *testing.T) {
 		assert.NoError(db.Create(&courses[i]).Error)
 	}
 
-	var res []Course
-	assert.NoError(m.GetAllCourses(&res))
+	var res []*Course
+	preloads := []string{"areaOfStudy"}
+	assert.NoError(m.GetAllCourses(&res, &GetAllCoursesOptions{Preload: &preloads}))
 
 	for i := range courses {
 		assert.Equal(courses[i].ID, res[i].ID)

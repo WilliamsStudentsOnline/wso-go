@@ -44,10 +44,15 @@ func (t *Controller) ListUsers(c *gin.Context) {
 	var users []*models.User
 	var err error
 
-	if _, ok := c.GetQuery("q"); ok {
-		err = t.searchUsers(c, &users)
+	opts := models.GetAllUsersOptions{}
+	if err = c.ShouldBindQuery(&opts); err != nil {
+		return
+	}
+
+	if query, ok := c.GetQuery("q"); ok {
+		err = t.userSearch.Search(query, &users, &opts)
 	} else {
-		err = t.listUsers(c, &users)
+		err = t.userModel.GetAllUsers(&users, &opts)
 	}
 
 	if err != nil {
@@ -56,28 +61,6 @@ func (t *Controller) ListUsers(c *gin.Context) {
 	}
 
 	t.RespondOK(c, users)
-}
-
-func (t *Controller) listUsers(c *gin.Context, users *[]*models.User) (err error) {
-	opts := models.GetAllUsersOptions{}
-	if err = c.ShouldBindQuery(&opts); err != nil {
-		return
-	}
-
-	err = t.userModel.GetAllUsers(users, &opts)
-	return
-}
-
-func (t *Controller) searchUsers(c *gin.Context, users *[]*models.User) (err error) {
-	query := c.Query("q")
-
-	opts := search.SearchUsersMySQLOptions{}
-	if err = c.ShouldBindQuery(&opts); err != nil {
-		return
-	}
-
-	err = t.userSearch.Search(query, users, &opts)
-	return
 }
 
 // Get user by id. Pass "me" if you want to get self

@@ -3,7 +3,9 @@ package factrak
 import (
 	"net/http"
 
+	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
+	search "github.com/WilliamsStudentsOnline/wso-go/lib/search/factrak"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
@@ -21,10 +23,11 @@ type Controller struct {
 	agreementModel   *models.FactrakAgreementModel
 	surveyModel      *models.FactrakSurveyModel
 	studentModel     *models.StudentModel
+	factrakSearch    search.SearchFactrak
 }
 
 // Construct a new user controller
-func NewController(db *gorm.DB) *Controller {
+func NewController(db *gorm.DB, cfg *config.Config) *Controller {
 	return &Controller{
 		professorModel:   models.NewProfessorModel(db),
 		userModel:        models.NewUserModel(db),
@@ -34,6 +37,7 @@ func NewController(db *gorm.DB) *Controller {
 		agreementModel:   models.NewFactrakAgreementModel(db),
 		surveyModel:      models.NewFactrakSurveyModel(db),
 		studentModel:     models.NewStudentModel(db),
+		factrakSearch:    search.NewSearchFactrak(db, cfg),
 	}
 }
 

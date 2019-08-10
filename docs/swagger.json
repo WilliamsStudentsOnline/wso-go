@@ -326,6 +326,35 @@
                 ],
                 "summary": "List dorms",
                 "operationId": "dormtrak-list-dorms",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Offset Pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Preload List",
+                        "name": "preload",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search Query",
+                        "name": "q",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1356,6 +1385,35 @@
                 ],
                 "summary": "List courses",
                 "operationId": "factrak-list-courses",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Offset Pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Preload List",
+                        "name": "preload",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search Query",
+                        "name": "q",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1866,6 +1924,35 @@
                 ],
                 "summary": "List professors",
                 "operationId": "factrak-list-professors",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Offset Pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Preload List",
+                        "name": "preload",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search Query",
+                        "name": "q",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -4395,10 +4482,6 @@
                     "type": "boolean"
                 },
                 "pronoun": {
-                    "type": "string"
-                },
-                "searchFields": {
-                    "description": "Keep this in here as long as we want to maintain this type of searching.",
                     "type": "string"
                 },
                 "suBox": {

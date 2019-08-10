@@ -3,7 +3,6 @@ package users
 import (
 	"strings"
 
-	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/search"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/jinzhu/gorm"
@@ -214,56 +213,10 @@ func (s *SearchUsersMySQL) parseField(field *search.Field, sb *strings.Builder) 
 	return
 }
 
-type SearchUsersMySQLOptions struct {
-	Offset *uint `json:"offset" form:"offset"`
-	Limit  *uint `json:"limit" form:"limit"`
-
-	// You can preload: dorm (with dorm room), tags, department, and office
-	Preload *[]string `json:"preload" form:"preload"`
-}
-
 func (*SearchUsersMySQL) NewOptions(offset *uint, limit *uint, preload *[]string) models.Options {
-	return &SearchUsersMySQLOptions{
+	return &models.GetAllUsersOptions{
 		Offset:  offset,
 		Limit:   limit,
 		Preload: preload,
 	}
-}
-
-// Preload specifically allowed parts if requested
-func (p *SearchUsersMySQLOptions) Preloader(db *gorm.DB) *gorm.DB {
-	var scopes []func(*gorm.DB) *gorm.DB
-
-	if p.Preload != nil {
-		if lib.StringsContains(*p.Preload, "dorm") {
-			db = db.Preload("DormRoom").Preload("DormRoom.Dorm")
-		}
-		if lib.StringsContains(*p.Preload, "tags") {
-			db = db.Preload("Tags")
-		}
-		if lib.StringsContains(*p.Preload, "department") {
-			db = db.Preload("Department")
-		}
-		if lib.StringsContains(*p.Preload, "office") {
-			db = db.Preload("Office")
-		}
-	}
-
-	return db.Scopes(scopes...)
-}
-
-func (p *SearchUsersMySQLOptions) Order(db *gorm.DB) *gorm.DB {
-	return db.Order("id ASC")
-}
-
-func (p *SearchUsersMySQLOptions) Paginate(db *gorm.DB) *gorm.DB {
-	db = p.Order(db)
-	if p.Offset != nil {
-		db = db.Offset(p.Offset)
-	}
-	if p.Limit != nil {
-		db = db.Limit(p.Limit)
-	}
-
-	return db
 }
