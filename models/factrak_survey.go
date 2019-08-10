@@ -65,6 +65,10 @@ func (p *GetAllFactrakSurveysOptions) Paginate(db *gorm.DB) *gorm.DB {
 
 // Preload specifically allowed parts if requested
 func (p *GetAllFactrakSurveysOptions) Preloader(db *gorm.DB) *gorm.DB {
+	return db.Scopes(p.PreloadScoper()...)
+}
+
+func (p *GetAllFactrakSurveysOptions) PreloadScoper() []func(*gorm.DB) *gorm.DB {
 	fsM := NewFactrakSurveyModel(nil)
 	var scopes []func(*gorm.DB) *gorm.DB
 
@@ -75,7 +79,7 @@ func (p *GetAllFactrakSurveysOptions) Preloader(db *gorm.DB) *gorm.DB {
 		scopes = append(scopes, fsM.preloadCourse)
 	}
 
-	return db.Scopes(scopes...)
+	return scopes
 }
 
 // Gets all surveys with options
@@ -105,6 +109,11 @@ func (m *FactrakSurveyModel) GetAllSurveysWithOptions(p *[]*FactrakSurvey, opts 
 		}
 		if opts.ProfAtWilliams {
 			scopes = append(scopes, m.scopeProfAtWilliams)
+		}
+
+		// Load the preload scopes
+		if len(opts.Preload) > 0 {
+			scopes = append(scopes, opts.PreloadScoper()...)
 		}
 	}
 

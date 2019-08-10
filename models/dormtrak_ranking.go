@@ -38,15 +38,17 @@ func NewDormtrakRanking() *DormtrakRanking {
 }
 
 func (m *DormModel) GetDormtrakRankings(max int, p *DormtrakRanking) (err error) {
+	drM := NewDormRoomModel(nil)
+
 	queries := []*gorm.DB{
-		m.DB.Model(&Dorm{}).Limit(max).Where("average_single_area IS NOT NULL").
+		m.DB.Model(&Dorm{}).Limit(max).Scopes().Where("average_single_area IS NOT NULL").
 			Order("average_single_area DESC").Find(&p.MaxMeanSingleSize),
 		m.DB.Model(&Dorm{}).Limit(max).Where("average_single_area IS NOT NULL").
 			Order("average_single_area ASC").Find(&p.MinMeanSingleSize),
-		m.DB.Model(&DormRoom{}).Limit(max).Scopes().Where("room_type = ?", DormRoomTypeSingle).
+		m.DB.Model(&DormRoom{}).Limit(max).Scopes(drM.preloadDorm).Where("room_type = ?", DormRoomTypeSingle).
 			Where("area IS NOT NULL").
 			Order("area DESC").Find(&p.BiggestSingles),
-		m.DB.Model(&DormRoom{}).Limit(max).Scopes().Where("room_type = ?", DormRoomTypeSingle).
+		m.DB.Model(&DormRoom{}).Limit(max).Scopes(drM.preloadDorm).Where("room_type = ?", DormRoomTypeSingle).
 			Where("area IS NOT NULL").
 			Order("area ASC").Find(&p.SmallestSingles),
 
@@ -54,10 +56,10 @@ func (m *DormModel) GetDormtrakRankings(max int, p *DormtrakRanking) (err error)
 			Order("average_double_area DESC").Find(&p.MaxMeanDoubleSize),
 		m.DB.Model(&Dorm{}).Limit(max).Where("average_double_area IS NOT NULL").
 			Order("average_double_area ASC").Find(&p.MinMeanDoubleSize),
-		m.DB.Model(&DormRoom{}).Limit(max).Scopes().Where("room_type = ?", DormRoomTypeDouble).
+		m.DB.Model(&DormRoom{}).Limit(max).Scopes(drM.preloadDorm).Where("room_type = ?", DormRoomTypeDouble).
 			Where("area IS NOT NULL").
 			Order("area DESC").Find(&p.BiggestDoubles),
-		m.DB.Model(&DormRoom{}).Limit(max).Scopes().Where("room_type = ?", DormRoomTypeDouble).
+		m.DB.Model(&DormRoom{}).Limit(max).Scopes(drM.preloadDorm).Where("room_type = ?", DormRoomTypeDouble).
 			Where("area IS NOT NULL").
 			Order("area ASC").Find(&p.SmallestDoubles),
 

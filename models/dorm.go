@@ -221,3 +221,8 @@ func (*DormModel) scopeTrakked(db *gorm.DB) *gorm.DB {
 		Joins("JOIN neighborhoods ON neighborhoods.id = dorms.neighborhood_id").
 		Where("neighborhoods.trakked = ?", true)
 }
+
+// Preloads neighborhood
+func (m *DormModel) preloadNeighborhood(db *gorm.DB) *gorm.DB {
+	return db.Preload("Neighborhood")
+}
