@@ -5,6 +5,7 @@ go 1.12
 require (
 	cloud.google.com/go v0.43.0 // indirect
 	github.com/aidanlloydtucker/gin-jwt/v2 v2.6.3
+	github.com/alecthomas/participle v0.3.0
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/denisenkom/go-mssqldb v0.0.0-20190715232110-2b613d287457 // indirect
 	github.com/fvbock/endless v0.0.0-20170109170031-447134032cb6

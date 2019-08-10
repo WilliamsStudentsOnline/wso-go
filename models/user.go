@@ -7,9 +7,10 @@ import (
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
+	"github.com/WilliamsStudentsOnline/wso-go/lib/ldap"
 	"github.com/jinzhu/gorm"
 	log "github.com/sirupsen/logrus"
-	"gopkg.in/ldap.v3"
+	ldapconn "gopkg.in/ldap.v3"
 )
 
 // User Model
@@ -203,8 +204,8 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 	}
 
 	// Initialize LDAPs
-	willyLdap := lib.NewWilliamsLDAP()
-	ndsLdap := lib.NewNDSLDAP()
+	willyLdap := ldap.NewWilliamsLDAP()
+	ndsLdap := ldap.NewNDSLDAP()
 
 	// We need the Willy LDAP credentials for this
 	err := config.Secrets.RequireLDAPAuth()
@@ -437,7 +438,7 @@ func (m *UserModel) UpdateAllFromLDAP(cfg *config.Config) error {
 	}
 
 	// Connect to NDS
-	ndsLdap := lib.NewNDSLDAP()
+	ndsLdap := ldap.NewNDSLDAP()
 	err = ndsLdap.Connect()
 	if err != nil {
 		return err
@@ -509,7 +510,7 @@ func (*UserModel) scopeAlphabetical(db *gorm.DB) *gorm.DB {
 
 // Updates users that are not found in LDAP anymore (alumni usually) by searching for them on NDS,
 // finding their type, and then updating the user.
-func (m *UserModel) updateNotInLDAP(user *User, ndsLdap *lib.LDAP) error {
+func (m *UserModel) updateNotInLDAP(user *User, ndsLdap *ldap.LDAP) error {
 	user.AtWilliams = lib.BoolToPtr(false)
 	entry, err := ndsLdap.Get("uid", user.UnixID)
 	if err != nil {
@@ -533,7 +534,7 @@ func (m *UserModel) updateNotInLDAP(user *User, ndsLdap *lib.LDAP) error {
 	return m.DB.Save(user).Error
 }
 
-func userAssociationType(ndsUser *ldap.Entry) string {
+func userAssociationType(ndsUser *ldapconn.Entry) string {
 	ua := lib.NewUserAssociation(
 		ndsUser.GetAttributeValue("wmsAffiliation"),
 		ndsUser.GetAttributeValue("wmsAffiliationFamily"),
