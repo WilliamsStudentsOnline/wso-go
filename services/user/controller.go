@@ -1,7 +1,9 @@
 package user
 
 import (
+	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
+	search "github.com/WilliamsStudentsOnline/wso-go/lib/search/users"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
@@ -10,38 +12,43 @@ import (
 
 type Controller struct {
 	services.BaseController
-	userModel *models.UserModel
+	userModel  *models.UserModel
+	userSearch search.SearchUsers
 }
 
 // Construct a new user controller
-func NewController(db *gorm.DB) *Controller {
+func NewController(db *gorm.DB, cfg *config.Config) *Controller {
 	return &Controller{
-		userModel: models.NewUserModel(db),
+		userModel:  models.NewUserModel(db),
+		userSearch: search.NewSearchUsers(db, cfg),
 	}
 }
 
 // ListUsers godoc
 // @Summary List users
-// @Description get all users that are visible and at williams
+// @Description Get all users that are visible and at williams.
+// @Description If you pass a search query (?q="blah"), you will get all users matching that search query
 // @ID list-users
 // @Tags users
 // @Accept  json
 // @Produce  json
 // @Param offset query int false "Offset Pagination"
 // @Param limit query int false "Limit Pagination"
+// @Param preload query []string false "Preload List"
+// @Param q query string false "Search Query"
 // @Success 200 {array} models.User
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
 // @Router /users [get]
 func (t *Controller) ListUsers(c *gin.Context) {
-	var users []models.User
-	pOff, pLim, err := services.GetPaginationParams(c)
-	if err != nil {
-		t.RespondError(c, err)
-		return
-	}
+	var users []*models.User
+	var err error
 
-	err = t.userModel.GetAllUsers(&users, t.userModel.NewUserPaginate(pOff, pLim))
+	if _, ok := c.GetQuery("q"); ok {
+		err = t.searchUsers(c, &users)
+	} else {
+		err = t.listUsers(c, &users)
+	}
 
 	if err != nil {
 		t.RespondError(c, err)
@@ -49,6 +56,28 @@ func (t *Controller) ListUsers(c *gin.Context) {
 	}
 
 	t.RespondOK(c, users)
+}
+
+func (t *Controller) listUsers(c *gin.Context, users *[]*models.User) (err error) {
+	opts := models.GetAllUsersOptions{}
+	if err = c.ShouldBindQuery(&opts); err != nil {
+		return
+	}
+
+	err = t.userModel.GetAllUsers(users, &opts)
+	return
+}
+
+func (t *Controller) searchUsers(c *gin.Context, users *[]*models.User) (err error) {
+	query := c.Query("q")
+
+	opts := search.SearchUsersMySQLOptions{}
+	if err = c.ShouldBindQuery(&opts); err != nil {
+		return
+	}
+
+	err = t.userSearch.Search(query, users, &opts)
+	return
 }
 
 // Get user by id. Pass "me" if you want to get self

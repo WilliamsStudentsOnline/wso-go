@@ -92,7 +92,7 @@ func (t *Controller) GetProfessor(c *gin.Context) {
 // @Produce  json
 // @Param courseID query uint false "Course ID"
 // @Param professorID path uint true "Professor ID"
-// @Param offset query time.Time false "Offset Pagination"
+// @Param offset query string false "Offset Pagination (timestamp)"
 // @Param limit query int false "Limit Pagination"
 // @Success 200 {array} models.FactrakSurvey
 // @Failure 400 {object} lib.APIError

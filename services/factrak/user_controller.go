@@ -19,7 +19,7 @@ import (
 // @Accept  json
 // @Produce  json
 // @Param userID path uint true "User ID"
-// @Param offset query time.Time false "Offset Pagination"
+// @Param offset query string false "Offset Pagination (timestamp)"
 // @Param limit query int false "Limit Pagination"
 // @Success 200 {array} models.FactrakSurvey
 // @Failure 1331 {object} lib.APIError "must be self"

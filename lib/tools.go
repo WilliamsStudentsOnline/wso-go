@@ -21,3 +21,13 @@ func OnCampusIP(ipString string) bool {
 
 	return schoolSubnet.Contains(ip) || localSubnet.Contains(ip)
 }
+
+func StringsContains(slice []string, str string) bool {
+	for _, val := range slice {
+		if val == str {
+			return true
+		}
+	}
+
+	return false
+}

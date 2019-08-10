@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"testing"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
@@ -21,7 +22,8 @@ func TestController_ListUsers(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeUsers, auth.ScopeWriteSelf)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	// Insert test users into db
 	u1 := models.User{
@@ -48,10 +50,7 @@ func TestController_ListUsers(t *testing.T) {
 	}
 	assert.NoError(db.Create(&u1).Create(&u2).Create(&u3).Create(&u4).Error)
 
-	// Update until user pointers fixed
-	assert.NoError(db.Model(&u3).Update("at_williams", false).Error)
-
-	// Get test user (expect success)
+	// Test 1: get test user (expect success)
 	w, err := utils.DoHTTPReq(router, http.MethodGet, "/", nil)
 	assert.NoError(err)
 
@@ -69,6 +68,31 @@ func TestController_ListUsers(t *testing.T) {
 	assert.Len(respUsers, 2)
 	assert.Equal(u1.UnixID, respUsers[0].UnixID)
 	assert.Equal(u4.UnixID, respUsers[1].UnixID)
+
+	// Test 2: get test user via search (expect success)
+	// Update users to have search fields
+	for _, u := range []models.User{u1, u2, u3, u4} {
+		assert.NoError(models.NewUserModel(db).PopulateSearchFields(u.ID))
+	}
+
+	qs := url.Values{}
+	qs.Add("q", "test 4")
+	w, err = utils.DoHTTPReq(router, http.MethodGet, "/?"+qs.Encode(), nil)
+	assert.NoError(err)
+
+	// Status is okay
+	assert.Equal(http.StatusOK, w.Code)
+
+	// Decode response
+	resp = utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(resp.Error)
+	respUsers = []models.User{}
+	err = json.Unmarshal(resp.Data, &respUsers)
+	assert.NoError(err)
+
+	// Check if correct user
+	assert.Len(respUsers, 1)
+	assert.Equal(u4.UnixID, respUsers[0].UnixID)
 }
 
 func TestController_GetUser(t *testing.T) {
@@ -102,7 +126,8 @@ func TestController_GetUser(t *testing.T) {
 	// Initialize Routing
 	router := gin.Default()
 	utils.AddUserContexts(router, u1.ID)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	// Get test user (expect success)
 	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/%d", u1.ID), nil)
@@ -186,7 +211,8 @@ func TestController_UpdateUser(t *testing.T) {
 
 	router := utils.SetupRouter(auth.ScopeUsers, auth.ScopeWriteSelf)
 	utils.AddUserContexts(router, u1.ID)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	postData, err := json.Marshal(map[string]interface{}{
 		"visible":     false,

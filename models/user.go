@@ -24,10 +24,57 @@ func NewUserModel(db *gorm.DB) *UserModel {
 	}
 }
 
-func (m *UserModel) GetAllUsers(u *[]User, paginator Paginator) (err error) {
+type GetAllUsersOptions struct {
+	Offset *uint `json:"offset" form:"offset"`
+	Limit  *uint `json:"limit" form:"limit"`
+
+	// You can preload: dorm (with dorm room), tags, department, and office
+	Preload *[]string `json:"preload" form:"preload"`
+}
+
+// Preload specifically allowed parts if requested
+func (p *GetAllUsersOptions) Preloader(db *gorm.DB) *gorm.DB {
+	var scopes []func(*gorm.DB) *gorm.DB
+
+	if p.Preload != nil {
+		if lib.StringsContains(*p.Preload, "dorm") {
+			db = db.Preload("DormRoom").Preload("DormRoom.Dorm")
+		}
+		if lib.StringsContains(*p.Preload, "tags") {
+			db = db.Preload("Tags")
+		}
+		if lib.StringsContains(*p.Preload, "department") {
+			db = db.Preload("Department")
+		}
+		if lib.StringsContains(*p.Preload, "office") {
+			db = db.Preload("Office")
+		}
+	}
+
+	return db.Scopes(scopes...)
+}
+
+func (p *GetAllUsersOptions) Order(db *gorm.DB) *gorm.DB {
+	return db.Order("id ASC")
+}
+
+func (p *GetAllUsersOptions) Paginate(db *gorm.DB) *gorm.DB {
+	db = p.Order(db)
+	if p.Offset != nil {
+		db = db.Offset(p.Offset)
+	}
+	if p.Limit != nil {
+		db = db.Limit(p.Limit)
+	}
+
+	return db
+}
+
+func (m *UserModel) GetAllUsers(u *[]*User, opts Options) (err error) {
 	db := m.DB.Scopes(m.scopeVisible, m.scopeAtWilliams)
-	if paginator != nil {
-		db = db.Scopes(paginator.Paginate)
+	if opts != nil {
+		db = opts.Paginate(db)
+		db = opts.Preloader(db)
 	}
 	err = db.Find(u).Error
 	return
@@ -52,6 +99,13 @@ func (m *UserModel) DoesUserExist(id uint) (exists bool, err error) {
 
 // Update the user. Only allow specific keys to be passed
 func (m *UserModel) UpdateUser(user *User) (err error) {
+	// Generate search fields here.
+	searchFields, err := m.generateSearchFields(user.ID)
+	if err != nil {
+		return
+	}
+	user.SearchFields = searchFields
+
 	err = m.DB.Save(user).Error
 	return
 }
@@ -102,10 +156,101 @@ func (m *UserModel) UpdateUserTags(id uint, tags []string) (err error) {
 		}
 	}
 
-	return tx.Commit().Error
+	err = tx.Commit().Error
+	if err != nil {
+		tx.Rollback()
+		return
+	}
+
+	// Update search fields
+	err = m.PopulateSearchFields(user.ID)
+	return
 }
 
-func (m *UserModel) updateUserUnsafe(dbUser *User, toUser *User) error {
+// Populates the search field. This is an expensive function, so call is sparingly.
+func (m *UserModel) PopulateSearchFields(id uint) (err error) {
+	searchFields, err := m.generateSearchFields(id)
+	if err != nil {
+		return
+	}
+
+	err = m.DB.Model(NewUserWithID(id)).Update("search_fields", searchFields).Error
+	return
+}
+
+// Generates the search field, but does not change the database.
+func (m *UserModel) generateSearchFields(id uint) (searchFields string, err error) {
+	var user User
+	err = m.DB.Preload("Tags").
+		Preload("DormRoom").
+		Preload("DormRoom.Dorm").
+		Preload("Office").
+		First(&user, id).Error
+	if err != nil {
+		return
+	}
+
+	searchFields = user.GenerateSearchFields()
+	return
+}
+
+// Generates the search field, but does not change the database. This works by looking up associated elements of the
+// user and using those as context, rather than preloading them via the user. (Use case is generating fields of a user
+// that doesn't exist yet.)
+func (m *UserModel) generateSearchFieldsByUser(user User) (searchFields string, err error) {
+	// Populate required preloads
+	if len(user.Tags) == 0 {
+		var tags []*Tag
+		err = m.DB.Model(&user).Related(&tags, "Tags").Error
+		if err != nil {
+			return
+		}
+		user.Tags = tags
+	}
+
+	if len(user.Tags) == 0 {
+		var tags []*Tag
+		err = m.DB.Model(&user).Related(&tags, "Tags").Error
+		if err != nil {
+			return
+		}
+		user.Tags = tags
+	}
+
+	if user.DormRoomID != nil {
+		if user.DormRoom == nil {
+			var dormRoom DormRoom
+			err = m.DB.Preload("Dorm").First(&dormRoom, user.DormRoomID).Error
+			if err != nil {
+				return
+			}
+			user.DormRoom = &dormRoom
+		}
+		if user.DormRoom.Dorm == nil {
+			var dorm Dorm
+			err = m.DB.First(&dorm, user.DormRoom.DormID).Error
+			if err != nil {
+				return
+			}
+			user.DormRoom.Dorm = &dorm
+		}
+	}
+
+	if user.OfficeID != nil && user.Office == nil {
+		var office Office
+		err = m.DB.First(&office, user.OfficeID).Error
+		if err != nil {
+			return
+		}
+		user.Office = &office
+	}
+
+	userPtr := &user
+	searchFields = userPtr.GenerateSearchFields()
+	return
+}
+
+func (m *UserModel) updateUserUnsafe(dbUser *User, toUser *User) (err error) {
 	if toUser.Type != dbUser.Type {
 		log.Infof("Changing type of user %s from %s to %s", dbUser.UnixID, dbUser.Type, toUser.Type)
 		dbUser.Type = toUser.Type
@@ -139,7 +284,15 @@ func (m *UserModel) updateUserUnsafe(dbUser *User, toUser *User) error {
 		dbUser.Entry = toUser.Entry
 	}
 
-	return m.DB.Save(dbUser).Error
+	// Update the search fields
+	dbUser.SearchFields, err = m.generateSearchFieldsByUser(*dbUser)
+	if err != nil {
+		return
+	}
+
+	// Update the user
+	err = m.DB.Save(dbUser).Error
+	return
 }
 
 func (m *UserModel) FirstOrCreateFromUnixID(unixID string, config *config.Config) (*User, error) {
@@ -428,6 +581,11 @@ func (m *UserModel) UpdateAllFromLDAP(cfg *config.Config) error {
 			if err != nil {
 				log.WithError(err).Errorf("Could not create user %s with %#+v", toUser.UnixID, toUser)
 			}
+			// Update user with search field
+			err = m.PopulateSearchFields(toUser.ID)
+			if err != nil {
+				log.WithError(err).Errorf("Could not update user (%s) search field", toUser.UnixID)
+			}
 		}
 	}
 
@@ -530,6 +688,8 @@ func (m *UserModel) updateNotInLDAP(user *User, ndsLdap *ldap.LDAP) error {
 	user.DormRoomID = nil
 	user.Office = nil
 	user.OfficeID = nil
+	// We can do this without loading associations as we know that we deleted all of them.
+	user.SearchFields = user.GenerateSearchFields()
 
 	return m.DB.Save(user).Error
 }

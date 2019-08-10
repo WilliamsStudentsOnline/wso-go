@@ -84,7 +84,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 		// User API group
 		userGroup := v1.Group("/users")
 		userGroup.Use(auth.RequireScopes(auth.ScopeUsers))
-		userService.SetupRouter(userGroup, db)
+		userService.SetupRouter(userGroup, db, cfg)
 
 		// Admin API group
 		adminGroup := v1.Group("/admin")

@@ -533,6 +533,35 @@ func TestSearch(t *testing.T) {
 				},
 			},
 		},
+		// Other custom expressions that I have come across
+		{
+			name:  "two fields",
+			query: "room: 103 dorm: East",
+			expected: &Query{
+				Or: []*Expression{
+					{
+						And: []*Condition{
+							{
+								Field: &Field{
+									Key: "room",
+									Value: &Value{
+										Int: lib.IntToPtr(103),
+									},
+								},
+							},
+							{
+								Field: &Field{
+									Key: "dorm",
+									Value: &Value{
+										Word: lib.StrToPtr("East"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 
 	for _, tc := range testCases {

@@ -61,6 +61,9 @@ var CreateUsers20190719211808 = &gormigrate.Migration{
 
 			OptOutEphcatch      *bool `gorm:"DEFAULT:false;not null" json:"optOutEphcatch"`
 			EphcatchEligibility *bool `gorm:"DEFAULT:false;not null" json:"ephcatchEligibility"`
+
+			// Keep this in here as long as we want to maintain this type of searching.
+			SearchFields string `gorm:"default:'';not null'" json:"-"`
 		}
 		return tx.AutoMigrate(&User{}).Error
 	},
