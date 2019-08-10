@@ -19,7 +19,8 @@ func TestController_ListDepartments(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	d1 := models.Department{
 		Name: "Computer Science",
@@ -53,7 +54,8 @@ func TestController_GetDepartment(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	d1 := models.Department{
 		Name: "Computer Science",
@@ -109,7 +111,8 @@ func TestController_ListDepartmentProfessors(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	// Insert test user into db
 	p1 := models.User{
@@ -216,7 +219,8 @@ func TestController_ListDepartmentCourses(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	// Need this to satisfy not null
 	d1 := models.Department{

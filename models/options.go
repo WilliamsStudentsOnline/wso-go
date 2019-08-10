@@ -2,6 +2,11 @@ package models
 
 import "github.com/jinzhu/gorm"
 
+type Options interface {
+	Paginator
+	Preloader
+}
+
 type Paginator interface {
 	Order(db *gorm.DB) *gorm.DB
 	Paginate(db *gorm.DB) *gorm.DB
@@ -19,7 +24,6 @@ func (*NoPaginator) Paginate(db *gorm.DB) *gorm.DB {
 
 type Preloader interface {
 	Preloader(db *gorm.DB) *gorm.DB
-	PreloadScoper() []func(*gorm.DB) *gorm.DB
 }
 
 func stringsContains(slice []string, str string) bool {

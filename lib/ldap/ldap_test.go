@@ -1,8 +1,9 @@
-package lib
+package ldap_test
 
 import (
 	"testing"
 
+	. "github.com/WilliamsStudentsOnline/wso-go/lib/ldap"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -17,13 +17,28 @@ import (
 // @Tags factrak
 // @Accept  json
 // @Produce  json
+// @Param offset query int false "Offset Pagination"
+// @Param limit query int false "Limit Pagination"
+// @Param preload query []string false "Preload List"
+// @Param q query string false "Search Query"
 // @Success 200 {array} models.User
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
 // @Router /factrak/professors [get]
 func (t *Controller) ListProfessors(c *gin.Context) {
-	var profs []models.User
-	err := t.professorModel.GetAllProfessors(&profs)
+	var profs []*models.User
+	var err error
+
+	opts := models.GetAllProfessorsOptions{}
+	if err = c.ShouldBindQuery(&opts); err != nil {
+		return
+	}
+
+	if query, ok := c.GetQuery("q"); ok {
+		err = t.factrakSearch.SearchProfessors(query, &profs, &opts)
+	} else {
+		err = t.professorModel.GetAllProfessors(&profs, &opts)
+	}
 
 	if err != nil {
 		t.RespondError(c, err)
@@ -92,7 +107,7 @@ func (t *Controller) GetProfessor(c *gin.Context) {
 // @Produce  json
 // @Param courseID query uint false "Course ID"
 // @Param professorID path uint true "Professor ID"
-// @Param offset query time.Time false "Offset Pagination"
+// @Param offset query string false "Offset Pagination (timestamp)"
 // @Param limit query int false "Limit Pagination"
 // @Success 200 {array} models.FactrakSurvey
 // @Failure 400 {object} lib.APIError

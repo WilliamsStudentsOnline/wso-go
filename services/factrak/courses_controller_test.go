@@ -19,7 +19,8 @@ func TestController_ListCourses(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	// Need this to satisfy not null
 	dept := models.Department{
@@ -73,7 +74,8 @@ func TestController_GetCourse(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	p1 := models.User{
 		Type:   models.UserTypeProfessor,
@@ -161,7 +163,8 @@ func TestController_GetCourseWithProfessor(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	// Insert test user into db
 	p1 := models.User{
@@ -281,7 +284,8 @@ func TestController_ListCourseSurveys(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	p1 := models.User{
 		Type:   models.UserTypeProfessor,
@@ -391,7 +395,8 @@ func TestController_ListCourseSurveysWithProfessor(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	// Insert test user into db
 	p1 := models.User{
@@ -509,7 +514,8 @@ func TestController_ListCourseProfessors(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	// Insert test user into db
 	p1 := models.User{
@@ -642,7 +648,8 @@ func TestController_GetCourseRatings(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	p1 := models.User{
 		Type:   models.UserTypeProfessor,
@@ -788,7 +795,8 @@ func TestController_GetCourseRatingsWithProfessor(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	// Insert test user into db
 	p1 := models.User{

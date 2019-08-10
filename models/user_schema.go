@@ -1,6 +1,11 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import (
+	"strconv"
+	"strings"
+
+	"github.com/jinzhu/gorm"
+)
 
 const (
 	UserTypeStudent   = "student"
@@ -58,6 +63,9 @@ type User struct {
 	OptOutEphcatch      *bool `gorm:"DEFAULT:false;not null" json:"optOutEphcatch"`
 	EphcatchEligibility *bool `gorm:"DEFAULT:false;not null" json:"ephcatchEligibility"`
 
+	// Keep this in here as long as we want to maintain this type of searching.
+	SearchFields string `gorm:"default:'';not null'" json:"-"`
+
 	// Has many tags
 	Tags []*Tag `gorm:"many2many:tags_users;" json:"tags,omitempty"`
 
@@ -111,6 +119,61 @@ func (u *User) Student() *Student {
 	}
 }
 
+func (u *User) HomeAddress() string {
+	var addressSlice []string
+
+	if u.HomeTown != nil {
+		addressSlice = append(addressSlice, *u.HomeTown)
+	}
+	if u.HomeState != nil {
+		addressSlice = append(addressSlice, *u.HomeState)
+	}
+	if u.HomeCountry != nil && *u.HomeCountry != "United States" {
+		addressSlice = append(addressSlice, *u.HomeCountry)
+	}
+
+	return strings.Join(addressSlice, ", ")
+}
+
+func (u *User) GenerateSearchFields() string {
+	var searchFields []string
+
+	if *u.Visible && *u.AtWilliams {
+		searchFields = append(searchFields, u.Name, u.UnixID)
+		if u.Title != nil {
+			searchFields = append(searchFields, *u.Title)
+		}
+		if u.ClassYear != nil {
+			searchFields = append(searchFields, strconv.Itoa(*u.ClassYear))
+		}
+		if u.Major != nil {
+			searchFields = append(searchFields, *u.Major)
+		}
+		if u.SUBox != nil {
+			searchFields = append(searchFields, *u.SUBox)
+		}
+		if u.Entry != nil {
+			searchFields = append(searchFields, *u.Entry)
+		}
+		if *u.DormVisible && u.DormRoom != nil {
+			searchFields = append(searchFields, u.DormRoom.Dorm.Name+" "+u.DormRoom.Number)
+		} else if u.Office != nil {
+			searchFields = append(searchFields, u.Office.Number)
+		}
+		if *u.HomeVisible && u.HomeTown != nil {
+			searchFields = append(searchFields, u.HomeAddress())
+		}
+
+		for _, tag := range u.Tags {
+			searchFields = append(searchFields, tag.Name)
+		}
+	}
+
+	searchFieldsStr := strings.Join(searchFields, "#")
+	searchFieldsStr = strings.ToLower(searchFieldsStr)
+	return searchFieldsStr
+}
+
 // I hate hooks but I'm keeping this one here, as it is useful. Otherwise, put hooks in controllers.
 func (u *User) AfterCreate(scope *gorm.Scope) (err error) {
 	if u.IsStudent() {
@@ -125,6 +188,24 @@ func (u *User) AfterCreate(scope *gorm.Scope) (err error) {
 	}
 	return
 }
+
+// This updates the user search fields every time the user is updated.
+// Again, I really hate hooks, and this one seems useless to me, but for the MVP we shall keep it.
+// I think this is not a function we should always try to update, as searching can be over slightly old records.
+// Ideally, this would run daily to update search fields. Actually, ideally, we would not use MySQL for search.
+// TODO(aidan): Make this hook optional in config and/or remove it in production.
+// NOTE: This might fail horribly if we try to update a user with only SOME data (not every field loaded).
+// XXX: Removing this due to the fact it could catastrophically fail. Now we just generate search fields in specific
+//  functions (and before create)
+/*func (u *User) BeforeSave(scope *gorm.Scope) (err error) {
+	userModel := NewUserModel(scope.DB())
+	searchFields, err := userModel.generateSearchFieldsByUser(*u)
+	if err != nil {
+		return
+	}
+	u.SearchFields = searchFields
+	return
+}*/
 
 // Again, I hate hooks but this is the best way.
 // This populates the factrak surveys field: please don't use this field for database updates.

@@ -218,7 +218,8 @@ func TestLimitedScopeAccess(t *testing.T) {
 
 	r := utils.SetupRouter(auth.ScopeFactrakLimited, auth.ScopeUsers, auth.ScopeWriteSelf)
 	utils.AddUserContexts(r, s1.ID)
-	SetupRouter(r, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(r, db, cfg)
 
 	// Can list professors
 	w, err := utils.DoHTTPReq(r, http.MethodGet, fmt.Sprintf("/professors"), nil)

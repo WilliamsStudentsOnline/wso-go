@@ -22,7 +22,7 @@ import (
 // @Param dormID query uint false "Dorm ID"
 // @Param dormRoomID query uint false "Dorm Room ID"
 // @Param userID query uint false "User ID"
-// @Param offset query time.Time false "Offset Pagination"
+// @Param offset query string false "Offset Pagination (timestamp)"
 // @Param limit query int false "Limit Pagination"
 // @Param commented query bool false "Restrict to commented reviews"
 // @Success 200 {array} models.DormtrakReview

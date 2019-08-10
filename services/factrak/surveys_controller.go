@@ -20,7 +20,7 @@ import (
 // @Tags factrak
 // @Accept  json
 // @Produce  json
-// @Param offset query time.Time false "Offset Pagination"
+// @Param offset query string false "Offset Pagination (timestamp)"
 // @Param limit query int false "Limit Pagination"
 // @Success 200 {array} models.FactrakSurvey
 // @Failure 500 {object} lib.APIError

@@ -19,7 +19,8 @@ func TestController_ListNeighborhoods(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeDormtrak, auth.ScopeWriteSelf)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	n1 := models.Neighborhood{
 		Name: "Currier",
@@ -60,7 +61,8 @@ func TestController_GetNeighborhood(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeDormtrak, auth.ScopeWriteSelf)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	n1 := models.Neighborhood{
 		Name: "Currier",

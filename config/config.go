@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/WilliamsStudentsOnline/wso-go/lib/search"
 	"github.com/gin-gonic/gin"
 	"github.com/imdario/mergo"
 	"github.com/kelseyhightower/envconfig"
@@ -49,9 +50,14 @@ type Config struct {
 	Port    int    `yaml:"port" envconfig:"port"`
 
 	/* Server */
-	EnableAPIDocs       bool   `yaml:"enable_api_docs" envconfig:"enable_api_docs"`
-	DisableLDAP         bool   `yaml:"disable_ldap" envconfig:"disable_ldap"`
-	LogLevel            string `yaml:"log_level" envconfig:"log_level"`
+	EnableAPIDocs bool   `yaml:"enable_api_docs" envconfig:"enable_api_docs"`
+	DisableLDAP   bool   `yaml:"disable_ldap" envconfig:"disable_ldap"`
+	LogLevel      string `yaml:"log_level" envconfig:"log_level"`
+
+	/* Search */
+	SearchBackend string `yaml:"search_backend" envconfig:"search_backend"`
+
+	/* Kubernetes */
 	KubernetesEnabled   bool   `yaml:"kubernetes_enabled" envconfig:"kubernetes_enabled"`
 	KubeNamespace       string `yaml:"kube_namespace" envconfig:"kube_namespace"`
 	KubeJobImageVersion string `yaml:"kube_job_image_version" envconfig:"kube_job_image_version"`
@@ -205,6 +211,15 @@ func SetupConfig(c *Config) error {
 	// Default to latest
 	if c.KubeJobImageVersion == "" {
 		c.KubeJobImageVersion = "latest"
+	}
+
+	// Default to SearchBackendSQL
+	if c.SearchBackend == "" {
+		c.SearchBackend = search.SearchBackendSQL
+	}
+
+	if c.SearchBackend != search.SearchBackendSQL {
+		return errors.New("unknown search backend")
 	}
 
 	return nil

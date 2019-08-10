@@ -36,14 +36,12 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/admin.KubeJobReturn"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -82,14 +80,12 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/k8s.io/api/batch/v1.JobStatus"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -122,7 +118,6 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -152,14 +147,12 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/admin.KubeJobReturn"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -196,28 +189,24 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/auth.AuthResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -247,28 +236,24 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/auth.AuthResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -298,28 +283,24 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/auth.AuthResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -345,6 +326,35 @@
                 ],
                 "summary": "List dorms",
                 "operationId": "dormtrak-list-dorms",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Offset Pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Preload List",
+                        "name": "preload",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search Query",
+                        "name": "q",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -358,7 +368,6 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -397,28 +406,24 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.Dorm"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -466,21 +471,18 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -540,21 +542,18 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -593,7 +592,6 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -632,28 +630,24 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.Neighborhood"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -692,7 +686,6 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -738,8 +731,8 @@
                         "in": "query"
                     },
                     {
-                        "type": "time.Time",
-                        "description": "Offset Pagination",
+                        "type": "string",
+                        "description": "Offset Pagination (timestamp)",
                         "name": "offset",
                         "in": "query"
                     },
@@ -769,14 +762,12 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -816,63 +807,54 @@
                     "1101": {
                         "description": "request data validation failed",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "1633": {
                         "description": "user must be a student and could not be found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "1634": {
                         "description": "user is missing dorm field",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "1635": {
                         "description": "user does not own this dorm room",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "1636": {
                         "description": "review already exists with passed user ID and dorm room ID",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.DormtrakReview"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -911,28 +893,24 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.DormtrakReview"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -969,35 +947,30 @@
                     "1331": {
                         "description": "must be self",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.DormtrakReview"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -1044,42 +1017,36 @@
                     "1101": {
                         "description": "request data validation failed",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "1331": {
                         "description": "must be self",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.DormtrakReview"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -1109,8 +1076,8 @@
                 "operationId": "factrak-list-flagged-surveys",
                 "parameters": [
                     {
-                        "type": "time.Time",
-                        "description": "Offset Pagination",
+                        "type": "string",
+                        "description": "Offset Pagination (timestamp)",
                         "name": "offset",
                         "in": "query"
                     },
@@ -1134,7 +1101,6 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -1176,14 +1142,12 @@
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -1222,7 +1186,6 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -1261,28 +1224,24 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.AreaOfStudy"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -1330,21 +1289,18 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -1392,21 +1348,18 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -1432,6 +1385,35 @@
                 ],
                 "summary": "List courses",
                 "operationId": "factrak-list-courses",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Offset Pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Preload List",
+                        "name": "preload",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search Query",
+                        "name": "q",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1445,7 +1427,6 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -1490,28 +1471,24 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.Course"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -1559,21 +1536,18 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -1618,28 +1592,24 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.FactrakSurveyAvgRatings"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -1680,8 +1650,8 @@
                         "required": true
                     },
                     {
-                        "type": "time.Time",
-                        "description": "Offset Pagination",
+                        "type": "string",
+                        "description": "Offset Pagination (timestamp)",
                         "name": "offset",
                         "in": "query"
                     },
@@ -1705,21 +1675,18 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -1758,7 +1725,6 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -1797,28 +1763,24 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.Department"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -1866,21 +1828,18 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -1928,21 +1887,18 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -1968,6 +1924,35 @@
                 ],
                 "summary": "List professors",
                 "operationId": "factrak-list-professors",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Offset Pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Preload List",
+                        "name": "preload",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search Query",
+                        "name": "q",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1981,7 +1966,6 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -2026,28 +2010,24 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.User"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -2101,21 +2081,18 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -2160,28 +2137,24 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.FactrakSurveyAvgRatings"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -2222,8 +2195,8 @@
                         "required": true
                     },
                     {
-                        "type": "time.Time",
-                        "description": "Offset Pagination",
+                        "type": "string",
+                        "description": "Offset Pagination (timestamp)",
                         "name": "offset",
                         "in": "query"
                     },
@@ -2247,21 +2220,18 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -2289,8 +2259,8 @@
                 "operationId": "factrak-list-surveys",
                 "parameters": [
                     {
-                        "type": "time.Time",
-                        "description": "Offset Pagination",
+                        "type": "string",
+                        "description": "Offset Pagination (timestamp)",
                         "name": "offset",
                         "in": "query"
                     },
@@ -2314,7 +2284,6 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -2354,84 +2323,72 @@
                     "1101": {
                         "description": "request data validation failed",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "1531": {
                         "description": "missing course parameters in create data: courseID or (areaOfStudyAbbreviation and courseNumber)",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "1532": {
                         "description": "comment must be 100 characters or more",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "1533": {
                         "description": "user must be a student and could not be found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "1534": {
                         "description": "passed professor must be a professor and could not be found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "1535": {
                         "description": "passed course could not be found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "1536": {
                         "description": "passed area of study could not be found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "1537": {
                         "description": "survey already exists with passed user ID, professor ID, and course ID",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.FactrakSurvey"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -2470,35 +2427,30 @@
                     "1330": {
                         "description": "no scope authorization",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.FactrakSurvey"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -2537,35 +2489,30 @@
                     "1331": {
                         "description": "must be self",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.FactrakSurvey"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -2612,49 +2559,42 @@
                     "1101": {
                         "description": "request data validation failed",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "1331": {
                         "description": "must be self",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "1532": {
                         "description": "comment must be 100 characters or more",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.FactrakSurvey"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -2693,35 +2633,30 @@
                     "1551": {
                         "description": "survey agreement could not be found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.FactrakAgreement"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -2768,49 +2703,42 @@
                     "1100": {
                         "description": "could not parse malformed request data",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "1552": {
                         "description": "survey agreement already exists for this user and survey",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "1553": {
                         "description": "cannot create survey agreement with your own survey",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.FactrakAgreement"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -2847,35 +2775,30 @@
                     "1551": {
                         "description": "survey agreement could not be found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.FactrakAgreement"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -2922,42 +2845,36 @@
                     "1100": {
                         "description": "could not parse malformed request data",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "1551": {
                         "description": "survey agreement could not be found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.FactrakAgreement"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -2997,21 +2914,18 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -3046,8 +2960,8 @@
                         "required": true
                     },
                     {
-                        "type": "time.Time",
-                        "description": "Offset Pagination",
+                        "type": "string",
+                        "description": "Offset Pagination (timestamp)",
                         "name": "offset",
                         "in": "query"
                     },
@@ -3062,7 +2976,6 @@
                     "1331": {
                         "description": "must be self",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
@@ -3078,21 +2991,18 @@
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -3106,7 +3016,7 @@
                         "Bearer": []
                     }
                 ],
-                "description": "get all users that are visible and at williams",
+                "description": "Get all users that are visible and at williams.\nIf you pass a search query (?q=\"blah\"), you will get all users matching that search query",
                 "consumes": [
                     "application/json"
                 ],
@@ -3130,6 +3040,21 @@
                         "description": "Limit Pagination",
                         "name": "limit",
                         "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Preload List",
+                        "name": "preload",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search Query",
+                        "name": "q",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -3145,7 +3070,6 @@
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -3184,42 +3108,36 @@
                     "1403": {
                         "description": "user not visible",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "1404": {
                         "description": "user not at williams",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "1405": {
                         "description": "user id could not be parsed",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.User"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -3266,42 +3184,36 @@
                     "1100": {
                         "description": "could not parse malformed request data",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "1331": {
                         "description": "must be self",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "1405": {
                         "description": "user id could not be parsed",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.User"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }
@@ -3350,56 +3262,48 @@
                     "1100": {
                         "description": "could not parse malformed request data",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "1331": {
                         "description": "must be self",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "1405": {
                         "description": "user id could not be parsed",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "1406": {
                         "description": "invalid user tag",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/models.User"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/lib.APIError"
                         }
                     }

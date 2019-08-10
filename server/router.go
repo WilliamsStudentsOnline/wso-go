@@ -84,7 +84,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 		// User API group
 		userGroup := v1.Group("/users")
 		userGroup.Use(auth.RequireScopes(auth.ScopeUsers))
-		userService.SetupRouter(userGroup, db)
+		userService.SetupRouter(userGroup, db, cfg)
 
 		// Admin API group
 		adminGroup := v1.Group("/admin")
@@ -94,12 +94,12 @@ func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 		// Factrak Service
 		factrakGroup := v1.Group("/factrak")
 		factrakGroup.Use(auth.RequireScopes(auth.ScopeFactrakLimited, auth.ScopeFactrakFull))
-		factrakService.SetupRouter(factrakGroup, db)
+		factrakService.SetupRouter(factrakGroup, db, cfg)
 
 		// Dormtrak Service
 		dormtrakGroup := v1.Group("/dormtrak")
 		dormtrakGroup.Use(auth.RequireScopes(auth.ScopeDormtrak))
-		dormtrakService.SetupRouter(dormtrakGroup, db)
+		dormtrakService.SetupRouter(dormtrakGroup, db, cfg)
 	}
 
 	return r, nil

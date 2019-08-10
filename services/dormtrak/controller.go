@@ -1,7 +1,9 @@
 package dormtrak
 
 import (
+	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
+	search "github.com/WilliamsStudentsOnline/wso-go/lib/search/dormtrak"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
@@ -16,16 +18,18 @@ type Controller struct {
 	dormRoomModel     *models.DormRoomModel
 	reviewModel       *models.DormtrakReviewModel
 	userModel         *models.UserModel
+	dormtrakSearch    search.SearchDormtrak
 }
 
 // Construct a new dormtrak controller
-func NewController(db *gorm.DB) *Controller {
+func NewController(db *gorm.DB, cfg *config.Config) *Controller {
 	return &Controller{
 		neighborhoodModel: models.NewNeighborhoodModel(db),
 		dormModel:         models.NewDormModel(db),
 		dormRoomModel:     models.NewDormRoomModel(db),
 		reviewModel:       models.NewDormtrakReviewModel(db),
 		userModel:         models.NewUserModel(db),
+		dormtrakSearch:    search.NewSearchDormtrak(db, cfg),
 	}
 }
 

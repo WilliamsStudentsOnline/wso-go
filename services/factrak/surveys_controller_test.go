@@ -22,7 +22,8 @@ func TestController_ListSurveys(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	c1 := models.Course{
 		Number: "c1",
@@ -90,7 +91,8 @@ func TestController_GetSurvey(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	c1 := models.Course{
 		Number: "c1",
@@ -216,7 +218,8 @@ func TestController_CreateSurvey(t *testing.T) {
 	// Setup router
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(router, s1.ID)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	// First, we run tests on validations
 
@@ -239,7 +242,7 @@ func TestController_CreateSurvey(t *testing.T) {
 	// Setup bad student router
 	r1 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(r1, p2.ID)
-	SetupRouter(r1, db)
+	SetupRouter(r1, db, cfg)
 	createSurveyExpectError(assert, r1, params, lib.ErrorSurveyStudentNotFound)
 
 	// Test 5: error on student prefrosh
@@ -403,7 +406,8 @@ func TestController_UpdateSurvey(t *testing.T) {
 	// Setup router
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(router, s1.ID)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	// First, we run tests on validations
 
@@ -423,7 +427,7 @@ func TestController_UpdateSurvey(t *testing.T) {
 	params = SurveyUpdateParams{CourseStimulating: lib.IntToPtr(3)}
 	r1 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(r1, s2.ID)
-	SetupRouter(r1, db)
+	SetupRouter(r1, db, cfg)
 	updateSurveyExpectError(assert, r1, survey.ID, params, lib.ErrorMustBeSelf)
 
 	// Test 5: error on too small comment
@@ -547,7 +551,8 @@ func TestController_DeleteSurvey(t *testing.T) {
 	// Setup router
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(router, s1.ID)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	// First, we run tests on validations
 
@@ -601,7 +606,7 @@ func TestController_DeleteSurvey(t *testing.T) {
 
 	// Test 4: delete when admin
 	adminR := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf, auth.ScopeFactrakAdmin)
-	SetupRouter(adminR, db)
+	SetupRouter(adminR, db, cfg)
 	w, err = utils.DoHTTPReq(adminR, http.MethodDelete,
 		fmt.Sprintf("/surveys/%d", survey2.ID), nil)
 	assert.NoError(err)
@@ -643,7 +648,8 @@ func TestController_FlagSurvey(t *testing.T) {
 	// Setup router
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(router, s1.ID)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	// First, we run tests on validations
 

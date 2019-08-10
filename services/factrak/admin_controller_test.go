@@ -19,7 +19,8 @@ func TestController_ListFlaggedSurveys(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf, auth.ScopeFactrakAdmin)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	c1 := models.Course{
 		Number: "c1",
@@ -69,7 +70,7 @@ func TestController_ListFlaggedSurveys(t *testing.T) {
 
 	// Fail on no admin
 	noAdminR := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	SetupRouter(noAdminR, db)
+	SetupRouter(noAdminR, db, cfg)
 	w, err := utils.DoHTTPReq(noAdminR, http.MethodGet, "/admin/surveys", nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusForbidden, w.Code)
@@ -129,13 +130,14 @@ func TestController_UnflagSurvey(t *testing.T) {
 	// Setup router
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf, auth.ScopeFactrakAdmin)
 	utils.AddUserContexts(router, s1.ID)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	// First, we run tests on validations
 
 	// Test 0: Fail on no admin
 	noAdminR := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	SetupRouter(noAdminR, db)
+	SetupRouter(noAdminR, db, cfg)
 	w, err := utils.DoHTTPReq(noAdminR, http.MethodDelete,
 		fmt.Sprintf("/admin/surveys/%d/flag", survey.ID), nil)
 	assert.NoError(err)
