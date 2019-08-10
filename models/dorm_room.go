@@ -110,3 +110,12 @@ func (m *DormRoomModel) NewDormRoomPaginate(offset int, limit int) Paginator {
 		Limit:  l,
 	}
 }
+
+// Preloads dorm
+func (m *DormRoomModel) preloadDorm(db *gorm.DB) *gorm.DB {
+	return db.Preload("Dorm")
+}
+
+func (m *DormRoomModel) preloadNeighborhood(db *gorm.DB) *gorm.DB {
+	return db.Preload("Dorm.Neighborhood")
+}
