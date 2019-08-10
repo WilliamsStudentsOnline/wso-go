@@ -24,7 +24,6 @@ func (*NoPaginator) Paginate(db *gorm.DB) *gorm.DB {
 
 type Preloader interface {
 	Preloader(db *gorm.DB) *gorm.DB
-	PreloadScoper() []func(*gorm.DB) *gorm.DB
 }
 
 func stringsContains(slice []string, str string) bool {

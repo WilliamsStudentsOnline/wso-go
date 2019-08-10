@@ -65,21 +65,19 @@ func (p *GetAllFactrakSurveysOptions) Paginate(db *gorm.DB) *gorm.DB {
 
 // Preload specifically allowed parts if requested
 func (p *GetAllFactrakSurveysOptions) Preloader(db *gorm.DB) *gorm.DB {
-	return db.Scopes(p.PreloadScoper()...)
-}
-
-func (p *GetAllFactrakSurveysOptions) PreloadScoper() []func(*gorm.DB) *gorm.DB {
 	fsM := NewFactrakSurveyModel(nil)
 	var scopes []func(*gorm.DB) *gorm.DB
 
-	if stringsContains(p.Preload, "professor") {
-		scopes = append(scopes, fsM.preloadProfessor)
-	}
-	if stringsContains(p.Preload, "course") {
-		scopes = append(scopes, fsM.preloadCourse)
+	if p.Preload != nil {
+		if stringsContains(p.Preload, "professor") {
+			scopes = append(scopes, fsM.preloadProfessor)
+		}
+		if stringsContains(p.Preload, "course") {
+			scopes = append(scopes, fsM.preloadCourse)
+		}
 	}
 
-	return scopes
+	return db.Scopes(scopes...)
 }
 
 // Gets all surveys with options
@@ -88,11 +86,13 @@ func (m *FactrakSurveyModel) GetAllSurveysWithOptions(p *[]*FactrakSurvey, opts 
 		m.scopeDefault,
 	}
 
+	db := m.DB
+
 	if opts != nil {
 		if opts.Paginator != nil {
-			scopes = append(scopes, opts.Paginator.Paginate)
+			db = opts.Paginator.Paginate(db)
 		} else if opts.Limit > 0 {
-			scopes = append(scopes, opts.Paginate)
+			db = opts.Paginate(db)
 		}
 
 		if opts.ProfessorID != nil {
@@ -111,13 +111,10 @@ func (m *FactrakSurveyModel) GetAllSurveysWithOptions(p *[]*FactrakSurvey, opts 
 			scopes = append(scopes, m.scopeProfAtWilliams)
 		}
 
-		// Load the preload scopes
-		if len(opts.Preload) > 0 {
-			scopes = append(scopes, opts.PreloadScoper()...)
-		}
+		db = opts.Preloader(db)
 	}
 
-	err = m.DB.Scopes(scopes...).Find(p).Error
+	err = db.Scopes(scopes...).Find(p).Error
 	return
 }
 
