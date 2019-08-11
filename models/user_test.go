@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
+	migrate "github.com/WilliamsStudentsOnline/wso-go/db"
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	. "github.com/WilliamsStudentsOnline/wso-go/models"
@@ -115,4 +116,80 @@ func ExampleUserModel_LDAPLookup() {
 	}
 
 	fmt.Println(users)
+}
+
+func TestUserModel_DoesUserExist(t *testing.T) {
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+
+	db.Create(&User{
+		Type:   UserTypeStudent,
+		Name:   "foo",
+		UnixID: "u1",
+	})
+
+	db.Create(&User{
+		Type:   UserTypeAlum,
+		Name:   "bar",
+		UnixID: "u2",
+	})
+
+	db.Create(&User{
+		Type:   UserTypeStudent,
+		Name:   "baz",
+		UnixID: "u3",
+	})
+
+	m := NewUserModel(db)
+
+	t.Run("does exist", func(t *testing.T) {
+		exists, err := m.DoesUserExist(2)
+		assert.NoError(err)
+		assert.True(exists)
+	})
+
+	t.Run("does not exist", func(t *testing.T) {
+		exists, err := m.DoesUserExist(5)
+		assert.NoError(err)
+		assert.False(exists)
+	})
+}
+
+func BenchmarkUserModel_DoesUserExist(b *testing.B) {
+	cfg := utils.SetupConfig()
+
+	db := config.LoadDatabase(cfg)
+	_ = migrate.MigrateDB(db)
+
+	db.Create(&User{
+		Type:   UserTypeStudent,
+		Name:   "foo",
+		UnixID: "u1",
+	})
+
+	db.Create(&User{
+		Type:   UserTypeAlum,
+		Name:   "bar",
+		UnixID: "u2",
+	})
+
+	db.Create(&User{
+		Type:   UserTypeStudent,
+		Name:   "baz",
+		UnixID: "u3",
+	})
+
+	m := NewUserModel(db)
+
+	b.Run("does exist", func(b *testing.B) {
+		for n := 0; n < b.N; n++ {
+			_, _ = m.DoesUserExist(2)
+		}
+	})
+
+	b.Run("does not exist", func(b *testing.B) {
+		for n := 0; n < b.N; n++ {
+			_, _ = m.DoesUserExist(5)
+		}
+	})
 }

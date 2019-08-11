@@ -81,4 +81,10 @@ var (
 	ErrorReviewMissingDorm     = NewAPIError(1634, "user is missing dorm field")
 	ErrorReviewDormNotOwner    = NewAPIError(1635, "user does not own this dorm room")
 	ErrorReviewAlreadyExists   = NewAPIError(1536, "review already exists with passed user ID and dorm room ID")
+
+	// 17** are ephcatch errors
+	ErrorEphcatchLikeNoSelf    = NewAPIError(1730, "cannot ephcatch-like yourself")
+	ErrorEphcatcherNotFound    = NewAPIError(1731, "ephcatcher could not be found")
+	ErrorEphcatchAlreadyExists = NewAPIError(1732, "ephcatch already exists with user ID and passed ephcatcher ID")
+	ErrorEphcatchDoesNotExist  = NewAPIError(1732, "ephcatch does not exist with user ID and passed ephcatcher ID")
 )

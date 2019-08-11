@@ -76,13 +76,16 @@ type User struct {
 	ProfessorFactrakSurveys []*FactrakSurvey `gorm:"foreignkey:ProfessorID" json:"-"`
 	// As we cannot be both a student and a professor, this combines either a student or a professor's factrak survey.
 	// We populate this field as a hook AfterFind.
-	FactrakSurveys []*FactrakSurvey `gorm:"-" json:"factrakSurveys"`
+	FactrakSurveys []*FactrakSurvey `gorm:"-" json:"factrakSurveys,omitempty"`
 
 	// Has many factrak agreements
 	FactrakAgreements []*FactrakAgreement `json:"factrakAgreements,omitempty"`
 
 	// Has many dormtrak reviews
 	DormtrakReviews []*DormtrakReview `json:"dormtrakReviews,omitempty"`
+
+	// Has many ephcatches (owner side)
+	Ephcatches []*Ephcatch `gorm:"foreignkey:UserID" json:"ephcatches,omitempty"`
 }
 
 func (*User) TableName() string {

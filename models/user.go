@@ -34,8 +34,6 @@ type GetAllUsersOptions struct {
 
 // Preload specifically allowed parts if requested
 func (p *GetAllUsersOptions) Preloader(db *gorm.DB) *gorm.DB {
-	var scopes []func(*gorm.DB) *gorm.DB
-
 	if p.Preload != nil {
 		if lib.StringsContains(*p.Preload, "dorm") {
 			db = db.Preload("DormRoom").Preload("DormRoom.Dorm")
@@ -51,7 +49,7 @@ func (p *GetAllUsersOptions) Preloader(db *gorm.DB) *gorm.DB {
 		}
 	}
 
-	return db.Scopes(scopes...)
+	return db
 }
 
 func (p *GetAllUsersOptions) Order(db *gorm.DB) *gorm.DB {
@@ -61,10 +59,10 @@ func (p *GetAllUsersOptions) Order(db *gorm.DB) *gorm.DB {
 func (p *GetAllUsersOptions) Paginate(db *gorm.DB) *gorm.DB {
 	db = p.Order(db)
 	if p.Offset != nil {
-		db = db.Offset(p.Offset)
+		db = db.Offset(*p.Offset)
 	}
 	if p.Limit != nil {
-		db = db.Limit(p.Limit)
+		db = db.Limit(*p.Limit)
 	}
 
 	return db
@@ -624,34 +622,6 @@ func (m *UserModel) UpdateFactrakSurveyDeficit(user *User) error {
 		return errors.New("user must be student")
 	}
 	return NewStudentModel(m.DB).UpdateFactrakSurveyDeficit(user)
-}
-
-type UserPaginator struct {
-	Offset uint
-	Limit  uint
-}
-
-func (p *UserPaginator) Order(db *gorm.DB) *gorm.DB {
-	return db.Order("id ASC")
-}
-
-func (p *UserPaginator) Paginate(db *gorm.DB) *gorm.DB {
-	db = p.Order(db).Offset(p.Offset).Limit(p.Limit)
-	return db
-}
-
-func (m *UserModel) NewUserPaginate(offset int, limit int) Paginator {
-	o := uint(offset)
-	l := uint(limit)
-
-	if l == 0 {
-		return &NoPaginator{}
-	}
-
-	return &UserPaginator{
-		Offset: o,
-		Limit:  l,
-	}
 }
 
 func (*UserModel) scopeVisible(db *gorm.DB) *gorm.DB {
