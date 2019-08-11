@@ -199,7 +199,9 @@ func GenerateClaims(v *AuthenticatorPayload) jwt.MapClaims {
 		if v.User.IsStudent() {
 			// If user is a senior or ephcatch eligible, add ephcatch scope
 			if v.User.Student().Senior() || (v.User.EphcatchEligibility != nil && *v.User.EphcatchEligibility) {
-				scope = append(scope, auth.ScopeEphcatch)
+				if isSeniorWeek() {
+					scope = append(scope, auth.ScopeEphcatch)
+				}
 			}
 
 			// For factrak, user must be student and user accepted factrak policy
@@ -246,4 +248,11 @@ func GenerateClaims(v *AuthenticatorPayload) jwt.MapClaims {
 		"tokenLevel": v.TokenLevel,
 		"scope":      scope,
 	}
+}
+
+func isSeniorWeek() bool {
+	now := time.Now()
+	seniorWeek := time.Date(now.Year(), time.May, 15, 0, 0, 0, 0, now.Location())
+	seniorWeekEnd := time.Date(now.Year(), models.StudentCutoffMonth, 1, 0, 0, 0, 0, now.Location())
+	return now.After(seniorWeek) && now.Before(seniorWeekEnd)
 }
