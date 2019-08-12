@@ -64,3 +64,36 @@ func (t *Controller) GetNeighborhood(c *gin.Context) {
 
 	t.RespondOK(c, neighborhood)
 }
+
+// GetNeighborhoodFacts godoc
+// @Summary Get neighborhood facts
+// @Description gets neighborhood facts of one neighborhood.
+// @ID dormtrak-get-neighborhood-facts
+// @Tags dormtrak
+// @Accept  json
+// @Produce  json
+// @Param dormID path uint true "Neighborhood ID"
+// @Success 200 {object} models.NeighborhoodFacts
+// @Failure 400 {object} lib.APIError
+// @Failure 404 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /dormtrak/neighborhoods/{neighborhoodID}/facts [get]
+func (t *Controller) GetNeighborhoodFacts(c *gin.Context) {
+	// Decode dormID.
+	neighborhoodID, err := services.GetUIntParam(c, "neighborhoodID")
+	if err != nil {
+		t.RespondErrorCode(c, http.StatusBadRequest, err)
+		return
+	}
+
+	// Do database query
+	facts := models.NeighborhoodFacts{}
+	err = t.neighborhoodModel.GetNeighborhoodFacts(neighborhoodID, &facts)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	t.RespondOK(c, facts)
+}

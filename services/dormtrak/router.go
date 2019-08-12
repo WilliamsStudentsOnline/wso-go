@@ -13,6 +13,7 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config) {
 	// Neighborhoods endpoint
 	r.GET("/neighborhoods", c.ListNeighborhoods)
 	r.GET("/neighborhoods/:neighborhoodID", c.GetNeighborhood)
+	r.GET("/neighborhoods/:neighborhoodID/facts", c.GetNeighborhoodFacts)
 
 	// Dorms endpoint
 	r.GET("/dorms", c.ListDorms)

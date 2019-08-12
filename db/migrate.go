@@ -21,6 +21,7 @@ var Migrations = []*gormigrate.Migration{
 	migrations.CreateFactrakAgreements20190729142610,
 	migrations.CreateFactrakSurveys20190729142626,
 	migrations.CreateDormtrakReviews20190808235302,
+	migrations.CreateEphcatches20190812033724,
 }
 
 var MigrationGormOptions = gormigrate.DefaultOptions

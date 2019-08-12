@@ -395,7 +395,7 @@ definitions:
         type: integer
       bathroomDesc:
         type: string
-      bed_adjustable:
+      bedAdjustable:
         type: boolean
       closet:
         type: string
@@ -441,7 +441,7 @@ definitions:
         type: boolean
       roomType:
         type: string
-      thermostat_access:
+      thermostatAccess:
         type: boolean
       thermostatDesc:
         type: string
@@ -726,6 +726,15 @@ definitions:
         type: string
       trakked:
         type: boolean
+    type: object
+  models.NeighborhoodFacts:
+    properties:
+      juniorCount:
+        type: integer
+      seniorCount:
+        type: integer
+      sophomoreCount:
+        type: integer
     type: object
   models.Office:
     properties:
@@ -1181,9 +1190,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/models.DormFacts'
-            type: array
+            $ref: '#/definitions/models.DormFacts'
         "400":
           description: Bad Request
           schema:
@@ -1307,6 +1314,42 @@ paths:
       summary: Get neighborhood
       tags:
       - dormtrak
+  /dormtrak/neighborhoods/{neighborhoodID}/facts:
+    get:
+      consumes:
+      - application/json
+      description: gets neighborhood facts of one neighborhood.
+      operationId: dormtrak-get-neighborhood-facts
+      parameters:
+      - description: Neighborhood ID
+        in: path
+        name: dormID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.NeighborhoodFacts'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get neighborhood facts
+      tags:
+      - dormtrak
   /dormtrak/rankings:
     get:
       consumes:
@@ -1358,6 +1401,12 @@ paths:
         in: query
         name: limit
         type: integer
+      - description: Preload List
+        in: query
+        items:
+          type: string
+        name: preload
+        type: array
       - description: Restrict to commented reviews
         in: query
         name: commented

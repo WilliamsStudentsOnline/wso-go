@@ -140,7 +140,7 @@ func (t *Controller) GetDormRooms(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param dormID path uint true "Dorm ID"
-// @Success 200 {array} models.DormFacts
+// @Success 200 {object} models.DormFacts
 // @Failure 400 {object} lib.APIError
 // @Failure 404 {object} lib.APIError
 // @Failure 500 {object} lib.APIError

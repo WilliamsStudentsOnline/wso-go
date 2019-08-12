@@ -462,10 +462,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.DormFacts"
-                            }
+                            "$ref": "#/definitions/models.DormFacts"
                         }
                     },
                     "400": {
@@ -654,6 +651,62 @@
                 }
             }
         },
+        "/dormtrak/neighborhoods/{neighborhoodID}/facts": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "gets neighborhood facts of one neighborhood.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dormtrak"
+                ],
+                "summary": "Get neighborhood facts",
+                "operationId": "dormtrak-get-neighborhood-facts",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Neighborhood ID",
+                        "name": "dormID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.NeighborhoodFacts"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
         "/dormtrak/rankings": {
             "get": {
                 "security": [
@@ -740,6 +793,15 @@
                         "type": "integer",
                         "description": "Limit Pagination",
                         "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Preload List",
+                        "name": "preload",
                         "in": "query"
                     },
                     {
@@ -4174,7 +4236,7 @@
                 "bathroomDesc": {
                     "type": "string"
                 },
-                "bed_adjustable": {
+                "bedAdjustable": {
                     "type": "boolean"
                 },
                 "closet": {
@@ -4241,11 +4303,11 @@
                 "roomType": {
                     "type": "string"
                 },
+                "thermostatAccess": {
+                    "type": "boolean"
+                },
                 "thermostatDesc": {
                     "type": "string"
-                },
-                "thermostat_access": {
-                    "type": "boolean"
                 },
                 "users": {
                     "description": "Has many students",
@@ -4657,6 +4719,20 @@
                 },
                 "trakked": {
                     "type": "boolean"
+                }
+            }
+        },
+        "models.NeighborhoodFacts": {
+            "type": "object",
+            "properties": {
+                "juniorCount": {
+                    "type": "integer"
+                },
+                "seniorCount": {
+                    "type": "integer"
+                },
+                "sophomoreCount": {
+                    "type": "integer"
                 }
             }
         },

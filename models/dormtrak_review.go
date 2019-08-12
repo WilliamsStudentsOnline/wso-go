@@ -84,8 +84,11 @@ type GetAllDormtrakReviewsOptions struct {
 	UserID     *uint `json:"userID" form:"userID"`
 
 	// Pagination
-	Offset time.Time `json:"offset" form:"offset"`
-	Limit  uint      `json:"limit" form:"limit"`
+	Offset *time.Time `json:"offset" form:"offset"`
+	Limit  *uint      `json:"limit" form:"limit"`
+
+	// What to preload
+	Preload []string `json:"preload" form:"preload"`
 
 	// Scope to only get commented reviews. True means only get commented; false/empty means ignore this scope.
 	Commented bool `json:"commented" form:"commented"`
@@ -97,7 +100,30 @@ func (p *GetAllDormtrakReviewsOptions) Order(db *gorm.DB) *gorm.DB {
 
 // Pagination starts at most recent and goes down from there
 func (p *GetAllDormtrakReviewsOptions) Paginate(db *gorm.DB) *gorm.DB {
-	db = p.Order(db).Limit(p.Limit).Where("dormtrak_reviews.created_at < ?", p.Offset)
+	db = p.Order(db)
+	if p.Offset != nil {
+		db = db.Where("dormtrak_reviews.created_at < ?", *p.Offset)
+	}
+	if p.Limit != nil {
+		db = db.Limit(*p.Limit)
+	}
+	return db
+}
+
+// Preload specifically allowed parts if requested
+func (p *GetAllDormtrakReviewsOptions) Preloader(db *gorm.DB) *gorm.DB {
+	if p.Preload != nil {
+		if stringsContains(p.Preload, "dormRoom") {
+			db = db.Preload("DormRoom")
+		}
+		if stringsContains(p.Preload, "dorm") {
+			db = db.Preload("DormRoom.Dorm")
+		}
+		if stringsContains(p.Preload, "neighborhood") {
+			db = db.Preload("DormRoom.Dorm.Neighborhood")
+		}
+	}
+
 	return db
 }
 
@@ -106,11 +132,11 @@ func (m *DormtrakReviewModel) GetAllReviewsWithOptions(p *[]*DormtrakReview, opt
 	scopes := []func(*gorm.DB) *gorm.DB{
 		m.scopeDefault,
 	}
+	db := m.DB
 
 	if opts != nil {
-		if opts.Limit > 0 {
-			scopes = append(scopes, opts.Paginate)
-		}
+		db = opts.Paginate(db)
+		db = opts.Preloader(db)
 		if opts.DormID != nil {
 			scopes = append(scopes, m.withDormID(*opts.DormID))
 		}
@@ -125,7 +151,7 @@ func (m *DormtrakReviewModel) GetAllReviewsWithOptions(p *[]*DormtrakReview, opt
 		}
 	}
 
-	err = m.DB.Scopes(scopes...).Find(p).Error
+	err = db.Scopes(scopes...).Find(p).Error
 	return
 }
 
