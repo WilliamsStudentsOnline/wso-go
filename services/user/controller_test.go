@@ -5,13 +5,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"testing"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
+	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
-
 	"github.com/gin-gonic/gin"
+
 	testify "github.com/stretchr/testify/assert"
 )
 
@@ -19,44 +21,36 @@ func TestController_ListUsers(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := gin.Default()
-	SetupRouter(router, db)
+	router := utils.SetupRouter(auth.ScopeUsers, auth.ScopeWriteSelf)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	// Insert test users into db
 	u1 := models.User{
-		Name:       "Test 1",
-		UnixID:     "u1",
-		ClassYear:  lib.IntToPtr(3),
-		Visible:    true,
-		AtWilliams: true,
+		Name:      "Test 1",
+		UnixID:    "u1",
+		ClassYear: lib.IntToPtr(3),
 	}
 	u2 := models.User{
-		Name:       "Test 2",
-		UnixID:     "u2",
-		ClassYear:  lib.IntToPtr(3),
-		Visible:    false,
-		AtWilliams: true,
+		Name:      "Test 2",
+		UnixID:    "u2",
+		ClassYear: lib.IntToPtr(3),
+		Visible:   lib.BoolToPtr(false),
 	}
 	u3 := models.User{
 		Name:       "Test 3",
 		UnixID:     "u3",
 		ClassYear:  lib.IntToPtr(3),
-		Visible:    true,
-		AtWilliams: false,
+		AtWilliams: lib.BoolToPtr(false),
 	}
 	u4 := models.User{
-		Name:       "Test 4",
-		UnixID:     "u4",
-		ClassYear:  lib.IntToPtr(3),
-		Visible:    true,
-		AtWilliams: true,
+		Name:      "Test 4",
+		UnixID:    "u4",
+		ClassYear: lib.IntToPtr(3),
 	}
 	assert.NoError(db.Create(&u1).Create(&u2).Create(&u3).Create(&u4).Error)
 
-	// Update until user pointers fixed
-	assert.NoError(db.Model(&u3).Update("at_williams", false).Error)
-
-	// Get test user (expect success)
+	// Test 1: get test user (expect success)
 	w, err := utils.DoHTTPReq(router, http.MethodGet, "/", nil)
 	assert.NoError(err)
 
@@ -64,15 +58,41 @@ func TestController_ListUsers(t *testing.T) {
 	assert.Equal(http.StatusOK, w.Code)
 
 	// Decode response
-	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	resp := utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(resp.Error)
 	respUsers := []models.User{}
-	err = json.Unmarshal(respData, &respUsers)
+	err = json.Unmarshal(resp.Data, &respUsers)
 	assert.NoError(err)
 
 	// Check if correct user
 	assert.Len(respUsers, 2)
 	assert.Equal(u1.UnixID, respUsers[0].UnixID)
 	assert.Equal(u4.UnixID, respUsers[1].UnixID)
+
+	// Test 2: get test user via search (expect success)
+	// Update users to have search fields
+	for _, u := range []models.User{u1, u2, u3, u4} {
+		assert.NoError(models.NewUserModel(db).PopulateSearchFields(u.ID))
+	}
+
+	qs := url.Values{}
+	qs.Add("q", "test 4")
+	w, err = utils.DoHTTPReq(router, http.MethodGet, "/?"+qs.Encode(), nil)
+	assert.NoError(err)
+
+	// Status is okay
+	assert.Equal(http.StatusOK, w.Code)
+
+	// Decode response
+	resp = utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(resp.Error)
+	respUsers = []models.User{}
+	err = json.Unmarshal(resp.Data, &respUsers)
+	assert.NoError(err)
+
+	// Check if correct user
+	assert.Len(respUsers, 1)
+	assert.Equal(u4.UnixID, respUsers[0].UnixID)
 }
 
 func TestController_GetUser(t *testing.T) {
@@ -82,25 +102,21 @@ func TestController_GetUser(t *testing.T) {
 
 	// Insert test users into db
 	u1 := models.User{
-		Name:       "Test 1",
-		UnixID:     "u1",
-		ClassYear:  lib.IntToPtr(3),
-		Visible:    true,
-		AtWilliams: true,
+		Name:      "Test 1",
+		UnixID:    "u1",
+		ClassYear: lib.IntToPtr(3),
 	}
 	u2 := models.User{
-		Name:       "Test 2",
-		UnixID:     "u2",
-		ClassYear:  lib.IntToPtr(3),
-		Visible:    false,
-		AtWilliams: true,
+		Name:      "Test 2",
+		UnixID:    "u2",
+		ClassYear: lib.IntToPtr(3),
+		Visible:   lib.BoolToPtr(false),
 	}
 	u3 := models.User{
 		Name:       "Test 3",
 		UnixID:     "u3",
 		ClassYear:  lib.IntToPtr(3),
-		Visible:    true,
-		AtWilliams: false,
+		AtWilliams: lib.BoolToPtr(false),
 	}
 	assert.NoError(db.Create(&u1).Create(&u2).Create(&u3).Error)
 
@@ -110,7 +126,8 @@ func TestController_GetUser(t *testing.T) {
 	// Initialize Routing
 	router := gin.Default()
 	utils.AddUserContexts(router, u1.ID)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	// Get test user (expect success)
 	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/%d", u1.ID), nil)
@@ -120,9 +137,11 @@ func TestController_GetUser(t *testing.T) {
 	assert.Equal(http.StatusOK, w.Code)
 
 	// Decode response
-	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	resp := utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(resp.Error)
+
 	respUser := models.User{}
-	err = json.Unmarshal(respData, &respUser)
+	err = json.Unmarshal(resp.Data, &respUser)
 	assert.NoError(err)
 
 	// Check if correct user
@@ -138,9 +157,10 @@ func TestController_GetUser(t *testing.T) {
 	assert.Equal(http.StatusOK, w.Code)
 
 	// Decode response
-	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	resp = utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(resp.Error)
 	respUser = models.User{}
-	err = json.Unmarshal(respData, &respUser)
+	err = json.Unmarshal(resp.Data, &respUser)
 	assert.NoError(err)
 
 	// Check if correct user
@@ -177,23 +197,22 @@ func TestController_UpdateUser(t *testing.T) {
 		Name:        "Test 1",
 		UnixID:      "u1",
 		ClassYear:   lib.IntToPtr(3),
-		Visible:     true,
-		AtWilliams:  true,
-		DormVisible: true,
-		OffCycle:    false,
+		Visible:     lib.BoolToPtr(true),
+		AtWilliams:  lib.BoolToPtr(true),
+		DormVisible: lib.BoolToPtr(true),
+		OffCycle:    lib.BoolToPtr(false),
 	}
 	u2 := models.User{
-		Name:       "Test 2",
-		UnixID:     "u2",
-		ClassYear:  lib.IntToPtr(3),
-		Visible:    true,
-		AtWilliams: true,
+		Name:      "Test 2",
+		UnixID:    "u2",
+		ClassYear: lib.IntToPtr(3),
 	}
 	assert.NoError(db.Create(&u1).Create(&u2).Error)
 
-	router := gin.Default()
+	router := utils.SetupRouter(auth.ScopeUsers, auth.ScopeWriteSelf)
 	utils.AddUserContexts(router, u1.ID)
-	SetupRouter(router, db)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
 
 	postData, err := json.Marshal(map[string]interface{}{
 		"visible":     false,
@@ -206,7 +225,7 @@ func TestController_UpdateUser(t *testing.T) {
 	assert.NoError(err)
 
 	// Update test user 1 (expect success)
-	w, err := utils.DoHTTPReq(router, http.MethodPut, fmt.Sprintf("/%d", u1.ID), bytes.NewBuffer(postData))
+	w, err := utils.DoHTTPReq(router, http.MethodPatch, fmt.Sprintf("/%d", u1.ID), bytes.NewBuffer(postData))
 	assert.NoError(err)
 
 	// Status is okay
@@ -217,16 +236,16 @@ func TestController_UpdateUser(t *testing.T) {
 	assert.NoError(db.First(&res, u1.ID).Error)
 
 	// Check updated params
-	assert.False(res.Visible)
-	assert.False(res.DormVisible)
-	assert.True(res.HomeVisible)
-	assert.True(res.OffCycle)
+	assert.False(*res.Visible)
+	assert.False(*res.DormVisible)
+	assert.True(*res.HomeVisible)
+	assert.True(*res.OffCycle)
 	assert.Equal("foobar", *res.Pronoun)
 	// Assert that name did not change
 	assert.Equal(u1.Name, res.Name)
 
 	// Update test user 2 (expect failure, unauthed)
-	w, err = utils.DoHTTPReq(router, http.MethodPut, fmt.Sprintf("/%d", u2.ID), bytes.NewBuffer(postData))
+	w, err = utils.DoHTTPReq(router, http.MethodPatch, fmt.Sprintf("/%d", u2.ID), bytes.NewBuffer(postData))
 	assert.NoError(err)
 
 	// Status is okay

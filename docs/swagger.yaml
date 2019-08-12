@@ -1,0 +1,3282 @@
+basePath: /api/v1
+definitions:
+  admin.KubeJobReturn:
+    properties:
+      jobID:
+        type: string
+    type: object
+  auth.AuthResponse:
+    properties:
+      expire:
+        type: string
+      token:
+        type: string
+    type: object
+  auth.LoginParams:
+    properties:
+      localIP:
+        description: If true, will authenticate based on IP. Fail if cannot get on-campus
+          token.
+        type: boolean
+      password:
+        type: string
+      unixID:
+        type: string
+      useIP:
+        description: If true, will authenticate based on IP. Will return either off-campus
+          or on-campus token
+        type: boolean
+    required:
+    - password
+    - unixID
+    type: object
+  dormtrak.ReviewCreateParams:
+    properties:
+      bathroomDesc:
+        type: string
+      bedAdjustable:
+        type: boolean
+      closet:
+        type: string
+      closetDesc:
+        type: string
+      comfort:
+        type: integer
+      comment:
+        description: 'Params:'
+        type: string
+      commonRoomAccess:
+        type: boolean
+      commonRoomDesc:
+        type: string
+      convenience:
+        type: integer
+      dormRoomID:
+        description: 'Must include this:'
+        type: integer
+      flooring:
+        type: string
+      keyOrCard:
+        type: string
+      livedHere:
+        type: boolean
+      location:
+        type: integer
+      loudness:
+        type: integer
+      noise:
+        type: string
+      outletsDesc:
+        type: string
+      privateBathroom:
+        type: boolean
+      satisfaction:
+        type: integer
+      thermostatAccess:
+        type: boolean
+      thermostatDesc:
+        type: string
+      wifi:
+        type: integer
+    required:
+    - dormRoomID
+    type: object
+  dormtrak.ReviewUpdateParams:
+    properties:
+      bathroomDesc:
+        type: string
+      bedAdjustable:
+        type: boolean
+      closet:
+        type: string
+      closetDesc:
+        type: string
+      comfort:
+        type: integer
+      comment:
+        type: string
+      commonRoomAccess:
+        type: boolean
+      commonRoomDesc:
+        type: string
+      convenience:
+        type: integer
+      flooring:
+        type: string
+      keyOrCard:
+        type: string
+      livedHere:
+        type: boolean
+      location:
+        type: integer
+      loudness:
+        type: integer
+      noise:
+        type: string
+      outletsDesc:
+        type: string
+      privateBathroom:
+        type: boolean
+      satisfaction:
+        type: integer
+      thermostatAccess:
+        type: boolean
+      thermostatDesc:
+        type: string
+      wifi:
+        type: integer
+    type: object
+  factrak.AgreementCreateParams:
+    properties:
+      agree:
+        type: boolean
+    type: object
+  factrak.AgreementUpdateParams:
+    properties:
+      agree:
+        type: boolean
+    type: object
+  factrak.SurveyCreateParams:
+    properties:
+      approachability:
+        type: integer
+      areaOfStudyAbbreviation:
+        description: 'Or this:'
+        type: string
+      comment:
+        description: 'Params:'
+        type: string
+      courseID:
+        description: 'Must include either this:'
+        type: integer
+      courseNumber:
+        description: Like "256"
+        type: string
+      courseStimulating:
+        type: integer
+      courseWorkload:
+        type: integer
+      gradeReceived:
+        type: string
+      leadLecture:
+        type: integer
+      outsideHelpfulness:
+        type: integer
+      professorID:
+        description: 'Must include this:'
+        type: integer
+      promoteDiscussion:
+        type: integer
+      wouldRecommendCourse:
+        type: boolean
+      wouldTakeAnother:
+        type: boolean
+    required:
+    - comment
+    - professorID
+    type: object
+  factrak.SurveyUpdateParams:
+    properties:
+      approachability:
+        type: integer
+      comment:
+        description: 'Params:'
+        type: string
+      courseStimulating:
+        type: integer
+      courseWorkload:
+        type: integer
+      gradeReceived:
+        type: string
+      leadLecture:
+        type: integer
+      outsideHelpfulness:
+        type: integer
+      promoteDiscussion:
+        type: integer
+      wouldRecommendCourse:
+        type: boolean
+      wouldTakeAnother:
+        type: boolean
+    type: object
+  lib.APIError:
+    properties:
+      code:
+        type: integer
+      errors:
+        items:
+          type: error
+        type: array
+      httpcode:
+        type: integer
+      message:
+        type: string
+    type: object
+  models.AreaOfStudy:
+    properties:
+      abbreviation:
+        type: string
+      courses:
+        description: Has many courses
+        items:
+          $ref: '#/definitions/models.Course'
+        type: array
+      department:
+        $ref: '#/definitions/models.Department'
+        type: object
+      departmentID:
+        description: Belongs to department
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  models.Course:
+    properties:
+      areaOfStudy:
+        $ref: '#/definitions/models.AreaOfStudy'
+        type: object
+      areaOfStudyID:
+        description: Belongs to area of study
+        type: integer
+      factrakSurveys:
+        description: Has many factrak surveys
+        items:
+          $ref: '#/definitions/models.FactrakSurvey'
+        type: array
+      id:
+        type: integer
+      number:
+        type: string
+      professors:
+        description: Has many professors (thru factrak surveys). Ignore this in Gorm.
+          Populate this only whenever needed.
+        items:
+          $ref: '#/definitions/models.User'
+        type: array
+    type: object
+  models.Department:
+    properties:
+      areasOfStudy:
+        description: Has many areas of study
+        items:
+          $ref: '#/definitions/models.AreaOfStudy'
+        type: array
+      id:
+        type: integer
+      name:
+        type: string
+      users:
+        description: Has many professors & staff
+        items:
+          $ref: '#/definitions/models.User'
+        type: array
+    type: object
+  models.Dorm:
+    properties:
+      averageDoubleArea:
+        type: integer
+      averageSingleArea:
+        type: integer
+      bathroomRatio:
+        type: number
+      built:
+        type: integer
+      capacity:
+        type: integer
+      comfort:
+        description: These are average statistics from dorm reviews
+        type: number
+      convenience:
+        type: number
+      description:
+        type: string
+      dormRooms:
+        description: Has many dorm rooms
+        items:
+          $ref: '#/definitions/models.DormRoom'
+        type: array
+      id:
+        type: integer
+      keyOrCard:
+        type: string
+      location:
+        type: number
+      loudness:
+        type: number
+      modeDoubleArea:
+        type: integer
+      modeSingleArea:
+        type: integer
+      name:
+        type: string
+      neighborhood:
+        $ref: '#/definitions/models.Neighborhood'
+        type: object
+      neighborhoodID:
+        description: Belongs to neighborhood
+        type: integer
+      numberBathrooms:
+        type: integer
+      numberDoubles:
+        type: integer
+      numberFlex:
+        type: integer
+      numberSingles:
+        type: integer
+      numberWashers:
+        type: integer
+      satisfaction:
+        type: number
+      wifi:
+        type: number
+    type: object
+  models.DormFacts:
+    properties:
+      averageComfort:
+        type: number
+      averageConvenience:
+        type: number
+      averageDoublesArea:
+        type: integer
+      averageLocation:
+        type: number
+      averageLoudness:
+        type: number
+      averageSatisfaction:
+        type: number
+      averageSinglesArea:
+        type: integer
+      averageWifi:
+        type: number
+      biggestDouble:
+        $ref: '#/definitions/models.DormRoom'
+        type: object
+      biggestSingle:
+        $ref: '#/definitions/models.DormRoom'
+        type: object
+      capacity:
+        type: integer
+      commonRoomAccessRatio:
+        type: number
+      doublesCount:
+        type: integer
+      flexCount:
+        type: integer
+      juniorCount:
+        type: integer
+      keyOrCard:
+        type: string
+      modeDoublesArea:
+        type: integer
+      modeSinglesArea:
+        type: integer
+      seniorCount:
+        type: integer
+      singlesCount:
+        type: integer
+      smallestDouble:
+        $ref: '#/definitions/models.DormRoom'
+        type: object
+      smallestSingle:
+        $ref: '#/definitions/models.DormRoom'
+        type: object
+      sophomoreCount:
+        type: integer
+      studentToBathroomRatio:
+        type: number
+      washersCount:
+        type: integer
+    type: object
+  models.DormRoom:
+    properties:
+      area:
+        type: integer
+      bathroomDesc:
+        type: string
+      bedAdjustable:
+        type: boolean
+      closet:
+        type: string
+      commonRoomAccess:
+        type: boolean
+      commonRoomDesc:
+        type: string
+      dorm:
+        $ref: '#/definitions/models.Dorm'
+        type: object
+      dormID:
+        description: Belongs to dorm
+        type: integer
+      dormtrakReviews:
+        description: Has many Dormtrak reviews
+        items:
+          $ref: '#/definitions/models.DormtrakReview'
+        type: array
+      faces:
+        type: string
+      floorNumber:
+        type: integer
+      flooring:
+        type: string
+      hc:
+        type: boolean
+      id:
+        type: integer
+      keyOrCard:
+        type: string
+      noise:
+        type: string
+      numFlag:
+        description: No clue what this does
+        type: boolean
+      number:
+        type: string
+      outletsDesc:
+        type: string
+      picture:
+        type: string
+      privateBathroom:
+        type: boolean
+      roomType:
+        type: string
+      thermostatAccess:
+        type: boolean
+      thermostatDesc:
+        type: string
+      users:
+        description: Has many students
+        items:
+          $ref: '#/definitions/models.User'
+        type: array
+      walkthrough:
+        type: boolean
+    type: object
+  models.DormtrakRanking:
+    properties:
+      biggestDoubles:
+        items:
+          $ref: '#/definitions/models.DormRoom'
+        type: array
+      biggestSingles:
+        items:
+          $ref: '#/definitions/models.DormRoom'
+        type: array
+      fewestBathrooms:
+        items:
+          $ref: '#/definitions/models.Dorm'
+        type: array
+      maxMeanDoubleSize:
+        items:
+          $ref: '#/definitions/models.Dorm'
+        type: array
+      maxMeanSingleSize:
+        items:
+          $ref: '#/definitions/models.Dorm'
+        type: array
+      minMeanDoubleSize:
+        items:
+          $ref: '#/definitions/models.Dorm'
+        type: array
+      minMeanSingleSize:
+        items:
+          $ref: '#/definitions/models.Dorm'
+        type: array
+      mostBathrooms:
+        items:
+          $ref: '#/definitions/models.Dorm'
+        type: array
+      mostDoubles:
+        items:
+          $ref: '#/definitions/models.Dorm'
+        type: array
+      mostSingles:
+        items:
+          $ref: '#/definitions/models.Dorm'
+        type: array
+      smallestDoubles:
+        items:
+          $ref: '#/definitions/models.DormRoom'
+        type: array
+      smallestSingles:
+        items:
+          $ref: '#/definitions/models.DormRoom'
+        type: array
+    type: object
+  models.DormtrakReview:
+    properties:
+      bathroomDesc:
+        type: string
+      bedAdjustable:
+        type: boolean
+      closet:
+        type: string
+      closetDesc:
+        type: string
+      comfort:
+        type: integer
+      comment:
+        type: string
+      commonRoomAccess:
+        type: boolean
+      commonRoomDesc:
+        type: string
+      convenience:
+        type: integer
+      createdTime:
+        description: 'Pass the created time: not looked at by GORM'
+        type: string
+      dormRoom:
+        $ref: '#/definitions/models.DormRoom'
+        type: object
+      dormRoomID:
+        description: Belongs to dorm room
+        type: integer
+      flooring:
+        type: string
+      id:
+        type: integer
+      keyOrCard:
+        type: string
+      livedHere:
+        type: boolean
+      location:
+        type: integer
+      loudness:
+        type: integer
+      noise:
+        type: string
+      outletsDesc:
+        type: string
+      privateBathroom:
+        type: boolean
+      satisfaction:
+        type: integer
+      thermostatAccess:
+        type: boolean
+      thermostatDesc:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+        type: object
+      userID:
+        description: Belongs to user (student)
+        type: integer
+      wifi:
+        type: integer
+    type: object
+  models.Ephcatch:
+    properties:
+      createdTime:
+        description: 'Pass the created time: not looked at by GORM'
+        type: string
+      id:
+        type: integer
+      other:
+        $ref: '#/definitions/models.User'
+        description: Belongs to other
+        type: object
+      otherID:
+        type: integer
+      seen:
+        type: boolean
+      user:
+        $ref: '#/definitions/models.User'
+        description: Belongs to user
+        type: object
+      userID:
+        type: integer
+    type: object
+  models.Ephcatcher:
+    properties:
+      id:
+        type: integer
+      liked:
+        description: If me (user) has an ephcatch entry where ephcatch.other_id=users.id
+          and ephcatch.user_id=myID
+        type: boolean
+      name:
+        type: string
+      unixID:
+        type: string
+    type: object
+  models.FactrakAgreement:
+    properties:
+      agrees:
+        type: boolean
+      factrakSurvey:
+        $ref: '#/definitions/models.FactrakSurvey'
+        type: object
+      factrakSurveyID:
+        description: Belongs to survey
+        type: integer
+      id:
+        type: integer
+      user:
+        $ref: '#/definitions/models.User'
+        type: object
+      userID:
+        description: Belongs to user
+        type: integer
+    type: object
+  models.FactrakSurvey:
+    properties:
+      agreements:
+        description: Has many agreements
+        items:
+          $ref: '#/definitions/models.FactrakAgreement'
+        type: array
+      approachability:
+        type: integer
+      comment:
+        type: string
+      course:
+        $ref: '#/definitions/models.Course'
+        type: object
+      courseID:
+        description: Belongs to course
+        type: integer
+      courseStimulating:
+        type: integer
+      courseWorkload:
+        type: integer
+      createdTime:
+        description: 'Pass the created time: not looked at by GORM'
+        type: string
+      flagged:
+        type: boolean
+      gradeReceived:
+        type: string
+      id:
+        type: integer
+      leadLecture:
+        type: integer
+      outsideHelpfulness:
+        type: integer
+      professor:
+        $ref: '#/definitions/models.User'
+        type: object
+      professorID:
+        description: Belongs to professor
+        type: integer
+      promoteDiscussion:
+        type: integer
+      totalAgree:
+        description: Not looked at by GORM, just for returning in JSON
+        type: integer
+      totalDisagree:
+        type: integer
+      user:
+        $ref: '#/definitions/models.User'
+        type: object
+      userID:
+        description: Belongs to user (student)
+        type: integer
+      wouldRecommendCourse:
+        type: boolean
+      wouldTakeAnother:
+        type: boolean
+    type: object
+  models.FactrakSurveyAvgRatings:
+    properties:
+      avgApproachability:
+        type: number
+      avgCourseStimulating:
+        type: number
+      avgCourseWorkload:
+        type: number
+      avgLeadLecture:
+        type: number
+      avgOutsideHelpfulness:
+        type: number
+      avgPromoteDiscussion:
+        type: number
+      avgWouldRecommendCourse:
+        type: number
+      avgWouldTakeAnother:
+        type: number
+      numApproachability:
+        type: integer
+      numCourseStimulating:
+        type: integer
+      numCourseWorkload:
+        type: integer
+      numLeadLecture:
+        type: integer
+      numOutsideHelpfulness:
+        type: integer
+      numPromoteDiscussion:
+        type: integer
+      numWouldRecommendCourse:
+        type: integer
+      numWouldTakeAnother:
+        type: integer
+    type: object
+  models.Neighborhood:
+    properties:
+      dorms:
+        description: Had many dorms
+        items:
+          $ref: '#/definitions/models.Dorm'
+        type: array
+      id:
+        type: integer
+      name:
+        type: string
+      trakked:
+        type: boolean
+    type: object
+  models.NeighborhoodFacts:
+    properties:
+      juniorCount:
+        type: integer
+      seniorCount:
+        type: integer
+      sophomoreCount:
+        type: integer
+    type: object
+  models.Office:
+    properties:
+      id:
+        type: integer
+      number:
+        type: string
+      users:
+        items:
+          $ref: '#/definitions/models.User'
+        type: array
+    type: object
+  models.Tag:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      users:
+        items:
+          $ref: '#/definitions/models.User'
+        type: array
+    type: object
+  models.User:
+    properties:
+      admin:
+        type: boolean
+      atWilliams:
+        type: boolean
+      campusPhoneEXT:
+        type: string
+      cellPhone:
+        type: string
+      classYear:
+        type: integer
+      department:
+        $ref: '#/definitions/models.Department'
+        type: object
+      departmentID:
+        description: Belongs to Department iff professor
+        type: integer
+      dormRoom:
+        $ref: '#/definitions/models.DormRoom'
+        type: object
+      dormRoomID:
+        description: Belongs to Dorm Room iff student
+        type: integer
+      dormVisible:
+        type: boolean
+      dormtrakReviews:
+        description: Has many dormtrak reviews
+        items:
+          $ref: '#/definitions/models.DormtrakReview'
+        type: array
+      entry:
+        type: string
+      ephcatchEligibility:
+        type: boolean
+      ephcatches:
+        description: Has many ephcatches (owner side)
+        items:
+          $ref: '#/definitions/models.Ephcatch'
+        type: array
+      factrakAdmin:
+        type: boolean
+      factrakAgreements:
+        description: Has many factrak agreements
+        items:
+          $ref: '#/definitions/models.FactrakAgreement'
+        type: array
+      factrakSurveyDeficit:
+        type: integer
+      factrakSurveys:
+        description: |-
+          As we cannot be both a student and a professor, this combines either a student or a professor's factrak survey.
+          We populate this field as a hook AfterFind.
+        items:
+          $ref: '#/definitions/models.FactrakSurvey'
+        type: array
+      hasAcceptedDormtrakPolicy:
+        type: boolean
+      hasAcceptedFactrakPolicy:
+        type: boolean
+      homeCountry:
+        type: string
+      homePhone:
+        type: string
+      homeState:
+        type: string
+      homeTown:
+        type: string
+      homeVisible:
+        type: boolean
+      homeZip:
+        type: string
+      id:
+        type: integer
+      major:
+        type: string
+      name:
+        type: string
+      offCycle:
+        type: boolean
+      office:
+        $ref: '#/definitions/models.Office'
+        type: object
+      officeID:
+        description: Belongs to Office iff staff/professor
+        type: integer
+      optOutEphcatch:
+        type: boolean
+      pronoun:
+        type: string
+      suBox:
+        type: string
+      tags:
+        description: Has many tags
+        items:
+          $ref: '#/definitions/models.Tag'
+        type: array
+      title:
+        type: string
+      type:
+        type: string
+      unixID:
+        type: string
+      visible:
+        type: boolean
+      williamsEmail:
+        type: string
+    type: object
+  user.UpdateUserParams:
+    properties:
+      dormVisible:
+        type: boolean
+      hasAcceptedDormtrakPolicy:
+        type: boolean
+      hasAcceptedFactrakPolicy:
+        type: boolean
+      homeVisible:
+        type: boolean
+      offCycle:
+        type: boolean
+      pronoun:
+        type: string
+      visible:
+        type: boolean
+    type: object
+  user.UpdateUserTagsParams:
+    properties:
+      tags:
+        items:
+          type: string
+        type: array
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: wso-dev@wso.williams.edu
+    name: WSO Dev
+  description: API for WSO services like factrak, facebook, dormtrak, course scheduler,
+    and others.
+  license: {}
+  title: WSO API
+  version: 0.1.0
+paths:
+  /admin/catalog-update:
+    post:
+      consumes:
+      - application/json
+      description: executes a kubernetes job that updates the course catalog
+      operationId: catalog-update
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/admin.KubeJobReturn'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Updates the course catalog
+      tags:
+      - admin
+  /admin/jobs/{jobID}/status:
+    get:
+      consumes:
+      - application/json
+      description: connects to Kubernetes to get the status of a running (or recently
+        finished) job given an id
+      operationId: get-job-status
+      parameters:
+      - description: Kubernetes Job ID
+        in: path
+        name: jobID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/k8s.io/api/batch/v1.JobStatus'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Gets status of a job
+      tags:
+      - admin
+  /admin/update-all-factrak-survey-deficits:
+    post:
+      consumes:
+      - application/json
+      description: runs a slow job that updates all student factrak survey deficits
+      operationId: update-all-factrak-survey-deficits
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Job completed
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Updates all factrak survey deficits
+      tags:
+      - admin
+  /admin/update-all-users-from-ldap:
+    post:
+      consumes:
+      - application/json
+      description: runs a slow job that updates all users from LDAP
+      operationId: update-all-users-from-ldap
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/admin.KubeJobReturn'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Updates all users from LDAP
+      tags:
+      - admin
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: attempts to get a JWT by logging into server.
+      operationId: auth-login
+      parameters:
+      - description: Login Parameters
+        in: body
+        name: loginParams
+        required: true
+        schema:
+          $ref: '#/definitions/auth.LoginParams'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      summary: Authenticate and Login
+      tags:
+      - auth
+  /auth/refresh-token:
+    get:
+      consumes:
+      - application/json
+      description: attempts to get a JWT by taking an existing JWT and refreshing
+        it. This will not change the payload.
+      operationId: auth-refresh
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Refresh Token
+      tags:
+      - auth
+  /auth/update-token:
+    get:
+      consumes:
+      - application/json
+      description: attempts to get a JWT by taking an existing JWT and updating the
+        fields. This calls the DB, so it will actually modify the token's payload.
+      operationId: auth-update
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Update Token
+      tags:
+      - auth
+  /dormtrak/dorms:
+    get:
+      consumes:
+      - application/json
+      description: lists all dorms
+      operationId: dormtrak-list-dorms
+      parameters:
+      - description: Offset Pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      - description: Preload List
+        in: query
+        items:
+          type: string
+        name: preload
+        type: array
+      - description: Search Query
+        in: query
+        name: q
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Dorm'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List dorms
+      tags:
+      - dormtrak
+  /dormtrak/dorms/{dormID}:
+    get:
+      consumes:
+      - application/json
+      description: gets one dorm with neighborhood and dorm rooms preloaded
+      operationId: dormtrak-get-dorm
+      parameters:
+      - description: Dorm ID
+        in: path
+        name: dormID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Dorm'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get dorm
+      tags:
+      - dormtrak
+  /dormtrak/dorms/{dormID}/facts:
+    get:
+      consumes:
+      - application/json
+      description: gets dorm facts of one dorm building. Some of these facts are in
+        GetDorm, while others are generated here.
+      operationId: dormtrak-get-dorm-facts
+      parameters:
+      - description: Dorm ID
+        in: path
+        name: dormID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DormFacts'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get dorm facts
+      tags:
+      - dormtrak
+  /dormtrak/dorms/{dormID}/rooms:
+    get:
+      consumes:
+      - application/json
+      description: gets dorm rooms of one dorm building
+      operationId: dormtrak-get-dorm-rooms
+      parameters:
+      - description: Dorm ID
+        in: path
+        name: dormID
+        required: true
+        type: integer
+      - description: Offset Pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.DormRoom'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get dorm rooms
+      tags:
+      - dormtrak
+  /dormtrak/neighborhoods:
+    get:
+      consumes:
+      - application/json
+      description: lists all neighborhoods
+      operationId: dormtrak-list-neighborhoods
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Neighborhood'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List neighborhoods
+      tags:
+      - dormtrak
+  /dormtrak/neighborhoods/{neighborhoodID}:
+    get:
+      consumes:
+      - application/json
+      description: gets one neighborhood with dorms preloaded
+      operationId: dormtrak-get-neighborhood
+      parameters:
+      - description: Neighborhood ID
+        in: path
+        name: neighborhoodID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Neighborhood'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get neighborhood
+      tags:
+      - dormtrak
+  /dormtrak/neighborhoods/{neighborhoodID}/facts:
+    get:
+      consumes:
+      - application/json
+      description: gets neighborhood facts of one neighborhood.
+      operationId: dormtrak-get-neighborhood-facts
+      parameters:
+      - description: Neighborhood ID
+        in: path
+        name: dormID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.NeighborhoodFacts'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get neighborhood facts
+      tags:
+      - dormtrak
+  /dormtrak/rankings:
+    get:
+      consumes:
+      - application/json
+      description: gets rankings of dorms by specific metrics.
+      operationId: dormtrak-get-rankings
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.DormtrakRanking'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get rankings
+      tags:
+      - dormtrak
+  /dormtrak/reviews:
+    get:
+      consumes:
+      - application/json
+      description: lists all reviews
+      operationId: dormtrak-list-reviews
+      parameters:
+      - description: Dorm ID
+        in: query
+        name: dormID
+        type: integer
+      - description: Dorm Room ID
+        in: query
+        name: dormRoomID
+        type: integer
+      - description: User ID
+        in: query
+        name: userID
+        type: integer
+      - description: Offset Pagination (timestamp)
+        in: query
+        name: offset
+        type: string
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      - description: Preload List
+        in: query
+        items:
+          type: string
+        name: preload
+        type: array
+      - description: Restrict to commented reviews
+        in: query
+        name: commented
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.DormtrakReview'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List reviews
+      tags:
+      - dormtrak
+    post:
+      consumes:
+      - application/json
+      description: create a review
+      operationId: dormtrak-create-review
+      parameters:
+      - description: Create Review Params
+        in: body
+        name: createParams
+        required: true
+        schema:
+          $ref: '#/definitions/dormtrak.ReviewCreateParams'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.DormtrakReview'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1101":
+          description: request data validation failed
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1633":
+          description: user must be a student and could not be found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1634":
+          description: user is missing dorm field
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1635":
+          description: user does not own this dorm room
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1636":
+          description: review already exists with passed user ID and dorm room ID
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Create review
+      tags:
+      - dormtrak
+  /dormtrak/reviews/{reviewID}:
+    delete:
+      consumes:
+      - application/json
+      description: delete a review
+      operationId: dormtrak-delete-review
+      parameters:
+      - description: Review ID
+        in: path
+        name: reviewID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DormtrakReview'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1331":
+          description: must be self
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Delete review
+      tags:
+      - dormtrak
+    get:
+      consumes:
+      - application/json
+      description: get one review
+      operationId: dormtrak-get-review
+      parameters:
+      - description: Review ID
+        in: path
+        name: reviewID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DormtrakReview'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get review
+      tags:
+      - dormtrak
+    patch:
+      consumes:
+      - application/json
+      description: update a review's data
+      operationId: dormtrak-update-review
+      parameters:
+      - description: Update Review Params
+        in: body
+        name: updateParams
+        required: true
+        schema:
+          $ref: '#/definitions/dormtrak.ReviewUpdateParams'
+          type: object
+      - description: review ID
+        in: path
+        name: reviewID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DormtrakReview'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1101":
+          description: request data validation failed
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1331":
+          description: must be self
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Update review
+      tags:
+      - dormtrak
+  /ephcatch/ephcatchers:
+    get:
+      consumes:
+      - application/json
+      description: lists all Ephcatch-eligible students
+      operationId: ephcatch-list-ephcatchers
+      parameters:
+      - description: Offset Pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      - description: Preload List
+        in: query
+        items:
+          type: string
+        name: preload
+        type: array
+      - description: Search Query
+        in: query
+        name: q
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Ephcatcher'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List ephcatchers
+      tags:
+      - ephcatch
+  /ephcatch/ephcatchers/{ephcatcherID}:
+    get:
+      consumes:
+      - application/json
+      description: gets one ephcatch-eligible user
+      operationId: ephcatch-get-ephcatcher
+      parameters:
+      - description: Ephcatcher ID
+        in: path
+        name: ephcatcherID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Ephcatcher'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get ephcatcher
+      tags:
+      - ephcatch
+  /ephcatch/ephcatchers/{ephcatcherID}/like:
+    post:
+      consumes:
+      - application/json
+      description: Likes one ephcatch-eligible user
+      operationId: ephcatch-like-ephcatcher
+      parameters:
+      - description: Ephcatcher ID
+        in: path
+        name: ephcatcherID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201": {}
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1730":
+          description: cannot ephcatch-like yourself
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1731":
+          description: ephcatcher could not be found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1732":
+          description: ephcatch already exists with user ID and passed ephcatcher
+            ID
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Like ephcatcher
+      tags:
+      - ephcatch
+  /ephcatch/ephcatchers/{ephcatcherID}/unlike:
+    post:
+      consumes:
+      - application/json
+      description: Removes a like from one ephcatch-eligible user
+      operationId: ephcatch-unlike-ephcatcher
+      parameters:
+      - description: Ephcatcher ID
+        in: path
+        name: ephcatcherID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201": {}
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Unlike ephcatcher
+      tags:
+      - ephcatch
+  /ephcatch/matches:
+    get:
+      consumes:
+      - application/json
+      description: lists all Ephcatch-eligible students that user has matched with
+      operationId: ephcatch-list-matches
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List matches
+      tags:
+      - ephcatch
+  /factrak/admin/surveys:
+    get:
+      consumes:
+      - application/json
+      description: lists all surveys that are flagged
+      operationId: factrak-list-flagged-surveys
+      parameters:
+      - description: Offset Pagination (timestamp)
+        in: query
+        name: offset
+        type: string
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.FactrakSurvey'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List flagged surveys
+      tags:
+      - factrak
+      - factrak-admin
+      - admin
+  /factrak/admin/surveys/{surveyID}/flag:
+    delete:
+      consumes:
+      - application/json
+      description: unflags a flagged survey
+      operationId: factrak-unflag-survey
+      parameters:
+      - description: Survey ID
+        in: path
+        name: surveyID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200": {}
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Unflag survey
+      tags:
+      - factrak
+      - factrak-admin
+      - admin
+  /factrak/areas-of-study:
+    get:
+      consumes:
+      - application/json
+      description: lists all areas of study
+      operationId: factrak-list-areas-of-study
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.AreaOfStudy'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List areas of study
+      tags:
+      - factrak
+  /factrak/areas-of-study/{areaOfStudyID}:
+    get:
+      consumes:
+      - application/json
+      description: get one area of study with department preload
+      operationId: factrak-get-area-of-study
+      parameters:
+      - description: Area of Study ID
+        in: path
+        name: areaOfStudyID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AreaOfStudy'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get area of study
+      tags:
+      - factrak
+  /factrak/areas-of-study/{areaOfStudyID}/courses:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        list one area of study's courses and the course's professors.
+        Please note: unlike other GetCourses endpoints, this one also returns a list of each courses professors.
+      operationId: factrak-list-area-of-study-courses
+      parameters:
+      - description: Area of Study ID
+        in: path
+        name: areaOfStudyID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Course'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List area of study courses
+      tags:
+      - factrak
+  /factrak/areas-of-study/{areaOfStudyID}/professors:
+    get:
+      consumes:
+      - application/json
+      description: list one area of study's professors
+      operationId: factrak-list-area-of-study-professors
+      parameters:
+      - description: Area of Study ID
+        in: path
+        name: areaOfStudyID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List area of study professors
+      tags:
+      - factrak
+  /factrak/courses:
+    get:
+      consumes:
+      - application/json
+      description: lists all courses
+      operationId: factrak-list-courses
+      parameters:
+      - description: Offset Pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      - description: Preload List
+        in: query
+        items:
+          type: string
+        name: preload
+        type: array
+      - description: Search Query
+        in: query
+        name: q
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Course'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List courses
+      tags:
+      - factrak
+  /factrak/courses/{courseID}:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        get one course with factrak surveys, area of study preloaded.
+        May pass an optional "?professorID=XXX" parameter to limit preload scope to a professor and a course.
+      operationId: factrak-get-course
+      parameters:
+      - description: Professor ID
+        in: query
+        name: professorID
+        type: integer
+      - description: Course ID
+        in: path
+        name: courseID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Course'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get course
+      tags:
+      - factrak
+  /factrak/courses/{courseID}/professors:
+    get:
+      consumes:
+      - application/json
+      description: list one course's professors
+      operationId: factrak-list-course-professors
+      parameters:
+      - description: Course ID
+        in: path
+        name: courseID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List course professors
+      tags:
+      - factrak
+  /factrak/courses/{courseID}/ratings:
+    get:
+      consumes:
+      - application/json
+      description: get one course's ratings
+      operationId: factrak-get-course-ratings
+      parameters:
+      - description: Professor ID
+        in: query
+        name: professorID
+        type: integer
+      - description: Course ID
+        in: path
+        name: courseID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.FactrakSurveyAvgRatings'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get course ratings
+      tags:
+      - factrak
+  /factrak/courses/{courseID}/surveys:
+    get:
+      consumes:
+      - application/json
+      description: list one course's surveys
+      operationId: factrak-list-course-surveys
+      parameters:
+      - description: Professor ID
+        in: query
+        name: professorID
+        type: integer
+      - description: Course ID
+        in: path
+        name: courseID
+        required: true
+        type: integer
+      - description: Offset Pagination (timestamp)
+        in: query
+        name: offset
+        type: string
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.FactrakSurvey'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List course surveys
+      tags:
+      - factrak
+  /factrak/departments:
+    get:
+      consumes:
+      - application/json
+      description: lists all departments
+      operationId: factrak-list-departments
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Department'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List departments
+      tags:
+      - factrak
+  /factrak/departments/{departmentID}:
+    get:
+      consumes:
+      - application/json
+      description: get one department with areas of study preloaded
+      operationId: factrak-get-department
+      parameters:
+      - description: Department ID
+        in: path
+        name: departmentID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Department'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get department
+      tags:
+      - factrak
+  /factrak/departments/{departmentID}/courses:
+    get:
+      consumes:
+      - application/json
+      description: list one department's courses
+      operationId: factrak-list-department-courses
+      parameters:
+      - description: Department ID
+        in: path
+        name: departmentID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Course'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List department courses
+      tags:
+      - factrak
+  /factrak/departments/{departmentID}/professors:
+    get:
+      consumes:
+      - application/json
+      description: list one department's professors
+      operationId: factrak-list-department-professors
+      parameters:
+      - description: Department ID
+        in: path
+        name: departmentID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List department professors
+      tags:
+      - factrak
+  /factrak/professors:
+    get:
+      consumes:
+      - application/json
+      description: lists all professors at Williams
+      operationId: factrak-list-professors
+      parameters:
+      - description: Offset Pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      - description: Preload List
+        in: query
+        items:
+          type: string
+        name: preload
+        type: array
+      - description: Search Query
+        in: query
+        name: q
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List professors
+      tags:
+      - factrak
+  /factrak/professors/{professorID}:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        get one course with factrak surveys, area of study preloaded,
+        May pass an optional "?courseID=XXX" parameter to limit preload scope to a professor and a course.
+      operationId: factrak-get-professor
+      parameters:
+      - description: Course ID
+        in: query
+        name: courseID
+        type: integer
+      - description: Professor ID
+        in: path
+        name: professorID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get professor
+      tags:
+      - factrak
+  /factrak/professors/{professorID}/courses:
+    get:
+      consumes:
+      - application/json
+      description: list one professor's courses
+      operationId: factrak-list-professor-courses
+      parameters:
+      - description: Course ID
+        in: query
+        name: courseID
+        type: integer
+      - description: Professor ID
+        in: path
+        name: professorID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Course'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List professor courses
+      tags:
+      - factrak
+  /factrak/professors/{professorID}/ratings:
+    get:
+      consumes:
+      - application/json
+      description: get one professor's ratings
+      operationId: factrak-get-professor-ratings
+      parameters:
+      - description: Course ID
+        in: query
+        name: courseID
+        type: integer
+      - description: Professor ID
+        in: path
+        name: professorID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.FactrakSurveyAvgRatings'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get professor ratings
+      tags:
+      - factrak
+  /factrak/professors/{professorID}/surveys:
+    get:
+      consumes:
+      - application/json
+      description: list one professor's surveys
+      operationId: factrak-list-professor-surveys
+      parameters:
+      - description: Course ID
+        in: query
+        name: courseID
+        type: integer
+      - description: Professor ID
+        in: path
+        name: professorID
+        required: true
+        type: integer
+      - description: Offset Pagination (timestamp)
+        in: query
+        name: offset
+        type: string
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.FactrakSurvey'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List professor surveys
+      tags:
+      - factrak
+  /factrak/surveys:
+    get:
+      consumes:
+      - application/json
+      description: lists all surveys where the professor is at Williams and the survey
+        is current. Order by creation date.
+      operationId: factrak-list-surveys
+      parameters:
+      - description: Offset Pagination (timestamp)
+        in: query
+        name: offset
+        type: string
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.FactrakSurvey'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List surveys
+      tags:
+      - factrak
+    post:
+      consumes:
+      - application/json
+      description: create a survey
+      operationId: factrak-create-survey
+      parameters:
+      - description: Create Survey Params
+        in: body
+        name: createParams
+        required: true
+        schema:
+          $ref: '#/definitions/factrak.SurveyCreateParams'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.FactrakSurvey'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1101":
+          description: request data validation failed
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1531":
+          description: 'missing course parameters in create data: courseID or (areaOfStudyAbbreviation
+            and courseNumber)'
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1532":
+          description: comment must be 100 characters or more
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1533":
+          description: user must be a student and could not be found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1534":
+          description: passed professor must be a professor and could not be found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1535":
+          description: passed course could not be found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1536":
+          description: passed area of study could not be found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1537":
+          description: survey already exists with passed user ID, professor ID, and
+            course ID
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Create survey
+      tags:
+      - factrak
+  /factrak/surveys/{surveyID}:
+    delete:
+      consumes:
+      - application/json
+      description: delete a survey
+      operationId: factrak-delete-survey
+      parameters:
+      - description: Survey ID
+        in: path
+        name: surveyID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.FactrakSurvey'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1331":
+          description: must be self
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Delete survey
+      tags:
+      - factrak
+      - factrak-admin
+      - admin
+    get:
+      consumes:
+      - application/json
+      description: get one survey
+      operationId: factrak-get-survey
+      parameters:
+      - description: Survey ID
+        in: path
+        name: surveyID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.FactrakSurvey'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1330":
+          description: no scope authorization
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get survey
+      tags:
+      - factrak
+    patch:
+      consumes:
+      - application/json
+      description: update a survey's data
+      operationId: factrak-update-survey
+      parameters:
+      - description: Update Survey Params
+        in: body
+        name: updateParams
+        required: true
+        schema:
+          $ref: '#/definitions/factrak.SurveyUpdateParams'
+          type: object
+      - description: Survey ID
+        in: path
+        name: surveyID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.FactrakSurvey'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1101":
+          description: request data validation failed
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1331":
+          description: must be self
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1532":
+          description: comment must be 100 characters or more
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Update survey
+      tags:
+      - factrak
+  /factrak/surveys/{surveyID}/agreement:
+    delete:
+      consumes:
+      - application/json
+      description: deletes an agreement about a survey made by the self user
+      operationId: factrak-delete-agreement
+      parameters:
+      - description: Survey ID
+        in: path
+        name: surveyID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.FactrakAgreement'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1551":
+          description: survey agreement could not be found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Delete survey agreement
+      tags:
+      - factrak
+    get:
+      consumes:
+      - application/json
+      description: gets the agreement about a survey made by the self user
+      operationId: factrak-get-agreement
+      parameters:
+      - description: Survey ID
+        in: path
+        name: surveyID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.FactrakAgreement'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1551":
+          description: survey agreement could not be found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get survey agreement by self
+      tags:
+      - factrak
+    patch:
+      consumes:
+      - application/json
+      description: updates an agreement about a survey made by the self user
+      operationId: factrak-update-agreement
+      parameters:
+      - description: Survey ID
+        in: path
+        name: surveyID
+        required: true
+        type: integer
+      - description: Update Agreement Params
+        in: body
+        name: updateParams
+        required: true
+        schema:
+          $ref: '#/definitions/factrak.AgreementUpdateParams'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.FactrakAgreement'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1100":
+          description: could not parse malformed request data
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1551":
+          description: survey agreement could not be found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Update survey agreement
+      tags:
+      - factrak
+    post:
+      consumes:
+      - application/json
+      description: creates an agreement about a survey made by the self user
+      operationId: factrak-create-agreement
+      parameters:
+      - description: Survey ID
+        in: path
+        name: surveyID
+        required: true
+        type: integer
+      - description: Create Agreement Params
+        in: body
+        name: createParams
+        required: true
+        schema:
+          $ref: '#/definitions/factrak.AgreementCreateParams'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.FactrakAgreement'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1100":
+          description: could not parse malformed request data
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1552":
+          description: survey agreement already exists for this user and survey
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1553":
+          description: cannot create survey agreement with your own survey
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Create survey agreement
+      tags:
+      - factrak
+  /factrak/surveys/{surveyID}/flag:
+    post:
+      consumes:
+      - application/json
+      description: flag a survey for mods
+      operationId: factrak-flag-survey
+      parameters:
+      - description: Survey ID
+        in: path
+        name: surveyID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200": {}
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Flag survey
+      tags:
+      - factrak
+  /factrak/users/{userID}/surveys:
+    get:
+      consumes:
+      - application/json
+      description: list one user's surveys
+      operationId: factrak-list-user-surveys
+      parameters:
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: integer
+      - description: Offset Pagination (timestamp)
+        in: query
+        name: offset
+        type: string
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.FactrakSurvey'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1331":
+          description: must be self
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List user surveys
+      tags:
+      - factrak
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        Get all users that are visible and at williams.
+        If you pass a search query (?q="blah"), you will get all users matching that search query
+      operationId: list-users
+      parameters:
+      - description: Offset Pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      - description: Preload List
+        in: query
+        items:
+          type: string
+        name: preload
+        type: array
+      - description: Search Query
+        in: query
+        name: q
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List users
+      tags:
+      - users
+  /users/{userID}:
+    get:
+      consumes:
+      - application/json
+      description: get a user by user id that is visible and at williams. Also loads
+        tags. Pass "me" if you want to get self
+      operationId: get-user
+      parameters:
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1403":
+          description: user not visible
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1404":
+          description: user not at williams
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1405":
+          description: user id could not be parsed
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get user by user id
+      tags:
+      - users
+    patch:
+      consumes:
+      - application/json
+      description: updates a user by user id. You may only update yourself. You may
+        pass "me" to get self as well.
+      operationId: update-user
+      parameters:
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: integer
+      - description: Update User Parameters
+        in: body
+        name: updateParams
+        required: true
+        schema:
+          $ref: '#/definitions/user.UpdateUserParams'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1100":
+          description: could not parse malformed request data
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1331":
+          description: must be self
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1405":
+          description: user id could not be parsed
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Update user by user id
+      tags:
+      - users
+  /users/{userID}/tags:
+    put:
+      consumes:
+      - application/json
+      description: updates a user's tags by user id. You may only update yourself.
+        You may pass "me" to get self as well.
+      operationId: update-user-tags
+      parameters:
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: integer
+      - description: Update Tags Params
+        in: body
+        name: updateTagsParams
+        required: true
+        schema:
+          $ref: '#/definitions/user.UpdateUserTagsParams'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1100":
+          description: could not parse malformed request data
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1331":
+          description: must be self
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1405":
+          description: user id could not be parsed
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1406":
+          description: invalid user tag
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Update user tags by user id
+      tags:
+      - users
+securityDefinitions:
+  Bearer:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

@@ -21,7 +21,8 @@ var CreateNeighborhoods20190721040940 = &gormigrate.Migration{
 		// with those fields.
 		type Neighborhood struct {
 			models.BaseSchema
-			Name string `json:"name"`
+			Name    string `json:"name"`
+			Trakked *bool  `gorm:"DEFAULT:true;not null" json:"trakked"`
 		}
 		return tx.AutoMigrate(&Neighborhood{}).Error
 	},

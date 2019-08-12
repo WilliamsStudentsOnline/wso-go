@@ -3,11 +3,14 @@ package test_utils
 import (
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 	"net/http/httptest"
+	"os"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	migrate "github.com/WilliamsStudentsOnline/wso-go/db"
+	"github.com/WilliamsStudentsOnline/wso-go/lib/search"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -16,7 +19,18 @@ import (
 
 func SetupServiceTest(assert *assert.Assertions) *gorm.DB {
 	gin.SetMode(gin.TestMode)
-	cfg := &config.Config{
+	cfg := SetupConfig()
+
+	db := config.LoadDatabase(cfg)
+	db.SetLogger(gorm.Logger{LogWriter: log.New(os.Stdout, "\r\n", 0)})
+	err := migrate.MigrateDB(db)
+	assert.NoError(err)
+
+	return db
+}
+
+func SetupConfig() *config.Config {
+	return &config.Config{
 		Env:          "test",
 		GinMode:      "test",
 		JWTRealm:     "wso-go-test",
@@ -25,18 +39,24 @@ func SetupServiceTest(assert *assert.Assertions) *gorm.DB {
 		Secrets: &config.Secrets{
 			JWTSecretKey: "wso-jwt-test-secret",
 		},
+		SearchBackend: search.SearchBackendSQL,
 	}
+}
 
-	db := config.LoadDatabase(cfg)
-	err := migrate.MigrateDB(db)
-	assert.NoError(err)
+func SetupRouter(scopes ...string) *gin.Engine {
+	router := gin.Default()
 
-	return db
+	router.Use(func(c *gin.Context) {
+		c.Set("scopes", scopes)
+		c.Next()
+	})
+
+	return router
 }
 
 func AddUserContexts(router *gin.Engine, userID uint) {
 	router.Use(func(c *gin.Context) {
-		c.Set("userID", userID)
+		c.Set("id", userID)
 		c.Next()
 	})
 }

@@ -3,9 +3,9 @@ The new flagship back-end for WSO's services. The WSO backend rewrite proposal i
 
 ## Running
 
-To run the server, simply do `go run -tags=jsoniter . -env=development`.
+To run the server, simply do `make run-dev` or `./wso-backend --development`.
 
-If you want to include secrets in your build, run `cp config/secrets_example.yml config/secrets.yml` and edit the fields from there
+Note: you must include a secrets file. So, run `cp config/secrets_example.yaml config/secrets.yaml` and edit the fields from there. You can also just set the environment variable `WSO_SECRET_JWT_SECRET_KEY=wso-jwt-development-secret`, which will work.
 
 ### Current Go Version: 1.12
 It is worth noting that you should install Go via the official site, not a package repository like apt-get or brew, which often have outdated versions. You can find info on how to install Go [here](https://golang.org/doc/install).
@@ -33,6 +33,11 @@ The model struct (e.g. `user.go` or `UserModel{}`) is the database adapter for t
 #### Schema
 Note that in the schema is defined following the [GORM guidelines](https://gorm.io/docs/models). Optional fields are pointer-type, and associations are documented [here](https://gorm.io/docs/belongs_to.html). When working with any optional fields, you can easily convert a literal value into a pointer by using the `lib/to_pointer.go` file, which has functions like `lib.StrToPtr(str string) *string`.
 
+### REST-API Guidelines
+* Use plural names for resources (when nouns): e.g. use `/users`, rather than `/user`.
+* When resources are verbs or adjectives, use whatever fits best.
+* Use dashes when resources must be more than one word: e.g. use `/areas-of-study`, rather than `/area_of_study` or `/areaOfStudy`.
+
 ### Auto-Generate
 You can use the auto-generator to generate a services and models. Usage is as follows:
 
@@ -57,44 +62,44 @@ To build the Go binary, run `go build -tags=jsoniter -o wso-go main.go`. You can
 ## API Endpoints
 Get All Users:
 ```http request
-GET localhost:8080/api/v1/user
+GET localhost:8080/api/v1/users
 ```
 Get User:
 ```http request
-GET localhost:8080/api/v1/user/:user_id
+GET localhost:8080/api/v1/users/:user_id
 ```
 Update User:
 ```http request
-PUT localhost:8080/api/v1/user/:user_id
+PUT localhost:8080/api/v1/users/:user_id
 {
     "visible": true,
-    "dorm_visible": true,
-    "home_visible": true,
+    "dormVisible": true,
+    "homeVisible": true,
     "pronoun": "",
-    "off_cycle": false
+    "offCycle": false
 }
 ```
 Authenticate/Login:
 ```http request
 POST localhost:8080/api/v1/auth/login
 {
-    "unix_id": "admin",
+    "unixID": "admin",
     "password": "doesnt matter"
 }
 ```
 Refresh JWT Token:
 ```http request
-GET localhost:8080/api/v1/auth/refresh_token
+GET localhost:8080/api/v1/auth/refresh-token
 ```
 
 ### Authentication Flow
 We use something called a [JWT](jwt.io), or JSON Web Token for the API. This allows us to keep sessions and verify user identities without cookies or database queries. It works like this:
 1. A user will request a token from the `auth/login` endpoint. They will pass in their login credentials, which will be checked with LDAP (not implemented yet).
-1. If the user is verified, the server will then pull their user from the DB and create a payload. This payload will consist of the user's ID and the scopes the user is allowed (e.g. if the user is a senior, they can go to ephcatch; if the user is an admin, they can do other queries; if the user is not signed in but on school wifi, they can be read only).
-1. The server will then take this payload and sign it with its secret key, before handing the JWT back to the user.
-1. The user now can add the header `Authorization: Bearer <JWT GOES HERE>` to any request and be authenticated and allowed to access other API endpoints (like `user`)
-1. The JWT has a one hour timeout (we can change this). After an hour, the JWT becomes invalid and the user must sign in again.
-1. Alternatively, before the hour is up, a user can query the `auth/refresh_token` endpoint to get a new token without having to sign in again.
+2. If the user is verified, the server will then pull their user from the DB and create a payload. This payload will consist of the user's ID and the scopes the user is allowed (e.g. if the user is a senior, they can go to ephcatch; if the user is an admin, they can do other queries; if the user is not signed in but on school wifi, they can be read only).
+3. The server will then take this payload and sign it with its secret key, before handing the JWT back to the user.
+4. The user now can add the header `Authorization: Bearer <JWT GOES HERE>` to any request and be authenticated and allowed to access other API endpoints (like `user`)
+5. The JWT has a one hour timeout (we can change this). After an hour, the JWT becomes invalid and the user must sign in again.
+6. Alternatively, before the hour is up, a user can query the `auth/refresh-token` endpoint to get a new token without having to sign in again.
 
 ## Structure
 
@@ -115,3 +120,14 @@ We use something called a [JWT](jwt.io), or JSON Web Token for the API. This all
 - `lib/` library files (helpful functions, etc.)
 - `test.db` the database of generated data the demo server uses
 - `main.go` the entry-point of the code; contains all routing information
+
+## Local Kubernetes Deployment
+This is a guide to how to set up and run a local kubernetes deployment. Usually if you are just working on the API, 
+it is okay to run the backend locally with `go build` and `go run`. But, if you need to make changes to the 
+infrastructure, or you want to run the backend as if it was on production, this is your best bet. Please note that 
+wso-dev can also function as a place to test your code in a kubernetes environment.
+
+How-to guide coming soon.
+`eval $(minikube docker-env)`
+`create database development character set utf8mb4 collate utf8mb4_bin;`
+`docker build -t wso-backend:dev-latest .`

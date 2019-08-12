@@ -7,9 +7,10 @@ import (
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
+	"github.com/WilliamsStudentsOnline/wso-go/lib/ldap"
 	"github.com/jinzhu/gorm"
 	log "github.com/sirupsen/logrus"
-	"gopkg.in/ldap.v3"
+	ldapconn "gopkg.in/ldap.v3"
 )
 
 // User Model
@@ -23,8 +24,62 @@ func NewUserModel(db *gorm.DB) *UserModel {
 	}
 }
 
-func (m *UserModel) GetAllUsers(u *[]User) (err error) {
-	err = m.DB.Scopes(m.scopeVisible, m.scopeAtWilliams).Find(u).Error
+type GetAllUsersOptions struct {
+	Offset *uint `json:"offset" form:"offset"`
+	Limit  *uint `json:"limit" form:"limit"`
+
+	// You can preload: dorm (with dorm room), tags, department, and office
+	Preload *[]string `json:"preload" form:"preload"`
+}
+
+// Preload specifically allowed parts if requested
+func (p *GetAllUsersOptions) Preloader(db *gorm.DB) *gorm.DB {
+	if p.Preload != nil {
+		if lib.StringsContains(*p.Preload, "dorm") {
+			db = db.Preload("DormRoom").Preload("DormRoom.Dorm")
+		}
+		if lib.StringsContains(*p.Preload, "tags") {
+			db = db.Preload("Tags")
+		}
+		if lib.StringsContains(*p.Preload, "department") {
+			db = db.Preload("Department")
+		}
+		if lib.StringsContains(*p.Preload, "office") {
+			db = db.Preload("Office")
+		}
+	}
+
+	return db
+}
+
+func (p *GetAllUsersOptions) Order(db *gorm.DB) *gorm.DB {
+	return db.Order("users.id ASC")
+}
+
+func (p *GetAllUsersOptions) Paginate(db *gorm.DB) *gorm.DB {
+	db = p.Order(db)
+	if p.Offset != nil {
+		db = db.Offset(*p.Offset)
+	}
+	if p.Limit != nil {
+		db = db.Limit(*p.Limit)
+	}
+
+	return db
+}
+
+func (m *UserModel) GetAllUsers(u *[]*User, opts Options) (err error) {
+	db := m.DB.Scopes(m.scopeVisible, m.scopeAtWilliams)
+	if opts != nil {
+		db = opts.Paginate(db)
+		db = opts.Preloader(db)
+	}
+	err = db.Find(u).Error
+	return
+}
+
+func (m *UserModel) GetAllUsersByType(u *[]User, userType string) (err error) {
+	err = m.DB.Where("users.type = ?", userType).Find(u).Error
 	return
 }
 
@@ -33,26 +88,23 @@ func (m *UserModel) GetUserByID(id uint, u *User) (err error) {
 	return
 }
 
-type UpdateUserParams struct {
-	Visible     *bool   `json:"visible"`
-	DormVisible *bool   `json:"dormVisible"`
-	HomeVisible *bool   `json:"homeVisible"`
-	Pronoun     *string `json:"pronoun"`
-	OffCycle    *bool   `json:"offCycle"`
+func (m *UserModel) DoesUserExist(id uint) (exists bool, err error) {
+	var count int
+	err = m.DB.Model(&User{}).Scopes(m.scopeVisible, m.scopeAtWilliams).Where("users.id = ?", id).Count(&count).Error
+	exists = count > 0
+	return
 }
 
 // Update the user. Only allow specific keys to be passed
-func (m *UserModel) UpdateUser(id uint, update *UpdateUserParams) (err error) {
-	dbUpdate := map[string]interface{}{
-		"visible":      update.Visible,
-		"dorm_visible": update.DormVisible,
-		"home_visible": update.HomeVisible,
-		"pronoun":      update.Pronoun,
-		"off_cycle":    update.OffCycle,
+func (m *UserModel) UpdateUser(user *User) (err error) {
+	// Generate search fields here.
+	searchFields, err := m.generateSearchFields(user.ID)
+	if err != nil {
+		return
 	}
-	DeleteNilFields(dbUpdate)
+	user.SearchFields = searchFields
 
-	err = m.DB.Model(NewUserWithID(id)).Updates(dbUpdate).Error
+	err = m.DB.Save(user).Error
 	return
 }
 
@@ -89,7 +141,7 @@ func (m *UserModel) UpdateUserTags(id uint, tags []string) (err error) {
 		if err != nil {
 			tx.Rollback()
 			if gorm.IsRecordNotFoundError(err) {
-				return errors.New("invalid user tag")
+				return lib.ErrorInvalidUserTag
 			}
 			return err
 		}
@@ -102,10 +154,101 @@ func (m *UserModel) UpdateUserTags(id uint, tags []string) (err error) {
 		}
 	}
 
-	return tx.Commit().Error
+	err = tx.Commit().Error
+	if err != nil {
+		tx.Rollback()
+		return
+	}
+
+	// Update search fields
+	err = m.PopulateSearchFields(user.ID)
+	return
 }
 
-func (m *UserModel) updateUserUnsafe(dbUser *User, toUser *User) error {
+// Populates the search field. This is an expensive function, so call is sparingly.
+func (m *UserModel) PopulateSearchFields(id uint) (err error) {
+	searchFields, err := m.generateSearchFields(id)
+	if err != nil {
+		return
+	}
+
+	err = m.DB.Model(NewUserWithID(id)).Update("search_fields", searchFields).Error
+	return
+}
+
+// Generates the search field, but does not change the database.
+func (m *UserModel) generateSearchFields(id uint) (searchFields string, err error) {
+	var user User
+	err = m.DB.Preload("Tags").
+		Preload("DormRoom").
+		Preload("DormRoom.Dorm").
+		Preload("Office").
+		First(&user, id).Error
+	if err != nil {
+		return
+	}
+
+	searchFields = user.GenerateSearchFields()
+	return
+}
+
+// Generates the search field, but does not change the database. This works by looking up associated elements of the
+// user and using those as context, rather than preloading them via the user. (Use case is generating fields of a user
+// that doesn't exist yet.)
+func (m *UserModel) generateSearchFieldsByUser(user User) (searchFields string, err error) {
+	// Populate required preloads
+	if len(user.Tags) == 0 {
+		var tags []*Tag
+		err = m.DB.Model(&user).Related(&tags, "Tags").Error
+		if err != nil {
+			return
+		}
+		user.Tags = tags
+	}
+
+	if len(user.Tags) == 0 {
+		var tags []*Tag
+		err = m.DB.Model(&user).Related(&tags, "Tags").Error
+		if err != nil {
+			return
+		}
+		user.Tags = tags
+	}
+
+	if user.DormRoomID != nil {
+		if user.DormRoom == nil {
+			var dormRoom DormRoom
+			err = m.DB.Preload("Dorm").First(&dormRoom, user.DormRoomID).Error
+			if err != nil {
+				return
+			}
+			user.DormRoom = &dormRoom
+		}
+		if user.DormRoom.Dorm == nil {
+			var dorm Dorm
+			err = m.DB.First(&dorm, user.DormRoom.DormID).Error
+			if err != nil {
+				return
+			}
+			user.DormRoom.Dorm = &dorm
+		}
+	}
+
+	if user.OfficeID != nil && user.Office == nil {
+		var office Office
+		err = m.DB.First(&office, user.OfficeID).Error
+		if err != nil {
+			return
+		}
+		user.Office = &office
+	}
+
+	userPtr := &user
+	searchFields = userPtr.GenerateSearchFields()
+	return
+}
+
+func (m *UserModel) updateUserUnsafe(dbUser *User, toUser *User) (err error) {
 	if toUser.Type != dbUser.Type {
 		log.Infof("Changing type of user %s from %s to %s", dbUser.UnixID, dbUser.Type, toUser.Type)
 		dbUser.Type = toUser.Type
@@ -139,7 +282,15 @@ func (m *UserModel) updateUserUnsafe(dbUser *User, toUser *User) error {
 		dbUser.Entry = toUser.Entry
 	}
 
-	return m.DB.Save(dbUser).Error
+	// Update the search fields
+	dbUser.SearchFields, err = m.generateSearchFieldsByUser(*dbUser)
+	if err != nil {
+		return
+	}
+
+	// Update the user
+	err = m.DB.Save(dbUser).Error
+	return
 }
 
 func (m *UserModel) FirstOrCreateFromUnixID(unixID string, config *config.Config) (*User, error) {
@@ -176,7 +327,7 @@ func (m *UserModel) FirstOrCreateFromUnixID(unixID string, config *config.Config
 }
 
 func (m *UserModel) Students() ([]*Student, error) {
-	rows, err := m.DB.Model(&User{}).Where("type = ?", UserTypeStudent).Rows() // (*sql.Rows, error)
+	rows, err := m.DB.Model(&User{}).Where("users.type = ?", UserTypeStudent).Rows() // (*sql.Rows, error)
 	if err != nil {
 		return nil, err
 	}
@@ -204,8 +355,8 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 	}
 
 	// Initialize LDAPs
-	willyLdap := lib.NewWilliamsLDAP()
-	ndsLdap := lib.NewNDSLDAP()
+	willyLdap := ldap.NewWilliamsLDAP()
+	ndsLdap := ldap.NewNDSLDAP()
 
 	// We need the Willy LDAP credentials for this
 	err := config.Secrets.RequireLDAPAuth()
@@ -244,10 +395,10 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 			UnixID:        entry.GetAttributeValue("uid"),
 			Name:          entry.GetAttributeValue("cn"),
 			WilliamsEmail: entry.GetAttributeValue("mail"),
-			Visible:       parseBool(entry.GetAttributeValue("visible")),
+			Visible:       lib.BoolToPtr(parseBool(entry.GetAttributeValue("visible"))),
 			// User is in Ldap, therefore is at williams.
 			// Explicitly set this to handle alums who return as fac/staff
-			AtWilliams: true,
+			AtWilliams: lib.BoolToPtr(true),
 			// By default we set everyone as staff, as there are many edge case affiliations.
 			Type: UserTypeStaff,
 		}
@@ -289,7 +440,7 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 		}
 
 		// If user is not visible, finish parsing here.
-		if !user.Visible {
+		if !*user.Visible {
 			users[idx] = user
 			break
 		}
@@ -329,7 +480,7 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 				} else {
 					var dormRoom DormRoom
 					err = m.DB.Where(&DormRoom{
-						Dorm:   dorm,
+						Dorm:   &dorm,
 						Number: entry.GetAttributeValue("wmsDormAddr2"),
 					}).FirstOrCreate(&dormRoom).Error
 					if err != nil {
@@ -428,6 +579,11 @@ func (m *UserModel) UpdateAllFromLDAP(cfg *config.Config) error {
 			if err != nil {
 				log.WithError(err).Errorf("Could not create user %s with %#+v", toUser.UnixID, toUser)
 			}
+			// Update user with search field
+			err = m.PopulateSearchFields(toUser.ID)
+			if err != nil {
+				log.WithError(err).Errorf("Could not update user (%s) search field", toUser.UnixID)
+			}
 		}
 	}
 
@@ -438,7 +594,7 @@ func (m *UserModel) UpdateAllFromLDAP(cfg *config.Config) error {
 	}
 
 	// Connect to NDS
-	ndsLdap := lib.NewNDSLDAP()
+	ndsLdap := ldap.NewNDSLDAP()
 	err = ndsLdap.Connect()
 	if err != nil {
 		return err
@@ -461,30 +617,29 @@ func (m *UserModel) UpdateAllFromLDAP(cfg *config.Config) error {
 	return nil
 }
 
-// TODO: Add this once Factrak is done
-func (m *UserModel) UpdateServerDeficit(user *User) error {
+func (m *UserModel) UpdateFactrakSurveyDeficit(user *User) error {
 	if !user.IsStudent() {
 		return errors.New("user must be student")
 	}
-	return nil
+	return NewStudentModel(m.DB).UpdateFactrakSurveyDeficit(user)
 }
 
 func (*UserModel) scopeVisible(db *gorm.DB) *gorm.DB {
-	return db.Where("visible = ?", true)
+	return db.Where("users.visible = ?", true)
 }
 
 func (*UserModel) scopeAtWilliams(db *gorm.DB) *gorm.DB {
-	return db.Where("at_williams = ?", true)
+	return db.Where("users.at_williams = ?", true)
 }
 
 func (*UserModel) scopeAlphabetical(db *gorm.DB) *gorm.DB {
-	return db.Order("name DESC")
+	return db.Order("users.name DESC")
 }
 
 // Updates users that are not found in LDAP anymore (alumni usually) by searching for them on NDS,
 // finding their type, and then updating the user.
-func (m *UserModel) updateNotInLDAP(user *User, ndsLdap *lib.LDAP) error {
-	user.AtWilliams = false
+func (m *UserModel) updateNotInLDAP(user *User, ndsLdap *ldap.LDAP) error {
+	user.AtWilliams = lib.BoolToPtr(false)
 	entry, err := ndsLdap.Get("uid", user.UnixID)
 	if err != nil {
 		return err
@@ -503,11 +658,13 @@ func (m *UserModel) updateNotInLDAP(user *User, ndsLdap *lib.LDAP) error {
 	user.DormRoomID = nil
 	user.Office = nil
 	user.OfficeID = nil
+	// We can do this without loading associations as we know that we deleted all of them.
+	user.SearchFields = user.GenerateSearchFields()
 
 	return m.DB.Save(user).Error
 }
 
-func userAssociationType(ndsUser *ldap.Entry) string {
+func userAssociationType(ndsUser *ldapconn.Entry) string {
 	ua := lib.NewUserAssociation(
 		ndsUser.GetAttributeValue("wmsAffiliation"),
 		ndsUser.GetAttributeValue("wmsAffiliationFamily"),

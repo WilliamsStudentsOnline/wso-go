@@ -1,8 +1,9 @@
 package db
 
 import (
-	"gopkg.in/gormigrate.v1"
 	"testing"
+
+	"gopkg.in/gormigrate.v1"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"

@@ -1,0 +1,4972 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API for WSO services like factrak, facebook, dormtrak, course scheduler, and others.",
+        "title": "WSO API",
+        "contact": {
+            "name": "WSO Dev",
+            "email": "wso-dev@wso.williams.edu"
+        },
+        "license": {},
+        "version": "0.1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/api/v1",
+    "paths": {
+        "/admin/catalog-update": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "executes a kubernetes job that updates the course catalog",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Updates the course catalog",
+                "operationId": "catalog-update",
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/admin.KubeJobReturn"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/jobs/{jobID}/status": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "connects to Kubernetes to get the status of a running (or recently finished) job given an id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Gets status of a job",
+                "operationId": "get-job-status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Kubernetes Job ID",
+                        "name": "jobID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/k8s.io/api/batch/v1.JobStatus"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/update-all-factrak-survey-deficits": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "runs a slow job that updates all student factrak survey deficits",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Updates all factrak survey deficits",
+                "operationId": "update-all-factrak-survey-deficits",
+                "responses": {
+                    "200": {
+                        "description": "Job completed"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/update-all-users-from-ldap": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "runs a slow job that updates all users from LDAP",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Updates all users from LDAP",
+                "operationId": "update-all-users-from-ldap",
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/admin.KubeJobReturn"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "description": "attempts to get a JWT by logging into server.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Authenticate and Login",
+                "operationId": "auth-login",
+                "parameters": [
+                    {
+                        "description": "Login Parameters",
+                        "name": "loginParams",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/auth.LoginParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/auth.AuthResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/refresh-token": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "attempts to get a JWT by taking an existing JWT and refreshing it. This will not change the payload.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Refresh Token",
+                "operationId": "auth-refresh",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/auth.AuthResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/update-token": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "attempts to get a JWT by taking an existing JWT and updating the fields. This calls the DB, so it will actually modify the token's payload.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Update Token",
+                "operationId": "auth-update",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/auth.AuthResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/dormtrak/dorms": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "lists all dorms",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dormtrak"
+                ],
+                "summary": "List dorms",
+                "operationId": "dormtrak-list-dorms",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Offset Pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Preload List",
+                        "name": "preload",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search Query",
+                        "name": "q",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Dorm"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/dormtrak/dorms/{dormID}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "gets one dorm with neighborhood and dorm rooms preloaded",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dormtrak"
+                ],
+                "summary": "Get dorm",
+                "operationId": "dormtrak-get-dorm",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Dorm ID",
+                        "name": "dormID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Dorm"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/dormtrak/dorms/{dormID}/facts": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "gets dorm facts of one dorm building. Some of these facts are in GetDorm, while others are generated here.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dormtrak"
+                ],
+                "summary": "Get dorm facts",
+                "operationId": "dormtrak-get-dorm-facts",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Dorm ID",
+                        "name": "dormID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.DormFacts"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/dormtrak/dorms/{dormID}/rooms": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "gets dorm rooms of one dorm building",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dormtrak"
+                ],
+                "summary": "Get dorm rooms",
+                "operationId": "dormtrak-get-dorm-rooms",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Dorm ID",
+                        "name": "dormID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset Pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.DormRoom"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/dormtrak/neighborhoods": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "lists all neighborhoods",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dormtrak"
+                ],
+                "summary": "List neighborhoods",
+                "operationId": "dormtrak-list-neighborhoods",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Neighborhood"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/dormtrak/neighborhoods/{neighborhoodID}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "gets one neighborhood with dorms preloaded",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dormtrak"
+                ],
+                "summary": "Get neighborhood",
+                "operationId": "dormtrak-get-neighborhood",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Neighborhood ID",
+                        "name": "neighborhoodID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Neighborhood"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/dormtrak/neighborhoods/{neighborhoodID}/facts": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "gets neighborhood facts of one neighborhood.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dormtrak"
+                ],
+                "summary": "Get neighborhood facts",
+                "operationId": "dormtrak-get-neighborhood-facts",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Neighborhood ID",
+                        "name": "dormID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.NeighborhoodFacts"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/dormtrak/rankings": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "gets rankings of dorms by specific metrics.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dormtrak"
+                ],
+                "summary": "Get rankings",
+                "operationId": "dormtrak-get-rankings",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.DormtrakRanking"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/dormtrak/reviews": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "lists all reviews",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dormtrak"
+                ],
+                "summary": "List reviews",
+                "operationId": "dormtrak-list-reviews",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Dorm ID",
+                        "name": "dormID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Dorm Room ID",
+                        "name": "dormRoomID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "userID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Offset Pagination (timestamp)",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Preload List",
+                        "name": "preload",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Restrict to commented reviews",
+                        "name": "commented",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.DormtrakReview"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "create a review",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dormtrak"
+                ],
+                "summary": "Create review",
+                "operationId": "dormtrak-create-review",
+                "parameters": [
+                    {
+                        "description": "Create Review Params",
+                        "name": "createParams",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/dormtrak.ReviewCreateParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "1101": {
+                        "description": "request data validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1633": {
+                        "description": "user must be a student and could not be found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1634": {
+                        "description": "user is missing dorm field",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1635": {
+                        "description": "user does not own this dorm room",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1636": {
+                        "description": "review already exists with passed user ID and dorm room ID",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.DormtrakReview"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/dormtrak/reviews/{reviewID}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "get one review",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dormtrak"
+                ],
+                "summary": "Get review",
+                "operationId": "dormtrak-get-review",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Review ID",
+                        "name": "reviewID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.DormtrakReview"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "delete a review",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dormtrak"
+                ],
+                "summary": "Delete review",
+                "operationId": "dormtrak-delete-review",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Review ID",
+                        "name": "reviewID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "1331": {
+                        "description": "must be self",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.DormtrakReview"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "update a review's data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dormtrak"
+                ],
+                "summary": "Update review",
+                "operationId": "dormtrak-update-review",
+                "parameters": [
+                    {
+                        "description": "Update Review Params",
+                        "name": "updateParams",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/dormtrak.ReviewUpdateParams"
+                        }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "review ID",
+                        "name": "reviewID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "1101": {
+                        "description": "request data validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1331": {
+                        "description": "must be self",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.DormtrakReview"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/ephcatch/ephcatchers": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "lists all Ephcatch-eligible students",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ephcatch"
+                ],
+                "summary": "List ephcatchers",
+                "operationId": "ephcatch-list-ephcatchers",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Offset Pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Preload List",
+                        "name": "preload",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search Query",
+                        "name": "q",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Ephcatcher"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/ephcatch/ephcatchers/{ephcatcherID}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "gets one ephcatch-eligible user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ephcatch"
+                ],
+                "summary": "Get ephcatcher",
+                "operationId": "ephcatch-get-ephcatcher",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Ephcatcher ID",
+                        "name": "ephcatcherID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Ephcatcher"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/ephcatch/ephcatchers/{ephcatcherID}/like": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Likes one ephcatch-eligible user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ephcatch"
+                ],
+                "summary": "Like ephcatcher",
+                "operationId": "ephcatch-like-ephcatcher",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Ephcatcher ID",
+                        "name": "ephcatcherID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "1730": {
+                        "description": "cannot ephcatch-like yourself",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1731": {
+                        "description": "ephcatcher could not be found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1732": {
+                        "description": "ephcatch already exists with user ID and passed ephcatcher ID",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "201": {},
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/ephcatch/ephcatchers/{ephcatcherID}/unlike": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Removes a like from one ephcatch-eligible user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ephcatch"
+                ],
+                "summary": "Unlike ephcatcher",
+                "operationId": "ephcatch-unlike-ephcatcher",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Ephcatcher ID",
+                        "name": "ephcatcherID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {},
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/ephcatch/matches": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "lists all Ephcatch-eligible students that user has matched with",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ephcatch"
+                ],
+                "summary": "List matches",
+                "operationId": "ephcatch-list-matches",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.User"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/factrak/admin/surveys": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "lists all surveys that are flagged",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "factrak",
+                    "factrak-admin",
+                    "admin"
+                ],
+                "summary": "List flagged surveys",
+                "operationId": "factrak-list-flagged-surveys",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Offset Pagination (timestamp)",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.FactrakSurvey"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/factrak/admin/surveys/{surveyID}/flag": {
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "unflags a flagged survey",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "factrak",
+                    "factrak-admin",
+                    "admin"
+                ],
+                "summary": "Unflag survey",
+                "operationId": "factrak-unflag-survey",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Survey ID",
+                        "name": "surveyID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {},
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/factrak/areas-of-study": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "lists all areas of study",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "factrak"
+                ],
+                "summary": "List areas of study",
+                "operationId": "factrak-list-areas-of-study",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.AreaOfStudy"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/factrak/areas-of-study/{areaOfStudyID}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "get one area of study with department preload",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "factrak"
+                ],
+                "summary": "Get area of study",
+                "operationId": "factrak-get-area-of-study",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Area of Study ID",
+                        "name": "areaOfStudyID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.AreaOfStudy"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/factrak/areas-of-study/{areaOfStudyID}/courses": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "list one area of study's courses and the course's professors.\nPlease note: unlike other GetCourses endpoints, this one also returns a list of each courses professors.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "factrak"
+                ],
+                "summary": "List area of study courses",
+                "operationId": "factrak-list-area-of-study-courses",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Area of Study ID",
+                        "name": "areaOfStudyID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Course"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/factrak/areas-of-study/{areaOfStudyID}/professors": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "list one area of study's professors",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "factrak"
+                ],
+                "summary": "List area of study professors",
+                "operationId": "factrak-list-area-of-study-professors",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Area of Study ID",
+                        "name": "areaOfStudyID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.User"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/factrak/courses": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "lists all courses",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "factrak"
+                ],
+                "summary": "List courses",
+                "operationId": "factrak-list-courses",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Offset Pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Preload List",
+                        "name": "preload",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search Query",
+                        "name": "q",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Course"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/factrak/courses/{courseID}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "get one course with factrak surveys, area of study preloaded.\nMay pass an optional \"?professorID=XXX\" parameter to limit preload scope to a professor and a course.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "factrak"
+                ],
+                "summary": "Get course",
+                "operationId": "factrak-get-course",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Professor ID",
+                        "name": "professorID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Course ID",
+                        "name": "courseID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Course"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/factrak/courses/{courseID}/professors": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "list one course's professors",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "factrak"
+                ],
+                "summary": "List course professors",
+                "operationId": "factrak-list-course-professors",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Course ID",
+                        "name": "courseID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.User"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/factrak/courses/{courseID}/ratings": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "get one course's ratings",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "factrak"
+                ],
+                "summary": "Get course ratings",
+                "operationId": "factrak-get-course-ratings",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Professor ID",
+                        "name": "professorID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Course ID",
+                        "name": "courseID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.FactrakSurveyAvgRatings"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/factrak/courses/{courseID}/surveys": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "list one course's surveys",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "factrak"
+                ],
+                "summary": "List course surveys",
+                "operationId": "factrak-list-course-surveys",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Professor ID",
+                        "name": "professorID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Course ID",
+                        "name": "courseID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Offset Pagination (timestamp)",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.FactrakSurvey"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/factrak/departments": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "lists all departments",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "factrak"
+                ],
+                "summary": "List departments",
+                "operationId": "factrak-list-departments",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Department"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/factrak/departments/{departmentID}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "get one department with areas of study preloaded",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "factrak"
+                ],
+                "summary": "Get department",
+                "operationId": "factrak-get-department",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Department ID",
+                        "name": "departmentID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Department"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/factrak/departments/{departmentID}/courses": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "list one department's courses",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "factrak"
+                ],
+                "summary": "List department courses",
+                "operationId": "factrak-list-department-courses",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Department ID",
+                        "name": "departmentID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Course"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/factrak/departments/{departmentID}/professors": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "list one department's professors",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "factrak"
+                ],
+                "summary": "List department professors",
+                "operationId": "factrak-list-department-professors",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Department ID",
+                        "name": "departmentID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.User"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/factrak/professors": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "lists all professors at Williams",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "factrak"
+                ],
+                "summary": "List professors",
+                "operationId": "factrak-list-professors",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Offset Pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Preload List",
+                        "name": "preload",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search Query",
+                        "name": "q",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.User"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/factrak/professors/{professorID}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "get one course with factrak surveys, area of study preloaded,\nMay pass an optional \"?courseID=XXX\" parameter to limit preload scope to a professor and a course.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "factrak"
+                ],
+                "summary": "Get professor",
+                "operationId": "factrak-get-professor",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Course ID",
+                        "name": "courseID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Professor ID",
+                        "name": "professorID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/factrak/professors/{professorID}/courses": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "list one professor's courses",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "factrak"
+                ],
+                "summary": "List professor courses",
+                "operationId": "factrak-list-professor-courses",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Course ID",
+                        "name": "courseID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Professor ID",
+                        "name": "professorID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Course"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/factrak/professors/{professorID}/ratings": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "get one professor's ratings",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "factrak"
+                ],
+                "summary": "Get professor ratings",
+                "operationId": "factrak-get-professor-ratings",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Course ID",
+                        "name": "courseID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Professor ID",
+                        "name": "professorID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.FactrakSurveyAvgRatings"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/factrak/professors/{professorID}/surveys": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "list one professor's surveys",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "factrak"
+                ],
+                "summary": "List professor surveys",
+                "operationId": "factrak-list-professor-surveys",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Course ID",
+                        "name": "courseID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Professor ID",
+                        "name": "professorID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Offset Pagination (timestamp)",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.FactrakSurvey"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/factrak/surveys": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "lists all surveys where the professor is at Williams and the survey is current. Order by creation date.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "factrak"
+                ],
+                "summary": "List surveys",
+                "operationId": "factrak-list-surveys",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Offset Pagination (timestamp)",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.FactrakSurvey"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "create a survey",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "factrak"
+                ],
+                "summary": "Create survey",
+                "operationId": "factrak-create-survey",
+                "parameters": [
+                    {
+                        "description": "Create Survey Params",
+                        "name": "createParams",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/factrak.SurveyCreateParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "1101": {
+                        "description": "request data validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1531": {
+                        "description": "missing course parameters in create data: courseID or (areaOfStudyAbbreviation and courseNumber)",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1532": {
+                        "description": "comment must be 100 characters or more",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1533": {
+                        "description": "user must be a student and could not be found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1534": {
+                        "description": "passed professor must be a professor and could not be found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1535": {
+                        "description": "passed course could not be found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1536": {
+                        "description": "passed area of study could not be found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1537": {
+                        "description": "survey already exists with passed user ID, professor ID, and course ID",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.FactrakSurvey"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/factrak/surveys/{surveyID}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "get one survey",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "factrak"
+                ],
+                "summary": "Get survey",
+                "operationId": "factrak-get-survey",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Survey ID",
+                        "name": "surveyID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "1330": {
+                        "description": "no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.FactrakSurvey"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "delete a survey",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "factrak",
+                    "factrak-admin",
+                    "admin"
+                ],
+                "summary": "Delete survey",
+                "operationId": "factrak-delete-survey",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Survey ID",
+                        "name": "surveyID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "1331": {
+                        "description": "must be self",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.FactrakSurvey"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "update a survey's data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "factrak"
+                ],
+                "summary": "Update survey",
+                "operationId": "factrak-update-survey",
+                "parameters": [
+                    {
+                        "description": "Update Survey Params",
+                        "name": "updateParams",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/factrak.SurveyUpdateParams"
+                        }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Survey ID",
+                        "name": "surveyID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "1101": {
+                        "description": "request data validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1331": {
+                        "description": "must be self",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1532": {
+                        "description": "comment must be 100 characters or more",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.FactrakSurvey"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/factrak/surveys/{surveyID}/agreement": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "gets the agreement about a survey made by the self user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "factrak"
+                ],
+                "summary": "Get survey agreement by self",
+                "operationId": "factrak-get-agreement",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Survey ID",
+                        "name": "surveyID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "1551": {
+                        "description": "survey agreement could not be found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.FactrakAgreement"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "creates an agreement about a survey made by the self user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "factrak"
+                ],
+                "summary": "Create survey agreement",
+                "operationId": "factrak-create-agreement",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Survey ID",
+                        "name": "surveyID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Create Agreement Params",
+                        "name": "createParams",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/factrak.AgreementCreateParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "1100": {
+                        "description": "could not parse malformed request data",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1552": {
+                        "description": "survey agreement already exists for this user and survey",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1553": {
+                        "description": "cannot create survey agreement with your own survey",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.FactrakAgreement"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "deletes an agreement about a survey made by the self user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "factrak"
+                ],
+                "summary": "Delete survey agreement",
+                "operationId": "factrak-delete-agreement",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Survey ID",
+                        "name": "surveyID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "1551": {
+                        "description": "survey agreement could not be found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.FactrakAgreement"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "updates an agreement about a survey made by the self user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "factrak"
+                ],
+                "summary": "Update survey agreement",
+                "operationId": "factrak-update-agreement",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Survey ID",
+                        "name": "surveyID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Agreement Params",
+                        "name": "updateParams",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/factrak.AgreementUpdateParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "1100": {
+                        "description": "could not parse malformed request data",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1551": {
+                        "description": "survey agreement could not be found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.FactrakAgreement"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/factrak/surveys/{surveyID}/flag": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "flag a survey for mods",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "factrak"
+                ],
+                "summary": "Flag survey",
+                "operationId": "factrak-flag-survey",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Survey ID",
+                        "name": "surveyID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {},
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/factrak/users/{userID}/surveys": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "list one user's surveys",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "factrak"
+                ],
+                "summary": "List user surveys",
+                "operationId": "factrak-list-user-surveys",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Offset Pagination (timestamp)",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "1331": {
+                        "description": "must be self",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.FactrakSurvey"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/users": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get all users that are visible and at williams.\nIf you pass a search query (?q=\"blah\"), you will get all users matching that search query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "List users",
+                "operationId": "list-users",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Offset Pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Preload List",
+                        "name": "preload",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search Query",
+                        "name": "q",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.User"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{userID}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "get a user by user id that is visible and at williams. Also loads tags. Pass \"me\" if you want to get self",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Get user by user id",
+                "operationId": "get-user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "1403": {
+                        "description": "user not visible",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1404": {
+                        "description": "user not at williams",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1405": {
+                        "description": "user id could not be parsed",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "updates a user by user id. You may only update yourself. You may pass \"me\" to get self as well.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Update user by user id",
+                "operationId": "update-user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update User Parameters",
+                        "name": "updateParams",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/user.UpdateUserParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "1100": {
+                        "description": "could not parse malformed request data",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1331": {
+                        "description": "must be self",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1405": {
+                        "description": "user id could not be parsed",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{userID}/tags": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "updates a user's tags by user id. You may only update yourself. You may pass \"me\" to get self as well.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Update user tags by user id",
+                "operationId": "update-user-tags",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Tags Params",
+                        "name": "updateTagsParams",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/user.UpdateUserTagsParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "1100": {
+                        "description": "could not parse malformed request data",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1331": {
+                        "description": "must be self",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1405": {
+                        "description": "user id could not be parsed",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1406": {
+                        "description": "invalid user tag",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "admin.KubeJobReturn": {
+            "type": "object",
+            "properties": {
+                "jobID": {
+                    "type": "string"
+                }
+            }
+        },
+        "auth.AuthResponse": {
+            "type": "object",
+            "properties": {
+                "expire": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "auth.LoginParams": {
+            "type": "object",
+            "required": [
+                "password",
+                "unixID"
+            ],
+            "properties": {
+                "localIP": {
+                    "description": "If true, will authenticate based on IP. Fail if cannot get on-campus token.",
+                    "type": "boolean"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "unixID": {
+                    "type": "string"
+                },
+                "useIP": {
+                    "description": "If true, will authenticate based on IP. Will return either off-campus or on-campus token",
+                    "type": "boolean"
+                }
+            }
+        },
+        "dormtrak.ReviewCreateParams": {
+            "type": "object",
+            "required": [
+                "dormRoomID"
+            ],
+            "properties": {
+                "bathroomDesc": {
+                    "type": "string"
+                },
+                "bedAdjustable": {
+                    "type": "boolean"
+                },
+                "closet": {
+                    "type": "string"
+                },
+                "closetDesc": {
+                    "type": "string"
+                },
+                "comfort": {
+                    "type": "integer"
+                },
+                "comment": {
+                    "description": "Params:",
+                    "type": "string"
+                },
+                "commonRoomAccess": {
+                    "type": "boolean"
+                },
+                "commonRoomDesc": {
+                    "type": "string"
+                },
+                "convenience": {
+                    "type": "integer"
+                },
+                "dormRoomID": {
+                    "description": "Must include this:",
+                    "type": "integer"
+                },
+                "flooring": {
+                    "type": "string"
+                },
+                "keyOrCard": {
+                    "type": "string"
+                },
+                "livedHere": {
+                    "type": "boolean"
+                },
+                "location": {
+                    "type": "integer"
+                },
+                "loudness": {
+                    "type": "integer"
+                },
+                "noise": {
+                    "type": "string"
+                },
+                "outletsDesc": {
+                    "type": "string"
+                },
+                "privateBathroom": {
+                    "type": "boolean"
+                },
+                "satisfaction": {
+                    "type": "integer"
+                },
+                "thermostatAccess": {
+                    "type": "boolean"
+                },
+                "thermostatDesc": {
+                    "type": "string"
+                },
+                "wifi": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dormtrak.ReviewUpdateParams": {
+            "type": "object",
+            "properties": {
+                "bathroomDesc": {
+                    "type": "string"
+                },
+                "bedAdjustable": {
+                    "type": "boolean"
+                },
+                "closet": {
+                    "type": "string"
+                },
+                "closetDesc": {
+                    "type": "string"
+                },
+                "comfort": {
+                    "type": "integer"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "commonRoomAccess": {
+                    "type": "boolean"
+                },
+                "commonRoomDesc": {
+                    "type": "string"
+                },
+                "convenience": {
+                    "type": "integer"
+                },
+                "flooring": {
+                    "type": "string"
+                },
+                "keyOrCard": {
+                    "type": "string"
+                },
+                "livedHere": {
+                    "type": "boolean"
+                },
+                "location": {
+                    "type": "integer"
+                },
+                "loudness": {
+                    "type": "integer"
+                },
+                "noise": {
+                    "type": "string"
+                },
+                "outletsDesc": {
+                    "type": "string"
+                },
+                "privateBathroom": {
+                    "type": "boolean"
+                },
+                "satisfaction": {
+                    "type": "integer"
+                },
+                "thermostatAccess": {
+                    "type": "boolean"
+                },
+                "thermostatDesc": {
+                    "type": "string"
+                },
+                "wifi": {
+                    "type": "integer"
+                }
+            }
+        },
+        "factrak.AgreementCreateParams": {
+            "type": "object",
+            "properties": {
+                "agree": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "factrak.AgreementUpdateParams": {
+            "type": "object",
+            "properties": {
+                "agree": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "factrak.SurveyCreateParams": {
+            "type": "object",
+            "required": [
+                "comment",
+                "professorID"
+            ],
+            "properties": {
+                "approachability": {
+                    "type": "integer"
+                },
+                "areaOfStudyAbbreviation": {
+                    "description": "Or this:",
+                    "type": "string"
+                },
+                "comment": {
+                    "description": "Params:",
+                    "type": "string"
+                },
+                "courseID": {
+                    "description": "Must include either this:",
+                    "type": "integer"
+                },
+                "courseNumber": {
+                    "description": "Like \"256\"",
+                    "type": "string"
+                },
+                "courseStimulating": {
+                    "type": "integer"
+                },
+                "courseWorkload": {
+                    "type": "integer"
+                },
+                "gradeReceived": {
+                    "type": "string"
+                },
+                "leadLecture": {
+                    "type": "integer"
+                },
+                "outsideHelpfulness": {
+                    "type": "integer"
+                },
+                "professorID": {
+                    "description": "Must include this:",
+                    "type": "integer"
+                },
+                "promoteDiscussion": {
+                    "type": "integer"
+                },
+                "wouldRecommendCourse": {
+                    "type": "boolean"
+                },
+                "wouldTakeAnother": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "factrak.SurveyUpdateParams": {
+            "type": "object",
+            "properties": {
+                "approachability": {
+                    "type": "integer"
+                },
+                "comment": {
+                    "description": "Params:",
+                    "type": "string"
+                },
+                "courseStimulating": {
+                    "type": "integer"
+                },
+                "courseWorkload": {
+                    "type": "integer"
+                },
+                "gradeReceived": {
+                    "type": "string"
+                },
+                "leadLecture": {
+                    "type": "integer"
+                },
+                "outsideHelpfulness": {
+                    "type": "integer"
+                },
+                "promoteDiscussion": {
+                    "type": "integer"
+                },
+                "wouldRecommendCourse": {
+                    "type": "boolean"
+                },
+                "wouldTakeAnother": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "lib.APIError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "errors": {
+                    "type": "array",
+                    "items": {
+                        "type": "error"
+                    }
+                },
+                "httpcode": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.AreaOfStudy": {
+            "type": "object",
+            "properties": {
+                "abbreviation": {
+                    "type": "string"
+                },
+                "courses": {
+                    "description": "Has many courses",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Course"
+                    }
+                },
+                "department": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.Department"
+                },
+                "departmentID": {
+                    "description": "Belongs to department",
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Course": {
+            "type": "object",
+            "properties": {
+                "areaOfStudy": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.AreaOfStudy"
+                },
+                "areaOfStudyID": {
+                    "description": "Belongs to area of study",
+                    "type": "integer"
+                },
+                "factrakSurveys": {
+                    "description": "Has many factrak surveys",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.FactrakSurvey"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "number": {
+                    "type": "string"
+                },
+                "professors": {
+                    "description": "Has many professors (thru factrak surveys). Ignore this in Gorm. Populate this only whenever needed.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.User"
+                    }
+                }
+            }
+        },
+        "models.Department": {
+            "type": "object",
+            "properties": {
+                "areasOfStudy": {
+                    "description": "Has many areas of study",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.AreaOfStudy"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "users": {
+                    "description": "Has many professors \u0026 staff",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.User"
+                    }
+                }
+            }
+        },
+        "models.Dorm": {
+            "type": "object",
+            "properties": {
+                "averageDoubleArea": {
+                    "type": "integer"
+                },
+                "averageSingleArea": {
+                    "type": "integer"
+                },
+                "bathroomRatio": {
+                    "type": "number"
+                },
+                "built": {
+                    "type": "integer"
+                },
+                "capacity": {
+                    "type": "integer"
+                },
+                "comfort": {
+                    "description": "These are average statistics from dorm reviews",
+                    "type": "number"
+                },
+                "convenience": {
+                    "type": "number"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "dormRooms": {
+                    "description": "Has many dorm rooms",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.DormRoom"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "keyOrCard": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "number"
+                },
+                "loudness": {
+                    "type": "number"
+                },
+                "modeDoubleArea": {
+                    "type": "integer"
+                },
+                "modeSingleArea": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "neighborhood": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.Neighborhood"
+                },
+                "neighborhoodID": {
+                    "description": "Belongs to neighborhood",
+                    "type": "integer"
+                },
+                "numberBathrooms": {
+                    "type": "integer"
+                },
+                "numberDoubles": {
+                    "type": "integer"
+                },
+                "numberFlex": {
+                    "type": "integer"
+                },
+                "numberSingles": {
+                    "type": "integer"
+                },
+                "numberWashers": {
+                    "type": "integer"
+                },
+                "satisfaction": {
+                    "type": "number"
+                },
+                "wifi": {
+                    "type": "number"
+                }
+            }
+        },
+        "models.DormFacts": {
+            "type": "object",
+            "properties": {
+                "averageComfort": {
+                    "type": "number"
+                },
+                "averageConvenience": {
+                    "type": "number"
+                },
+                "averageDoublesArea": {
+                    "type": "integer"
+                },
+                "averageLocation": {
+                    "type": "number"
+                },
+                "averageLoudness": {
+                    "type": "number"
+                },
+                "averageSatisfaction": {
+                    "type": "number"
+                },
+                "averageSinglesArea": {
+                    "type": "integer"
+                },
+                "averageWifi": {
+                    "type": "number"
+                },
+                "biggestDouble": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.DormRoom"
+                },
+                "biggestSingle": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.DormRoom"
+                },
+                "capacity": {
+                    "type": "integer"
+                },
+                "commonRoomAccessRatio": {
+                    "type": "number"
+                },
+                "doublesCount": {
+                    "type": "integer"
+                },
+                "flexCount": {
+                    "type": "integer"
+                },
+                "juniorCount": {
+                    "type": "integer"
+                },
+                "keyOrCard": {
+                    "type": "string"
+                },
+                "modeDoublesArea": {
+                    "type": "integer"
+                },
+                "modeSinglesArea": {
+                    "type": "integer"
+                },
+                "seniorCount": {
+                    "type": "integer"
+                },
+                "singlesCount": {
+                    "type": "integer"
+                },
+                "smallestDouble": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.DormRoom"
+                },
+                "smallestSingle": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.DormRoom"
+                },
+                "sophomoreCount": {
+                    "type": "integer"
+                },
+                "studentToBathroomRatio": {
+                    "type": "number"
+                },
+                "washersCount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.DormRoom": {
+            "type": "object",
+            "properties": {
+                "area": {
+                    "type": "integer"
+                },
+                "bathroomDesc": {
+                    "type": "string"
+                },
+                "bedAdjustable": {
+                    "type": "boolean"
+                },
+                "closet": {
+                    "type": "string"
+                },
+                "commonRoomAccess": {
+                    "type": "boolean"
+                },
+                "commonRoomDesc": {
+                    "type": "string"
+                },
+                "dorm": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.Dorm"
+                },
+                "dormID": {
+                    "description": "Belongs to dorm",
+                    "type": "integer"
+                },
+                "dormtrakReviews": {
+                    "description": "Has many Dormtrak reviews",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.DormtrakReview"
+                    }
+                },
+                "faces": {
+                    "type": "string"
+                },
+                "floorNumber": {
+                    "type": "integer"
+                },
+                "flooring": {
+                    "type": "string"
+                },
+                "hc": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "keyOrCard": {
+                    "type": "string"
+                },
+                "noise": {
+                    "type": "string"
+                },
+                "numFlag": {
+                    "description": "No clue what this does",
+                    "type": "boolean"
+                },
+                "number": {
+                    "type": "string"
+                },
+                "outletsDesc": {
+                    "type": "string"
+                },
+                "picture": {
+                    "type": "string"
+                },
+                "privateBathroom": {
+                    "type": "boolean"
+                },
+                "roomType": {
+                    "type": "string"
+                },
+                "thermostatAccess": {
+                    "type": "boolean"
+                },
+                "thermostatDesc": {
+                    "type": "string"
+                },
+                "users": {
+                    "description": "Has many students",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.User"
+                    }
+                },
+                "walkthrough": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "models.DormtrakRanking": {
+            "type": "object",
+            "properties": {
+                "biggestDoubles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.DormRoom"
+                    }
+                },
+                "biggestSingles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.DormRoom"
+                    }
+                },
+                "fewestBathrooms": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Dorm"
+                    }
+                },
+                "maxMeanDoubleSize": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Dorm"
+                    }
+                },
+                "maxMeanSingleSize": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Dorm"
+                    }
+                },
+                "minMeanDoubleSize": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Dorm"
+                    }
+                },
+                "minMeanSingleSize": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Dorm"
+                    }
+                },
+                "mostBathrooms": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Dorm"
+                    }
+                },
+                "mostDoubles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Dorm"
+                    }
+                },
+                "mostSingles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Dorm"
+                    }
+                },
+                "smallestDoubles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.DormRoom"
+                    }
+                },
+                "smallestSingles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.DormRoom"
+                    }
+                }
+            }
+        },
+        "models.DormtrakReview": {
+            "type": "object",
+            "properties": {
+                "bathroomDesc": {
+                    "type": "string"
+                },
+                "bedAdjustable": {
+                    "type": "boolean"
+                },
+                "closet": {
+                    "type": "string"
+                },
+                "closetDesc": {
+                    "type": "string"
+                },
+                "comfort": {
+                    "type": "integer"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "commonRoomAccess": {
+                    "type": "boolean"
+                },
+                "commonRoomDesc": {
+                    "type": "string"
+                },
+                "convenience": {
+                    "type": "integer"
+                },
+                "createdTime": {
+                    "description": "Pass the created time: not looked at by GORM",
+                    "type": "string"
+                },
+                "dormRoom": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.DormRoom"
+                },
+                "dormRoomID": {
+                    "description": "Belongs to dorm room",
+                    "type": "integer"
+                },
+                "flooring": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "keyOrCard": {
+                    "type": "string"
+                },
+                "livedHere": {
+                    "type": "boolean"
+                },
+                "location": {
+                    "type": "integer"
+                },
+                "loudness": {
+                    "type": "integer"
+                },
+                "noise": {
+                    "type": "string"
+                },
+                "outletsDesc": {
+                    "type": "string"
+                },
+                "privateBathroom": {
+                    "type": "boolean"
+                },
+                "satisfaction": {
+                    "type": "integer"
+                },
+                "thermostatAccess": {
+                    "type": "boolean"
+                },
+                "thermostatDesc": {
+                    "type": "string"
+                },
+                "user": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.User"
+                },
+                "userID": {
+                    "description": "Belongs to user (student)",
+                    "type": "integer"
+                },
+                "wifi": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.Ephcatch": {
+            "type": "object",
+            "properties": {
+                "createdTime": {
+                    "description": "Pass the created time: not looked at by GORM",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "other": {
+                    "description": "Belongs to other",
+                    "type": "object",
+                    "$ref": "#/definitions/models.User"
+                },
+                "otherID": {
+                    "type": "integer"
+                },
+                "seen": {
+                    "type": "boolean"
+                },
+                "user": {
+                    "description": "Belongs to user",
+                    "type": "object",
+                    "$ref": "#/definitions/models.User"
+                },
+                "userID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.Ephcatcher": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "liked": {
+                    "description": "If me (user) has an ephcatch entry where ephcatch.other_id=users.id and ephcatch.user_id=myID",
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "unixID": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.FactrakAgreement": {
+            "type": "object",
+            "properties": {
+                "agrees": {
+                    "type": "boolean"
+                },
+                "factrakSurvey": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.FactrakSurvey"
+                },
+                "factrakSurveyID": {
+                    "description": "Belongs to survey",
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "user": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.User"
+                },
+                "userID": {
+                    "description": "Belongs to user",
+                    "type": "integer"
+                }
+            }
+        },
+        "models.FactrakSurvey": {
+            "type": "object",
+            "properties": {
+                "agreements": {
+                    "description": "Has many agreements",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.FactrakAgreement"
+                    }
+                },
+                "approachability": {
+                    "type": "integer"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "course": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.Course"
+                },
+                "courseID": {
+                    "description": "Belongs to course",
+                    "type": "integer"
+                },
+                "courseStimulating": {
+                    "type": "integer"
+                },
+                "courseWorkload": {
+                    "type": "integer"
+                },
+                "createdTime": {
+                    "description": "Pass the created time: not looked at by GORM",
+                    "type": "string"
+                },
+                "flagged": {
+                    "type": "boolean"
+                },
+                "gradeReceived": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "leadLecture": {
+                    "type": "integer"
+                },
+                "outsideHelpfulness": {
+                    "type": "integer"
+                },
+                "professor": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.User"
+                },
+                "professorID": {
+                    "description": "Belongs to professor",
+                    "type": "integer"
+                },
+                "promoteDiscussion": {
+                    "type": "integer"
+                },
+                "totalAgree": {
+                    "description": "Not looked at by GORM, just for returning in JSON",
+                    "type": "integer"
+                },
+                "totalDisagree": {
+                    "type": "integer"
+                },
+                "user": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.User"
+                },
+                "userID": {
+                    "description": "Belongs to user (student)",
+                    "type": "integer"
+                },
+                "wouldRecommendCourse": {
+                    "type": "boolean"
+                },
+                "wouldTakeAnother": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "models.FactrakSurveyAvgRatings": {
+            "type": "object",
+            "properties": {
+                "avgApproachability": {
+                    "type": "number"
+                },
+                "avgCourseStimulating": {
+                    "type": "number"
+                },
+                "avgCourseWorkload": {
+                    "type": "number"
+                },
+                "avgLeadLecture": {
+                    "type": "number"
+                },
+                "avgOutsideHelpfulness": {
+                    "type": "number"
+                },
+                "avgPromoteDiscussion": {
+                    "type": "number"
+                },
+                "avgWouldRecommendCourse": {
+                    "type": "number"
+                },
+                "avgWouldTakeAnother": {
+                    "type": "number"
+                },
+                "numApproachability": {
+                    "type": "integer"
+                },
+                "numCourseStimulating": {
+                    "type": "integer"
+                },
+                "numCourseWorkload": {
+                    "type": "integer"
+                },
+                "numLeadLecture": {
+                    "type": "integer"
+                },
+                "numOutsideHelpfulness": {
+                    "type": "integer"
+                },
+                "numPromoteDiscussion": {
+                    "type": "integer"
+                },
+                "numWouldRecommendCourse": {
+                    "type": "integer"
+                },
+                "numWouldTakeAnother": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.Neighborhood": {
+            "type": "object",
+            "properties": {
+                "dorms": {
+                    "description": "Had many dorms",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Dorm"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "trakked": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "models.NeighborhoodFacts": {
+            "type": "object",
+            "properties": {
+                "juniorCount": {
+                    "type": "integer"
+                },
+                "seniorCount": {
+                    "type": "integer"
+                },
+                "sophomoreCount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.Office": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "number": {
+                    "type": "string"
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.User"
+                    }
+                }
+            }
+        },
+        "models.Tag": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.User"
+                    }
+                }
+            }
+        },
+        "models.User": {
+            "type": "object",
+            "properties": {
+                "admin": {
+                    "type": "boolean"
+                },
+                "atWilliams": {
+                    "type": "boolean"
+                },
+                "campusPhoneEXT": {
+                    "type": "string"
+                },
+                "cellPhone": {
+                    "type": "string"
+                },
+                "classYear": {
+                    "type": "integer"
+                },
+                "department": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.Department"
+                },
+                "departmentID": {
+                    "description": "Belongs to Department iff professor",
+                    "type": "integer"
+                },
+                "dormRoom": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.DormRoom"
+                },
+                "dormRoomID": {
+                    "description": "Belongs to Dorm Room iff student",
+                    "type": "integer"
+                },
+                "dormVisible": {
+                    "type": "boolean"
+                },
+                "dormtrakReviews": {
+                    "description": "Has many dormtrak reviews",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.DormtrakReview"
+                    }
+                },
+                "entry": {
+                    "type": "string"
+                },
+                "ephcatchEligibility": {
+                    "type": "boolean"
+                },
+                "ephcatches": {
+                    "description": "Has many ephcatches (owner side)",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Ephcatch"
+                    }
+                },
+                "factrakAdmin": {
+                    "type": "boolean"
+                },
+                "factrakAgreements": {
+                    "description": "Has many factrak agreements",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.FactrakAgreement"
+                    }
+                },
+                "factrakSurveyDeficit": {
+                    "type": "integer"
+                },
+                "factrakSurveys": {
+                    "description": "As we cannot be both a student and a professor, this combines either a student or a professor's factrak survey.\nWe populate this field as a hook AfterFind.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.FactrakSurvey"
+                    }
+                },
+                "hasAcceptedDormtrakPolicy": {
+                    "type": "boolean"
+                },
+                "hasAcceptedFactrakPolicy": {
+                    "type": "boolean"
+                },
+                "homeCountry": {
+                    "type": "string"
+                },
+                "homePhone": {
+                    "type": "string"
+                },
+                "homeState": {
+                    "type": "string"
+                },
+                "homeTown": {
+                    "type": "string"
+                },
+                "homeVisible": {
+                    "type": "boolean"
+                },
+                "homeZip": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "major": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "offCycle": {
+                    "type": "boolean"
+                },
+                "office": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.Office"
+                },
+                "officeID": {
+                    "description": "Belongs to Office iff staff/professor",
+                    "type": "integer"
+                },
+                "optOutEphcatch": {
+                    "type": "boolean"
+                },
+                "pronoun": {
+                    "type": "string"
+                },
+                "suBox": {
+                    "type": "string"
+                },
+                "tags": {
+                    "description": "Has many tags",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Tag"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "unixID": {
+                    "type": "string"
+                },
+                "visible": {
+                    "type": "boolean"
+                },
+                "williamsEmail": {
+                    "type": "string"
+                }
+            }
+        },
+        "user.UpdateUserParams": {
+            "type": "object",
+            "properties": {
+                "dormVisible": {
+                    "type": "boolean"
+                },
+                "hasAcceptedDormtrakPolicy": {
+                    "type": "boolean"
+                },
+                "hasAcceptedFactrakPolicy": {
+                    "type": "boolean"
+                },
+                "homeVisible": {
+                    "type": "boolean"
+                },
+                "offCycle": {
+                    "type": "boolean"
+                },
+                "pronoun": {
+                    "type": "string"
+                },
+                "visible": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "user.UpdateUserTagsParams": {
+            "type": "object",
+            "properties": {
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "Bearer": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

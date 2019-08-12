@@ -2,24 +2,23 @@ package main
 
 import (
 	"flag"
+	"os"
+
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	migrate "github.com/WilliamsStudentsOnline/wso-go/db"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	log "github.com/sirupsen/logrus"
-	"os"
-	"path/filepath"
 )
 
 func main() {
 	/* Flags */
-	var env string
 	var configPath string
-	var secretsPath string
+	var disableMigrationCheck bool
 
 	// Command-line flags
-	flag.StringVar(&env, "env", "development", "environment of server")
+	// Note: these can be overridden by env vars
 	flag.StringVar(&configPath, "config", "", "path to config file")
-	flag.StringVar(&secretsPath, "secrets", filepath.Join("config", "secrets.yml"), "path to secrets file")
+	flag.BoolVar(&disableMigrationCheck, "disable-migration-check", false, "don't check for outdated migrations")
 
 	flag.Parse()
 
@@ -30,31 +29,14 @@ func main() {
 	})
 
 	/* Config */
-	cfg, err := config.GetConfig(env, configPath)
+	cfg, err := config.LoadConfig(configPath)
 	if err != nil {
 		log.Fatal("Config Error: " + err.Error())
+		return
 	}
 
-	if cfg.IsProduction() {
-		log.SetLevel(log.WarnLevel)
-	} else if cfg.IsDevelopment() {
-		log.SetLevel(log.DebugLevel)
-	} else {
-		log.SetLevel(log.InfoLevel)
-	}
-
-	/* Secrets */
-	if _, err := os.Stat(secretsPath); os.IsNotExist(err) {
-		log.Fatal("Secrets file must exist")
-
-	}
-
-	// If secrets file exists, parse it
-	secrets, err := config.GetSecrets(secretsPath)
-	if err != nil {
-		log.Fatal("Secrets Error: " + err.Error())
-	}
-	cfg.Secrets = secrets
+	/* Set Logging Level */
+	log.SetLevel(cfg.LogLevelParsed)
 
 	/* DATABASE */
 	db := config.LoadDatabase(cfg)
@@ -67,16 +49,18 @@ func main() {
 		log.Fatal("Migration Checking Error: " + err.Error())
 	}
 
-	if lastMigrationID != migrate.Migrations[len(migrate.Migrations)-1].ID {
-		log.Fatal("Database migrations are not up to date")
+	codeLastMgr := migrate.Migrations[len(migrate.Migrations)-1].ID
+
+	if lastMigrationID != codeLastMgr {
+		if disableMigrationCheck {
+			log.Warnf("Database migrations are not up to date: database (%s) and code (%s)", lastMigrationID, codeLastMgr)
+		} else {
+			log.Fatalf("Database migrations are not up to date: database (%s) and code (%s)", lastMigrationID, codeLastMgr)
+		}
 	}
 
 	// Do the actual stuff
-	userModel := models.UserModel{
-		BaseModel: models.BaseModel{
-			DB: db,
-		},
-	}
+	userModel := models.NewUserModel(db)
 
 	err = userModel.UpdateAllFromLDAP(cfg)
 	if err != nil {

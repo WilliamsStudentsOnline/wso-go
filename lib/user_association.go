@@ -4,13 +4,13 @@ import "strings"
 
 type UserAssociation struct {
 	Affiliation string
-	Family string
+	Family      string
 }
 
 func NewUserAssociation(affiliation string, family string) *UserAssociation {
 	return &UserAssociation{
 		Affiliation: affiliation,
-		Family: family,
+		Family:      family,
 	}
 }
 

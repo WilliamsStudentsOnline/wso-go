@@ -1,0 +1,6 @@
+FROM wso-backend/builder AS builder
+FROM alpine:3.10
+COPY --from=builder /wso/wso-backend /wso-backend
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+
+ENTRYPOINT ["/wso-backend"]
