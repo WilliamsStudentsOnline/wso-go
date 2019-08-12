@@ -24,6 +24,8 @@ var Migrations = []*gormigrate.Migration{
 	migrations.CreateDormtrakReviews20190808235302,
 	migrations.CreateEphcatches20190812033724,
 	migrations.CreateBulletinRides20190812204834,
+	migrations.CreateDiscussions20190812232511,
+	migrations.CreatePosts20190812232529,
 }
 
 var MigrationGormOptions = gormigrate.DefaultOptions
@@ -54,6 +56,8 @@ func MigrateDB(db *gorm.DB) error {
 			&models.DormtrakReview{},
 			&models.Ephcatch{},
 			&models.BulletinRide{},
+			&models.Discussion{},
+			&models.Post{},
 		).Error
 		if err != nil {
 			return err

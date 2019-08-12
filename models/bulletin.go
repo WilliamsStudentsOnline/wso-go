@@ -17,17 +17,6 @@ func NewBulletinModel(db *gorm.DB) *BulletinModel {
 	}
 }
 
-// CreateBulletin creates a survey
-func (m *BulletinModel) CreateBulletin(b *Bulletin) (err error) {
-	err = m.DB.Create(b).Error
-	if err != nil {
-		return err
-	}
-
-	err = m.DB.Find(b).Error
-	return
-}
-
 // GetAllBulletins Returns all Bulletins
 func (m *BulletinModel) GetAllBulletins(b *[]*Bulletin) (err error) {
 	err = m.GetAllBulletinsWithOptions(b, &GetAllBulletinsOptions{})
@@ -116,6 +105,17 @@ func (m *BulletinModel) GetAllBulletinsByType(b *[]*Bulletin, bulletinType strin
 // GetBulletinByID retrieves a bulletin by ID
 func (m *BulletinModel) GetBulletinByID(id uint, b *Bulletin) (err error) {
 	err = m.DB.Preload("User").Where(NewBulletinWithID(id)).First(b).Error
+	return
+}
+
+// CreateBulletin creates a bulletin
+func (m *BulletinModel) CreateBulletin(b *Bulletin) (err error) {
+	err = m.DB.Create(b).Error
+	if err != nil {
+		return err
+	}
+
+	err = m.DB.Find(b).Error
 	return
 }
 

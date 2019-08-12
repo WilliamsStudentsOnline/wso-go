@@ -1,0 +1,103 @@
+package models
+
+import (
+	"time"
+
+	"github.com/jinzhu/gorm"
+)
+
+// Discussion Model
+type DiscussionModel struct {
+	*BaseModel
+}
+
+func NewDiscussionModel(db *gorm.DB) *DiscussionModel {
+	return &DiscussionModel{
+		BaseModel: NewBaseModel(db),
+	}
+}
+
+type GetAllDiscussionsOptions struct {
+	// Pagination
+	Offset *time.Time `json:"offset" form:"offset"`
+	Limit  *uint      `json:"limit" form:"limit"`
+
+	// What to preload (user, posts, postsUsers)
+	Preload []string `json:"preload" form:"preload"`
+}
+
+func (p *GetAllDiscussionsOptions) Order(db *gorm.DB) *gorm.DB {
+	return db.Order("discussions.last_active desc", true)
+}
+
+// Pagination starts at most recent and goes down from there
+func (p *GetAllDiscussionsOptions) Paginate(db *gorm.DB) *gorm.DB {
+	db = p.Order(db)
+	if p.Offset != nil {
+		db = db.Where("discussions.last_active < ?", *p.Offset)
+	}
+	if p.Limit != nil {
+		db = db.Limit(*p.Limit)
+	}
+	return db
+}
+
+// Preload specifically allowed parts if requested
+func (p *GetAllDiscussionsOptions) Preloader(db *gorm.DB) *gorm.DB {
+	if p.Preload != nil {
+		if stringsContains(p.Preload, "user") {
+			db = db.Preload("User")
+		}
+		if stringsContains(p.Preload, "posts") {
+			db = db.Preload("Posts")
+		}
+		if stringsContains(p.Preload, "postsUsers") {
+			db = db.Preload("Posts.User")
+		}
+	}
+
+	return db
+}
+
+func (p *GetAllDiscussionsOptions) Run(db *gorm.DB) *gorm.DB {
+	db = p.Paginate(db)
+	db = p.Preloader(db)
+
+	return db
+}
+
+func (m *DiscussionModel) GetAllDiscussions(p *[]*Discussion, opts Options) (err error) {
+	db := m.DB
+	if opts != nil {
+		db = opts.Run(db)
+	}
+	err = db.Find(p).Error
+	return
+}
+
+func (m *DiscussionModel) GetDiscussionByID(id uint, p *Discussion) (err error) {
+	err = m.DB.Preload("User").Preload("Posts").Preload("Posts.User").First(p, id).Error
+	return
+}
+
+func (m *DiscussionModel) DoesDiscussionExist(id uint) (exists bool, err error) {
+	var count int
+	err = m.DB.Model(&Discussion{}).Where("id = ?", id).Count(&count).Error
+	exists = count > 0
+	return
+}
+
+func (m *DiscussionModel) CreateDiscussion(p *Discussion) (err error) {
+	err = m.DB.Create(p).Error
+	if err != nil {
+		return err
+	}
+
+	err = m.DB.Find(p).Error
+	return
+}
+
+func (m *DiscussionModel) DeleteDiscussion(p *Discussion) (err error) {
+	err = m.DB.Delete(p).Error
+	return
+}

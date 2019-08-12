@@ -27,4 +27,20 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config) {
 	writer.POST("/rides", c.CreateRide)
 	writer.PATCH("/rides/:rideID", c.UpdateRide)
 	writer.DELETE("/rides/:rideID", c.DeleteRide)
+
+	// Users don't create discussions, they create posts, which have a discussion.
+	// CreateDiscussion is just shorthand for CreatePost without an existing Discussion.
+	// Thus, after they are created, users are unable to edit or delete discussions, only posts. However,
+	// they can delete a discussion if everyone deletes their posts.
+	r.GET("/discussions", c.ListDiscussions)
+	r.GET("/discussions/:discussionID", c.GetDiscussion)
+	r.GET("/discussions/:discussionID/posts", c.GetDiscussionPosts)
+	writer.POST("/discussions", c.CreateDiscussion)
+	// Only admins can delete discussions
+	r.Use(auth.RequireScopes(auth.ScopeAdminAll)).DELETE("/discussions/:discussionID", c.DeleteDiscussion)
+
+	r.GET("/posts/:postID", c.GetPost)
+	writer.POST("/posts", c.CreatePost)
+	writer.PATCH("/posts/:postID", c.UpdatePost)
+	writer.DELETE("/posts/:postID", c.DeletePost)
 }
