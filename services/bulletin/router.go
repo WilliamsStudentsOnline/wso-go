@@ -14,15 +14,17 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config) {
 	writer := r.Group("")
 	writer.Use(auth.RequireScopes(auth.ScopeWriteSelf))
 
+	// Bulletins et all
 	r.GET("/bulletins", c.ListBulletins)
 	r.GET("/bulletins/:bulletinID", c.GetBulletin)
 	writer.POST("/bulletins", c.CreateBulletin)
 	writer.PATCH("/bulletins/:bulletinID", c.UpdateBulletin)
 	writer.DELETE("/bulletins/:bulletinID", c.DeleteBulletin)
 
-	r.GET("/rides", c.ListBulletins)
-	r.GET("/rides/:rideID", c.GetBulletin)
-	writer.POST("/rides", c.CreateBulletin)
-	writer.PATCH("/rides/:ridesID", c.UpdateBulletin)
-	writer.DELETE("/rides/:ridesID", c.DeleteBulletin)
+	// Rides (special)
+	r.GET("/rides", c.ListRides)
+	r.GET("/rides/:rideID", c.GetRide)
+	writer.POST("/rides", c.CreateRide)
+	writer.PATCH("/rides/:rideID", c.UpdateRide)
+	writer.DELETE("/rides/:rideID", c.DeleteRide)
 }

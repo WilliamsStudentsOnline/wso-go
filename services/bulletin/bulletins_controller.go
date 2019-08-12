@@ -43,10 +43,13 @@ func (t *Controller) ListBulletins(c *gin.Context) {
 		return
 	}
 
+	// Remove user info if not a user. Need this, as bulletin service is public
+	removeUserInfoFromBulletin(c, bulletins)
+
 	t.RespondOK(c, bulletins)
 }
 
-// GetBulletins godoc
+// GetBulletin godoc
 // @Summary Get bulletin
 // @Description Get bulletin by ID with user preloaded
 // @ID bulletins-get-bulletin
@@ -76,6 +79,11 @@ func (t *Controller) GetBulletin(c *gin.Context) {
 		return
 	}
 
+	// Remove user info if not a user. Need this, as bulletin service is public
+	if !hasUserAuth(c) {
+		bulletin.User = nil
+	}
+
 	t.RespondOK(c, bulletin)
 }
 
@@ -100,6 +108,7 @@ type CreateBulletinParams struct {
 // @Success 201 {object} models.Bulletin
 // @Failure 1830 {object} lib.APIError "start date cannot be after end date"
 // @Failure 1831 {object} lib.APIError "invalid bulletin type"
+// @Failure 1101 {object} lib.APIError "request data validation failed"
 // @Failure 400 {object} lib.APIError
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
@@ -213,8 +222,6 @@ func (t *Controller) UpdateBulletin(c *gin.Context) {
 	}
 
 	// Update fields: this is a bit long and verbose, but I don't want to mess with reflect
-
-	// Trim comment of leading/trailing whitespaces
 	bulletin.Title = *lib.StrPtrDefaults(updateData.Title, &bulletin.Title)
 	bulletin.Body = *lib.StrPtrDefaults(updateData.Body, &bulletin.Body)
 	bulletin.StartDate = *lib.TimePtrDefaults(updateData.StartDate, &bulletin.StartDate)
@@ -230,7 +237,7 @@ func (t *Controller) UpdateBulletin(c *gin.Context) {
 	}
 
 	// Update the bulletin in the db
-	err = t.bulletinModel.UpdateBulletin(bulletinID, &bulletin)
+	err = t.bulletinModel.UpdateBulletin(&bulletin)
 	if err != nil {
 		t.RespondError(c, err)
 		return

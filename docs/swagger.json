@@ -410,6 +410,12 @@
                     }
                 ],
                 "responses": {
+                    "1101": {
+                        "description": "request data validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
                     "1830": {
                         "description": "start date cannot be after end date",
                         "schema": {
@@ -612,6 +618,334 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.Bulletin"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/bulletin/rides": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "lists all bulletin rides",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "bulletins"
+                ],
+                "summary": "List rides",
+                "operationId": "bulletins-list-rides",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Offset Pagination (timestamp)",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Preload List",
+                        "name": "preload",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Ride Type (request, offer)",
+                        "name": "type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Get All Rides (no restriction on date)",
+                        "name": "all",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.BulletinRide"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Creates a ride",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "bulletins"
+                ],
+                "summary": "Create ride",
+                "operationId": "bulletins-create-ride",
+                "parameters": [
+                    {
+                        "description": "Create Ride Params",
+                        "name": "createParams",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/bulletin.CreateRideParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "1101": {
+                        "description": "request data validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1830": {
+                        "description": "date cannot be in past",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.BulletinRide"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/bulletin/rides/{rideID}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get bulletin ride by ID with user preloaded",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "bulletins"
+                ],
+                "summary": "Get ride",
+                "operationId": "bulletins-get-ride",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Ride ID",
+                        "name": "rideID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.BulletinRide"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Deletes a ride",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "bulletins"
+                ],
+                "summary": "Delete ride",
+                "operationId": "bulletins-delete-ride",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Ride ID",
+                        "name": "rideID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "1331": {
+                        "description": "must be self",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.BulletinRide"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Updates a ride",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "bulletins"
+                ],
+                "summary": "Update ride",
+                "operationId": "bulletins-update-ride",
+                "parameters": [
+                    {
+                        "description": "Update Ride Params",
+                        "name": "updateParams",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/bulletin.UpdateRideParams"
+                        }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Ride ID",
+                        "name": "rideID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "1331": {
+                        "description": "must be self",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1830": {
+                        "description": "date cannot be in past",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.BulletinRide"
                         }
                     },
                     "400": {
@@ -4053,6 +4387,33 @@
                 }
             }
         },
+        "bulletin.CreateRideParams": {
+            "type": "object",
+            "required": [
+                "body",
+                "date",
+                "destination",
+                "offer",
+                "source"
+            ],
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "destination": {
+                    "type": "string"
+                },
+                "offer": {
+                    "type": "boolean"
+                },
+                "source": {
+                    "type": "string"
+                }
+            }
+        },
         "bulletin.UpdateBulletinParams": {
             "type": "object",
             "properties": {
@@ -4069,6 +4430,17 @@
                     "type": "string"
                 },
                 "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "bulletin.UpdateRideParams": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "date": {
                     "type": "string"
                 }
             }
@@ -4404,6 +4776,37 @@
                 },
                 "userID": {
                     "description": "Author information",
+                    "type": "integer"
+                }
+            }
+        },
+        "models.BulletinRide": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "destination": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "offer": {
+                    "type": "boolean"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "user": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.User"
+                },
+                "userID": {
+                    "description": "Belongs to user",
                     "type": "integer"
                 }
             }

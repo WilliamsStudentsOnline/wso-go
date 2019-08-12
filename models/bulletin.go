@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -82,8 +81,6 @@ func (p *GetAllBulletinsOptions) Run(db *gorm.DB) *gorm.DB {
 	db = p.Paginate(db)
 	db = p.Preloader(db)
 
-	fmt.Printf("PRINEHRE %+v", *p)
-
 	if !p.All {
 		db = db.Where("bulletins.start_date <= ?", time.Now())
 		db = db.Where("bulletins.end_date IS NULL OR bulletins.end_date > ?", time.Now())
@@ -123,7 +120,7 @@ func (m *BulletinModel) GetBulletinByID(id uint, b *Bulletin) (err error) {
 }
 
 // UpdateBulletin Updates the bulletin, only allowing specific keys to be passed
-func (m *BulletinModel) UpdateBulletin(id uint, b *Bulletin) (err error) {
+func (m *BulletinModel) UpdateBulletin(b *Bulletin) (err error) {
 	err = m.DB.Save(b).Error
 	return
 }

@@ -49,6 +49,25 @@ definitions:
     - title
     - type
     type: object
+  bulletin.CreateRideParams:
+    properties:
+      body:
+        type: string
+      date:
+        type: string
+      destination:
+        type: string
+      offer:
+        type: boolean
+      source:
+        type: string
+    required:
+    - body
+    - date
+    - destination
+    - offer
+    - source
+    type: object
   bulletin.UpdateBulletinParams:
     properties:
       body:
@@ -60,6 +79,13 @@ definitions:
       startDate:
         type: string
       title:
+        type: string
+    type: object
+  bulletin.UpdateRideParams:
+    properties:
+      body:
+        type: string
+      date:
         type: string
     type: object
   dormtrak.ReviewCreateParams:
@@ -285,6 +311,27 @@ definitions:
         type: object
       userID:
         description: Author information
+        type: integer
+    type: object
+  models.BulletinRide:
+    properties:
+      body:
+        type: string
+      date:
+        type: string
+      destination:
+        type: string
+      id:
+        type: integer
+      offer:
+        type: boolean
+      source:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+        type: object
+      userID:
+        description: Belongs to user
         type: integer
     type: object
   models.Course:
@@ -1222,6 +1269,10 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+        "1101":
+          description: request data validation failed
+          schema:
+            $ref: '#/definitions/lib.APIError'
         "1830":
           description: start date cannot be after end date
           schema:
@@ -1358,6 +1409,219 @@ paths:
       security:
       - Bearer: []
       summary: Update bulletin
+      tags:
+      - bulletins
+  /bulletin/rides:
+    get:
+      consumes:
+      - application/json
+      description: lists all bulletin rides
+      operationId: bulletins-list-rides
+      parameters:
+      - description: Offset Pagination (timestamp)
+        in: query
+        name: offset
+        type: string
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      - description: Preload List
+        in: query
+        items:
+          type: string
+        name: preload
+        type: array
+      - description: Ride Type (request, offer)
+        in: query
+        name: type
+        type: string
+      - description: Get All Rides (no restriction on date)
+        in: query
+        name: all
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.BulletinRide'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List rides
+      tags:
+      - bulletins
+    post:
+      consumes:
+      - application/json
+      description: Creates a ride
+      operationId: bulletins-create-ride
+      parameters:
+      - description: Create Ride Params
+        in: body
+        name: createParams
+        required: true
+        schema:
+          $ref: '#/definitions/bulletin.CreateRideParams'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.BulletinRide'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1101":
+          description: request data validation failed
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1830":
+          description: date cannot be in past
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Create ride
+      tags:
+      - bulletins
+  /bulletin/rides/{rideID}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a ride
+      operationId: bulletins-delete-ride
+      parameters:
+      - description: Ride ID
+        in: path
+        name: rideID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BulletinRide'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1331":
+          description: must be self
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Delete ride
+      tags:
+      - bulletins
+    get:
+      consumes:
+      - application/json
+      description: Get bulletin ride by ID with user preloaded
+      operationId: bulletins-get-ride
+      parameters:
+      - description: Ride ID
+        in: path
+        name: rideID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BulletinRide'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get ride
+      tags:
+      - bulletins
+    patch:
+      consumes:
+      - application/json
+      description: Updates a ride
+      operationId: bulletins-update-ride
+      parameters:
+      - description: Update Ride Params
+        in: body
+        name: updateParams
+        required: true
+        schema:
+          $ref: '#/definitions/bulletin.UpdateRideParams'
+          type: object
+      - description: Ride ID
+        in: path
+        name: rideID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BulletinRide'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1331":
+          description: must be self
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1830":
+          description: date cannot be in past
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Update ride
       tags:
       - bulletins
   /dormtrak/dorms:

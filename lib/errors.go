@@ -89,6 +89,7 @@ var (
 	ErrorEphcatchDoesNotExist  = NewAPIError(1732, "ephcatch does not exist with user ID and passed ephcatcher ID")
 
 	// 18** are bulletin errors
-	ErrorBulletinInvalidDates = NewAPIError(1830, "start date cannot be after end date")
-	ErrorBulletinInvalidType  = NewAPIError(1831, "invalid bulletin type")
+	ErrorBulletinInvalidDates   = NewAPIError(1830, "start date cannot be after end date")
+	ErrorBulletinInvalidType    = NewAPIError(1831, "invalid bulletin type")
+	ErrorBulletinRideDateInPast = NewAPIError(1841, "date cannot be in past")
 )
