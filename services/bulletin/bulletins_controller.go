@@ -26,7 +26,7 @@ import (
 // @Success 200 {array} models.Bulletin
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
-// @Router /bulletins/bulletins [get]
+// @Router /bulletin/bulletins [get]
 func (t *Controller) ListBulletins(c *gin.Context) {
 	params := models.GetAllBulletinsOptions{}
 
@@ -59,7 +59,7 @@ func (t *Controller) ListBulletins(c *gin.Context) {
 // @Failure 404 {object} lib.APIError
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
-// @Router /bulletins/bulletins/{bulletinID} [get]
+// @Router /bulletin/bulletins/{bulletinID} [get]
 func (t *Controller) GetBulletin(c *gin.Context) {
 	// Decode bulletinID.
 	bulletinID, err := services.GetUIntParam(c, "bulletinID")
@@ -103,7 +103,7 @@ type CreateBulletinParams struct {
 // @Failure 400 {object} lib.APIError
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
-// @Router /bulletins/bulletins [post]
+// @Router /bulletin/bulletins [post]
 func (t *Controller) CreateBulletin(c *gin.Context) {
 	userID := services.GetUserID(c)
 
@@ -179,7 +179,7 @@ type UpdateBulletinParams struct {
 // @Failure 404 {object} lib.APIError
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
-// @Router /bulletins/bulletins/{bulletinID} [patch]
+// @Router /bulletin/bulletins/{bulletinID} [patch]
 func (t *Controller) UpdateBulletin(c *gin.Context) {
 	userID := services.GetUserID(c)
 
@@ -255,7 +255,7 @@ func (t *Controller) UpdateBulletin(c *gin.Context) {
 // @Failure 404 {object} lib.APIError
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
-// @Router /bulletins/bulletins/{bulletinID} [delete]
+// @Router /bulletin/bulletins/{bulletinID} [delete]
 func (t *Controller) DeleteBulletin(c *gin.Context) {
 	userID := services.GetUserID(c)
 

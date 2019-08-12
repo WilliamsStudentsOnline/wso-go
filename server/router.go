@@ -103,7 +103,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 		dormtrakService.SetupRouter(dormtrakGroup, db, cfg)
 
 		// Bulletin Service
-		bulletinGroup := v1.Group("/bulletins")
+		bulletinGroup := v1.Group("/bulletin")
 		bulletinGroup.Use(auth.RequireScopes(auth.ScopeBulletin))
 		bulletinService.SetupRouter(dormtrakGroup, db, cfg)
 	}
