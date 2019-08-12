@@ -1053,6 +1053,287 @@
                 }
             }
         },
+        "/ephcatch/ephcatchers": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "lists all Ephcatch-eligible students",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ephcatch"
+                ],
+                "summary": "List ephcatchers",
+                "operationId": "ephcatch-list-ephcatchers",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Offset Pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Preload List",
+                        "name": "preload",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search Query",
+                        "name": "q",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Ephcatcher"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/ephcatch/ephcatchers/{ephcatcherID}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "gets one ephcatch-eligible user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ephcatch"
+                ],
+                "summary": "Get ephcatcher",
+                "operationId": "ephcatch-get-ephcatcher",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Ephcatcher ID",
+                        "name": "ephcatcherID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Ephcatcher"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/ephcatch/ephcatchers/{ephcatcherID}/like": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Likes one ephcatch-eligible user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ephcatch"
+                ],
+                "summary": "Like ephcatcher",
+                "operationId": "ephcatch-like-ephcatcher",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Ephcatcher ID",
+                        "name": "ephcatcherID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "1730": {
+                        "description": "cannot ephcatch-like yourself",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1731": {
+                        "description": "ephcatcher could not be found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1732": {
+                        "description": "ephcatch already exists with user ID and passed ephcatcher ID",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "201": {},
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/ephcatch/ephcatchers/{ephcatcherID}/unlike": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Removes a like from one ephcatch-eligible user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ephcatch"
+                ],
+                "summary": "Unlike ephcatcher",
+                "operationId": "ephcatch-unlike-ephcatcher",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Ephcatcher ID",
+                        "name": "ephcatcherID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {},
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/ephcatch/matches": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "lists all Ephcatch-eligible students that user has matched with",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ephcatch"
+                ],
+                "summary": "List matches",
+                "operationId": "ephcatch-list-matches",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.User"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
         "/factrak/admin/surveys": {
             "get": {
                 "security": [
@@ -4146,6 +4427,55 @@
                 }
             }
         },
+        "models.Ephcatch": {
+            "type": "object",
+            "properties": {
+                "createdTime": {
+                    "description": "Pass the created time: not looked at by GORM",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "other": {
+                    "description": "Belongs to other",
+                    "type": "object",
+                    "$ref": "#/definitions/models.User"
+                },
+                "otherID": {
+                    "type": "integer"
+                },
+                "seen": {
+                    "type": "boolean"
+                },
+                "user": {
+                    "description": "Belongs to user",
+                    "type": "object",
+                    "$ref": "#/definitions/models.User"
+                },
+                "userID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.Ephcatcher": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "liked": {
+                    "description": "If me (user) has an ephcatch entry where ephcatch.other_id=users.id and ephcatch.user_id=myID",
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "unixID": {
+                    "type": "string"
+                }
+            }
+        },
         "models.FactrakAgreement": {
             "type": "object",
             "properties": {
@@ -4413,6 +4743,13 @@
                 },
                 "ephcatchEligibility": {
                     "type": "boolean"
+                },
+                "ephcatches": {
+                    "description": "Has many ephcatches (owner side)",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Ephcatch"
+                    }
                 },
                 "factrakAdmin": {
                     "type": "boolean"

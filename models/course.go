@@ -38,8 +38,6 @@ type GetAllCoursesOptions struct {
 
 // Preload specifically allowed parts if requested
 func (p *GetAllCoursesOptions) Preloader(db *gorm.DB) *gorm.DB {
-	var scopes []func(*gorm.DB) *gorm.DB
-
 	if p.Preload != nil {
 		if lib.StringsContains(*p.Preload, "areaOfStudy") {
 			db = db.Preload("AreaOfStudy")
@@ -52,7 +50,7 @@ func (p *GetAllCoursesOptions) Preloader(db *gorm.DB) *gorm.DB {
 		}
 	}
 
-	return db.Scopes(scopes...)
+	return db
 }
 
 func (p *GetAllCoursesOptions) Order(db *gorm.DB) *gorm.DB {
@@ -62,10 +60,10 @@ func (p *GetAllCoursesOptions) Order(db *gorm.DB) *gorm.DB {
 func (p *GetAllCoursesOptions) Paginate(db *gorm.DB) *gorm.DB {
 	db = p.Order(db)
 	if p.Offset != nil {
-		db = db.Offset(p.Offset)
+		db = db.Offset(*p.Offset)
 	}
 	if p.Limit != nil {
-		db = db.Limit(p.Limit)
+		db = db.Limit(*p.Limit)
 	}
 
 	return db
