@@ -30,6 +30,38 @@ definitions:
     - password
     - unixID
     type: object
+  bulletin.CreateBulletinParams:
+    properties:
+      body:
+        type: string
+      endDate:
+        type: string
+      offer:
+        type: boolean
+      startDate:
+        type: string
+      title:
+        type: string
+      type:
+        type: string
+    required:
+    - body
+    - title
+    - type
+    type: object
+  bulletin.UpdateBulletinParams:
+    properties:
+      body:
+        type: string
+      endDate:
+        type: string
+      offer:
+        type: boolean
+      startDate:
+        type: string
+      title:
+        type: string
+    type: object
   dormtrak.ReviewCreateParams:
     properties:
       bathroomDesc:
@@ -231,6 +263,29 @@ definitions:
         type: integer
       name:
         type: string
+    type: object
+  models.Bulletin:
+    properties:
+      body:
+        type: string
+      endDate:
+        type: string
+      id:
+        type: integer
+      offer:
+        type: boolean
+      startDate:
+        type: string
+      title:
+        type: string
+      type:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+        type: object
+      userID:
+        description: Author information
+        type: integer
     type: object
   models.Course:
     properties:
@@ -1092,6 +1147,219 @@ paths:
       summary: Update Token
       tags:
       - auth
+  /bulletins/bulletins:
+    get:
+      consumes:
+      - application/json
+      description: lists all bulletins
+      operationId: bulletins-list-bulletins
+      parameters:
+      - description: Offset Pagination (timestamp)
+        in: query
+        name: offset
+        type: string
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      - description: Preload List
+        in: query
+        items:
+          type: string
+        name: preload
+        type: array
+      - description: Bulletin Type
+        in: query
+        name: type
+        type: string
+      - description: Get All Bulletins (no restriction on startDate, endDate)
+        in: query
+        name: all
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Bulletin'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List bulletins
+      tags:
+      - bulletins
+    post:
+      consumes:
+      - application/json
+      description: Create a bulletin
+      operationId: bulletins-create-bulletin
+      parameters:
+      - description: Create Bulletin Params
+        in: body
+        name: createParams
+        required: true
+        schema:
+          $ref: '#/definitions/bulletin.CreateBulletinParams'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Bulletin'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1830":
+          description: start date cannot be after end date
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1831":
+          description: invalid bulletin type
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Create bulletin
+      tags:
+      - bulletins
+  /bulletins/bulletins/{bulletinID}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a bulletin
+      operationId: bulletins-delete-bulletin
+      parameters:
+      - description: Bulletin ID
+        in: path
+        name: bulletinID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Bulletin'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1331":
+          description: must be self
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Delete bulletin
+      tags:
+      - bulletins
+    get:
+      consumes:
+      - application/json
+      description: Get bulletin by ID with user preloaded
+      operationId: bulletins-get-bulletin
+      parameters:
+      - description: Bulletin ID
+        in: path
+        name: bulletinID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Bulletin'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get bulletin
+      tags:
+      - bulletins
+    patch:
+      consumes:
+      - application/json
+      description: Updates a bulletin
+      operationId: bulletins-update-bulletin
+      parameters:
+      - description: Update Bulletin Params
+        in: body
+        name: updateParams
+        required: true
+        schema:
+          $ref: '#/definitions/bulletin.UpdateBulletinParams'
+          type: object
+      - description: Bulletin ID
+        in: path
+        name: bulletinID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Bulletin'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1331":
+          description: must be self
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1830":
+          description: start date cannot be after end date
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Update bulletin
+      tags:
+      - bulletins
   /dormtrak/dorms:
     get:
       consumes:

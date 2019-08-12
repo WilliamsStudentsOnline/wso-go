@@ -17,7 +17,7 @@ func NewSearchDormtrakMySQL(db *gorm.DB) *SearchDormtrakMySQL {
 	}
 }
 
-func (s *SearchDormtrakMySQL) SearchDorms(query string, dorms *[]*models.Dorm, opts models.Options) (err error) {
+func (s *SearchDormtrakMySQL) SearchDorms(query string, dorms *[]*models.Dorm, opts SearchOptions) (err error) {
 	// Do SQL
 	tx := s.DB.Model(&models.Dorm{})
 	tx = tx.Where("lower(name) LIKE ?", "%"+strings.ToLower(query)+"%")
@@ -32,7 +32,7 @@ func (s *SearchDormtrakMySQL) SearchDorms(query string, dorms *[]*models.Dorm, o
 	return
 }
 
-func (*SearchDormtrakMySQL) NewDormsOptions(offset *uint, limit *uint, preload *[]string) models.Options {
+func (*SearchDormtrakMySQL) NewDormsOptions(offset *uint, limit *uint, preload *[]string) SearchOptions {
 	return &models.GetAllDormsOptions{
 		Offset:  offset,
 		Limit:   limit,

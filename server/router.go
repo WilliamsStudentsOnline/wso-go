@@ -18,6 +18,7 @@ import (
 	// Services
 	adminService "github.com/WilliamsStudentsOnline/wso-go/services/admin"
 	authService "github.com/WilliamsStudentsOnline/wso-go/services/auth"
+	bulletinService "github.com/WilliamsStudentsOnline/wso-go/services/bulletin"
 	dormtrakService "github.com/WilliamsStudentsOnline/wso-go/services/dormtrak"
 	factrakService "github.com/WilliamsStudentsOnline/wso-go/services/factrak"
 	userService "github.com/WilliamsStudentsOnline/wso-go/services/user"
@@ -81,12 +82,12 @@ func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 		// Authentication for refresh user & other auth commands for already logged in users
 		authService.SetupRouter(v1.Group("/auth"), authMiddleware)
 
-		// User API group
+		// User Service
 		userGroup := v1.Group("/users")
 		userGroup.Use(auth.RequireScopes(auth.ScopeUsers))
 		userService.SetupRouter(userGroup, db, cfg)
 
-		// Admin API group
+		// Admin Service
 		adminGroup := v1.Group("/admin")
 		adminGroup.Use(auth.RequireScopes(auth.ScopeAdminAll))
 		adminService.SetupRouter(adminGroup, db, cfg)
@@ -100,6 +101,11 @@ func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 		dormtrakGroup := v1.Group("/dormtrak")
 		dormtrakGroup.Use(auth.RequireScopes(auth.ScopeDormtrak))
 		dormtrakService.SetupRouter(dormtrakGroup, db, cfg)
+
+		// Bulletin Service
+		bulletinGroup := v1.Group("/bulletins")
+		bulletinGroup.Use(auth.RequireScopes(auth.ScopeBulletin))
+		bulletinService.SetupRouter(dormtrakGroup, db, cfg)
 	}
 
 	return r, nil

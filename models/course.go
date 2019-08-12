@@ -21,8 +21,7 @@ func NewCourseModel(db *gorm.DB) *CourseModel {
 func (m *CourseModel) GetAllCourses(c *[]*Course, opts Options) (err error) {
 	db := m.DB
 	if opts != nil {
-		db = opts.Paginate(db)
-		db = opts.Preloader(db)
+		db = opts.Run(db)
 	}
 	err = db.Find(c).Error
 	return
@@ -54,7 +53,7 @@ func (p *GetAllCoursesOptions) Preloader(db *gorm.DB) *gorm.DB {
 }
 
 func (p *GetAllCoursesOptions) Order(db *gorm.DB) *gorm.DB {
-	return db.Order("courses.id ASC")
+	return db.Order("courses.id ASC", true)
 }
 
 func (p *GetAllCoursesOptions) Paginate(db *gorm.DB) *gorm.DB {
@@ -65,6 +64,13 @@ func (p *GetAllCoursesOptions) Paginate(db *gorm.DB) *gorm.DB {
 	if p.Limit != nil {
 		db = db.Limit(*p.Limit)
 	}
+
+	return db
+}
+
+func (p *GetAllCoursesOptions) Run(db *gorm.DB) *gorm.DB {
+	db = p.Paginate(db)
+	db = p.Preloader(db)
 
 	return db
 }

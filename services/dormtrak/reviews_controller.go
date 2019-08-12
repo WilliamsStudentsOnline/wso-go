@@ -36,6 +36,7 @@ func (t *Controller) ListReviews(c *gin.Context) {
 
 	err := c.ShouldBindQuery(&params)
 	if err != nil {
+		t.RespondError(c, err)
 		return
 	}
 

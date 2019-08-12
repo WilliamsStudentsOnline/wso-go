@@ -6,7 +6,6 @@ import "time"
 const (
 	BulletinTypeLostAndFound = "lostAndFound"
 	BulletinTypeJob          = "job"
-	BulletinTypeRide         = "ride"
 	BulletinTypeExchange     = "exchange"
 	BulletinTypeAnnouncement = "announcement"
 )
@@ -14,11 +13,12 @@ const (
 // Bulletin Model Schema
 type Bulletin struct {
 	BaseSchema
-	Type      string    `json:"type"`
-	Title     string    `json:"title"`
-	Body      string    `gorm:"size:65535" json:"body"`
-	StartDate time.Time `json:"startDate"`
-	EndDate   time.Time `json:"endDate"`
+	Type      string     `gorm:"not null;" json:"type"`
+	Title     string     `gorm:"not null;" json:"title"`
+	Body      string     `gorm:"size:65535" json:"body"`
+	StartDate time.Time  `gorm:"not null;" json:"startDate"`
+	EndDate   *time.Time `json:"endDate"`
+	Offer     *bool      `json:"offer"`
 
 	// Author information
 	UserID uint  `json:"userID"`
@@ -27,7 +27,7 @@ type Bulletin struct {
 
 // TableName returns the name of the bulletins table
 func (*Bulletin) TableName() string {
-	return "bulletin"
+	return "bulletins"
 }
 
 // NewBulletinWithID creates a new bulletin with ID
@@ -39,6 +39,14 @@ func NewBulletinWithID(bulletinID uint) Bulletin {
 	}
 }
 
+// Default start date to now if it is empty.
+func (b *Bulletin) BeforeCreate() (err error) {
+	if b.StartDate.IsZero() {
+		b.StartDate = time.Now()
+	}
+	return
+}
+
 // IsLostAndFound checks if the bulletin is a lost and found posting
 func (b *Bulletin) IsLostAndFound() bool {
 	return b.Type == BulletinTypeLostAndFound
@@ -47,11 +55,6 @@ func (b *Bulletin) IsLostAndFound() bool {
 // IsJob checks if the bulletin is a job posting
 func (b *Bulletin) IsJob() bool {
 	return b.Type == BulletinTypeJob
-}
-
-// IsRide checks if the bulletin is a ride offer/request
-func (b *Bulletin) IsRide() bool {
-	return b.Type == BulletinTypeRide
 }
 
 // IsExchange checks if the the bulletin is an exchange

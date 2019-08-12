@@ -23,12 +23,15 @@ var CreateBulletins20190722202201 = &gormigrate.Migration{
 		// with those fields.
 		type Bulletin struct {
 			models.BaseSchema
-			Type      string    `json:"type"`
-			Title     string    `json:"title"`
-			Body      string    `gorm:"size:65535" json:"body"`
-			StartDate time.Time `json:"startDate"`
-			EndDate   time.Time `json:"endDate"`
-			UserID    uint      `json:"userID"`
+			Type      string     `gorm:"not null;" json:"type"`
+			Title     string     `gorm:"not null;" json:"title"`
+			Body      string     `gorm:"size:65535" json:"body"`
+			StartDate time.Time  `gorm:"not null;" json:"startDate"`
+			EndDate   *time.Time `json:"endDate"`
+			Offer     *bool      `json:"offer"`
+
+			// Author information
+			UserID uint `json:"userID"`
 		}
 
 		return tx.AutoMigrate(&Bulletin{}).Error

@@ -8,8 +8,8 @@ import (
 )
 
 type SearchUsers interface {
-	Search(query string, users *[]*models.User, opts models.Options) (err error)
-	NewOptions(offset *uint, limit *uint, preload *[]string) models.Options
+	Search(query string, users *[]*models.User, opts SearchOptions) (err error)
+	NewOptions(offset *uint, limit *uint, preload *[]string) SearchOptions
 }
 
 func NewSearchUsersMySQL(db *gorm.DB) *SearchUsersMySQL {
@@ -25,4 +25,9 @@ func NewSearchUsers(db *gorm.DB, cfg *config.Config) SearchUsers {
 	default:
 		return nil
 	}
+}
+
+type SearchOptions interface {
+	models.Preloader
+	models.Paginator
 }

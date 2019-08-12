@@ -177,7 +177,7 @@ func GenerateClaims(v *AuthenticatorPayload) jwt.MapClaims {
 
 	// By default, can access bulletins
 	if v.TokenLevel >= TokenLevelOffCampus {
-		scope = append(scope, auth.ScopeBulletins)
+		scope = append(scope, auth.ScopeBulletin)
 	}
 
 	// If on-campus, can access user info
