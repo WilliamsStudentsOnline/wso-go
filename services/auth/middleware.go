@@ -87,6 +87,9 @@ func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB) (authMiddleware *jwt.Gi
 
 		// What to do when a JWT is unauthorized
 		Unauthorized: func(c *gin.Context, statusCode int, errorMsg string) {
+			if errorMsg == jwt.ErrExpiredToken.Error() {
+				c.Set(services.UpdateTokenKey, true)
+			}
 			services.Base.RespondErrorCode(c, statusCode, errors.New(errorMsg))
 		},
 

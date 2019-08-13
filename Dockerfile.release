@@ -4,7 +4,7 @@ COPY --from=builder /wso/wso-backend /wso-backend
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 # Set timezone
-COPY --from=build /wso/zoneinfo.zip /
+COPY --from=builder /wso/zoneinfo.zip /
 ENV TZ=America/NewYork
 ENV ZONEINFO=/zoneinfo.zip
 
