@@ -97,7 +97,26 @@ func (m *DiscussionModel) CreateDiscussion(p *Discussion) (err error) {
 	return
 }
 
+// Deletes discussion and all of its posts (soft delete).
 func (m *DiscussionModel) DeleteDiscussion(p *Discussion) (err error) {
-	err = m.DB.Delete(p).Error
+	tx := m.DB.Begin()
+
+	if err = tx.Error; err != nil {
+		return
+	}
+
+	err = tx.Where("posts.discussion_id = ?", p.ID).Delete(&Post{}).Error
+	if err != nil {
+		tx.Rollback()
+		return
+	}
+
+	err = tx.Delete(p).Error
+	if err != nil {
+		tx.Rollback()
+		return
+	}
+
+	err = tx.Commit().Error
 	return
 }

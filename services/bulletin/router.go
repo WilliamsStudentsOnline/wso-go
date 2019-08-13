@@ -37,7 +37,9 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config) {
 	r.GET("/discussions/:discussionID/posts", c.GetDiscussionPosts)
 	writer.POST("/discussions", c.CreateDiscussion)
 	// Only admins can delete discussions
-	r.Use(auth.RequireScopes(auth.ScopeAdminAll)).DELETE("/discussions/:discussionID", c.DeleteDiscussion)
+	admin := r.Group("")
+	admin.Use(auth.RequireScopes(auth.ScopeAdminAll))
+	admin.DELETE("/discussions/:discussionID", c.DeleteDiscussion)
 
 	r.GET("/posts/:postID", c.GetPost)
 	writer.POST("/posts", c.CreatePost)
