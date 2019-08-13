@@ -94,32 +94,32 @@ type GetAllDormtrakReviewsOptions struct {
 	Commented bool `json:"commented" form:"commented"`
 }
 
-func (p *GetAllDormtrakReviewsOptions) Order(db *gorm.DB) *gorm.DB {
-	return db.Order("dormtrak_reviews.created_at desc")
+func (o *GetAllDormtrakReviewsOptions) Order(db *gorm.DB) *gorm.DB {
+	return db.Order("dormtrak_reviews.created_at desc", true)
 }
 
 // Pagination starts at most recent and goes down from there
-func (p *GetAllDormtrakReviewsOptions) Paginate(db *gorm.DB) *gorm.DB {
-	db = p.Order(db)
-	if p.Offset != nil {
-		db = db.Where("dormtrak_reviews.created_at < ?", *p.Offset)
+func (o *GetAllDormtrakReviewsOptions) Paginate(db *gorm.DB) *gorm.DB {
+	db = o.Order(db)
+	if o.Offset != nil {
+		db = db.Where("dormtrak_reviews.created_at < ?", *o.Offset)
 	}
-	if p.Limit != nil {
-		db = db.Limit(*p.Limit)
+	if o.Limit != nil {
+		db = db.Limit(*o.Limit)
 	}
 	return db
 }
 
 // Preload specifically allowed parts if requested
-func (p *GetAllDormtrakReviewsOptions) Preloader(db *gorm.DB) *gorm.DB {
-	if p.Preload != nil {
-		if stringsContains(p.Preload, "dormRoom") {
+func (o *GetAllDormtrakReviewsOptions) Preloader(db *gorm.DB) *gorm.DB {
+	if o.Preload != nil {
+		if stringsContains(o.Preload, "dormRoom") {
 			db = db.Preload("DormRoom")
 		}
-		if stringsContains(p.Preload, "dorm") {
+		if stringsContains(o.Preload, "dorm") {
 			db = db.Preload("DormRoom.Dorm")
 		}
-		if stringsContains(p.Preload, "neighborhood") {
+		if stringsContains(o.Preload, "neighborhood") {
 			db = db.Preload("DormRoom.Dorm.Neighborhood")
 		}
 	}
@@ -127,31 +127,37 @@ func (p *GetAllDormtrakReviewsOptions) Preloader(db *gorm.DB) *gorm.DB {
 	return db
 }
 
+func (o *GetAllDormtrakReviewsOptions) Run(db *gorm.DB) *gorm.DB {
+	db = o.Preloader(db)
+	db = o.Paginate(db)
+
+	m := NewDormtrakReviewModel(nil)
+
+	if o.DormID != nil {
+		db = m.withDormID(*o.DormID)(db)
+	}
+	if o.DormRoomID != nil {
+		db = m.withDormRoomID(*o.DormRoomID)(db)
+	}
+	if o.UserID != nil {
+		db = m.withUserID(*o.UserID)(db)
+	}
+	if o.Commented {
+		db = m.scopeCommented(db)
+	}
+
+	return db
+}
+
 // Gets all reviews.
-func (m *DormtrakReviewModel) GetAllReviewsWithOptions(p *[]*DormtrakReview, opts *GetAllDormtrakReviewsOptions) (err error) {
-	scopes := []func(*gorm.DB) *gorm.DB{
-		m.scopeDefault,
-	}
+func (m *DormtrakReviewModel) GetAllReviewsWithOptions(p *[]*DormtrakReview, opts Options) (err error) {
 	db := m.DB
-
+	db = m.scopeDefault(db)
 	if opts != nil {
-		db = opts.Paginate(db)
-		db = opts.Preloader(db)
-		if opts.DormID != nil {
-			scopes = append(scopes, m.withDormID(*opts.DormID))
-		}
-		if opts.DormRoomID != nil {
-			scopes = append(scopes, m.withDormRoomID(*opts.DormRoomID))
-		}
-		if opts.UserID != nil {
-			scopes = append(scopes, m.withUserID(*opts.UserID))
-		}
-		if opts.Commented {
-			scopes = append(scopes, m.scopeCommented)
-		}
+		db = opts.Run(db)
 	}
 
-	err = db.Scopes(scopes...).Find(p).Error
+	err = db.Find(p).Error
 	return
 }
 

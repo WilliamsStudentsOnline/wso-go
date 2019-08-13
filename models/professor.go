@@ -19,8 +19,7 @@ func NewProfessorModel(db *gorm.DB) *ProfessorModel {
 func (m *ProfessorModel) GetAllProfessors(u *[]*User, opts Options) (err error) {
 	db := m.DB.Scopes(m.scopeDefault)
 	if opts != nil {
-		db = opts.Paginate(db)
-		db = opts.Preloader(db)
+		db = opts.Run(db)
 	}
 	err = db.Find(u).Error
 	return
@@ -52,7 +51,7 @@ func (p *GetAllProfessorsOptions) Preloader(db *gorm.DB) *gorm.DB {
 }
 
 func (p *GetAllProfessorsOptions) Order(db *gorm.DB) *gorm.DB {
-	return db.Order("users.id ASC")
+	return db.Order("users.id ASC", true)
 }
 
 func (p *GetAllProfessorsOptions) Paginate(db *gorm.DB) *gorm.DB {
@@ -65,6 +64,10 @@ func (p *GetAllProfessorsOptions) Paginate(db *gorm.DB) *gorm.DB {
 	}
 
 	return db
+}
+
+func (p *GetAllProfessorsOptions) Run(db *gorm.DB) *gorm.DB {
+	return p.Paginate(p.Preloader(db))
 }
 
 func (m *ProfessorModel) DoesProfessorExist(id uint) (exists bool, err error) {

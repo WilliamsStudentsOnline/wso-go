@@ -26,10 +26,10 @@ func NewEphcatcherModel(db *gorm.DB) *EphcatcherModel {
 // Get all ephcatchers and populate the liked field. The userID should be self to see the liked field.
 func (m *EphcatcherModel) GetAllEphcatchers(userID uint, p *[]*Ephcatcher, opts Options) (err error) {
 	// Get ephcatchers
-	db := m.DB.Model(&User{}).Scopes(m.scopeDefault)
+	db := m.DB.Model(&User{})
+	db = m.scopeDefault(db)
 	if opts != nil {
-		db = opts.Paginate(db)
-		db = opts.Preloader(db)
+		db = opts.Run(db)
 	}
 	rows, err := db.Select("users.id, users.name, users.unix_id").Rows()
 	if err != nil {
@@ -81,13 +81,8 @@ type GetAllEphcatchersOptions struct {
 	Limit  *uint   `json:"limit" form:"limit"`
 }
 
-// Preload specifically allowed parts if requested
-func (p *GetAllEphcatchersOptions) Preloader(db *gorm.DB) *gorm.DB {
-	return db
-}
-
 func (p *GetAllEphcatchersOptions) Order(db *gorm.DB) *gorm.DB {
-	return db.Order("users.name ASC")
+	return db.Order("users.name ASC", true)
 }
 
 func (p *GetAllEphcatchersOptions) Paginate(db *gorm.DB) *gorm.DB {
@@ -100,6 +95,10 @@ func (p *GetAllEphcatchersOptions) Paginate(db *gorm.DB) *gorm.DB {
 	}
 
 	return db
+}
+
+func (p *GetAllEphcatchersOptions) Run(db *gorm.DB) *gorm.DB {
+	return p.Paginate(db)
 }
 
 func (m *EphcatcherModel) GetEphcatcherByID(ephcatcherID uint, userID uint, p *Ephcatcher) (err error) {

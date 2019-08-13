@@ -46,6 +46,7 @@ func (t *Controller) ListUsers(c *gin.Context) {
 
 	opts := models.GetAllUsersOptions{}
 	if err = c.ShouldBindQuery(&opts); err != nil {
+		t.RespondError(c, err)
 		return
 	}
 

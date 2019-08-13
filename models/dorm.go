@@ -22,8 +22,7 @@ func NewDormModel(db *gorm.DB) *DormModel {
 func (m *DormModel) GetAllDorms(p *[]*Dorm, opts Options) (err error) {
 	db := m.DB
 	if opts != nil {
-		db = opts.Paginate(db)
-		db = opts.Preloader(db)
+		db = opts.Run(db)
 	}
 	err = db.Find(p).Error
 	return
@@ -52,7 +51,7 @@ func (p *GetAllDormsOptions) Preloader(db *gorm.DB) *gorm.DB {
 }
 
 func (p *GetAllDormsOptions) Order(db *gorm.DB) *gorm.DB {
-	return db.Order("dorms.id ASC")
+	return db.Order("dorms.id ASC", true)
 }
 
 func (p *GetAllDormsOptions) Paginate(db *gorm.DB) *gorm.DB {
@@ -65,6 +64,10 @@ func (p *GetAllDormsOptions) Paginate(db *gorm.DB) *gorm.DB {
 	}
 
 	return db
+}
+
+func (p *GetAllDormsOptions) Run(db *gorm.DB) *gorm.DB {
+	return p.Paginate(p.Preloader(db))
 }
 
 // Gets dorm by its id with neighborhood and dorm rooms preloaded.

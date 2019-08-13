@@ -30,6 +30,89 @@ definitions:
     - password
     - unixID
     type: object
+  bulletin.CreateBulletinParams:
+    properties:
+      body:
+        type: string
+      endDate:
+        type: string
+      offer:
+        type: boolean
+      startDate:
+        type: string
+      title:
+        type: string
+      type:
+        type: string
+    required:
+    - body
+    - title
+    - type
+    type: object
+  bulletin.CreateDiscussionParams:
+    properties:
+      content:
+        type: string
+      title:
+        type: string
+    required:
+    - content
+    - title
+    type: object
+  bulletin.CreatePostParams:
+    properties:
+      content:
+        type: string
+      discussionID:
+        type: integer
+    required:
+    - content
+    - discussionID
+    type: object
+  bulletin.CreateRideParams:
+    properties:
+      body:
+        type: string
+      date:
+        type: string
+      destination:
+        type: string
+      offer:
+        type: boolean
+      source:
+        type: string
+    required:
+    - body
+    - date
+    - destination
+    - offer
+    - source
+    type: object
+  bulletin.UpdateBulletinParams:
+    properties:
+      body:
+        type: string
+      endDate:
+        type: string
+      offer:
+        type: boolean
+      startDate:
+        type: string
+      title:
+        type: string
+    type: object
+  bulletin.UpdatePostParams:
+    properties:
+      content:
+        type: string
+    type: object
+  bulletin.UpdateRideParams:
+    properties:
+      body:
+        type: string
+      date:
+        type: string
+    type: object
   dormtrak.ReviewCreateParams:
     properties:
       bathroomDesc:
@@ -232,6 +315,50 @@ definitions:
       name:
         type: string
     type: object
+  models.Bulletin:
+    properties:
+      body:
+        type: string
+      endDate:
+        type: string
+      id:
+        type: integer
+      offer:
+        type: boolean
+      startDate:
+        type: string
+      title:
+        type: string
+      type:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+        type: object
+      userID:
+        description: Author information
+        type: integer
+    type: object
+  models.BulletinRide:
+    properties:
+      body:
+        type: string
+      date:
+        type: string
+      destination:
+        type: string
+      id:
+        type: integer
+      offer:
+        type: boolean
+      source:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+        type: object
+      userID:
+        description: Belongs to user
+        type: integer
+    type: object
   models.Course:
     properties:
       areaOfStudy:
@@ -272,6 +399,35 @@ definitions:
         items:
           $ref: '#/definitions/models.User'
         type: array
+    type: object
+  models.Discussion:
+    properties:
+      createdTime:
+        description: 'Pass the created time: not looked at by GORM'
+        type: string
+      exUserName:
+        description: |-
+          This is for when a user is deleted, but we still want to keep the info.
+          Ideally, we would only soft delete users but, we need to maintain the previous WSO's
+          standards.
+        type: string
+      id:
+        type: integer
+      lastActive:
+        type: string
+      posts:
+        description: Has many posts
+        items:
+          $ref: '#/definitions/models.Post'
+        type: array
+      title:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+        type: object
+      userID:
+        description: Belongs to user
+        type: integer
     type: object
   models.Dorm:
     properties:
@@ -747,6 +903,34 @@ definitions:
           $ref: '#/definitions/models.User'
         type: array
     type: object
+  models.Post:
+    properties:
+      content:
+        type: string
+      createdTime:
+        description: 'Pass the created time: not looked at by GORM'
+        type: string
+      discussion:
+        $ref: '#/definitions/models.Discussion'
+        type: object
+      discussionID:
+        description: Belongs to discussion
+        type: integer
+      exUserName:
+        description: |-
+          This is for when a user is deleted, but we still want to keep the info.
+          Ideally, we would only soft delete users but, we need to maintain the previous WSO's
+          standards.
+        type: string
+      id:
+        type: integer
+      user:
+        $ref: '#/definitions/models.User'
+        type: object
+      userID:
+        description: Belongs to user
+        type: integer
+    type: object
   models.Tag:
     properties:
       id:
@@ -1092,6 +1276,799 @@ paths:
       summary: Update Token
       tags:
       - auth
+  /bulletin/bulletins:
+    get:
+      consumes:
+      - application/json
+      description: lists all bulletins
+      operationId: bulletins-list-bulletins
+      parameters:
+      - description: Offset Pagination (timestamp)
+        in: query
+        name: offset
+        type: string
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      - description: Preload List
+        in: query
+        items:
+          type: string
+        name: preload
+        type: array
+      - description: Bulletin Type
+        in: query
+        name: type
+        type: string
+      - description: Get All Bulletins (no restriction on startDate, endDate)
+        in: query
+        name: all
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Bulletin'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List bulletins
+      tags:
+      - bulletins
+    post:
+      consumes:
+      - application/json
+      description: Create a bulletin
+      operationId: bulletins-create-bulletin
+      parameters:
+      - description: Create Bulletin Params
+        in: body
+        name: createParams
+        required: true
+        schema:
+          $ref: '#/definitions/bulletin.CreateBulletinParams'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Bulletin'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1101":
+          description: request data validation failed
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1830":
+          description: start date cannot be after end date
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1831":
+          description: invalid bulletin type
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Create bulletin
+      tags:
+      - bulletins
+  /bulletin/bulletins/{bulletinID}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a bulletin
+      operationId: bulletins-delete-bulletin
+      parameters:
+      - description: Bulletin ID
+        in: path
+        name: bulletinID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Bulletin'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1331":
+          description: must be self
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Delete bulletin
+      tags:
+      - bulletins
+    get:
+      consumes:
+      - application/json
+      description: Get bulletin by ID with user preloaded
+      operationId: bulletins-get-bulletin
+      parameters:
+      - description: Bulletin ID
+        in: path
+        name: bulletinID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Bulletin'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get bulletin
+      tags:
+      - bulletins
+    patch:
+      consumes:
+      - application/json
+      description: Updates a bulletin
+      operationId: bulletins-update-bulletin
+      parameters:
+      - description: Update Bulletin Params
+        in: body
+        name: updateParams
+        required: true
+        schema:
+          $ref: '#/definitions/bulletin.UpdateBulletinParams'
+          type: object
+      - description: Bulletin ID
+        in: path
+        name: bulletinID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Bulletin'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1331":
+          description: must be self
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1830":
+          description: start date cannot be after end date
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Update bulletin
+      tags:
+      - bulletins
+  /bulletin/discussion/{discussionID}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a discussion (must be admin)
+      operationId: bulletins-delete-discussion
+      parameters:
+      - description: Discussion ID
+        in: path
+        name: discussionID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Discussion'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Delete discussion
+      tags:
+      - bulletins
+  /bulletin/discussions:
+    get:
+      consumes:
+      - application/json
+      description: lists all bulletin discussions
+      operationId: bulletins-list-discussions
+      parameters:
+      - description: Offset Pagination (timestamp)
+        in: query
+        name: offset
+        type: string
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      - description: Preload List
+        in: query
+        items:
+          type: string
+        name: preload
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Discussion'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List discussions
+      tags:
+      - bulletins
+    post:
+      consumes:
+      - application/json
+      description: Creates a discussion
+      operationId: bulletins-create-discussion
+      parameters:
+      - description: Create Discussion Params
+        in: body
+        name: createParams
+        required: true
+        schema:
+          $ref: '#/definitions/bulletin.CreateDiscussionParams'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Discussion'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1101":
+          description: request data validation failed
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1332":
+          description: authenticated user not found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Create discussion
+      tags:
+      - bulletins
+  /bulletin/discussions/{discussionID}:
+    get:
+      consumes:
+      - application/json
+      description: Get discussion by ID with user, posts, and posts.user preloaded
+      operationId: bulletins-get-discussion
+      parameters:
+      - description: Discussion ID
+        in: path
+        name: discussionID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Discussion'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get discussion
+      tags:
+      - bulletins
+  /bulletin/discussions/{discussionID}/posts:
+    get:
+      consumes:
+      - application/json
+      description: gets all posts in a discussion
+      operationId: bulletins-get-discussion-posts
+      parameters:
+      - description: Discussion ID
+        in: path
+        name: discussionID
+        required: true
+        type: integer
+      - description: Offset Pagination (timestamp)
+        in: query
+        name: offset
+        type: string
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      - description: Preload List
+        in: query
+        items:
+          type: string
+        name: preload
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Post'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get discussion posts
+      tags:
+      - bulletins
+  /bulletin/posts:
+    post:
+      consumes:
+      - application/json
+      description: Creates a post
+      operationId: bulletins-create-post
+      parameters:
+      - description: Create Post Params
+        in: body
+        name: createParams
+        required: true
+        schema:
+          $ref: '#/definitions/bulletin.CreatePostParams'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Post'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1101":
+          description: request data validation failed
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1332":
+          description: authenticated user not found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1850":
+          description: discussion cannot be found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Create post
+      tags:
+      - bulletins
+  /bulletin/posts/{postID}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a post
+      operationId: bulletins-delete-post
+      parameters:
+      - description: Post ID
+        in: path
+        name: postID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Post'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1331":
+          description: must be self
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Delete post
+      tags:
+      - bulletins
+    get:
+      consumes:
+      - application/json
+      description: Get post by ID with user, posts, and posts.user preloaded
+      operationId: bulletins-get-post
+      parameters:
+      - description: Post ID
+        in: path
+        name: postID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Post'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get post
+      tags:
+      - bulletins
+    patch:
+      consumes:
+      - application/json
+      description: Updates a post
+      operationId: bulletins-update-post
+      parameters:
+      - description: Update Post Params
+        in: body
+        name: updateParams
+        required: true
+        schema:
+          $ref: '#/definitions/bulletin.UpdatePostParams'
+          type: object
+      - description: Post ID
+        in: path
+        name: postID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Post'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1331":
+          description: must be self
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Update post
+      tags:
+      - bulletins
+  /bulletin/rides:
+    get:
+      consumes:
+      - application/json
+      description: lists all bulletin rides
+      operationId: bulletins-list-rides
+      parameters:
+      - description: Offset Pagination (timestamp)
+        in: query
+        name: offset
+        type: string
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      - description: Preload List
+        in: query
+        items:
+          type: string
+        name: preload
+        type: array
+      - description: Ride Type (request, offer)
+        in: query
+        name: type
+        type: string
+      - description: Get All Rides (no restriction on date)
+        in: query
+        name: all
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.BulletinRide'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List rides
+      tags:
+      - bulletins
+    post:
+      consumes:
+      - application/json
+      description: Creates a ride
+      operationId: bulletins-create-ride
+      parameters:
+      - description: Create Ride Params
+        in: body
+        name: createParams
+        required: true
+        schema:
+          $ref: '#/definitions/bulletin.CreateRideParams'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.BulletinRide'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1101":
+          description: request data validation failed
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1830":
+          description: date cannot be in past
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Create ride
+      tags:
+      - bulletins
+  /bulletin/rides/{rideID}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a ride
+      operationId: bulletins-delete-ride
+      parameters:
+      - description: Ride ID
+        in: path
+        name: rideID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BulletinRide'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1331":
+          description: must be self
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Delete ride
+      tags:
+      - bulletins
+    get:
+      consumes:
+      - application/json
+      description: Get bulletin ride by ID with user preloaded
+      operationId: bulletins-get-ride
+      parameters:
+      - description: Ride ID
+        in: path
+        name: rideID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BulletinRide'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get ride
+      tags:
+      - bulletins
+    patch:
+      consumes:
+      - application/json
+      description: Updates a ride
+      operationId: bulletins-update-ride
+      parameters:
+      - description: Update Ride Params
+        in: body
+        name: updateParams
+        required: true
+        schema:
+          $ref: '#/definitions/bulletin.UpdateRideParams'
+          type: object
+      - description: Ride ID
+        in: path
+        name: rideID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BulletinRide'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1331":
+          description: must be self
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1830":
+          description: date cannot be in past
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Update ride
+      tags:
+      - bulletins
   /dormtrak/dorms:
     get:
       consumes:

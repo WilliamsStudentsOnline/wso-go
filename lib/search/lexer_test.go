@@ -5,12 +5,10 @@ import (
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	. "github.com/WilliamsStudentsOnline/wso-go/lib/search"
-	testify "github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSearch(t *testing.T) {
-	assert := testify.New(t)
-
 	testCases := []struct {
 		name     string
 		query    string
@@ -567,14 +565,14 @@ func TestSearch(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			ast, err := ParseSearchQuery(tc.query)
-			assert.NoError(err)
-			assert.Equal(tc.expected, ast)
+			assert.NoError(t, err)
+			assert.Equal(t, tc.expected, ast)
 		})
 	}
 
 	// Ensure this doesnt break anything
 	_, err := ParseSearchQuery("but (what does this do) this too \"plus also this??\" foo:\"bar:baz\" hello:wo-rld hi there \"plus this?\" AND (this:that) OR \"fpp\"")
-	assert.NoError(err)
+	assert.NoError(t, err)
 }
 
 func BenchmarkParseSearchQuery(b *testing.B) {

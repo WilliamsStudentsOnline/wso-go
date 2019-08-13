@@ -8,10 +8,10 @@ import (
 )
 
 type SearchFactrak interface {
-	SearchProfessors(query string, users *[]*models.User, opts models.Options) (err error)
-	SearchCourses(query string, courses *[]*models.Course, opts models.Options) (err error)
-	NewProfessorsOptions(offset *uint, limit *uint, preload *[]string) models.Options
-	NewCoursesOptions(offset *uint, limit *uint, preload *[]string) models.Options
+	SearchProfessors(query string, users *[]*models.User, opts SearchOptions) (err error)
+	SearchCourses(query string, courses *[]*models.Course, opts SearchOptions) (err error)
+	NewProfessorsOptions(offset *uint, limit *uint, preload *[]string) SearchOptions
+	NewCoursesOptions(offset *uint, limit *uint, preload *[]string) SearchOptions
 }
 
 func NewSearchFactrak(db *gorm.DB, cfg *config.Config) SearchFactrak {
@@ -21,4 +21,9 @@ func NewSearchFactrak(db *gorm.DB, cfg *config.Config) SearchFactrak {
 	default:
 		return nil
 	}
+}
+
+type SearchOptions interface {
+	models.Preloader
+	models.Paginator
 }

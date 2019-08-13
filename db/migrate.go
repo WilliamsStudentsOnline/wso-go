@@ -15,6 +15,7 @@ var Migrations = []*gormigrate.Migration{
 	migrations.CreateDorms20190721040956,
 	migrations.CreateDormRooms20190721041007,
 	migrations.CreateOffices20190721060106,
+	migrations.CreateBulletins20190722202201,
 	migrations.CreateTagsAndTagsUsers20190723012050,
 	migrations.CreateAreasOfStudy20190729142313,
 	migrations.CreateCourses20190729142528,
@@ -22,6 +23,9 @@ var Migrations = []*gormigrate.Migration{
 	migrations.CreateFactrakSurveys20190729142626,
 	migrations.CreateDormtrakReviews20190808235302,
 	migrations.CreateEphcatches20190812033724,
+	migrations.CreateBulletinRides20190812204834,
+	migrations.CreateDiscussions20190812232511,
+	migrations.CreatePosts20190812232529,
 }
 
 var MigrationGormOptions = gormigrate.DefaultOptions
@@ -43,6 +47,7 @@ func MigrateDB(db *gorm.DB) error {
 			&models.Dorm{},
 			&models.DormRoom{},
 			&models.Office{},
+			&models.Bulletin{},
 			&models.Tag{},
 			&models.AreaOfStudy{},
 			&models.Course{},
@@ -50,6 +55,9 @@ func MigrateDB(db *gorm.DB) error {
 			&models.FactrakSurvey{},
 			&models.DormtrakReview{},
 			&models.Ephcatch{},
+			&models.BulletinRide{},
+			&models.Discussion{},
+			&models.Post{},
 		).Error
 		if err != nil {
 			return err

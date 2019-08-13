@@ -52,6 +52,7 @@ var (
 	// 13** are authorization errors
 	ErrorNoScopeAuthorization = NewAPIErrorWithHTTP(1330, http.StatusForbidden, "no scope authorization")
 	ErrorMustBeSelf           = NewAPIErrorWithHTTP(1331, http.StatusForbidden, "must be self")
+	ErrorAuthedUserNotFound   = NewAPIErrorWithHTTP(1332, http.StatusForbidden, "authenticated user not found")
 
 	// 14** are user service errors
 	ErrorUserMustBeStudent    = NewAPIError(1401, "user must be a student")
@@ -87,4 +88,10 @@ var (
 	ErrorEphcatcherNotFound    = NewAPIError(1731, "ephcatcher could not be found")
 	ErrorEphcatchAlreadyExists = NewAPIError(1732, "ephcatch already exists with user ID and passed ephcatcher ID")
 	ErrorEphcatchDoesNotExist  = NewAPIError(1732, "ephcatch does not exist with user ID and passed ephcatcher ID")
+
+	// 18** are bulletin errors
+	ErrorBulletinInvalidDates   = NewAPIError(1830, "start date cannot be after end date")
+	ErrorBulletinInvalidType    = NewAPIError(1831, "invalid bulletin type")
+	ErrorBulletinRideDateInPast = NewAPIError(1841, "date cannot be in past")
+	ErrorDiscussionNotFound     = NewAPIErrorWithHTTP(1850, http.StatusNotFound, "discussion cannot be found")
 )

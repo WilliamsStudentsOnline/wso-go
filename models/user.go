@@ -53,7 +53,7 @@ func (p *GetAllUsersOptions) Preloader(db *gorm.DB) *gorm.DB {
 }
 
 func (p *GetAllUsersOptions) Order(db *gorm.DB) *gorm.DB {
-	return db.Order("users.id ASC")
+	return db.Order("users.id ASC", true)
 }
 
 func (p *GetAllUsersOptions) Paginate(db *gorm.DB) *gorm.DB {
@@ -68,11 +68,16 @@ func (p *GetAllUsersOptions) Paginate(db *gorm.DB) *gorm.DB {
 	return db
 }
 
+func (p *GetAllUsersOptions) Run(db *gorm.DB) *gorm.DB {
+	return p.Paginate(p.Preloader(db))
+}
+
 func (m *UserModel) GetAllUsers(u *[]*User, opts Options) (err error) {
-	db := m.DB.Scopes(m.scopeVisible, m.scopeAtWilliams)
+	db := m.DB
+	db = m.scopeVisible(db)
+	db = m.scopeAtWilliams(db)
 	if opts != nil {
-		db = opts.Paginate(db)
-		db = opts.Preloader(db)
+		db = opts.Run(db)
 	}
 	err = db.Find(u).Error
 	return

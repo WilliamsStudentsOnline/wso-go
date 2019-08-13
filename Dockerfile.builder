@@ -8,6 +8,9 @@ RUN mkdir -p /wso/jobs
 RUN mkdir -p /go/src/github.com/WilliamsStudentsOnline/wso-go
 WORKDIR /go/src/github.com/WilliamsStudentsOnline/wso-go
 
+# Copy timezone into wso directory
+RUN cp /usr/local/go/lib/time/zoneinfo.zip /wso/zoneinfo.zip
+
 # Copy the go module files, so this can be cached by docker
 COPY go.mod .
 COPY go.sum .
@@ -27,7 +30,7 @@ RUN swag init -g server/router.go
 
 ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
 
-# Build the go file
+### Build the main server ###
 RUN go build -ldflags "-w -s" -tags=jsoniter \
     -o /wso/wso-backend /go/src/github.com/WilliamsStudentsOnline/wso-go/server/cmd
 

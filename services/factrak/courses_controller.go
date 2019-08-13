@@ -31,6 +31,7 @@ func (t *Controller) ListCourses(c *gin.Context) {
 
 	opts := models.GetAllCoursesOptions{}
 	if err = c.ShouldBindQuery(&opts); err != nil {
+		t.RespondError(c, err)
 		return
 	}
 

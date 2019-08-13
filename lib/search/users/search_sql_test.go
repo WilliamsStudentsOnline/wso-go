@@ -242,11 +242,11 @@ func TestSearchUsersMySQL(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			var res []*models.User
 			err := s.Search(tc.query, &res, nil)
-			assert.NoError(err)
+			testify.NoError(t, err)
 
-			assert.Len(res, len(tc.expected))
+			testify.Len(t, res, len(tc.expected))
 			for i := range tc.expected {
-				assert.Equal(tc.expected[i].ID, res[i].ID)
+				testify.Equal(t, tc.expected[i].ID, res[i].ID)
 			}
 		})
 	}

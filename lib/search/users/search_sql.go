@@ -40,7 +40,7 @@ type SearchUsersMySQL struct {
 	DB *gorm.DB
 }
 
-func (s *SearchUsersMySQL) Search(query string, users *[]*models.User, opts models.Options) (err error) {
+func (s *SearchUsersMySQL) Search(query string, users *[]*models.User, opts SearchOptions) (err error) {
 	ast, err := search.ParseSearchQuery(query)
 	if err != nil {
 		return
@@ -213,7 +213,7 @@ func (s *SearchUsersMySQL) parseField(field *search.Field, sb *strings.Builder) 
 	return
 }
 
-func (*SearchUsersMySQL) NewOptions(offset *uint, limit *uint, preload *[]string) models.Options {
+func (*SearchUsersMySQL) NewOptions(offset *uint, limit *uint, preload *[]string) SearchOptions {
 	return &models.GetAllUsersOptions{
 		Offset:  offset,
 		Limit:   limit,

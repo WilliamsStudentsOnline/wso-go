@@ -17,7 +17,7 @@ func NewSearchFactrakMySQL(db *gorm.DB) *SearchFactrakMySQL {
 	}
 }
 
-func (s *SearchFactrakMySQL) SearchProfessors(query string, users *[]*models.User, opts models.Options) (err error) {
+func (s *SearchFactrakMySQL) SearchProfessors(query string, users *[]*models.User, opts SearchOptions) (err error) {
 	words := strings.Split(strings.ToLower(query), " ")
 
 	// Generate an SQL query with each word being different
@@ -46,7 +46,7 @@ func (s *SearchFactrakMySQL) SearchProfessors(query string, users *[]*models.Use
 	return
 }
 
-func (s *SearchFactrakMySQL) SearchCourses(query string, courses *[]*models.Course, opts models.Options) (err error) {
+func (s *SearchFactrakMySQL) SearchCourses(query string, courses *[]*models.Course, opts SearchOptions) (err error) {
 	words := strings.Split(strings.ToLower(query), " ")
 	if len(words) == 0 {
 		return
@@ -81,7 +81,7 @@ func (s *SearchFactrakMySQL) SearchCourses(query string, courses *[]*models.Cour
 	return
 }
 
-func (*SearchFactrakMySQL) NewProfessorsOptions(offset *uint, limit *uint, preload *[]string) models.Options {
+func (*SearchFactrakMySQL) NewProfessorsOptions(offset *uint, limit *uint, preload *[]string) SearchOptions {
 	return &models.GetAllProfessorsOptions{
 		Offset:  offset,
 		Limit:   limit,
@@ -89,7 +89,7 @@ func (*SearchFactrakMySQL) NewProfessorsOptions(offset *uint, limit *uint, prelo
 	}
 }
 
-func (*SearchFactrakMySQL) NewCoursesOptions(offset *uint, limit *uint, preload *[]string) models.Options {
+func (*SearchFactrakMySQL) NewCoursesOptions(offset *uint, limit *uint, preload *[]string) SearchOptions {
 	return &models.GetAllCoursesOptions{
 		Offset:  offset,
 		Limit:   limit,

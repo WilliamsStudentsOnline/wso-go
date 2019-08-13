@@ -103,6 +103,7 @@ func ExampleUserModel_LDAPLookup() {
 		Dorm{},
 		DormRoom{},
 		Office{},
+		Bulletin{},
 	).Error
 	if err != nil {
 		panic(err)
@@ -144,14 +145,14 @@ func TestUserModel_DoesUserExist(t *testing.T) {
 
 	t.Run("does exist", func(t *testing.T) {
 		exists, err := m.DoesUserExist(2)
-		assert.NoError(err)
-		assert.True(exists)
+		testify.NoError(t, err)
+		testify.True(t, exists)
 	})
 
 	t.Run("does not exist", func(t *testing.T) {
 		exists, err := m.DoesUserExist(5)
-		assert.NoError(err)
-		assert.False(exists)
+		testify.NoError(t, err)
+		testify.False(t, exists)
 	})
 }
 

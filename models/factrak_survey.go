@@ -37,8 +37,8 @@ type GetAllFactrakSurveysOptions struct {
 	UserID      *uint `json:"userID" form:"userID"`
 
 	// Pagination
-	Offset time.Time `json:"offset" form:"offset"`
-	Limit  uint      `json:"limit" form:"limit"`
+	Offset *time.Time `json:"offset" form:"offset"`
+	Limit  *uint      `json:"limit" form:"limit"`
 	// Or plug in an already existing paginator
 	Paginator Paginator
 
@@ -53,68 +53,77 @@ type GetAllFactrakSurveysOptions struct {
 	ProfAtWilliams bool `json:"profAtWilliams" form:"profAtWilliams"`
 }
 
-func (p *GetAllFactrakSurveysOptions) Order(db *gorm.DB) *gorm.DB {
-	return db.Order("dormtrak_reviews.created_at desc")
+func (o *GetAllFactrakSurveysOptions) Order(db *gorm.DB) *gorm.DB {
+	return db.Order("factrak_surveys.created_at desc", true)
 }
 
 // Pagination starts at most recent and goes down from there
-func (p *GetAllFactrakSurveysOptions) Paginate(db *gorm.DB) *gorm.DB {
-	db = p.Order(db).Limit(p.Limit).Where("dormtrak_reviews.created_at < ?", p.Offset)
+func (o *GetAllFactrakSurveysOptions) Paginate(db *gorm.DB) *gorm.DB {
+	if o.Paginator != nil {
+		return o.Paginator.Paginate(db)
+	}
+
+	db = o.Order(db)
+	if o.Offset != nil {
+		db = db.Where("factrak_surveys.created_at < ?", *o.Offset)
+	}
+	if o.Limit != nil {
+		db = db.Limit(*o.Limit)
+	}
 	return db
 }
 
 // Preload specifically allowed parts if requested
-func (p *GetAllFactrakSurveysOptions) Preloader(db *gorm.DB) *gorm.DB {
+func (o *GetAllFactrakSurveysOptions) Preloader(db *gorm.DB) *gorm.DB {
 	fsM := NewFactrakSurveyModel(nil)
-	var scopes []func(*gorm.DB) *gorm.DB
 
-	if p.Preload != nil {
-		if stringsContains(p.Preload, "professor") {
-			scopes = append(scopes, fsM.preloadProfessor)
+	if o.Preload != nil {
+		if stringsContains(o.Preload, "professor") {
+			db = fsM.preloadProfessor(db)
 		}
-		if stringsContains(p.Preload, "course") {
-			scopes = append(scopes, fsM.preloadCourse)
+		if stringsContains(o.Preload, "course") {
+			db = fsM.preloadCourse(db)
 		}
 	}
 
-	return db.Scopes(scopes...)
+	return db
+}
+
+func (o *GetAllFactrakSurveysOptions) Run(db *gorm.DB) *gorm.DB {
+	db = o.Paginate(db)
+	db = o.Preloader(db)
+
+	m := NewFactrakSurveyModel(nil)
+
+	if o.ProfessorID != nil {
+		db = m.withProfessorID(*o.ProfessorID)(db)
+	}
+	if o.CourseID != nil {
+		db = m.withCourseID(*o.CourseID)(db)
+	}
+	if o.UserID != nil {
+		db = m.withAuthorID(*o.UserID)(db)
+	}
+	if o.Flagged {
+		db = m.scopeFlagged(db)
+	}
+	if o.ProfAtWilliams {
+		db = m.scopeProfAtWilliams(db)
+	}
+
+	return db
 }
 
 // Gets all surveys with options
-func (m *FactrakSurveyModel) GetAllSurveysWithOptions(p *[]*FactrakSurvey, opts *GetAllFactrakSurveysOptions) (err error) {
-	scopes := []func(*gorm.DB) *gorm.DB{
-		m.scopeDefault,
-	}
-
+func (m *FactrakSurveyModel) GetAllSurveysWithOptions(p *[]*FactrakSurvey, opts Options) (err error) {
 	db := m.DB
+	db = m.scopeDefault(db)
 
 	if opts != nil {
-		if opts.Paginator != nil {
-			db = opts.Paginator.Paginate(db)
-		} else if opts.Limit > 0 {
-			db = opts.Paginate(db)
-		}
-
-		if opts.ProfessorID != nil {
-			scopes = append(scopes, m.withProfessorID(*opts.ProfessorID))
-		}
-		if opts.CourseID != nil {
-			scopes = append(scopes, m.withCourseID(*opts.CourseID))
-		}
-		if opts.UserID != nil {
-			scopes = append(scopes, m.withAuthorID(*opts.UserID))
-		}
-		if opts.Flagged {
-			scopes = append(scopes, m.scopeFlagged)
-		}
-		if opts.ProfAtWilliams {
-			scopes = append(scopes, m.scopeProfAtWilliams)
-		}
-
-		db = opts.Preloader(db)
+		db = opts.Run(db)
 	}
 
-	err = db.Scopes(scopes...).Find(p).Error
+	err = db.Find(p).Error
 	return
 }
 

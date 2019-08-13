@@ -8,8 +8,8 @@ import (
 )
 
 type SearchDormtrak interface {
-	SearchDorms(query string, dorms *[]*models.Dorm, opts models.Options) (err error)
-	NewDormsOptions(offset *uint, limit *uint, preload *[]string) models.Options
+	SearchDorms(query string, dorms *[]*models.Dorm, opts SearchOptions) (err error)
+	NewDormsOptions(offset *uint, limit *uint, preload *[]string) SearchOptions
 }
 
 func NewSearchDormtrak(db *gorm.DB, cfg *config.Config) SearchDormtrak {
@@ -19,4 +19,9 @@ func NewSearchDormtrak(db *gorm.DB, cfg *config.Config) SearchDormtrak {
 	default:
 		return nil
 	}
+}
+
+type SearchOptions interface {
+	models.Preloader
+	models.Paginator
 }
