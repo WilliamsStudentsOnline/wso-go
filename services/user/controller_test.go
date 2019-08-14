@@ -1,4 +1,4 @@
-package user
+package user_test
 
 import (
 	"bytes"
@@ -12,6 +12,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
+	. "github.com/WilliamsStudentsOnline/wso-go/services/user"
 	"github.com/gin-gonic/gin"
 
 	testify "github.com/stretchr/testify/assert"

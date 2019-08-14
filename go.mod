@@ -18,6 +18,7 @@ require (
 	github.com/json-iterator/go v1.1.7 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/lib/pq v1.2.0 // indirect
+	github.com/m1ome/leven v0.0.0-20170305195354-a3732db01c54
 	github.com/mailru/easyjson v0.0.0-20190626092158-b2ccc519800e // indirect
 	github.com/mattn/go-sqlite3 v1.11.0 // indirect
 	github.com/sirupsen/logrus v1.4.2
