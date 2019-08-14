@@ -32,8 +32,6 @@ type DormFacts struct {
 	AverageLocation     *float64 `json:"averageLocation"`
 	AverageLoudness     *float64 `json:"averageLoudness"`
 	AverageSatisfaction *float64 `json:"averageSatisfaction"`
-	AverageConvenience  *float64 `json:"averageConvenience"`
-	AverageComfort      *float64 `json:"averageComfort"`
 }
 
 func NewDormFacts() *DormFacts {
@@ -77,8 +75,6 @@ func (m *DormModel) GetDormFacts(id uint, p *DormFacts) (err error) {
 	p.AverageSatisfaction = dorm.Satisfaction
 	p.AverageLoudness = dorm.Loudness
 	p.AverageLocation = dorm.Location
-	p.AverageConvenience = dorm.Convenience
-	p.AverageComfort = dorm.Comfort
 
 	studModel := NewStudentModel(m.DB)
 

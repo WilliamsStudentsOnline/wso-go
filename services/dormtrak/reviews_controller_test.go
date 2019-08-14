@@ -429,7 +429,7 @@ func TestController_CreateReview(t *testing.T) {
 
 	// Test 4: create review
 	params = ReviewCreateParams{DormRoomID: u1.DormRoomID, Comment: generateReviewTestComment(),
-		LivedHere:        lib.BoolToPtr(false),
+		BedAdjustable:    lib.BoolToPtr(false),
 		Closet:           lib.StrToPtr("foobar"),
 		ThermostatAccess: lib.BoolToPtr(true),
 		Location:         lib.IntToPtr(4),
@@ -453,7 +453,7 @@ func TestController_CreateReview(t *testing.T) {
 	assert.Equal(*params.Comment, *resp.Comment)
 	assert.Equal(*params.DormRoomID, resp.DormRoomID)
 	assert.Equal(u1.ID, resp.UserID)
-	assert.Equal(*params.LivedHere, *resp.LivedHere)
+	assert.Equal(*params.BedAdjustable, *resp.BedAdjustable)
 	assert.Equal(*params.Closet, *resp.Closet)
 	assert.Equal(*params.ThermostatAccess, *resp.ThermostatAccess)
 	assert.Equal(*params.Location, *resp.Location)
@@ -495,7 +495,7 @@ func TestController_UpdateReview(t *testing.T) {
 			},
 		},
 		Comment:          generateReviewTestComment(),
-		LivedHere:        lib.BoolToPtr(false),
+		BedAdjustable:    lib.BoolToPtr(false),
 		Closet:           lib.StrToPtr("foobar"),
 		ThermostatAccess: lib.BoolToPtr(true),
 		Location:         lib.IntToPtr(4),
@@ -565,7 +565,7 @@ func TestController_UpdateReview(t *testing.T) {
 	// Test 5: actually update and work
 	params = ReviewUpdateParams{
 		Comment:          generateReviewTestComment(),
-		LivedHere:        lib.BoolToPtr(true),
+		BedAdjustable:    lib.BoolToPtr(true),
 		Closet:           lib.StrToPtr("baz"),
 		ThermostatAccess: lib.BoolToPtr(false),
 		Location:         lib.IntToPtr(6),
@@ -587,7 +587,7 @@ func TestController_UpdateReview(t *testing.T) {
 	// Assert for response
 	assert.Equal(review.ID, resp.ID)
 	assert.Equal(*params.Comment, *resp.Comment)
-	assert.Equal(*params.LivedHere, *resp.LivedHere)
+	assert.Equal(*params.BedAdjustable, *resp.BedAdjustable)
 	assert.Equal(*params.Closet, *resp.Closet)
 	assert.Equal(*params.ThermostatAccess, *resp.ThermostatAccess)
 	assert.Equal(*params.Location, *resp.Location)
@@ -628,7 +628,7 @@ func TestController_DeleteReview(t *testing.T) {
 			},
 		},
 		Comment:          generateReviewTestComment(),
-		LivedHere:        lib.BoolToPtr(false),
+		BedAdjustable:    lib.BoolToPtr(false),
 		Closet:           lib.StrToPtr("foobar"),
 		ThermostatAccess: lib.BoolToPtr(true),
 		Location:         lib.IntToPtr(4),

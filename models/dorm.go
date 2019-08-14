@@ -98,8 +98,6 @@ func (m *DormModel) ReloadStatistics(id uint) (err error) {
 				Where("dorm_rooms.dorm_id = ?", id).QueryExpr(),
 		).
 		Select("avg(dormtrak_reviews.wifi) AS wifi, " +
-			"avg(dormtrak_reviews.comfort) AS comfort, " +
-			"avg(dormtrak_reviews.convenience) AS convenience, " +
 			"avg(dormtrak_reviews.location) AS location, " +
 			"avg(dormtrak_reviews.loudness) AS loudness, " +
 			"avg(dormtrak_reviews.satisfaction) AS satisfaction").

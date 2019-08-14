@@ -103,23 +103,17 @@ type ReviewCreateParams struct {
 
 	// Params:
 	Comment          *string `json:"comment"`
-	LivedHere        *bool   `json:"livedHere"`
 	Closet           *string `json:"closet"`
-	ClosetDesc       *string `gorm:"size:65535" json:"closetDesc"`
 	Flooring         *string `json:"flooring"`
 	CommonRoomAccess *bool   `json:"commonRoomAccess"`
-	CommonRoomDesc   *string `gorm:"size:65535" json:"commonRoomDesc"`
+	CommonRoomDesc   *string `json:"commonRoomDesc"`
 	ThermostatAccess *bool   `json:"thermostatAccess"`
-	ThermostatDesc   *string `gorm:"size:65535" json:"thermostatDesc"`
-	OutletsDesc      *string `gorm:"size:65535" json:"outletsDesc"`
 	KeyOrCard        *string `json:"keyOrCard"`
-	Noise            *string `gorm:"size:65535" json:"noise"`
+	Noise            *string `json:"noise"`
 	BedAdjustable    *bool   `json:"bedAdjustable"`
 	PrivateBathroom  *bool   `json:"privateBathroom"`
-	BathroomDesc     *string `gorm:"size:65535" json:"bathroomDesc"`
-	Comfort          *int    `json:"comfort" binding:"omitempty,gte=0,lte=7"`
+	BathroomDesc     *string `json:"bathroomDesc"`
 	Loudness         *int    `json:"loudness" binding:"omitempty,gte=0,lte=7"`
-	Convenience      *int    `json:"convenience" binding:"omitempty,gte=0,lte=7"`
 	Wifi             *int    `json:"wifi" binding:"omitempty,gte=0,lte=7"`
 	Location         *int    `json:"location" binding:"omitempty,gte=0,lte=7"`
 	Satisfaction     *int    `json:"satisfaction" binding:"omitempty,gte=0,lte=7"`
@@ -201,23 +195,17 @@ func (t *Controller) CreateReview(c *gin.Context) {
 
 		// Trim comment of leading/trailing whitespaces
 		Comment:          trimIfNotNil(createData.Comment),
-		LivedHere:        createData.LivedHere,
 		Closet:           trimIfNotNil(createData.Closet),
-		ClosetDesc:       trimIfNotNil(createData.ClosetDesc),
 		Flooring:         trimIfNotNil(createData.Flooring),
 		CommonRoomAccess: createData.CommonRoomAccess,
 		CommonRoomDesc:   trimIfNotNil(createData.CommonRoomDesc),
 		ThermostatAccess: createData.ThermostatAccess,
-		ThermostatDesc:   trimIfNotNil(createData.ThermostatDesc),
-		OutletsDesc:      trimIfNotNil(createData.OutletsDesc),
 		KeyOrCard:        trimIfNotNil(createData.KeyOrCard),
 		Noise:            trimIfNotNil(createData.Noise),
 		BedAdjustable:    createData.BedAdjustable,
 		PrivateBathroom:  createData.PrivateBathroom,
 		BathroomDesc:     trimIfNotNil(createData.BathroomDesc),
-		Comfort:          createData.Comfort,
 		Loudness:         createData.Loudness,
-		Convenience:      createData.Convenience,
 		Wifi:             createData.Wifi,
 		Location:         createData.Location,
 		Satisfaction:     createData.Satisfaction,
@@ -234,23 +222,17 @@ func (t *Controller) CreateReview(c *gin.Context) {
 
 type ReviewUpdateParams struct {
 	Comment          *string `json:"comment"`
-	LivedHere        *bool   `json:"livedHere"`
 	Closet           *string `json:"closet"`
-	ClosetDesc       *string `gorm:"size:65535" json:"closetDesc"`
 	Flooring         *string `json:"flooring"`
 	CommonRoomAccess *bool   `json:"commonRoomAccess"`
-	CommonRoomDesc   *string `gorm:"size:65535" json:"commonRoomDesc"`
+	CommonRoomDesc   *string `json:"commonRoomDesc"`
 	ThermostatAccess *bool   `json:"thermostatAccess"`
-	ThermostatDesc   *string `gorm:"size:65535" json:"thermostatDesc"`
-	OutletsDesc      *string `gorm:"size:65535" json:"outletsDesc"`
 	KeyOrCard        *string `json:"keyOrCard"`
-	Noise            *string `gorm:"size:65535" json:"noise"`
+	Noise            *string `json:"noise"`
 	BedAdjustable    *bool   `json:"bedAdjustable"`
 	PrivateBathroom  *bool   `json:"privateBathroom"`
-	BathroomDesc     *string `gorm:"size:65535" json:"bathroomDesc"`
-	Comfort          *int    `json:"comfort" binding:"omitempty,gte=0,lte=7"`
+	BathroomDesc     *string `json:"bathroomDesc"`
 	Loudness         *int    `json:"loudness" binding:"omitempty,gte=0,lte=7"`
-	Convenience      *int    `json:"convenience" binding:"omitempty,gte=0,lte=7"`
 	Wifi             *int    `json:"wifi" binding:"omitempty,gte=0,lte=7"`
 	Location         *int    `json:"location" binding:"omitempty,gte=0,lte=7"`
 	Satisfaction     *int    `json:"satisfaction" binding:"omitempty,gte=0,lte=7"`
@@ -308,23 +290,17 @@ func (t *Controller) UpdateReview(c *gin.Context) {
 
 	// Trim comment of leading/trailing whitespaces
 	review.Comment = lib.StrPtrDefaults(trimIfNotNil(updateData.Comment), review.Comment)
-	review.LivedHere = lib.BoolPtrDefaults(updateData.LivedHere, review.LivedHere)
 	review.Closet = lib.StrPtrDefaults(trimIfNotNil(updateData.Closet), review.Closet)
-	review.ClosetDesc = lib.StrPtrDefaults(trimIfNotNil(updateData.ClosetDesc), review.ClosetDesc)
 	review.Flooring = lib.StrPtrDefaults(trimIfNotNil(updateData.Flooring), review.Flooring)
 	review.CommonRoomAccess = lib.BoolPtrDefaults(updateData.CommonRoomAccess, review.CommonRoomAccess)
 	review.CommonRoomDesc = lib.StrPtrDefaults(trimIfNotNil(updateData.CommonRoomDesc), review.CommonRoomDesc)
 	review.ThermostatAccess = lib.BoolPtrDefaults(updateData.ThermostatAccess, review.ThermostatAccess)
-	review.ThermostatDesc = lib.StrPtrDefaults(trimIfNotNil(updateData.ThermostatDesc), review.ThermostatDesc)
-	review.OutletsDesc = lib.StrPtrDefaults(trimIfNotNil(updateData.OutletsDesc), review.OutletsDesc)
 	review.KeyOrCard = lib.StrPtrDefaults(trimIfNotNil(updateData.KeyOrCard), review.KeyOrCard)
 	review.Noise = lib.StrPtrDefaults(trimIfNotNil(updateData.Noise), review.Noise)
 	review.BedAdjustable = lib.BoolPtrDefaults(updateData.BedAdjustable, review.BedAdjustable)
 	review.PrivateBathroom = lib.BoolPtrDefaults(updateData.PrivateBathroom, review.PrivateBathroom)
 	review.BathroomDesc = lib.StrPtrDefaults(trimIfNotNil(updateData.BathroomDesc), review.BathroomDesc)
-	review.Comfort = lib.IntPtrDefaults(updateData.Comfort, review.Comfort)
 	review.Loudness = lib.IntPtrDefaults(updateData.Loudness, review.Loudness)
-	review.Convenience = lib.IntPtrDefaults(updateData.Convenience, review.Convenience)
 	review.Wifi = lib.IntPtrDefaults(updateData.Wifi, review.Wifi)
 	review.Location = lib.IntPtrDefaults(updateData.Location, review.Location)
 	review.Satisfaction = lib.IntPtrDefaults(updateData.Satisfaction, review.Satisfaction)

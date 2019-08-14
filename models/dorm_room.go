@@ -65,8 +65,6 @@ func (m *DormRoomModel) ReloadStatistics(id uint) (err error) {
 	room.CommonRoomAccess = lib.BoolPtrDefaults(latestReview.CommonRoomAccess, room.CommonRoomAccess)
 	room.CommonRoomDesc = lib.StrPtrDefaults(latestReview.CommonRoomDesc, room.CommonRoomDesc)
 	room.ThermostatAccess = lib.BoolPtrDefaults(latestReview.ThermostatAccess, room.ThermostatAccess)
-	room.ThermostatDesc = lib.StrPtrDefaults(latestReview.ThermostatDesc, room.ThermostatDesc)
-	room.OutletsDesc = lib.StrPtrDefaults(latestReview.OutletsDesc, room.OutletsDesc)
 	room.KeyOrCard = lib.StrPtrDefaults(latestReview.KeyOrCard, room.KeyOrCard)
 	room.Noise = lib.StrPtrDefaults(latestReview.Noise, room.Noise)
 	room.BedAdjustable = lib.BoolPtrDefaults(latestReview.BedAdjustable, room.BedAdjustable)

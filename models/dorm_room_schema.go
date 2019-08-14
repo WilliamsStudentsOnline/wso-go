@@ -17,19 +17,16 @@ type DormRoom struct {
 
 	Number string `gorm:"not null" json:"number"`
 
-	Closet           *string `json:"closet"`
+	Closet           *string `gorm:"size:65535" json:"closet"`
 	Flooring         *string `json:"flooring"`
 	CommonRoomAccess *bool   `json:"commonRoomAccess"`
 	CommonRoomDesc   *string `gorm:"size:65535" json:"commonRoomDesc"`
 	ThermostatAccess *bool   `json:"thermostatAccess"`
-	ThermostatDesc   *string `gorm:"size:65535" json:"thermostatDesc"`
-	OutletsDesc      *string `gorm:"size:65535" json:"outletsDesc"`
 	KeyOrCard        *string `json:"keyOrCard"`
 	Noise            *string `gorm:"size:65535" json:"noise"`
 	BedAdjustable    *bool   `json:"bedAdjustable"`
 	PrivateBathroom  *bool   `json:"privateBathroom"`
 	BathroomDesc     *string `gorm:"size:65535" json:"bathroomDesc"`
-	NumFlag          *bool   `json:"numFlag"` // No clue what this does
 	Picture          *string `json:"picture"`
 
 	RoomType    string  `gorm:"not null" json:"roomType"`

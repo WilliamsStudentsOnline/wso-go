@@ -20,23 +20,17 @@ type DormtrakReview struct {
 
 	Comment *string `gorm:"size:65535" json:"comment"`
 
-	LivedHere        *bool   `json:"livedHere"`
-	Closet           *string `json:"closet"`
-	ClosetDesc       *string `gorm:"size:65535" json:"closetDesc"`
+	Closet           *string `gorm:"size:65535" json:"closet"`
 	Flooring         *string `json:"flooring"`
 	CommonRoomAccess *bool   `json:"commonRoomAccess"`
 	CommonRoomDesc   *string `gorm:"size:65535" json:"commonRoomDesc"`
 	ThermostatAccess *bool   `json:"thermostatAccess"`
-	ThermostatDesc   *string `gorm:"size:65535" json:"thermostatDesc"`
-	OutletsDesc      *string `gorm:"size:65535" json:"outletsDesc"`
 	KeyOrCard        *string `json:"keyOrCard"`
 	Noise            *string `gorm:"size:65535" json:"noise"`
 	BedAdjustable    *bool   `json:"bedAdjustable"`
 	PrivateBathroom  *bool   `json:"privateBathroom"`
 	BathroomDesc     *string `gorm:"size:65535" json:"bathroomDesc"`
-	Comfort          *int    `json:"comfort"`
 	Loudness         *int    `json:"loudness"`
-	Convenience      *int    `json:"convenience"`
 	Wifi             *int    `json:"wifi"`
 	Location         *int    `json:"location"`
 	Satisfaction     *int    `json:"satisfaction"`

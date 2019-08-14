@@ -5273,12 +5273,6 @@
                 "closet": {
                     "type": "string"
                 },
-                "closetDesc": {
-                    "type": "string"
-                },
-                "comfort": {
-                    "type": "integer"
-                },
                 "comment": {
                     "description": "Params:",
                     "type": "string"
@@ -5288,9 +5282,6 @@
                 },
                 "commonRoomDesc": {
                     "type": "string"
-                },
-                "convenience": {
-                    "type": "integer"
                 },
                 "dormRoomID": {
                     "description": "Must include this:",
@@ -5302,9 +5293,6 @@
                 "keyOrCard": {
                     "type": "string"
                 },
-                "livedHere": {
-                    "type": "boolean"
-                },
                 "location": {
                     "type": "integer"
                 },
@@ -5312,9 +5300,6 @@
                     "type": "integer"
                 },
                 "noise": {
-                    "type": "string"
-                },
-                "outletsDesc": {
                     "type": "string"
                 },
                 "privateBathroom": {
@@ -5325,9 +5310,6 @@
                 },
                 "thermostatAccess": {
                     "type": "boolean"
-                },
-                "thermostatDesc": {
-                    "type": "string"
                 },
                 "wifi": {
                     "type": "integer"
@@ -5346,12 +5328,6 @@
                 "closet": {
                     "type": "string"
                 },
-                "closetDesc": {
-                    "type": "string"
-                },
-                "comfort": {
-                    "type": "integer"
-                },
                 "comment": {
                     "type": "string"
                 },
@@ -5361,17 +5337,11 @@
                 "commonRoomDesc": {
                     "type": "string"
                 },
-                "convenience": {
-                    "type": "integer"
-                },
                 "flooring": {
                     "type": "string"
                 },
                 "keyOrCard": {
                     "type": "string"
-                },
-                "livedHere": {
-                    "type": "boolean"
                 },
                 "location": {
                     "type": "integer"
@@ -5382,9 +5352,6 @@
                 "noise": {
                     "type": "string"
                 },
-                "outletsDesc": {
-                    "type": "string"
-                },
                 "privateBathroom": {
                     "type": "boolean"
                 },
@@ -5393,9 +5360,6 @@
                 },
                 "thermostatAccess": {
                     "type": "boolean"
-                },
-                "thermostatDesc": {
-                    "type": "string"
                 },
                 "wifi": {
                     "type": "integer"
@@ -5737,13 +5701,6 @@
                 "capacity": {
                     "type": "integer"
                 },
-                "comfort": {
-                    "description": "These are average statistics from dorm reviews",
-                    "type": "number"
-                },
-                "convenience": {
-                    "type": "number"
-                },
                 "description": {
                     "type": "string"
                 },
@@ -5764,6 +5721,7 @@
                     "type": "number"
                 },
                 "loudness": {
+                    "description": "These are average statistics from dorm reviews",
                     "type": "number"
                 },
                 "modeDoubleArea": {
@@ -5809,12 +5767,6 @@
         "models.DormFacts": {
             "type": "object",
             "properties": {
-                "averageComfort": {
-                    "type": "number"
-                },
-                "averageConvenience": {
-                    "type": "number"
-                },
                 "averageDoublesArea": {
                     "type": "integer"
                 },
@@ -5947,14 +5899,7 @@
                 "noise": {
                     "type": "string"
                 },
-                "numFlag": {
-                    "description": "No clue what this does",
-                    "type": "boolean"
-                },
                 "number": {
-                    "type": "string"
-                },
-                "outletsDesc": {
                     "type": "string"
                 },
                 "picture": {
@@ -5968,9 +5913,6 @@
                 },
                 "thermostatAccess": {
                     "type": "boolean"
-                },
-                "thermostatDesc": {
-                    "type": "string"
                 },
                 "users": {
                     "description": "Has many students",
@@ -6073,12 +6015,6 @@
                 "closet": {
                     "type": "string"
                 },
-                "closetDesc": {
-                    "type": "string"
-                },
-                "comfort": {
-                    "type": "integer"
-                },
                 "comment": {
                     "type": "string"
                 },
@@ -6087,9 +6023,6 @@
                 },
                 "commonRoomDesc": {
                     "type": "string"
-                },
-                "convenience": {
-                    "type": "integer"
                 },
                 "createdTime": {
                     "description": "Pass the created time: not looked at by GORM",
@@ -6112,9 +6045,6 @@
                 "keyOrCard": {
                     "type": "string"
                 },
-                "livedHere": {
-                    "type": "boolean"
-                },
                 "location": {
                     "type": "integer"
                 },
@@ -6122,9 +6052,6 @@
                     "type": "integer"
                 },
                 "noise": {
-                    "type": "string"
-                },
-                "outletsDesc": {
                     "type": "string"
                 },
                 "privateBathroom": {
@@ -6135,9 +6062,6 @@
                 },
                 "thermostatAccess": {
                     "type": "boolean"
-                },
-                "thermostatDesc": {
-                    "type": "string"
                 },
                 "user": {
                     "type": "object",

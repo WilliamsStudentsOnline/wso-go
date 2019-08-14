@@ -25,9 +25,7 @@ type Dorm struct {
 	ModeDoubleArea    *int     `json:"modeDoubleArea"`
 
 	// These are average statistics from dorm reviews
-	Comfort      *float64 `json:"comfort"`
 	Loudness     *float64 `json:"loudness"`
-	Convenience  *float64 `json:"convenience"`
 	Wifi         *float64 `json:"wifi"`
 	Location     *float64 `json:"location"`
 	Satisfaction *float64 `json:"satisfaction"`
