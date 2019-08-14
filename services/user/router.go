@@ -16,4 +16,5 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config) {
 	r.GET("/:userID", c.GetUser)
 	writer.PATCH("/:userID", c.UpdateUser)
 	writer.PUT("/:userID/tags", c.UpdateUserTags)
+	writer.PUT("/:userID/photo", c.UploadProfilePhoto)
 }

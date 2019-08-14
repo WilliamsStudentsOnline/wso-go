@@ -4288,23 +4288,21 @@ paths:
   /users/{userID}/tags:
     put:
       consumes:
-      - application/json
-      description: updates a user's tags by user id. You may only update yourself.
+      - multipart/form-data
+      description: upload a user's profile photo by user id. You may only update yourself.
         You may pass "me" to get self as well.
-      operationId: update-user-tags
+      operationId: upload-profile-photo
       parameters:
       - description: User ID
         in: path
         name: userID
         required: true
         type: integer
-      - description: Update Tags Params
-        in: body
-        name: updateTagsParams
+      - description: Profile Photo
+        in: formData
+        name: file
         required: true
-        schema:
-          $ref: '#/definitions/user.UpdateUserTagsParams'
-          type: object
+        type: file
       produces:
       - application/json
       responses:
@@ -4324,10 +4322,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
-        "1100":
-          description: could not parse malformed request data
-          schema:
-            $ref: '#/definitions/lib.APIError'
         "1331":
           description: must be self
           schema:
@@ -4336,13 +4330,9 @@ paths:
           description: user id could not be parsed
           schema:
             $ref: '#/definitions/lib.APIError'
-        "1406":
-          description: invalid user tag
-          schema:
-            $ref: '#/definitions/lib.APIError'
       security:
       - Bearer: []
-      summary: Update user tags by user id
+      summary: Upload a profile photo by user id
       tags:
       - users
 securityDefinitions:

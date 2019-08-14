@@ -1,11 +1,17 @@
 package user
 
 import (
+	"image"
+	_ "image/gif"
+	_ "image/png"
+	"net/http"
+
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	search "github.com/WilliamsStudentsOnline/wso-go/lib/search/users"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
+	"github.com/disintegration/imaging"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 )
@@ -241,6 +247,63 @@ func (t *Controller) UpdateUserTags(c *gin.Context) {
 
 	// Return nothing
 	t.RespondOK(c, nil)
+}
+
+// UploadProfilePhoto godoc
+// @Summary Upload a profile photo by user id
+// @Description upload a user's profile photo by user id. You may only update yourself. You may pass "me" to get self as well.
+// @ID upload-profile-photo
+// @Tags users
+// @Accept  multipart/form-data
+// @Produce  json
+// @Param userID path uint true "User ID"
+// @Param file formData file true "Profile Photo"
+// @Success 200 {object} models.User
+// @Failure 1405 {object} lib.APIError "user id could not be parsed"
+// @Failure 1331 {object} lib.APIError "must be self"
+// @Failure 400 {object} lib.APIError
+// @Failure 404 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /users/{userID}/tags [put]
+func (t *Controller) UploadProfilePhoto(c *gin.Context) {
+	// Decode userID or self.
+	userID, err := getUserIDParamOrSelf(c)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	// Must only be able to update self
+	if userID != services.GetUserID(c) {
+		t.RespondError(c, lib.ErrorMustBeSelf)
+		return
+	}
+
+	formFile, err := c.FormFile("file")
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	file, err := formFile.Open()
+	if err != nil {
+		t.RespondErrorCode(c, http.StatusBadRequest, err)
+		return
+	}
+
+	defer file.Close()
+
+	img, _, err := image.Decode(file)
+	if err != nil {
+		t.RespondErrorCode(c, http.StatusBadRequest, err)
+		return
+	}
+
+	imgScaled := imaging.Fill(img, 300, 300, imaging.Center, imaging.Lanczos)
+	imgThumb := imaging.Fill(img, 50, 50, imaging.Center, imaging.Lanczos)
+
+	_, _ = imgScaled, imgThumb
 }
 
 // Decode userID from passed param or get self's userID if param="me".
