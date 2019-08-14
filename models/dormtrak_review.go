@@ -88,7 +88,7 @@ type GetAllDormtrakReviewsOptions struct {
 	Limit  *uint      `json:"limit" form:"limit"`
 
 	// What to preload
-	Preload []string `json:"preload" form:"preload"`
+	Preload []string `json:"preload" form:"preload[]"`
 
 	// Scope to only get commented reviews. True means only get commented; false/empty means ignore this scope.
 	Commented bool `json:"commented" form:"commented"`
@@ -112,16 +112,18 @@ func (o *GetAllDormtrakReviewsOptions) Paginate(db *gorm.DB) *gorm.DB {
 
 // Preload specifically allowed parts if requested
 func (o *GetAllDormtrakReviewsOptions) Preloader(db *gorm.DB) *gorm.DB {
-	if o.Preload != nil {
-		if stringsContains(o.Preload, "dormRoom") {
-			db = db.Preload("DormRoom")
-		}
-		if stringsContains(o.Preload, "dorm") {
-			db = db.Preload("DormRoom.Dorm")
-		}
-		if stringsContains(o.Preload, "neighborhood") {
-			db = db.Preload("DormRoom.Dorm.Neighborhood")
-		}
+	if o.Preload == nil {
+		return db
+	}
+
+	if stringsContains(o.Preload, "dormRoom") {
+		db = db.Preload("DormRoom")
+	}
+	if stringsContains(o.Preload, "dorm") {
+		db = db.Preload("DormRoom.Dorm")
+	}
+	if stringsContains(o.Preload, "neighborhood") {
+		db = db.Preload("DormRoom.Dorm.Neighborhood")
 	}
 
 	return db

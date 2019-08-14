@@ -81,7 +81,7 @@ func (s *SearchFactrakMySQL) SearchCourses(query string, courses *[]*models.Cour
 	return
 }
 
-func (*SearchFactrakMySQL) NewProfessorsOptions(offset *uint, limit *uint, preload *[]string) SearchOptions {
+func (*SearchFactrakMySQL) NewProfessorsOptions(offset *uint, limit *uint, preload []string) SearchOptions {
 	return &models.GetAllProfessorsOptions{
 		Offset:  offset,
 		Limit:   limit,
@@ -89,7 +89,7 @@ func (*SearchFactrakMySQL) NewProfessorsOptions(offset *uint, limit *uint, prelo
 	}
 }
 
-func (*SearchFactrakMySQL) NewCoursesOptions(offset *uint, limit *uint, preload *[]string) SearchOptions {
+func (*SearchFactrakMySQL) NewCoursesOptions(offset *uint, limit *uint, preload []string) SearchOptions {
 	return &models.GetAllCoursesOptions{
 		Offset:  offset,
 		Limit:   limit,

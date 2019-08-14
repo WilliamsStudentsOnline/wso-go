@@ -43,7 +43,7 @@ func TestCourseModel_GetAllCourses(t *testing.T) {
 
 	var res []*Course
 	preloads := []string{"areaOfStudy"}
-	assert.NoError(m.GetAllCourses(&res, &GetAllCoursesOptions{Preload: &preloads}))
+	assert.NoError(m.GetAllCourses(&res, &GetAllCoursesOptions{Preload: preloads}))
 
 	for i := range courses {
 		assert.Equal(courses[i].ID, res[i].ID)

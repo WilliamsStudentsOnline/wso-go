@@ -9,7 +9,7 @@ import (
 
 type SearchUsers interface {
 	Search(query string, users *[]*models.User, opts SearchOptions) (err error)
-	NewOptions(offset *uint, limit *uint, preload *[]string) SearchOptions
+	NewOptions(offset *uint, limit *uint, preload []string) SearchOptions
 }
 
 func NewSearchUsersMySQL(db *gorm.DB) *SearchUsersMySQL {

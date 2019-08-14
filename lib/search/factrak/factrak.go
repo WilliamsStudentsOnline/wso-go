@@ -10,8 +10,8 @@ import (
 type SearchFactrak interface {
 	SearchProfessors(query string, users *[]*models.User, opts SearchOptions) (err error)
 	SearchCourses(query string, courses *[]*models.Course, opts SearchOptions) (err error)
-	NewProfessorsOptions(offset *uint, limit *uint, preload *[]string) SearchOptions
-	NewCoursesOptions(offset *uint, limit *uint, preload *[]string) SearchOptions
+	NewProfessorsOptions(offset *uint, limit *uint, preload []string) SearchOptions
+	NewCoursesOptions(offset *uint, limit *uint, preload []string) SearchOptions
 }
 
 func NewSearchFactrak(db *gorm.DB, cfg *config.Config) SearchFactrak {

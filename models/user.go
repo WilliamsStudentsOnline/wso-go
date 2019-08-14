@@ -29,47 +29,49 @@ type GetAllUsersOptions struct {
 	Limit  *uint `json:"limit" form:"limit"`
 
 	// You can preload: dorm (with dorm room), tags, department, and office
-	Preload *[]string `json:"preload" form:"preload"`
+	Preload []string `json:"preload" form:"preload[]"`
 }
 
 // Preload specifically allowed parts if requested
-func (p *GetAllUsersOptions) Preloader(db *gorm.DB) *gorm.DB {
-	if p.Preload != nil {
-		if lib.StringsContains(*p.Preload, "dorm") {
-			db = db.Preload("DormRoom").Preload("DormRoom.Dorm")
-		}
-		if lib.StringsContains(*p.Preload, "tags") {
-			db = db.Preload("Tags")
-		}
-		if lib.StringsContains(*p.Preload, "department") {
-			db = db.Preload("Department")
-		}
-		if lib.StringsContains(*p.Preload, "office") {
-			db = db.Preload("Office")
-		}
+func (o *GetAllUsersOptions) Preloader(db *gorm.DB) *gorm.DB {
+	if o.Preload == nil {
+		return db
+	}
+
+	if lib.StringsContains(o.Preload, "dorm") {
+		db = db.Preload("DormRoom").Preload("DormRoom.Dorm")
+	}
+	if lib.StringsContains(o.Preload, "tags") {
+		db = db.Preload("Tags")
+	}
+	if lib.StringsContains(o.Preload, "department") {
+		db = db.Preload("Department")
+	}
+	if lib.StringsContains(o.Preload, "office") {
+		db = db.Preload("Office")
 	}
 
 	return db
 }
 
-func (p *GetAllUsersOptions) Order(db *gorm.DB) *gorm.DB {
+func (o *GetAllUsersOptions) Order(db *gorm.DB) *gorm.DB {
 	return db.Order("users.id ASC", true)
 }
 
-func (p *GetAllUsersOptions) Paginate(db *gorm.DB) *gorm.DB {
-	db = p.Order(db)
-	if p.Offset != nil {
-		db = db.Offset(*p.Offset)
+func (o *GetAllUsersOptions) Paginate(db *gorm.DB) *gorm.DB {
+	db = o.Order(db)
+	if o.Offset != nil {
+		db = db.Offset(*o.Offset)
 	}
-	if p.Limit != nil {
-		db = db.Limit(*p.Limit)
+	if o.Limit != nil {
+		db = db.Limit(*o.Limit)
 	}
 
 	return db
 }
 
-func (p *GetAllUsersOptions) Run(db *gorm.DB) *gorm.DB {
-	return p.Paginate(p.Preloader(db))
+func (o *GetAllUsersOptions) Run(db *gorm.DB) *gorm.DB {
+	return o.Paginate(o.Preloader(db))
 }
 
 func (m *UserModel) GetAllUsers(u *[]*User, opts Options) (err error) {

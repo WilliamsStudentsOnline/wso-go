@@ -23,7 +23,7 @@ type GetPostsByDiscussionOptions struct {
 	Limit  *uint      `json:"limit" form:"limit"`
 
 	// What to preload (user, discussion)
-	Preload []string `json:"preload" form:"preload"`
+	Preload []string `json:"preload" form:"preload[]"`
 }
 
 func (p *GetPostsByDiscussionOptions) Order(db *gorm.DB) *gorm.DB {
@@ -44,13 +44,15 @@ func (p *GetPostsByDiscussionOptions) Paginate(db *gorm.DB) *gorm.DB {
 
 // Preload specifically allowed parts if requested
 func (p *GetPostsByDiscussionOptions) Preloader(db *gorm.DB) *gorm.DB {
-	if p.Preload != nil {
-		if stringsContains(p.Preload, "user") {
-			db = db.Preload("User")
-		}
-		if stringsContains(p.Preload, "discussion") {
-			db = db.Preload("Discussion")
-		}
+	if p.Preload == nil {
+		return db
+	}
+
+	if stringsContains(p.Preload, "user") {
+		db = db.Preload("User")
+	}
+	if stringsContains(p.Preload, "discussion") {
+		db = db.Preload("Discussion")
 	}
 
 	return db

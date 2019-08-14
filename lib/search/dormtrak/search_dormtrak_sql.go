@@ -32,7 +32,7 @@ func (s *SearchDormtrakMySQL) SearchDorms(query string, dorms *[]*models.Dorm, o
 	return
 }
 
-func (*SearchDormtrakMySQL) NewDormsOptions(offset *uint, limit *uint, preload *[]string) SearchOptions {
+func (*SearchDormtrakMySQL) NewDormsOptions(offset *uint, limit *uint, preload []string) SearchOptions {
 	return &models.GetAllDormsOptions{
 		Offset:  offset,
 		Limit:   limit,

@@ -30,21 +30,23 @@ type GetAllProfessorsOptions struct {
 	Limit  *uint `json:"limit" form:"limit"`
 
 	// You can preload: department, office, and surveys
-	Preload *[]string `json:"preload" form:"preload"`
+	Preload []string `json:"preload" form:"preload[]"`
 }
 
 // Preload specifically allowed parts if requested
 func (p *GetAllProfessorsOptions) Preloader(db *gorm.DB) *gorm.DB {
-	if p.Preload != nil {
-		if lib.StringsContains(*p.Preload, "department") {
-			db = db.Preload("Department")
-		}
-		if lib.StringsContains(*p.Preload, "office") {
-			db = db.Preload("Office")
-		}
-		if lib.StringsContains(*p.Preload, "surveys") {
-			db = db.Preload("ProfessorFactrakSurveys")
-		}
+	if p.Preload == nil {
+		return db
+	}
+
+	if lib.StringsContains(p.Preload, "department") {
+		db = db.Preload("Department")
+	}
+	if lib.StringsContains(p.Preload, "office") {
+		db = db.Preload("Office")
+	}
+	if lib.StringsContains(p.Preload, "surveys") {
+		db = db.Preload("ProfessorFactrakSurveys")
 	}
 
 	return db

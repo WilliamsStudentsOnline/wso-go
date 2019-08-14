@@ -29,7 +29,7 @@ type GetAllBulletinsOptions struct {
 	Limit  *uint      `json:"limit" form:"limit"`
 
 	// What to preload
-	Preload []string `json:"preload" form:"preload"`
+	Preload []string `json:"preload" form:"preload[]"`
 
 	// Pass a specific bulletin type to get just those bulletins
 	Type *string `json:"type" form:"type"`
@@ -39,46 +39,48 @@ type GetAllBulletinsOptions struct {
 	All bool `json:"all" form:"all"`
 }
 
-func (p *GetAllBulletinsOptions) Order(db *gorm.DB) *gorm.DB {
+func (o *GetAllBulletinsOptions) Order(db *gorm.DB) *gorm.DB {
 	return db.Order("bulletins.start_date desc", true)
 }
 
 // Pagination starts at most recent and goes down from there
-func (p *GetAllBulletinsOptions) Paginate(db *gorm.DB) *gorm.DB {
-	db = p.Order(db)
-	if p.Offset != nil {
-		db = db.Where("bulletins.start_date < ?", *p.Offset)
+func (o *GetAllBulletinsOptions) Paginate(db *gorm.DB) *gorm.DB {
+	db = o.Order(db)
+	if o.Offset != nil {
+		db = db.Where("bulletins.start_date < ?", *o.Offset)
 	}
-	if p.Limit != nil {
-		db = db.Limit(*p.Limit)
+	if o.Limit != nil {
+		db = db.Limit(*o.Limit)
 	}
 	return db
 }
 
 // Preload specifically allowed parts if requested
-func (p *GetAllBulletinsOptions) Preloader(db *gorm.DB) *gorm.DB {
-	if p.Preload != nil {
-		if stringsContains(p.Preload, "user") {
-			db = db.Preload("User")
-		}
+func (o *GetAllBulletinsOptions) Preloader(db *gorm.DB) *gorm.DB {
+	if o.Preload == nil {
+		return db
+	}
+
+	if stringsContains(o.Preload, "user") {
+		db = db.Preload("User")
 	}
 
 	return db
 }
 
-func (p *GetAllBulletinsOptions) Run(db *gorm.DB) *gorm.DB {
-	db = p.Paginate(db)
-	db = p.Preloader(db)
+func (o *GetAllBulletinsOptions) Run(db *gorm.DB) *gorm.DB {
+	db = o.Paginate(db)
+	db = o.Preloader(db)
 
-	if !p.All {
+	if !o.All {
 		db = db.Where("bulletins.start_date <= ?", time.Now())
 		db = db.Where("bulletins.end_date IS NULL OR bulletins.end_date > ?", time.Now())
 	}
 
-	if p.Type != nil {
-		if *p.Type == BulletinTypeAnnouncement || *p.Type == BulletinTypeExchange || *p.Type == BulletinTypeJob ||
-			*p.Type == BulletinTypeLostAndFound {
-			db = db.Where("bulletins.type = ?", p.Type)
+	if o.Type != nil {
+		if *o.Type == BulletinTypeAnnouncement || *o.Type == BulletinTypeExchange || *o.Type == BulletinTypeJob ||
+			*o.Type == BulletinTypeLostAndFound {
+			db = db.Where("bulletins.type = ?", o.Type)
 		}
 	}
 

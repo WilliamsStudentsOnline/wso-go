@@ -43,7 +43,7 @@ type GetAllFactrakSurveysOptions struct {
 	Paginator Paginator
 
 	// Preloading
-	Preload []string `json:"preload" form:"preload"`
+	Preload []string `json:"preload" form:"preload[]"`
 
 	// Scope to only get flagged surveys. True means only get flagged; false/empty means ignore this scope.
 	Flagged bool `json:"commented" form:"commented"`
@@ -75,15 +75,17 @@ func (o *GetAllFactrakSurveysOptions) Paginate(db *gorm.DB) *gorm.DB {
 
 // Preload specifically allowed parts if requested
 func (o *GetAllFactrakSurveysOptions) Preloader(db *gorm.DB) *gorm.DB {
+	if o.Preload == nil {
+		return db
+	}
+
 	fsM := NewFactrakSurveyModel(nil)
 
-	if o.Preload != nil {
-		if stringsContains(o.Preload, "professor") {
-			db = fsM.preloadProfessor(db)
-		}
-		if stringsContains(o.Preload, "course") {
-			db = fsM.preloadCourse(db)
-		}
+	if stringsContains(o.Preload, "professor") {
+		db = fsM.preloadProfessor(db)
+	}
+	if stringsContains(o.Preload, "course") {
+		db = fsM.preloadCourse(db)
 	}
 
 	return db

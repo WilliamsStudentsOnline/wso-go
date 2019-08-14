@@ -23,45 +23,47 @@ type GetAllDiscussionsOptions struct {
 	Limit  *uint      `json:"limit" form:"limit"`
 
 	// What to preload (user, posts, postsUsers)
-	Preload []string `json:"preload" form:"preload"`
+	Preload []string `json:"preload" form:"preload[]"`
 }
 
-func (p *GetAllDiscussionsOptions) Order(db *gorm.DB) *gorm.DB {
+func (o *GetAllDiscussionsOptions) Order(db *gorm.DB) *gorm.DB {
 	return db.Order("discussions.last_active desc", true)
 }
 
 // Pagination starts at most recent and goes down from there
-func (p *GetAllDiscussionsOptions) Paginate(db *gorm.DB) *gorm.DB {
-	db = p.Order(db)
-	if p.Offset != nil {
-		db = db.Where("discussions.last_active < ?", *p.Offset)
+func (o *GetAllDiscussionsOptions) Paginate(db *gorm.DB) *gorm.DB {
+	db = o.Order(db)
+	if o.Offset != nil {
+		db = db.Where("discussions.last_active < ?", *o.Offset)
 	}
-	if p.Limit != nil {
-		db = db.Limit(*p.Limit)
+	if o.Limit != nil {
+		db = db.Limit(*o.Limit)
 	}
 	return db
 }
 
 // Preload specifically allowed parts if requested
-func (p *GetAllDiscussionsOptions) Preloader(db *gorm.DB) *gorm.DB {
-	if p.Preload != nil {
-		if stringsContains(p.Preload, "user") {
-			db = db.Preload("User")
-		}
-		if stringsContains(p.Preload, "posts") {
-			db = db.Preload("Posts")
-		}
-		if stringsContains(p.Preload, "postsUsers") {
-			db = db.Preload("Posts.User")
-		}
+func (o *GetAllDiscussionsOptions) Preloader(db *gorm.DB) *gorm.DB {
+	if o.Preload == nil {
+		return db
+	}
+
+	if stringsContains(o.Preload, "user") {
+		db = db.Preload("User")
+	}
+	if stringsContains(o.Preload, "posts") {
+		db = db.Preload("Posts")
+	}
+	if stringsContains(o.Preload, "postsUsers") {
+		db = db.Preload("Posts.User")
 	}
 
 	return db
 }
 
-func (p *GetAllDiscussionsOptions) Run(db *gorm.DB) *gorm.DB {
-	db = p.Paginate(db)
-	db = p.Preloader(db)
+func (o *GetAllDiscussionsOptions) Run(db *gorm.DB) *gorm.DB {
+	db = o.Paginate(db)
+	db = o.Preloader(db)
 
 	return db
 }

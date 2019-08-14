@@ -32,45 +32,47 @@ type GetAllCoursesOptions struct {
 	Limit  *uint `json:"limit" form:"limit"`
 
 	// You can preload: areaOfStudy, professors, and surveys
-	Preload *[]string `json:"preload" form:"preload"`
+	Preload []string `json:"preload" form:"preload[]"`
 }
 
 // Preload specifically allowed parts if requested
-func (p *GetAllCoursesOptions) Preloader(db *gorm.DB) *gorm.DB {
-	if p.Preload != nil {
-		if lib.StringsContains(*p.Preload, "areaOfStudy") {
-			db = db.Preload("AreaOfStudy")
-		}
-		if lib.StringsContains(*p.Preload, "professors") {
-			db = db.Preload("Professors")
-		}
-		if lib.StringsContains(*p.Preload, "surveys") {
-			db = db.Preload("FactrakSurveys")
-		}
+func (o *GetAllCoursesOptions) Preloader(db *gorm.DB) *gorm.DB {
+	if o.Preload == nil {
+		return db
+	}
+
+	if lib.StringsContains(o.Preload, "areaOfStudy") {
+		db = db.Preload("AreaOfStudy")
+	}
+	if lib.StringsContains(o.Preload, "professors") {
+		db = db.Preload("Professors")
+	}
+	if lib.StringsContains(o.Preload, "surveys") {
+		db = db.Preload("FactrakSurveys")
 	}
 
 	return db
 }
 
-func (p *GetAllCoursesOptions) Order(db *gorm.DB) *gorm.DB {
+func (o *GetAllCoursesOptions) Order(db *gorm.DB) *gorm.DB {
 	return db.Order("courses.id ASC", true)
 }
 
-func (p *GetAllCoursesOptions) Paginate(db *gorm.DB) *gorm.DB {
-	db = p.Order(db)
-	if p.Offset != nil {
-		db = db.Offset(*p.Offset)
+func (o *GetAllCoursesOptions) Paginate(db *gorm.DB) *gorm.DB {
+	db = o.Order(db)
+	if o.Offset != nil {
+		db = db.Offset(*o.Offset)
 	}
-	if p.Limit != nil {
-		db = db.Limit(*p.Limit)
+	if o.Limit != nil {
+		db = db.Limit(*o.Limit)
 	}
 
 	return db
 }
 
-func (p *GetAllCoursesOptions) Run(db *gorm.DB) *gorm.DB {
-	db = p.Paginate(db)
-	db = p.Preloader(db)
+func (o *GetAllCoursesOptions) Run(db *gorm.DB) *gorm.DB {
+	db = o.Paginate(db)
+	db = o.Preloader(db)
 
 	return db
 }

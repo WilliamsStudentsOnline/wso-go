@@ -9,7 +9,7 @@ import (
 
 type SearchDormtrak interface {
 	SearchDorms(query string, dorms *[]*models.Dorm, opts SearchOptions) (err error)
-	NewDormsOptions(offset *uint, limit *uint, preload *[]string) SearchOptions
+	NewDormsOptions(offset *uint, limit *uint, preload []string) SearchOptions
 }
 
 func NewSearchDormtrak(db *gorm.DB, cfg *config.Config) SearchDormtrak {

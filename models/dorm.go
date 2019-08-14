@@ -33,41 +33,43 @@ type GetAllDormsOptions struct {
 	Limit  *uint `json:"limit" form:"limit"`
 
 	// You can preload: neighborhood, and dormRooms
-	Preload *[]string `json:"preload" form:"preload"`
+	Preload []string `json:"preload" form:"preload[]"`
 }
 
 // Preload specifically allowed parts if requested
-func (p *GetAllDormsOptions) Preloader(db *gorm.DB) *gorm.DB {
-	if p.Preload != nil {
-		if lib.StringsContains(*p.Preload, "neighborhood") {
-			db = db.Preload("Neighborhood")
-		}
-		if lib.StringsContains(*p.Preload, "dormRooms") {
-			db = db.Preload("DormRooms")
-		}
+func (o *GetAllDormsOptions) Preloader(db *gorm.DB) *gorm.DB {
+	if o.Preload == nil {
+		return db
+	}
+
+	if lib.StringsContains(o.Preload, "neighborhood") {
+		db = db.Preload("Neighborhood")
+	}
+	if lib.StringsContains(o.Preload, "dormRooms") {
+		db = db.Preload("DormRooms")
 	}
 
 	return db
 }
 
-func (p *GetAllDormsOptions) Order(db *gorm.DB) *gorm.DB {
+func (o *GetAllDormsOptions) Order(db *gorm.DB) *gorm.DB {
 	return db.Order("dorms.id ASC", true)
 }
 
-func (p *GetAllDormsOptions) Paginate(db *gorm.DB) *gorm.DB {
-	db = p.Order(db)
-	if p.Offset != nil {
-		db = db.Offset(*p.Offset)
+func (o *GetAllDormsOptions) Paginate(db *gorm.DB) *gorm.DB {
+	db = o.Order(db)
+	if o.Offset != nil {
+		db = db.Offset(*o.Offset)
 	}
-	if p.Limit != nil {
-		db = db.Limit(*p.Limit)
+	if o.Limit != nil {
+		db = db.Limit(*o.Limit)
 	}
 
 	return db
 }
 
-func (p *GetAllDormsOptions) Run(db *gorm.DB) *gorm.DB {
-	return p.Paginate(p.Preloader(db))
+func (o *GetAllDormsOptions) Run(db *gorm.DB) *gorm.DB {
+	return o.Paginate(o.Preloader(db))
 }
 
 // Gets dorm by its id with neighborhood and dorm rooms preloaded.

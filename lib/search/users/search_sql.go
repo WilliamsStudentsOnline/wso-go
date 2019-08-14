@@ -213,7 +213,7 @@ func (s *SearchUsersMySQL) parseField(field *search.Field, sb *strings.Builder) 
 	return
 }
 
-func (*SearchUsersMySQL) NewOptions(offset *uint, limit *uint, preload *[]string) SearchOptions {
+func (*SearchUsersMySQL) NewOptions(offset *uint, limit *uint, preload []string) SearchOptions {
 	return &models.GetAllUsersOptions{
 		Offset:  offset,
 		Limit:   limit,
