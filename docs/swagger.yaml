@@ -1050,6 +1050,11 @@ definitions:
       williamsEmail:
         type: string
     type: object
+  server.HealthCheckResponse:
+    properties:
+      ok:
+        type: boolean
+    type: object
   user.UpdateUserParams:
     properties:
       dormVisible:
@@ -4174,6 +4179,22 @@ paths:
       summary: List user surveys
       tags:
       - factrak
+  /health-check:
+    get:
+      consumes:
+      - application/json
+      description: Check server health
+      operationId: health-check
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.HealthCheckResponse'
+      security:
+      - Bearer: []
+      summary: Health check
   /users:
     get:
       consumes:

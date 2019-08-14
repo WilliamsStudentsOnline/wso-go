@@ -18,6 +18,7 @@ import (
 	// Services
 	adminService "github.com/WilliamsStudentsOnline/wso-go/services/admin"
 	authService "github.com/WilliamsStudentsOnline/wso-go/services/auth"
+	autocompleteService "github.com/WilliamsStudentsOnline/wso-go/services/autocomplete"
 	bulletinService "github.com/WilliamsStudentsOnline/wso-go/services/bulletin"
 	dormtrakService "github.com/WilliamsStudentsOnline/wso-go/services/dormtrak"
 	factrakService "github.com/WilliamsStudentsOnline/wso-go/services/factrak"
@@ -56,10 +57,14 @@ func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 
 	/* ROUTER */
 
+	// Health check endpoint
+	r.GET("/health-check", HealthCheck)
+
 	// Initialize login
 	r.POST("/api/v1/auth/login", authMiddleware.LoginHandler)
 
 	// Run API docs if it is enabled
+	// NOTE: This currently requires no JWT to access.
 	if cfg.EnableAPIDocs {
 		// Use ginSwagger middleware to serve the API docs.
 		r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
@@ -106,7 +111,28 @@ func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 		bulletinGroup := v1.Group("/bulletin")
 		bulletinGroup.Use(auth.RequireScopes(auth.ScopeBulletin))
 		bulletinService.SetupRouter(bulletinGroup, db, cfg)
+
+		// Autocomplete Service
+		autocompleteGroup := v1.Group("/autocomplete")
+		autocompleteService.SetupRouter(autocompleteGroup, db, cfg)
 	}
 
 	return r, nil
+}
+
+type HealthCheckResponse struct {
+	OK bool `json:"ok"`
+}
+
+// HealthCheck godoc
+// @Summary Health check
+// @Description Check server health
+// @ID health-check
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} server.HealthCheckResponse
+// @Security Bearer
+// @Router /health-check [get]
+func HealthCheck(t *gin.Context) {
+	t.JSON(http.StatusOK, HealthCheckResponse{OK: true})
 }
