@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
-	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
@@ -131,7 +130,7 @@ func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB) (authMiddleware *jwt.Gi
 			// Deal with special token-level data.
 			if tokenLevel == TokenLevelOffCampus || tokenLevel == TokenLevelOnCampus {
 				// If lower-level token, check if we must upgrade/downgrade the token's level
-				if lib.OnCampusIP(c.ClientIP()) {
+				if OnCampusIP(c.ClientIP()) {
 					payload.TokenLevel = TokenLevelOnCampus
 				} else {
 					payload.TokenLevel = TokenLevelOffCampus

@@ -1,4 +1,4 @@
-FROM golang:1.12.7
+FROM golang:1.12.8
 
 # Turn on modules
 ENV GO111MODULE=on

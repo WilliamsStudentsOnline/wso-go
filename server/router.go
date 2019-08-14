@@ -67,7 +67,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 	// NOTE: This currently requires no JWT to access.
 	if cfg.EnableAPIDocs {
 		// Use ginSwagger middleware to serve the API docs.
-		r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+		r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}
 
 	// Require authentication for 404s

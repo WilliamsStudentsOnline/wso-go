@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
-	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
@@ -60,7 +59,7 @@ func (t *Controller) Authenticator(c *gin.Context) (interface{}, error) {
 
 	// If client is requesting a off-campus/on-campus JWT (aka client is on/off campus and wants read-only WSO access)
 	if loginVals.UseIP || loginVals.IsLocalIP {
-		if lib.OnCampusIP(c.ClientIP()) {
+		if OnCampusIP(c.ClientIP()) {
 			payload.TokenLevel = TokenLevelOnCampus
 			return payload, nil
 		} else if loginVals.IsLocalIP {

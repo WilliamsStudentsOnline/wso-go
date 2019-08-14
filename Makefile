@@ -13,7 +13,7 @@ fmt:
 .PHONY: commit
 commit: build-docs fmt
 
-build: build-docs
+build:
 	go build -tags=jsoniter -o $(BINARY_NAME) ./server/cmd
 
 .PHONY: run
@@ -54,7 +54,7 @@ docker-build-jobs-dev: docker-builder
 .PHONY: k8-apply-dev
 k8-apply-dev:
 	kubectl apply -k k8s/development
-	minikube service backend -n development --url
+	echo "Backend Service IP:" $(minikube service backend -n development --url)
 
 .PHONY: k8-delete-dev
 k8-delete-dev:
