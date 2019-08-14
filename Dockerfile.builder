@@ -25,6 +25,9 @@ RUN go get -u github.com/swaggo/swag/cmd/swag
 # Copy the rest of the project into the file
 COPY . .
 
+# Run generation
+RUN go generate github.com/WilliamsStudentsOnline/wso-go/...
+
 # Generate API documentation
 RUN swag init -g server/router.go
 

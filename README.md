@@ -3,7 +3,7 @@ The new flagship back-end for WSO's services. The WSO backend rewrite proposal i
 
 ## Running Locally
 
-To run the server, simply do `make run-dev` or `make build && ./wso-backend --development`.
+To run the server, simply do `make run-dev` or `make && ./wso-backend --development`.
 
 Note: you must include a secrets file. So, run `cp config/secrets_example.yaml config/secrets.yaml` and edit the fields from there. You can also just set the environment variable `WSO_SECRET_JWT_SECRET_KEY=wso-jwt-development-secret`, which will work.
 
@@ -21,6 +21,8 @@ Steps for a 10/10 development workflow:
     * Please follow this [helpful guide](https://github.com/golang/go/wiki/CodeReviewComments) on how to write commit-worthy Go code.
 4. Make a pull request and link your original issue.
 5. After approval merge the pull request by squashing all of your commits into one.
+
+**CHANGES INFO:** Before committing any changes, run `make commit` to autoformat and update your code.
 
 ### Services
 This project uses microservices to define API endpoints. This is essentially the combination of a controller and a router. Look at the dormtrak service for a good example.
@@ -59,7 +61,7 @@ To generate a database migration, run the command `go run db/migrations/cmd/main
 The config folder contains all of the configuration & secrets parsers. It also sets up the database and does necessary middleware.
 
 ### Building
-To build the Go binary, run `make build`. You can then just execute `./wso-backend`.
+To build the Go binary, run `make`. You can then just execute `./wso-backend`.
 
 ## API Endpoints
 
@@ -80,11 +82,11 @@ We use something called a [JWT](jwt.io), or JSON Web Token for the API. This all
 
 - `config/` contains the server configuration library, logging library, secrets library, and various configurations
   - `environment/development.yml` is the local development configuration yaml
-- `data/` static data that we may use in the server or jobs
 - `db/` migration code (and dummy SQLite databases)
   - `migrations/` specific database migrations
 - `docs/` swagger API docs to be compiled
 - `jobs/` kubernetes job launching code and specific jobs to run on the server (e.g. update users from LDAP)
+  - `dorms_update/data` dorm and dorm room data
 - `k8s/` kubernetes configuration files
   - `base/` the base kubernetes configuration inherited by every deployment
   - `development/` the local development configuration
@@ -104,7 +106,7 @@ We use something called a [JWT](jwt.io), or JSON Web Token for the API. This all
 
 ## Local Kubernetes Deployment
 This is a guide to how to set up and run a local kubernetes deployment. Usually if you are just working on the API, 
-it is okay to run the backend locally with `makr build` or `make run-dev`. But, if you need to make changes to the 
+it is okay to run the backend locally with `make` or `make run-dev`. But, if you need to make changes to the 
 infrastructure, or you want to run the backend as if it was on production, this is your best bet. Please note that 
 wso-dev can also function as a place to test your code in a kubernetes environment.
 

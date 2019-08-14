@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"encoding/csv"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -16,17 +18,20 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+//go:generate go run gen.go
+
 func main() {
 	/* Flags */
 	var configPath string
+	var useLocal bool
 	var dormPath string
 	var roomsPath string
 
 	// Command-line flags
-	// Note: these can be overridden by env vars
 	flag.StringVar(&configPath, "config", "", "path to config file")
-	flag.StringVar(&dormPath, "dorm", "data/dormtrak/dorms.csv", "path to dorm info csv file")
-	flag.StringVar(&roomsPath, "rooms", "data/dormtrak/rooms", "path to room info directory of csv files")
+	flag.BoolVar(&useLocal, "local", true, "use local embedded data")
+	flag.StringVar(&dormPath, "dorm", "jobs/dorms_update/data/dorms.csv", "path to dorm info csv file")
+	flag.StringVar(&roomsPath, "rooms", "jobs/dorms_update/data/rooms", "path to room info directory of csv files")
 
 	flag.Parse()
 
@@ -77,7 +82,7 @@ func main() {
 	/* Actual logic of code */
 
 	/* Parse Dorm CSV */
-	dorms, err := ReadDorms(dormPath)
+	dorms, err := ReadDorms(dormPath, useLocal)
 	if err != nil {
 		log.Fatal("Dorm Parse Error: " + err.Error())
 		return
@@ -102,7 +107,7 @@ func main() {
 
 	for _, dbDorm := range dbDorms {
 		dormRoomPath := filepath.Join(roomsPath, dbDorm.Name+".csv")
-		rooms, err := ReadRooms(dormRoomPath)
+		rooms, err := ReadRooms(dormRoomPath, useLocal)
 		if err != nil {
 			log.Fatal("Read Rooms Error: " + err.Error())
 			return
@@ -118,16 +123,22 @@ func main() {
 	log.Info("Finished")
 }
 
-func ReadDorms(file string) ([]*dorms_update.Dorm, error) {
-	// Open file
-	f, err := os.Open(file)
-	if err != nil {
-		return nil, err
+func ReadDorms(file string, useLocal bool) ([]*dorms_update.Dorm, error) {
+	var r io.Reader
+
+	if useLocal {
+		r = bytes.NewBufferString(dormsCSV)
+	} else {
+		// Open file
+		r, err := os.Open(file)
+		if err != nil {
+			return nil, err
+		}
+		defer r.Close()
 	}
-	defer f.Close()
 
 	// Read file into matrix of strings
-	lines, err := csv.NewReader(f).ReadAll()
+	lines, err := csv.NewReader(r).ReadAll()
 	if err != nil {
 		return nil, err
 	}
@@ -191,16 +202,23 @@ func ReadDorms(file string) ([]*dorms_update.Dorm, error) {
 	return dorms, nil
 }
 
-func ReadRooms(file string) ([]*dorms_update.Room, error) {
-	// Open file
-	f, err := os.Open(file)
-	if err != nil {
-		return nil, err
+func ReadRooms(file string, useLocal bool) ([]*dorms_update.Room, error) {
+	var r io.Reader
+
+	if useLocal {
+		baseFile := filepath.Base(file)
+		r = bytes.NewBufferString(roomCSVs[baseFile])
+	} else {
+		// Open file
+		r, err := os.Open(file)
+		if err != nil {
+			return nil, err
+		}
+		defer r.Close()
 	}
-	defer f.Close()
 
 	// Read file into matrix of strings
-	lines, err := csv.NewReader(f).ReadAll()
+	lines, err := csv.NewReader(r).ReadAll()
 	if err != nil {
 		return nil, err
 	}
