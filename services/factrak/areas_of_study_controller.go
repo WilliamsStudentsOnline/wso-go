@@ -17,13 +17,25 @@ import (
 // @Tags factrak
 // @Accept  json
 // @Produce  json
+// @Param offset query int false "Offset Pagination"
+// @Param limit query int false "Limit Pagination"
+// @Param preload query []string false "Preload List (department, courses)"
+// @Param sort query string false "Sort Order (id, name; default name)"
 // @Success 200 {array} models.AreaOfStudy
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
 // @Router /factrak/areas-of-study [get]
 func (t *Controller) ListAreasOfStudy(c *gin.Context) {
 	var areas []models.AreaOfStudy
-	err := t.areaOfStudyModel.GetAllAreasOfStudy(&areas)
+	var err error
+
+	opts := models.GetAllAreasOfStudyOptions{}
+	if err = c.ShouldBindQuery(&opts); err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	err = t.areaOfStudyModel.GetAllAreasOfStudy(&areas, &opts)
 
 	if err != nil {
 		t.RespondError(c, err)

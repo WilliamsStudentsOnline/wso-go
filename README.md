@@ -206,4 +206,9 @@ To set the default namespace to development:
 kubectl config set-context --current --namespace=development
 ```
 
+To remove intermediate docker builds:
+```shell script
+docker image prune --filter label=stage=intermediate
+```
+
 Good luck!

@@ -4,9 +4,12 @@ go 1.12
 
 require (
 	cloud.google.com/go v0.43.0 // indirect
+	github.com/agext/levenshtein v1.2.2 // indirect
+	github.com/agnivade/levenshtein v1.0.2 // indirect
 	github.com/aidanlloydtucker/gin-jwt/v2 v2.6.3
 	github.com/alecthomas/participle v0.3.0
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
+	github.com/arbovm/levenshtein v0.0.0-20160628152529-48b4e1c0c4d0 // indirect
 	github.com/denisenkom/go-mssqldb v0.0.0-20190715232110-2b613d287457 // indirect
 	github.com/disintegration/imaging v1.6.0
 	github.com/fvbock/endless v0.0.0-20170109170031-447134032cb6
@@ -22,7 +25,6 @@ require (
 	github.com/m1ome/leven v0.0.0-20170305195354-a3732db01c54
 	github.com/mailru/easyjson v0.0.0-20190626092158-b2ccc519800e // indirect
 	github.com/mattn/go-sqlite3 v1.11.0 // indirect
-	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
 	github.com/sirupsen/logrus v1.4.2
 	github.com/stretchr/testify v1.3.0
 	github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14

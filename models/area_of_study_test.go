@@ -36,7 +36,7 @@ func TestAreaOfStudyModel_GetAllAreasOfStudy(t *testing.T) {
 	}
 
 	var res []AreaOfStudy
-	assert.NoError(m.GetAllAreasOfStudy(&res))
+	assert.NoError(m.GetAllAreasOfStudy(&res, nil))
 
 	for i := range areasOfStudy {
 		assert.Equal(areasOfStudy[i].ID, res[i].ID)

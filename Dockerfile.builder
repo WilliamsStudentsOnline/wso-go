@@ -1,4 +1,5 @@
 FROM golang:1.12.8
+LABEL stage=intermediate
 
 # Turn on modules
 ENV GO111MODULE=on
@@ -19,18 +20,10 @@ COPY go.sum .
 RUN go mod download
 RUN go mod verify
 
-# Get documentation maker
-RUN go get -u github.com/swaggo/swag/cmd/swag
-
 # Copy the rest of the project into the file
 COPY . .
 
-# Run generation
-RUN go generate github.com/WilliamsStudentsOnline/wso-go/...
-
-# Generate API documentation
-RUN swag init -g server/router.go
-
+# Set build flags
 ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
 
 ### Build the main server ###

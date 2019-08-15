@@ -2948,6 +2948,25 @@ paths:
       - application/json
       description: lists all areas of study
       operationId: factrak-list-areas-of-study
+      parameters:
+      - description: Offset Pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      - description: Preload List (department, courses)
+        in: query
+        items:
+          type: string
+        name: preload
+        type: array
+      - description: Sort Order (id, name; default name)
+        in: query
+        name: sort
+        type: string
       produces:
       - application/json
       responses:

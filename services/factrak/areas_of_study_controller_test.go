@@ -60,14 +60,14 @@ func TestController_ListAreasOfStudy(t *testing.T) {
 	var resp []models.AreaOfStudy
 	assert.NoError(json.Unmarshal(respData.Data, &resp))
 
-	// Check if correct area of study
+	// Check if correct area of study (sort by name)
 	assert.Len(resp, 3)
 	assert.Equal(a1.Name, resp[0].Name)
 	assert.Equal(a1.Abbreviation, resp[0].Abbreviation)
-	assert.Equal(a2.Name, resp[1].Name)
-	assert.Equal(a2.Abbreviation, resp[1].Abbreviation)
-	assert.Equal(a3.Name, resp[2].Name)
-	assert.Equal(a3.Abbreviation, resp[2].Abbreviation)
+	assert.Equal(a3.Name, resp[1].Name)
+	assert.Equal(a3.Abbreviation, resp[1].Abbreviation)
+	assert.Equal(a2.Name, resp[2].Name)
+	assert.Equal(a2.Abbreviation, resp[2].Abbreviation)
 }
 
 func TestController_GetAreaOfStudy(t *testing.T) {
