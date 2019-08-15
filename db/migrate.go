@@ -2,6 +2,7 @@ package db
 
 import (
 	"github.com/WilliamsStudentsOnline/wso-go/db/migrations"
+	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/jinzhu/gorm"
 	"gopkg.in/gormigrate.v1"
@@ -98,4 +99,34 @@ func LastMigration(opts *gormigrate.Options, db *gorm.DB) (string, error) {
 	}
 
 	return migrationIDs[len(migrationIDs)-1], nil
+}
+
+// Gets last migration id from the migrations table
+func MigrationUpToDate(opts *gormigrate.Options, db *gorm.DB) (bool, error) {
+	var dbMigrationIDs []string
+
+	err := db.Table(opts.TableName).Pluck(opts.IDColumnName, &dbMigrationIDs).Error
+	if err != nil {
+		return false, err
+	}
+
+	goMigrations := make([]string, len(Migrations)+1)
+	for i := range Migrations {
+		goMigrations[i] = Migrations[i].ID
+	}
+	goMigrations[len(goMigrations)-1] = "SCHEMA_INIT"
+
+	for i := range dbMigrationIDs {
+		if !lib.StringsContains(goMigrations, dbMigrationIDs[i]) {
+			return false, nil
+		}
+	}
+
+	for i := range goMigrations {
+		if !lib.StringsContains(dbMigrationIDs, goMigrations[i]) {
+			return false, nil
+		}
+	}
+
+	return true, nil
 }

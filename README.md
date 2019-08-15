@@ -201,4 +201,9 @@ To import existing SQL into the MySQL database, run this:
 kubectl run -i --rm --image=mysql:8.0.17 --restart=Never mysql-client -- mysql -h mysql -ppassword development < PATH_TO_SQL_DUMP_HERE
 ```
 
+To set the default namespace to development:
+```shell script
+kubectl config set-context --current --namespace=development
+```
+
 Good luck!

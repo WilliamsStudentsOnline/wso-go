@@ -1061,6 +1061,28 @@ paths:
       summary: Updates the course catalog
       tags:
       - admin
+  /admin/dorms-update:
+    post:
+      consumes:
+      - application/json
+      description: runs kubernetes job that updates all dorms from compiled data
+      operationId: dorms-update
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/admin.KubeJobReturn'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Updates all dorms from data compiled
+      tags:
+      - admin
   /admin/jobs/{jobID}/status:
     get:
       consumes:
@@ -1099,8 +1121,10 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: Job completed
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/admin.KubeJobReturn'
         "500":
           description: Internal Server Error
           schema:

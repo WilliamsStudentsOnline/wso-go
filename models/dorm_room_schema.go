@@ -3,9 +3,10 @@ package models
 import "github.com/jinzhu/gorm"
 
 const (
-	DormRoomTypeSingle = "s"
-	DormRoomTypeDouble = "d"
-	DormRoomTypeFlex   = "f"
+	DormRoomTypeSingle  = "s"
+	DormRoomTypeDouble  = "d"
+	DormRoomTypeFlex    = "f"
+	DormRoomTypeUnknown = "u"
 )
 
 type DormRoom struct {

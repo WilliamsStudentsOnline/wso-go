@@ -49,3 +49,7 @@ RUN go build -ldflags "-w -s" -tags=jsoniter \
 RUN go build -ldflags "-w -s" -tags=jsoniter \
     -o /wso/jobs/update-all-users-from-ldap \
     /go/src/github.com/WilliamsStudentsOnline/wso-go/jobs/update_all_users_from_ldap/cmd
+# Dorms Update
+RUN go build -ldflags "-w -s" -tags=jsoniter \
+    -o /wso/jobs/dorms-update \
+    /go/src/github.com/WilliamsStudentsOnline/wso-go/jobs/dorms_update/cmd

@@ -14,8 +14,7 @@ import (
 	migrate "github.com/WilliamsStudentsOnline/wso-go/db"
 	"github.com/WilliamsStudentsOnline/wso-go/jobs/dorms_update"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
-	"github.com/jinzhu/gorm"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 //go:generate go run gen.go
@@ -36,8 +35,9 @@ func main() {
 	flag.Parse()
 
 	/* Logging */
+	log := logrus.New()
 	log.SetOutput(os.Stdout)
-	log.SetFormatter(&log.TextFormatter{
+	log.SetFormatter(&logrus.TextFormatter{
 		FullTimestamp: true,
 	})
 
@@ -70,16 +70,17 @@ func main() {
 
 	/* Database Migrations */
 	// NOTE: Job will not migrate anything; will fail if DB is not updated on migrations
-	lastMigrationID, err := migrate.LastMigration(migrate.MigrationGormOptions, db)
+	dbUpToDate, err := migrate.MigrationUpToDate(migrate.MigrationGormOptions, db)
 	if err != nil {
 		log.Fatal("Migration Checking Error: " + err.Error())
 	}
 
-	if lastMigrationID != migrate.Migrations[len(migrate.Migrations)-1].ID {
+	if !dbUpToDate {
 		log.Fatal("Database migrations are not up to date")
 	}
 
 	/* Actual logic of code */
+	log.Info("Updating Dorms")
 
 	/* Parse Dorm CSV */
 	dorms, err := ReadDorms(dormPath, useLocal)
@@ -89,17 +90,18 @@ func main() {
 	}
 
 	/* Run update dorms */
-	logger := log.New()
-	err = dorms_update.UpdateDorms(db, logger, dorms)
+	err = dorms_update.UpdateDorms(db, log, dorms)
 	if err != nil {
 		log.Fatal("Update Dorms Error: " + err.Error())
 		return
 	}
 
 	/* Parse Room CSV */
+	log.Info("Updating Dorm Rooms")
+
 	// Get trakked dorms in database
 	var dbDorms []*models.Dorm
-	err = db.Scopes(dormScopeTrakked).Find(&dbDorms).Error
+	err = db.Scopes(models.NewDormModel(nil).ScopeTrakked).Find(&dbDorms).Error
 	if err != nil {
 		log.Fatal("Get Trakked Dorms Error: " + err.Error())
 		return
@@ -113,11 +115,21 @@ func main() {
 			return
 		}
 
-		err = dorms_update.UpdateRooms(db, logger, rooms, dbDorm)
+		err = dorms_update.UpdateRooms(db, log, rooms, dbDorm)
 		if err != nil {
 			log.Fatal("Update Rooms Error: " + err.Error())
 			return
 		}
+	}
+
+	/* Update Dorm Statistics */
+	// Dorm facts are automatically updated with the dorm room updates.
+	log.Info("Updating Dorm Statistics")
+
+	err = dorms_update.UpdateDormsStatistics(db, log)
+	if err != nil {
+		log.Fatal("Update Dorm Statistics Error: " + err.Error())
+		return
 	}
 
 	log.Info("Finished")
@@ -260,10 +272,4 @@ func ReadRooms(file string, useLocal bool) ([]*dorms_update.Room, error) {
 	}
 
 	return rooms, nil
-}
-
-func dormScopeTrakked(db *gorm.DB) *gorm.DB {
-	return db.
-		Joins("JOIN neighborhoods ON neighborhoods.id = dorms.neighborhood_id").
-		Where("neighborhoods.trakked = ?", true)
 }

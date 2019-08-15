@@ -42,12 +42,12 @@ func main() {
 
 	/* Database Migrations */
 	// NOTE: Job will not migrate anything; will fail if DB is not updated on migrations
-	lastMigrationID, err := migrate.LastMigration(migrate.MigrationGormOptions, db)
+	dbUpToDate, err := migrate.MigrationUpToDate(migrate.MigrationGormOptions, db)
 	if err != nil {
 		log.Fatal("Migration Checking Error: " + err.Error())
 	}
 
-	if lastMigrationID != migrate.Migrations[len(migrate.Migrations)-1].ID {
+	if !dbUpToDate {
 		log.Fatal("Database migrations are not up to date")
 	}
 

@@ -59,7 +59,7 @@ func UpdateDorms(db *gorm.DB, log *logrus.Logger, dorms []*Dorm) (err error) {
 			dbDorm.NumberWashers = &dorm.NumberWashers
 
 			// Save the updated dorm
-			err = db.Save(dbDorm).Error
+			err = db.Save(&dbDorm).Error
 			if err != nil {
 				return
 			}
@@ -131,7 +131,7 @@ func UpdateDorms(db *gorm.DB, log *logrus.Logger, dorms []*Dorm) (err error) {
 
 		// Delete the dorm
 		log.Debugf("Deleting dorm %d", dbDorm.ID)
-		err = db.Unscoped().Delete(&dbDorm).Error
+		err = db.Unscoped().Delete(dbDorm).Error
 		if err != nil {
 			return
 		}
@@ -164,7 +164,7 @@ func UpdateRooms(db *gorm.DB, log *logrus.Logger, rooms []*Room, dorm *models.Do
 			dbRoom.RoomType = room.Type
 
 			// Save the updated room
-			err = db.Save(dbRoom).Error
+			err = db.Save(&dbRoom).Error
 			if err != nil {
 				return
 			}
@@ -219,11 +219,32 @@ func UpdateRooms(db *gorm.DB, log *logrus.Logger, rooms []*Room, dorm *models.Do
 
 		// Delete the dorm
 		log.Debugf("Deleting room %s", dbRoom.Number)
-		err = db.Unscoped().Delete(&dbRoom).Error
+		err = db.Unscoped().Delete(dbRoom).Error
 		if err != nil {
 			return
 		}
 	}
 
 	return nil
+}
+
+func UpdateDormsStatistics(db *gorm.DB, log *logrus.Logger) (err error) {
+	dormModel := models.NewDormModel(db)
+
+	// Remove dorms from db that don't appear in data
+	var dorms []*models.Dorm
+	err = db.Scopes(dormModel.ScopeTrakked).Find(&dorms).Error
+	if err != nil {
+		return
+	}
+
+	for _, dorm := range dorms {
+		log.Infof("Updating dorm statistics %s", dorm.Name)
+		err = dormModel.ReloadStatistics(dorm.ID)
+		if err != nil {
+			return
+		}
+	}
+
+	return
 }

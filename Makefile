@@ -58,7 +58,7 @@ docker-build-jobs-dev: docker-builder
 .PHONY: k8-apply-dev
 k8-apply-dev:
 	kubectl apply -k k8s/development
-	echo "Backend Service IP:" $(minikube service backend -n development --url)
+	$(info Backend Service IP: $(shell minikube service backend -n development --url))
 
 .PHONY: k8-delete-dev
 k8-delete-dev:

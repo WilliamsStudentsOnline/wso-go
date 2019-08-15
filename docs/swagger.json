@@ -48,6 +48,41 @@
                 }
             }
         },
+        "/admin/dorms-update": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "runs kubernetes job that updates all dorms from compiled data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Updates all dorms from data compiled",
+                "operationId": "dorms-update",
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/admin.KubeJobReturn"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/jobs/{jobID}/status": {
             "get": {
                 "security": [
@@ -112,8 +147,11 @@
                 "summary": "Updates all factrak survey deficits",
                 "operationId": "update-all-factrak-survey-deficits",
                 "responses": {
-                    "200": {
-                        "description": "Job completed"
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/admin.KubeJobReturn"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",

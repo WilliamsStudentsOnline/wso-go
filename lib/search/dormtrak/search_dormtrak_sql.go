@@ -20,8 +20,8 @@ func NewSearchDormtrakMySQL(db *gorm.DB) *SearchDormtrakMySQL {
 func (s *SearchDormtrakMySQL) SearchDorms(query string, dorms *[]*models.Dorm, opts SearchOptions) (err error) {
 	// Do SQL
 	tx := s.DB.Model(&models.Dorm{})
-	tx = tx.Where("lower(name) LIKE ?", "%"+strings.ToLower(query)+"%")
-	tx = tx.Where("trakked = ?", true)
+	tx = tx.Where("lower(dorms.name) LIKE ?", "%"+strings.ToLower(query)+"%")
+	tx = models.NewDormModel(nil).ScopeTrakked(tx)
 	// Run options
 	if opts != nil {
 		tx = opts.Paginate(tx)

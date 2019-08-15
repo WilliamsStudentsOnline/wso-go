@@ -94,7 +94,7 @@ func (m *DormModel) ReloadStatistics(id uint) (err error) {
 	}
 
 	m.DB.Model(&DormtrakReview{}).
-		Where("dormtrak_reviews.dorm_room_id in (?)",
+		Where("dormtrak_reviews.dorm_room_id IN (?)",
 			m.DB.Model(&DormRoom{}).
 				Select("dorm_rooms.id").
 				Where("dorm_rooms.dorm_id = ?", id).QueryExpr(),
@@ -217,7 +217,7 @@ func (m *DormModel) UpdateDormFacts(id uint) (err error) {
 	return
 }
 
-func (*DormModel) scopeTrakked(db *gorm.DB) *gorm.DB {
+func (*DormModel) ScopeTrakked(db *gorm.DB) *gorm.DB {
 	return db.
 		Joins("JOIN neighborhoods ON neighborhoods.id = dorms.neighborhood_id").
 		Where("neighborhoods.trakked = ?", true)

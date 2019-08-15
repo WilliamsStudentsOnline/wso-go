@@ -114,17 +114,68 @@ func (t *Controller) UpdateAllUsersFromLDAP(c *gin.Context) {
 // @Tags admin
 // @Accept  json
 // @Produce  json
-// @Success 200 "Job completed"
+// @Success 201 {object} admin.KubeJobReturn
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
 // @Router /admin/update-all-factrak-survey-deficits [post]
 func (t *Controller) UpdateAllFactrakSurveyDeficits(c *gin.Context) {
-	err := t.studentModel.UpdateAllFactrakSurveyDeficits()
+	var job *v1.Job
+	var err error
+	var resp KubeJobReturn
+
+	if t.cfg.KubernetesEnabled {
+		job, err = jobs.RunUpdateAllFactrakSurveyDeficits(t.cfg)
+	} else {
+		err = t.studentModel.UpdateAllFactrakSurveyDeficits()
+	}
 
 	if err != nil {
 		t.RespondError(c, err)
 		return
 	}
 
-	t.RespondOK(c, nil)
+	if job != nil {
+		resp = KubeJobReturn{
+			JobID: job.Name,
+		}
+	}
+
+	t.RespondCreated(c, resp)
+}
+
+// Calls the DormsUpdate from Users
+// TODO: This endpoint runs very slow; may want to return a job ID and then be able to query the job log (Aidan: like I did for brkt)
+// TODO: If we do have a job setup, will need to make it work with multiple deployments/scaling
+// DormsUpdate godoc
+// @Summary Updates all dorms from data compiled
+// @Description runs kubernetes job that updates all dorms from compiled data
+// @ID dorms-update
+// @Tags admin
+// @Accept  json
+// @Produce  json
+// @Success 201 {object} admin.KubeJobReturn
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /admin/dorms-update [post]
+func (t *Controller) DormsUpdate(c *gin.Context) {
+	var job *v1.Job
+	var err error
+	var resp KubeJobReturn
+
+	if t.cfg.KubernetesEnabled {
+		job, err = jobs.RunDormsUpdateJob(t.cfg)
+	}
+
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	if job != nil {
+		resp = KubeJobReturn{
+			JobID: job.Name,
+		}
+	}
+
+	t.RespondCreated(c, resp)
 }
