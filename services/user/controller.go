@@ -190,6 +190,11 @@ func (t *Controller) UpdateUser(c *gin.Context) {
 		return
 	}
 
+	// Update token if we changed these
+	if updateData.HasAcceptedFactrakPolicy != nil || updateData.HasAcceptedDormtrakPolicy != nil {
+		t.SetUpdateToken(c)
+	}
+
 	// Return updated user
 	t.RespondOK(c, user)
 }
