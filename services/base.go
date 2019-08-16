@@ -174,3 +174,7 @@ func GetPaginationParams(ctx *gin.Context) (offset, limit int, err error) {
 
 	return
 }
+
+func (BaseController) SetUpdateToken(c *gin.Context) {
+	c.Set(UpdateTokenKey, true)
+}
