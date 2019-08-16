@@ -125,9 +125,6 @@ func (r *schemaRoot) ParseDef(t *Type, name string) StructType {
 func (r *schemaRoot) ParseProperty(t *Type, name string) StructField {
 	structField := StructField{}
 	structField.Name = strcase.ToCamel(name)
-	if t.GoName != "" {
-		structField.Name = t.GoName
-	}
 	structField.JSONTag = name
 
 	if t.GoType != "" {

@@ -46,7 +46,7 @@ func NewController(db *gorm.DB, cfg *config.Config) *Controller {
 // @Param limit query int false "Limit Pagination"
 // @Param preload query []string false "Preload List"
 // @Param q query string false "Search Query"
-// @Success 200 {array} models.User
+// @Success 200 {array} responses.ListUsersResponseUser
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
 // @Router /users [get]
@@ -85,7 +85,7 @@ func (t *Controller) ListUsers(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param userID path uint true "User ID"
-// @Success 200 {object} models.User
+// @Success 200 {object} responses.GetUserResponseUser
 // @Failure 1403 {object} lib.APIError "user not visible"
 // @Failure 1404 {object} lib.APIError "user not at williams"
 // @Failure 1405 {object} lib.APIError "user id could not be parsed"

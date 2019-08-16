@@ -9,7 +9,7 @@
       "properties": {
         "id": {
           "type": "integer",
-          "goName": "ID",
+          "goOtherName": "ID",
           "goType": "uint"
         },
         "type": {
@@ -29,7 +29,7 @@
         },
         "campusPhoneEXT": {
           "type": "string",
-          "goName": "CampusPhoneExt"
+          "goOtherName": "CampusPhoneExt"
         },
         "unixID": {
           "type": "string"
@@ -73,7 +73,7 @@
         },
         "suBox": {
           "type": "string",
-          "goName": "SUBox"
+          "goOtherName": "SUBox"
         },
         "entry": {
           "type": "string"
@@ -158,7 +158,7 @@
       "properties": {
         "id": {
           "type": "integer",
-          "goName": "ID",
+          "goOtherName": "ID",
           "goType": "uint"
         },
         "name": {
@@ -179,7 +179,7 @@
       "properties": {
         "id": {
           "type": "integer",
-          "goName": "ID",
+          "goOtherName": "ID",
           "goType": "uint"
         },
         "dormID": {
@@ -218,7 +218,7 @@
       "properties": {
         "id": {
           "type": "integer",
-          "goName": "ID",
+          "goOtherName": "ID",
           "goType": "uint"
         },
         "neighborhoodID": {
@@ -244,7 +244,7 @@
       "properties": {
         "id": {
           "type": "integer",
-          "goName": "ID",
+          "goOtherName": "ID",
           "goType": "uint"
         },
         "number": {
@@ -265,7 +265,7 @@
       "properties": {
         "id": {
           "type": "integer",
-          "goName": "ID",
+          "goOtherName": "ID",
           "goType": "uint"
         },
         "name": {

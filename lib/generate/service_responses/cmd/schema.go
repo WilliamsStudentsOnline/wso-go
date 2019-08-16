@@ -58,12 +58,15 @@ type Type struct {
 	Media          *Type  `json:"media,omitempty"`          // section 4.3
 	BinaryEncoding string `json:"binaryEncoding,omitempty"` // section 4.3
 
-	// Custom Fields
-	GoName string `json:"goName,omitempty"`
+	/* Custom Fields: */
+
+	// GoType is the type of variable the model's field was (and thus what the converter's type must be). Rather than
+	// putting pointers here, put them
 	GoType string `json:"goType,omitempty"`
-	GoPtr  *bool  `json:"goPtr,omitempty"`
-	// This defaults to GoName and then to Name. This is the model's field name for this attribute.
+	// GoPtr dictates if the model's field was a pointer (so the converter should have a pointer)
+	GoPtr *bool `json:"goPtr,omitempty"`
+	// This defaults to Name. This is the model's field name for this attribute.
 	GoOtherName string `json:"goOtherName,omitempty"`
-	// Package for go other name
+	// This is the model's field's value's package.
 	GoOtherPackage string `json:"goOtherPackage,omitempty"`
 }
