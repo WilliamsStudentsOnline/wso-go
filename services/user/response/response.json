@@ -1,0 +1,327 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "$ref": "#/definitions/User",
+  "definitions": {
+    "User": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "student",
+            "professor",
+            "alum",
+            "staff"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "cellPhone": {
+          "type": "string"
+        },
+        "campusPhoneEXT": {
+          "type": "string"
+        },
+        "unixID": {
+          "type": "string"
+        },
+        "williamsEmail": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "visible": {
+          "type": "boolean"
+        },
+        "classYear": {
+          "type": "integer"
+        },
+        "dormVisible": {
+          "type": "boolean"
+        },
+        "homeTown": {
+          "type": "string"
+        },
+        "homeZip": {
+          "type": "string"
+        },
+        "homePhone": {
+          "type": "string"
+        },
+        "homeState": {
+          "type": "string"
+        },
+        "homeCountry": {
+          "type": "string"
+        },
+        "homeVisible": {
+          "type": "boolean"
+        },
+        "major": {
+          "type": "string"
+        },
+        "suBox": {
+          "type": "string"
+        },
+        "entry": {
+          "type": "string"
+        },
+        "admin": {
+          "type": "boolean"
+        },
+        "factrakAdmin": {
+          "type": "boolean"
+        },
+        "hasAcceptedFactrakPolicy": {
+          "type": "boolean"
+        },
+        "hasAcceptedDormtrakPolicy": {
+          "type": "boolean"
+        },
+        "departmentID": {
+          "type": "integer"
+        },
+        "department": {
+          "$ref": "#/definitions/Department"
+        },
+        "officeID": {
+          "type": "integer"
+        },
+        "office": {
+          "$ref": "#/definitions/Office"
+        },
+        "dormRoomID": {
+          "type": "integer"
+        },
+        "dormRoom": {
+          "$ref": "#/definitions/DormRoom"
+        },
+        "pronoun": {
+          "type": "string"
+        },
+        "atWilliams": {
+          "type": "boolean"
+        },
+        "offCycle": {
+          "type": "boolean"
+        },
+        "factrakSurveyDeficit": {
+          "type": "integer"
+        },
+        "optOutEphcatch": {
+          "type": "boolean"
+        },
+        "ephcatchEligibility": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "name",
+        "unixID",
+        "williamsEmail",
+        "visible",
+        "atWilliams",
+        "admin"
+      ],
+      "title": "User"
+    },
+    "Department": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ],
+      "title": "Department"
+    },
+    "DormRoom": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "dormID": {
+          "type": "integer"
+        },
+        "dorm": {
+          "$ref": "#/definitions/Dorm"
+        },
+        "number": {
+          "type": "string"
+        },
+        "closet": {
+          "type": "string"
+        },
+        "flooring": {
+          "type": "string"
+        },
+        "commonRoomAccess": {
+          "type": "boolean"
+        },
+        "commonRoomDesc": {
+          "type": "string"
+        },
+        "thermostatAccess": {
+          "type": "boolean"
+        },
+        "keyOrCard": {
+          "type": "string"
+        },
+        "noise": {
+          "type": "string"
+        },
+        "bedAdjustable": {
+          "type": "boolean"
+        },
+        "privateBathroom": {
+          "type": "string"
+        },
+        "bathroomDesc": {
+          "type": "string"
+        },
+        "picture": {
+          "type": "string"
+        },
+        "roomType": {
+          "type": "string",
+          "enum": [
+            "s",
+            "d",
+            "f",
+            "u"
+          ]
+        },
+        "faces": {
+          "type": "string"
+        },
+        "hc": {
+          "type": "boolean"
+        },
+        "floorNumber": {
+          "type": "integer"
+        },
+        "area": {
+          "type": "integer"
+        },
+        "walkthrough": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "number",
+        "roomType"
+      ],
+      "title": "DormRoom"
+    },
+    "Dorm": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "neighborhoodID": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "keyOrCard": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "built": {
+          "type": "string"
+        },
+        "capacity": {
+          "type": "integer"
+        },
+        "numberBathrooms": {
+          "type": "integer"
+        },
+        "numberSingles": {
+          "type": "integer"
+        },
+        "numberDoubles": {
+          "type": "integer"
+        },
+        "numberFlex": {
+          "type": "integer"
+        },
+        "numberWashers": {
+          "type": "integer"
+        },
+        "bathroomRatio": {
+          "type": "number"
+        },
+        "averageSingleArea": {
+          "type": "number"
+        },
+        "averageDoubleArea": {
+          "type": "number"
+        },
+        "modeSingleArea": {
+          "type": "integer"
+        },
+        "modeDoubleArea": {
+          "type": "integer"
+        },
+        "loudness": {
+          "type": "number"
+        },
+        "wifi": {
+          "type": "number"
+        },
+        "location": {
+          "type": "number"
+        },
+        "satisfaction": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "neighborhoodID"
+      ],
+      "title": "Dorm"
+    },
+    "Office": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "number": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "number"
+      ],
+      "title": "Office"
+    }
+  }
+}

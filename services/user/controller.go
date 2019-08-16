@@ -12,6 +12,7 @@ import (
 	search "github.com/WilliamsStudentsOnline/wso-go/lib/search/users"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
+	"github.com/WilliamsStudentsOnline/wso-go/services/user/response"
 	"github.com/disintegration/imaging"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -114,7 +115,7 @@ func (t *Controller) GetUser(c *gin.Context) {
 		return
 	}
 
-	t.RespondOK(c, user)
+	t.RespondOK(c, response.ConvertGetUserResponse(&user))
 }
 
 type UpdateUserParams struct {
@@ -188,6 +189,11 @@ func (t *Controller) UpdateUser(c *gin.Context) {
 	if err != nil {
 		t.RespondError(c, err)
 		return
+	}
+
+	// Update token if we change one of these
+	if user.HasAcceptedFactrakPolicy != nil || user.HasAcceptedDormtrakPolicy != nil {
+		c.Set(services.UpdateTokenKey, true)
 	}
 
 	// Return updated user
