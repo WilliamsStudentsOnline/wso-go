@@ -1,0 +1,284 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "title": "GetUserResponse",
+  "$ref": "#/definitions/User",
+  "definitions": {
+    "User": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "integer",
+          "goName": "ID",
+          "goType": "uint"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "student",
+            "professor",
+            "alum",
+            "staff"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "cellPhone": {
+          "type": "string"
+        },
+        "campusPhoneEXT": {
+          "type": "string",
+          "goName": "CampusPhoneExt"
+        },
+        "unixID": {
+          "type": "string"
+        },
+        "williamsEmail": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "visible": {
+          "type": "boolean",
+          "goPtr": true
+        },
+        "classYear": {
+          "type": "integer"
+        },
+        "dormVisible": {
+          "type": "boolean"
+        },
+        "homeTown": {
+          "type": "string"
+        },
+        "homeZip": {
+          "type": "string"
+        },
+        "homePhone": {
+          "type": "string"
+        },
+        "homeState": {
+          "type": "string"
+        },
+        "homeCountry": {
+          "type": "string"
+        },
+        "homeVisible": {
+          "type": "boolean"
+        },
+        "major": {
+          "type": "string"
+        },
+        "suBox": {
+          "type": "string",
+          "goName": "SUBox"
+        },
+        "entry": {
+          "type": "string"
+        },
+        "admin": {
+          "type": "boolean",
+          "goPtr": true
+        },
+        "factrakAdmin": {
+          "type": "boolean"
+        },
+        "hasAcceptedFactrakPolicy": {
+          "type": "boolean"
+        },
+        "hasAcceptedDormtrakPolicy": {
+          "type": "boolean"
+        },
+        "departmentID": {
+          "type": "integer",
+          "goType": "uint"
+        },
+        "department": {
+          "$ref": "#/definitions/Department"
+        },
+        "officeID": {
+          "type": "integer",
+          "goType": "uint"
+        },
+        "office": {
+          "$ref": "#/definitions/Office"
+        },
+        "dormRoomID": {
+          "type": "integer",
+          "goType": "uint"
+        },
+        "dormRoom": {
+          "$ref": "#/definitions/DormRoom"
+        },
+        "pronoun": {
+          "type": "string"
+        },
+        "atWilliams": {
+          "type": "boolean",
+          "goPtr": true
+        },
+        "offCycle": {
+          "type": "boolean"
+        },
+        "factrakSurveyDeficit": {
+          "type": "integer"
+        },
+        "optOutEphcatch": {
+          "type": "boolean"
+        },
+        "ephcatchEligibility": {
+          "type": "boolean"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Tag"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "name",
+        "unixID",
+        "williamsEmail",
+        "visible",
+        "atWilliams",
+        "admin"
+      ],
+      "title": "User",
+      "goOtherName": "User",
+      "goOtherPackage": "github.com/WilliamsStudentsOnline/wso-go/models"
+    },
+    "Department": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "integer",
+          "goName": "ID",
+          "goType": "uint"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ],
+      "title": "Department",
+      "goOtherName": "Department",
+      "goOtherPackage": "github.com/WilliamsStudentsOnline/wso-go/models"
+    },
+    "DormRoom": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "integer",
+          "goName": "ID",
+          "goType": "uint"
+        },
+        "dormID": {
+          "type": "integer",
+          "goType": "uint"
+        },
+        "dorm": {
+          "$ref": "#/definitions/Dorm"
+        },
+        "number": {
+          "type": "string"
+        },
+        "roomType": {
+          "type": "string",
+          "enum": [
+            "s",
+            "d",
+            "f",
+            "u"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "dormID",
+        "number",
+        "roomType"
+      ],
+      "title": "DormRoom",
+      "goOtherName": "DormRoom",
+      "goOtherPackage": "github.com/WilliamsStudentsOnline/wso-go/models"
+    },
+    "Dorm": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "integer",
+          "goName": "ID",
+          "goType": "uint"
+        },
+        "neighborhoodID": {
+          "type": "integer",
+          "goType": "uint"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "neighborhoodID"
+      ],
+      "title": "Dorm",
+      "goOtherName": "Dorm",
+      "goOtherPackage": "github.com/WilliamsStudentsOnline/wso-go/models"
+    },
+    "Office": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "integer",
+          "goName": "ID",
+          "goType": "uint"
+        },
+        "number": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "number"
+      ],
+      "title": "Office",
+      "goOtherName": "Office",
+      "goOtherPackage": "github.com/WilliamsStudentsOnline/wso-go/models"
+    },
+    "Tag": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "integer",
+          "goName": "ID",
+          "goType": "uint"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ],
+      "title": "Tag",
+      "goOtherName": "Tag",
+      "goOtherPackage": "github.com/WilliamsStudentsOnline/wso-go/models"
+    }
+  }
+}

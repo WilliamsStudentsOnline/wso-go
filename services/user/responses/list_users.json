@@ -1,13 +1,19 @@
 {
   "$schema": "http://json-schema.org/draft-06/schema#",
-  "$ref": "#/definitions/User",
+  "title": "ListUsersResponse",
+  "type": "array",
+  "items": {
+    "$ref": "#/definitions/User"
+  },
   "definitions": {
     "User": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
         "id": {
-          "type": "integer"
+          "type": "integer",
+          "goName": "ID",
+          "goType": "uint"
         },
         "type": {
           "type": "string",
@@ -25,7 +31,8 @@
           "type": "string"
         },
         "campusPhoneEXT": {
-          "type": "string"
+          "type": "string",
+          "goName": "CampusPhoneExt"
         },
         "unixID": {
           "type": "string"
@@ -37,7 +44,8 @@
           "type": "string"
         },
         "visible": {
-          "type": "boolean"
+          "type": "boolean",
+          "goPtr": true
         },
         "classYear": {
           "type": "integer"
@@ -67,13 +75,15 @@
           "type": "string"
         },
         "suBox": {
-          "type": "string"
+          "type": "string",
+          "goName": "SUBox"
         },
         "entry": {
           "type": "string"
         },
         "admin": {
-          "type": "boolean"
+          "type": "boolean",
+          "goPtr": true
         },
         "factrakAdmin": {
           "type": "boolean"
@@ -85,19 +95,22 @@
           "type": "boolean"
         },
         "departmentID": {
-          "type": "integer"
+          "type": "integer",
+          "goType": "uint"
         },
         "department": {
           "$ref": "#/definitions/Department"
         },
         "officeID": {
-          "type": "integer"
+          "type": "integer",
+          "goType": "uint"
         },
         "office": {
           "$ref": "#/definitions/Office"
         },
         "dormRoomID": {
-          "type": "integer"
+          "type": "integer",
+          "goType": "uint"
         },
         "dormRoom": {
           "$ref": "#/definitions/DormRoom"
@@ -106,7 +119,8 @@
           "type": "string"
         },
         "atWilliams": {
-          "type": "boolean"
+          "type": "boolean",
+          "goPtr": true
         },
         "offCycle": {
           "type": "boolean"
@@ -119,6 +133,12 @@
         },
         "ephcatchEligibility": {
           "type": "boolean"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Tag"
+          }
         }
       },
       "required": [
@@ -131,14 +151,18 @@
         "atWilliams",
         "admin"
       ],
-      "title": "User"
+      "title": "User",
+      "goOtherName": "User",
+      "goOtherPackage": "github.com/WilliamsStudentsOnline/wso-go/models"
     },
     "Department": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
         "id": {
-          "type": "integer"
+          "type": "integer",
+          "goName": "ID",
+          "goType": "uint"
         },
         "name": {
           "type": "string"
@@ -148,55 +172,27 @@
         "id",
         "name"
       ],
-      "title": "Department"
+      "title": "Department",
+      "goOtherName": "Department",
+      "goOtherPackage": "github.com/WilliamsStudentsOnline/wso-go/models"
     },
     "DormRoom": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
         "id": {
-          "type": "integer"
+          "type": "integer",
+          "goName": "ID",
+          "goType": "uint"
         },
         "dormID": {
-          "type": "integer"
+          "type": "integer",
+          "goType": "uint"
         },
         "dorm": {
           "$ref": "#/definitions/Dorm"
         },
         "number": {
-          "type": "string"
-        },
-        "closet": {
-          "type": "string"
-        },
-        "flooring": {
-          "type": "string"
-        },
-        "commonRoomAccess": {
-          "type": "boolean"
-        },
-        "commonRoomDesc": {
-          "type": "string"
-        },
-        "thermostatAccess": {
-          "type": "boolean"
-        },
-        "keyOrCard": {
-          "type": "string"
-        },
-        "noise": {
-          "type": "string"
-        },
-        "bedAdjustable": {
-          "type": "boolean"
-        },
-        "privateBathroom": {
-          "type": "string"
-        },
-        "bathroomDesc": {
-          "type": "string"
-        },
-        "picture": {
           "type": "string"
         },
         "roomType": {
@@ -207,96 +203,33 @@
             "f",
             "u"
           ]
-        },
-        "faces": {
-          "type": "string"
-        },
-        "hc": {
-          "type": "boolean"
-        },
-        "floorNumber": {
-          "type": "integer"
-        },
-        "area": {
-          "type": "integer"
-        },
-        "walkthrough": {
-          "type": "boolean"
         }
       },
       "required": [
         "id",
+        "dormID",
         "number",
         "roomType"
       ],
-      "title": "DormRoom"
+      "title": "DormRoom",
+      "goOtherName": "DormRoom",
+      "goOtherPackage": "github.com/WilliamsStudentsOnline/wso-go/models"
     },
     "Dorm": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
         "id": {
-          "type": "integer"
+          "type": "integer",
+          "goName": "ID",
+          "goType": "uint"
         },
         "neighborhoodID": {
-          "type": "integer"
+          "type": "integer",
+          "goType": "uint"
         },
         "name": {
           "type": "string"
-        },
-        "keyOrCard": {
-          "type": "string"
-        },
-        "description": {
-          "type": "string"
-        },
-        "built": {
-          "type": "string"
-        },
-        "capacity": {
-          "type": "integer"
-        },
-        "numberBathrooms": {
-          "type": "integer"
-        },
-        "numberSingles": {
-          "type": "integer"
-        },
-        "numberDoubles": {
-          "type": "integer"
-        },
-        "numberFlex": {
-          "type": "integer"
-        },
-        "numberWashers": {
-          "type": "integer"
-        },
-        "bathroomRatio": {
-          "type": "number"
-        },
-        "averageSingleArea": {
-          "type": "number"
-        },
-        "averageDoubleArea": {
-          "type": "number"
-        },
-        "modeSingleArea": {
-          "type": "integer"
-        },
-        "modeDoubleArea": {
-          "type": "integer"
-        },
-        "loudness": {
-          "type": "number"
-        },
-        "wifi": {
-          "type": "number"
-        },
-        "location": {
-          "type": "number"
-        },
-        "satisfaction": {
-          "type": "number"
         }
       },
       "required": [
@@ -304,14 +237,18 @@
         "name",
         "neighborhoodID"
       ],
-      "title": "Dorm"
+      "title": "Dorm",
+      "goOtherName": "Dorm",
+      "goOtherPackage": "github.com/WilliamsStudentsOnline/wso-go/models"
     },
     "Office": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
         "id": {
-          "type": "integer"
+          "type": "integer",
+          "goName": "ID",
+          "goType": "uint"
         },
         "number": {
           "type": "string"
@@ -321,7 +258,30 @@
         "id",
         "number"
       ],
-      "title": "Office"
+      "title": "Office",
+      "goOtherName": "Office",
+      "goOtherPackage": "github.com/WilliamsStudentsOnline/wso-go/models"
+    },
+    "Tag": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "integer",
+          "goName": "ID",
+          "goType": "uint"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ],
+      "title": "Tag",
+      "goOtherName": "Tag",
+      "goOtherPackage": "github.com/WilliamsStudentsOnline/wso-go/models"
     }
   }
 }

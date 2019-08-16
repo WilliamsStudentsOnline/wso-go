@@ -12,7 +12,7 @@ import (
 	search "github.com/WilliamsStudentsOnline/wso-go/lib/search/users"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
-	"github.com/WilliamsStudentsOnline/wso-go/services/user/response"
+	"github.com/WilliamsStudentsOnline/wso-go/services/user/responses"
 	"github.com/disintegration/imaging"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -31,6 +31,8 @@ func NewController(db *gorm.DB, cfg *config.Config) *Controller {
 		userSearch: search.NewSearchUsers(db, cfg),
 	}
 }
+
+//go:generate go run github.com/WilliamsStudentsOnline/wso-go/lib/generate/service_responses/cmd -in responses/list_users.json -out responses/list_users.go
 
 // ListUsers godoc
 // @Summary List users
@@ -69,8 +71,10 @@ func (t *Controller) ListUsers(c *gin.Context) {
 		return
 	}
 
-	t.RespondOK(c, users)
+	t.RespondOK(c, responses.ConvertListUsersResponse(users))
 }
+
+//go:generate go run github.com/WilliamsStudentsOnline/wso-go/lib/generate/service_responses/cmd -in responses/get_user.json -out responses/get_user.go
 
 // Get user by id. Pass "me" if you want to get self
 // GetUser godoc
@@ -115,7 +119,7 @@ func (t *Controller) GetUser(c *gin.Context) {
 		return
 	}
 
-	t.RespondOK(c, response.ConvertGetUserResponse(&user))
+	t.RespondOK(c, responses.ConvertGetUserResponse(&user))
 }
 
 type UpdateUserParams struct {
@@ -189,11 +193,6 @@ func (t *Controller) UpdateUser(c *gin.Context) {
 	if err != nil {
 		t.RespondError(c, err)
 		return
-	}
-
-	// Update token if we change one of these
-	if user.HasAcceptedFactrakPolicy != nil || user.HasAcceptedDormtrakPolicy != nil {
-		c.Set(services.UpdateTokenKey, true)
 	}
 
 	// Return updated user
