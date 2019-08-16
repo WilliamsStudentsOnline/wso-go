@@ -138,12 +138,14 @@ func (r *schemaRoot) ParseProperty(t *Type, name string) StructField {
 		structField.IsStruct = true
 		structField.Type = strcase.ToCamel(getRefName(t.Ref))
 		structField.Type = r.prefix + structField.Type
+		structField.JSONTag += ",omitempty"
 	} else if t.Type == "array" {
 		// If type is an array
 		structField.IsSlice = true
 		arrField := r.ParseProperty(t.Items, name)
 		structField.IsStruct = arrField.IsStruct
 		structField.Type = arrField.Type
+		structField.JSONTag += ",omitempty"
 	} else {
 		// Otherwise try to cast it
 		structField.Type = TypeMapping[t.Type]

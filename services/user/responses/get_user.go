@@ -51,7 +51,7 @@ func ConvertGetUserResponseDorm(m *models.Dorm) *GetUserResponseDorm {
 }
 
 type GetUserResponseDormRoom struct {
-	Dorm     *GetUserResponseDorm `json:"dorm"`
+	Dorm     *GetUserResponseDorm `json:"dorm,omitempty"`
 	DormID   uint                 `json:"dormID"`
 	ID       uint                 `json:"id"`
 	Number   string               `json:"number"`
@@ -116,9 +116,9 @@ type GetUserResponseUser struct {
 	CampusPhoneExt            *string                    `json:"campusPhoneEXT"`
 	CellPhone                 *string                    `json:"cellPhone"`
 	ClassYear                 *int                       `json:"classYear"`
-	Department                *GetUserResponseDepartment `json:"department"`
+	Department                *GetUserResponseDepartment `json:"department,omitempty"`
 	DepartmentID              *uint                      `json:"departmentID"`
-	DormRoom                  *GetUserResponseDormRoom   `json:"dormRoom"`
+	DormRoom                  *GetUserResponseDormRoom   `json:"dormRoom,omitempty"`
 	DormRoomID                *uint                      `json:"dormRoomID"`
 	DormVisible               *bool                      `json:"dormVisible"`
 	Entry                     *string                    `json:"entry"`
@@ -137,12 +137,12 @@ type GetUserResponseUser struct {
 	Major                     *string                    `json:"major"`
 	Name                      string                     `json:"name"`
 	OffCycle                  *bool                      `json:"offCycle"`
-	Office                    *GetUserResponseOffice     `json:"office"`
+	Office                    *GetUserResponseOffice     `json:"office,omitempty"`
 	OfficeID                  *uint                      `json:"officeID"`
 	OptOutEphcatch            *bool                      `json:"optOutEphcatch"`
 	Pronoun                   *string                    `json:"pronoun"`
 	SUBox                     *string                    `json:"suBox"`
-	Tags                      []*GetUserResponseTag      `json:"tags"`
+	Tags                      []*GetUserResponseTag      `json:"tags,omitempty"`
 	Title                     *string                    `json:"title"`
 	Type                      string                     `json:"type"`
 	UnixID                    string                     `json:"unixID"`
