@@ -80,7 +80,7 @@ func (o *GetAllBulletinsOptions) Run(db *gorm.DB) *gorm.DB {
 	if o.Type != nil {
 		if *o.Type == BulletinTypeAnnouncement || *o.Type == BulletinTypeExchange || *o.Type == BulletinTypeJob ||
 			*o.Type == BulletinTypeLostAndFound {
-			db = db.Where("bulletins.type = ?", o.Type)
+			db = db.Where("bulletins.type = ?", *o.Type)
 		}
 	}
 

@@ -222,6 +222,11 @@ func SetupConfig(c *Config) error {
 		return errors.New("unknown search backend")
 	}
 
+	// Default to port 8080
+	if c.Port == 0 {
+		c.Port = 8080
+	}
+
 	return nil
 }
 

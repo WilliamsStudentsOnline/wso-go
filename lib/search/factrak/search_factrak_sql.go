@@ -58,6 +58,7 @@ func (s *SearchFactrakMySQL) SearchCourses(query string, courses *[]*models.Cour
 	tx := s.DB.Model(&models.Course{}).
 		Where("courses.area_of_study_id IN (?)",
 			s.DB.Model(&models.AreaOfStudy{}).
+				Select("areas_of_study.id").
 				Where("lower(areas_of_study.name) LIKE ? "+
 					"OR lower(areas_of_study.name) LIKE ? "+
 					"OR areas_of_study.abbrev LIKE ? ",

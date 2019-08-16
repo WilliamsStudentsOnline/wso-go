@@ -91,7 +91,12 @@ func (m *UserModel) GetAllUsersByType(u *[]User, userType string) (err error) {
 }
 
 func (m *UserModel) GetUserByID(id uint, u *User) (err error) {
-	err = m.DB.Where(NewUserWithID(id)).Preload("Tags").First(u).Error
+	err = m.DB.Where(NewUserWithID(id)).
+		Preload("DormRoom").Preload("DormRoom.Dorm").
+		Preload("Tags").
+		Preload("Department").
+		Preload("Office").
+		First(u).Error
 	return
 }
 
@@ -487,7 +492,7 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 				} else {
 					var dormRoom DormRoom
 					err = m.DB.Where(&DormRoom{
-						Dorm:   &dorm,
+						DormID: dorm.ID,
 						Number: entry.GetAttributeValue("wmsDormAddr2"),
 					}).FirstOrCreate(&dormRoom).Error
 					if err != nil {
