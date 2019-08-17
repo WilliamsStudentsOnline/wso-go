@@ -3933,6 +3933,24 @@ paths:
         in: query
         name: limit
         type: integer
+      - description: Professor ID
+        in: query
+        name: professorID
+        type: integer
+      - description: Course ID
+        in: query
+        name: courseID
+        type: integer
+      - description: User ID (must be self or blank)
+        in: query
+        name: userID
+        type: integer
+      - description: Preload (course, professor)
+        in: query
+        items:
+          type: string
+        name: preload
+        type: array
       produces:
       - application/json
       responses:

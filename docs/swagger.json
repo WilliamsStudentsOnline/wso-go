@@ -4090,6 +4090,33 @@
                         "description": "Limit Pagination",
                         "name": "limit",
                         "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Professor ID",
+                        "name": "professorID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Course ID",
+                        "name": "courseID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "User ID (must be self or blank)",
+                        "name": "userID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Preload (course, professor)",
+                        "name": "preload",
+                        "in": "query"
                     }
                 ],
                 "responses": {

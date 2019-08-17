@@ -22,19 +22,34 @@ import (
 // @Produce  json
 // @Param offset query string false "Offset Pagination (timestamp)"
 // @Param limit query int false "Limit Pagination"
+// @Param professorID query int false "Professor ID"
+// @Param courseID query int false "Course ID"
+// @Param userID query int false "User ID (must be self or blank)"
+// @Param preload query []string false "Preload (course, professor)"
 // @Success 200 {array} models.FactrakSurvey
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
 // @Router /factrak/surveys [get]
 func (t *Controller) ListSurveys(c *gin.Context) {
-	var surveys []*models.FactrakSurvey
-	pOff, pLim, err := GetSurveyPaginationParams(c)
+	userID := services.GetUserID(c)
+	params := models.GetAllFactrakSurveysOptions{}
+
+	err := c.ShouldBindQuery(&params)
 	if err != nil {
 		t.RespondError(c, err)
 		return
 	}
 
-	err = t.surveyModel.GetAllSurveys(&surveys, t.surveyModel.NewSurveyPaginate(pOff, pLim))
+	// Filter what is allowed in options
+
+	// If we pass the userID params, we be that user
+	if params.UserID != nil && *params.UserID != userID {
+		t.RespondError(c, lib.ErrorMustBeSelf)
+		return
+	}
+
+	var surveys []*models.FactrakSurvey
+	err = t.surveyModel.GetAllSurveys(&surveys, &params)
 
 	if err != nil {
 		t.RespondError(c, err)
@@ -529,18 +544,6 @@ func GetSurveyPaginationParams(ctx *gin.Context) (offset time.Time, limit int, e
 	err = ctx.ShouldBindQuery(&pp)
 	if err != nil {
 		return
-	}
-
-	if pp.Limit == nil {
-		return
-	}
-
-	if pp.Offset != nil {
-		offset = *pp.Offset
-	}
-
-	if pp.Limit != nil {
-		limit = *pp.Limit
 	}
 
 	return

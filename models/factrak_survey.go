@@ -21,11 +21,15 @@ func NewFactrakSurveyModel(db *gorm.DB) *FactrakSurveyModel {
 }
 
 // Gets all surveys.
-func (m *FactrakSurveyModel) GetAllSurveys(p *[]*FactrakSurvey, paginator Paginator) (err error) {
+func (m *FactrakSurveyModel) GetAllSurveys(p *[]*FactrakSurvey, opts *GetAllFactrakSurveysOptions) (err error) {
 	err = m.GetAllSurveysWithOptions(p, &GetAllFactrakSurveysOptions{
-		Paginator:      paginator,
+		ProfessorID:    opts.ProfessorID,
+		CourseID:       opts.CourseID,
+		UserID:         opts.UserID,
+		Offset:         opts.Offset,
+		Limit:          opts.Limit,
+		Preload:        opts.Preload,
 		ProfAtWilliams: true,
-		Preload:        []string{"course"},
 	})
 	return
 }
@@ -46,11 +50,11 @@ type GetAllFactrakSurveysOptions struct {
 	Preload []string `json:"preload" form:"preload[]"`
 
 	// Scope to only get flagged surveys. True means only get flagged; false/empty means ignore this scope.
-	Flagged bool `json:"commented" form:"commented"`
+	Flagged bool `json:"-" form:"-"`
 
 	// Scope to only get surveys where the professor is at williams. True means only get profs at Williams;
 	// false/empty means ignore this scope.
-	ProfAtWilliams bool `json:"profAtWilliams" form:"profAtWilliams"`
+	ProfAtWilliams bool `json:"-" form:"-"`
 }
 
 func (o *GetAllFactrakSurveysOptions) Order(db *gorm.DB) *gorm.DB {
