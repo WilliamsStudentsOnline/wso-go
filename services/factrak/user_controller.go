@@ -31,6 +31,7 @@ import (
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
 // @Router /factrak/users/{userID}/surveys [get]
+// @Deprecated
 func (t *Controller) ListUserSurveys(c *gin.Context) {
 	// Decode userID.
 	userID, err := services.GetUIntParam(c, "userID")

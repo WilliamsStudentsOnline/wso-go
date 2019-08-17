@@ -117,6 +117,7 @@ func (t *Controller) GetProfessor(c *gin.Context) {
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
 // @Router /factrak/professors/{professorID}/surveys [get]
+// @Deprecated
 func (t *Controller) ListProfessorSurveys(c *gin.Context) {
 	// Decode professorID.
 	profID, err := services.GetUIntParam(c, "professorID")

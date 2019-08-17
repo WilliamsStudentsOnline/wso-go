@@ -3524,6 +3524,7 @@ paths:
     get:
       consumes:
       - application/json
+      deprecated: true
       description: list one course's surveys
       operationId: factrak-list-course-surveys
       parameters:
@@ -3883,6 +3884,7 @@ paths:
     get:
       consumes:
       - application/json
+      deprecated: true
       description: list one professor's surveys
       operationId: factrak-list-professor-surveys
       parameters:
@@ -4413,6 +4415,7 @@ paths:
     get:
       consumes:
       - application/json
+      deprecated: true
       description: list one user's surveys
       operationId: factrak-list-user-surveys
       parameters:

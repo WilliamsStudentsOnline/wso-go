@@ -3465,6 +3465,7 @@
                 ],
                 "summary": "List course surveys",
                 "operationId": "factrak-list-course-surveys",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "integer",
@@ -4019,6 +4020,7 @@
                 ],
                 "summary": "List professor surveys",
                 "operationId": "factrak-list-professor-surveys",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "integer",
@@ -4826,6 +4828,7 @@
                 ],
                 "summary": "List user surveys",
                 "operationId": "factrak-list-user-surveys",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "integer",
