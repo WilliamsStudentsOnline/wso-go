@@ -4910,7 +4910,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.User"
+                                "$ref": "#/definitions/responses.ListUsersResponseUser"
                             }
                         }
                     },
@@ -4973,7 +4973,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/responses.GetUserResponseUser"
                         }
                     },
                     "404": {
@@ -6579,6 +6579,386 @@
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.Tag"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "unixID": {
+                    "type": "string"
+                },
+                "visible": {
+                    "type": "boolean"
+                },
+                "williamsEmail": {
+                    "type": "string"
+                }
+            }
+        },
+        "responses.GetUserResponseDepartment": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "responses.GetUserResponseDorm": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "neighborhoodID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "responses.GetUserResponseDormRoom": {
+            "type": "object",
+            "properties": {
+                "dorm": {
+                    "type": "object",
+                    "$ref": "#/definitions/responses.GetUserResponseDorm"
+                },
+                "dormID": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "number": {
+                    "type": "string"
+                },
+                "roomType": {
+                    "type": "string"
+                }
+            }
+        },
+        "responses.GetUserResponseOffice": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "number": {
+                    "type": "string"
+                }
+            }
+        },
+        "responses.GetUserResponseTag": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "responses.GetUserResponseUser": {
+            "type": "object",
+            "properties": {
+                "admin": {
+                    "type": "boolean"
+                },
+                "atWilliams": {
+                    "type": "boolean"
+                },
+                "campusPhoneEXT": {
+                    "type": "string"
+                },
+                "cellPhone": {
+                    "type": "string"
+                },
+                "classYear": {
+                    "type": "integer"
+                },
+                "department": {
+                    "type": "object",
+                    "$ref": "#/definitions/responses.GetUserResponseDepartment"
+                },
+                "departmentID": {
+                    "type": "integer"
+                },
+                "dormRoom": {
+                    "type": "object",
+                    "$ref": "#/definitions/responses.GetUserResponseDormRoom"
+                },
+                "dormRoomID": {
+                    "type": "integer"
+                },
+                "dormVisible": {
+                    "type": "boolean"
+                },
+                "entry": {
+                    "type": "string"
+                },
+                "ephcatchEligibility": {
+                    "type": "boolean"
+                },
+                "factrakAdmin": {
+                    "type": "boolean"
+                },
+                "factrakSurveyDeficit": {
+                    "type": "integer"
+                },
+                "hasAcceptedDormtrakPolicy": {
+                    "type": "boolean"
+                },
+                "hasAcceptedFactrakPolicy": {
+                    "type": "boolean"
+                },
+                "homeCountry": {
+                    "type": "string"
+                },
+                "homePhone": {
+                    "type": "string"
+                },
+                "homeState": {
+                    "type": "string"
+                },
+                "homeTown": {
+                    "type": "string"
+                },
+                "homeVisible": {
+                    "type": "boolean"
+                },
+                "homeZip": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "major": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "offCycle": {
+                    "type": "boolean"
+                },
+                "office": {
+                    "type": "object",
+                    "$ref": "#/definitions/responses.GetUserResponseOffice"
+                },
+                "officeID": {
+                    "type": "integer"
+                },
+                "optOutEphcatch": {
+                    "type": "boolean"
+                },
+                "pronoun": {
+                    "type": "string"
+                },
+                "suBox": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/responses.GetUserResponseTag"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "unixID": {
+                    "type": "string"
+                },
+                "visible": {
+                    "type": "boolean"
+                },
+                "williamsEmail": {
+                    "type": "string"
+                }
+            }
+        },
+        "responses.ListUsersResponseDepartment": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "responses.ListUsersResponseDorm": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "neighborhoodID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "responses.ListUsersResponseDormRoom": {
+            "type": "object",
+            "properties": {
+                "dorm": {
+                    "type": "object",
+                    "$ref": "#/definitions/responses.ListUsersResponseDorm"
+                },
+                "dormID": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "number": {
+                    "type": "string"
+                },
+                "roomType": {
+                    "type": "string"
+                }
+            }
+        },
+        "responses.ListUsersResponseOffice": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "number": {
+                    "type": "string"
+                }
+            }
+        },
+        "responses.ListUsersResponseTag": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "responses.ListUsersResponseUser": {
+            "type": "object",
+            "properties": {
+                "admin": {
+                    "type": "boolean"
+                },
+                "atWilliams": {
+                    "type": "boolean"
+                },
+                "campusPhoneEXT": {
+                    "type": "string"
+                },
+                "cellPhone": {
+                    "type": "string"
+                },
+                "classYear": {
+                    "type": "integer"
+                },
+                "department": {
+                    "type": "object",
+                    "$ref": "#/definitions/responses.ListUsersResponseDepartment"
+                },
+                "departmentID": {
+                    "type": "integer"
+                },
+                "dormRoom": {
+                    "type": "object",
+                    "$ref": "#/definitions/responses.ListUsersResponseDormRoom"
+                },
+                "dormRoomID": {
+                    "type": "integer"
+                },
+                "dormVisible": {
+                    "type": "boolean"
+                },
+                "entry": {
+                    "type": "string"
+                },
+                "ephcatchEligibility": {
+                    "type": "boolean"
+                },
+                "factrakAdmin": {
+                    "type": "boolean"
+                },
+                "factrakSurveyDeficit": {
+                    "type": "integer"
+                },
+                "hasAcceptedDormtrakPolicy": {
+                    "type": "boolean"
+                },
+                "hasAcceptedFactrakPolicy": {
+                    "type": "boolean"
+                },
+                "homeCountry": {
+                    "type": "string"
+                },
+                "homePhone": {
+                    "type": "string"
+                },
+                "homeState": {
+                    "type": "string"
+                },
+                "homeTown": {
+                    "type": "string"
+                },
+                "homeVisible": {
+                    "type": "boolean"
+                },
+                "homeZip": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "major": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "offCycle": {
+                    "type": "boolean"
+                },
+                "office": {
+                    "type": "object",
+                    "$ref": "#/definitions/responses.ListUsersResponseOffice"
+                },
+                "officeID": {
+                    "type": "integer"
+                },
+                "optOutEphcatch": {
+                    "type": "boolean"
+                },
+                "pronoun": {
+                    "type": "string"
+                },
+                "suBox": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/responses.ListUsersResponseTag"
                     }
                 },
                 "title": {

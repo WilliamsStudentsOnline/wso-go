@@ -12,6 +12,7 @@ import (
 	search "github.com/WilliamsStudentsOnline/wso-go/lib/search/users"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
+	"github.com/WilliamsStudentsOnline/wso-go/services/user/responses"
 	"github.com/disintegration/imaging"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -31,6 +32,8 @@ func NewController(db *gorm.DB, cfg *config.Config) *Controller {
 	}
 }
 
+//go:generate go run github.com/WilliamsStudentsOnline/wso-go/lib/generate/service_responses/cmd -in responses/list_users.json -out responses/list_users.go
+
 // ListUsers godoc
 // @Summary List users
 // @Description Get all users that are visible and at williams.
@@ -43,7 +46,7 @@ func NewController(db *gorm.DB, cfg *config.Config) *Controller {
 // @Param limit query int false "Limit Pagination"
 // @Param preload query []string false "Preload List"
 // @Param q query string false "Search Query"
-// @Success 200 {array} models.User
+// @Success 200 {array} responses.ListUsersResponseUser
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
 // @Router /users [get]
@@ -68,8 +71,10 @@ func (t *Controller) ListUsers(c *gin.Context) {
 		return
 	}
 
-	t.RespondOK(c, users)
+	t.RespondOK(c, responses.ConvertListUsersResponse(users))
 }
+
+//go:generate go run github.com/WilliamsStudentsOnline/wso-go/lib/generate/service_responses/cmd -in responses/get_user.json -out responses/get_user.go
 
 // Get user by id. Pass "me" if you want to get self
 // GetUser godoc
@@ -80,7 +85,7 @@ func (t *Controller) ListUsers(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param userID path uint true "User ID"
-// @Success 200 {object} models.User
+// @Success 200 {object} responses.GetUserResponseUser
 // @Failure 1403 {object} lib.APIError "user not visible"
 // @Failure 1404 {object} lib.APIError "user not at williams"
 // @Failure 1405 {object} lib.APIError "user id could not be parsed"
@@ -114,7 +119,7 @@ func (t *Controller) GetUser(c *gin.Context) {
 		return
 	}
 
-	t.RespondOK(c, user)
+	t.RespondOK(c, responses.ConvertGetUserResponse(&user))
 }
 
 type UpdateUserParams struct {

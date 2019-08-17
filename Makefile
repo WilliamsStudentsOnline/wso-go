@@ -3,19 +3,27 @@ rwildcard=$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst 
 
 BINARY_NAME=wso-backend
 DOCKER_TAG=wso-backend
+GIT_REPO=github.com/WilliamsStudentsOnline/wso-go
 BUILD_DIRS = config db lib models server services
 BUILD_DEPS = $(call rwildcard, $(BUILD_DIRS), *.go) jobs/jobs.go $(wildcard jobs/*/*.go) jobs/dorms_update/cmd/data.go docs/docs.go
-
+SERVICE_DIRS = $(wildcard services/*)
 
 $(BINARY_NAME): $(BUILD_DEPS)
 	go build -tags=jsoniter -o wso-backend ./server/cmd
 
 jobs/dorms_update/cmd/data.go: $(wildcard jobs/dorms_update/data/*) jobs/dorms_update/cmd/gen.go
-	go generate github.com/WilliamsStudentsOnline/wso-go/jobs/dorms_update/cmd
+	go generate $(GIT_REPO)/jobs/dorms_update/cmd
 
 docs/docs.go docs/swagger.json docs/swagger.yaml: $(wildcard models/*.go) $(wildcard services/**/*.go) server/router.go
 	swag init -g server/router.go
 	goimports -w docs/docs.go
+
+services/*/responses/%.go: services/*/responses/%.json
+	go run $(GIT_REPO)/lib/generate/service_responses/cmd -in $< -out $@
+
+.PHONY: go-gen
+go-gen:
+	go generate $(GIT_REPO)/...
 
 .PHONY: fmt
 fmt:

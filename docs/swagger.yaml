@@ -999,6 +999,258 @@ definitions:
       williamsEmail:
         type: string
     type: object
+  responses.GetUserResponseDepartment:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  responses.GetUserResponseDorm:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      neighborhoodID:
+        type: integer
+    type: object
+  responses.GetUserResponseDormRoom:
+    properties:
+      dorm:
+        $ref: '#/definitions/responses.GetUserResponseDorm'
+        type: object
+      dormID:
+        type: integer
+      id:
+        type: integer
+      number:
+        type: string
+      roomType:
+        type: string
+    type: object
+  responses.GetUserResponseOffice:
+    properties:
+      id:
+        type: integer
+      number:
+        type: string
+    type: object
+  responses.GetUserResponseTag:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  responses.GetUserResponseUser:
+    properties:
+      admin:
+        type: boolean
+      atWilliams:
+        type: boolean
+      campusPhoneEXT:
+        type: string
+      cellPhone:
+        type: string
+      classYear:
+        type: integer
+      department:
+        $ref: '#/definitions/responses.GetUserResponseDepartment'
+        type: object
+      departmentID:
+        type: integer
+      dormRoom:
+        $ref: '#/definitions/responses.GetUserResponseDormRoom'
+        type: object
+      dormRoomID:
+        type: integer
+      dormVisible:
+        type: boolean
+      entry:
+        type: string
+      ephcatchEligibility:
+        type: boolean
+      factrakAdmin:
+        type: boolean
+      factrakSurveyDeficit:
+        type: integer
+      hasAcceptedDormtrakPolicy:
+        type: boolean
+      hasAcceptedFactrakPolicy:
+        type: boolean
+      homeCountry:
+        type: string
+      homePhone:
+        type: string
+      homeState:
+        type: string
+      homeTown:
+        type: string
+      homeVisible:
+        type: boolean
+      homeZip:
+        type: string
+      id:
+        type: integer
+      major:
+        type: string
+      name:
+        type: string
+      offCycle:
+        type: boolean
+      office:
+        $ref: '#/definitions/responses.GetUserResponseOffice'
+        type: object
+      officeID:
+        type: integer
+      optOutEphcatch:
+        type: boolean
+      pronoun:
+        type: string
+      suBox:
+        type: string
+      tags:
+        items:
+          $ref: '#/definitions/responses.GetUserResponseTag'
+        type: array
+      title:
+        type: string
+      type:
+        type: string
+      unixID:
+        type: string
+      visible:
+        type: boolean
+      williamsEmail:
+        type: string
+    type: object
+  responses.ListUsersResponseDepartment:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  responses.ListUsersResponseDorm:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      neighborhoodID:
+        type: integer
+    type: object
+  responses.ListUsersResponseDormRoom:
+    properties:
+      dorm:
+        $ref: '#/definitions/responses.ListUsersResponseDorm'
+        type: object
+      dormID:
+        type: integer
+      id:
+        type: integer
+      number:
+        type: string
+      roomType:
+        type: string
+    type: object
+  responses.ListUsersResponseOffice:
+    properties:
+      id:
+        type: integer
+      number:
+        type: string
+    type: object
+  responses.ListUsersResponseTag:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  responses.ListUsersResponseUser:
+    properties:
+      admin:
+        type: boolean
+      atWilliams:
+        type: boolean
+      campusPhoneEXT:
+        type: string
+      cellPhone:
+        type: string
+      classYear:
+        type: integer
+      department:
+        $ref: '#/definitions/responses.ListUsersResponseDepartment'
+        type: object
+      departmentID:
+        type: integer
+      dormRoom:
+        $ref: '#/definitions/responses.ListUsersResponseDormRoom'
+        type: object
+      dormRoomID:
+        type: integer
+      dormVisible:
+        type: boolean
+      entry:
+        type: string
+      ephcatchEligibility:
+        type: boolean
+      factrakAdmin:
+        type: boolean
+      factrakSurveyDeficit:
+        type: integer
+      hasAcceptedDormtrakPolicy:
+        type: boolean
+      hasAcceptedFactrakPolicy:
+        type: boolean
+      homeCountry:
+        type: string
+      homePhone:
+        type: string
+      homeState:
+        type: string
+      homeTown:
+        type: string
+      homeVisible:
+        type: boolean
+      homeZip:
+        type: string
+      id:
+        type: integer
+      major:
+        type: string
+      name:
+        type: string
+      offCycle:
+        type: boolean
+      office:
+        $ref: '#/definitions/responses.ListUsersResponseOffice'
+        type: object
+      officeID:
+        type: integer
+      optOutEphcatch:
+        type: boolean
+      pronoun:
+        type: string
+      suBox:
+        type: string
+      tags:
+        items:
+          $ref: '#/definitions/responses.ListUsersResponseTag'
+        type: array
+      title:
+        type: string
+      type:
+        type: string
+      unixID:
+        type: string
+      visible:
+        type: boolean
+      williamsEmail:
+        type: string
+    type: object
   server.HealthCheckResponse:
     properties:
       ok:
@@ -4221,7 +4473,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.User'
+              $ref: '#/definitions/responses.ListUsersResponseUser'
             type: array
         "500":
           description: Internal Server Error
@@ -4251,7 +4503,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.User'
+            $ref: '#/definitions/responses.GetUserResponseUser'
         "404":
           description: Not Found
           schema:
