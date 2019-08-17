@@ -106,10 +106,11 @@ func (t *Controller) GetProfessor(c *gin.Context) {
 // @Tags factrak
 // @Accept  json
 // @Produce  json
-// @Param courseID query uint false "Course ID"
 // @Param professorID path uint true "Professor ID"
 // @Param offset query string false "Offset Pagination (timestamp)"
 // @Param limit query int false "Limit Pagination"
+// @Param courseID query int false "Course ID"
+// @Param preload query []string false "Preload (course, professor)"
 // @Success 200 {array} models.FactrakSurvey
 // @Failure 400 {object} lib.APIError
 // @Failure 404 {object} lib.APIError
@@ -135,22 +136,17 @@ func (t *Controller) ListProfessorSurveys(c *gin.Context) {
 		return
 	}
 
-	courseID := t.getQueryID(c, "courseID")
-	if c.IsAborted() {
-		return
-	}
-
-	// Do database query
-	var surveys []*models.FactrakSurvey
-
-	pOff, pLim, err := GetSurveyPaginationParams(c)
+	params := models.GetAllFactrakSurveysOptions{}
+	err = c.ShouldBindQuery(&params)
 	if err != nil {
 		t.RespondError(c, err)
 		return
 	}
 
-	// We already know prof is at williams, so we don't need ot do the join
-	err = t.surveyModel.GetSurveysByProfessorOrCourse(&profID, courseID, false, &surveys, t.surveyModel.NewSurveyPaginate(pOff, pLim))
+	// Do database query
+	var surveys []*models.FactrakSurvey
+	// We already know prof is at williams, so we don't need to do the join
+	err = t.surveyModel.GetSurveysByProfessor(profID, &surveys, &params)
 	if err != nil {
 		t.RespondError(c, err)
 		return

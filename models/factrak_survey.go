@@ -134,12 +134,13 @@ func (m *FactrakSurveyModel) GetAllSurveysWithOptions(p *[]*FactrakSurvey, opts 
 }
 
 // Gets all flagged surveys.
-func (m *FactrakSurveyModel) GetAllFlaggedSurveys(p *[]*FactrakSurvey, paginator Paginator) (err error) {
+func (m *FactrakSurveyModel) GetAllFlaggedSurveys(p *[]*FactrakSurvey, opts *GetAllFactrakSurveysOptions) (err error) {
 	err = m.GetAllSurveysWithOptions(p, &GetAllFactrakSurveysOptions{
-		Paginator:      paginator,
+		Offset:         opts.Offset,
+		Limit:          opts.Limit,
+		Preload:        opts.Preload,
 		ProfAtWilliams: true,
 		Flagged:        true,
-		Preload:        []string{"course", "professor"},
 	})
 	return
 }
@@ -216,52 +217,39 @@ func (m *FactrakSurveyModel) SetSurveyFlag(id uint, flag bool) (err error) {
 	return
 }
 
-// Gets surveys by professor id, course id, or both.
-func (m *FactrakSurveyModel) GetSurveysByProfessorOrCourse(profID *uint, courseID *uint, profAtWilliams bool, fs *[]*FactrakSurvey, paginator Paginator) (err error) {
-	var preload []string
-	if profID == nil {
-		preload = append(preload, "professor")
-	}
-	if courseID == nil {
-		preload = append(preload, "course")
-	}
-
+func (m *FactrakSurveyModel) GetSurveysByProfessor(profID uint, fs *[]*FactrakSurvey, opts *GetAllFactrakSurveysOptions) (err error) {
 	err = m.GetAllSurveysWithOptions(fs, &GetAllFactrakSurveysOptions{
-		Paginator:      paginator,
-		ProfAtWilliams: profAtWilliams,
-		ProfessorID:    profID,
-		CourseID:       courseID,
-		Preload:        preload,
-	})
-	return
-}
-
-func (m *FactrakSurveyModel) GetSurveysByProfessor(profID uint, fs *[]*FactrakSurvey, paginator Paginator) (err error) {
-	err = m.GetAllSurveysWithOptions(fs, &GetAllFactrakSurveysOptions{
-		Paginator:      paginator,
-		ProfAtWilliams: true,
 		ProfessorID:    &profID,
-		Preload:        []string{"course"},
+		CourseID:       opts.CourseID,
+		Offset:         opts.Offset,
+		Limit:          opts.Limit,
+		Preload:        opts.Preload,
+		ProfAtWilliams: false,
 	})
 	return
 }
 
-func (m *FactrakSurveyModel) GetSurveysByAuthor(authorUserID uint, fs *[]*FactrakSurvey, paginator Paginator) (err error) {
+func (m *FactrakSurveyModel) GetSurveysByAuthor(authorUserID uint, fs *[]*FactrakSurvey, opts *GetAllFactrakSurveysOptions) (err error) {
 	err = m.GetAllSurveysWithOptions(fs, &GetAllFactrakSurveysOptions{
-		Paginator:      paginator,
-		ProfAtWilliams: true,
+		ProfessorID:    opts.ProfessorID,
+		CourseID:       opts.CourseID,
 		UserID:         &authorUserID,
-		Preload:        []string{"course", "professor"},
+		Offset:         opts.Offset,
+		Limit:          opts.Limit,
+		Preload:        opts.Preload,
+		ProfAtWilliams: true,
 	})
 	return
 }
 
-func (m *FactrakSurveyModel) GetSurveysByCourse(courseID uint, fs *[]*FactrakSurvey, paginator Paginator) (err error) {
+func (m *FactrakSurveyModel) GetSurveysByCourse(courseID uint, fs *[]*FactrakSurvey, opts *GetAllFactrakSurveysOptions) (err error) {
 	err = m.GetAllSurveysWithOptions(fs, &GetAllFactrakSurveysOptions{
-		Paginator:      paginator,
-		ProfAtWilliams: true,
+		ProfessorID:    opts.ProfessorID,
 		CourseID:       &courseID,
-		Preload:        []string{"professor"},
+		Offset:         opts.Offset,
+		Limit:          opts.Limit,
+		Preload:        opts.Preload,
+		ProfAtWilliams: true,
 	})
 	return
 }

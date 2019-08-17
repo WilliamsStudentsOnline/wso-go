@@ -2878,6 +2878,15 @@
                         "description": "Limit Pagination",
                         "name": "limit",
                         "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Preload (course, professor)",
+                        "name": "preload",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -3459,12 +3468,6 @@
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Professor ID",
-                        "name": "professorID",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
                         "description": "Course ID",
                         "name": "courseID",
                         "in": "path",
@@ -3480,6 +3483,21 @@
                         "type": "integer",
                         "description": "Limit Pagination",
                         "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Professor ID",
+                        "name": "professorID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Preload (course, professor)",
+                        "name": "preload",
                         "in": "query"
                     }
                 ],
@@ -4004,12 +4022,6 @@
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Course ID",
-                        "name": "courseID",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
                         "description": "Professor ID",
                         "name": "professorID",
                         "in": "path",
@@ -4025,6 +4037,21 @@
                         "type": "integer",
                         "description": "Limit Pagination",
                         "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Course ID",
+                        "name": "courseID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Preload (course, professor)",
+                        "name": "preload",
                         "in": "query"
                     }
                 ],
@@ -4817,6 +4844,27 @@
                         "type": "integer",
                         "description": "Limit Pagination",
                         "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Professor ID",
+                        "name": "professorID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Course ID",
+                        "name": "courseID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Preload (course, professor)",
+                        "name": "preload",
                         "in": "query"
                     }
                 ],

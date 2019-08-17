@@ -3,7 +3,6 @@ package factrak
 import (
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
@@ -531,20 +530,4 @@ func (t *Controller) FlagSurvey(c *gin.Context) {
 
 	// We know user is owner, so don't need to delete user fields
 	t.RespondOK(c, nil)
-}
-
-type SurveyPaginationParams struct {
-	Offset *time.Time `json:"offset" form:"offset"`
-	Limit  *int       `json:"limit" form:"limit"`
-}
-
-func GetSurveyPaginationParams(ctx *gin.Context) (offset time.Time, limit int, err error) {
-	pp := SurveyPaginationParams{}
-
-	err = ctx.ShouldBindQuery(&pp)
-	if err != nil {
-		return
-	}
-
-	return
 }

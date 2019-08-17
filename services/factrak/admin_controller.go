@@ -16,19 +16,22 @@ import (
 // @Produce  json
 // @Param offset query string false "Offset Pagination (timestamp)"
 // @Param limit query int false "Limit Pagination"
+// @Param preload query []string false "Preload (course, professor)"
 // @Success 200 {array} models.FactrakSurvey
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
 // @Router /factrak/admin/surveys [get]
 func (t *Controller) ListFlaggedSurveys(c *gin.Context) {
 	var surveys []*models.FactrakSurvey
-	pOff, pLim, err := GetSurveyPaginationParams(c)
+
+	params := models.GetAllFactrakSurveysOptions{}
+	err := c.ShouldBindQuery(&params)
 	if err != nil {
 		t.RespondError(c, err)
 		return
 	}
 
-	err = t.surveyModel.GetAllFlaggedSurveys(&surveys, t.surveyModel.NewSurveyPaginate(pOff, pLim))
+	err = t.surveyModel.GetAllFlaggedSurveys(&surveys, &params)
 
 	if err != nil {
 		t.RespondError(c, err)

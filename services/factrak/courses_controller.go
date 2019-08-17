@@ -104,10 +104,11 @@ func (t *Controller) GetCourse(c *gin.Context) {
 // @Tags factrak
 // @Accept  json
 // @Produce  json
-// @Param professorID query uint false "Professor ID"
 // @Param courseID path uint true "Course ID"
 // @Param offset query string false "Offset Pagination (timestamp)"
 // @Param limit query int false "Limit Pagination"
+// @Param professorID query int false "Professor ID"
+// @Param preload query []string false "Preload (course, professor)"
 // @Success 200 {array} models.FactrakSurvey
 // @Failure 400 {object} lib.APIError
 // @Failure 404 {object} lib.APIError
@@ -132,21 +133,16 @@ func (t *Controller) ListCourseSurveys(c *gin.Context) {
 		return
 	}
 
-	profID := t.getQueryID(c, "professorID")
-	if c.IsAborted() {
-		return
-	}
-
-	// Do database query
-	var surveys []*models.FactrakSurvey
-
-	pOff, pLim, err := GetSurveyPaginationParams(c)
+	params := models.GetAllFactrakSurveysOptions{}
+	err = c.ShouldBindQuery(&params)
 	if err != nil {
 		t.RespondError(c, err)
 		return
 	}
 
-	err = t.surveyModel.GetSurveysByProfessorOrCourse(profID, &courseID, true, &surveys, t.surveyModel.NewSurveyPaginate(pOff, pLim))
+	// Do database query
+	var surveys []*models.FactrakSurvey
+	err = t.surveyModel.GetSurveysByCourse(courseID, &surveys, &params)
 	if err != nil {
 		t.RespondError(c, err)
 		return

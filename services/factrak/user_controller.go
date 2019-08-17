@@ -21,6 +21,9 @@ import (
 // @Param userID path uint true "User ID"
 // @Param offset query string false "Offset Pagination (timestamp)"
 // @Param limit query int false "Limit Pagination"
+// @Param professorID query int false "Professor ID"
+// @Param courseID query int false "Course ID"
+// @Param preload query []string false "Preload (course, professor)"
 // @Success 200 {array} models.FactrakSurvey
 // @Failure 1331 {object} lib.APIError "must be self"
 // @Failure 400 {object} lib.APIError
@@ -53,16 +56,16 @@ func (t *Controller) ListUserSurveys(c *gin.Context) {
 		return
 	}
 
-	// Do database query
-	var surveys []*models.FactrakSurvey
-
-	pOff, pLim, err := GetSurveyPaginationParams(c)
+	params := models.GetAllFactrakSurveysOptions{}
+	err = c.ShouldBindQuery(&params)
 	if err != nil {
 		t.RespondError(c, err)
 		return
 	}
 
-	err = t.surveyModel.GetSurveysByAuthor(userID, &surveys, t.surveyModel.NewSurveyPaginate(pOff, pLim))
+	// Do database query
+	var surveys []*models.FactrakSurvey
+	err = t.surveyModel.GetSurveysByAuthor(userID, &surveys, &params)
 	if err != nil {
 		t.RespondError(c, err)
 		return

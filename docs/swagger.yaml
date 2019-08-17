@@ -3143,6 +3143,12 @@ paths:
         in: query
         name: limit
         type: integer
+      - description: Preload (course, professor)
+        in: query
+        items:
+          type: string
+        name: preload
+        type: array
       produces:
       - application/json
       responses:
@@ -3521,10 +3527,6 @@ paths:
       description: list one course's surveys
       operationId: factrak-list-course-surveys
       parameters:
-      - description: Professor ID
-        in: query
-        name: professorID
-        type: integer
       - description: Course ID
         in: path
         name: courseID
@@ -3538,6 +3540,16 @@ paths:
         in: query
         name: limit
         type: integer
+      - description: Professor ID
+        in: query
+        name: professorID
+        type: integer
+      - description: Preload (course, professor)
+        in: query
+        items:
+          type: string
+        name: preload
+        type: array
       produces:
       - application/json
       responses:
@@ -3874,10 +3886,6 @@ paths:
       description: list one professor's surveys
       operationId: factrak-list-professor-surveys
       parameters:
-      - description: Course ID
-        in: query
-        name: courseID
-        type: integer
       - description: Professor ID
         in: path
         name: professorID
@@ -3891,6 +3899,16 @@ paths:
         in: query
         name: limit
         type: integer
+      - description: Course ID
+        in: query
+        name: courseID
+        type: integer
+      - description: Preload (course, professor)
+        in: query
+        items:
+          type: string
+        name: preload
+        type: array
       produces:
       - application/json
       responses:
@@ -4411,6 +4429,20 @@ paths:
         in: query
         name: limit
         type: integer
+      - description: Professor ID
+        in: query
+        name: professorID
+        type: integer
+      - description: Course ID
+        in: query
+        name: courseID
+        type: integer
+      - description: Preload (course, professor)
+        in: query
+        items:
+          type: string
+        name: preload
+        type: array
       produces:
       - application/json
       responses:
