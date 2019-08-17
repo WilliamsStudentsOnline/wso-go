@@ -10,7 +10,7 @@ require (
 	github.com/alecthomas/participle v0.3.0
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/arbovm/levenshtein v0.0.0-20160628152529-48b4e1c0c4d0 // indirect
-	github.com/davecgh/go-spew v1.1.1
+	github.com/brianvoe/gofakeit v3.18.0+incompatible
 	github.com/denisenkom/go-mssqldb v0.0.0-20190715232110-2b613d287457 // indirect
 	github.com/disintegration/imaging v1.6.0
 	github.com/fvbock/endless v0.0.0-20170109170031-447134032cb6
@@ -35,9 +35,6 @@ require (
 	github.com/thoas/go-funk v0.4.0
 	github.com/ugorji/go v1.1.7 // indirect
 	github.com/urfave/cli v1.21.0
-	github.com/xeipuuv/gojsonpointer v0.0.0-20190809123943-df4f5c81cb3b // indirect
-	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
-	github.com/xeipuuv/gojsonschema v1.1.0 // indirect
 	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4 // indirect
 	golang.org/x/net v0.0.0-20190724013045-ca1201d0de80 // indirect
 	golang.org/x/sys v0.0.0-20190804053845-51ab0e2deafa // indirect

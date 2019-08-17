@@ -18,6 +18,16 @@ func BoolToPtr(b bool) *bool {
 	return &b
 }
 
+func TruePtr() *bool {
+	t := true
+	return &t
+}
+
+func FalsePtr() *bool {
+	f := false
+	return &f
+}
+
 func Float64ToPtr(f float64) *float64 {
 	return &f
 }
