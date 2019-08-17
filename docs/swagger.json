@@ -5067,7 +5067,7 @@
                 }
             }
         },
-        "/users/{userID}/tags": {
+        "/users/{userID}/photo": {
             "put": {
                 "security": [
                     {
@@ -5111,6 +5111,96 @@
                     },
                     "1405": {
                         "description": "user id could not be parsed",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{userID}/tags": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "updates a user's tags by user id. You may only update yourself. You may pass \"me\" to get self as well.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Update user tags by user id",
+                "operationId": "update-user-tags",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Tags Params",
+                        "name": "updateTagsParams",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/user.UpdateUserTagsParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "1100": {
+                        "description": "could not parse malformed request data",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1331": {
+                        "description": "must be self",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1405": {
+                        "description": "user id could not be parsed",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1406": {
+                        "description": "invalid user tag",
                         "schema": {
                             "$ref": "#/definitions/lib.APIError"
                         }

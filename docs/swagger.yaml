@@ -4580,7 +4580,7 @@ paths:
       summary: Update user by user id
       tags:
       - users
-  /users/{userID}/tags:
+  /users/{userID}/photo:
     put:
       consumes:
       - multipart/form-data
@@ -4628,6 +4628,66 @@ paths:
       security:
       - Bearer: []
       summary: Upload a profile photo by user id
+      tags:
+      - users
+  /users/{userID}/tags:
+    put:
+      consumes:
+      - application/json
+      description: updates a user's tags by user id. You may only update yourself.
+        You may pass "me" to get self as well.
+      operationId: update-user-tags
+      parameters:
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: integer
+      - description: Update Tags Params
+        in: body
+        name: updateTagsParams
+        required: true
+        schema:
+          $ref: '#/definitions/user.UpdateUserTagsParams'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1100":
+          description: could not parse malformed request data
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1331":
+          description: must be self
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1405":
+          description: user id could not be parsed
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1406":
+          description: invalid user tag
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Update user tags by user id
       tags:
       - users
 securityDefinitions:

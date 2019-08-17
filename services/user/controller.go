@@ -9,6 +9,7 @@ import (
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
+	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	search "github.com/WilliamsStudentsOnline/wso-go/lib/search/users"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
@@ -109,14 +110,20 @@ func (t *Controller) GetUser(c *gin.Context) {
 		return
 	}
 
-	if !*user.Visible {
-		t.RespondError(c, lib.ErrorUserNotVisible)
-		return
-	}
+	selfUserID := services.GetUserID(c)
 
-	if !*user.AtWilliams {
-		t.RespondError(c, lib.ErrorUserNotAtWilliams)
-		return
+	// If we are not self or admin, return iff user is not visible and is at Williams. Otherwise,
+	// if we are admin or we are looking at self, return no matter what.
+	if selfUserID != user.ID && !auth.HasScope(c, auth.ScopeAdminAll) {
+		if !*user.Visible {
+			t.RespondError(c, lib.ErrorUserNotVisible)
+			return
+		}
+
+		if !*user.AtWilliams {
+			t.RespondError(c, lib.ErrorUserNotAtWilliams)
+			return
+		}
 	}
 
 	t.RespondOK(c, responses.ConvertGetUserResponse(&user))
@@ -276,7 +283,7 @@ func (t *Controller) UpdateUserTags(c *gin.Context) {
 // @Failure 404 {object} lib.APIError
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
-// @Router /users/{userID}/tags [put]
+// @Router /users/{userID}/photo [put]
 func (t *Controller) UploadProfilePhoto(c *gin.Context) {
 	// Decode userID or self.
 	userID, err := getUserIDParamOrSelf(c)
@@ -330,7 +337,6 @@ func getUserIDParamOrSelf(c *gin.Context) (uint, error) {
 	} else {
 		userID, err = services.GetUIntParam(c, "userID")
 		if err != nil {
-			// TODO: make this an API error
 			return 0, lib.ErrorUserIDNoParse
 		}
 	}
