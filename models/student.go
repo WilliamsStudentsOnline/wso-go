@@ -34,7 +34,7 @@ func NewStudentModel(db *gorm.DB) *StudentModel {
 // number of surveys written this semester.
 func (m *StudentModel) UpdateFactrakSurveyDeficit(user *User) (err error) {
 	// Get current owed surveys
-	deficit := user.Student().surveyTheshold()
+	deficit := user.Student().surveyThreshold()
 
 	// Count written surveys
 	fsM := NewFactrakSurveyModel(m.DB)
@@ -136,7 +136,7 @@ func (s *Student) IsUpperClass() bool {
 // N is not linear with class year because people might be abroad all jr year.
 // it allows 2 non-reviews per semester to account for people taking fewer than 4 courses
 // per semester -- we don't want to force them to review more classes than they've had
-func (s *Student) surveyTheshold() int {
+func (s *Student) surveyThreshold() int {
 	// Check semester
 	if time.Now().Local().Month() >= StudentCutoffMonth {
 		// Fall Semester

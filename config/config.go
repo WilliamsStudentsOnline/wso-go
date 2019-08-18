@@ -33,6 +33,7 @@ type Config struct {
 	MySQLPort     int               `yaml:"mysql_port" envconfig:"mysql_port"`
 	MySQLDatabase string            `yaml:"mysql_database" envconfig:"mysql_database"`
 	MySQLArgs     map[string]string `yaml:"mysql_args" envconfig:"mysql_args"`
+	MySQLUnix     bool              `yaml:"mysql_unix" envconfig:"mysql_unix"` // Use a unix connection rather than a TCP connection
 	// SQLite
 	SQLiteFile string `yaml:"sqlite_file" envconfig:"sqlite_file"`
 

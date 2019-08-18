@@ -39,7 +39,7 @@ Note that in the schema is defined following the [GORM guidelines](https://gorm.
 ### REST-API Guidelines
 * Use plural names for resources (when nouns): e.g. use `/users`, rather than `/user`.
 * When resources are verbs or adjectives, use whatever fits best.
-* Use dashes when resources must be more than one word: e.g. use `/areas-of-study`, rather than `/area_of_study` or `/areaOfStudy`.
+* Use dashes when resources must be more than one word: e.g. use `/areas-of-study`, rather than `/area_of_study` or `/areaOfStudy` ([source](https://restfulapi.net/resource-naming/)).
 * Array query parameters should be passed and named as with brackets: e.g. the struct field `preload []string` would become `?preload[]=foo&preload[]=bar`.
 
 ### Auto-Generate

@@ -50,17 +50,17 @@ docker-builder:
 	docker build -t $(DOCKER_TAG)/builder -f Dockerfile.builder .
 	docker build -t $(DOCKER_TAG)/builder-cert -f Dockerfile.cert .
 
-.PHONY: docker-build-dev
-docker-build-dev: docker-builder
+.PHONY: docker-dev
+docker-dev: docker-builder
 	docker build -t $(DOCKER_TAG):dev-latest -f Dockerfile.release .
 	docker build -t $(DOCKER_TAG)-jobs:dev-latest -f Dockerfile.release_jobs .
 
-.PHONY: docker-build-rel-dev
-docker-build-rel-dev: docker-builder
+.PHONY: docker-rel-dev
+docker-rel-dev: docker-builder
 	docker build -t $(DOCKER_TAG):dev-latest -f Dockerfile.release .
 
-.PHONY: docker-build-jobs-dev
-docker-build-jobs-dev: docker-builder
+.PHONY: docker-jobs-dev
+docker-jobs-dev: docker-builder
 	docker build -t $(DOCKER_TAG)-jobs:dev-latest -f Dockerfile.release_jobs .
 
 .PHONY: k8-apply-dev

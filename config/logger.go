@@ -14,6 +14,7 @@ func Logger(logger logrus.FieldLogger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// other handler can change c.Path so:
 		path := c.Request.URL.Path
+		query := c.Request.URL.RawQuery
 		start := time.Now()
 
 		c.Next()
@@ -30,16 +31,21 @@ func Logger(logger logrus.FieldLogger) gin.HandlerFunc {
 			"clientIP":   clientIP,
 			"method":     c.Request.Method,
 			"path":       path,
+			"query":      query,
 			"userAgent":  clientUserAgent,
 		})
+
+		queryUrl := query
+		if queryUrl != "" {
+			queryUrl = "?" + queryUrl
+		}
 
 		if len(c.Errors) > 0 {
 			entry.Error(c.Errors.ByType(gin.ErrorTypePrivate).String())
 		} else {
-			msg := fmt.Sprintf("[%s] - %s %s %d (%dms)",
-				time.Now().Format(time.RFC3339),
+			msg := fmt.Sprintf("%s %s %d (%dms)",
 				c.Request.Method,
-				path,
+				path+queryUrl,
 				statusCode,
 				latency)
 			if statusCode >= 500 {

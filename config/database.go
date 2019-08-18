@@ -52,11 +52,17 @@ func SetupMySQLConfig(cfg *Config) {
 		qs.Add(key, val)
 	}
 
-	cfg.DatabaseArgs = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?%s",
+	var mysqlUrl string
+	if cfg.MySQLUnix {
+		mysqlUrl = fmt.Sprintf("unix(%s)", cfg.MySQLHost)
+	} else {
+		mysqlUrl = fmt.Sprintf("tcp(%s:%d)", cfg.MySQLHost, cfg.MySQLPort)
+	}
+
+	cfg.DatabaseArgs = fmt.Sprintf("%s:%s@%s/%s?%s",
 		cfg.MySQLUser,
 		cfg.Secrets.MySQLPassword,
-		cfg.MySQLHost,
-		cfg.MySQLPort,
+		mysqlUrl,
 		cfg.MySQLDatabase,
 		qs.Encode(),
 	)
