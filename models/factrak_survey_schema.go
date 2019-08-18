@@ -34,8 +34,8 @@ type FactrakSurvey struct {
 	Agreements []*FactrakAgreement `json:"agreements,omitempty"`
 
 	// Not looked at by GORM, just for returning in JSON
-	TotalAgree    int `gorm:"-" json:"totalAgree,omitempty"`
-	TotalDisagree int `gorm:"-" json:"totalDisagree,omitempty"`
+	TotalAgree    int `gorm:"-" json:"totalAgree"`
+	TotalDisagree int `gorm:"-" json:"totalDisagree"`
 
 	// Pass the created time: not looked at by GORM
 	CreatedTime time.Time `gorm:"-" json:"createdTime"`

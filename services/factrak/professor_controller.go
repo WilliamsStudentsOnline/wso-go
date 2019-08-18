@@ -49,12 +49,12 @@ func (t *Controller) ListProfessors(c *gin.Context) {
 	t.RespondOK(c, profs)
 }
 
-// Get a professor. May pass an optional "?courseID=XXX" parameter to limit preload (ProfessorFactrakSurveys)
+// Get a professor. May pass an optional "?courseID=XX" parameter to limit preload (ProfessorFactrakSurveys)
 // scope to a professor and a course.
 // GetProfessor godoc
 // @Summary Get professor
 // @Description get one course with factrak surveys, area of study preloaded,
-// @Description May pass an optional "?courseID=XXX" parameter to limit preload scope to a professor and a course.
+// @Description May pass an optional "?courseID=XX" parameter to limit preload scope to a professor and a course.
 // @ID factrak-get-professor
 // @Tags factrak
 // @Accept  json
