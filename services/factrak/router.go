@@ -16,9 +16,25 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config) {
 	full := r.Group("")
 	full.Use(auth.RequireScopes(auth.ScopeFactrakFull))
 
+	/*
+		Refactoring (simplify API):
+		ListSurveys (done)
+			?professorID
+			?courseID
+			?userID
+		ListCourses
+			?professorID
+			?departmentID
+			?areaOfStudyID
+		ListProfessors
+			?courseID
+			?departmentID
+			?areaOfStudyID
+	*/
+
 	// Professors Endpoint
 	r.GET("/professors", c.ListProfessors) // List professors
-	// For the following requests, you may specify a "?courseID=XXX" to scope your request to a specific course:
+	// For the following requests, you may specify a "?courseID=XX" to scope your request to a specific course:
 	r.GET("/professors/:professorID", c.GetProfessor)                    // Get specific prof
 	full.GET("/professors/:professorID/surveys", c.ListProfessorSurveys) // Get surveys for a professor. just reuse inner methods of /surveys; include agreements
 	full.GET("/professors/:professorID/ratings", c.GetProfessorRatings)  // Get professor ratings
@@ -31,7 +47,7 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config) {
 
 	// Courses Endpoint
 	r.GET("/courses", c.ListCourses) // List courses
-	// For the following requests, you may specify a "?courseID=XXX" to scope your request to a specific course:
+	// For the following requests, you may specify a "?courseID=XX" to scope your request to a specific course:
 	r.GET("/courses/:courseID", c.GetCourse)                    // Get specific course; give it the statistics
 	full.GET("/courses/:courseID/surveys", c.ListCourseSurveys) // Get surveys for a course; include agreements
 	full.GET("/courses/:courseID/ratings", c.GetCourseRatings)  // Get course ratings

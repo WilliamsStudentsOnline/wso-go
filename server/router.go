@@ -21,6 +21,7 @@ import (
 	autocompleteService "github.com/WilliamsStudentsOnline/wso-go/services/autocomplete"
 	bulletinService "github.com/WilliamsStudentsOnline/wso-go/services/bulletin"
 	dormtrakService "github.com/WilliamsStudentsOnline/wso-go/services/dormtrak"
+	ephcatchService "github.com/WilliamsStudentsOnline/wso-go/services/ephcatch"
 	factrakService "github.com/WilliamsStudentsOnline/wso-go/services/factrak"
 	userService "github.com/WilliamsStudentsOnline/wso-go/services/user"
 )
@@ -111,6 +112,11 @@ func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 		bulletinGroup := v1.Group("/bulletin")
 		bulletinGroup.Use(auth.RequireScopes(auth.ScopeBulletin))
 		bulletinService.SetupRouter(bulletinGroup, db, cfg)
+
+		// Ephcatch Service
+		ephcatchGroup := v1.Group("/ephcatch")
+		ephcatchGroup.Use(auth.RequireScopes(auth.ScopeEphcatch))
+		ephcatchService.SetupRouter(ephcatchGroup, db, cfg)
 
 		// Autocomplete Service
 		autocompleteGroup := v1.Group("/autocomplete")

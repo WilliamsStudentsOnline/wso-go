@@ -35,7 +35,7 @@ func (m *FactrakSurveyModel) GetAllSurveys(p *[]*FactrakSurvey, opts *GetAllFact
 }
 
 type GetAllFactrakSurveysOptions struct {
-	// Scopes for specific areas
+	// Scopes for specific surveys
 	ProfessorID *uint `json:"professorID" form:"professorID"`
 	CourseID    *uint `json:"courseID" form:"courseID"`
 	UserID      *uint `json:"userID" form:"userID"`
@@ -43,8 +43,6 @@ type GetAllFactrakSurveysOptions struct {
 	// Pagination
 	Offset *time.Time `json:"offset" form:"offset"`
 	Limit  *uint      `json:"limit" form:"limit"`
-	// Or plug in an already existing paginator
-	Paginator Paginator
 
 	// Preloading
 	Preload []string `json:"preload" form:"preload[]"`
@@ -63,10 +61,6 @@ func (o *GetAllFactrakSurveysOptions) Order(db *gorm.DB) *gorm.DB {
 
 // Pagination starts at most recent and goes down from there
 func (o *GetAllFactrakSurveysOptions) Paginate(db *gorm.DB) *gorm.DB {
-	if o.Paginator != nil {
-		return o.Paginator.Paginate(db)
-	}
-
 	db = o.Order(db)
 	if o.Offset != nil {
 		db = db.Where("factrak_surveys.created_at < ?", *o.Offset)
