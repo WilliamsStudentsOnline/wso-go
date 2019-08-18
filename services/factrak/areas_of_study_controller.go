@@ -142,6 +142,7 @@ func (t *Controller) ListAreaOfStudyProfessors(c *gin.Context) {
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
 // @Router /factrak/areas-of-study/{areaOfStudyID}/courses [get]
+// @Deprecated
 func (t *Controller) ListAreaOfStudyCourses(c *gin.Context) {
 	// Decode areaOfStudyID.
 	areaID, err := services.GetUIntParam(c, "areaOfStudyID")

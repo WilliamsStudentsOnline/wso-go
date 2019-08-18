@@ -25,6 +25,7 @@ import (
 // @Param courseID query int false "Course ID"
 // @Param userID query int false "User ID (must be self or blank)"
 // @Param preload query []string false "Preload (course, professor)"
+// @Param populateAgreements query bool false "Populate Agreement Counts"
 // @Success 200 {array} models.FactrakSurvey
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
@@ -39,10 +40,16 @@ func (t *Controller) ListSurveys(c *gin.Context) {
 		return
 	}
 
-	// Filter what is allowed in options
+	// If we don't have the full scope and we aren't passing a user ID (ie self), we don't have the scope so fail.
+	// So either we must have full scope or pass the user ID.
+	if !auth.HasScope(c, auth.ScopeFactrakFull) && params.UserID == nil {
+		t.RespondError(c, lib.ErrorNoScopeAuthorization)
+		return
+	}
 
-	// If we pass the userID params, we be that user
-	if params.UserID != nil && *params.UserID != userID {
+	// Filter what is allowed in options
+	// If we pass the userID param, we must either be that user or be admin
+	if params.UserID != nil && (*params.UserID != userID && !auth.HasScope(c, auth.ScopeAdminAll, auth.ScopeFactrakAdmin)) {
 		t.RespondError(c, lib.ErrorMustBeSelf)
 		return
 	}

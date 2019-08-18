@@ -3283,6 +3283,7 @@ paths:
     get:
       consumes:
       - application/json
+      deprecated: true
       description: |-
         list one area of study's courses and the course's professors.
         Please note: unlike other GetCourses endpoints, this one also returns a list of each courses professors.
@@ -3382,6 +3383,18 @@ paths:
       - description: Search Query
         in: query
         name: q
+        type: string
+      - description: Area of Study ID
+        in: query
+        name: areaOfStudyID
+        type: string
+      - description: Department ID
+        in: query
+        name: departmentID
+        type: string
+      - description: Professor ID
+        in: query
+        name: professorID
         type: string
       produces:
       - application/json
@@ -3643,6 +3656,7 @@ paths:
     get:
       consumes:
       - application/json
+      deprecated: true
       description: list one department's courses
       operationId: factrak-list-department-courses
       parameters:
@@ -3817,13 +3831,10 @@ paths:
     get:
       consumes:
       - application/json
+      deprecated: true
       description: list one professor's courses
       operationId: factrak-list-professor-courses
       parameters:
-      - description: Course ID
-        in: query
-        name: courseID
-        type: integer
       - description: Professor ID
         in: path
         name: professorID
@@ -3986,6 +3997,10 @@ paths:
           type: string
         name: preload
         type: array
+      - description: Populate Agreement Counts
+        in: query
+        name: populateAgreements
+        type: boolean
       produces:
       - application/json
       responses:

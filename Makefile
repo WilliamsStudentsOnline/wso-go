@@ -30,7 +30,7 @@ fmt:
 	goimports -w ./
 
 .PHONY: commit
-commit: jobs/dorms_update/cmd/data.go docs/docs.go fmt
+commit: jobs/dorms_update/cmd/data.go docs/docs.go fmt services/*/responses/*.go
 
 .PHONY: run-dev
 run-dev: $(BINARY_NAME)

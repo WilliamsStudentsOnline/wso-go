@@ -18,12 +18,22 @@ func NewCourseModel(db *gorm.DB) *CourseModel {
 	}
 }
 
-func (m *CourseModel) GetAllCourses(c *[]*Course, opts Options) (err error) {
+func (m *CourseModel) GetAllCourses(c *[]*Course, opts *GetAllCoursesOptions) (err error) {
 	db := m.DB
 	if opts != nil {
 		db = opts.Run(db)
 	}
+
+	// Do DB query
 	err = db.Find(c).Error
+	if err != nil {
+		return
+	}
+
+	// Run post-query options
+	if opts != nil {
+		opts.Post(*c)
+	}
 	return
 }
 
@@ -33,6 +43,11 @@ type GetAllCoursesOptions struct {
 
 	// You can preload: areaOfStudy, professors, and surveys
 	Preload []string `json:"preload" form:"preload[]"`
+
+	// Filters
+	AreaOfStudyID *uint `json:"areaOfStudyID" form:"areaOfStudyID"`
+	DepartmentID  *uint `json:"departmentID" form:"departmentID"`
+	ProfessorID   *uint `json:"professorID" form:"professorID"`
 }
 
 // Preload specifically allowed parts if requested
@@ -44,11 +59,12 @@ func (o *GetAllCoursesOptions) Preloader(db *gorm.DB) *gorm.DB {
 	if lib.StringsContains(o.Preload, "areaOfStudy") {
 		db = db.Preload("AreaOfStudy")
 	}
-	if lib.StringsContains(o.Preload, "professors") {
-		db = db.Preload("Professors")
-	}
 	if lib.StringsContains(o.Preload, "surveys") {
 		db = db.Preload("FactrakSurveys")
+	}
+	// We get profs in factrak surveys here, but in Post() we convert those professors into course professors
+	if lib.StringsContains(o.Preload, "professors") {
+		db = db.Preload("FactrakSurveys.Professor")
 	}
 
 	return db
@@ -74,7 +90,51 @@ func (o *GetAllCoursesOptions) Run(db *gorm.DB) *gorm.DB {
 	db = o.Paginate(db)
 	db = o.Preloader(db)
 
+	m := NewCourseModel(db.New())
+
+	if o.AreaOfStudyID != nil {
+		db = m.withAreaOfStudy(*o.AreaOfStudyID)(db)
+	}
+	if o.DepartmentID != nil {
+		db = m.withDepartment(*o.DepartmentID)(db)
+	}
+	if o.ProfessorID != nil {
+		db = m.withProfessor(*o.ProfessorID)(db)
+	}
+
 	return db
+}
+
+func (o *GetAllCoursesOptions) Post(courses []*Course) {
+	if lib.StringsContains(o.Preload, "professors") {
+		// Go through all preloaded survey professors and make a unique list of profs
+		for _, course := range courses {
+			// Unique set of professors of all surveys in this course
+			profsSet := make(map[uint]*User)
+			for _, survey := range course.FactrakSurveys {
+				profsSet[survey.Professor.ID] = survey.Professor
+			}
+			// Now make that set a slice
+			profs := make([]*User, len(profsSet))
+			i := 0
+			for _, prof := range profsSet {
+				profs[i] = prof
+				i++
+			}
+			// Now populate the (usually) hidden professors field
+			course.Professors = profs
+
+			// Now delete the attached factrak surveys because that is bloated if we didn't preload surveys
+			if !lib.StringsContains(o.Preload, "surveys") {
+				course.FactrakSurveys = nil
+			} else {
+				// If we are preloading surveys, delete the attached professors
+				for i := range course.FactrakSurveys {
+					course.FactrakSurveys[i].Professor = nil
+				}
+			}
+		}
+	}
 }
 
 // Get course by ID. NOTE: does not preload. To preload (like in factrak/courses), call GetCourseByIDWithProfessor() and
@@ -129,53 +189,55 @@ func (m *CourseModel) DoesCourseExist(id uint) (exists bool, err error) {
 	return
 }
 
-func (m *CourseModel) GetCoursesByProfessor(profID uint, courses *[]Course) (err error) {
-	err = m.DB.Where(
-		"id in (?)",
-		m.DB.Model(&FactrakSurvey{}).Select("course_id").Where(
-			"professor_id = ?", profID,
-		).QueryExpr(),
-	).Find(courses).Error
-	return
+func (m *CourseModel) GetCoursesByProfessor(profID uint, courses *[]*Course) (err error) {
+	return m.GetAllCourses(courses, &GetAllCoursesOptions{
+		ProfessorID: &profID,
+	})
 }
 
-func (m *CourseModel) GetCoursesByDepartment(deptID uint, courses *[]Course) (err error) {
-	err = m.DB.Where(
-		"area_of_study_id in (?)",
-		m.DB.Model(&AreaOfStudy{}).Select("id").Where(
-			"department_id = ?", deptID,
-		).QueryExpr(),
-	).Find(courses).Error
-	return
+func (m *CourseModel) GetCoursesByDepartment(deptID uint, courses *[]*Course) (err error) {
+	return m.GetAllCourses(courses, &GetAllCoursesOptions{
+		DepartmentID: &deptID,
+	})
 }
 
-func (m *CourseModel) GetCoursesByAreaOfStudy(areaID uint, courses *[]Course) (err error) {
-	err = m.DB.Where("area_of_study_id = ?", areaID).Find(courses).Error
-	return
+func (m *CourseModel) GetCoursesByAreaOfStudy(areaID uint, courses *[]*Course) (err error) {
+	return m.GetAllCourses(courses, &GetAllCoursesOptions{
+		AreaOfStudyID: &areaID,
+	})
 }
 
 func (m *CourseModel) GetCoursesByAreaOfStudyAndProfessors(areaID uint, courses *[]*Course) (err error) {
-	err = m.DB.Where("area_of_study_id = ?", areaID).Preload("FactrakSurveys.Professor").Find(courses).Error
+	return m.GetAllCourses(courses, &GetAllCoursesOptions{
+		AreaOfStudyID: &areaID,
+		Preload:       []string{"professors"},
+	})
+}
 
-	// Go through all preloaded survey professors and make a unique list of profs
-	for _, course := range *courses {
-		// Unique set of professors of all surveys in this course
-		profsSet := make(map[uint]*User)
-		for _, survey := range course.FactrakSurveys {
-			profsSet[survey.Professor.ID] = survey.Professor
-		}
-		// Now make that set a slice
-		profs := make([]*User, len(profsSet))
-		i := 0
-		for _, prof := range profsSet {
-			profs[i] = prof
-			i++
-		}
-		// Now populate the (usually) hidden professors field
-		course.Professors = profs
-
-		// Now delete the attached factrak surveys because that is bloated
-		course.FactrakSurveys = nil
+func (m *CourseModel) withAreaOfStudy(areaID uint) func(*gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where("area_of_study_id = ?", areaID)
 	}
-	return
+}
+
+func (m *CourseModel) withDepartment(departmentID uint) func(*gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where(
+			"area_of_study_id in (?)",
+			m.DB.Model(&AreaOfStudy{}).Select("id").Where(
+				"department_id = ?", departmentID,
+			).QueryExpr(),
+		)
+	}
+}
+
+func (m *CourseModel) withProfessor(professorID uint) func(*gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where(
+			"id in (?)",
+			m.DB.Model(&FactrakSurvey{}).Select("course_id").Where(
+				"professor_id = ?", professorID,
+			).QueryExpr(),
+		)
+	}
 }

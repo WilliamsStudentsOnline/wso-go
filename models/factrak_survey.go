@@ -47,6 +47,9 @@ type GetAllFactrakSurveysOptions struct {
 	// Preloading
 	Preload []string `json:"preload" form:"preload[]"`
 
+	// Populate survey agreements
+	PopulateAgreements bool `json:"populateAgreements" form:"populateAgreements"`
+
 	// Scope to only get flagged surveys. True means only get flagged; false/empty means ignore this scope.
 	Flagged bool `json:"-" form:"-"`
 
@@ -114,8 +117,16 @@ func (o *GetAllFactrakSurveysOptions) Run(db *gorm.DB) *gorm.DB {
 	return db
 }
 
+func (o *GetAllFactrakSurveysOptions) Post(db *gorm.DB, surveys *[]*FactrakSurvey) (err error) {
+	if o.PopulateAgreements {
+		m := NewFactrakSurveyModel(db)
+		err = m.PopulateAgreementCountsSlice(*surveys)
+	}
+	return
+}
+
 // Gets all surveys with options
-func (m *FactrakSurveyModel) GetAllSurveysWithOptions(p *[]*FactrakSurvey, opts Options) (err error) {
+func (m *FactrakSurveyModel) GetAllSurveysWithOptions(p *[]*FactrakSurvey, opts *GetAllFactrakSurveysOptions) (err error) {
 	db := m.DB
 	db = m.scopeDefault(db)
 
@@ -123,7 +134,20 @@ func (m *FactrakSurveyModel) GetAllSurveysWithOptions(p *[]*FactrakSurvey, opts 
 		db = opts.Run(db)
 	}
 
+	// Do DB query
 	err = db.Find(p).Error
+	if err != nil {
+		return
+	}
+
+	// Run post-query options
+	if opts != nil {
+		err = opts.Post(db, p)
+		if err != nil {
+			return
+		}
+	}
+
 	return
 }
 
@@ -213,12 +237,13 @@ func (m *FactrakSurveyModel) SetSurveyFlag(id uint, flag bool) (err error) {
 
 func (m *FactrakSurveyModel) GetSurveysByProfessor(profID uint, fs *[]*FactrakSurvey, opts *GetAllFactrakSurveysOptions) (err error) {
 	err = m.GetAllSurveysWithOptions(fs, &GetAllFactrakSurveysOptions{
-		ProfessorID:    &profID,
-		CourseID:       opts.CourseID,
-		Offset:         opts.Offset,
-		Limit:          opts.Limit,
-		Preload:        opts.Preload,
-		ProfAtWilliams: false,
+		ProfessorID:        &profID,
+		CourseID:           opts.CourseID,
+		Offset:             opts.Offset,
+		Limit:              opts.Limit,
+		Preload:            opts.Preload,
+		ProfAtWilliams:     false,
+		PopulateAgreements: true,
 	})
 	return
 }
@@ -238,12 +263,13 @@ func (m *FactrakSurveyModel) GetSurveysByAuthor(authorUserID uint, fs *[]*Factra
 
 func (m *FactrakSurveyModel) GetSurveysByCourse(courseID uint, fs *[]*FactrakSurvey, opts *GetAllFactrakSurveysOptions) (err error) {
 	err = m.GetAllSurveysWithOptions(fs, &GetAllFactrakSurveysOptions{
-		ProfessorID:    opts.ProfessorID,
-		CourseID:       &courseID,
-		Offset:         opts.Offset,
-		Limit:          opts.Limit,
-		Preload:        opts.Preload,
-		ProfAtWilliams: true,
+		ProfessorID:        opts.ProfessorID,
+		CourseID:           &courseID,
+		Offset:             opts.Offset,
+		Limit:              opts.Limit,
+		Preload:            opts.Preload,
+		ProfAtWilliams:     true,
+		PopulateAgreements: true,
 	})
 	return
 }

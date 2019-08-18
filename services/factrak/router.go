@@ -17,8 +17,8 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config) {
 	full.Use(auth.RequireScopes(auth.ScopeFactrakFull))
 
 	/*
-		Refactoring (simplify API):
-		ListSurveys (done)
+		Simplified API:
+		ListSurveys
 			?professorID
 			?courseID
 			?userID
@@ -35,36 +35,44 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config) {
 	// Professors Endpoint
 	r.GET("/professors", c.ListProfessors) // List professors
 	// For the following requests, you may specify a "?courseID=XX" to scope your request to a specific course:
-	r.GET("/professors/:professorID", c.GetProfessor)                    // Get specific prof
+	r.GET("/professors/:professorID", c.GetProfessor)                   // Get specific prof
+	full.GET("/professors/:professorID/ratings", c.GetProfessorRatings) // Get professor ratings
+
+	// DEPRECATED:
 	full.GET("/professors/:professorID/surveys", c.ListProfessorSurveys) // Get surveys for a professor. just reuse inner methods of /surveys; include agreements
-	full.GET("/professors/:professorID/ratings", c.GetProfessorRatings)  // Get professor ratings
-	// Not this one, though:
-	r.GET("/professors/:professorID/courses", c.ListProfessorCourses) // List prof's courses
+	r.GET("/professors/:professorID/courses", c.ListProfessorCourses)    // List prof's courses
 
 	// Users Endpoint
 	// SCOPE: self, admin, factrak_admin
+	// Deprecated:
 	r.GET("/users/:userID/surveys", c.ListUserSurveys) // List user (students/alum) surveys
 
 	// Courses Endpoint
 	r.GET("/courses", c.ListCourses) // List courses
 	// For the following requests, you may specify a "?courseID=XX" to scope your request to a specific course:
-	r.GET("/courses/:courseID", c.GetCourse)                    // Get specific course; give it the statistics
-	full.GET("/courses/:courseID/surveys", c.ListCourseSurveys) // Get surveys for a course; include agreements
-	full.GET("/courses/:courseID/ratings", c.GetCourseRatings)  // Get course ratings
-	// Not this one, though:
+	r.GET("/courses/:courseID", c.GetCourse)                   // Get specific course; give it the statistics
+	full.GET("/courses/:courseID/ratings", c.GetCourseRatings) // Get course ratings
+
+	// DEPRECATED:
+	full.GET("/courses/:courseID/surveys", c.ListCourseSurveys)    // Get surveys for a course; include agreements
 	r.GET("/courses/:courseID/professors", c.ListCourseProfessors) // Get professors for a course
 
-	r.GET("/departments", c.ListDepartments)                                   // List departments
-	r.GET("/departments/:departmentID", c.GetDepartment)                       // Get specific department
+	r.GET("/departments", c.ListDepartments)             // List departments
+	r.GET("/departments/:departmentID", c.GetDepartment) // Get specific department
+
+	// DEPRECATED:
 	r.GET("/departments/:departmentID/professors", c.ListDepartmentProfessors) // Get department's professors
 	r.GET("/departments/:departmentID/courses", c.ListDepartmentCourses)       // Get department's courses
 
-	r.GET("/areas-of-study", c.ListAreasOfStudy)                                    // List areas
-	r.GET("/areas-of-study/:areaOfStudyID", c.GetAreaOfStudy)                       // Get area
+	r.GET("/areas-of-study", c.ListAreasOfStudy)              // List areas
+	r.GET("/areas-of-study/:areaOfStudyID", c.GetAreaOfStudy) // Get area
+
+	// DEPRECATED:
 	r.GET("/areas-of-study/:areaOfStudyID/professors", c.ListAreaOfStudyProfessors) // Get area's professors
 	r.GET("/areas-of-study/:areaOfStudyID/courses", c.ListAreaOfStudyCourses)       // Get area's courses
 
-	full.GET("/surveys", c.ListSurveys) // List surveys
+	// Although we list surveys as limited factrak scope, it requires the full factrak scopes in the code
+	r.GET("/surveys", c.ListSurveys) // List surveys
 	// Agreement counts are automatically attached to GET surveys
 	r.GET("/surveys/:surveyID", c.GetSurvey) // Get specific one (have agreements as a count)
 

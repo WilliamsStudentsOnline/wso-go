@@ -21,6 +21,9 @@ import (
 // @Param limit query int false "Limit Pagination"
 // @Param preload query []string false "Preload List"
 // @Param q query string false "Search Query"
+// @Param areaOfStudyID query string false "Area of Study ID"
+// @Param departmentID query string false "Department ID"
+// @Param professorID query string false "Professor ID"
 // @Success 200 {array} models.Course
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
@@ -144,12 +147,6 @@ func (t *Controller) ListCourseSurveys(c *gin.Context) {
 	// Do database query
 	var surveys []*models.FactrakSurvey
 	err = t.surveyModel.GetSurveysByCourse(courseID, &surveys, &params)
-	if err != nil {
-		t.RespondError(c, err)
-		return
-	}
-
-	err = t.surveyModel.PopulateAgreementCountsSlice(surveys)
 	if err != nil {
 		t.RespondError(c, err)
 		return

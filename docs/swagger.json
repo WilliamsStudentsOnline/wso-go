@@ -3097,6 +3097,7 @@
                 ],
                 "summary": "List area of study courses",
                 "operationId": "factrak-list-area-of-study-courses",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "integer",
@@ -3242,6 +3243,24 @@
                         "type": "string",
                         "description": "Search Query",
                         "name": "q",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Area of Study ID",
+                        "name": "areaOfStudyID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Department ID",
+                        "name": "departmentID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Professor ID",
+                        "name": "professorID",
                         "in": "query"
                     }
                 ],
@@ -3648,6 +3667,7 @@
                 ],
                 "summary": "List department courses",
                 "operationId": "factrak-list-department-courses",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "integer",
@@ -3914,13 +3934,8 @@
                 ],
                 "summary": "List professor courses",
                 "operationId": "factrak-list-professor-courses",
+                "deprecated": true,
                 "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Course ID",
-                        "name": "courseID",
-                        "in": "query"
-                    },
                     {
                         "type": "integer",
                         "description": "Professor ID",
@@ -4166,6 +4181,12 @@
                         },
                         "description": "Preload (course, professor)",
                         "name": "preload",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Populate Agreement Counts",
+                        "name": "populateAgreements",
                         "in": "query"
                     }
                 ],

@@ -156,12 +156,6 @@ func (t *Controller) ListProfessorSurveys(c *gin.Context) {
 		return
 	}
 
-	err = t.surveyModel.PopulateAgreementCountsSlice(surveys)
-	if err != nil {
-		t.RespondError(c, err)
-		return
-	}
-
 	RemoveUserIDFromSurveys(c, surveys)
 
 	t.RespondOK(c, surveys)
@@ -175,7 +169,6 @@ func (t *Controller) ListProfessorSurveys(c *gin.Context) {
 // @Tags factrak
 // @Accept  json
 // @Produce  json
-// @Param courseID query uint false "Course ID"
 // @Param professorID path uint true "Professor ID"
 // @Success 200 {array} models.Course
 // @Failure 400 {object} lib.APIError
@@ -183,6 +176,7 @@ func (t *Controller) ListProfessorSurveys(c *gin.Context) {
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
 // @Router /factrak/professors/{professorID}/courses [get]
+// @Deprecated
 func (t *Controller) ListProfessorCourses(c *gin.Context) {
 	// Decode professorID.
 	profID, err := services.GetUIntParam(c, "professorID")
@@ -203,7 +197,7 @@ func (t *Controller) ListProfessorCourses(c *gin.Context) {
 	}
 
 	// Do database query
-	var courses []models.Course
+	var courses []*models.Course
 
 	err = t.courseModel.GetCoursesByProfessor(profID, &courses)
 	if err != nil {
@@ -214,7 +208,7 @@ func (t *Controller) ListProfessorCourses(c *gin.Context) {
 	t.RespondOK(c, courses)
 }
 
-// Gets average ratings for a professor. May pass an optional "?courseID=XXX" parameter to limit scope to a
+// Gets average ratings for a professor. May pass an optional "?courseID=XX" parameter to limit scope to a
 // professor and a course.
 // @Summary Get professor ratings
 // @Description get one professor's ratings
