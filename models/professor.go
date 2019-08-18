@@ -31,45 +31,65 @@ type GetAllProfessorsOptions struct {
 
 	// You can preload: department, office, and surveys
 	Preload []string `json:"preload" form:"preload[]"`
+
+	// Filtering
+	CourseID      *uint `json:"courseID" form:"courseID"`
+	DepartmentID  *uint `json:"departmentID" form:"departmentID"`
+	AreaOfStudyID *uint `json:"areaOfStudyID" form:"areaOfStudyID"`
 }
 
 // Preload specifically allowed parts if requested
-func (p *GetAllProfessorsOptions) Preloader(db *gorm.DB) *gorm.DB {
-	if p.Preload == nil {
+func (o *GetAllProfessorsOptions) Preloader(db *gorm.DB) *gorm.DB {
+	if o.Preload == nil {
 		return db
 	}
 
-	if lib.StringsContains(p.Preload, "department") {
+	if lib.StringsContains(o.Preload, "department") {
 		db = db.Preload("Department")
 	}
-	if lib.StringsContains(p.Preload, "office") {
+	if lib.StringsContains(o.Preload, "office") {
 		db = db.Preload("Office")
 	}
-	if lib.StringsContains(p.Preload, "surveys") {
+	if lib.StringsContains(o.Preload, "surveys") {
 		db = db.Preload("ProfessorFactrakSurveys")
 	}
 
 	return db
 }
 
-func (p *GetAllProfessorsOptions) Order(db *gorm.DB) *gorm.DB {
+func (o *GetAllProfessorsOptions) Order(db *gorm.DB) *gorm.DB {
 	return db.Order("users.id ASC", true)
 }
 
-func (p *GetAllProfessorsOptions) Paginate(db *gorm.DB) *gorm.DB {
-	db = p.Order(db)
-	if p.Offset != nil {
-		db = db.Offset(*p.Offset)
+func (o *GetAllProfessorsOptions) Paginate(db *gorm.DB) *gorm.DB {
+	db = o.Order(db)
+	if o.Offset != nil {
+		db = db.Offset(*o.Offset)
 	}
-	if p.Limit != nil {
-		db = db.Limit(*p.Limit)
+	if o.Limit != nil {
+		db = db.Limit(*o.Limit)
 	}
 
 	return db
 }
 
-func (p *GetAllProfessorsOptions) Run(db *gorm.DB) *gorm.DB {
-	return p.Paginate(p.Preloader(db))
+func (o *GetAllProfessorsOptions) Run(db *gorm.DB) *gorm.DB {
+	db = o.Preloader(db)
+	db = o.Paginate(db)
+
+	m := NewProfessorModel(db.New())
+
+	if o.CourseID != nil {
+		db = m.withCourse(*o.CourseID)(db)
+	}
+	if o.DepartmentID != nil {
+		db = m.withDepartment(*o.DepartmentID)(db)
+	}
+	if o.AreaOfStudyID != nil {
+		db = m.withAreaOfStudy(*o.AreaOfStudyID)(db)
+	}
+
+	return db
 }
 
 func (m *ProfessorModel) DoesProfessorExist(id uint) (exists bool, err error) {
@@ -100,19 +120,16 @@ func (m *ProfessorModel) GetProfessorByIDWithCourse(id uint, u *User, courseID *
 	return
 }
 
-func (m *ProfessorModel) GetProfessorsByCourse(courseID uint, professors *[]User) (err error) {
-	err = m.DB.Where(
-		"users.id in (?)",
-		m.DB.Model(&FactrakSurvey{}).Select("professor_id").Where(
-			"course_id = ?", courseID,
-		).QueryExpr(),
-	).Find(professors).Error
-	return
+func (m *ProfessorModel) GetProfessorsByCourse(courseID uint, professors *[]*User) (err error) {
+	return m.GetAllProfessors(professors, &GetAllProfessorsOptions{
+		CourseID: &courseID,
+	})
 }
 
-func (m *ProfessorModel) GetProfessorsByDepartment(deptID uint, professors *[]User) (err error) {
-	err = m.DB.Scopes(m.scopeDefault).Where(&User{DepartmentID: &deptID}).Find(&professors).Error
-	return
+func (m *ProfessorModel) GetProfessorsByDepartment(deptID uint, professors *[]*User) (err error) {
+	return m.GetAllProfessors(professors, &GetAllProfessorsOptions{
+		DepartmentID: &deptID,
+	})
 }
 
 // Gets area of study's professors by looking at its courses. This query is an absolute unit so try not to use it.
@@ -133,14 +150,10 @@ func (m *ProfessorModel) GetProfessorsByAreaOfStudyViaCourses(areaID uint, profe
 
 // Gets area of study's professors by looking at its department(s). For now, this is the default. However, please notice
 // that this will get all department professors, rather than just ones belonging to the area of study.
-func (m *ProfessorModel) GetProfessorsByAreaOfStudy(areaID uint, professors *[]User) (err error) {
-	err = m.DB.Scopes(m.scopeDefault).Where(
-		"department_id in (?)",
-		m.DB.Model(&AreaOfStudy{}).Select("department_id").Where(
-			"id = ?", areaID,
-		).QueryExpr(),
-	).Find(professors).Error
-	return
+func (m *ProfessorModel) GetProfessorsByAreaOfStudy(areaID uint, professors *[]*User) (err error) {
+	return m.GetAllProfessors(professors, &GetAllProfessorsOptions{
+		AreaOfStudyID: &areaID,
+	})
 }
 
 // Default scope: at williams and is professor
@@ -150,4 +163,32 @@ func (m *ProfessorModel) scopeDefault(db *gorm.DB) *gorm.DB {
 
 func (m *ProfessorModel) scopeIsProfessor(db *gorm.DB) *gorm.DB {
 	return db.Where("users.type = ?", UserTypeProfessor)
+}
+
+func (m *ProfessorModel) withCourse(courseID uint) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where(
+			"users.id in (?)",
+			m.DB.Model(&FactrakSurvey{}).Select("professor_id").Where(
+				"course_id = ?", courseID,
+			).QueryExpr(),
+		)
+	}
+}
+
+func (m *ProfessorModel) withDepartment(deptID uint) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where(&User{DepartmentID: &deptID})
+	}
+}
+
+func (m *ProfessorModel) withAreaOfStudy(areaID uint) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where(
+			"users.department_id in (?)",
+			m.DB.Model(&AreaOfStudy{}).Select("department_id").Where(
+				"id = ?", areaID,
+			).QueryExpr(),
+		)
+	}
 }

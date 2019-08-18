@@ -3323,6 +3323,7 @@ paths:
     get:
       consumes:
       - application/json
+      deprecated: true
       description: list one area of study's professors
       operationId: factrak-list-area-of-study-professors
       parameters:
@@ -3446,6 +3447,7 @@ paths:
     get:
       consumes:
       - application/json
+      deprecated: true
       description: list one course's professors
       operationId: factrak-list-course-professors
       parameters:
@@ -3679,6 +3681,7 @@ paths:
     get:
       consumes:
       - application/json
+      deprecated: true
       description: list one department's professors
       operationId: factrak-list-department-professors
       parameters:
@@ -3734,6 +3737,18 @@ paths:
           type: string
         name: preload
         type: array
+      - description: Course ID
+        in: query
+        name: courseID
+        type: integer
+      - description: Department ID
+        in: query
+        name: departmentID
+        type: integer
+      - description: Area Of Study ID
+        in: query
+        name: areaOfStudyID
+        type: integer
       - description: Search Query
         in: query
         name: q
@@ -3762,7 +3777,7 @@ paths:
       - application/json
       description: |-
         get one course with factrak surveys, area of study preloaded,
-        May pass an optional "?courseID=XXX" parameter to limit preload scope to a professor and a course.
+        May pass an optional "?courseID=XX" parameter to limit preload scope to a professor and a course.
       operationId: factrak-get-professor
       parameters:
       - description: Course ID

@@ -80,7 +80,7 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config) {
 
 	// Agreements endpoint is part of surveys:
 	// Agreements should be anonymous.
-	full.GET("/surveys/:surveyID/agreement", c.GetAgreement)       // Get agreement (if user has one)
+	full.GET("/surveys/:surveyID/agreement", c.GetAgreement)       // Get a user's agreement (if user has one)
 	full.POST("/surveys/:surveyID/agreement", c.CreateAgreement)   // Add agreement to survey
 	full.PATCH("/surveys/:surveyID/agreement", c.UpdateAgreement)  // Edit agreement (either make it agree or disagree)
 	full.DELETE("/surveys/:surveyID/agreement", c.DeleteAgreement) // Delete agreement

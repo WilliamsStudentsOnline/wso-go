@@ -174,6 +174,7 @@ func (t *Controller) ListCourseSurveys(c *gin.Context) {
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
 // @Router /factrak/courses/{courseID}/professors [get]
+// @Deprecated
 func (t *Controller) ListCourseProfessors(c *gin.Context) {
 	// Decode courseID.
 	courseID, err := services.GetUIntParam(c, "courseID")
@@ -194,7 +195,7 @@ func (t *Controller) ListCourseProfessors(c *gin.Context) {
 	}
 
 	// Do database query
-	var profs []models.User
+	var profs []*models.User
 
 	err = t.professorModel.GetProfessorsByCourse(courseID, &profs)
 	if err != nil {

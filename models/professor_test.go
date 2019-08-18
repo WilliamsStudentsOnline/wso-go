@@ -101,7 +101,7 @@ func TestProfessorModel_GetProfessorsByAreaOfStudy(t *testing.T) {
 	assert.NoError(db.Create(&d1).Create(&d2).Error)
 
 	m := NewProfessorModel(db)
-	var resProfs []User
+	var resProfs []*User
 	areaID := d1.AreasOfStudy[0].ID
 	err = m.GetProfessorsByAreaOfStudy(areaID, &resProfs)
 	assert.NoError(err)

@@ -3156,6 +3156,7 @@
                 ],
                 "summary": "List area of study professors",
                 "operationId": "factrak-list-area-of-study-professors",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "integer",
@@ -3344,6 +3345,7 @@
                 ],
                 "summary": "List course professors",
                 "operationId": "factrak-list-course-professors",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "integer",
@@ -3705,6 +3707,7 @@
                 ],
                 "summary": "List department professors",
                 "operationId": "factrak-list-department-professors",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "integer",
@@ -3787,6 +3790,24 @@
                         "in": "query"
                     },
                     {
+                        "type": "integer",
+                        "description": "Course ID",
+                        "name": "courseID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Department ID",
+                        "name": "departmentID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Area Of Study ID",
+                        "name": "areaOfStudyID",
+                        "in": "query"
+                    },
+                    {
                         "type": "string",
                         "description": "Search Query",
                         "name": "q",
@@ -3819,7 +3840,7 @@
                         "Bearer": []
                     }
                 ],
-                "description": "get one course with factrak surveys, area of study preloaded,\nMay pass an optional \"?courseID=XXX\" parameter to limit preload scope to a professor and a course.",
+                "description": "get one course with factrak surveys, area of study preloaded,\nMay pass an optional \"?courseID=XX\" parameter to limit preload scope to a professor and a course.",
                 "consumes": [
                     "application/json"
                 ],

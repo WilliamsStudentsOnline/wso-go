@@ -20,6 +20,9 @@ import (
 // @Param offset query int false "Offset Pagination"
 // @Param limit query int false "Limit Pagination"
 // @Param preload query []string false "Preload List"
+// @Param courseID query int false "Course ID"
+// @Param departmentID query int false "Department ID"
+// @Param areaOfStudyID query int false "Area Of Study ID"
 // @Param q query string false "Search Query"
 // @Success 200 {array} models.User
 // @Failure 500 {object} lib.APIError
