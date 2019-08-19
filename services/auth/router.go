@@ -1,7 +1,7 @@
 package auth
 
 import (
-	jwt "github.com/aidanlloydtucker/gin-jwt/v2"
+	jwt "github.com/WilliamsStudentsOnline/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 )
 

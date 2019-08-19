@@ -4,6 +4,7 @@ go 1.12
 
 require (
 	cloud.google.com/go v0.43.0 // indirect
+	github.com/WilliamsStudentsOnline/gin-jwt/v2 v2.6.3
 	github.com/agext/levenshtein v1.2.2 // indirect
 	github.com/agnivade/levenshtein v1.0.2 // indirect
 	github.com/aidanlloydtucker/gin-jwt/v2 v2.6.3
