@@ -60,11 +60,15 @@ func (o *GetAllCoursesOptions) Preloader(db *gorm.DB) *gorm.DB {
 		db = db.Preload("AreaOfStudy")
 	}
 	if lib.StringsContains(o.Preload, "surveys") {
-		db = db.Preload("FactrakSurveys")
+		fsm := NewFactrakSurveyModel(nil)
+		db = db.Preload("FactrakSurveys", fsm.scopeCurrent, fsm.scopeProfAtWilliams)
 	}
 	// We get profs in factrak surveys here, but in Post() we convert those professors into course professors
 	if lib.StringsContains(o.Preload, "professors") {
-		db = db.Preload("FactrakSurveys.Professor")
+		// Ensure to preload only recent professors
+		fsm := NewFactrakSurveyModel(nil)
+		pm := NewProfessorModel(nil)
+		db = db.Preload("FactrakSurveys", fsm.scopeCurrent).Preload("FactrakSurveys.Professor", pm.scopeAtWilliams)
 	}
 
 	return db
@@ -112,7 +116,9 @@ func (o *GetAllCoursesOptions) Post(courses []*Course) {
 			// Unique set of professors of all surveys in this course
 			profsSet := make(map[uint]*User)
 			for _, survey := range course.FactrakSurveys {
-				profsSet[survey.Professor.ID] = survey.Professor
+				if survey.Professor != nil {
+					profsSet[survey.Professor.ID] = survey.Professor
+				}
 			}
 			// Now make that set a slice
 			profs := make([]*User, len(profsSet))

@@ -3290,7 +3290,7 @@
                         "Bearer": []
                     }
                 ],
-                "description": "get one course with factrak surveys, area of study preloaded.\nMay pass an optional \"?professorID=XXX\" parameter to limit preload scope to a professor and a course.",
+                "description": "get one course with factrak surveys, area of study preloaded.\nMay pass an optional \"?professorID=XX\" parameter to limit preload scope to a professor and a course.",
                 "consumes": [
                     "application/json"
                 ],

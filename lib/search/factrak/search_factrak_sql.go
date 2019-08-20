@@ -46,7 +46,7 @@ func (s *SearchFactrakMySQL) SearchProfessors(query string, users *[]*models.Use
 	return
 }
 
-func (s *SearchFactrakMySQL) SearchCourses(query string, courses *[]*models.Course, opts SearchOptions) (err error) {
+func (s *SearchFactrakMySQL) SearchCourses(query string, courses *[]*models.Course, opts SearchCoursesOptions) (err error) {
 	words := strings.Split(strings.ToLower(query), " ")
 	if len(words) == 0 {
 		return
@@ -74,11 +74,18 @@ func (s *SearchFactrakMySQL) SearchCourses(query string, courses *[]*models.Cour
 
 	// Run options
 	if opts != nil {
-		tx = opts.Paginate(tx)
-		tx = opts.Preloader(tx)
+		tx = opts.Run(tx)
 	}
 
 	err = tx.Find(courses).Error
+	if err != nil {
+		return
+	}
+
+	if opts != nil {
+		opts.Post(*courses)
+	}
+
 	return
 }
 
@@ -90,7 +97,7 @@ func (*SearchFactrakMySQL) NewProfessorsOptions(offset *uint, limit *uint, prelo
 	}
 }
 
-func (*SearchFactrakMySQL) NewCoursesOptions(offset *uint, limit *uint, preload []string) SearchOptions {
+func (*SearchFactrakMySQL) NewCoursesOptions(offset *uint, limit *uint, preload []string) SearchCoursesOptions {
 	return &models.GetAllCoursesOptions{
 		Offset:  offset,
 		Limit:   limit,

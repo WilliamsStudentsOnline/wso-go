@@ -23,7 +23,7 @@ var CreateBulletins20190722202201 = &gormigrate.Migration{
 		// with those fields.
 		type Bulletin struct {
 			models.BaseSchema
-			Type      string     `gorm:"not null;" json:"type"`
+			Type      string     `gorm:"index:index_bulletins_on_type;not null;" json:"type"`
 			Title     string     `gorm:"not null;" json:"title"`
 			Body      string     `gorm:"size:65535" json:"body"`
 			StartDate time.Time  `gorm:"not null;" json:"startDate"`

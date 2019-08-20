@@ -56,7 +56,7 @@ func (t *Controller) ListCourses(c *gin.Context) {
 // GetCourse godoc
 // @Summary Get course
 // @Description get one course with factrak surveys, area of study preloaded.
-// @Description May pass an optional "?professorID=XXX" parameter to limit preload scope to a professor and a course.
+// @Description May pass an optional "?professorID=XX" parameter to limit preload scope to a professor and a course.
 // @ID factrak-get-course
 // @Tags factrak
 // @Accept  json

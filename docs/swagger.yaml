@@ -3420,7 +3420,7 @@ paths:
       - application/json
       description: |-
         get one course with factrak surveys, area of study preloaded.
-        May pass an optional "?professorID=XXX" parameter to limit preload scope to a professor and a course.
+        May pass an optional "?professorID=XX" parameter to limit preload scope to a professor and a course.
       operationId: factrak-get-course
       parameters:
       - description: Professor ID
