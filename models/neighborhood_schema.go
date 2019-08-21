@@ -1,5 +1,10 @@
 package models
 
+const (
+	NeighborhoodFirstYear = "First-year"
+	NeighborhoodCoop      = "Co-op"
+)
+
 type Neighborhood struct {
 	BaseSchema
 

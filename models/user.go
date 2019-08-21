@@ -383,13 +383,13 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 	}
 	defer willyLdap.Close()
 
-	log.Info("Start Willy LDAP each")
-	// Get all users from Willy LDAP
+	log.Info("Start Williams LDAP each")
+	// Get all users from Williams LDAP
 	userEntries, err := willyLdap.Each("uid", unixSearch)
 	if err != nil {
 		return nil, err
 	}
-	log.Info("End Willy LDAP each")
+	log.Info("End Williams LDAP each")
 
 	// Connect the NDS LDAP
 	err = ndsLdap.Connect()
@@ -483,7 +483,13 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 
 				if err != nil {
 					if gorm.IsRecordNotFoundError(err) {
-						log.Warn("Encountered unknown dorm:", dormName)
+						// If user is an off-campus senior, just give us an info. Otherwise warn.
+						if user.Student().Senior() {
+							log.WithField("unixID", user.UnixID).Info("Encountered off-campus dorm:", dormName)
+						} else {
+							log.WithField("unixID", user.UnixID).Warn("Encountered unknown dorm:", dormName)
+						}
+
 						user.DormRoomID = nil
 						user.DormRoom = nil
 					} else if err != nil {
@@ -503,6 +509,7 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 					user.DormRoom = &dormRoom
 				}
 
+				// Get entry
 				student := user.Student()
 				if entry.GetAttributeValue("wmsDormAddr3") != "" && (student.Prefrosh() || student.Frosh()) {
 					user.Entry = parseStrToPtr(entry.GetAttributeValue("wmsDormAddr3"))
