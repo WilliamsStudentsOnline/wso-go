@@ -21,7 +21,6 @@ func RunCatalogUpdateJob(cfg *config.Config) (*batchv1.Job, error) {
 func RunUpdateAllUsersFromLDAPJob(cfg *config.Config) (*batchv1.Job, error) {
 	return RunJob(cfg, "update-all-users-from-ldap", "update-all-users-from-ldap", []string{
 		"--config=/etc/configs/config.yaml",
-		"--disable-migration-check",
 	})
 }
 
