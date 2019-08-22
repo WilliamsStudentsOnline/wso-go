@@ -72,7 +72,13 @@ func main() {
 		return
 	}
 
-	err = endless.ListenAndServe(fmt.Sprintf(":%d", cfg.Port), r) // listen and serve on 0.0.0.0:8080
+	addr := fmt.Sprintf(":%d", cfg.Port)
+
+	if cfg.EnableTLS {
+		err = endless.ListenAndServeTLS(addr, cfg.TLSCertPath, cfg.TLSKeyPath, r)
+	} else {
+		err = endless.ListenAndServe(addr, r)
+	}
 	if err != nil {
 		log.Fatal("Server Error: " + err.Error())
 		return

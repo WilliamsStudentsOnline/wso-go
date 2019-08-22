@@ -49,6 +49,10 @@ type Config struct {
 	/* Gin */
 	GinMode string `yaml:"gin_mode" envconfig:"gin_mode"`
 	Port    int    `yaml:"port" envconfig:"port"`
+	// Enable TLS (HTTPS):
+	EnableTLS   bool   `yaml:"enable_tls" envconfig:"enable_tls"`
+	TLSCertPath string `yaml:"tls_cert_path" envconfig:"tls_cert_path"`
+	TLSKeyPath  string `yaml:"tls_key_path" envconfig:"tls_key_path"`
 
 	/* Server */
 	EnableAPIDocs bool   `yaml:"enable_api_docs" envconfig:"enable_api_docs"`
@@ -226,6 +230,10 @@ func SetupConfig(c *Config) error {
 	// Default to port 8080
 	if c.Port == 0 {
 		c.Port = 8080
+	}
+
+	if c.EnableTLS && (c.TLSKeyPath == "" || c.TLSCertPath == "") {
+		return errors.New("missing TLS cert/key path with TLS enabled")
 	}
 
 	return nil
