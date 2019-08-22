@@ -7,8 +7,8 @@ GIT_REPO=github.com/WilliamsStudentsOnline/wso-go
 BUILD_DIRS = config db lib models server services
 BUILD_DEPS = $(call rwildcard, $(BUILD_DIRS), *.go) jobs/jobs.go $(wildcard jobs/*/*.go) jobs/dorms_update/cmd/data.go docs/docs.go
 SERVICE_DIRS = $(wildcard services/*)
-SWAGGER = $(shell which swag)
-GOIMPORTS = $(shell which goimports)
+SWAGGER := $(shell which swag 2>/dev/null)
+GOIMPORTS := $(shell which goimports 2>/dev/null)
 
 $(BINARY_NAME): $(BUILD_DEPS)
 	go build -tags=jsoniter -o wso-backend ./server/cmd
@@ -17,10 +17,10 @@ jobs/dorms_update/cmd/data.go: $(wildcard jobs/dorms_update/data/*) jobs/dorms_u
 	go generate $(GIT_REPO)/jobs/dorms_update/cmd
 
 docs/docs.go docs/swagger.json docs/swagger.yaml: $(wildcard models/*_schema.go) $(wildcard services/**/*.go) server/router.go
-ifneq (, SWAGGER)
+ifdef SWAGGER
 	swag init -g server/router.go
 endif
-ifneq (, GOIMPORTS)
+ifdef GOIMPORTS
 	goimports -w docs/docs.go
 endif
 

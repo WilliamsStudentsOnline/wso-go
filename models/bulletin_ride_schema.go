@@ -7,7 +7,7 @@ type BulletinRide struct {
 	BaseSchema
 
 	Body        string    `gorm:"size:65535" json:"body"`
-	Date        time.Time `gorm:"not null;" json:"date"`
+	Date        time.Time `json:"date"`
 	Offer       *bool     `gorm:"not null;" json:"offer"`
 	Source      string    `gorm:"not null;" json:"source"`
 	Destination string    `gorm:"not null;" json:"destination"`
