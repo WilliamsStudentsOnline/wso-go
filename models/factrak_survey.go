@@ -30,7 +30,7 @@ type GetAllFactrakSurveysOptions struct {
 	Offset *time.Time `json:"offset" form:"offset"`
 	Limit  *uint      `json:"limit" form:"limit"`
 
-	// Preloading
+	// Preloading: professor, course
 	Preload []string `json:"preload" form:"preload[]"`
 
 	// Populate survey agreements
@@ -143,7 +143,7 @@ func (m *FactrakSurveyModel) GetAllSurveys(p *[]*FactrakSurvey, opts *GetAllFact
 
 	// Run post-query options
 	if opts != nil {
-		err = opts.Post(db, p)
+		err = opts.Post(m.DB, p)
 		if err != nil {
 			return
 		}
@@ -270,18 +270,18 @@ func (m *FactrakSurveyModel) PopulateAgreementCountsSlice(surveys []*FactrakSurv
 func (m *FactrakSurveyModel) PopulateAgreementCounts(survey *FactrakSurvey) (err error) {
 	var posAgree int
 	err = m.DB.Model(&FactrakAgreement{}).Where(
-		"factrak_agreements.factrak_survey_id = ?",
+		"factrak_survey_id = ?",
 		survey.ID,
-	).Where("factrak_agreements.agrees = ?", true).Count(&posAgree).Error
+	).Where("agrees = ?", true).Count(&posAgree).Error
 	if err != nil {
 		return err
 	}
 
 	var negAgree int
 	err = m.DB.Model(&FactrakAgreement{}).Where(
-		"factrak_agreements.factrak_survey_id = ?",
+		"factrak_survey_id = ?",
 		survey.ID,
-	).Where("factrak_agreements.agrees = ?", false).Count(&negAgree).Error
+	).Where("agrees = ?", false).Count(&negAgree).Error
 	if err != nil {
 		return err
 	}

@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
@@ -84,6 +85,351 @@ func TestController_ListSurveys(t *testing.T) {
 	// Make sure anonymous
 	assert.Zero(resp[0].UserID)
 	assert.Nil(resp[0].User)
+}
+
+func TestController_ListSurveys2(t *testing.T) {
+	// Setup (can copy and paste this basically)
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
+
+	c1 := models.Course{
+		Number: "c1",
+		AreaOfStudy: &models.AreaOfStudy{
+			Name:         "Economics",
+			Abbreviation: "ECON",
+			Department: &models.Department{
+				Name: "Economics",
+			},
+		},
+	}
+	c2 := models.Course{
+		Number: "256",
+		AreaOfStudy: &models.AreaOfStudy{
+			Name:         "Computer Science",
+			Abbreviation: "CSCI",
+			Department: &models.Department{
+				Name: "Computer Science",
+			},
+		},
+	}
+
+	p1 := models.User{
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 1",
+		UnixID: "p1",
+	}
+	p2 := models.User{
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 2",
+		UnixID: "p2",
+	}
+
+	s1 := models.User{
+		Type:   models.UserTypeStudent,
+		Name:   "Student 1",
+		UnixID: "s1",
+	}
+	s2 := models.User{
+		Type:   models.UserTypeStudent,
+		Name:   "Student 2",
+		UnixID: "s2",
+	}
+	assert.NoError(db.Create(&c1).Create(&c2).Create(&p1).Create(&p2).Create(&s1).Create(&s2).Error)
+
+	/* Tests:
+	default
+	courseID
+	professorID
+	userID
+	courseID and professorID
+	userID bad
+	limit and offset
+	preload professor
+	preload course
+	populateAgreements
+	populateClientAgreement
+	*/
+
+	surveys := []*models.FactrakSurvey{
+		{
+			User:      &s1,
+			Professor: &p1,
+			Course:    &c1,
+		},
+		{
+			User:      &s1,
+			Professor: &p1,
+			Course:    &c1,
+		},
+		{
+			User:      &s1,
+			Professor: &p1,
+			Course:    &c2,
+		},
+		{
+			User:      &s1,
+			Professor: &p2,
+			Course:    &c1,
+		},
+		{
+			User:      &s2,
+			Professor: &p1,
+			Course:    &c1,
+		},
+		{
+			User:      &s1,
+			Professor: &p2,
+			Course:    &c2,
+		},
+		{
+			User:      &s1,
+			Professor: &p1,
+			Course:    &c1,
+			Agreements: []*models.FactrakAgreement{
+				{
+					Agrees: true,
+					User: &models.User{
+						BaseSchema: models.BaseSchema{},
+						Type:       models.UserTypeStudent,
+						Name:       "Student 3",
+						UnixID:     "s3",
+					},
+				},
+				{
+					Agrees: false,
+					User: &models.User{
+						BaseSchema: models.BaseSchema{},
+						Type:       models.UserTypeStudent,
+						Name:       "Student 4",
+						UnixID:     "s4",
+					},
+				},
+				{
+					Agrees: true,
+					User: &models.User{
+						BaseSchema: models.BaseSchema{},
+						Type:       models.UserTypeStudent,
+						Name:       "Student 5",
+						UnixID:     "s5",
+					},
+				},
+			},
+		},
+		{
+			User:      &s1,
+			Professor: &p1,
+			Course:    &c1,
+			Agreements: []*models.FactrakAgreement{
+				{
+					Agrees: true,
+					User:   &s2,
+				},
+			},
+		},
+	}
+
+	for i := range surveys {
+		surveys[i].Comment = generateSurveyTestComment()
+		assert.NoError(db.Create(surveys[i]).Error)
+	}
+
+	/* Default */
+
+	// Get test surveys
+	w, err := utils.DoHTTPReq(router, http.MethodGet, "/surveys", nil)
+	assert.NoError(err)
+	// Status is okay
+	assert.Equal(http.StatusOK, w.Code)
+
+	// Decode response
+	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+	var resp []models.FactrakSurvey
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+
+	// Check if correct surveys (ordered by date)
+	assert.Len(resp, 8)
+	for i := range surveys {
+		assert.Equal(surveys[i].Comment, resp[7-i].Comment)
+		// Make sure anonymous
+		assert.Zero(resp[i].UserID)
+		assert.Nil(resp[i].User)
+	}
+
+	/* courseID */
+
+	// Get test surveys
+	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/surveys?courseID=%d", c2.ID), nil)
+	assert.NoError(err)
+	// Status is okay
+	assert.Equal(http.StatusOK, w.Code)
+
+	// Decode response
+	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+	resp = []models.FactrakSurvey{}
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+
+	// Check if correct surveys (ordered by date)
+	assert.Len(resp, 2)
+	assert.Equal(surveys[5].Comment, resp[0].Comment)
+	assert.Equal(surveys[2].Comment, resp[1].Comment)
+
+	/* professorID */
+
+	// Get test surveys
+	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/surveys?professorID=%d", p2.ID), nil)
+	assert.NoError(err)
+	// Status is okay
+	assert.Equal(http.StatusOK, w.Code)
+
+	// Decode response
+	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+	resp = []models.FactrakSurvey{}
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+
+	// Check if correct surveys (ordered by date)
+	assert.Len(resp, 2)
+	assert.Equal(surveys[5].Comment, resp[0].Comment)
+	assert.Equal(surveys[3].Comment, resp[1].Comment)
+
+	/* userID */
+
+	// Get test surveys
+	r1 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
+	utils.AddUserContexts(r1, s2.ID)
+	SetupRouter(r1, db, cfg)
+	w, err = utils.DoHTTPReq(r1, http.MethodGet, fmt.Sprintf("/surveys?userID=%d", s2.ID), nil)
+	assert.NoError(err)
+	// Status is okay
+	assert.Equal(http.StatusOK, w.Code)
+
+	// Decode response
+	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+	resp = []models.FactrakSurvey{}
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+
+	// Check if correct surveys (ordered by date)
+	assert.Len(resp, 1)
+	assert.Equal(surveys[4].Comment, resp[0].Comment)
+
+	/* courseID and professorID */
+
+	// Get test surveys
+	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/surveys?courseID=%d&professorID=%d", c2.ID, p2.ID), nil)
+	assert.NoError(err)
+	// Status is okay
+	assert.Equal(http.StatusOK, w.Code)
+
+	// Decode response
+	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+	resp = []models.FactrakSurvey{}
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+
+	// Check if correct surveys (ordered by date)
+	assert.Len(resp, 1)
+	assert.Equal(surveys[5].Comment, resp[0].Comment)
+
+	/* userID bad */
+
+	// Get test surveys
+	r2 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
+	utils.AddUserContexts(r2, s1.ID)
+	SetupRouter(r2, db, cfg)
+	w, err = utils.DoHTTPReq(r2, http.MethodGet, fmt.Sprintf("/surveys?userID=%d", s2.ID), nil)
+	assert.NoError(err)
+	// Status is okay
+	assert.Equal(http.StatusForbidden, w.Code)
+
+	/* limit and offset */
+
+	// Get test surveys
+	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/surveys?limit=2&offset=%s", surveys[5].CreatedAt.Format(time.RFC3339Nano)), nil)
+	assert.NoError(err)
+	// Status is okay
+	assert.Equal(http.StatusOK, w.Code)
+
+	// Decode response
+	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+	resp = []models.FactrakSurvey{}
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+
+	// Check if correct surveys (ordered by date)
+	assert.Len(resp, 2)
+	assert.Equal(surveys[4].Comment, resp[0].Comment)
+	assert.Equal(surveys[3].Comment, resp[1].Comment)
+
+	/* preload professor, course */
+
+	// Get test surveys
+	w, err = utils.DoHTTPReq(router, http.MethodGet, "/surveys?preload[]=professor&preload[]=course", nil)
+	assert.NoError(err)
+	// Status is okay
+	assert.Equal(http.StatusOK, w.Code)
+
+	// Decode response
+	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+	resp = []models.FactrakSurvey{}
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+
+	// Check if correct surveys (ordered by date)
+	assert.Len(resp, 8)
+	assert.Equal(surveys[0].Comment, resp[7].Comment)
+	assert.NotNil(resp[7].Professor)
+	assert.Equal(surveys[0].Professor.ID, resp[7].Professor.ID)
+	assert.NotNil(resp[7].Course)
+	assert.Equal(surveys[0].Course.ID, resp[7].Course.ID)
+
+	/* populateAgreements */
+
+	// Get test surveys
+	w, err = utils.DoHTTPReq(router, http.MethodGet, "/surveys?populateAgreements=true", nil)
+	assert.NoError(err)
+	// Status is okay
+	assert.Equal(http.StatusOK, w.Code)
+
+	// Decode response
+	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+	resp = []models.FactrakSurvey{}
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+
+	// Check if correct surveys (ordered by date)
+	assert.Len(resp, 8)
+	assert.Equal(surveys[6].Comment, resp[1].Comment)
+	assert.Equal(2, resp[1].TotalAgree)
+	assert.Equal(1, resp[1].TotalDisagree)
+
+	/* populateClientAgreement */
+
+	// Get test surveys
+	r3 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
+	utils.AddUserContexts(r3, s2.ID)
+	SetupRouter(r3, db, cfg)
+	w, err = utils.DoHTTPReq(r3, http.MethodGet, "/surveys?populateClientAgreement=true", nil)
+	assert.NoError(err)
+	// Status is okay
+	assert.Equal(http.StatusOK, w.Code)
+
+	// Decode response
+	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+	resp = []models.FactrakSurvey{}
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+
+	// Check if correct surveys (ordered by date)
+	assert.Len(resp, 8)
+	assert.Equal(surveys[7].Comment, resp[0].Comment)
+	assert.Equal(true, *resp[0].ClientAgreement)
+	assert.Nil(resp[1].ClientAgreement)
 }
 
 func TestController_GetSurvey(t *testing.T) {
