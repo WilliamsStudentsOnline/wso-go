@@ -112,6 +112,8 @@ func (t *Controller) GetCourse(c *gin.Context) {
 // @Param limit query int false "Limit Pagination"
 // @Param professorID query int false "Professor ID"
 // @Param preload query []string false "Preload (course, professor)"
+// @Param populateAgreements query bool false "Populate Agreement Counts"
+// @Param populateClientAgreement query bool false "Populate Client's Agreement"
 // @Success 200 {array} models.FactrakSurvey
 // @Failure 400 {object} lib.APIError
 // @Failure 404 {object} lib.APIError
@@ -121,6 +123,7 @@ func (t *Controller) GetCourse(c *gin.Context) {
 // @Deprecated
 func (t *Controller) ListCourseSurveys(c *gin.Context) {
 	// Decode courseID.
+	userID := services.GetUserID(c)
 	courseID, err := services.GetUIntParam(c, "courseID")
 	if err != nil {
 		t.RespondErrorCode(c, http.StatusBadRequest, err)
@@ -144,9 +147,14 @@ func (t *Controller) ListCourseSurveys(c *gin.Context) {
 		return
 	}
 
+	params.ProfAtWilliams = true
+	params.UserID = nil
+	params.CourseID = &courseID
+	params.ClientAgreementUserID = userID
+
 	// Do database query
 	var surveys []*models.FactrakSurvey
-	err = t.surveyModel.GetSurveysByCourse(courseID, &surveys, &params)
+	err = t.surveyModel.GetAllSurveys(&surveys, &params)
 	if err != nil {
 		t.RespondError(c, err)
 		return

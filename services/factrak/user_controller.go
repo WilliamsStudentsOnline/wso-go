@@ -24,6 +24,7 @@ import (
 // @Param professorID query int false "Professor ID"
 // @Param courseID query int false "Course ID"
 // @Param preload query []string false "Preload (course, professor)"
+// @Param populateAgreements query bool false "Populate Agreement Counts"
 // @Success 200 {array} models.FactrakSurvey
 // @Failure 1331 {object} lib.APIError "must be self"
 // @Failure 400 {object} lib.APIError
@@ -64,9 +65,14 @@ func (t *Controller) ListUserSurveys(c *gin.Context) {
 		return
 	}
 
+	// Set options
+	params.ProfAtWilliams = true
+	params.UserID = &userID
+	params.PopulateClientAgreement = false
+
 	// Do database query
 	var surveys []*models.FactrakSurvey
-	err = t.surveyModel.GetSurveysByAuthor(userID, &surveys, &params)
+	err = t.surveyModel.GetAllSurveys(&surveys, &params)
 	if err != nil {
 		t.RespondError(c, err)
 		return

@@ -734,6 +734,12 @@ definitions:
         type: array
       approachability:
         type: integer
+      clientAgreement:
+        description: |-
+          Pass if the client agreed with the survey; not looked at by GORM.
+          True means user agreed, false means user disagreed, and null/missing means user does not have any
+          agreement/disagreement.
+        type: boolean
       comment:
         type: string
       course:
@@ -3135,6 +3141,18 @@ paths:
       description: lists all surveys that are flagged
       operationId: factrak-list-flagged-surveys
       parameters:
+      - description: Professor ID
+        in: query
+        name: professorID
+        type: integer
+      - description: Course ID
+        in: query
+        name: courseID
+        type: integer
+      - description: User ID
+        in: query
+        name: userID
+        type: integer
       - description: Offset Pagination (timestamp)
         in: query
         name: offset
@@ -3149,6 +3167,14 @@ paths:
           type: string
         name: preload
         type: array
+      - description: Populate Agreement Counts
+        in: query
+        name: populateAgreements
+        type: boolean
+      - description: Populate Client's Agreement
+        in: query
+        name: populateClientAgreement
+        type: boolean
       produces:
       - application/json
       responses:
@@ -3566,6 +3592,14 @@ paths:
           type: string
         name: preload
         type: array
+      - description: Populate Agreement Counts
+        in: query
+        name: populateAgreements
+        type: boolean
+      - description: Populate Client's Agreement
+        in: query
+        name: populateClientAgreement
+        type: boolean
       produces:
       - application/json
       responses:
@@ -3937,6 +3971,14 @@ paths:
           type: string
         name: preload
         type: array
+      - description: Populate Agreement Counts
+        in: query
+        name: populateAgreements
+        type: boolean
+      - description: Populate Client's Agreement
+        in: query
+        name: populateClientAgreement
+        type: boolean
       produces:
       - application/json
       responses:
@@ -4000,6 +4042,10 @@ paths:
       - description: Populate Agreement Counts
         in: query
         name: populateAgreements
+        type: boolean
+      - description: Populate Client's Agreement
+        in: query
+        name: populateClientAgreement
         type: boolean
       produces:
       - application/json
@@ -4476,6 +4522,10 @@ paths:
           type: string
         name: preload
         type: array
+      - description: Populate Agreement Counts
+        in: query
+        name: populateAgreements
+        type: boolean
       produces:
       - application/json
       responses:

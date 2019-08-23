@@ -26,6 +26,7 @@ import (
 // @Param userID query int false "User ID (must be self or blank)"
 // @Param preload query []string false "Preload (course, professor)"
 // @Param populateAgreements query bool false "Populate Agreement Counts"
+// @Param populateClientAgreement query bool false "Populate Client's Agreement"
 // @Success 200 {array} models.FactrakSurvey
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
@@ -40,6 +41,9 @@ func (t *Controller) ListSurveys(c *gin.Context) {
 		return
 	}
 
+	// Add the ClientAgreementUserID to the options
+	params.ClientAgreementUserID = userID
+
 	// If we don't have the full scope and we aren't passing a user ID (ie self), we don't have the scope so fail.
 	// So either we must have full scope or pass the user ID.
 	if !auth.HasScope(c, auth.ScopeFactrakFull) && params.UserID == nil {
@@ -53,6 +57,8 @@ func (t *Controller) ListSurveys(c *gin.Context) {
 		t.RespondError(c, lib.ErrorMustBeSelf)
 		return
 	}
+
+	params.ProfAtWilliams = true
 
 	var surveys []*models.FactrakSurvey
 	err = t.surveyModel.GetAllSurveys(&surveys, &params)
@@ -105,6 +111,14 @@ func (t *Controller) GetSurvey(c *gin.Context) {
 	}
 
 	err = t.surveyModel.PopulateAgreementCounts(&survey)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	// Populate response 2.0
+	userID := services.GetUserID(c)
+	err = t.surveyModel.PopulateClientAgreement(userID, &survey)
 	if err != nil {
 		t.RespondError(c, err)
 		return

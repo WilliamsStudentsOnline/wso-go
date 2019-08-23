@@ -114,6 +114,8 @@ func (t *Controller) GetProfessor(c *gin.Context) {
 // @Param limit query int false "Limit Pagination"
 // @Param courseID query int false "Course ID"
 // @Param preload query []string false "Preload (course, professor)"
+// @Param populateAgreements query bool false "Populate Agreement Counts"
+// @Param populateClientAgreement query bool false "Populate Client's Agreement"
 // @Success 200 {array} models.FactrakSurvey
 // @Failure 400 {object} lib.APIError
 // @Failure 404 {object} lib.APIError
@@ -122,6 +124,7 @@ func (t *Controller) GetProfessor(c *gin.Context) {
 // @Router /factrak/professors/{professorID}/surveys [get]
 // @Deprecated
 func (t *Controller) ListProfessorSurveys(c *gin.Context) {
+	userID := services.GetUserID(c)
 	// Decode professorID.
 	profID, err := services.GetUIntParam(c, "professorID")
 	if err != nil {
@@ -147,10 +150,15 @@ func (t *Controller) ListProfessorSurveys(c *gin.Context) {
 		return
 	}
 
+	params.ProfAtWilliams = false
+	params.UserID = nil
+	params.ProfessorID = &profID
+	params.ClientAgreementUserID = userID
+
 	// Do database query
 	var surveys []*models.FactrakSurvey
 	// We already know prof is at williams, so we don't need to do the join
-	err = t.surveyModel.GetSurveysByProfessor(profID, &surveys, &params)
+	err = t.surveyModel.GetAllSurveys(&surveys, &params)
 	if err != nil {
 		t.RespondError(c, err)
 		return

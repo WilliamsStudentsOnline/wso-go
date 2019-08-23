@@ -39,6 +39,11 @@ type FactrakSurvey struct {
 
 	// Pass the created time: not looked at by GORM
 	CreatedTime time.Time `gorm:"-" json:"createdTime"`
+
+	// Pass if the client agreed with the survey; not looked at by GORM.
+	// True means user agreed, false means user disagreed, and null/missing means user does not have any
+	// agreement/disagreement.
+	ClientAgreement *bool `gorm:"-" json:"clientAgreement,omitempty"`
 }
 
 func (*FactrakSurvey) TableName() string {

@@ -2868,6 +2868,24 @@
                 "operationId": "factrak-list-flagged-surveys",
                 "parameters": [
                     {
+                        "type": "integer",
+                        "description": "Professor ID",
+                        "name": "professorID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Course ID",
+                        "name": "courseID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "userID",
+                        "in": "query"
+                    },
+                    {
                         "type": "string",
                         "description": "Offset Pagination (timestamp)",
                         "name": "offset",
@@ -2886,6 +2904,18 @@
                         },
                         "description": "Preload (course, professor)",
                         "name": "preload",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Populate Agreement Counts",
+                        "name": "populateAgreements",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Populate Client's Agreement",
+                        "name": "populateClientAgreement",
                         "in": "query"
                     }
                 ],
@@ -3521,6 +3551,18 @@
                         "description": "Preload (course, professor)",
                         "name": "preload",
                         "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Populate Agreement Counts",
+                        "name": "populateAgreements",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Populate Client's Agreement",
+                        "name": "populateClientAgreement",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -4091,6 +4133,18 @@
                         "description": "Preload (course, professor)",
                         "name": "preload",
                         "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Populate Agreement Counts",
+                        "name": "populateAgreements",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Populate Client's Agreement",
+                        "name": "populateClientAgreement",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -4187,6 +4241,12 @@
                         "type": "boolean",
                         "description": "Populate Agreement Counts",
                         "name": "populateAgreements",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Populate Client's Agreement",
+                        "name": "populateClientAgreement",
                         "in": "query"
                     }
                 ],
@@ -4910,6 +4970,12 @@
                         },
                         "description": "Preload (course, professor)",
                         "name": "preload",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Populate Agreement Counts",
+                        "name": "populateAgreements",
                         "in": "query"
                     }
                 ],
@@ -6426,6 +6492,10 @@
                 },
                 "approachability": {
                     "type": "integer"
+                },
+                "clientAgreement": {
+                    "description": "Pass if the client agreed with the survey; not looked at by GORM.\nTrue means user agreed, false means user disagreed, and null/missing means user does not have any\nagreement/disagreement.",
+                    "type": "boolean"
                 },
                 "comment": {
                     "type": "string"

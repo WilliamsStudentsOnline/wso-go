@@ -20,20 +20,6 @@ func NewFactrakSurveyModel(db *gorm.DB) *FactrakSurveyModel {
 	}
 }
 
-// Gets all surveys.
-func (m *FactrakSurveyModel) GetAllSurveys(p *[]*FactrakSurvey, opts *GetAllFactrakSurveysOptions) (err error) {
-	err = m.GetAllSurveysWithOptions(p, &GetAllFactrakSurveysOptions{
-		ProfessorID:    opts.ProfessorID,
-		CourseID:       opts.CourseID,
-		UserID:         opts.UserID,
-		Offset:         opts.Offset,
-		Limit:          opts.Limit,
-		Preload:        opts.Preload,
-		ProfAtWilliams: true,
-	})
-	return
-}
-
 type GetAllFactrakSurveysOptions struct {
 	// Scopes for specific surveys
 	ProfessorID *uint `json:"professorID" form:"professorID"`
@@ -49,6 +35,11 @@ type GetAllFactrakSurveysOptions struct {
 
 	// Populate survey agreements
 	PopulateAgreements bool `json:"populateAgreements" form:"populateAgreements"`
+
+	// Populate client agreed with survey
+	PopulateClientAgreement bool `json:"populateClientAgreement" form:"populateClientAgreement"`
+	// Pass an ignored user ID for the PopulateDidAgree function to look up
+	ClientAgreementUserID uint `json:"-" form:"-"`
 
 	// Scope to only get flagged surveys. True means only get flagged; false/empty means ignore this scope.
 	Flagged bool `json:"-" form:"-"`
@@ -121,12 +112,22 @@ func (o *GetAllFactrakSurveysOptions) Post(db *gorm.DB, surveys *[]*FactrakSurve
 	if o.PopulateAgreements {
 		m := NewFactrakSurveyModel(db)
 		err = m.PopulateAgreementCountsSlice(*surveys)
+		if err != nil {
+			return err
+		}
+	}
+	if o.PopulateClientAgreement && o.ClientAgreementUserID > 0 {
+		m := NewFactrakSurveyModel(db)
+		err = m.PopulateClientAgreementsSlice(o.ClientAgreementUserID, *surveys)
+		if err != nil {
+			return err
+		}
 	}
 	return
 }
 
 // Gets all surveys with options
-func (m *FactrakSurveyModel) GetAllSurveysWithOptions(p *[]*FactrakSurvey, opts *GetAllFactrakSurveysOptions) (err error) {
+func (m *FactrakSurveyModel) GetAllSurveys(p *[]*FactrakSurvey, opts *GetAllFactrakSurveysOptions) (err error) {
 	db := m.DB
 	db = m.scopeDefault(db)
 
@@ -148,18 +149,6 @@ func (m *FactrakSurveyModel) GetAllSurveysWithOptions(p *[]*FactrakSurvey, opts 
 		}
 	}
 
-	return
-}
-
-// Gets all flagged surveys.
-func (m *FactrakSurveyModel) GetAllFlaggedSurveys(p *[]*FactrakSurvey, opts *GetAllFactrakSurveysOptions) (err error) {
-	err = m.GetAllSurveysWithOptions(p, &GetAllFactrakSurveysOptions{
-		Offset:         opts.Offset,
-		Limit:          opts.Limit,
-		Preload:        opts.Preload,
-		ProfAtWilliams: true,
-		Flagged:        true,
-	})
 	return
 }
 
@@ -235,45 +224,6 @@ func (m *FactrakSurveyModel) SetSurveyFlag(id uint, flag bool) (err error) {
 	return
 }
 
-func (m *FactrakSurveyModel) GetSurveysByProfessor(profID uint, fs *[]*FactrakSurvey, opts *GetAllFactrakSurveysOptions) (err error) {
-	err = m.GetAllSurveysWithOptions(fs, &GetAllFactrakSurveysOptions{
-		ProfessorID:        &profID,
-		CourseID:           opts.CourseID,
-		Offset:             opts.Offset,
-		Limit:              opts.Limit,
-		Preload:            opts.Preload,
-		ProfAtWilliams:     false,
-		PopulateAgreements: true,
-	})
-	return
-}
-
-func (m *FactrakSurveyModel) GetSurveysByAuthor(authorUserID uint, fs *[]*FactrakSurvey, opts *GetAllFactrakSurveysOptions) (err error) {
-	err = m.GetAllSurveysWithOptions(fs, &GetAllFactrakSurveysOptions{
-		ProfessorID:    opts.ProfessorID,
-		CourseID:       opts.CourseID,
-		UserID:         &authorUserID,
-		Offset:         opts.Offset,
-		Limit:          opts.Limit,
-		Preload:        opts.Preload,
-		ProfAtWilliams: true,
-	})
-	return
-}
-
-func (m *FactrakSurveyModel) GetSurveysByCourse(courseID uint, fs *[]*FactrakSurvey, opts *GetAllFactrakSurveysOptions) (err error) {
-	err = m.GetAllSurveysWithOptions(fs, &GetAllFactrakSurveysOptions{
-		ProfessorID:        opts.ProfessorID,
-		CourseID:           &courseID,
-		Offset:             opts.Offset,
-		Limit:              opts.Limit,
-		Preload:            opts.Preload,
-		ProfAtWilliams:     true,
-		PopulateAgreements: true,
-	})
-	return
-}
-
 var surveyFields = []string{
 	"would_recommend_course",
 	"course_workload",
@@ -319,19 +269,58 @@ func (m *FactrakSurveyModel) PopulateAgreementCountsSlice(surveys []*FactrakSurv
 // so disable and make a new endpoint with this data if that is the case.
 func (m *FactrakSurveyModel) PopulateAgreementCounts(survey *FactrakSurvey) (err error) {
 	var posAgree int
-	m.DB.Model(&FactrakAgreement{}).Where(
+	err = m.DB.Model(&FactrakAgreement{}).Where(
 		"factrak_agreements.factrak_survey_id = ?",
 		survey.ID,
-	).Where("factrak_agreements.agrees = ?", true).Count(&posAgree)
+	).Where("factrak_agreements.agrees = ?", true).Count(&posAgree).Error
+	if err != nil {
+		return err
+	}
 
 	var negAgree int
-	m.DB.Model(&FactrakAgreement{}).Where(
+	err = m.DB.Model(&FactrakAgreement{}).Where(
 		"factrak_agreements.factrak_survey_id = ?",
 		survey.ID,
-	).Where("factrak_agreements.agrees = ?", false).Count(&negAgree)
+	).Where("factrak_agreements.agrees = ?", false).Count(&negAgree).Error
+	if err != nil {
+		return err
+	}
 
 	survey.TotalAgree = posAgree
 	survey.TotalDisagree = negAgree
+	return
+}
+
+// This will populate the didAgree field for a slice of surveys. This does an extra 1*(num surveys) SQL
+// requests, which could be slow, so disable and make a new endpoint with this data if that is the case.
+func (m *FactrakSurveyModel) PopulateClientAgreementsSlice(userID uint, surveys []*FactrakSurvey) (err error) {
+	for _, survey := range surveys {
+		err = m.PopulateClientAgreement(userID, survey)
+		if err != nil {
+			return err
+		}
+	}
+	return
+}
+
+// This will populate the didAgree field. This does an extra 1 SQL requests, which could be slow,
+// so disable and make a new endpoint with this data if that is the case.
+func (m *FactrakSurveyModel) PopulateClientAgreement(userID uint, survey *FactrakSurvey) (err error) {
+	agreement := FactrakAgreement{}
+	err = m.DB.Where(&FactrakAgreement{
+		FactrakSurveyID: survey.ID,
+		UserID:          userID,
+	}).Find(&agreement).Error
+	if err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			survey.ClientAgreement = nil
+			return nil
+		} else {
+			return err
+		}
+	}
+
+	survey.ClientAgreement = &agreement.Agrees
 	return
 }
 

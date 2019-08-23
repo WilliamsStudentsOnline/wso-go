@@ -14,14 +14,20 @@ import (
 // @Tags factrak,factrak-admin,admin
 // @Accept  json
 // @Produce  json
+// @Param professorID query int false "Professor ID"
+// @Param courseID query int false "Course ID"
+// @Param userID query int false "User ID"
 // @Param offset query string false "Offset Pagination (timestamp)"
 // @Param limit query int false "Limit Pagination"
 // @Param preload query []string false "Preload (course, professor)"
+// @Param populateAgreements query bool false "Populate Agreement Counts"
+// @Param populateClientAgreement query bool false "Populate Client's Agreement"
 // @Success 200 {array} models.FactrakSurvey
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
 // @Router /factrak/admin/surveys [get]
 func (t *Controller) ListFlaggedSurveys(c *gin.Context) {
+	userID := services.GetUserID(c)
 	var surveys []*models.FactrakSurvey
 
 	params := models.GetAllFactrakSurveysOptions{}
@@ -31,7 +37,13 @@ func (t *Controller) ListFlaggedSurveys(c *gin.Context) {
 		return
 	}
 
-	err = t.surveyModel.GetAllFlaggedSurveys(&surveys, &params)
+	// Add the ClientAgreementUserID to the options
+	params.ClientAgreementUserID = userID
+
+	params.Flagged = true
+	params.ProfAtWilliams = true
+
+	err = t.surveyModel.GetAllSurveys(&surveys, &params)
 
 	if err != nil {
 		t.RespondError(c, err)
