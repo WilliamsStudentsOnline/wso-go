@@ -9,6 +9,7 @@ import (
 	_ "github.com/WilliamsStudentsOnline/wso-go/docs"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	log "github.com/sirupsen/logrus"
@@ -49,6 +50,12 @@ func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 
 	// Recovery middleware recovers from any panics and writes a 500 if there was one.
 	r.Use(gin.Recovery())
+
+	// CORS config for react app
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowHeaders = append(corsConfig.AllowHeaders, "Authorization")
+	corsConfig.AllowAllOrigins = true
+	r.Use(cors.New(corsConfig))
 
 	// Build JWT auth middleware
 	authMiddleware, err := authService.LoadAuthMiddleware(cfg, db)
