@@ -141,7 +141,7 @@ type ReviewCreateParams struct {
 func (t *Controller) CreateReview(c *gin.Context) {
 	userID := services.GetUserID(c)
 
-	// Bind update params
+	// Bind create params
 	createData := ReviewCreateParams{}
 	err := c.ShouldBind(&createData)
 	if err != nil {

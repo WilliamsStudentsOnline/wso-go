@@ -137,6 +137,7 @@ type UpdateUserParams struct {
 	OffCycle                  *bool   `json:"offCycle"`
 	HasAcceptedFactrakPolicy  *bool   `json:"hasAcceptedFactrakPolicy"`
 	HasAcceptedDormtrakPolicy *bool   `json:"hasAcceptedDormtrakPolicy"`
+	Nickname                  *string `json:"nickname"`
 }
 
 // UpdateUser godoc
@@ -194,6 +195,7 @@ func (t *Controller) UpdateUser(c *gin.Context) {
 	user.OffCycle = lib.BoolPtrDefaults(updateData.OffCycle, user.OffCycle)
 	user.HasAcceptedFactrakPolicy = lib.BoolPtrDefaults(updateData.HasAcceptedFactrakPolicy, user.HasAcceptedFactrakPolicy)
 	user.HasAcceptedDormtrakPolicy = lib.BoolPtrDefaults(updateData.HasAcceptedDormtrakPolicy, user.HasAcceptedDormtrakPolicy)
+	user.Nickname = lib.StrPtrDefaults(updateData.Nickname, user.Nickname)
 
 	// Update the user in the db
 	err = t.userModel.UpdateUser(&user)

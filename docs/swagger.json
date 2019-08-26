@@ -6834,6 +6834,9 @@
                 "name": {
                     "type": "string"
                 },
+                "nickname": {
+                    "type": "string"
+                },
                 "offCycle": {
                     "type": "boolean"
                 },
@@ -7280,6 +7283,9 @@
                 },
                 "homeVisible": {
                     "type": "boolean"
+                },
+                "nickname": {
+                    "type": "string"
                 },
                 "offCycle": {
                     "type": "boolean"

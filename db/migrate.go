@@ -27,6 +27,7 @@ var Migrations = []*gormigrate.Migration{
 	migrations.CreateBulletinRides20190812204834,
 	migrations.CreateDiscussions20190812232511,
 	migrations.CreatePosts20190812232529,
+	migrations.AddNicknameToUsers20190826115256,
 }
 
 var MigrationGormOptions = gormigrate.DefaultOptions

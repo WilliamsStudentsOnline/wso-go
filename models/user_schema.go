@@ -26,6 +26,7 @@ type User struct {
 	Title          *string `json:"title"`
 	Visible        *bool   `gorm:"DEFAULT:true;not null" json:"visible"`
 	ClassYear      *int    `gorm:"size:4" json:"classYear"`
+	Nickname       *string `json:"nickname"`
 
 	DormVisible *bool   `gorm:"DEFAULT:true;not null" json:"dormVisible"`
 	HomeTown    *string `json:"homeTown"`
