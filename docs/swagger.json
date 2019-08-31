@@ -379,7 +379,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "string"
+                                "$ref": "#/definitions/autocomplete.ACEntry"
                             }
                         }
                     },
@@ -426,7 +426,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "string"
+                                "$ref": "#/definitions/autocomplete.ACEntry"
                             }
                         }
                     },
@@ -473,7 +473,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "string"
+                                "$ref": "#/definitions/autocomplete.ACEntry"
                             }
                         }
                     },
@@ -520,7 +520,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "string"
+                                "$ref": "#/definitions/autocomplete.ACEntry"
                             }
                         }
                     },
@@ -5459,6 +5459,20 @@
                 "useIP": {
                     "description": "If true, will authenticate based on IP. Will return either off-campus or on-campus token",
                     "type": "boolean"
+                }
+            }
+        },
+        "autocomplete.ACEntry": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
                 }
             }
         },

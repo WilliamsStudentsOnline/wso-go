@@ -30,6 +30,15 @@ definitions:
     - password
     - unixID
     type: object
+  autocomplete.ACEntry:
+    properties:
+      id:
+        type: integer
+      type:
+        type: string
+      value:
+        type: string
+    type: object
   bulletin.CreateBulletinParams:
     properties:
       body:
@@ -1536,7 +1545,7 @@ paths:
           description: OK
           schema:
             items:
-              type: string
+              $ref: '#/definitions/autocomplete.ACEntry'
             type: array
         "500":
           description: Internal Server Error
@@ -1567,7 +1576,7 @@ paths:
           description: OK
           schema:
             items:
-              type: string
+              $ref: '#/definitions/autocomplete.ACEntry'
             type: array
         "500":
           description: Internal Server Error
@@ -1598,7 +1607,7 @@ paths:
           description: OK
           schema:
             items:
-              type: string
+              $ref: '#/definitions/autocomplete.ACEntry'
             type: array
         "500":
           description: Internal Server Error
@@ -1629,7 +1638,7 @@ paths:
           description: OK
           schema:
             items:
-              type: string
+              $ref: '#/definitions/autocomplete.ACEntry'
             type: array
         "500":
           description: Internal Server Error

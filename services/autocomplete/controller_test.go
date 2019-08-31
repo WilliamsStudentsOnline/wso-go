@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
+	"github.com/WilliamsStudentsOnline/wso-go/lib/autocomplete"
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	. "github.com/WilliamsStudentsOnline/wso-go/services/autocomplete"
@@ -114,11 +115,12 @@ func TestController_AreaOfStudy(t *testing.T) {
 			// Decode response
 			resp := utils.GetHTTPDataResp(a, w.Body.Bytes())
 			a.Nil(resp.Error)
-			var respStrs []string
-			err = json.Unmarshal(resp.Data, &respStrs)
+			var respEntries []autocomplete.ACEntry
+			err = json.Unmarshal(resp.Data, &respEntries)
 			a.NoError(err)
 
 			// Check if correct response
+			respStrs := getRespStrs(respEntries)
 			a.Len(respStrs, len(tc.expected))
 			a.Equal(tc.expected, respStrs)
 		})
@@ -240,11 +242,12 @@ func TestController_Course(t *testing.T) {
 			// Decode response
 			resp := utils.GetHTTPDataResp(a, w.Body.Bytes())
 			a.Nil(resp.Error)
-			var respStrs []string
-			err = json.Unmarshal(resp.Data, &respStrs)
+			var respEntries []autocomplete.ACEntry
+			err = json.Unmarshal(resp.Data, &respEntries)
 			a.NoError(err)
 
 			// Check if correct response
+			respStrs := getRespStrs(respEntries)
 			a.Len(respStrs, len(tc.expected))
 			a.Equal(tc.expected, respStrs)
 		})
@@ -330,11 +333,12 @@ func TestController_Professor(t *testing.T) {
 			// Decode response
 			resp := utils.GetHTTPDataResp(a, w.Body.Bytes())
 			a.Nil(resp.Error)
-			var respStrs []string
-			err = json.Unmarshal(resp.Data, &respStrs)
+			var respEntries []autocomplete.ACEntry
+			err = json.Unmarshal(resp.Data, &respEntries)
 			a.NoError(err)
 
 			// Check if correct response
+			respStrs := getRespStrs(respEntries)
 			a.Len(respStrs, len(tc.expected))
 			a.Equal(tc.expected, respStrs)
 		})
@@ -413,13 +417,22 @@ func TestController_Tag(t *testing.T) {
 			// Decode response
 			resp := utils.GetHTTPDataResp(a, w.Body.Bytes())
 			a.Nil(resp.Error)
-			var respStrs []string
-			err = json.Unmarshal(resp.Data, &respStrs)
+			var respEntries []autocomplete.ACEntry
+			err = json.Unmarshal(resp.Data, &respEntries)
 			a.NoError(err)
 
 			// Check if correct response
+			respStrs := getRespStrs(respEntries)
 			a.Len(respStrs, len(tc.expected))
 			a.Equal(tc.expected, respStrs)
 		})
 	}
+}
+
+func getRespStrs(entries []autocomplete.ACEntry) []string {
+	strs := make([]string, len(entries))
+	for i := range entries {
+		strs[i] = entries[i].Value
+	}
+	return strs
 }

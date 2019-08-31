@@ -3,6 +3,7 @@ package autocomplete
 import (
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/autocomplete"
+	"github.com/WilliamsStudentsOnline/wso-go/lib/autocomplete/autocompletor"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -17,7 +18,7 @@ type Controller struct {
 // NewController constructs a new user controller
 func NewController(db *gorm.DB, cfg *config.Config) *Controller {
 	return &Controller{
-		autocomplete: autocomplete.NewAutocomplete(cfg, db),
+		autocomplete: autocompletor.NewAutocomplete(cfg, db),
 	}
 }
 
@@ -29,7 +30,7 @@ func NewController(db *gorm.DB, cfg *config.Config) *Controller {
 // @Accept  json
 // @Produce  json
 // @Param q query string true "String to Complete"
-// @Success 200 {array} string
+// @Success 200 {array} autocomplete.ACEntry
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
 // @Router /autocomplete/area-of-study [get]
@@ -45,7 +46,7 @@ func (t *Controller) AreaOfStudy(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param q query string true "String to Complete"
-// @Success 200 {array} string
+// @Success 200 {array} autocomplete.ACEntry
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
 // @Router /autocomplete/course [get]
@@ -61,7 +62,7 @@ func (t *Controller) Course(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param q query string true "String to Complete"
-// @Success 200 {array} string
+// @Success 200 {array} autocomplete.ACEntry
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
 // @Router /autocomplete/professor [get]
@@ -77,7 +78,7 @@ func (t *Controller) Professor(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param q query string true "String to Complete"
-// @Success 200 {array} string
+// @Success 200 {array} autocomplete.ACEntry
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
 // @Router /autocomplete/tag [get]
@@ -87,18 +88,18 @@ func (t *Controller) Tag(c *gin.Context) {
 
 // Since all of the autocomplete control code is the same, we just put it here and then call it from the control
 // functions, with a specified autocomplete method.
-func (t *Controller) doAutocomplete(c *gin.Context, f func(string) ([]string, error)) {
+func (t *Controller) doAutocomplete(c *gin.Context, f func(string) ([]autocomplete.ACEntry, error)) {
 	q := c.Query("q")
 	if q == "" {
-		t.RespondOK(c, []string{})
+		t.RespondOK(c, []autocomplete.ACEntry{})
 		return
 	}
 
-	strs, err := f(q)
+	entries, err := f(q)
 	if err != nil {
 		t.RespondError(c, err)
 		return
 	}
 
-	t.RespondOK(c, strs)
+	t.RespondOK(c, entries)
 }

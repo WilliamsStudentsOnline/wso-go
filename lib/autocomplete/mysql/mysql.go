@@ -4,6 +4,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/WilliamsStudentsOnline/wso-go/lib/autocomplete"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/jinzhu/gorm"
 	"github.com/m1ome/leven"
@@ -13,7 +14,7 @@ type Autocomplete struct {
 	DB *gorm.DB
 }
 
-func (a *Autocomplete) AreaOfStudy(q string) ([]string, error) {
+func (a *Autocomplete) AreaOfStudy(q string) ([]autocomplete.ACEntry, error) {
 	q = strings.ToLower(q)
 
 	// Get area of study by name
@@ -38,20 +39,26 @@ func (a *Autocomplete) AreaOfStudy(q string) ([]string, error) {
 	copy(areas[len(areasName):], areasAbbrev)
 
 	// Turn the areas into a combined list of strings
-	strs := make([]string, len(areasName)+len(areasAbbrev))
+	entries := make([]autocomplete.ACEntry, len(areasName)+len(areasAbbrev))
 	// Add in the names
 	for i := range areasName {
-		strs[i] = areas[i].Name
+		entries[i] = autocomplete.ACEntry{
+			ID:    areas[i].ID,
+			Value: areas[i].Name,
+		}
 	}
 	// Add in the abbreviations
 	lenAreasName := len(areasName)
 	for i := range areasAbbrev {
-		strs[lenAreasName+i] = areasAbbrev[i].Abbreviation
+		entries[lenAreasName+i] = autocomplete.ACEntry{
+			ID:    areasAbbrev[i].ID,
+			Value: areasAbbrev[i].Abbreviation,
+		}
 	}
 
-	sortByDistance(q, strs)
+	sortByDistance(q, entries)
 
-	return strs, nil
+	return entries, nil
 }
 
 func (a *Autocomplete) dbGetAreaAbbrev(q string) ([]models.AreaOfStudy, error) {
@@ -69,7 +76,12 @@ func (a *Autocomplete) dbGetAreaAbbrev(q string) ([]models.AreaOfStudy, error) {
 	return areasAbbrev, nil
 }
 
-func (a *Autocomplete) Course(q string) ([]string, error) {
+const (
+	ACTypeCourse = "course"
+	ACTypeArea   = "area"
+)
+
+func (a *Autocomplete) Course(q string) ([]autocomplete.ACEntry, error) {
 	q = strings.ToLower(q)
 	parts := strings.Split(q, " ")
 
@@ -81,23 +93,27 @@ func (a *Autocomplete) Course(q string) ([]string, error) {
 
 	// If no areas, return nothing
 	if len(areas) == 0 {
-		return []string{}, nil
+		return []autocomplete.ACEntry{}, nil
 	}
 
 	// If multiple areas, return autocomplete for the areas (just abbreviation)
 	if len(areas) > 1 {
-		strs := make([]string, len(areas))
+		entries := make([]autocomplete.ACEntry, len(areas))
 		for i := range areas {
-			strs[i] = areas[i].Abbreviation
+			entries[i] = autocomplete.ACEntry{
+				ID:    areas[i].ID,
+				Value: areas[i].Abbreviation,
+				Type:  ACTypeArea,
+			}
 		}
-		sortByDistance(parts[0], strs)
-		return strs, nil
+		sortByDistance(parts[0], entries)
+		return entries, nil
 	}
 
 	// If the abbreviation does not equal our passed abbreviation (aka we haven't finished
 	// typing it yet: eg "csc" for "csci"), return just the abbreviation.
 	if strings.ToLower(areas[0].Abbreviation) != parts[0] {
-		return []string{areas[0].Abbreviation}, nil
+		return []autocomplete.ACEntry{{ID: areas[0].ID, Value: areas[0].Abbreviation, Type: ACTypeArea}}, nil
 	}
 
 	// Once we have only one area, return autocomplete for that
@@ -105,7 +121,7 @@ func (a *Autocomplete) Course(q string) ([]string, error) {
 	// Get courses
 	var courses []models.Course
 	tx := a.DB.Model(&models.Course{}).
-		Select("number").
+		Select("id, number").
 		Where("area_of_study_id = ?", areas[0].ID)
 	if len(parts) > 1 {
 		tx = tx.Where("lower(number) LIKE ?", parts[1]+"%")
@@ -116,17 +132,21 @@ func (a *Autocomplete) Course(q string) ([]string, error) {
 	}
 
 	// Return course names (with the abbreviation)
-	strs := make([]string, len(courses))
+	entries := make([]autocomplete.ACEntry, len(courses))
 	for i := range courses {
-		strs[i] = areas[0].Abbreviation + " " + courses[i].Number
+		entries[i] = autocomplete.ACEntry{
+			ID:    courses[i].ID,
+			Value: areas[0].Abbreviation + " " + courses[i].Number,
+			Type:  ACTypeCourse,
+		}
 	}
 
-	sortByDistance(q, strs)
+	sortByDistance(q, entries)
 
-	return strs, nil
+	return entries, nil
 }
 
-func (a *Autocomplete) Professor(q string) ([]string, error) {
+func (a *Autocomplete) Professor(q string) ([]autocomplete.ACEntry, error) {
 	q = strings.ToLower(q)
 	words := strings.Split(q, " ")
 
@@ -154,54 +174,57 @@ func (a *Autocomplete) Professor(q string) ([]string, error) {
 		return nil, err
 	}
 
-	strs := make([]string, len(profs))
+	entries := make([]autocomplete.ACEntry, len(profs))
 	for i := range profs {
-		strs[i] = profs[i].Name
+		entries[i] = autocomplete.ACEntry{
+			ID:    profs[i].ID,
+			Value: profs[i].Name,
+		}
 	}
 
-	sortByDistance(q, strs)
+	sortByDistance(q, entries)
 
-	return strs, nil
+	return entries, nil
 }
 
-func (a *Autocomplete) Tag(q string) ([]string, error) {
+func (a *Autocomplete) Tag(q string) ([]autocomplete.ACEntry, error) {
 	q = strings.ToLower(q)
 
 	var tags []models.Tag
 
 	// Do SQL
 	err := a.DB.Model(&models.Tag{}).
-		Select("name").
+		Select("id, name").
 		Where("lower(name) LIKE ?", "%"+q+"%").
 		Find(&tags).Error
 	if err != nil {
 		return nil, err
 	}
 
-	strs := make([]string, len(tags))
+	entries := make([]autocomplete.ACEntry, len(tags))
 	for i := range tags {
-		strs[i] = tags[i].Name
+		entries[i] = autocomplete.ACEntry{ID: tags[i].ID, Value: tags[i].Name}
 	}
 
-	sortByDistance(q, strs)
+	sortByDistance(q, entries)
 
-	return strs, nil
+	return entries, nil
 }
 
 type levDist struct {
-	str  string
+	val  autocomplete.ACEntry
 	dist int
 }
 
 // Sorts the resulting strings by levenshtein distance from the original query
-func sortByDistance(q string, strs []string) {
-	dists := make([]levDist, len(strs))
+func sortByDistance(q string, entries []autocomplete.ACEntry) {
+	dists := make([]levDist, len(entries))
 
 	// Calculate the distances
-	for i, val := range strs {
+	for i, val := range entries {
 		dists[i] = levDist{
-			str:  val,
-			dist: leven.Distance(q, strings.ToLower(val)),
+			val:  val,
+			dist: leven.Distance(q, strings.ToLower(val.Value)),
 		}
 	}
 
@@ -212,6 +235,6 @@ func sortByDistance(q string, strs []string) {
 
 	// Copy the sorted list into the original list of resulting strings
 	for i := range dists {
-		strs[i] = dists[i].str
+		entries[i] = dists[i].val
 	}
 }
