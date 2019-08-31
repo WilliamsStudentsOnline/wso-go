@@ -43,6 +43,13 @@ func (t *Controller) ListRides(c *gin.Context) {
 		return
 	}
 
+	count, err := t.rideModel.CountAllRides(&params)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+	t.SetPaginationTotal(c, count)
+
 	// Remove user info if not a user. Need this, as bulletin service is public
 	removeUserInfoFromRides(c, rides)
 

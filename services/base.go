@@ -14,11 +14,11 @@ import (
 type BaseController struct{}
 
 type BaseResponse struct {
-	Status           int         `json:"status"`
-	Data             interface{} `json:"data,omitempty"`
-	Error            *RespError  `json:"error,omitempty"`
-	UpdateToken      bool        `json:"updateToken"`
-	PaginationOffset uint        `json:"paginationOffset,omitempty"`
+	Status          int         `json:"status"`
+	Data            interface{} `json:"data,omitempty"`
+	Error           *RespError  `json:"error,omitempty"`
+	UpdateToken     bool        `json:"updateToken"`
+	PaginationTotal uint        `json:"paginationTotal,omitempty"`
 }
 
 type RespError struct {
@@ -27,7 +27,10 @@ type RespError struct {
 	Errors    []string `json:"errors,omitempty"`
 }
 
-const UpdateTokenKey = "updateToken"
+const (
+	UpdateTokenKey     = "updateToken"
+	PaginationTotalKey = "paginationTotal"
+)
 
 // Respond to a request with an OK and some data
 func (BaseController) RespondOK(c *gin.Context, data interface{}) {
@@ -177,4 +180,8 @@ func GetPaginationParams(ctx *gin.Context) (offset, limit int, err error) {
 
 func (BaseController) SetUpdateToken(c *gin.Context) {
 	c.Set(UpdateTokenKey, true)
+}
+
+func (BaseController) SetPaginationTotal(c *gin.Context, total int) {
+	c.Set(PaginationTotalKey, total)
 }

@@ -65,7 +65,12 @@ func (o *GetAllBulletinRidesOptions) Preloader(db *gorm.DB) *gorm.DB {
 func (o *GetAllBulletinRidesOptions) Run(db *gorm.DB) *gorm.DB {
 	db = o.Paginate(db)
 	db = o.Preloader(db)
+	db = o.filter(db)
 
+	return db
+}
+
+func (o *GetAllBulletinRidesOptions) filter(db *gorm.DB) *gorm.DB {
 	if !o.All {
 		now := time.Now()
 		db = db.Where("bulletin_rides.date >= ?", time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location()))
@@ -88,6 +93,15 @@ func (m *BulletinRideModel) GetAllRides(r *[]*BulletinRide, opts Options) (err e
 		db = opts.Run(db)
 	}
 	err = db.Find(r).Error
+	return
+}
+
+func (m *BulletinRideModel) CountAllRides(opts *GetAllBulletinRidesOptions) (count int, err error) {
+	db := m.DB.Model(&BulletinRide{})
+	if opts != nil {
+		db = opts.filter(db)
+	}
+	err = db.Count(&count).Error
 	return
 }
 

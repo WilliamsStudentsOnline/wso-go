@@ -43,6 +43,13 @@ func (t *Controller) ListBulletins(c *gin.Context) {
 		return
 	}
 
+	count, err := t.bulletinModel.CountAllBulletinsWithOptions(&params)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+	t.SetPaginationTotal(c, count)
+
 	// Remove user info if not a user. Need this, as bulletin service is public
 	removeUserInfoFromBulletin(c, bulletins)
 

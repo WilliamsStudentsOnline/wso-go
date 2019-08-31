@@ -154,14 +154,14 @@ type RawCourse struct {
 }
 
 type exportCourses struct {
-	Courses    []*Course `json:"courses"`
-	UpdateTime string    `json:"updateTime"`
+	Courses    []Course `json:"courses"`
+	UpdateTime string   `json:"updateTime"`
 }
 
 // ParseCatalog processes the raw byte data from the JSON endpoint to obtain Course objects
-func ParseCatalog(catalog []RawCourse, fallSemID, winterSemID, springSemID int) ([]*Course, error) {
+func ParseCatalog(catalog []RawCourse, fallSemID, winterSemID, springSemID int) ([]Course, error) {
 	// Initialize the slice this way in order to ensure it will never respond as a nil slice
-	var courses []*Course
+	courses := []Course{}
 
 	for _, unparsed := range catalog {
 		if unparsed.Offered != "Y" || unparsed.Facility1 == "Cancelled" {
@@ -356,7 +356,7 @@ func ParseCatalog(catalog []RawCourse, fallSemID, winterSemID, springSemID int) 
 		course.DescriptionSearch = trimCapitalize(unparsed.DescriptionSearch)
 		course.EnrolmentPreferences = trimCapitalize(unparsed.EnrollmentPreference)
 
-		courses = append(courses, &course)
+		courses = append(courses, course)
 	}
 
 	UpdateCrossListing(courses)
@@ -365,7 +365,7 @@ func ParseCatalog(catalog []RawCourse, fallSemID, winterSemID, springSemID int) 
 }
 
 // UpdateCrossListing takes the parsed array of courses and updates their cross-listing information.
-func UpdateCrossListing(courses []*Course) {
+func UpdateCrossListing(courses []Course) {
 	// Sort courses by CourseID, since cross-listed courses all have the same CourseID, so we
 	// only need to do one pass through the array
 	sort.SliceStable(courses, func(i, j int) bool {
@@ -441,7 +441,7 @@ func GetCatalog(academicYear int) ([]RawCourse, error) {
 }
 
 // SaveCatalog writes the array of courses and the update time into the provided writer.
-func SaveCatalog(w io.Writer, courses []*Course) error {
+func SaveCatalog(w io.Writer, courses []Course) error {
 	var catalog = exportCourses{}
 	catalog.Courses = courses
 	catalog.UpdateTime = time.Now().Format(time.RFC850)

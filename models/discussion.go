@@ -77,6 +77,12 @@ func (m *DiscussionModel) GetAllDiscussions(p *[]*Discussion, opts Options) (err
 	return
 }
 
+func (m *DiscussionModel) CountAllDiscussions() (count int, err error) {
+	db := m.DB.Model(&Discussion{})
+	err = db.Count(&count).Error
+	return
+}
+
 func (m *DiscussionModel) GetDiscussionByID(id uint, p *Discussion) (err error) {
 	err = m.DB.Preload("User").Preload("Posts").Preload("Posts.User").First(p, id).Error
 	return

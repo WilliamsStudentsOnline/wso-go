@@ -38,6 +38,13 @@ func (m *DormRoomModel) GetDormRoomsByDorm(dormID uint, p *[]*DormRoom, paginato
 	return
 }
 
+// Counts all dorm rooms by dorm building.
+func (m *DormRoomModel) CountDormRoomsByDorm(dormID uint) (count int, err error) {
+	db := m.DB.Model(&DormRoom{}).Where("dorm_rooms.dorm_id = ?", dormID)
+	err = db.Count(&count).Error
+	return
+}
+
 // This updates the latest room info based on the latest review. It also updates the dorm's rating statistics.
 // In addition it has the consequence of running DormModel.UpdateDormFacts().
 func (m *DormRoomModel) ReloadStatistics(id uint) (err error) {

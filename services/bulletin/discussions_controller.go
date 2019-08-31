@@ -40,6 +40,13 @@ func (t *Controller) ListDiscussions(c *gin.Context) {
 		return
 	}
 
+	count, err := t.discussionModel.CountAllDiscussions()
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+	t.SetPaginationTotal(c, count)
+
 	// Remove user info if not a user. Need this, as bulletin service is public
 	removeUserInfoFromDiscussions(c, discussions)
 

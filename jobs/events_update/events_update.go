@@ -134,5 +134,5 @@ type DailyMessage struct {
 }
 
 func GetDailyMessages() (map[string]DailyMessage, error) {
-
+	return nil, nil
 }

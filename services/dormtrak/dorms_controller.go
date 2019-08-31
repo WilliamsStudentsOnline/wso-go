@@ -130,6 +130,13 @@ func (t *Controller) GetDormRooms(c *gin.Context) {
 		return
 	}
 
+	count, err := t.dormRoomModel.CountDormRoomsByDorm(dormID)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+	t.SetPaginationTotal(c, count)
+
 	t.RespondOK(c, rooms)
 }
 

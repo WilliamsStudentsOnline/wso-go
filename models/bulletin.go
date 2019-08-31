@@ -71,7 +71,12 @@ func (o *GetAllBulletinsOptions) Preloader(db *gorm.DB) *gorm.DB {
 func (o *GetAllBulletinsOptions) Run(db *gorm.DB) *gorm.DB {
 	db = o.Paginate(db)
 	db = o.Preloader(db)
+	db = o.filter(db)
 
+	return db
+}
+
+func (o *GetAllBulletinsOptions) filter(db *gorm.DB) *gorm.DB {
 	if !o.All {
 		db = db.Where("bulletins.start_date <= ?", time.Now())
 		db = db.Where("bulletins.end_date IS NULL OR bulletins.end_date > ?", time.Now())
@@ -93,6 +98,15 @@ func (m *BulletinModel) GetAllBulletinsWithOptions(b *[]*Bulletin, opts Options)
 		db = opts.Run(db)
 	}
 	err = db.Find(b).Error
+	return
+}
+
+func (m *BulletinModel) CountAllBulletinsWithOptions(opts *GetAllBulletinsOptions) (count int, err error) {
+	db := m.DB.Model(&Bulletin{})
+	if opts != nil {
+		opts.filter(db)
+	}
+	err = db.Count(&count).Error
 	return
 }
 

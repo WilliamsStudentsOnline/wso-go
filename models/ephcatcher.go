@@ -101,6 +101,12 @@ func (p *GetAllEphcatchersOptions) Run(db *gorm.DB) *gorm.DB {
 	return p.Paginate(db)
 }
 
+func (m *EphcatcherModel) CountEphcatchers() (count int, err error) {
+	db := m.scopeDefault(m.DB.Model(&User{}))
+	err = db.Count(&count).Error
+	return
+}
+
 func (m *EphcatcherModel) GetEphcatcherByID(ephcatcherID uint, userID uint, p *Ephcatcher) (err error) {
 	err = m.DB.Model(&User{}).Scopes(m.scopeDefault).Where("users.id = ?", ephcatcherID).Scan(p).Error
 	if err != nil {

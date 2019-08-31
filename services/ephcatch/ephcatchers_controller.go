@@ -44,6 +44,13 @@ func (t *Controller) ListEphcatchers(c *gin.Context) {
 		return
 	}
 
+	count, err := t.ephcatcherModel.CountEphcatchers()
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+	t.SetPaginationTotal(c, count)
+
 	t.RespondOK(c, ephcatchers)
 }
 
