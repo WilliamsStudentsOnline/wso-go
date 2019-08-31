@@ -18,7 +18,7 @@ type BaseResponse struct {
 	Data            interface{} `json:"data,omitempty"`
 	Error           *RespError  `json:"error,omitempty"`
 	UpdateToken     bool        `json:"updateToken"`
-	PaginationTotal uint        `json:"paginationTotal,omitempty"`
+	PaginationTotal int         `json:"paginationTotal,omitempty"`
 }
 
 type RespError struct {
@@ -39,7 +39,8 @@ func (BaseController) RespondOK(c *gin.Context, data interface{}) {
 		Data:   data,
 		Error:  nil,
 		// We set this in the context at any point if we need to update the token
-		UpdateToken: c.GetBool(UpdateTokenKey),
+		UpdateToken:     c.GetBool(UpdateTokenKey),
+		PaginationTotal: c.GetInt(PaginationTotalKey),
 	})
 }
 
@@ -50,7 +51,8 @@ func (BaseController) RespondCreated(c *gin.Context, data interface{}) {
 		Data:   data,
 		Error:  nil,
 		// We set this in the context at any point if we need to update the token
-		UpdateToken: c.GetBool(UpdateTokenKey),
+		UpdateToken:     c.GetBool(UpdateTokenKey),
+		PaginationTotal: c.GetInt(PaginationTotalKey),
 	})
 }
 
