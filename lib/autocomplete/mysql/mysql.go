@@ -45,6 +45,7 @@ func (a *Autocomplete) AreaOfStudy(q string) ([]autocomplete.ACEntry, error) {
 		entries[i] = autocomplete.ACEntry{
 			ID:    areas[i].ID,
 			Value: areas[i].Name,
+			Type:  autocomplete.ACTypeArea,
 		}
 	}
 	// Add in the abbreviations
@@ -53,6 +54,7 @@ func (a *Autocomplete) AreaOfStudy(q string) ([]autocomplete.ACEntry, error) {
 		entries[lenAreasName+i] = autocomplete.ACEntry{
 			ID:    areasAbbrev[i].ID,
 			Value: areasAbbrev[i].Abbreviation,
+			Type:  autocomplete.ACTypeArea,
 		}
 	}
 
@@ -76,11 +78,6 @@ func (a *Autocomplete) dbGetAreaAbbrev(q string) ([]models.AreaOfStudy, error) {
 	return areasAbbrev, nil
 }
 
-const (
-	ACTypeCourse = "course"
-	ACTypeArea   = "area"
-)
-
 func (a *Autocomplete) Course(q string) ([]autocomplete.ACEntry, error) {
 	q = strings.ToLower(q)
 	parts := strings.Split(q, " ")
@@ -103,7 +100,7 @@ func (a *Autocomplete) Course(q string) ([]autocomplete.ACEntry, error) {
 			entries[i] = autocomplete.ACEntry{
 				ID:    areas[i].ID,
 				Value: areas[i].Abbreviation,
-				Type:  ACTypeArea,
+				Type:  autocomplete.ACTypeArea,
 			}
 		}
 		sortByDistance(parts[0], entries)
@@ -113,7 +110,11 @@ func (a *Autocomplete) Course(q string) ([]autocomplete.ACEntry, error) {
 	// If the abbreviation does not equal our passed abbreviation (aka we haven't finished
 	// typing it yet: eg "csc" for "csci"), return just the abbreviation.
 	if strings.ToLower(areas[0].Abbreviation) != parts[0] {
-		return []autocomplete.ACEntry{{ID: areas[0].ID, Value: areas[0].Abbreviation, Type: ACTypeArea}}, nil
+		return []autocomplete.ACEntry{{
+			ID:    areas[0].ID,
+			Value: areas[0].Abbreviation,
+			Type:  autocomplete.ACTypeArea,
+		}}, nil
 	}
 
 	// Once we have only one area, return autocomplete for that
@@ -137,7 +138,7 @@ func (a *Autocomplete) Course(q string) ([]autocomplete.ACEntry, error) {
 		entries[i] = autocomplete.ACEntry{
 			ID:    courses[i].ID,
 			Value: areas[0].Abbreviation + " " + courses[i].Number,
-			Type:  ACTypeCourse,
+			Type:  autocomplete.ACTypeCourse,
 		}
 	}
 
@@ -166,7 +167,7 @@ func (a *Autocomplete) Professor(q string) ([]autocomplete.ACEntry, error) {
 
 	// Do SQL
 	err := a.DB.Model(&models.User{}).
-		Select("name").
+		Select("id, name").
 		Where(sqlSB.String(), sqlParams...).
 		Where("users.at_williams = ? AND users.type = ?", true, models.UserTypeProfessor).
 		Find(&profs).Error
@@ -179,6 +180,7 @@ func (a *Autocomplete) Professor(q string) ([]autocomplete.ACEntry, error) {
 		entries[i] = autocomplete.ACEntry{
 			ID:    profs[i].ID,
 			Value: profs[i].Name,
+			Type:  autocomplete.ACTypeProfessor,
 		}
 	}
 
@@ -203,7 +205,11 @@ func (a *Autocomplete) Tag(q string) ([]autocomplete.ACEntry, error) {
 
 	entries := make([]autocomplete.ACEntry, len(tags))
 	for i := range tags {
-		entries[i] = autocomplete.ACEntry{ID: tags[i].ID, Value: tags[i].Name}
+		entries[i] = autocomplete.ACEntry{
+			ID:    tags[i].ID,
+			Value: tags[i].Name,
+			Type:  autocomplete.ACTypeTag,
+		}
 	}
 
 	sortByDistance(q, entries)

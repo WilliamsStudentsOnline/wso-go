@@ -33,9 +33,6 @@ func (m *EphcatchModel) CreateEphcatchWithUserOther(userID uint, otherID uint) (
 }
 
 func (m *EphcatchModel) DeleteEphcatchWithUserOther(userID uint, otherID uint) (err error) {
-	err = m.DB.Unscoped().Delete(&Ephcatch{
-		UserID:  userID,
-		OtherID: otherID,
-	}).Error
+	err = m.DB.Unscoped().Where("user_id = ? AND other_id = ?", userID, otherID).Delete(Ephcatch{}).Error
 	return
 }

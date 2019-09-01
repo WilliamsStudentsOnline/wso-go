@@ -12,3 +12,10 @@ type ACEntry struct {
 	Value string `json:"value"`
 	Type  string `json:"type,omitempty"`
 }
+
+const (
+	ACTypeCourse    = "course"
+	ACTypeArea      = "area"
+	ACTypeProfessor = "professor"
+	ACTypeTag       = "tag"
+)
