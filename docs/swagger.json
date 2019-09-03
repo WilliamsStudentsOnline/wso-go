@@ -439,6 +439,53 @@
                 }
             }
         },
+        "/autocomplete/factrak": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Given an input q, this autocompletes the professor or course. Results are sorted by levenshtein distance.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "autocomplete"
+                ],
+                "summary": "Autocomplete factrak professors and courses",
+                "operationId": "autocomplete-factrak",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "String to Complete",
+                        "name": "q",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/autocomplete.ACEntry"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
         "/autocomplete/professor": {
             "get": {
                 "security": [

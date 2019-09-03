@@ -217,6 +217,37 @@ func (a *Autocomplete) Tag(q string) ([]autocomplete.ACEntry, error) {
 	return entries, nil
 }
 
+// This simply calls autocomplete for professors and courses and then sorts them by levenshtein distance.
+func (a *Autocomplete) Factrak(q string) ([]autocomplete.ACEntry, error) {
+	q = strings.ToLower(q)
+
+	profs, err := a.Professor(q)
+	if err != nil {
+		return nil, err
+	}
+
+	courses, err := a.Course(q)
+	if err != nil {
+		return nil, err
+	}
+
+	// Turn the queries into a combined list of strings
+	entries := make([]autocomplete.ACEntry, len(profs)+len(courses))
+	// Add in the profs
+	for i := range profs {
+		entries[i] = profs[i]
+	}
+	// Add in the courses
+	lenProfs := len(profs)
+	for i := range courses {
+		entries[lenProfs+i] = courses[i]
+	}
+
+	sortByDistance(q, entries)
+
+	return entries, nil
+}
+
 type levDist struct {
 	val  autocomplete.ACEntry
 	dist int

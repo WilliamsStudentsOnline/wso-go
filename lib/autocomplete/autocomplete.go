@@ -5,6 +5,7 @@ type Autocomplete interface {
 	Course(q string) ([]ACEntry, error)
 	Professor(q string) ([]ACEntry, error)
 	Tag(q string) ([]ACEntry, error)
+	Factrak(q string) ([]ACEntry, error)
 }
 
 type ACEntry struct {

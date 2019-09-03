@@ -17,6 +17,7 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config) {
 	factrak.GET("/area-of-study", c.AreaOfStudy)
 	factrak.GET("/course", c.Course)
 	factrak.GET("/professor", c.Professor)
+	factrak.GET("/factrak", c.Factrak)
 
 	// Ensure user
 	r.GET("/tag", auth.RequireScopes(auth.ScopeUsers), c.Tag)

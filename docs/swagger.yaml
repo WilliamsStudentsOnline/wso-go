@@ -1587,6 +1587,37 @@ paths:
       summary: Autocomplete course
       tags:
       - autocomplete
+  /autocomplete/factrak:
+    get:
+      consumes:
+      - application/json
+      description: Given an input q, this autocompletes the professor or course. Results
+        are sorted by levenshtein distance.
+      operationId: autocomplete-factrak
+      parameters:
+      - description: String to Complete
+        in: query
+        name: q
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/autocomplete.ACEntry'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Autocomplete factrak professors and courses
+      tags:
+      - autocomplete
   /autocomplete/professor:
     get:
       consumes:

@@ -86,6 +86,22 @@ func (t *Controller) Tag(c *gin.Context) {
 	t.doAutocomplete(c, t.autocomplete.Tag)
 }
 
+// Factrak godoc
+// @Summary Autocomplete factrak professors and courses
+// @Description Given an input q, this autocompletes the professor or course. Results are sorted by levenshtein distance.
+// @ID autocomplete-factrak
+// @Tags autocomplete
+// @Accept  json
+// @Produce  json
+// @Param q query string true "String to Complete"
+// @Success 200 {array} autocomplete.ACEntry
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /autocomplete/factrak [get]
+func (t *Controller) Factrak(c *gin.Context) {
+	t.doAutocomplete(c, t.autocomplete.Factrak)
+}
+
 // Since all of the autocomplete control code is the same, we just put it here and then call it from the control
 // functions, with a specified autocomplete method.
 func (t *Controller) doAutocomplete(c *gin.Context, f func(string) ([]autocomplete.ACEntry, error)) {
