@@ -17,7 +17,7 @@ type BaseResponse struct {
 	Status          int         `json:"status"`
 	Data            interface{} `json:"data,omitempty"`
 	Error           *RespError  `json:"error,omitempty"`
-	UpdateToken     bool        `json:"updateToken"`
+	UpdateToken     bool        `json:"updateToken,omitempty"`
 	PaginationTotal int         `json:"paginationTotal,omitempty"`
 }
 
