@@ -138,6 +138,7 @@ type UpdateUserParams struct {
 	HasAcceptedFactrakPolicy  *bool   `json:"hasAcceptedFactrakPolicy"`
 	HasAcceptedDormtrakPolicy *bool   `json:"hasAcceptedDormtrakPolicy"`
 	Nickname                  *string `json:"nickname"`
+	OptOutEphcatch            *bool   `json:"optOutEphcatch"`
 }
 
 // UpdateUser godoc
@@ -196,6 +197,7 @@ func (t *Controller) UpdateUser(c *gin.Context) {
 	user.HasAcceptedFactrakPolicy = lib.BoolPtrDefaults(updateData.HasAcceptedFactrakPolicy, user.HasAcceptedFactrakPolicy)
 	user.HasAcceptedDormtrakPolicy = lib.BoolPtrDefaults(updateData.HasAcceptedDormtrakPolicy, user.HasAcceptedDormtrakPolicy)
 	user.Nickname = lib.StrPtrDefaults(updateData.Nickname, user.Nickname)
+	user.OptOutEphcatch = lib.BoolPtrDefaults(updateData.OptOutEphcatch, user.OptOutEphcatch)
 
 	// Update the user in the db
 	err = t.userModel.UpdateUser(&user)
