@@ -4869,6 +4869,28 @@ paths:
       summary: Update user tags by user id
       tags:
       - users
+  /words:
+    get:
+      consumes:
+      - application/json
+      description: gets three WSO words
+      operationId: words-get-words
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/string'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get words
+      tags:
+      - words
 securityDefinitions:
   Bearer:
     in: header

@@ -25,6 +25,7 @@ import (
 	ephcatchService "github.com/WilliamsStudentsOnline/wso-go/services/ephcatch"
 	factrakService "github.com/WilliamsStudentsOnline/wso-go/services/factrak"
 	userService "github.com/WilliamsStudentsOnline/wso-go/services/user"
+	wordsService "github.com/WilliamsStudentsOnline/wso-go/services/words"
 )
 
 // @title WSO API
@@ -70,6 +71,9 @@ func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 
 	// Initialize login
 	r.POST("/api/v1/auth/login", authMiddleware.LoginHandler)
+
+	// Initialize words endpoint
+	wordsService.SetupRouter(r.Group("/api/v1/words"), db, cfg)
 
 	// Run API docs if it is enabled
 	// NOTE: This currently requires no JWT to access.

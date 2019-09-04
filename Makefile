@@ -27,6 +27,9 @@ endif
 services/*/responses/%.go: services/*/responses/%.json
 	go run $(GIT_REPO)/lib/generate/service_responses/cmd -in $< -out $@
 
+services/words/words_data.go: services/words/words.json
+	go generate $(GIT_REPO)/services/words
+
 .PHONY: go-gen
 go-gen:
 	go generate $(GIT_REPO)/...
