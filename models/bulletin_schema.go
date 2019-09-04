@@ -16,7 +16,7 @@ type Bulletin struct {
 	Type      string     `gorm:"index:index_bulletins_on_type;not null;" json:"type"`
 	Title     string     `gorm:"not null;" json:"title"`
 	Body      string     `gorm:"size:65535" json:"body"`
-	StartDate time.Time  `json:"startDate"`
+	StartDate time.Time  `gorm:"default:null;" json:"startDate"`
 	EndDate   *time.Time `json:"endDate"`
 	Offer     *bool      `json:"offer"`
 
