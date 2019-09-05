@@ -1540,6 +1540,10 @@ paths:
         name: q
         required: true
         type: string
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
@@ -1571,6 +1575,10 @@ paths:
         name: q
         required: true
         type: string
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
@@ -1602,6 +1610,10 @@ paths:
         name: q
         required: true
         type: string
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
@@ -1633,6 +1645,10 @@ paths:
         name: q
         required: true
         type: string
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
@@ -1664,6 +1680,10 @@ paths:
         name: q
         required: true
         type: string
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:

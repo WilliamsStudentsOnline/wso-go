@@ -104,7 +104,7 @@ func (m *BulletinModel) GetAllBulletinsWithOptions(b *[]*Bulletin, opts Options)
 func (m *BulletinModel) CountAllBulletinsWithOptions(opts *GetAllBulletinsOptions) (count int, err error) {
 	db := m.DB.Model(&Bulletin{})
 	if opts != nil {
-		opts.filter(db)
+		db = opts.filter(db)
 	}
 	err = db.Count(&count).Error
 	return

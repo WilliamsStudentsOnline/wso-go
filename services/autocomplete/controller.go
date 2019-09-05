@@ -1,6 +1,9 @@
 package autocomplete
 
 import (
+	"net/http"
+	"strconv"
+
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/autocomplete"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/autocomplete/autocompletor"
@@ -30,6 +33,7 @@ func NewController(db *gorm.DB, cfg *config.Config) *Controller {
 // @Accept  json
 // @Produce  json
 // @Param q query string true "String to Complete"
+// @Param limit query int false "Limit"
 // @Success 200 {array} autocomplete.ACEntry
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
@@ -46,6 +50,7 @@ func (t *Controller) AreaOfStudy(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param q query string true "String to Complete"
+// @Param limit query int false "Limit"
 // @Success 200 {array} autocomplete.ACEntry
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
@@ -62,6 +67,7 @@ func (t *Controller) Course(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param q query string true "String to Complete"
+// @Param limit query int false "Limit"
 // @Success 200 {array} autocomplete.ACEntry
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
@@ -78,6 +84,7 @@ func (t *Controller) Professor(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param q query string true "String to Complete"
+// @Param limit query int false "Limit"
 // @Success 200 {array} autocomplete.ACEntry
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
@@ -94,6 +101,7 @@ func (t *Controller) Tag(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param q query string true "String to Complete"
+// @Param limit query int false "Limit"
 // @Success 200 {array} autocomplete.ACEntry
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
@@ -115,6 +123,20 @@ func (t *Controller) doAutocomplete(c *gin.Context, f func(string) ([]autocomple
 	if err != nil {
 		t.RespondError(c, err)
 		return
+	}
+
+	limitStr := c.Query("limit")
+	limit := 0
+	if limitStr != "" {
+		limit, err = strconv.Atoi(limitStr)
+		if err != nil {
+			t.RespondErrorCode(c, http.StatusBadRequest, err)
+			return
+		}
+	}
+
+	if limit > 0 {
+		entries = entries[:limit]
 	}
 
 	t.RespondOK(c, entries)

@@ -28,22 +28,22 @@ import (
 // @Security Bearer
 // @Router /bulletin/bulletins [get]
 func (t *Controller) ListBulletins(c *gin.Context) {
-	params := models.GetAllBulletinsOptions{}
+	params := new(models.GetAllBulletinsOptions)
 
-	err := c.ShouldBindQuery(&params)
+	err := c.ShouldBindQuery(params)
 	if err != nil {
 		t.RespondError(c, err)
 		return
 	}
 
 	var bulletins []*models.Bulletin
-	err = t.bulletinModel.GetAllBulletinsWithOptions(&bulletins, &params)
+	err = t.bulletinModel.GetAllBulletinsWithOptions(&bulletins, params)
 	if err != nil {
 		t.RespondError(c, err)
 		return
 	}
 
-	count, err := t.bulletinModel.CountAllBulletinsWithOptions(&params)
+	count, err := t.bulletinModel.CountAllBulletinsWithOptions(params)
 	if err != nil {
 		t.RespondError(c, err)
 		return
