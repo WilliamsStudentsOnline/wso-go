@@ -84,8 +84,8 @@ func TestController_ListRides(t *testing.T) {
 			[]int{3, 2},
 		},
 		{
-			"limit and offset",
-			"limit=2&offset=" + rides[2].Date.Format(time.RFC3339),
+			"limit and start",
+			"limit=2&start=" + rides[2].Date.Format(time.RFC3339),
 			[]int{1, 0},
 		},
 		{

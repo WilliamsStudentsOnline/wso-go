@@ -146,7 +146,7 @@ func TestController_ListSurveys2(t *testing.T) {
 	userID
 	courseID and professorID
 	userID bad
-	limit and offset
+	limit and start
 	preload professor
 	preload course
 	populateAgreements
@@ -347,10 +347,10 @@ func TestController_ListSurveys2(t *testing.T) {
 	// Status is okay
 	assert.Equal(http.StatusForbidden, w.Code)
 
-	/* limit and offset */
+	/* limit and start */
 
 	// Get test surveys
-	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/surveys?limit=2&offset=%s", surveys[5].CreatedAt.Format(time.RFC3339Nano)), nil)
+	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/surveys?limit=2&start=%s", surveys[5].CreatedAt.Format(time.RFC3339Nano)), nil)
 	assert.NoError(err)
 	// Status is okay
 	assert.Equal(http.StatusOK, w.Code)

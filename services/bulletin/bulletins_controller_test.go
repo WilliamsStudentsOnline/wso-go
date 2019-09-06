@@ -115,8 +115,8 @@ func TestController_ListBulletins(t *testing.T) {
 			[]int{8, 4},
 		},
 		{
-			"limit and offset",
-			"limit=2&offset=" + bulletins[3].StartDate.Format(time.RFC3339),
+			"limit and start",
+			"limit=2&start=" + bulletins[3].StartDate.Format(time.RFC3339),
 			[]int{2, 1},
 		},
 		{

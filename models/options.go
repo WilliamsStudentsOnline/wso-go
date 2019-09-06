@@ -15,6 +15,17 @@ type Paginator interface {
 	Paginate(db *gorm.DB) *gorm.DB
 }
 
+type Filterer interface {
+	Filter(db *gorm.DB) *gorm.DB
+}
+
+type FullOptions interface {
+	Options
+	Preloader
+	Paginator
+	Filterer
+}
+
 type NoPaginator struct{}
 
 func (*NoPaginator) Order(db *gorm.DB) *gorm.DB {

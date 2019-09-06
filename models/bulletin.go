@@ -25,7 +25,8 @@ func (m *BulletinModel) GetAllBulletins(b *[]*Bulletin) (err error) {
 
 type GetAllBulletinsOptions struct {
 	// Pagination
-	Offset *time.Time `json:"offset" form:"offset"`
+	Start  *time.Time `json:"start" form:"start"`
+	Offset *uint      `json:"offset" form:"offset"`
 	Limit  *uint      `json:"limit" form:"limit"`
 
 	// What to preload
@@ -46,8 +47,11 @@ func (o *GetAllBulletinsOptions) Order(db *gorm.DB) *gorm.DB {
 // Pagination starts at most recent and goes down from there
 func (o *GetAllBulletinsOptions) Paginate(db *gorm.DB) *gorm.DB {
 	db = o.Order(db)
+	if o.Start != nil {
+		db = db.Where("bulletins.start_date < ?", *o.Start)
+	}
 	if o.Offset != nil {
-		db = db.Where("bulletins.start_date < ?", *o.Offset)
+		db = db.Offset(*o.Offset)
 	}
 	if o.Limit != nil {
 		db = db.Limit(*o.Limit)
@@ -71,12 +75,12 @@ func (o *GetAllBulletinsOptions) Preloader(db *gorm.DB) *gorm.DB {
 func (o *GetAllBulletinsOptions) Run(db *gorm.DB) *gorm.DB {
 	db = o.Paginate(db)
 	db = o.Preloader(db)
-	db = o.filter(db)
+	db = o.Filter(db)
 
 	return db
 }
 
-func (o *GetAllBulletinsOptions) filter(db *gorm.DB) *gorm.DB {
+func (o *GetAllBulletinsOptions) Filter(db *gorm.DB) *gorm.DB {
 	if !o.All {
 		db = db.Where("bulletins.start_date <= ?", time.Now())
 		db = db.Where("bulletins.end_date IS NULL OR bulletins.end_date > ?", time.Now())
@@ -104,7 +108,7 @@ func (m *BulletinModel) GetAllBulletinsWithOptions(b *[]*Bulletin, opts Options)
 func (m *BulletinModel) CountAllBulletinsWithOptions(opts *GetAllBulletinsOptions) (count int, err error) {
 	db := m.DB.Model(&Bulletin{})
 	if opts != nil {
-		db = opts.filter(db)
+		db = opts.Filter(db)
 	}
 	err = db.Count(&count).Error
 	return

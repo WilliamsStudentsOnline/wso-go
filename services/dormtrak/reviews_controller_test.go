@@ -246,7 +246,7 @@ func TestController_ListReviews(t *testing.T) {
 
 	// Test 7: Get all reviews with pagination
 	w, err = utils.DoHTTPReq(router, http.MethodGet,
-		fmt.Sprintf("/reviews?offset=%s&limit=%d", reviews[4].CreatedAt.Format(time.RFC3339Nano), 2), nil)
+		fmt.Sprintf("/reviews?start=%s&limit=%d", reviews[4].CreatedAt.Format(time.RFC3339Nano), 2), nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w.Code)
 

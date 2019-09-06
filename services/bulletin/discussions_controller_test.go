@@ -64,8 +64,8 @@ func TestController_ListDiscussions(t *testing.T) {
 			[]int{3, 2},
 		},
 		{
-			"limit and offset",
-			"limit=2&offset=" + discussions[2].LastActive.Format(time.RFC3339),
+			"limit and start",
+			"limit=2&start=" + discussions[2].LastActive.Format(time.RFC3339),
 			[]int{1, 0},
 		},
 	}
@@ -238,8 +238,8 @@ func TestController_GetDiscussionPosts(t *testing.T) {
 			[]int{3, 2},
 		},
 		{
-			"limit and offset",
-			"limit=2&offset=" + posts[2].CreatedAt.Format(time.RFC3339),
+			"limit and start",
+			"limit=2&start=" + posts[2].CreatedAt.Format(time.RFC3339),
 			[]int{1, 0},
 		},
 	}

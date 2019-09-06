@@ -19,7 +19,8 @@ func NewPostModel(db *gorm.DB) *PostModel {
 
 type GetPostsByDiscussionOptions struct {
 	// Pagination
-	Offset *time.Time `json:"offset" form:"offset"`
+	Start  *time.Time `json:"start" form:"start"`
+	Offset *uint      `json:"offset" form:"offset"`
 	Limit  *uint      `json:"limit" form:"limit"`
 
 	// What to preload (user, discussion)
@@ -33,8 +34,11 @@ func (p *GetPostsByDiscussionOptions) Order(db *gorm.DB) *gorm.DB {
 // Pagination starts at most recent and goes down from there
 func (p *GetPostsByDiscussionOptions) Paginate(db *gorm.DB) *gorm.DB {
 	db = p.Order(db)
+	if p.Start != nil {
+		db = db.Where("posts.created_at < ?", *p.Start)
+	}
 	if p.Offset != nil {
-		db = db.Where("posts.created_at < ?", *p.Offset)
+		db = db.Offset(*p.Offset)
 	}
 	if p.Limit != nil {
 		db = db.Limit(*p.Limit)
