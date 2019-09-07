@@ -120,6 +120,8 @@ definitions:
         type: string
       date:
         type: string
+      offer:
+        type: boolean
     type: object
   dormtrak.ReviewCreateParams:
     properties:

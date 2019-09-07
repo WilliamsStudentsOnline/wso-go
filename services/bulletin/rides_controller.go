@@ -161,8 +161,9 @@ func (t *Controller) CreateRide(c *gin.Context) {
 
 // UpdateRideParams is a struct to hold the parameters used to update a ride.
 type UpdateRideParams struct {
-	Body *string    `json:"body"`
-	Date *time.Time `json:"date"`
+	Body  *string    `json:"body"`
+	Date  *time.Time `json:"date"`
+	Offer *bool      `json:"offer"`
 }
 
 // UpdateRide godoc
@@ -227,6 +228,9 @@ func (t *Controller) UpdateRide(c *gin.Context) {
 	}
 	if updateData.Date != nil {
 		ride.Date = *updateData.Date
+	}
+	if updateData.Offer != nil {
+		ride.Offer = updateData.Offer
 	}
 
 	// Update the ride in the db

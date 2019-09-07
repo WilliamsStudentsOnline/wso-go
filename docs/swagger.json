@@ -5708,6 +5708,9 @@
                 },
                 "date": {
                     "type": "string"
+                },
+                "offer": {
+                    "type": "boolean"
                 }
             }
         },
