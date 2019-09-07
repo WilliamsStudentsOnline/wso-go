@@ -5652,7 +5652,6 @@
                 "body",
                 "date",
                 "destination",
-                "offer",
                 "source"
             ],
             "properties": {

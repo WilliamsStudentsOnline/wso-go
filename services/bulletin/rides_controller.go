@@ -98,7 +98,7 @@ func (t *Controller) GetRide(c *gin.Context) {
 type CreateRideParams struct {
 	Body        string    `json:"body" binding:"required"`
 	Date        time.Time `json:"date" binding:"required"`
-	Offer       *bool     `json:"offer" binding:"required"`
+	Offer       *bool     `json:"offer"`
 	Source      string    `json:"source" binding:"required"`
 	Destination string    `json:"destination" binding:"required"`
 }
@@ -126,6 +126,11 @@ func (t *Controller) CreateRide(c *gin.Context) {
 	err := c.ShouldBind(&createData)
 	if err != nil {
 		t.RespondError(c, err)
+		return
+	}
+
+	if createData.Offer == nil {
+		t.RespondError(c, lib.ErrorBulletinInvalidType)
 		return
 	}
 

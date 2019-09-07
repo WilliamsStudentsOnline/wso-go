@@ -238,7 +238,7 @@ func TestController_CreateRide(t *testing.T) {
 
 	/* Create ride (expect success) */
 	params = CreateRideParams{
-		Offer:       lib.BoolToPtr(true),
+		Offer:       lib.BoolToPtr(false),
 		Source:      "Source 1",
 		Destination: "Destination 1",
 		Body:        generateBulletinTestBody(),

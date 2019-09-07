@@ -94,7 +94,6 @@ definitions:
     - body
     - date
     - destination
-    - offer
     - source
     type: object
   bulletin.UpdateBulletinParams:

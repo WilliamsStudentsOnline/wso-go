@@ -483,7 +483,7 @@ func TestController_DeleteBulletin(t *testing.T) {
 
 func generateBulletinTestBody() string {
 	randBytes := make([]byte, 290)
-	for i := 0; i < 100; i++ {
+	for i := 0; i < len(randBytes); i++ {
 		randBytes[i] = byte(65 + rand.Intn(25)) //A=65 and Z = 65+25
 	}
 	str := string(randBytes)
