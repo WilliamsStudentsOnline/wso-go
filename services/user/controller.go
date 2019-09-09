@@ -63,13 +63,25 @@ func (t *Controller) ListUsers(c *gin.Context) {
 
 	if query, ok := c.GetQuery("q"); ok {
 		err = t.userSearch.Search(query, &users, &opts)
+
+		if err != nil {
+			t.RespondError(c, err)
+			return
+		}
 	} else {
 		err = t.userModel.GetAllUsers(&users, &opts)
-	}
 
-	if err != nil {
-		t.RespondError(c, err)
-		return
+		if err != nil {
+			t.RespondError(c, err)
+			return
+		}
+
+		count, err := t.userModel.CountAllUsers()
+		if err != nil {
+			t.RespondError(c, err)
+			return
+		}
+		t.SetPaginationTotal(c, count)
 	}
 
 	t.RespondOK(c, responses.ConvertListUsersResponse(users))

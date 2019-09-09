@@ -201,7 +201,8 @@ func GenerateClaims(v *AuthenticatorPayload) jwt.MapClaims {
 		if v.User.IsStudent() {
 			// If user is a senior or ephcatch eligible, add ephcatch scope
 			if v.User.Student().Senior() || (v.User.EphcatchEligibility != nil && *v.User.EphcatchEligibility) {
-				if isSeniorWeek() {
+				// Ensure that it is senior week and that the user has not opted out of ephcatch
+				if isSeniorWeek() && !(v.User.OptOutEphcatch != nil && *v.User.OptOutEphcatch) {
 					scope = append(scope, auth.ScopeEphcatch)
 				}
 			}

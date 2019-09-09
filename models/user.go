@@ -25,8 +25,9 @@ func NewUserModel(db *gorm.DB) *UserModel {
 }
 
 type GetAllUsersOptions struct {
-	Offset *uint `json:"offset" form:"offset"`
-	Limit  *uint `json:"limit" form:"limit"`
+	Start  *string `json:"start" form:"start"`
+	Offset *uint   `json:"offset" form:"offset"`
+	Limit  *uint   `json:"limit" form:"limit"`
 
 	// You can preload: dorm (with dorm room), tags, department, and office
 	Preload []string `json:"preload" form:"preload[]"`
@@ -55,11 +56,14 @@ func (o *GetAllUsersOptions) Preloader(db *gorm.DB) *gorm.DB {
 }
 
 func (o *GetAllUsersOptions) Order(db *gorm.DB) *gorm.DB {
-	return db.Order("users.id ASC", true)
+	return db.Order("users.name ASC", true)
 }
 
 func (o *GetAllUsersOptions) Paginate(db *gorm.DB) *gorm.DB {
 	db = o.Order(db)
+	if o.Start != nil {
+		db = db.Where("users.name > ?", *o.Start)
+	}
 	if o.Offset != nil {
 		db = db.Offset(*o.Offset)
 	}
@@ -82,6 +86,14 @@ func (m *UserModel) GetAllUsers(u *[]*User, opts Options) (err error) {
 		db = opts.Run(db)
 	}
 	err = db.Find(u).Error
+	return
+}
+
+func (m *UserModel) CountAllUsers() (count int, err error) {
+	db := m.DB.Model(&User{})
+	db = m.scopeVisible(db)
+	db = m.scopeAtWilliams(db)
+	err = db.Count(&count).Error
 	return
 }
 

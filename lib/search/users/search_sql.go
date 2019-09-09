@@ -51,7 +51,8 @@ func (s *SearchUsersMySQL) Search(query string, users *[]*models.User, opts Sear
 	tx = tx.Where("users.at_williams = ? AND users.visible = ?", true, true)
 	// Run options
 	if opts != nil {
-		tx = opts.Paginate(tx)
+		// TODO: either add counting here or no pagination for search
+		//tx = opts.Paginate(tx)
 		tx = opts.Preloader(tx)
 	}
 
