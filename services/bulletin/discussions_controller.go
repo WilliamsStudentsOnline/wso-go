@@ -61,6 +61,7 @@ func (t *Controller) ListDiscussions(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param discussionID path uint true "Discussion ID"
+// @Param preload query []string false "Preload List"
 // @Success 200 {object} models.Discussion
 // @Failure 400 {object} lib.APIError
 // @Failure 404 {object} lib.APIError
@@ -75,9 +76,17 @@ func (t *Controller) GetDiscussion(c *gin.Context) {
 		return
 	}
 
+	params := models.GetDiscussionByIDOptions{}
+
+	err = c.ShouldBindQuery(&params)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
 	// Do database query
 	var discussion models.Discussion
-	err = t.discussionModel.GetDiscussionByID(discussionID, &discussion)
+	err = t.discussionModel.GetDiscussionByID(discussionID, &discussion, &params)
 	if err != nil {
 		t.RespondError(c, err)
 		return
@@ -240,7 +249,7 @@ func (t *Controller) DeleteDiscussion(c *gin.Context) {
 
 	// Do database query to get discussion
 	var discussion models.Discussion
-	err = t.discussionModel.GetDiscussionByID(discussionID, &discussion)
+	err = t.discussionModel.GetDiscussionByIDFullPreload(discussionID, &discussion)
 	if err != nil {
 		t.RespondError(c, err)
 		return

@@ -25,6 +25,9 @@ type GetAllDiscussionsOptions struct {
 
 	// What to preload (user, posts, postsUsers)
 	Preload []string `json:"preload" form:"preload[]"`
+
+	// If to get the last/latest post of the discussion.
+	GetLastPost *bool `json:"getLastPost" form:"getLastPost"`
 }
 
 func (o *GetAllDiscussionsOptions) Order(db *gorm.DB) *gorm.DB {
@@ -72,12 +75,44 @@ func (o *GetAllDiscussionsOptions) Run(db *gorm.DB) *gorm.DB {
 	return db
 }
 
-func (m *DiscussionModel) GetAllDiscussions(p *[]*Discussion, opts Options) (err error) {
+func (o *GetAllDiscussionsOptions) Post(db *gorm.DB, d []*Discussion) error {
+	// If getLastPost = true and we aren't preloading posts or postsUsers
+	if o.GetLastPost != nil && *o.GetLastPost &&
+		!stringsContains(o.Preload, "posts") && !stringsContains(o.Preload, "postsUsers") {
+		for i := range d {
+			p := Post{}
+			err := db.New().Model(&Post{}).
+				Where("discussion_id = ?", d[i].ID).
+				Order("created_at desc").
+				Preload("User").
+				First(&p).Error
+			// Only really error iff it is not a 404 error, otherwise just ignore it
+			if err != nil {
+				if gorm.IsRecordNotFoundError(err) {
+					continue
+				}
+				return err
+			}
+
+			d[i].Posts = []*Post{&p}
+		}
+	}
+	return nil
+}
+
+func (m *DiscussionModel) GetAllDiscussions(p *[]*Discussion, opts *GetAllDiscussionsOptions) (err error) {
 	db := m.DB
 	if opts != nil {
 		db = opts.Run(db)
 	}
 	err = db.Find(p).Error
+	if err != nil {
+		return err
+	}
+
+	if opts != nil {
+		err = opts.Post(db, *p)
+	}
 	return
 }
 
@@ -87,8 +122,49 @@ func (m *DiscussionModel) CountAllDiscussions() (count int, err error) {
 	return
 }
 
-func (m *DiscussionModel) GetDiscussionByID(id uint, p *Discussion) (err error) {
-	err = m.DB.Preload("User").Preload("Posts").Preload("Posts.User").First(p, id).Error
+type GetDiscussionByIDOptions struct {
+	// What to preload (user, posts, postsUsers)
+	Preload []string `json:"preload" form:"preload[]"`
+}
+
+// Preload specifically allowed parts if requested
+func (o *GetDiscussionByIDOptions) Preloader(db *gorm.DB) *gorm.DB {
+	if o.Preload == nil {
+		return db
+	}
+
+	if stringsContains(o.Preload, "user") {
+		db = db.Preload("User")
+	}
+	if stringsContains(o.Preload, "posts") {
+		db = db.Preload("Posts")
+	}
+	if stringsContains(o.Preload, "postsUsers") {
+		db = db.Preload("Posts.User")
+	}
+
+	return db
+}
+
+func (o *GetDiscussionByIDOptions) Run(db *gorm.DB) *gorm.DB {
+	db = o.Preloader(db)
+
+	return db
+}
+
+func (m *DiscussionModel) GetDiscussionByID(id uint, p *Discussion, opts Options) (err error) {
+	db := m.DB
+	if opts != nil {
+		db = opts.Run(db)
+	}
+	err = db.First(p, id).Error
+	return
+}
+
+func (m *DiscussionModel) GetDiscussionByIDFullPreload(id uint, p *Discussion) (err error) {
+	err = m.GetDiscussionByID(id, p, &GetDiscussionByIDOptions{
+		Preload: []string{"user", "posts", "postsUsers"},
+	})
 	return
 }
 

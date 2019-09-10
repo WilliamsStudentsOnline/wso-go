@@ -46,16 +46,16 @@ func TestDiscussionModel_GetDiscussionWithDeletedUser(t *testing.T) {
 
 	/* Test getting the normal discussion */
 	res := Discussion{}
-	assert.NoError(m.GetDiscussionByID(d1.ID, &res))
+	assert.NoError(m.GetDiscussionByID(d1.ID, &res, &GetDiscussionByIDOptions{Preload: []string{"user"}}))
 	assert.NotNil(res.User)
 
 	/* Test getting the soft delete discussion */
 	res = Discussion{}
-	assert.NoError(m.GetDiscussionByID(d2.ID, &res))
+	assert.NoError(m.GetDiscussionByID(d2.ID, &res, &GetDiscussionByIDOptions{Preload: []string{"user"}}))
 	assert.Nil(res.User)
 
 	/* Test getting the hard delete discussion */
 	res = Discussion{}
-	assert.NoError(m.GetDiscussionByID(d3.ID, &res))
+	assert.NoError(m.GetDiscussionByID(d3.ID, &res, &GetDiscussionByIDOptions{Preload: []string{"user"}}))
 	assert.Nil(res.User)
 }

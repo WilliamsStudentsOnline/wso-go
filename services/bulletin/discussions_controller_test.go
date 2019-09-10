@@ -35,9 +35,35 @@ func TestController_ListDiscussions(t *testing.T) {
 		// 0
 		{},
 		// 1
-		{},
+		{
+			Posts: []*models.Post{
+				{
+					User:    &u1,
+					Content: generateBulletinTestBody(),
+				},
+				{
+					User:    &u1,
+					Content: generateBulletinTestBody(),
+				},
+				{
+					User: &models.User{
+						Type:   models.UserTypeStudent,
+						Name:   "User 2",
+						UnixID: "u2",
+					},
+					Content: generateBulletinTestBody(),
+				},
+			},
+		},
 		// 2
-		{},
+		{
+			Posts: []*models.Post{
+				{
+					User:    &u1,
+					Content: generateBulletinTestBody(),
+				},
+			},
+		},
 		// 3
 		{},
 	}
@@ -75,7 +101,7 @@ func TestController_ListDiscussions(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			a := testify.New(t)
-			// Get test user
+			// Get test discussion
 			w, err := utils.DoHTTPReq(router, http.MethodGet, "/discussions?"+tc.query, nil)
 			a.NoError(err)
 
@@ -96,6 +122,35 @@ func TestController_ListDiscussions(t *testing.T) {
 			}
 		})
 	}
+
+	t.Run("getLastPost", func(t *testing.T) {
+		a := testify.New(t)
+		// Get test user
+		w, err := utils.DoHTTPReq(router, http.MethodGet, "/discussions?getLastPost=true", nil)
+		a.NoError(err)
+
+		// Status is okay
+		a.Equal(http.StatusOK, w.Code)
+
+		// Decode response
+		respData := utils.GetHTTPDataResp(a, w.Body.Bytes())
+		a.Nil(respData.Error)
+		var resp []*models.Discussion
+		a.NoError(json.Unmarshal(respData.Data, &resp))
+
+		// Check if correct result
+		a.Len(resp, 4)
+		// Discussion 1 (diff b/c of ordering)
+		a.Equal(discussions[1].ID, resp[2].ID)
+		a.Equal(discussions[1].Title, resp[2].Title)
+		a.Len(resp[1].Posts, 1)
+		a.Equal(discussions[1].Posts[2].Content, resp[2].Posts[0].Content)
+		// Discussion 2 (diff idx b/c of order)
+		a.Equal(discussions[2].ID, resp[1].ID)
+		a.Equal(discussions[2].Title, resp[1].Title)
+		a.Len(resp[2].Posts, 1)
+		a.Equal(discussions[2].Posts[0].Content, resp[1].Posts[0].Content)
+	})
 }
 
 func TestController_GetDiscussion(t *testing.T) {
@@ -130,7 +185,7 @@ func TestController_GetDiscussion(t *testing.T) {
 	SetupRouter(router, db, cfg)
 
 	/* Get test discussion (signed in) */
-	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/discussions/%d", d1.ID), nil)
+	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/discussions/%d?preload[]=user&preload[]=posts&preload[]=postsUsers", d1.ID), nil)
 	assert.NoError(err)
 
 	// Status is okay
@@ -156,7 +211,7 @@ func TestController_GetDiscussion(t *testing.T) {
 	/* Get test discussion (signed out) */
 	r1 := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf)
 	SetupRouter(r1, db, cfg)
-	w, err = utils.DoHTTPReq(r1, http.MethodGet, fmt.Sprintf("/discussions/%d", d1.ID), nil)
+	w, err = utils.DoHTTPReq(r1, http.MethodGet, fmt.Sprintf("/discussions/%d?preload[]=user&preload[]=posts&preload[]=postsUsers", d1.ID), nil)
 	assert.NoError(err)
 
 	// Status is okay
@@ -177,7 +232,7 @@ func TestController_GetDiscussion(t *testing.T) {
 	assert.Empty(resp.Posts[0].ExUserName)
 
 	/* Get test ride bad id (expect failure) */
-	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/discussions/%d", 42), nil)
+	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/discussions/%d?preload[]=user&preload[]=posts&preload[]=postsUsers", 42), nil)
 	assert.NoError(err)
 
 	// Status is not found

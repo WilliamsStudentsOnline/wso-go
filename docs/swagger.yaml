@@ -2048,6 +2048,12 @@ paths:
         name: discussionID
         required: true
         type: integer
+      - description: Preload List
+        in: query
+        items:
+          type: string
+        name: preload
+        type: array
       produces:
       - application/json
       responses:

@@ -1150,6 +1150,15 @@
                         "name": "discussionID",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Preload List",
+                        "name": "preload",
+                        "in": "query"
                     }
                 ],
                 "responses": {
