@@ -21,34 +21,29 @@ var CreateDormRooms20190721041007 = &gormigrate.Migration{
 		// with those fields.
 		type DormRoom struct {
 			models.BaseSchema
-			DormID           uint     `gorm:"index:index_dorm_rooms_on_dorm_id" json:"dormID"`
-			Number           string   `json:"number"`
-			Closet           *string  `json:"closet"`
-			Flooring         *string  `json:"flooring"`
-			CommonRoomAccess *bool    `json:"commonRoomAccess"`
-			CommonRoomDesc   *string  `gorm:"size:65535" json:"commonRoomDesc"`
-			ThermostatAccess *bool    `json:"thermostat_access"`
-			ThermostatDesc   *string  `gorm:"size:65535" json:"thermostatDesc"`
-			OutletsDesc      *string  `gorm:"size:65535" json:"outletsDesc"`
-			KeyOrCard        *string  `json:"keyOrCard"`
-			Faces            *string  `json:"faces"`
-			Noise            *string  `gorm:"size:65535" json:"noise"`
-			BedAdjustable    *bool    `json:"bed_adjustable"`
-			HC               *bool    `json:"hc"`
-			PrivateBathroom  *bool    `json:"privateBathroom"`
-			FloorNumber      *int     `json:"floorNumber"`
-			Area             *int     `json:"area"`
-			Walkthrough      *bool    `json:"walkthrough"`
-			BathroomDesc     *string  `gorm:"size:65535" json:"bathroomDesc"`
-			NumFlag          *bool    `json:"numFlag"`
-			Picture          *string  `json:"picture"`
-			Comfort          *float64 `json:"comfort"`
-			Loudness         *float64 `json:"loudness"`
-			Convenience      *float64 `json:"convenience"`
-			Wifi             *float64 `json:"wifi"`
-			Location         *float64 `json:"location"`
-			Satisfaction     *float64 `json:"satisfaction"`
-			RoomType         *string  `json:"roomType"`
+			// Belongs to dorm
+			DormID uint `gorm:"index:index_dorm_rooms_on_dorm_id;not null" json:"dormID"`
+
+			Number string `gorm:"not null" json:"number"`
+
+			Closet           *string `gorm:"size:65535" json:"closet"`
+			Flooring         *string `json:"flooring"`
+			CommonRoomAccess *bool   `json:"commonRoomAccess"`
+			CommonRoomDesc   *string `gorm:"size:65535" json:"commonRoomDesc"`
+			ThermostatAccess *bool   `json:"thermostatAccess"`
+			KeyOrCard        *string `json:"keyOrCard"`
+			Noise            *string `gorm:"size:65535" json:"noise"`
+			BedAdjustable    *bool   `json:"bedAdjustable"`
+			PrivateBathroom  *bool   `json:"privateBathroom"`
+			BathroomDesc     *string `gorm:"size:65535" json:"bathroomDesc"`
+			Picture          *string `json:"picture"`
+
+			RoomType    string  `gorm:"not null" json:"roomType"`
+			Faces       *string `json:"faces"`
+			HC          *bool   `json:"hc"`
+			FloorNumber *int    `json:"floorNumber"`
+			Area        *int    `json:"area"`
+			Walkthrough *bool   `json:"walkthrough"`
 		}
 		return tx.AutoMigrate(&DormRoom{}).Error
 	},

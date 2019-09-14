@@ -21,28 +21,31 @@ var CreateDorms20190721040956 = &gormigrate.Migration{
 		// with those fields.
 		type Dorm struct {
 			models.BaseSchema
-			NeighborhoodID    uint     `json:"neighborhoodID"`
-			Name              string   `json:"name"`
+			// Belongs to neighborhood
+			NeighborhoodID uint `gorm:"not null" json:"neighborhoodID"`
+
+			Name string `json:"name"`
+
 			KeyOrCard         *string  `json:"keyOrCard"`
 			Description       *string  `gorm:"size:65535" json:"description"`
 			Built             *int     `json:"built"`
-			Capacity          *int     `json:"capacity"`
-			NumberBathrooms   *int     `json:"numberBathrooms"`
-			NumberSingles     *int     `json:"numberSingles"`
-			NumberDoubles     *int     `json:"numberDoubles"`
-			NumberFlex        *int     `json:"numberFlex"`
-			NumberWashers     *int     `json:"numberWashers"`
+			Capacity          *int     `gorm:"DEFAULT:0;not null" json:"capacity"`
+			NumberBathrooms   *int     `gorm:"DEFAULT:0;not null" json:"numberBathrooms"`
+			NumberSingles     *int     `gorm:"DEFAULT:0;not null" json:"numberSingles"`
+			NumberDoubles     *int     `gorm:"DEFAULT:0;not null" json:"numberDoubles"`
+			NumberFlex        *int     `gorm:"DEFAULT:0;not null" json:"numberFlex"`
+			NumberWashers     *int     `gorm:"DEFAULT:0;not null" json:"numberWashers"`
 			BathroomRatio     *float64 `json:"bathroomRatio"`
-			Comfort           *int     `json:"comfort"`
-			Loudness          *int     `json:"loudness"`
-			Convenience       *int     `json:"convenience"`
-			Wifi              *float64 `json:"wifi"`
-			Location          *float64 `json:"location"`
-			Satisfaction      *float64 `json:"satisfaction"`
 			AverageSingleArea *int     `json:"averageSingleArea"`
 			AverageDoubleArea *int     `json:"averageDoubleArea"`
 			ModeSingleArea    *int     `json:"modeSingleArea"`
 			ModeDoubleArea    *int     `json:"modeDoubleArea"`
+
+			// These are average statistics from dorm reviews
+			Loudness     *float64 `json:"loudness"`
+			Wifi         *float64 `json:"wifi"`
+			Location     *float64 `json:"location"`
+			Satisfaction *float64 `json:"satisfaction"`
 		}
 		return tx.AutoMigrate(&Dorm{}).Error
 	},

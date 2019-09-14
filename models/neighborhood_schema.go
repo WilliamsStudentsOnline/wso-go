@@ -1,17 +1,20 @@
 package models
 
-import "github.com/jinzhu/gorm"
+const (
+	NeighborhoodFirstYear = "First-year"
+	NeighborhoodCoop      = "Co-op"
+)
 
 type Neighborhood struct {
 	BaseSchema
-	Name  string `json:"name"`
-	Dorms []Dorm `json:"dorms,omitempty"`
+
+	Name    string `json:"name"`
+	Trakked *bool  `gorm:"DEFAULT:true;not null" json:"trakked"`
+
+	// Had many dorms
+	Dorms []*Dorm `json:"dorms,omitempty"`
 }
 
 func (*Neighborhood) TableName() string {
 	return "neighborhoods"
-}
-
-func (*Neighborhood) ScopeTrakked(db *gorm.DB) *gorm.DB {
-	return db.Where("amount > ?", 1000)
 }

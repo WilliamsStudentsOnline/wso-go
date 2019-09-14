@@ -1,0 +1,28 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+bases:
+  - ../base
+namespace: development
+commonLabels:
+  environment: development
+
+secretGenerator:
+  - name: backend-config-secrets
+    files:
+      - secrets.yaml
+  - name: mysql-secrets
+    env: mysql-secrets.env
+
+configMapGenerator:
+  - name: backend-config
+    files:
+      - config.yaml
+
+resources:
+  - namespace.yaml
+  - mysql-pv.yaml
+
+patchesStrategicMerge:
+  - backend-deployment.yaml
+  - mysql-deployment.yaml
+  - mysql-pvc.yaml

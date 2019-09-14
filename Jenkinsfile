@@ -1,18 +1,30 @@
 pipeline {
-  agent any
-  stages {
-    stage('Build') {
-      steps {
-       sh '''#!/bin/bash -l
-GOOS=linux go build -a -tags=jsoniter -o wso-go main.go'''
-      }
+  agent {
+    dockerfile {
+      filename 'Dockerfile.builder'
+      args '-u root:sudo'
     }
+
+  }
+  environment {
+    CGO_ENABLED = 1
+  }
+  stages {
     stage('Test') {
       steps {
-        sh '''#!/bin/bash -l
-mkdir tmp
-export TMPDIR=./tmp/
-GOCACHE=$PWD/cache GOOS=linux go test -race ./...'''
+        sh '''go get -u github.com/jstemmer/go-junit-report'''
+        sh '''go get -u github.com/axw/gocov/gocov'''
+        sh '''go get -u github.com/AlekSi/gocov-xml'''
+        sh '''go test -v -coverprofile=c.out -race ./... 2>&1 | go-junit-report > report.xml'''
+      }
+      post {
+        always {
+          junit(testResults: 'report.xml', allowEmptyResults: true, healthScaleFactor: 1)
+        }
+        success {
+          sh '''gocov convert c.out | gocov-xml > coverage.xml'''
+          publishCoverage adapters: [coberturaAdapter('coverage.xml')], sourceFileResolver: sourceFiles('NEVER_STORE')
+        }
       }
     }
   }

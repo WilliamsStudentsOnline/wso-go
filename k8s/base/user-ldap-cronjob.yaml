@@ -1,0 +1,36 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: wso-cronjob-update-all-users-from-ldap
+spec:
+  schedule: "0 1 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: wso-cronjob-update-all-users-from-ldap
+              image: wso-backend-jobs:latest
+              command: [/wso-jobs/update-all-users-from-ldap]
+              args: [--config=/etc/configs/config.yaml]
+              env:
+                - name: WSO_SECRET_MYSQL_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: mysql-secrets
+                      key: MYSQL_PASSWORD
+              volumeMounts:
+                - mountPath: "/etc/config-secrets"
+                  name: config-secret
+                  readOnly: true
+                - mountPath: "/etc/configs"
+                  name: config
+                  readOnly: true
+          volumes:
+            - name: config-secret
+              secret:
+                secretName: backend-config-secrets
+            - name: config
+              configMap:
+                name: backend-config
+          restartPolicy: OnFailure

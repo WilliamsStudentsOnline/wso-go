@@ -1,7 +1,0 @@
----
-env: development
-database_type: sqlite3
-database_args: db/development.db
-jwt_realm: wso-go-dev
-port: 8080
-disable_ldap: true

@@ -1,0 +1,6 @@
+FROM wso-backend/builder AS builder
+# Add trusted certificates
+FROM alpine:3.10 AS certs
+LABEL stage=intermediate
+COPY --from=builder /wso/ /wso
+RUN apk --update add ca-certificates

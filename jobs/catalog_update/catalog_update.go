@@ -9,6 +9,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/WilliamsStudentsOnline/wso-go/models"
+	"github.com/jinzhu/gorm"
 )
 
 const (
@@ -19,7 +22,7 @@ const (
 
 // Instructor holds the url and name of the instructors
 type Instructor struct {
-	URL  string `json:"url"`
+	ID   uint   `json:"id"`
 	Name string `json:"name"`
 }
 
@@ -45,34 +48,34 @@ type Attributes struct {
 
 // Course represents the parsed useful information of a Williams Course
 type Course struct {
-	Year                 int          `json:"year"`
-	Semester             string       `json:"semester"`
-	CourseID             string       `json:"courseID"`
-	Department           string       `json:"department"`
-	Number               int          `json:"number"`
-	Section              string       `json:"section"`
-	PeoplesoftNumber     int          `json:"peoplesoftNumber"`
-	Consent              string       `json:"consent"`
-	GradingBasisDesc     string       `json:"gradingBasisDesc"`
-	ClassType            string       `json:"classType"`
-	TitleLong            string       `json:"titleLong"`
-	TitleShort           string       `json:"titleShort"`
-	Instructors          []Instructor `json:"instructors"`
-	Meetings             []Meeting    `json:"meetings"`
-	CourseAttributes     Attributes   `json:"courseAttributes"`
-	ClassFormat          string       `json:"classFormat"`
-	ClassReqEval         string       `json:"classReqEval"`
-	ExtraInfo            string       `json:"extraInfo"`
-	Prereqs              string       `json:"prereqs"`
-	DepartmentNotes      string       `json:"departmentNotes"`
-	DescriptionSearch    string       `json:"descriptionSearch"`
-	EnrolmentPreferences string       `json:"enrolmentPreferences"`
-	CrossListing         []string     `json:"crossListing"`
-	Components           []string     `json:"components"`
+	Year                 int           `json:"year"`
+	Semester             string        `json:"semester"`
+	CourseID             string        `json:"courseID"`
+	Department           string        `json:"department"`
+	Number               int           `json:"number"`
+	Section              string        `json:"section"`
+	PeoplesoftNumber     int           `json:"peoplesoftNumber"`
+	Consent              string        `json:"consent"`
+	GradingBasisDesc     string        `json:"gradingBasisDesc"`
+	ClassType            string        `json:"classType"`
+	TitleLong            string        `json:"titleLong"`
+	TitleShort           string        `json:"titleShort"`
+	Instructors          []*Instructor `json:"instructors"`
+	Meetings             []*Meeting    `json:"meetings"`
+	CourseAttributes     Attributes    `json:"courseAttributes"`
+	ClassFormat          string        `json:"classFormat"`
+	ClassReqEval         string        `json:"classReqEval"`
+	ExtraInfo            string        `json:"extraInfo"`
+	Prereqs              string        `json:"prereqs"`
+	DepartmentNotes      string        `json:"departmentNotes"`
+	DescriptionSearch    string        `json:"descriptionSearch"`
+	EnrolmentPreferences string        `json:"enrolmentPreferences"`
+	CrossListing         []string      `json:"crossListing"`
+	Components           []string      `json:"components"`
 
-	// These camelCase (as opposed to ParselCase) variables will not be exported
-	crossListingMap map[string]bool
-	componentsMap   map[string]bool
+	// JSON will not marshal these
+	crossListingMap map[string]bool `json:"-"`
+	componentsMap   map[string]bool `json:"-"`
 }
 
 // RawCourse represents the unparsed course information we get from the catalog endpoint.
@@ -269,9 +272,8 @@ func ParseCatalog(catalog []RawCourse, fallSemID, winterSemID, springSemID int) 
 			instructor.Name = name
 
 			// @TODO include factrak search
-			instructor.URL = ""
 
-			course.Instructors = append(course.Instructors, instructor)
+			course.Instructors = append(course.Instructors, &instructor)
 		}
 
 		// Class Meetings
@@ -325,7 +327,7 @@ func ParseCatalog(catalog []RawCourse, fallSemID, winterSemID, springSemID int) 
 			}
 
 			meeting.Facility = trimTitle(unparsedMeeting.facility)
-			course.Meetings = append(course.Meetings, meeting)
+			course.Meetings = append(course.Meetings, &meeting)
 		}
 
 		unparsedAttributes := unparsed.AttributesSearch
@@ -445,6 +447,29 @@ func SaveCatalog(w io.Writer, courses []Course) error {
 	catalog.UpdateTime = time.Now().Format(time.RFC850)
 
 	return json.NewEncoder(w).Encode(catalog)
+}
+
+func AttachDBProfessors(courses []*Course, db *gorm.DB) error {
+	for _, course := range courses {
+		for _, instructor := range course.Instructors {
+			prof := models.User{}
+			err := db.Where("type = ?", models.UserTypeProfessor).
+				Where("name = ?", instructor.Name).
+				First(&prof).Error
+			if err != nil {
+				if gorm.IsRecordNotFoundError(err) {
+					instructor.ID = 0
+					continue
+				} else {
+					return err
+				}
+			}
+
+			instructor.ID = prof.ID
+		}
+	}
+
+	return nil
 }
 
 // capitalize capitalizes the first letter of the string.
