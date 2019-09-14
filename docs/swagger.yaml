@@ -4908,7 +4908,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/string'
+            type: string
         "500":
           description: Internal Server Error
           schema:

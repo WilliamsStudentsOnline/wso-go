@@ -26,7 +26,7 @@ func NewController(db *gorm.DB) *Controller {
 // @Tags words
 // @Accept  json
 // @Produce  json
-// @Success 200 {object} string
+// @Success 200 {string} string
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
 // @Router /words [get]
