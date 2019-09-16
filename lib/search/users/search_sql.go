@@ -52,7 +52,7 @@ func (s *SearchUsersMySQL) Search(query string, users *[]*models.User, opts Sear
 	// Run options
 	if opts != nil {
 		// TODO: either add counting here or no pagination for search
-		//tx = opts.Paginate(tx)
+		tx = opts.Paginate(tx)
 		tx = opts.Preloader(tx)
 	}
 
