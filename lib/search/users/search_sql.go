@@ -40,7 +40,7 @@ type SearchUsersMySQL struct {
 	DB *gorm.DB
 }
 
-func (s *SearchUsersMySQL) Search(query string, users *[]*models.User, opts SearchOptions) (err error) {
+func (s *SearchUsersMySQL) Search(query string, opts SearchOptions) (users []*models.User, totalResults int, err error) {
 	ast, err := search.ParseSearchQuery(query)
 	if err != nil {
 		return
@@ -52,11 +52,24 @@ func (s *SearchUsersMySQL) Search(query string, users *[]*models.User, opts Sear
 	// Run options
 	if opts != nil {
 		// TODO: either add counting here or no pagination for search
-		tx = opts.Paginate(tx)
 		tx = opts.Preloader(tx)
+		// TODO: set ordering to be default for all calls or make ordering customizable
+		// Order if we are having options
+		tx = opts.Order(tx)
 	}
 
-	err = tx.Find(users).Error
+	err = tx.Find(&users).Error
+	if err != nil {
+		return
+	}
+
+	// Total results before pagination
+	totalResults = len(users)
+
+	// Paginate server-side, rather than database-side
+	if opts != nil {
+		users = opts.Paginate(users)
+	}
 	return
 }
 
@@ -214,10 +227,54 @@ func (s *SearchUsersMySQL) parseField(field *search.Field, sb *strings.Builder) 
 	return
 }
 
+type SearchUsersOptionsMysql struct {
+	*models.GetAllUsersOptions
+}
+
+func (o *SearchUsersOptionsMysql) Preloader(db *gorm.DB) *gorm.DB {
+	return o.GetAllUsersOptions.Preloader(db)
+}
+
+func (o *SearchUsersOptionsMysql) Order(db *gorm.DB) *gorm.DB {
+	return o.GetAllUsersOptions.Order(db)
+}
+
+func (o *SearchUsersOptionsMysql) Paginate(users []*models.User) []*models.User {
+	// Assume users slice is ordered!
+	if o.Start != nil {
+		paginateIdx := 0
+		for i := range users {
+			// Loop until we find a user that is after start. Then we use that index to cut all users before start
+			if users[i].Name > *o.Start {
+				paginateIdx = i
+				break
+			}
+		}
+		users = users[paginateIdx:]
+	}
+
+	if o.Limit != nil {
+		// Only do offset if we have limit
+		if o.Offset != nil {
+			// Ensure bounds
+			if *o.Offset < uint(len(users))-1 {
+				users = users[*o.Offset:]
+			}
+		}
+
+		// Ensure bounds
+		if *o.Limit < uint(len(users)) {
+			users = users[:*o.Limit]
+		}
+	}
+
+	return users
+}
+
 func (*SearchUsersMySQL) NewOptions(offset *uint, limit *uint, preload []string) SearchOptions {
-	return &models.GetAllUsersOptions{
+	return &SearchUsersOptionsMysql{&models.GetAllUsersOptions{
 		Offset:  offset,
 		Limit:   limit,
 		Preload: preload,
-	}
+	}}
 }

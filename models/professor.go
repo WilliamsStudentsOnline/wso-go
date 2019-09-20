@@ -26,6 +26,7 @@ func (m *ProfessorModel) GetAllProfessors(u *[]*User, opts Options) (err error) 
 }
 
 type GetAllProfessorsOptions struct {
+	// Offset is ignored unless limit is supplied
 	Offset *uint `json:"offset" form:"offset"`
 	Limit  *uint `json:"limit" form:"limit"`
 
@@ -63,11 +64,11 @@ func (o *GetAllProfessorsOptions) Order(db *gorm.DB) *gorm.DB {
 
 func (o *GetAllProfessorsOptions) Paginate(db *gorm.DB) *gorm.DB {
 	db = o.Order(db)
-	if o.Offset != nil {
-		db = db.Offset(*o.Offset)
-	}
 	if o.Limit != nil {
 		db = db.Limit(*o.Limit)
+		if o.Offset != nil {
+			db = db.Offset(*o.Offset)
+		}
 	}
 
 	return db

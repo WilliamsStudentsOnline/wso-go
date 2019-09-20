@@ -96,6 +96,137 @@ func TestController_ListUsers(t *testing.T) {
 	assert.Equal(u4.UnixID, respUsers[0].UnixID)
 }
 
+func TestController_ListUsers_Pagination(t *testing.T) {
+	// Setup (can copy and paste this basically)
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+	router := utils.SetupRouter(auth.ScopeUsers, auth.ScopeWriteSelf)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg)
+
+	users := []*models.User{
+		{
+			Name:   "Test A",
+			UnixID: "a",
+		},
+		{
+			Name:   "Test B",
+			UnixID: "b",
+		},
+		{
+			Name:   "Test C",
+			UnixID: "c",
+		},
+		{
+			Name:   "Test D",
+			UnixID: "d",
+		},
+		{
+			Name:   "Test E",
+			UnixID: "e",
+		},
+	}
+	for _, user := range users {
+		assert.NoError(db.Create(user).Error)
+	}
+	// Update users to have search fields
+	for _, u := range users {
+		assert.NoError(models.NewUserModel(db).PopulateSearchFields(u.ID))
+	}
+
+	testCases := []struct {
+		name     string
+		query    string
+		expected []*models.User
+	}{
+		{
+			"all",
+			"",
+			users,
+		},
+		{
+			"limit",
+			"limit=2",
+			users[0:2],
+		},
+		{
+			"offset (ignored)",
+			"offset=2",
+			users,
+		},
+		{
+			"start",
+			"start=Test+B",
+			users[2:],
+		},
+		{
+			"offset and limit",
+			"offset=2&limit=2",
+			users[2:4],
+		},
+		{
+			"start and limit",
+			"start=Test+B&limit=2",
+			users[2:4],
+		},
+		{
+			"start and offset and limit",
+			"start=Test+B&offset=1&limit=1",
+			users[3:4],
+		},
+	}
+
+	// Test for DB query
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			a := testify.New(t)
+			w, err := utils.DoHTTPReq(router, http.MethodGet, "/?"+tc.query, nil)
+			a.NoError(err)
+			a.Equal(http.StatusOK, w.Code)
+
+			resp := utils.GetHTTPDataResp(assert, w.Body.Bytes())
+			a.Nil(resp.Error)
+
+			var res []*models.User
+			err = json.Unmarshal(resp.Data, &res)
+			a.NoError(err)
+
+			a.Len(res, len(tc.expected))
+			for i := range tc.expected {
+				a.Equal(tc.expected[i].ID, res[i].ID)
+			}
+		})
+	}
+
+	// Test for search query
+	for _, tc := range testCases {
+		t.Run(tc.name+" [search]", func(t *testing.T) {
+			a := testify.New(t)
+
+			// Add an & b/c we are doing a query, but only if query has text
+			if tc.query != "" {
+				tc.query = "&" + tc.query
+			}
+
+			w, err := utils.DoHTTPReq(router, http.MethodGet, "/?q=test"+tc.query, nil)
+			a.NoError(err)
+			a.Equal(http.StatusOK, w.Code)
+
+			resp := utils.GetHTTPDataResp(assert, w.Body.Bytes())
+			a.Nil(resp.Error)
+
+			var res []*models.User
+			err = json.Unmarshal(resp.Data, &res)
+			a.NoError(err)
+
+			a.Len(res, len(tc.expected))
+			for i := range tc.expected {
+				a.Equal(tc.expected[i].ID, res[i].ID)
+			}
+		})
+	}
+}
+
 func TestController_GetUser(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)

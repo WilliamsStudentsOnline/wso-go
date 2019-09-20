@@ -240,8 +240,7 @@ func TestSearchUsersMySQL(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			var res []*models.User
-			err := s.Search(tc.query, &res, nil)
+			res, _, err := s.Search(tc.query, nil)
 			testify.NoError(t, err)
 
 			testify.Len(t, res, len(tc.expected))

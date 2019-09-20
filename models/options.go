@@ -10,8 +10,12 @@ type Preloader interface {
 	Preloader(db *gorm.DB) *gorm.DB
 }
 
-type Paginator interface {
+type Orderer interface {
 	Order(db *gorm.DB) *gorm.DB
+}
+
+type Paginator interface {
+	Orderer
 	Paginate(db *gorm.DB) *gorm.DB
 }
 

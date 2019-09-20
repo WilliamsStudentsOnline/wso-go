@@ -25,9 +25,10 @@ func (m *BulletinModel) GetAllBulletins(b *[]*Bulletin) (err error) {
 
 type GetAllBulletinsOptions struct {
 	// Pagination
-	Start  *time.Time `json:"start" form:"start"`
-	Offset *uint      `json:"offset" form:"offset"`
-	Limit  *uint      `json:"limit" form:"limit"`
+	Start *time.Time `json:"start" form:"start"`
+	// Offset is ignored unless limit is supplied
+	Offset *uint `json:"offset" form:"offset"`
+	Limit  *uint `json:"limit" form:"limit"`
 
 	// What to preload
 	Preload []string `json:"preload" form:"preload[]"`
@@ -50,11 +51,11 @@ func (o *GetAllBulletinsOptions) Paginate(db *gorm.DB) *gorm.DB {
 	if o.Start != nil {
 		db = db.Where("bulletins.start_date < ?", *o.Start)
 	}
-	if o.Offset != nil {
-		db = db.Offset(*o.Offset)
-	}
 	if o.Limit != nil {
 		db = db.Limit(*o.Limit)
+		if o.Offset != nil {
+			db = db.Offset(*o.Offset)
+		}
 	}
 	return db
 }

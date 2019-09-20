@@ -84,9 +84,10 @@ type GetAllDormtrakReviewsOptions struct {
 	UserID     *uint `json:"userID" form:"userID"`
 
 	// Pagination
-	Start  *time.Time `json:"start" form:"start"`
-	Offset *uint      `json:"offset" form:"offset"`
-	Limit  *uint      `json:"limit" form:"limit"`
+	Start *time.Time `json:"start" form:"start"`
+	// Offset is ignored unless limit is supplied
+	Offset *uint `json:"offset" form:"offset"`
+	Limit  *uint `json:"limit" form:"limit"`
 
 	// What to preload
 	Preload []string `json:"preload" form:"preload[]"`
@@ -105,11 +106,11 @@ func (o *GetAllDormtrakReviewsOptions) Paginate(db *gorm.DB) *gorm.DB {
 	if o.Start != nil {
 		db = db.Where("dormtrak_reviews.created_at < ?", *o.Start)
 	}
-	if o.Offset != nil {
-		db = db.Offset(*o.Offset)
-	}
 	if o.Limit != nil {
 		db = db.Limit(*o.Limit)
+		if o.Offset != nil {
+			db = db.Offset(*o.Offset)
+		}
 	}
 	return db
 }

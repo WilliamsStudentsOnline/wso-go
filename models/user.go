@@ -25,9 +25,10 @@ func NewUserModel(db *gorm.DB) *UserModel {
 }
 
 type GetAllUsersOptions struct {
-	Start  *string `json:"start" form:"start"`
-	Offset *uint   `json:"offset" form:"offset"`
-	Limit  *uint   `json:"limit" form:"limit"`
+	Start *string `json:"start" form:"start"`
+	// Offset is ignored unless limit is supplied
+	Offset *uint `json:"offset" form:"offset"`
+	Limit  *uint `json:"limit" form:"limit"`
 
 	// You can preload: dorm (with dorm room), tags, department, and office
 	Preload []string `json:"preload" form:"preload[]"`
@@ -64,11 +65,11 @@ func (o *GetAllUsersOptions) Paginate(db *gorm.DB) *gorm.DB {
 	if o.Start != nil {
 		db = db.Where("users.name > ?", *o.Start)
 	}
-	if o.Offset != nil {
-		db = db.Offset(*o.Offset)
-	}
 	if o.Limit != nil {
 		db = db.Limit(*o.Limit)
+		if o.Offset != nil {
+			db = db.Offset(*o.Offset)
+		}
 	}
 
 	return db

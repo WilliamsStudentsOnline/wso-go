@@ -53,6 +53,7 @@ func NewController(db *gorm.DB, cfg *config.Config) *Controller {
 // @Router /users [get]
 func (t *Controller) ListUsers(c *gin.Context) {
 	var users []*models.User
+	var totalResults int
 	var err error
 
 	opts := models.GetAllUsersOptions{}
@@ -62,7 +63,7 @@ func (t *Controller) ListUsers(c *gin.Context) {
 	}
 
 	if query, ok := c.GetQuery("q"); ok {
-		err = t.userSearch.Search(query, &users, &opts)
+		users, totalResults, err = t.userSearch.Search(query, &search.SearchUsersOptionsMysql{&opts})
 
 		if err != nil {
 			t.RespondError(c, err)
@@ -76,13 +77,14 @@ func (t *Controller) ListUsers(c *gin.Context) {
 			return
 		}
 
-		count, err := t.userModel.CountAllUsers()
+		totalResults, err = t.userModel.CountAllUsers()
 		if err != nil {
 			t.RespondError(c, err)
 			return
 		}
-		t.SetPaginationTotal(c, count)
 	}
+
+	t.SetPaginationTotal(c, totalResults)
 
 	t.RespondOK(c, responses.ConvertListUsersResponse(users))
 }

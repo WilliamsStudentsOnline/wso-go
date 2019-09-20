@@ -8,7 +8,7 @@ import (
 )
 
 type SearchUsers interface {
-	Search(query string, users *[]*models.User, opts SearchOptions) (err error)
+	Search(query string, opts SearchOptions) (users []*models.User, totalResults int, err error)
 	NewOptions(offset *uint, limit *uint, preload []string) SearchOptions
 }
 
@@ -29,5 +29,6 @@ func NewSearchUsers(db *gorm.DB, cfg *config.Config) SearchUsers {
 
 type SearchOptions interface {
 	models.Preloader
-	models.Paginator
+	models.Orderer
+	Paginate([]*models.User) []*models.User
 }

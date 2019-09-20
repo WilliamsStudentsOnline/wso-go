@@ -77,6 +77,7 @@ func (m *EphcatcherModel) GetAllEphcatchers(userID uint, p *[]*Ephcatcher, opts 
 }
 
 type GetAllEphcatchersOptions struct {
+	// Offset is ignored unless limit is supplied
 	Offset *uint `json:"offset" form:"offset"`
 	Limit  *uint `json:"limit" form:"limit"`
 }
@@ -87,11 +88,11 @@ func (p *GetAllEphcatchersOptions) Order(db *gorm.DB) *gorm.DB {
 
 func (p *GetAllEphcatchersOptions) Paginate(db *gorm.DB) *gorm.DB {
 	db = p.Order(db)
-	if p.Offset != nil {
-		db = db.Offset(*p.Offset)
-	}
 	if p.Limit != nil {
 		db = db.Limit(*p.Limit)
+		if p.Offset != nil {
+			db = db.Offset(*p.Offset)
+		}
 	}
 
 	return db

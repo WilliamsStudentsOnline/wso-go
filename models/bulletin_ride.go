@@ -19,9 +19,10 @@ func NewBulletinRideModel(db *gorm.DB) *BulletinRideModel {
 
 type GetAllBulletinRidesOptions struct {
 	// Pagination
-	Start  *time.Time `json:"start" form:"start"`
-	Offset *uint      `json:"offset" form:"offset"`
-	Limit  *uint      `json:"limit" form:"limit"`
+	Start *time.Time `json:"start" form:"start"`
+	// Offset is ignored unless limit is supplied
+	Offset *uint `json:"offset" form:"offset"`
+	Limit  *uint `json:"limit" form:"limit"`
 
 	// What to preload
 	Preload []string `json:"preload" form:"preload[]"`
@@ -44,11 +45,11 @@ func (o *GetAllBulletinRidesOptions) Paginate(db *gorm.DB) *gorm.DB {
 	if o.Start != nil {
 		db = db.Where("bulletin_rides.date < ?", *o.Start)
 	}
-	if o.Offset != nil {
-		db = db.Offset(*o.Offset)
-	}
 	if o.Limit != nil {
 		db = db.Limit(*o.Limit)
+		if o.Offset != nil {
+			db = db.Offset(*o.Offset)
+		}
 	}
 	return db
 }
