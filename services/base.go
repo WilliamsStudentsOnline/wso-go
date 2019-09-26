@@ -112,7 +112,8 @@ func (b BaseController) RespondErrorCode(c *gin.Context, code int, err error) {
 
 	// We don't want clients knowing what's happening here, so just log the error and return something inconspicuous
 	if code >= http.StatusInternalServerError {
-		_ = c.Error(err)
+		// Only put the error in the context if it is important
+		c.Error(err)
 		err = lib.ErrorInternalServerError
 	}
 

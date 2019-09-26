@@ -29,6 +29,7 @@ require (
 	github.com/m1ome/leven v0.0.0-20170305195354-a3732db01c54
 	github.com/mailru/easyjson v0.0.0-20190626092158-b2ccc519800e // indirect
 	github.com/mattn/go-sqlite3 v1.11.0 // indirect
+	github.com/nlopes/slack v0.6.0
 	github.com/sirupsen/logrus v1.4.2
 	github.com/stretchr/testify v1.3.0
 	github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14

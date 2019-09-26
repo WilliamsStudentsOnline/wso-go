@@ -37,6 +37,8 @@ type Config struct {
 	// SQLite
 	SQLiteFile string `yaml:"sqlite_file" envconfig:"sqlite_file"`
 
+	SlackWebhookURL string `yaml:"slack_webhook_url" envconfig:"slack_webhook_url"`
+
 	/* JWT */
 	JWTRealm string `yaml:"jwt_realm" envconfig:"jwt_realm"`
 	// Timeout in hours

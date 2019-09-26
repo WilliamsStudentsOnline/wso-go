@@ -50,6 +50,8 @@ func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 	r.Use(config.Logger(log.StandardLogger()))
 
 	// Recovery middleware recovers from any panics and writes a 500 if there was one.
+	// We also write to Slack if there is any internal server error
+	r.Use(SlackRecovery(cfg))
 	r.Use(gin.Recovery())
 
 	// CORS config for react app
