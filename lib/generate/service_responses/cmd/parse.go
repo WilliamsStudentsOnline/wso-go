@@ -43,6 +43,11 @@ func GenerateStructs(root *Schema, prefix string) ([]StructType, []string, Entry
 		packages: make(map[string]bool),
 	}
 
+	// Add global def packages
+	for _, pkg := range root.GoPackages {
+		r.packages[pkg] = true
+	}
+
 	st, entry := r.ParseRoot()
 	var pkgs []string
 	for pkg := range r.packages {

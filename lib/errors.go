@@ -94,4 +94,10 @@ var (
 	ErrorBulletinInvalidType    = NewAPIError(1831, "invalid bulletin type")
 	ErrorBulletinRideDateInPast = NewAPIError(1841, "date cannot be in past")
 	ErrorDiscussionNotFound     = NewAPIErrorWithHTTP(1850, http.StatusNotFound, "discussion cannot be found")
+
+	// 19** are ephmatch errors
+	ErrorEphmatchLikeNoSelf    = NewAPIError(1930, "cannot ephmatch-like yourself")
+	ErrorEphmatcherNotFound    = NewAPIError(1931, "ephmatcher could not be found")
+	ErrorEphmatchAlreadyExists = NewAPIError(1932, "ephmatch already exists with user ID and passed ephmatcher ID")
+	ErrorEphmatchDoesNotExist  = NewAPIError(1932, "ephmatch does not exist with user ID and passed ephmatcher ID")
 )

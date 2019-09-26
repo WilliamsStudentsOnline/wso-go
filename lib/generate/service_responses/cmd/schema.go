@@ -9,6 +9,8 @@ import (
 type Schema struct {
 	*Type
 	Definitions Definitions `json:"definitions,omitempty"`
+	// This is the globally required Go packages.
+	GoPackages []string `json:"goPackages,omitempty"`
 }
 
 // Definitions hold schema definitions.

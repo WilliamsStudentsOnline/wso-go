@@ -23,6 +23,7 @@ import (
 	bulletinService "github.com/WilliamsStudentsOnline/wso-go/services/bulletin"
 	dormtrakService "github.com/WilliamsStudentsOnline/wso-go/services/dormtrak"
 	ephcatchService "github.com/WilliamsStudentsOnline/wso-go/services/ephcatch"
+	ephmatchService "github.com/WilliamsStudentsOnline/wso-go/services/ephmatch"
 	factrakService "github.com/WilliamsStudentsOnline/wso-go/services/factrak"
 	userService "github.com/WilliamsStudentsOnline/wso-go/services/user"
 	wordsService "github.com/WilliamsStudentsOnline/wso-go/services/words"
@@ -134,6 +135,11 @@ func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 		// Autocomplete Service
 		autocompleteGroup := v1.Group("/autocomplete")
 		autocompleteService.SetupRouter(autocompleteGroup, db, cfg)
+
+		// Ephmatch Service
+		ephmatchGroup := v1.Group("/ephmatch")
+		ephmatchGroup.Use(auth.RequireScopes(auth.ScopeEphmatch, auth.ScopeAdminAll))
+		ephmatchService.SetupRouter(ephmatchGroup, db, cfg)
 	}
 
 	return r, nil

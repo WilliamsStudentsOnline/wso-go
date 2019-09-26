@@ -716,6 +716,19 @@ definitions:
       unixID:
         type: string
     type: object
+  models.Ephmatcher:
+    properties:
+      id:
+        type: integer
+      liked:
+        description: If me (user) has an ephmatch entry where ephmatch.other_id=users.id
+          and ephmatch.user_id=myID
+        type: boolean
+      name:
+        type: string
+      unixID:
+        type: string
+    type: object
   models.FactrakAgreement:
     properties:
       agrees:
@@ -997,6 +1010,8 @@ definitions:
         type: integer
       optOutEphcatch:
         type: boolean
+      optOutEphmatch:
+        type: boolean
       pronoun:
         type: string
       suBox:
@@ -1140,6 +1155,45 @@ definitions:
         type: string
       visible:
         type: boolean
+      williamsEmail:
+        type: string
+    type: object
+  responses.ListMatchesResponseEphmatch:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: integer
+      other:
+        $ref: '#/definitions/responses.ListMatchesResponseOther'
+        type: object
+      otherID:
+        type: integer
+      seen:
+        type: boolean
+    type: object
+  responses.ListMatchesResponseOther:
+    properties:
+      classYear:
+        type: integer
+      entry:
+        type: string
+      id:
+        type: integer
+      major:
+        type: string
+      name:
+        type: string
+      nickname:
+        type: string
+      offCycle:
+        type: boolean
+      pronoun:
+        type: string
+      title:
+        type: string
+      unixID:
+        type: string
       williamsEmail:
         type: string
     type: object
@@ -3207,6 +3261,188 @@ paths:
       summary: List matches
       tags:
       - ephcatch
+  /ephmatch/ephmatchers:
+    get:
+      consumes:
+      - application/json
+      description: lists all Ephmatch-eligible students
+      operationId: ephmatch-list-ephmatchers
+      parameters:
+      - description: Offset Pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      - description: Preload List
+        in: query
+        items:
+          type: string
+        name: preload
+        type: array
+      - description: Search Query
+        in: query
+        name: q
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Ephmatcher'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List ephmatchers
+      tags:
+      - ephmatch
+  /ephmatch/ephmatchers/{ephmatcherID}:
+    get:
+      consumes:
+      - application/json
+      description: gets one ephmatch-eligible user
+      operationId: ephmatch-get-ephmatcher
+      parameters:
+      - description: Ephmatcher ID
+        in: path
+        name: ephmatcherID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Ephmatcher'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get ephmatcher
+      tags:
+      - ephmatch
+  /ephmatch/ephmatchers/{ephmatcherID}/like:
+    post:
+      consumes:
+      - application/json
+      description: Likes one ephmatch-eligible user
+      operationId: ephmatch-like-ephmatcher
+      parameters:
+      - description: Ephmatcher ID
+        in: path
+        name: ephmatcherID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201": {}
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1730":
+          description: cannot ephmatch-like yourself
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1731":
+          description: ephmatcher could not be found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1732":
+          description: ephmatch already exists with user ID and passed ephmatcher
+            ID
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Like ephmatcher
+      tags:
+      - ephmatch
+  /ephmatch/ephmatchers/{ephmatcherID}/unlike:
+    post:
+      consumes:
+      - application/json
+      description: Removes a like from one ephmatch-eligible user
+      operationId: ephmatch-unlike-ephmatcher
+      parameters:
+      - description: Ephmatcher ID
+        in: path
+        name: ephmatcherID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201": {}
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Unlike ephmatcher
+      tags:
+      - ephmatch
+  /ephmatch/matches:
+    get:
+      consumes:
+      - application/json
+      description: lists all Ephmatch-eligible students that user has matched with
+      operationId: ephmatch-list-matches
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/responses.ListMatchesResponseEphmatch'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List matches
+      tags:
+      - ephmatch
   /factrak/admin/surveys:
     get:
       consumes:

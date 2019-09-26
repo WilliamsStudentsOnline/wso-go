@@ -37,6 +37,7 @@ const (
 	ScopeUsers = "service:users"
 	// Allows you to access other services not mentioned above
 	ScopeAllOther = "service:other"
+	ScopeEphmatch = "service:ephmatch"
 )
 
 // Require this endpoint to have a scope; multiple scopes mean an OR. For an AND, call this function multiple times
