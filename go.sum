@@ -26,8 +26,6 @@ github.com/agext/levenshtein v1.2.2 h1:0S/Yg6LYmFJ5stwQeRp6EeOcCbj7xiqQSdNelsXva
 github.com/agext/levenshtein v1.2.2/go.mod h1:JEDfjyjHDjOF/1e4FlBE/PkbqA9OfWu2ki2W0IB5558=
 github.com/agnivade/levenshtein v1.0.2 h1:xKF7WlEzoa+ZVkzBxy0ukdzI2etYiWGlTPMNTBGncKI=
 github.com/agnivade/levenshtein v1.0.2/go.mod h1:JLvzGblJATanj48SD0YhHTEFGkWvw3ASLFWSiMIFXsE=
-github.com/aidanlloydtucker/gin-jwt/v2 v2.6.3 h1:93mZ4obA2fug/JJDnr4XvYeptqM/l+86Xl+acYN99nE=
-github.com/aidanlloydtucker/gin-jwt/v2 v2.6.3/go.mod h1:oMmTlYbhZda7uQUbIxvR9vKPRzN4MZhmmvq5PZ0kDt0=
 github.com/alecthomas/participle v0.3.0 h1:e8vhrYR1nDjzDxyDwpLO27TWOYWilaT+glkwbPadj50=
 github.com/alecthomas/participle v0.3.0/go.mod h1:SW6HZGeZgSIpcUWX3fXpfZhuaWHnmoD5KCVaqSaNTkk=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc h1:cAKDfWh5VpdgMhJosfJnn5/FoN2SRZ4p7fJNX58YPaU=

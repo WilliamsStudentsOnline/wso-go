@@ -1,13 +1,12 @@
 module github.com/WilliamsStudentsOnline/wso-go
 
-go 1.12
+go 1.13
 
 require (
 	cloud.google.com/go v0.43.0 // indirect
 	github.com/WilliamsStudentsOnline/gin-jwt/v2 v2.6.3
 	github.com/agext/levenshtein v1.2.2 // indirect
 	github.com/agnivade/levenshtein v1.0.2 // indirect
-	github.com/aidanlloydtucker/gin-jwt/v2 v2.6.3
 	github.com/alecthomas/participle v0.3.0
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/arbovm/levenshtein v0.0.0-20160628152529-48b4e1c0c4d0 // indirect
@@ -36,7 +35,7 @@ require (
 	github.com/swaggo/gin-swagger v1.2.0
 	github.com/swaggo/swag v1.6.3-0.20190809083751-16ebb329af95
 	github.com/thoas/go-funk v0.4.0
-	github.com/ugorji/go v1.1.7 // indirect
+	github.com/ugorji/go/codec v1.1.7 // indirect
 	github.com/urfave/cli v1.21.0
 	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4 // indirect
 	golang.org/x/net v0.0.0-20190724013045-ca1201d0de80 // indirect
