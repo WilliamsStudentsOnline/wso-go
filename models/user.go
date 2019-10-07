@@ -412,10 +412,10 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 	defer ndsLdap.Close()
 
 	// This is our result
-	users := make([]*User, len(userEntries))
+	users := []*User{}
 
 	// Go through every returned entry from LDAP
-	for idx, entry := range userEntries {
+	for _, entry := range userEntries {
 		user := &User{
 			UnixID:        entry.GetAttributeValue("uid"),
 			Name:          entry.GetAttributeValue("cn"),
@@ -432,6 +432,11 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 		ndsUser, err := ndsLdap.Get("uid", user.UnixID)
 		if err != nil {
 			return nil, err
+		}
+
+		// If we didn't find anything in search, just continue.
+		if ndsUser == nil {
+			continue
 		}
 
 		user.Type = userAssociationType(ndsUser)
@@ -466,7 +471,7 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 
 		// If user is not visible, finish parsing here.
 		if !*user.Visible {
-			users[idx] = user
+			users = append(users, user)
 			break
 		}
 
@@ -567,7 +572,7 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 			}
 		}
 
-		users[idx] = user
+		users = append(users, user)
 	}
 
 	return users, nil
