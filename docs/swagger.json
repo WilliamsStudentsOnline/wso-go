@@ -11,7 +11,7 @@
         "version": "0.1.0"
     },
     "host": "localhost:8080",
-    "basePath": "/api/v1",
+    "basePath": "/api/v2",
     "paths": {
         "/admin/catalog-update": {
             "post": {
