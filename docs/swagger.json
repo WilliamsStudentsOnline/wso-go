@@ -8,7 +8,7 @@
             "email": "wso-dev@wso.williams.edu"
         },
         "license": {},
-        "version": "0.1.0"
+        "version": "2.0.0"
     },
     "host": "localhost:8080",
     "basePath": "/api/v2",
