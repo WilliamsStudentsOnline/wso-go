@@ -10,7 +10,7 @@
         "license": {},
         "version": "2.0.0"
     },
-    "host": "localhost:8080",
+    "host": "wso.williams.edu",
     "basePath": "/api/v2",
     "paths": {
         "/admin/catalog-update": {
