@@ -29,14 +29,14 @@ import (
 )
 
 // @title WSO API
-// @version 0.1.0
+// @version 2.0.0
 // @description API for WSO services like factrak, facebook, dormtrak, course scheduler, and others.
 
 // @contact.name WSO Dev
 // @contact.email wso-dev@wso.williams.edu
 
 // @host localhost:8080
-// @BasePath /api/v1
+// @BasePath /api/v2
 
 // @securityDefinitions.apikey Bearer
 // @in header
@@ -72,10 +72,10 @@ func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 	r.GET("/health-check", HealthCheck)
 
 	// Initialize login
-	r.POST("/api/v1/auth/login", authMiddleware.LoginHandler)
+	r.POST("/api/v2/auth/login", authMiddleware.LoginHandler)
 
 	// Initialize words endpoint
-	wordsService.SetupRouter(r.Group("/api/v1/words"), db, cfg)
+	wordsService.SetupRouter(r.Group("/api/v2/words"), db, cfg)
 
 	// Run API docs if it is enabled
 	// NOTE: This currently requires no JWT to access.
@@ -96,43 +96,43 @@ func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 	router.Use(authMiddleware.MiddlewareFunc())
 
 	// Actual API routing
-	v1 := router.Group("/api/v1")
+	v2 := router.Group("/api/v2")
 	{
 		// Authentication for refresh user & other auth commands for already logged in users
-		authService.SetupRouter(v1.Group("/auth"), authMiddleware)
+		authService.SetupRouter(v2.Group("/auth"), authMiddleware)
 
 		// User Service
-		userGroup := v1.Group("/users")
+		userGroup := v2.Group("/users")
 		userGroup.Use(auth.RequireScopes(auth.ScopeUsers))
 		userService.SetupRouter(userGroup, db, cfg)
 
 		// Admin Service
-		adminGroup := v1.Group("/admin")
+		adminGroup := v2.Group("/admin")
 		adminGroup.Use(auth.RequireScopes(auth.ScopeAdminAll))
 		adminService.SetupRouter(adminGroup, db, cfg)
 
 		// Factrak Service
-		factrakGroup := v1.Group("/factrak")
+		factrakGroup := v2.Group("/factrak")
 		factrakGroup.Use(auth.RequireScopes(auth.ScopeFactrakLimited, auth.ScopeFactrakFull))
 		factrakService.SetupRouter(factrakGroup, db, cfg)
 
 		// Dormtrak Service
-		dormtrakGroup := v1.Group("/dormtrak")
+		dormtrakGroup := v2.Group("/dormtrak")
 		dormtrakGroup.Use(auth.RequireScopes(auth.ScopeDormtrak))
 		dormtrakService.SetupRouter(dormtrakGroup, db, cfg)
 
 		// Bulletin Service
-		bulletinGroup := v1.Group("/bulletin")
+		bulletinGroup := v2.Group("/bulletin")
 		bulletinGroup.Use(auth.RequireScopes(auth.ScopeBulletin))
 		bulletinService.SetupRouter(bulletinGroup, db, cfg)
 
 		// Ephcatch Service
-		ephcatchGroup := v1.Group("/ephcatch")
+		ephcatchGroup := v2.Group("/ephcatch")
 		ephcatchGroup.Use(auth.RequireScopes(auth.ScopeEphcatch, auth.ScopeAdminAll))
 		ephcatchService.SetupRouter(ephcatchGroup, db, cfg)
 
 		// Autocomplete Service
-		autocompleteGroup := v1.Group("/autocomplete")
+		autocompleteGroup := v2.Group("/autocomplete")
 		autocompleteService.SetupRouter(autocompleteGroup, db, cfg)
 	}
 
