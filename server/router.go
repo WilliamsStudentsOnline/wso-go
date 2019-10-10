@@ -2,11 +2,12 @@ package server
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	jwt "github.com/WilliamsStudentsOnline/gin-jwt/v2"
 	"github.com/WilliamsStudentsOnline/wso-go/config"
-	_ "github.com/WilliamsStudentsOnline/wso-go/docs"
+	"github.com/WilliamsStudentsOnline/wso-go/docs"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-contrib/cors"
@@ -35,7 +36,7 @@ import (
 // @contact.name WSO Dev
 // @contact.email wso-dev@wso.williams.edu
 
-// @host localhost:8080
+// @host wso.williams.edu
 // @BasePath /api/v1
 
 // @securityDefinitions.apikey Bearer
@@ -43,6 +44,8 @@ import (
 // @name Authorization
 
 func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
+	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%d", cfg.Hostname, cfg.Port)
+
 	r := gin.New()
 
 	// Logger middleware will write the logs to gin.DefaultWriter even if you set with GIN_MODE=release.

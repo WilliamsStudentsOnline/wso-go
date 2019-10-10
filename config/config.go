@@ -60,6 +60,7 @@ type Config struct {
 	EnableAPIDocs bool   `yaml:"enable_api_docs" envconfig:"enable_api_docs"`
 	DisableLDAP   bool   `yaml:"disable_ldap" envconfig:"disable_ldap"`
 	LogLevel      string `yaml:"log_level" envconfig:"log_level"`
+	Hostname      string `yaml:"hostname" envconfig:"hostname"`
 
 	/* Search */
 	SearchBackend string `yaml:"search_backend" envconfig:"search_backend"`
@@ -236,6 +237,10 @@ func SetupConfig(c *Config) error {
 
 	if c.EnableTLS && (c.TLSKeyPath == "" || c.TLSCertPath == "") {
 		return errors.New("missing TLS cert/key path with TLS enabled")
+	}
+
+	if c.Hostname == "" {
+		c.Hostname = "localhost"
 	}
 
 	return nil
