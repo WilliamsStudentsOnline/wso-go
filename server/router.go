@@ -45,6 +45,11 @@ import (
 
 func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%d", cfg.Hostname, cfg.Port)
+	if cfg.EnableTLS {
+		docs.SwaggerInfo.Schemes = []string{"https"}
+	} else {
+		docs.SwaggerInfo.Schemes = []string{"http"}
+	}
 
 	r := gin.New()
 
