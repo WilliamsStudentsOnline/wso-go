@@ -1,4 +1,4 @@
-basePath: /api/v1
+basePath: /api/v2
 definitions:
   admin.KubeJobReturn:
     properties:
@@ -1356,7 +1356,7 @@ definitions:
           type: string
         type: array
     type: object
-host: localhost:8080
+host: wso.williams.edu
 info:
   contact:
     email: wso-dev@wso.williams.edu
@@ -1365,7 +1365,7 @@ info:
     and others.
   license: {}
   title: WSO API
-  version: 0.1.0
+  version: 2.0.0
 paths:
   /admin/catalog-update:
     post:
