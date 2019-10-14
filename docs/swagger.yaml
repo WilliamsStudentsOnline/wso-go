@@ -26,9 +26,6 @@ definitions:
         description: If true, will authenticate based on IP. Will return either off-campus
           or on-campus token
         type: boolean
-    required:
-    - password
-    - unixID
     type: object
   autocomplete.ACEntry:
     properties:

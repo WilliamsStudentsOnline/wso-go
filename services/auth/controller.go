@@ -15,8 +15,8 @@ var ErrorMissingLoginValues = errors.New("missing unix id or password")
 
 // Parameters passed from client when logging in
 type LoginParams struct {
-	UnixID   string `form:"unixID" json:"unixID" binding:"required"`
-	Password string `form:"password" json:"password" binding:"required"`
+	UnixID   string `form:"unixID" json:"unixID"`
+	Password string `form:"password" json:"password"`
 	// If true, will authenticate based on IP. Will return either off-campus or on-campus token
 	UseIP bool `form:"useIP" json:"useIP"`
 	// If true, will authenticate based on IP. Fail if cannot get on-campus token.
@@ -70,6 +70,10 @@ func (t *Controller) Authenticator(c *gin.Context) (interface{}, error) {
 		// Otherwise, instead of an error, sign a token for off-campus IP
 		payload.TokenLevel = TokenLevelOffCampus
 		return payload, nil
+	}
+
+	if loginVals.UnixID == "" || loginVals.Password == "" {
+		return nil, ErrorMissingLoginValues
 	}
 
 	// The user model interface to return if we can authenticate

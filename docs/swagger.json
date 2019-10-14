@@ -5562,10 +5562,6 @@
         },
         "auth.LoginParams": {
             "type": "object",
-            "required": [
-                "password",
-                "unixID"
-            ],
             "properties": {
                 "localIP": {
                     "description": "If true, will authenticate based on IP. Fail if cannot get on-campus token.",
