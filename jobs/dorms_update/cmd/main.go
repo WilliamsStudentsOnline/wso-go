@@ -25,12 +25,14 @@ func main() {
 	var useLocal bool
 	var dormPath string
 	var roomsPath string
+	var disableMigrationCheck bool
 
 	// Command-line flags
 	flag.StringVar(&configPath, "config", "", "path to config file")
 	flag.BoolVar(&useLocal, "local", true, "use local embedded data")
 	flag.StringVar(&dormPath, "dorm", "jobs/dorms_update/data/dorms.csv", "path to dorm info csv file")
 	flag.StringVar(&roomsPath, "rooms", "jobs/dorms_update/data/rooms", "path to room info directory of csv files")
+	flag.BoolVar(&disableMigrationCheck, "disable-migration-check", false, "don't check for outdated migrations")
 
 	flag.Parse()
 
@@ -76,7 +78,11 @@ func main() {
 	}
 
 	if !dbUpToDate {
-		log.Fatal("Database migrations are not up to date")
+		if disableMigrationCheck {
+			log.Warn("Database migrations are not up to date")
+		} else {
+			log.Fatal("Database migrations are not up to date")
+		}
 	}
 
 	/* Actual logic of code */
