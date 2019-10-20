@@ -11,7 +11,7 @@ SWAGGER := $(shell which swag 2>/dev/null)
 GOIMPORTS := $(shell which goimports 2>/dev/null)
 
 $(BINARY_NAME): $(BUILD_DEPS)
-	go build -tags=jsoniter -o wso-backend ./server/cmd
+	go build -tags=jsoniter -o $(BINARY_NAME) ./server/cmd
 
 jobs/dorms_update/cmd/data.go: $(wildcard jobs/dorms_update/data/*) jobs/dorms_update/cmd/gen.go
 	go generate $(GIT_REPO)/jobs/dorms_update/cmd

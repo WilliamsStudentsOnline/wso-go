@@ -4,7 +4,6 @@ import (
 	"errors"
 	"image"
 	"image/jpeg"
-	"image/png"
 	"os"
 	"path/filepath"
 
@@ -45,16 +44,7 @@ func NewBackend(path string) (*Backend, error) {
 }
 
 func (b *Backend) SaveThumb(img image.Image, unixID string) error {
-	path := filepath.Join(b.path, dirThumb, unixID+".png")
-
-	file, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	err = png.Encode(file, img)
-	return err
+	return b.Save(img, unixID, dirThumb)
 }
 
 func (b *Backend) SaveLarge(img image.Image, unixID string) error {
