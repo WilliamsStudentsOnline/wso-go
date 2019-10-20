@@ -72,6 +72,10 @@ type Config struct {
 
 	Secrets        *Secrets     `yaml:"-" envconfig:"-"`
 	LogLevelParsed logrus.Level `yaml:"-" envconfig:"-"`
+
+	/* Pictures */
+	PictureBackend   string `yaml:"picture_backend" envconfig:"picture_backend"`
+	PictureLocalPath string `yaml:"picture_local_path" envconfig:"picture_local_path"`
 }
 
 // Check what environment our config is in
@@ -241,6 +245,10 @@ func SetupConfig(c *Config) error {
 
 	if c.Hostname == "" {
 		c.Hostname = "localhost"
+	}
+
+	if c.PictureBackend == "" {
+		c.PictureBackend = "none"
 	}
 
 	return nil

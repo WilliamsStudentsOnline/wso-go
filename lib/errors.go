@@ -61,6 +61,7 @@ var (
 	ErrorUserNotAtWilliams    = NewAPIError(1404, "user not at williams")
 	ErrorUserIDNoParse        = NewAPIError(1405, "user id could not be parsed")
 	ErrorInvalidUserTag       = NewAPIError(1406, "invalid user tag")
+	ErrorUnableToSavePicture  = NewAPIErrorWithHTTP(1420, http.StatusInternalServerError, "unable to save uploaded picture")
 
 	// 15** are factrak errors
 	// Create/Update errors
