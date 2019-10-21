@@ -85,7 +85,7 @@ func (t *Controller) UnflagSurvey(c *gin.Context) {
 		return
 	}
 
-	// Do DB flag
+	// Do db flag
 	err = t.surveyModel.SetSurveyFlag(surveyID, false)
 	if err != nil {
 		t.RespondError(c, err)

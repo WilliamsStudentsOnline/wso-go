@@ -933,7 +933,7 @@ func TestController_DeleteSurvey(t *testing.T) {
 	assert.Equal(survey.Comment, resp.Comment)
 	assert.Equal(1, resp.TotalAgree)
 
-	// Check to make sure it is not in DB
+	// Check to make sure it is not in db
 	var count int
 	assert.NoError(db.Model(models.NewFactrakSurvey(survey.ID)).Count(&count).Error)
 	assert.Zero(count)
@@ -1014,7 +1014,7 @@ func TestController_FlagSurvey(t *testing.T) {
 	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
 	assert.Nil(respData.Error)
 
-	// Check to make sure it updated in the DB
+	// Check to make sure it updated in the db
 	// Assert for database entry
 	var surveyInDB models.FactrakSurvey
 	assert.NoError(db.First(&surveyInDB, survey.ID).Error)

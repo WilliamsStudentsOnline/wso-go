@@ -42,7 +42,7 @@ func UpdateDorms(db *gorm.DB, log *logrus.Logger, dorms []*Dorm) (err error) {
 			return
 		}
 
-		// Get dorm in DB
+		// Get dorm in db
 		var dbDorm models.Dorm
 		dbErr := db.Where("dorms.neighborhood_id = ? AND dorms.name = ?", hood.ID, dorm.Name).First(&dbDorm).Error
 		// Either we create a new dorm or update one
@@ -145,7 +145,7 @@ func UpdateRooms(db *gorm.DB, log *logrus.Logger, rooms []*Room, dorm *models.Do
 
 	// Add/update dorm rooms from data to db
 	for _, room := range rooms {
-		// Get dorm in DB
+		// Get dorm in db
 		var dbRoom models.DormRoom
 		dbErr := db.Where(
 			"dorm_rooms.dorm_id = ? AND dorm_rooms.number = ?",

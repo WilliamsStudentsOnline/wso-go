@@ -176,7 +176,7 @@ func TestLimitedScopeAccess(t *testing.T) {
 
 	db := utils.SetupServiceTest(assert)
 
-	// Populate DB
+	// Populate db
 	c1 := models.Course{
 		Number: "c1",
 		AreaOfStudy: &models.AreaOfStudy{

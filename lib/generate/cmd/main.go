@@ -221,11 +221,11 @@ type Controller struct {
 }
 
 // Construct a new user controller
-func NewController(db *gorm.DB) *Controller {
+func NewController(db *gorm.db) *Controller {
 	return &Controller{
 		{{.modelDC}}Model: &models.{{.model}}{
 			BaseModel: models.BaseModel{
-				DB: db,
+				db: db,
 			},
 		},
 	}
@@ -254,7 +254,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-func SetupRouter(r gin.IRouter, db *gorm.DB) {
+func SetupRouter(r gin.IRouter, db *gorm.db) {
 	c := NewController(db)
 	// Example route:
 	/*
@@ -284,7 +284,7 @@ type {{.name}}Model struct {
 	*BaseModel
 }
 
-func New{{.name}}Model(db *gorm.DB) *{{.name}}Model {
+func New{{.name}}Model(db *gorm.db) *{{.name}}Model {
 	return &{{.name}}Model{
 		BaseModel: NewBaseModel(db),
 	}

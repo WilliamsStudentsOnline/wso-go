@@ -140,7 +140,7 @@ func (m *FactrakSurveyModel) GetAllSurveys(p *[]*FactrakSurvey, opts *GetAllFact
 		db = opts.Run(db)
 	}
 
-	// Do DB query
+	// Do db query
 	err = db.Find(p).Error
 	if err != nil {
 		return

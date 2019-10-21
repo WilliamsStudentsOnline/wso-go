@@ -1,11 +1,13 @@
 package users
 
 import (
+	"sort"
 	"strings"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib/search"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/jinzhu/gorm"
+	"github.com/m1ome/leven"
 )
 
 var FieldNamesStd = map[string]string{
@@ -40,14 +42,24 @@ type SearchUsersMySQL struct {
 	DB *gorm.DB
 }
 
+// Search. Sorts by distance iff opts.Start is not specified.
 func (s *SearchUsersMySQL) Search(query string, opts SearchOptions) (users []*models.User, totalResults int, err error) {
 	ast, err := search.ParseSearchQuery(query)
 	if err != nil {
 		return
 	}
 
+	at := astTraverser{
+		ast:           ast,
+		query:         new(strings.Builder),
+		vals:          []interface{}{},
+		simpleQueries: []string{},
+		db:            s.DB,
+	}
+	at.Traverse()
+
 	tx := s.DB.Model(&models.User{})
-	tx = s.recursiveConstruct(ast, tx)
+	tx = at.ConstructSQL(tx)
 	tx = tx.Where("users.at_williams = ? AND users.visible = ?", true, true)
 	// Run options
 	if opts != nil {
@@ -63,67 +75,81 @@ func (s *SearchUsersMySQL) Search(query string, opts SearchOptions) (users []*mo
 		return
 	}
 
+	// Post order sort by distance query
+	bigQuery := new(strings.Builder)
+	for _, simpleQuery := range at.simpleQueries {
+		bigQuery.WriteString(simpleQuery)
+	}
+
 	// Total results before pagination
 	totalResults = len(users)
 
 	// Paginate server-side, rather than database-side
 	if opts != nil {
+		opts.PostOrder(bigQuery.String(), users)
 		users = opts.Paginate(users)
 	}
 	return
 }
 
-func (s *SearchUsersMySQL) recursiveConstruct(ast *search.Query, tx *gorm.DB) *gorm.DB {
-	sb := new(strings.Builder)
+type astTraverser struct {
+	ast           *search.Query
+	query         *strings.Builder
+	vals          []interface{}
+	simpleQueries []string
+	db            *gorm.DB
+	traversed     bool
+}
 
-	vals := s.constructOr(ast.Or, sb)
+func (t *astTraverser) Traverse() {
+	t.constructOr(t.ast.Or)
+	t.traversed = true
+}
 
-	return tx.Where(sb.String(), vals...)
+func (t *astTraverser) ConstructSQL(tx *gorm.DB) *gorm.DB {
+	if !t.traversed {
+		t.Traverse()
+	}
+	return tx.Where(t.query.String(), t.vals...)
 }
 
 // Construct OR expressions together in the SQL.
-func (s *SearchUsersMySQL) constructOr(exps []*search.Expression, sb *strings.Builder) (vals []interface{}) {
-	sb.WriteRune('(')
+func (t *astTraverser) constructOr(exps []*search.Expression) {
+	t.query.WriteRune('(')
 	for i, exp := range exps {
-		recVals := s.constructAnd(exp.And, sb)
-		vals = append(vals, recVals...)
+		t.constructAnd(exp.And)
 		if i+1 < len(exps) {
-			sb.WriteString(" OR ")
+			t.query.WriteString(" OR ")
 		}
 	}
-	sb.WriteRune(')')
-
-	return vals
+	t.query.WriteRune(')')
 }
 
 // Construct AND expressions together in the SQL.
-func (s *SearchUsersMySQL) constructAnd(conds []*search.Condition, sb *strings.Builder) (vals []interface{}) {
-	sb.WriteRune('(')
+func (t *astTraverser) constructAnd(conds []*search.Condition) {
+	t.query.WriteRune('(')
 	for i, cond := range conds {
-		recVals, ignore := s.parseCondition(cond, sb)
-		vals = append(vals, recVals...)
+		ignore := t.parseCondition(cond)
 		// Write AND iff it isn't the last one and we didn't ignore the current condition
 		if i+1 < len(conds) && !ignore {
-			sb.WriteString(" AND ")
+			t.query.WriteString(" AND ")
 		}
 	}
-	sb.WriteRune(')')
-
-	return vals
+	t.query.WriteRune(')')
 }
 
 // Parse a specific individual condition (eg a field, value, or sub-expression)
-func (s *SearchUsersMySQL) parseCondition(cond *search.Condition, sb *strings.Builder) (vals []interface{}, ignore bool) {
+func (t *astTraverser) parseCondition(cond *search.Condition) (ignore bool) {
+
 	if cond.Or != nil {
-		recVals := s.constructOr(cond.Or, sb)
-		vals = append(vals, recVals...)
+		t.constructOr(cond.Or)
+		//vals = append(vals, recVals...)
 	} else if cond.Value != nil {
-		recVals := s.parseBasicValue(cond.Value.ToString(), sb)
-		vals = append(vals, recVals...)
+		t.parseBasicValue(cond.Value.ToString())
+		//vals = append(vals, recVals...)
 	} else if cond.Field != nil {
-		var recVals []interface{}
-		recVals, ignore = s.parseField(cond.Field, sb)
-		vals = append(vals, recVals...)
+		ignore = t.parseField(cond.Field)
+		//vals = append(vals, recVals...)
 	} else {
 		ignore = true
 	}
@@ -132,17 +158,18 @@ func (s *SearchUsersMySQL) parseCondition(cond *search.Condition, sb *strings.Bu
 }
 
 // If the condition is just a regular value, just parse that and look it up via the default search fields.
-func (s *SearchUsersMySQL) parseBasicValue(val string, sb *strings.Builder) (vals []interface{}) {
-	sb.WriteString("users.search_fields LIKE ?")
-	vals = append(vals, "%"+strings.ToLower(val)+"%")
-	return
+func (t *astTraverser) parseBasicValue(val string) {
+	t.query.WriteString("users.search_fields LIKE ?")
+	lower := strings.ToLower(val)
+	t.vals = append(t.vals, "%"+lower+"%")
+	t.simpleQueries = append(t.simpleQueries, lower)
 }
 
 // This constructs the search by field part of the query. Because of the complexities of relational databases,
 // some of these flags require multiple subqueries or complex joins.
 // If you want performance, don't use MySQL as a search engine.
 // TODO: research and see if joins would make this faster
-func (s *SearchUsersMySQL) parseField(field *search.Field, sb *strings.Builder) (vals []interface{}, ignore bool) {
+func (t *astTraverser) parseField(field *search.Field) (ignore bool) {
 	fieldName, ok := FieldNamesStd[strings.ToLower(field.Key)]
 	if !ok {
 		ignore = true
@@ -153,78 +180,106 @@ func (s *SearchUsersMySQL) parseField(field *search.Field, sb *strings.Builder) 
 
 	switch fieldName {
 	case "building":
-		sb.WriteString("users.office_id IN (?)")
-		vals = append(vals,
-			s.DB.Model(&models.Office{}).
+		t.query.WriteString("users.office_id IN (?)")
+		t.vals = append(t.vals,
+			t.db.Model(&models.Office{}).
 				Select("offices.id").
 				Where("lower(offices.number) LIKE ?", valueSearch).QueryExpr())
 	case "dorm":
-		sb.WriteString("users.dorm_visible = ? AND users.dorm_room_id IN (?)")
-		vals = append(vals, true,
-			s.DB.Model(&models.DormRoom{}).
+		t.query.WriteString("users.dorm_visible = ? AND users.dorm_room_id IN (?)")
+		t.vals = append(t.vals, true,
+			t.db.Model(&models.DormRoom{}).
 				Select("dorm_rooms.id").
 				Where("dorm_rooms.dorm_id IN (?)",
-					s.DB.Model(&models.Dorm{}).
+					t.db.Model(&models.Dorm{}).
 						Select("dorms.id").
 						Where("lower(dorms.name) LIKE ?", valueSearch).QueryExpr(),
 				).QueryExpr())
 	case "room":
-		sb.WriteString("users.dorm_visible = ? AND users.dorm_room_id IN (?)")
-		vals = append(vals, true,
-			s.DB.Model(&models.DormRoom{}).
+		t.query.WriteString("users.dorm_visible = ? AND users.dorm_room_id IN (?)")
+		t.vals = append(t.vals, true,
+			t.db.Model(&models.DormRoom{}).
 				Select("dorm_rooms.id").
 				Where("lower(dorm_rooms.number) LIKE ?", valueSearch).QueryExpr())
 	case "department":
 		// Have to get department or area of study abbreviation
-		sb.WriteString("users.department_id IN (?) OR users.department_id IN (?)")
-		vals = append(vals,
-			s.DB.Model(&models.Department{}).
+		t.query.WriteString("users.department_id IN (?) OR users.department_id IN (?)")
+		t.vals = append(t.vals,
+			t.db.Model(&models.Department{}).
 				Select("departments.id").
 				Where("lower(departments.name) LIKE ?", valueSearch).QueryExpr(),
-			s.DB.Model(&models.AreaOfStudy{}).
+			t.db.Model(&models.AreaOfStudy{}).
 				Select("areas_of_study.department_id").
 				Where("areas_of_study.abbrev LIKE ?", strings.ToUpper(valueSearch)).QueryExpr())
 	case "neighborhood":
 		// Get neighborhood by getting all dorm rooms associated with a specific neighborhood.
 		// Essentially, it is a join on users, dorm rooms, dorms, and neighborhoods (but as subqueries)
 		// This in particular is massively inefficient.
-		sb.WriteString("users.dorm_visible = ? AND users.dorm_room_id IN (?)")
-		vals = append(vals, true,
-			s.DB.Model(&models.DormRoom{}).
+		t.query.WriteString("users.dorm_visible = ? AND users.dorm_room_id IN (?)")
+		t.vals = append(t.vals, true,
+			t.db.Model(&models.DormRoom{}).
 				Select("dorm_rooms.id").
 				Where("dorm_rooms.dorm_id IN (?)",
-					s.DB.Model(&models.Dorm{}).
+					t.db.Model(&models.Dorm{}).
 						Select("dorms.id").
 						Where("dorms.neighborhood_id IN (?)",
-							s.DB.Model(&models.Neighborhood{}).
+							t.db.Model(&models.Neighborhood{}).
 								Select("neighborhoods.id").
 								Where("lower(neighborhoods.name) LIKE ?", valueSearch).QueryExpr(),
 						).QueryExpr(),
 				).QueryExpr())
 	case "tags":
-		sb.WriteString("users.id IN (?)")
-		// Get tags matching name, then look at the many to many join table for user ids with that tag id, then
+		t.query.WriteString("users.id IN (?)")
+		// Get tags matching name, then look t the many to many join table for user ids with that tag id, then
 		// look up all users with those ids.
-		vals = append(vals,
-			s.DB.Table("tags_users").
+		t.vals = append(t.vals,
+			t.db.Table("tags_users").
 				Select("tags_users.user_id").
 				Where("tags_users.tag_id IN (?)",
-					s.DB.Model(&models.Tag{}).
+					t.db.Model(&models.Tag{}).
 						Select("tags.id").
 						Where("lower(tags.name) LIKE ?", valueSearch).QueryExpr(),
 				).QueryExpr(),
 		)
 	case "home_zip", "home_town", "home_state", "home_country":
-		sb.WriteString("users.home_visible = ? AND lower(users." + fieldName + ") LIKE ?")
-		vals = append(vals, true, valueSearch)
+		t.query.WriteString("users.home_visible = ? AND lower(users." + fieldName + ") LIKE ?")
+		t.vals = append(t.vals, true, valueSearch)
 	case "name", "class_year", "entry", "unix_id", "williams_email", "title", "major", "campus_phone_ext":
-		sb.WriteString("lower(users." + fieldName + ") LIKE ?")
-		vals = append(vals, valueSearch)
+		t.query.WriteString("lower(users." + fieldName + ") LIKE ?")
+		t.vals = append(t.vals, valueSearch)
 	default:
 		ignore = true
 	}
 
 	return
+}
+
+type levDist struct {
+	user *models.User
+	dist int
+}
+
+// Sorts the resulting strings by levenshtein distance from the original query
+func sortByDistance(q string, users []*models.User) {
+	dists := make([]levDist, len(users))
+
+	// Calculate the distances
+	for i, val := range users {
+		dists[i] = levDist{
+			user: val,
+			dist: leven.Distance(q, strings.ToLower(val.SearchFields)),
+		}
+	}
+
+	// Sort
+	sort.Slice(dists, func(i, j int) bool {
+		return dists[i].dist < dists[j].dist
+	})
+
+	// Copy the sorted list into the original list of resulting strings
+	for i := range dists {
+		users[i] = dists[i].user
+	}
 }
 
 type SearchUsersOptionsMysql struct {
@@ -236,11 +291,14 @@ func (o *SearchUsersOptionsMysql) Preloader(db *gorm.DB) *gorm.DB {
 }
 
 func (o *SearchUsersOptionsMysql) Order(db *gorm.DB) *gorm.DB {
+	if o.Start == nil {
+		return db
+	}
 	return o.GetAllUsersOptions.Order(db)
 }
 
 func (o *SearchUsersOptionsMysql) Paginate(users []*models.User) []*models.User {
-	// Assume users slice is ordered!
+	// Assume users slice is ordered by name!
 	if o.Start != nil {
 		paginateIdx := 0
 		for i := range users {
@@ -269,6 +327,13 @@ func (o *SearchUsersOptionsMysql) Paginate(users []*models.User) []*models.User 
 	}
 
 	return users
+}
+
+func (o *SearchUsersOptionsMysql) PostOrder(q string, users []*models.User) {
+	// Only sort by distance iff start isn't specified
+	if o.Start == nil {
+		sortByDistance(q, users)
+	}
 }
 
 func (*SearchUsersMySQL) NewOptions(offset *uint, limit *uint, preload []string) SearchOptions {

@@ -71,7 +71,7 @@ func main() {
 	defer config.CloseDatabase(db)
 
 	/* Database Migrations */
-	// NOTE: Job will not migrate anything; will fail if DB is not updated on migrations
+	// NOTE: Job will not migrate anything; will fail if db is not updated on migrations
 	dbUpToDate, err := migrate.MigrationUpToDate(migrate.MigrationGormOptions, db)
 	if err != nil {
 		log.Fatal("Migration Checking Error: " + err.Error())

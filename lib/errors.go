@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"fmt"
 	"net/http"
 )
 
@@ -39,6 +40,15 @@ func NewErrorRequestDataValidationFailed(errs []error) *APIError {
 	}
 }
 
+func NewInvalidSearchTokenError(err error) *APIError {
+	errStr := err.Error()
+	return &APIError{
+		Code:     ErrorInvalidSearchToken.Code,
+		Message:  fmt.Sprintf("invalid search token %q", errStr[len(errStr)-2]),
+		HTTPCode: ErrorInvalidSearchToken.HTTPCode,
+	}
+}
+
 var (
 	// Standard HTTP error 0404
 	ErrorRecordNotFound = NewAPIErrorWithHTTP(0404, http.StatusNotFound, "record not found")
@@ -48,6 +58,7 @@ var (
 	// 11** are general errors
 	ErrorMalformedRequestData        = NewAPIErrorWithHTTP(1100, http.StatusBadRequest, "could not parse malformed request data")
 	ErrorRequestDataValidationFailed = NewAPIErrorWithHTTP(1101, http.StatusBadRequest, "request data validation failed")
+	ErrorInvalidSearchToken          = NewAPIErrorWithHTTP(1150, http.StatusBadRequest, "invalid search token")
 
 	// 13** are authorization errors
 	ErrorNoScopeAuthorization = NewAPIErrorWithHTTP(1330, http.StatusForbidden, "no scope authorization")

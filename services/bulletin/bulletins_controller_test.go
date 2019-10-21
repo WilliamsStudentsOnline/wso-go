@@ -306,7 +306,7 @@ func TestController_CreateBulletin(t *testing.T) {
 	assert.Equal(params.Body, resp.Body)
 	assert.Equal(params.Offer, resp.Offer)
 
-	// Assert found in DB
+	// Assert found in db
 	var count int
 	assert.NoError(db.Model(&models.Bulletin{}).Where("id = ?", resp.ID).Count(&count).Error)
 	assert.Equal(1, count)
@@ -405,7 +405,7 @@ func TestController_UpdateBulletin(t *testing.T) {
 	assert.Equal(*params.Body, resp.Body)
 	assert.Equal(params.Offer, resp.Offer)
 
-	// Assert updated in DB
+	// Assert updated in db
 	var respDB models.Bulletin
 	assert.NoError(db.First(&respDB, b1.ID).Error)
 	assert.Equal(*params.Body, respDB.Body)
@@ -475,7 +475,7 @@ func TestController_DeleteBulletin(t *testing.T) {
 	assert.Equal(b1.ID, resp.ID)
 	assert.Equal(b1.Body, resp.Body)
 
-	// Assert not in DB
+	// Assert not in db
 	var count int
 	assert.NoError(db.Model(&models.Bulletin{}).Where("id = ?", resp.ID).Count(&count).Error)
 	assert.Equal(0, count)

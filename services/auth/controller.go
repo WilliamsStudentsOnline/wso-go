@@ -108,7 +108,7 @@ func (t *Controller) Authenticator(c *gin.Context) (interface{}, error) {
 		return nil, ErrorFailedAuthentication
 	}
 
-	// Check if user exists in DB and create the entry if it doesnt exist in DB
+	// Check if user exists in db and create the entry if it doesnt exist in db
 	user, err = t.userModel.FirstOrCreateFromUnixID(unixID, t.cfg)
 	if err != nil {
 		// Record the error in the log, as it is an internal server error (but response will be an unauthorized error)
@@ -141,7 +141,7 @@ func authLogin() {}
 
 // AuthUpdate godoc
 // @Summary Update Token
-// @description attempts to get a JWT by taking an existing JWT and updating the fields. This calls the DB, so it will actually modify the token's payload.
+// @description attempts to get a JWT by taking an existing JWT and updating the fields. This calls the db, so it will actually modify the token's payload.
 // @ID auth-update
 // @Tags auth
 // @Accept  json
