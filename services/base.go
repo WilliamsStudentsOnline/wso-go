@@ -93,7 +93,7 @@ func (b BaseController) RespondErrorCode(c *gin.Context, code int, err error) {
 		return
 	}
 
-	// If the error is that the DB could not find a record, return a not found error
+	// If the error is that the db could not find a record, return a not found error
 	if gorm.IsRecordNotFoundError(err) {
 		b.RespondAPIError(c, lib.ErrorRecordNotFound)
 		return

@@ -305,7 +305,7 @@
                         "Bearer": []
                     }
                 ],
-                "description": "attempts to get a JWT by taking an existing JWT and updating the fields. This calls the DB, so it will actually modify the token's payload.",
+                "description": "attempts to get a JWT by taking an existing JWT and updating the fields. This calls the db, so it will actually modify the token's payload.",
                 "consumes": [
                     "application/json"
                 ],

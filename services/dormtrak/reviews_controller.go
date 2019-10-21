@@ -305,7 +305,7 @@ func (t *Controller) UpdateReview(c *gin.Context) {
 	review.Location = lib.IntPtrDefaults(updateData.Location, review.Location)
 	review.Satisfaction = lib.IntPtrDefaults(updateData.Satisfaction, review.Satisfaction)
 
-	// Do DB update
+	// Do db update
 	err = t.reviewModel.UpdateReview(&review)
 	if err != nil {
 		t.RespondError(c, err)
@@ -354,7 +354,7 @@ func (t *Controller) DeleteReview(c *gin.Context) {
 		return
 	}
 
-	// Do DB delete
+	// Do db delete
 	err = t.reviewModel.DeleteReview(&review)
 	if err != nil {
 		t.RespondError(c, err)

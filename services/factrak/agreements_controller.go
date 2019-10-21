@@ -137,7 +137,7 @@ func (t *Controller) CreateAgreement(c *gin.Context) {
 		return
 	}
 
-	// Do DB create
+	// Do db create
 	agreement := models.FactrakAgreement{
 		UserID:          userID,
 		FactrakSurveyID: surveyID,
@@ -222,7 +222,7 @@ func (t *Controller) UpdateAgreement(c *gin.Context) {
 		return
 	}
 
-	// Do DB update
+	// Do db update
 	agreement.Agrees = *updateData.Agree
 	err = t.agreementModel.UpdateAgreement(&agreement)
 	if err != nil {
@@ -284,7 +284,7 @@ func (t *Controller) DeleteAgreement(c *gin.Context) {
 		return
 	}
 
-	// Do DB delete
+	// Do db delete
 	err = t.agreementModel.DeleteAgreement(&agreement)
 	if err != nil {
 		t.RespondError(c, err)

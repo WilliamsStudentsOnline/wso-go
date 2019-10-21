@@ -31,4 +31,5 @@ type SearchOptions interface {
 	models.Preloader
 	models.Orderer
 	Paginate([]*models.User) []*models.User
+	PostOrder(string, []*models.User)
 }

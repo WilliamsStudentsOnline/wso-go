@@ -262,7 +262,7 @@ func (t *Controller) CreateSurvey(c *gin.Context) {
 			return
 		}
 
-		// "Create" the course, but don't stick it in the DB yet.
+		// "Create" the course, but don't stick it in the db yet.
 		course = &models.Course{
 			Number:        *createData.CourseNumber,
 			AreaOfStudy:   area,
@@ -419,7 +419,7 @@ func (t *Controller) UpdateSurvey(c *gin.Context) {
 	survey.OutsideHelpfulness = lib.IntPtrDefaults(updateData.OutsideHelpfulness, survey.OutsideHelpfulness)
 	survey.GradeReceived = lib.StrPtrDefaults(updateData.GradeReceived, survey.GradeReceived)
 
-	// Do DB update
+	// Do db update
 	err = t.surveyModel.UpdateSurvey(&survey)
 	if err != nil {
 		t.RespondError(c, err)
@@ -483,7 +483,7 @@ func (t *Controller) DeleteSurvey(c *gin.Context) {
 		return
 	}
 
-	// Do DB delete
+	// Do db delete
 	err = t.surveyModel.DeleteSurvey(&survey)
 	if err != nil {
 		t.RespondError(c, err)
@@ -542,7 +542,7 @@ func (t *Controller) FlagSurvey(c *gin.Context) {
 		return
 	}
 
-	// Do DB flag
+	// Do db flag
 	err = t.surveyModel.SetSurveyFlag(surveyID, true)
 	if err != nil {
 		t.RespondError(c, err)

@@ -136,7 +136,7 @@ func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB) (authMiddleware *jwt.Gi
 					payload.TokenLevel = TokenLevelOffCampus
 				}
 			} else if tokenLevel == TokenLevelSignedIn {
-				// If signed in token, get userID and find it in DB.
+				// If signed in token, get userID and find it in db.
 				userID, ok := claims["id"].(float64)
 				if !ok {
 					return nil, errors.New("could not find user id in claim")

@@ -158,7 +158,7 @@ func TestController_UnflagSurvey(t *testing.T) {
 	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
 	assert.Nil(respData.Error)
 
-	// Check to make sure it updated in the DB
+	// Check to make sure it updated in the db
 	// Assert for database entry
 	var surveyInDB models.FactrakSurvey
 	assert.NoError(db.First(&surveyInDB, survey.ID).Error)

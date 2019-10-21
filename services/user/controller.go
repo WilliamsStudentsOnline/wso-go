@@ -11,6 +11,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/pictures"
+	searchLib "github.com/WilliamsStudentsOnline/wso-go/lib/search"
 	search "github.com/WilliamsStudentsOnline/wso-go/lib/search/users"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
@@ -77,6 +78,9 @@ func (t *Controller) ListUsers(c *gin.Context) {
 		users, totalResults, err = t.userSearch.Search(query, &search.SearchUsersOptionsMysql{&opts})
 
 		if err != nil {
+			if searchLib.IsInvalidTokenError(err) {
+				err = lib.NewInvalidSearchTokenError(err)
+			}
 			t.RespondError(c, err)
 			return
 		}

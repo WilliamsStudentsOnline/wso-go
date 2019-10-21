@@ -24,7 +24,7 @@ func (m *CourseModel) GetAllCourses(c *[]*Course, opts *GetAllCoursesOptions) (e
 		db = opts.Run(db)
 	}
 
-	// Do DB query
+	// Do db query
 	err = db.Find(c).Error
 	if err != nil {
 		return
