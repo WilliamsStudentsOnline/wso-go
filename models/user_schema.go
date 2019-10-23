@@ -21,7 +21,7 @@ type User struct {
 	Name           string  `json:"name"`
 	CellPhone      *string `json:"cellPhone"`
 	CampusPhoneExt *string `json:"campusPhoneEXT"`
-	UnixID         string  `gorm:"unique;not null;" json:"unixID"`
+	UnixID         string  `gorm:"unique;not null;size:100;" json:"unixID"`
 	WilliamsEmail  string  `json:"williamsEmail"`
 	Title          *string `json:"title"`
 	Visible        *bool   `gorm:"DEFAULT:true;not null" json:"visible"`
