@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 
@@ -43,8 +44,17 @@ func main() {
 		return
 	}
 
-	/* Set Logging Level */
+	/* LOGGING */
 	log.SetLevel(cfg.LogLevelParsed)
+	if cfg.LogPath != "" {
+		logWriter, err := logSetup(cfg)
+		if err != nil {
+			log.Error(err)
+			log.Warn("Using stdout as log output")
+		} else {
+			log.SetOutput(logWriter)
+		}
+	}
 
 	/* DATABASE */
 	db := config.LoadDatabase(cfg)
@@ -83,4 +93,12 @@ func main() {
 		log.Fatal("Server Error: " + err.Error())
 		return
 	}
+}
+
+func logSetup(cfg *config.Config) (io.Writer, error) {
+	logPath, err := filepath.Abs(cfg.LogPath)
+	if err != nil {
+		return nil, err
+	}
+	return os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 }

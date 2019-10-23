@@ -30,6 +30,7 @@ type RespError struct {
 const (
 	UpdateTokenKey     = "updateToken"
 	PaginationTotalKey = "paginationTotal"
+	ErrorCodeKey       = "errorCode"
 )
 
 // Respond to a request with an OK and some data
@@ -68,15 +69,10 @@ func (BaseController) RespondAPIError(c *gin.Context, err *lib.APIError) {
 		}
 	}
 
-	c.AbortWithStatusJSON(err.HTTPCode, BaseResponse{
-		Status: err.Code,
-		Error: &RespError{
-			ErrorCode: err.Code,
-			Message:   err.Error(),
-			Errors:    errs,
-		},
-		// We set this in the context at any point if we need to update the token
-		UpdateToken: c.GetBool(UpdateTokenKey),
+	respondError(c, err.HTTPCode, &RespError{
+		ErrorCode: err.Code,
+		Message:   err.Error(),
+		Errors:    errs,
 	})
 }
 
@@ -99,6 +95,7 @@ func (b BaseController) RespondErrorCode(c *gin.Context, code int, err error) {
 		return
 	}
 
+	// If it is a validation error, format it and send it to respond API error
 	if validateErrs, ok := err.(validator.ValidationErrors); ok {
 		errs := make([]error, len(validateErrs))
 		i := 0
@@ -117,12 +114,18 @@ func (b BaseController) RespondErrorCode(c *gin.Context, code int, err error) {
 		err = lib.ErrorInternalServerError
 	}
 
-	c.AbortWithStatusJSON(code, BaseResponse{
-		Status: code,
-		Error: &RespError{
-			ErrorCode: code,
-			Message:   err.Error(),
-		},
+	respondError(c, code, &RespError{
+		ErrorCode: code,
+		Message:   err.Error(),
+	})
+}
+
+// Respond to request with an error and abort
+func respondError(c *gin.Context, httpCode int, err *RespError) {
+	c.Set(ErrorCodeKey, err.ErrorCode)
+	c.AbortWithStatusJSON(httpCode, BaseResponse{
+		Status: err.ErrorCode,
+		Error:  err,
 		// We set this in the context at any point if we need to update the token
 		UpdateToken: c.GetBool(UpdateTokenKey),
 	})
