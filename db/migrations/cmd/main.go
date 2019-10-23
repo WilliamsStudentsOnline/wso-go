@@ -122,7 +122,7 @@ import (
 
 var {{.camelTitle}}{{.migrationTime}} = &gormigrate.Migration{
 	ID: "{{.name}}",
-	Migrate: func(tx *gorm.db) error {
+	Migrate: func(tx *gorm.DB) error {
 		// It's a good practice to copy the struct inside the function,
 		// so side effects are prevented if the original struct changes during the time.
 		// But, when the table already exists, it just adds new fields as columns, so just have a struct
@@ -132,7 +132,7 @@ var {{.camelTitle}}{{.migrationTime}} = &gormigrate.Migration{
 		}
 		return tx.AutoMigrate(&{{.model}}{}).Error
 	},
-	Rollback: func(tx *gorm.db) error {
+	Rollback: func(tx *gorm.DB) error {
 		return tx.DropTable("{{.table}}").Error
 	},
 }

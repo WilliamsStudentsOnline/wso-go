@@ -135,7 +135,7 @@ func (t *Controller) doAutocomplete(c *gin.Context, f func(string) ([]autocomple
 		}
 	}
 
-	if limit > 0 {
+	if limit > 0 && len(entries) > limit {
 		entries = entries[:limit]
 	}
 
