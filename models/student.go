@@ -19,6 +19,7 @@ const (
 // Student Model
 type StudentModel struct {
 	*UserModel
+	// We do this so when testing we can plug in our own clock.
 	Clock Clock
 }
 
