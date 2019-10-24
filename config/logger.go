@@ -24,8 +24,9 @@ func Logger(logger logrus.FieldLogger) gin.HandlerFunc {
 		statusCode := c.Writer.Status()
 		clientIP := c.ClientIP()
 		clientUserAgent := c.Request.UserAgent()
+		errorCode := c.GetInt("ErrorCodeKey")
 
-		entry := logger.WithFields(logrus.Fields{
+		fields := logrus.Fields{
 			"statusCode": statusCode,
 			"latency":    latency,
 			"clientIP":   clientIP,
@@ -33,28 +34,35 @@ func Logger(logger logrus.FieldLogger) gin.HandlerFunc {
 			"path":       path,
 			"query":      query,
 			"userAgent":  clientUserAgent,
-		})
+		}
+
+		if errorCode > 0 {
+			fields["errorCode"] = errorCode
+		}
+
+		entry := logger.WithFields(fields)
 
 		queryUrl := query
 		if queryUrl != "" {
 			queryUrl = "?" + queryUrl
 		}
 
+		// Print errors if it is an error
 		if len(c.Errors) > 0 {
 			entry.Error(c.Errors.ByType(gin.ErrorTypePrivate).String())
+		}
+
+		msg := fmt.Sprintf("%s %s %d (%dms)",
+			c.Request.Method,
+			path+queryUrl,
+			statusCode,
+			latency)
+		if statusCode >= 500 {
+			entry.Error(msg)
+		} else if statusCode >= 400 {
+			entry.Warn(msg)
 		} else {
-			msg := fmt.Sprintf("%s %s %d (%dms)",
-				c.Request.Method,
-				path+queryUrl,
-				statusCode,
-				latency)
-			if statusCode >= 500 {
-				entry.Error(msg)
-			} else if statusCode >= 400 {
-				entry.Warn(msg)
-			} else {
-				entry.Info(msg)
-			}
+			entry.Info(msg)
 		}
 	}
 }
