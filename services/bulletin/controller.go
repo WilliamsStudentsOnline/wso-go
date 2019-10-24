@@ -3,6 +3,7 @@ package bulletin
 import (
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
+	"github.com/WilliamsStudentsOnline/wso-go/sanitize"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -34,33 +35,36 @@ func hasUserAuth(c *gin.Context) bool {
 }
 
 func removeUserInfoFromBulletin(c *gin.Context, bulletins []*models.Bulletin) {
-	if hasUserAuth(c) {
-		return
-	}
-
+	userAuth := hasUserAuth(c)
 	for _, b := range bulletins {
-		b.User = nil
+		if userAuth {
+			sanitize.User(b.User, c)
+		} else {
+			b.User = nil
+		}
 	}
 }
 
 func removeUserInfoFromRides(c *gin.Context, rides []*models.BulletinRide) {
-	if hasUserAuth(c) {
-		return
-	}
-
+	userAuth := hasUserAuth(c)
 	for _, r := range rides {
-		r.User = nil
+		if userAuth {
+			sanitize.User(r.User, c)
+		} else {
+			r.User = nil
+		}
 	}
 }
 
 func removeUserInfoFromDiscussions(c *gin.Context, discussions []*models.Discussion) {
-	if hasUserAuth(c) {
-		return
-	}
-
+	userAuth := hasUserAuth(c)
 	for _, d := range discussions {
-		d.User = nil
-		d.ExUserName = ""
+		if userAuth {
+			sanitize.User(d.User, c)
+		} else {
+			d.User = nil
+			d.ExUserName = ""
+		}
 
 		if d.Posts != nil {
 			removeUserInfoFromPosts(c, d.Posts)
@@ -69,12 +73,13 @@ func removeUserInfoFromDiscussions(c *gin.Context, discussions []*models.Discuss
 }
 
 func removeUserInfoFromPosts(c *gin.Context, posts []*models.Post) {
-	if hasUserAuth(c) {
-		return
-	}
-
+	userAuth := hasUserAuth(c)
 	for _, p := range posts {
-		p.User = nil
-		p.ExUserName = ""
+		if userAuth {
+			sanitize.User(p.User, c)
+		} else {
+			p.User = nil
+			p.ExUserName = ""
+		}
 	}
 }
