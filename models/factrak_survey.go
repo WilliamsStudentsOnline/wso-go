@@ -175,6 +175,13 @@ func (m *FactrakSurveyModel) CountSurveysByUser(userID uint) (count int, err err
 	return
 }
 
+func (m *FactrakSurveyModel) CountSurveysThisSemesterByUser(userID uint, now time.Time) (count int, err error) {
+	err = m.DB.Model(&FactrakSurvey{}).
+		Scopes(m.withScopeThisSemester(now), m.withAuthorID(userID)).
+		Count(&count).Error
+	return
+}
+
 // Check if survey already exists by seeing if there is already a survey with that user, course, and professor id.
 func (m *FactrakSurveyModel) CheckDuplicateSurvey(userID uint, profID uint, courseID uint) (duplicate bool, err error) {
 	var count int
@@ -342,13 +349,12 @@ func (m *FactrakSurveyModel) getSurveyRatings(ratings *FactrakSurveyAvgRatings, 
 	return
 }
 
-func (*FactrakSurveyModel) registrationStart() time.Time {
+func (*FactrakSurveyModel) registrationStart(now time.Time) time.Time {
 	// if changed, also change scheduled update user stuff
 	springReg := time.October
 	fallReg := time.March
 
 	// Between October/X and February/X+1, want October/X
-	now := time.Now()
 	month := now.Month()
 
 	// TODO: Ensure time.Local is EST/EDT on server
@@ -419,8 +425,10 @@ func (*FactrakSurveyModel) scopeProfAtWilliams(db *gorm.DB) *gorm.DB {
 	return db.Joins("JOIN users AS professors ON professors.id = factrak_surveys.professor_id").Where("professors.at_williams = ?", true)
 }
 
-func (m *FactrakSurveyModel) scopeThisSemester(db *gorm.DB) *gorm.DB {
-	return db.Where("factrak_surveys.created_at >= ?", m.registrationStart())
+func (m *FactrakSurveyModel) withScopeThisSemester(now time.Time) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where("factrak_surveys.created_at >= ?", m.registrationStart(now))
+	}
 }
 
 func (*FactrakSurveyModel) scopeCurrent(db *gorm.DB) *gorm.DB {
