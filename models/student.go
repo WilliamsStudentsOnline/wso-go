@@ -19,23 +19,19 @@ const (
 // Student Model
 type StudentModel struct {
 	*UserModel
+	Clock Clock
 }
 
 func NewStudentModel(db *gorm.DB) *StudentModel {
 	return &StudentModel{
 		UserModel: NewUserModel(db),
+		Clock:     localClock{},
 	}
 }
 
-// Given a user, update its survey deficit. This version allows for students to write all of their surveys
-// at one time, but I doubt most people will do this.
-// Doing this differently than the Rails version. In Rails, we ran this every semester and put however many needed.
-// Instead, we will run full calculations and put surveys required less surveys written, rather than two less
-// number of surveys written this semester.
+// Given a user, update its survey deficit. Run this every semester and put however many needed.
+// We require 2 surveys this semester in order to access it.
 func (m *StudentModel) UpdateFactrakSurveyDeficit(user *User) (err error) {
-	// Get current owed surveys
-	deficit := user.Student().surveyThreshold()
-
 	// Count written surveys
 	fsM := NewFactrakSurveyModel(m.DB)
 	surveyCount, err := fsM.CountSurveysByUser(user.ID)
@@ -43,8 +39,18 @@ func (m *StudentModel) UpdateFactrakSurveyDeficit(user *User) (err error) {
 		return
 	}
 
-	// Calculate the remaining deficit
-	deficit = deficit - surveyCount
+	var deficit int
+
+	if surveyCount >= user.Student().surveyThreshold(m.Clock.Now()) {
+		deficit = 0
+	} else {
+		surveysThisSem, err := fsM.CountSurveysThisSemesterByUser(user.ID, m.Clock.Now())
+		if err != nil {
+			return err
+		}
+
+		deficit = 2 - surveysThisSem
+	}
 
 	// Minimum 0 deficit
 	if deficit < 0 {
@@ -55,7 +61,7 @@ func (m *StudentModel) UpdateFactrakSurveyDeficit(user *User) (err error) {
 	return
 }
 
-func (*StudentModel) SeniorYear() int {
+func (m *StudentModel) SeniorYear() int {
 	locTime := time.Now().Local()
 	if locTime.Month() >= StudentCutoffMonth {
 		return locTime.Year() + 1
@@ -136,9 +142,9 @@ func (s *Student) IsUpperClass() bool {
 // N is not linear with class year because people might be abroad all jr year.
 // it allows 2 non-reviews per semester to account for people taking fewer than 4 courses
 // per semester -- we don't want to force them to review more classes than they've had
-func (s *Student) surveyThreshold() int {
+func (s *Student) surveyThreshold(now time.Time) int {
 	// Check semester
-	if time.Now().Local().Month() >= StudentCutoffMonth {
+	if now.Month() >= StudentCutoffMonth {
 		// Fall Semester
 		switch s.YearNumber() {
 		case StudentYearPrefrosh:
