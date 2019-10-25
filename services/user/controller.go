@@ -14,6 +14,7 @@ import (
 	searchLib "github.com/WilliamsStudentsOnline/wso-go/lib/search"
 	search "github.com/WilliamsStudentsOnline/wso-go/lib/search/users"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
+	"github.com/WilliamsStudentsOnline/wso-go/sanitize"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/WilliamsStudentsOnline/wso-go/services/user/responses"
 	"github.com/disintegration/imaging"
@@ -101,6 +102,8 @@ func (t *Controller) ListUsers(c *gin.Context) {
 
 	t.SetPaginationTotal(c, totalResults)
 
+	sanitize.Users(users, c)
+
 	t.RespondOK(c, responses.ConvertListUsersResponse(users))
 }
 
@@ -154,6 +157,8 @@ func (t *Controller) GetUser(c *gin.Context) {
 			return
 		}
 	}
+
+	sanitize.User(&user, c)
 
 	t.RespondOK(c, responses.ConvertGetUserResponse(&user))
 }

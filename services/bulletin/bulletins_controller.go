@@ -7,6 +7,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
+	"github.com/WilliamsStudentsOnline/wso-go/sanitize"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 )
@@ -87,7 +88,9 @@ func (t *Controller) GetBulletin(c *gin.Context) {
 	}
 
 	// Remove user info if not a user. Need this, as bulletin service is public
-	if !hasUserAuth(c) {
+	if hasUserAuth(c) {
+		sanitize.User(bulletin.User, c)
+	} else {
 		bulletin.User = nil
 	}
 

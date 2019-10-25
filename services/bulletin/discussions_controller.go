@@ -5,6 +5,7 @@ import (
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
+	"github.com/WilliamsStudentsOnline/wso-go/sanitize"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -93,12 +94,13 @@ func (t *Controller) GetDiscussion(c *gin.Context) {
 	}
 
 	// Remove user info if not a user. Need this, as bulletin service is public
-	if !hasUserAuth(c) {
+	if hasUserAuth(c) {
+		sanitize.User(discussion.User, c)
+	} else {
 		discussion.User = nil
 		discussion.ExUserName = ""
-
-		removeUserInfoFromPosts(c, discussion.Posts)
 	}
+	removeUserInfoFromPosts(c, discussion.Posts)
 
 	t.RespondOK(c, discussion)
 }
