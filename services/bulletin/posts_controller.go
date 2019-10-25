@@ -45,7 +45,7 @@ func (t *Controller) GetPost(c *gin.Context) {
 	// Remove user info if not a user. Need this, as bulletin service is public
 	if hasUserAuth(c) {
 		sanitize.User(post.User, c)
-		if post.Discussion != nil {
+		if post.Discussion != nil && post.Discussion.User != nil {
 			sanitize.User(post.Discussion.User, c)
 		}
 	} else {
