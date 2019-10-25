@@ -27,6 +27,42 @@ pipeline {
         }
       }
     }
+    stage('Deploy for wso-dev') {
+      when {
+        branch 'feature/continuous-deployment'
+      }
+      steps {
+        sh '''make build-linux'''
+        script {
+          def remote_dev = [:]
+          remote_dev.name = "wsodev"
+          remote_dev.host = "wso-dev.williams.edu"
+          remote_dev.port = 22
+          remote_dev.allowAnyHosts = true
+
+          withCredentials([usernamePassword(credentialsId: 'wsodev_ssh_server', passwordVariable: 'SSH_PASS', usernameVariable: 'SSH_USER')]) {
+            remote_dev.user = SSH_USER
+            remote_dev.password = SSH_PASS
+
+            sshPut remote: remote_dev, from: 'wso-backend_linux', to: '/home/wsodev/wso-go/wso-backend'
+            sshCommand remote: remote_dev, command: 'sudo /bin/systemctl restart WSO-Go'
+          }
+        }
+        script {
+          try {
+            new URL("https://wso-dev.williams.edu/api/v2/health-check").getText()
+            return true
+          } catch (Exception e) {
+            return false
+          }
+        }
+      }
+      post {
+        success {
+          slackSend (color: '#00FF00', message: "SUCCESSFUL: Deployed on WSO-Dev.\n Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+        }
+      }
+    }
   }
   options { buildDiscarder(logRotator(numToKeepStr: '2')) }
   post {
