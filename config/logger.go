@@ -25,6 +25,7 @@ func Logger(logger logrus.FieldLogger) gin.HandlerFunc {
 		clientIP := c.ClientIP()
 		clientUserAgent := c.Request.UserAgent()
 		errorCode := c.GetInt("ErrorCodeKey")
+		userID, _ := c.Get("id")
 
 		fields := logrus.Fields{
 			"statusCode": statusCode,
@@ -34,6 +35,7 @@ func Logger(logger logrus.FieldLogger) gin.HandlerFunc {
 			"path":       path,
 			"query":      query,
 			"userAgent":  clientUserAgent,
+			"userID":     userID,
 		}
 
 		if errorCode > 0 {
@@ -49,7 +51,7 @@ func Logger(logger logrus.FieldLogger) gin.HandlerFunc {
 
 		// Print errors if it is an error
 		if len(c.Errors) > 0 {
-			entry.Error(c.Errors.ByType(gin.ErrorTypePrivate).String())
+			entry.Error(c.Errors.String())
 		}
 
 		msg := fmt.Sprintf("%s %s %d (%dms)",

@@ -6,7 +6,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Sanitize a single user using the gin context.
+// We choose to not sanitize if the request is self or admin.
+// Otherwise, we hide sensitive information about cell phone and home phones,
+// and we hide dorm and home visibility if those respective flags are set.
 func User(user *models.User, ctx *gin.Context) {
+	if user == nil {
+		return
+	}
+
 	isSelf := auth.CheckIDIsSelf(ctx, user.ID)
 	isAdmin := auth.HasScope(ctx, auth.ScopeAdminAll)
 
@@ -33,7 +41,13 @@ func User(user *models.User, ctx *gin.Context) {
 	}
 }
 
+// Sanitize multiple users using the gin context.
+// Under the hood, this just calls User().
 func Users(users []*models.User, ctx *gin.Context) {
+	if users == nil {
+		return
+	}
+
 	isAdmin := auth.HasScope(ctx, auth.ScopeAdminAll)
 	if isAdmin {
 		return
