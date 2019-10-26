@@ -29,7 +29,7 @@ pipeline {
     }
     stage('Deploy for wso-dev') {
       when {
-        branch 'feature/continuous-deployment'
+        branch 'master'
       }
       steps {
         sh '''make build-linux'''
