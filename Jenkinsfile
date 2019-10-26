@@ -51,6 +51,7 @@ pipeline {
           }
         }
         script {
+          import groovy.json.JsonSlurper
           try {
             URL apiUrl = new URL("https://wso.williams.edu/api/v2/health-check")
             def resp = new JsonSlurper().parseText(apiUrl.getText())
@@ -90,6 +91,7 @@ pipeline {
               }
             }
             script {
+              import groovy.json.JsonSlurper
               try {
                 new URL("https://wso.williams.edu/api/v2/health-check").getText()
                 return true
