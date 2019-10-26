@@ -29,7 +29,7 @@ pipeline {
     }
     stage('Deploy for development') {
       when {
-        branch 'master'
+        branch 'feature/continuous-deployment'
       }
       steps {
         sh '''make build-linux'''
