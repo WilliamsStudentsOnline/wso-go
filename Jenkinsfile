@@ -46,6 +46,7 @@ pipeline {
 
             sshRemove remote: remote_dev, path: '/home/wsodev/wso-go/wso-backend'
             sshPut remote: remote_dev, from: 'wso-backend_linux', into: '/home/wsodev/wso-go/wso-backend'
+            sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/wso-backend'
             sshCommand remote: remote_dev, command: 'sudo /bin/systemctl restart WSO-Go'
           }
         }
