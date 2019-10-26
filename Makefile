@@ -30,6 +30,9 @@ services/*/responses/%.go: services/*/responses/%.json
 services/words/words_data.go: services/words/words.json
 	go generate $(GIT_REPO)/services/words
 
+build-linux:
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags=jsoniter -o $(BINARY_NAME)_linux ./server/cmd
+
 .PHONY: go-gen
 go-gen:
 	go generate $(GIT_REPO)/...

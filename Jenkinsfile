@@ -1,3 +1,5 @@
+import groovy.json.JsonSlurper
+
 pipeline {
   agent {
     dockerfile {
@@ -27,6 +29,83 @@ pipeline {
         }
       }
     }
+    stage('Deploy for development') {
+      when {
+        branch 'master'
+      }
+      steps {
+        sh '''make build-linux'''
+        script {
+          def remote_dev = [:]
+          remote_dev.name = "wsodev"
+          remote_dev.host = "wso-dev.williams.edu"
+          remote_dev.port = 22
+          remote_dev.allowAnyHosts = true
+
+          withCredentials([usernamePassword(credentialsId: 'wsodev_ssh_server', passwordVariable: 'SSH_PASS', usernameVariable: 'SSH_USER')]) {
+            remote_dev.user = SSH_USER
+            remote_dev.password = SSH_PASS
+
+            sshRemove remote: remote_dev, path: '/home/wsodev/wso-go/wso-backend'
+            sshPut remote: remote_dev, from: 'wso-backend_linux', into: '/home/wsodev/wso-go/wso-backend'
+            sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/wso-backend'
+            sshCommand remote: remote_dev, command: '/bin/systemctl restart WSO-Go', sudo: true
+          }
+        }
+        script {
+          try {
+            URL apiUrl = new URL("https://wso.williams.edu/api/v2/health-check")
+            def resp = new JsonSlurper().parseText(apiUrl.getText())
+            return resp.ok
+          } catch (Exception e) {
+            return false
+          }
+        }
+      }
+      post {
+        success {
+          slackSend (color: '#00FF00', message: "SUCCESSFUL: Deployed on Development.\n Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+        }
+      }
+    }
+    stage('Deploy for production') {
+          when {
+            branch 'production'
+          }
+          steps {
+            sh '''make build-linux'''
+            script {
+              def remote_dev = [:]
+              remote_dev.name = "wso"
+              remote_dev.host = "wso.williams.edu"
+              remote_dev.port = 22
+              remote_dev.allowAnyHosts = true
+
+              withCredentials([usernamePassword(credentialsId: 'wso_ssh_server', passwordVariable: 'SSH_PASS', usernameVariable: 'SSH_USER')]) {
+                remote_dev.user = SSH_USER
+                remote_dev.password = SSH_PASS
+
+                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/wso-backend'
+                sshPut remote: remote_dev, from: 'wso-backend_linux', into: '/home/wso/wso/wso-backend/wso-backend'
+                sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/wso-backend'
+                sshCommand remote: remote_dev, command: '/bin/systemctl restart WSO-Go', sudo: true
+              }
+            }
+            script {
+              try {
+                new URL("https://wso.williams.edu/api/v2/health-check").getText()
+                return true
+              } catch (Exception e) {
+                return false
+              }
+            }
+          }
+          post {
+            success {
+              slackSend (color: '#00FF00', message: "SUCCESSFUL: Deployed on Production.\n Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+            }
+          }
+        }
   }
   options { buildDiscarder(logRotator(numToKeepStr: '2')) }
   post {
