@@ -54,7 +54,7 @@ pipeline {
         }
         script {
           try {
-            URL apiUrl = new URL("https://wso.williams.edu/api/v2/health-check")
+            URL apiUrl = new URL("https://wso-dev.williams.edu/api/v2/health-check")
             def resp = new JsonSlurper().parseText(apiUrl.getText())
             return resp.ok
           } catch (Exception e) {
@@ -64,7 +64,7 @@ pipeline {
       }
       post {
         success {
-          slackSend (color: '#00FF00', message: "SUCCESSFUL: Deployed on Development.\n Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+          slackSend (color: '#00FF00', message: "WSO-Go Deployed on Development\n Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
         }
       }
     }
@@ -93,8 +93,9 @@ pipeline {
             }
             script {
               try {
-                new URL("https://wso.williams.edu/api/v2/health-check").getText()
-                return true
+                URL apiUrl = new URL("https://wso.williams.edu/api/v2/health-check")
+                def resp = new JsonSlurper().parseText(apiUrl.getText())
+                return resp.ok
               } catch (Exception e) {
                 return false
               }
@@ -102,7 +103,7 @@ pipeline {
           }
           post {
             success {
-              slackSend (color: '#00FF00', message: "SUCCESSFUL: Deployed on Production.\n Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+              slackSend (color: '#00FF00', message: "WSO-Go Deployed on Production\n Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
             }
           }
         }
