@@ -2,6 +2,7 @@ package ephmatch
 
 import (
 	"github.com/WilliamsStudentsOnline/wso-go/models"
+	"github.com/WilliamsStudentsOnline/wso-go/sanitize"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/WilliamsStudentsOnline/wso-go/services/ephmatch/responses"
 	"github.com/gin-gonic/gin"
@@ -32,6 +33,11 @@ func (t *Controller) ListMatches(c *gin.Context) {
 	if err != nil {
 		t.RespondError(c, err)
 		return
+	}
+
+	for _, match := range matches {
+		sanitize.User(match.User, c)
+		sanitize.User(match.Other, c)
 	}
 
 	t.RespondOK(c, responses.ConvertListMatchesResponse(matches))
