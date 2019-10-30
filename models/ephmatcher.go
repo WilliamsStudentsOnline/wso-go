@@ -4,14 +4,6 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-// Ephmatcher schema to cast into from a user
-type Ephmatcher struct {
-	ID     uint   `json:"id"`
-	Name   string `json:"name"`
-	UnixID string `json:"unixID"`
-	Liked  bool   `json:"liked"` // If me (user) has an ephmatch entry where ephmatch.other_id=users.id and ephmatch.user_id=myID
-}
-
 // Ephmatcher Model
 type EphmatcherModel struct {
 	*UserModel
