@@ -176,7 +176,7 @@ func TestController_ListUsers_Pagination(t *testing.T) {
 		},
 	}
 
-	// Test for DB query
+	// Test for db query
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			a := testify.New(t)

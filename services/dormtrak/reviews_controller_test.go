@@ -677,7 +677,7 @@ func TestController_DeleteReview(t *testing.T) {
 	// Assert for response
 	assert.Equal(review.ID, resp.ID)
 
-	// Check to make sure it is not in DB
+	// Check to make sure it is not in db
 	var count int
 	assert.NoError(db.Model(models.NewDormtrakReview(review.ID)).Count(&count).Error)
 	assert.Zero(count)

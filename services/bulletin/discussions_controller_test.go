@@ -376,12 +376,12 @@ func TestController_CreateDiscussion(t *testing.T) {
 	assert.Equal(params.Content, resp.Posts[0].Content)
 	assert.Equal(u1.Name, resp.Posts[0].ExUserName)
 
-	// Assert found discussion in DB
+	// Assert found discussion in db
 	var count int
 	assert.NoError(db.Model(&models.Discussion{}).Where("id = ?", resp.ID).Count(&count).Error)
 	assert.Equal(1, count)
 
-	// Assert found post in DB
+	// Assert found post in db
 	count = 0
 	assert.NoError(db.Model(&models.Post{}).Where("id = ?", resp.Posts[0].ID).Count(&count).Error)
 	assert.Equal(1, count)
@@ -447,12 +447,12 @@ func TestController_DeleteDiscussion(t *testing.T) {
 	// Assert good response
 	assert.Equal(d1.ID, resp.ID)
 
-	// Assert no discussion in DB
+	// Assert no discussion in db
 	var count int
 	assert.NoError(db.Model(&models.Discussion{}).Where("id = ?", d1.ID).Count(&count).Error)
 	assert.Equal(0, count)
 
-	// Assert no post in DB
+	// Assert no post in db
 	count = 0
 	assert.NoError(db.Model(&models.Post{}).Where("id = ?", d1.Posts[0].ID).Count(&count).Error)
 	assert.Equal(0, count)

@@ -10,26 +10,39 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
+	"github.com/WilliamsStudentsOnline/wso-go/lib/pictures"
+	searchLib "github.com/WilliamsStudentsOnline/wso-go/lib/search"
 	search "github.com/WilliamsStudentsOnline/wso-go/lib/search/users"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
+	"github.com/WilliamsStudentsOnline/wso-go/sanitize"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/WilliamsStudentsOnline/wso-go/services/user/responses"
 	"github.com/disintegration/imaging"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	log "github.com/sirupsen/logrus"
 )
 
 type Controller struct {
 	services.BaseController
-	userModel  *models.UserModel
-	userSearch search.SearchUsers
+	userModel      *models.UserModel
+	userSearch     search.SearchUsers
+	pictureBackend pictures.PictureBackend
 }
 
 // Construct a new user controller
 func NewController(db *gorm.DB, cfg *config.Config) *Controller {
+	pb, err := pictures.NewPictureBackend(cfg)
+	if err != nil {
+		log.Error(err)
+		log.Warn("Using picture backend none")
+		pb = pictures.NewPictureBackendDummy()
+	}
+
 	return &Controller{
-		userModel:  models.NewUserModel(db),
-		userSearch: search.NewSearchUsers(db, cfg),
+		userModel:      models.NewUserModel(db),
+		userSearch:     search.NewSearchUsers(db, cfg),
+		pictureBackend: pb,
 	}
 }
 
@@ -66,6 +79,9 @@ func (t *Controller) ListUsers(c *gin.Context) {
 		users, totalResults, err = t.userSearch.Search(query, &search.SearchUsersOptionsMysql{&opts})
 
 		if err != nil {
+			if searchLib.IsInvalidTokenError(err) {
+				err = lib.NewInvalidSearchTokenError(err)
+			}
 			t.RespondError(c, err)
 			return
 		}
@@ -102,6 +118,8 @@ func (t *Controller) ListUsers(c *gin.Context) {
 	}
 
 	t.SetPaginationTotal(c, totalResults)
+
+	sanitize.Users(users, c)
 
 	t.RespondOK(c, responses.ConvertListUsersResponse(users))
 }
@@ -169,6 +187,8 @@ func (t *Controller) GetUser(c *gin.Context) {
 			user.DormRoomID = nil
 		}
 	}
+
+	sanitize.User(&user, c)
 
 	t.RespondOK(c, responses.ConvertGetUserResponse(&user))
 }
@@ -346,6 +366,14 @@ func (t *Controller) UploadProfilePhoto(c *gin.Context) {
 		return
 	}
 
+	// Do database query to get the user
+	var user models.User
+	err = t.userModel.GetUserByID(userID, &user)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
 	formFile, err := c.FormFile("file")
 	if err != nil {
 		t.RespondError(c, err)
@@ -369,7 +397,23 @@ func (t *Controller) UploadProfilePhoto(c *gin.Context) {
 	imgScaled := imaging.Fill(img, 300, 300, imaging.Center, imaging.Lanczos)
 	imgThumb := imaging.Fill(img, 50, 50, imaging.Center, imaging.Lanczos)
 
-	_, _ = imgScaled, imgThumb
+	err = t.pictureBackend.SaveLarge(imgScaled, user.UnixID)
+	if err != nil {
+		// Put error in the context so it can be reported
+		c.Error(err)
+		t.RespondAPIError(c, lib.ErrorUnableToSavePicture)
+		return
+	}
+
+	err = t.pictureBackend.SaveThumb(imgThumb, user.UnixID)
+	if err != nil {
+		// Put error in the context so it can be reported
+		c.Error(err)
+		t.RespondAPIError(c, lib.ErrorUnableToSavePicture)
+		return
+	}
+
+	t.RespondOK(c, nil)
 }
 
 // Decode userID from passed param or get self's userID if param="me".

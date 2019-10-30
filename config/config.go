@@ -61,6 +61,7 @@ type Config struct {
 	DisableLDAP   bool   `yaml:"disable_ldap" envconfig:"disable_ldap"`
 	LogLevel      string `yaml:"log_level" envconfig:"log_level"`
 	Hostname      string `yaml:"hostname" envconfig:"hostname"`
+	LogPath       string `yaml:"log_path" envconfig:"log_path"`
 
 	/* Search */
 	SearchBackend string `yaml:"search_backend" envconfig:"search_backend"`
@@ -72,6 +73,10 @@ type Config struct {
 
 	Secrets        *Secrets     `yaml:"-" envconfig:"-"`
 	LogLevelParsed logrus.Level `yaml:"-" envconfig:"-"`
+
+	/* Pictures */
+	PictureBackend   string `yaml:"picture_backend" envconfig:"picture_backend"`
+	PictureLocalPath string `yaml:"picture_local_path" envconfig:"picture_local_path"`
 }
 
 // Check what environment our config is in
@@ -241,6 +246,10 @@ func SetupConfig(c *Config) error {
 
 	if c.Hostname == "" {
 		c.Hostname = "localhost"
+	}
+
+	if c.PictureBackend == "" {
+		c.PictureBackend = "none"
 	}
 
 	return nil

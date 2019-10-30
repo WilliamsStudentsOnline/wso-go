@@ -3,9 +3,10 @@ package server
 import (
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
+	"os"
 
-	jwt "github.com/WilliamsStudentsOnline/gin-jwt/v2"
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/docs"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
@@ -61,7 +62,10 @@ func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 	// Recovery middleware recovers from any panics and writes a 500 if there was one.
 	// We also write to Slack if there is any internal server error
 	r.Use(SlackRecovery(cfg))
-	r.Use(gin.Recovery())
+	r.Use(gin.RecoveryWithWriter(io.MultiWriter(
+		os.Stderr,
+		log.StandardLogger().WriterLevel(log.ErrorLevel),
+	)))
 
 	// CORS config for react app
 	corsConfig := cors.DefaultConfig()
@@ -95,8 +99,6 @@ func SetupRouter(cfg *config.Config, db *gorm.DB) (*gin.Engine, error) {
 
 	// Require authentication for 404s
 	r.NoRoute(authMiddleware.MiddlewareFunc(), func(c *gin.Context) {
-		claims := jwt.ExtractClaims(c)
-		log.Infof("NoRoute claims: %#v\n", claims)
 		services.Base.RespondErrorCode(c, http.StatusNotFound, errors.New("page not found"))
 	})
 

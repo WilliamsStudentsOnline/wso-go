@@ -2,6 +2,7 @@ package ephcatch
 
 import (
 	"github.com/WilliamsStudentsOnline/wso-go/models"
+	"github.com/WilliamsStudentsOnline/wso-go/sanitize"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 )
@@ -30,6 +31,8 @@ func (t *Controller) ListMatches(c *gin.Context) {
 		t.RespondError(c, err)
 		return
 	}
+
+	sanitize.Users(matches, c)
 
 	t.RespondOK(c, matches)
 }

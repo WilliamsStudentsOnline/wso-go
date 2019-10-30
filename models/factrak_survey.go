@@ -140,7 +140,7 @@ func (m *FactrakSurveyModel) GetAllSurveys(p *[]*FactrakSurvey, opts *GetAllFact
 		db = opts.Run(db)
 	}
 
-	// Do DB query
+	// Do db query
 	err = db.Find(p).Error
 	if err != nil {
 		return
@@ -172,6 +172,13 @@ func (m *FactrakSurveyModel) DoesSurveyExist(id uint) (exists bool, err error) {
 
 func (m *FactrakSurveyModel) CountSurveysByUser(userID uint) (count int, err error) {
 	err = m.DB.Model(&FactrakSurvey{}).Where("factrak_surveys.user_id = ?", userID).Count(&count).Error
+	return
+}
+
+func (m *FactrakSurveyModel) CountSurveysThisSemesterByUser(userID uint, now time.Time) (count int, err error) {
+	err = m.DB.Model(&FactrakSurvey{}).
+		Scopes(m.withScopeThisSemester(now), m.withAuthorID(userID)).
+		Count(&count).Error
 	return
 }
 
@@ -342,13 +349,12 @@ func (m *FactrakSurveyModel) getSurveyRatings(ratings *FactrakSurveyAvgRatings, 
 	return
 }
 
-func (*FactrakSurveyModel) registrationStart() time.Time {
+func (*FactrakSurveyModel) registrationStart(now time.Time) time.Time {
 	// if changed, also change scheduled update user stuff
 	springReg := time.October
 	fallReg := time.March
 
 	// Between October/X and February/X+1, want October/X
-	now := time.Now()
 	month := now.Month()
 
 	// TODO: Ensure time.Local is EST/EDT on server
@@ -419,8 +425,10 @@ func (*FactrakSurveyModel) scopeProfAtWilliams(db *gorm.DB) *gorm.DB {
 	return db.Joins("JOIN users AS professors ON professors.id = factrak_surveys.professor_id").Where("professors.at_williams = ?", true)
 }
 
-func (m *FactrakSurveyModel) scopeThisSemester(db *gorm.DB) *gorm.DB {
-	return db.Where("factrak_surveys.created_at >= ?", m.registrationStart())
+func (m *FactrakSurveyModel) withScopeThisSemester(now time.Time) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where("factrak_surveys.created_at >= ?", m.registrationStart(now))
+	}
 }
 
 func (*FactrakSurveyModel) scopeCurrent(db *gorm.DB) *gorm.DB {

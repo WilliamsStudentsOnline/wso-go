@@ -26,9 +26,6 @@ definitions:
         description: If true, will authenticate based on IP. Will return either off-campus
           or on-campus token
         type: boolean
-    required:
-    - password
-    - unixID
     type: object
   autocomplete.ACEntry:
     properties:
@@ -1556,7 +1553,7 @@ paths:
       consumes:
       - application/json
       description: attempts to get a JWT by taking an existing JWT and updating the
-        fields. This calls the DB, so it will actually modify the token's payload.
+        fields. This calls the db, so it will actually modify the token's payload.
       operationId: auth-update
       produces:
       - application/json

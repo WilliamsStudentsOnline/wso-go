@@ -153,12 +153,12 @@ func TestController_CreatePost(t *testing.T) {
 	assert.Equal(params.Content, resp.Content)
 	assert.Equal(u1.Name, resp.ExUserName)
 
-	// Assert found post in DB
+	// Assert found post in db
 	var count int
 	assert.NoError(db.Model(&models.Post{}).Where("id = ?", resp.ID).Count(&count).Error)
 	assert.Equal(1, count)
 
-	// Assert that last active time of discussion has changed in DB
+	// Assert that last active time of discussion has changed in db
 	var disc models.Discussion
 	assert.NoError(db.First(&disc, d1.ID).Error)
 	// NOTE: This might randomly fail (idk actually) if the seconds don't match up.
@@ -229,7 +229,7 @@ func TestController_UpdatePost(t *testing.T) {
 	assert.Equal(p1.ID, resp.ID)
 	assert.Equal(params.Content, resp.Content)
 
-	// Assert that updated in DB
+	// Assert that updated in db
 	var postDB models.Post
 	assert.NoError(db.First(&postDB, p1.ID).Error)
 	assert.Equal(params.Content, postDB.Content)
@@ -316,12 +316,12 @@ func TestController_DeletePost(t *testing.T) {
 	assert.Equal(d1.Posts[1].ID, resp.ID)
 	assert.Equal(d1.Posts[1].Content, resp.Content)
 
-	// Assert that deleted in DB
+	// Assert that deleted in db
 	var count int
 	assert.NoError(db.Model(&models.Post{}).Where("id = ?", d1.Posts[1].ID).Count(&count).Error)
 	assert.Equal(0, count)
 
-	// Assert that last active time of discussion has changed in DB to old one
+	// Assert that last active time of discussion has changed in db to old one
 	var disc models.Discussion
 	assert.NoError(db.First(&disc, d1.ID).Error)
 	// NOTE: This might randomly fail (idk actually) if the seconds don't match up.
@@ -342,12 +342,12 @@ func TestController_DeletePost(t *testing.T) {
 	assert.Equal(d1.Posts[0].ID, resp.ID)
 	assert.Equal(d1.Posts[0].Content, resp.Content)
 
-	// Assert that deleted in DB
+	// Assert that deleted in db
 	count = 0
 	assert.NoError(db.Model(&models.Post{}).Where("id = ?", d1.Posts[0].ID).Count(&count).Error)
 	assert.Equal(0, count)
 
-	// Assert that discussion also deleted in DB
+	// Assert that discussion also deleted in db
 	count = 0
 	assert.NoError(db.Model(&models.Discussion{}).Where("id = ?", d1.ID).Count(&count).Error)
 	assert.Equal(0, count)

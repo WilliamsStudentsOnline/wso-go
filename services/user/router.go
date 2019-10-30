@@ -12,7 +12,7 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config) {
 	writer := r.Group("")
 	writer.Use(auth.RequireScopes(auth.ScopeWriteSelf))
 
-	r.GET("/", c.ListUsers)
+	r.GET("", c.ListUsers)
 	r.GET("/:userID", c.GetUser)
 	writer.PATCH("/:userID", c.UpdateUser)
 	writer.PUT("/:userID/tags", c.UpdateUserTags)

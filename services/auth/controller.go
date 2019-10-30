@@ -15,8 +15,8 @@ var ErrorMissingLoginValues = errors.New("missing unix id or password")
 
 // Parameters passed from client when logging in
 type LoginParams struct {
-	UnixID   string `form:"unixID" json:"unixID" binding:"required"`
-	Password string `form:"password" json:"password" binding:"required"`
+	UnixID   string `form:"unixID" json:"unixID"`
+	Password string `form:"password" json:"password"`
 	// If true, will authenticate based on IP. Will return either off-campus or on-campus token
 	UseIP bool `form:"useIP" json:"useIP"`
 	// If true, will authenticate based on IP. Fail if cannot get on-campus token.
@@ -72,6 +72,10 @@ func (t *Controller) Authenticator(c *gin.Context) (interface{}, error) {
 		return payload, nil
 	}
 
+	if loginVals.UnixID == "" || loginVals.Password == "" {
+		return nil, ErrorMissingLoginValues
+	}
+
 	// The user model interface to return if we can authenticate
 	user := new(models.User)
 
@@ -104,7 +108,7 @@ func (t *Controller) Authenticator(c *gin.Context) (interface{}, error) {
 		return nil, ErrorFailedAuthentication
 	}
 
-	// Check if user exists in DB and create the entry if it doesnt exist in DB
+	// Check if user exists in db and create the entry if it doesnt exist in db
 	user, err = t.userModel.FirstOrCreateFromUnixID(unixID, t.cfg)
 	if err != nil {
 		// Record the error in the log, as it is an internal server error (but response will be an unauthorized error)
@@ -137,7 +141,7 @@ func authLogin() {}
 
 // AuthUpdate godoc
 // @Summary Update Token
-// @description attempts to get a JWT by taking an existing JWT and updating the fields. This calls the DB, so it will actually modify the token's payload.
+// @description attempts to get a JWT by taking an existing JWT and updating the fields. This calls the db, so it will actually modify the token's payload.
 // @ID auth-update
 // @Tags auth
 // @Accept  json

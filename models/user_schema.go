@@ -21,7 +21,7 @@ type User struct {
 	Name           string  `json:"name"`
 	CellPhone      *string `json:"cellPhone"`
 	CampusPhoneExt *string `json:"campusPhoneEXT"`
-	UnixID         string  `gorm:"unique;not null;" json:"unixID"`
+	UnixID         string  `gorm:"unique;not null;size:100;" json:"unixID"`
 	WilliamsEmail  string  `json:"williamsEmail"`
 	Title          *string `json:"title"`
 	Visible        *bool   `gorm:"DEFAULT:true;not null" json:"visible"`
@@ -204,7 +204,7 @@ func (u *User) AfterCreate(scope *gorm.Scope) (err error) {
 // XXX: Removing this due to the fact it could catastrophically fail. Now we just generate search fields in specific
 //  functions (and before create)
 /*func (u *User) BeforeSave(scope *gorm.Scope) (err error) {
-	userModel := NewUserModel(scope.DB())
+	userModel := NewUserModel(scope.db())
 	searchFields, err := userModel.generateSearchFieldsByUser(*u)
 	if err != nil {
 		return

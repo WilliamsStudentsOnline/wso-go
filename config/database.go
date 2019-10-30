@@ -27,7 +27,7 @@ func LoadDatabase(cfg *Config) *gorm.DB {
 	return db
 }
 
-// Safely closes DB when done
+// Safely closes db when done
 func CloseDatabase(db *gorm.DB) {
 	if err := db.Close(); err != nil {
 		log.Fatal(err)
