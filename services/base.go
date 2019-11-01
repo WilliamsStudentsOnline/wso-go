@@ -78,7 +78,24 @@ func (BaseController) RespondAPIError(c *gin.Context, err *lib.APIError) {
 
 // Respond to request with an error and abort
 func (b BaseController) RespondBadBind(c *gin.Context, err error) {
+
+	// If it is a validation error, format it and send it to respond API error
+	if validateErrs, ok := err.(validator.ValidationErrors); ok {
+		b.respondValidationError(c, validateErrs)
+		return
+	}
 	b.RespondAPIError(c, lib.NewErrorMalformedRequestData(err))
+}
+
+func (b BaseController) respondValidationError(c *gin.Context, validateErrs validator.ValidationErrors) {
+	// If it is a validation error, format it and send it to respond API error
+	errs := make([]error, len(validateErrs))
+	i := 0
+	for field, fieldErr := range validateErrs {
+		errs[i] = fmt.Errorf("validation for field %s failed on the '%s' requirement", field, fieldErr.Tag)
+		i++
+	}
+	b.RespondAPIError(c, lib.NewErrorRequestDataValidationFailed(errs))
 }
 
 // Respond to request with an error and abort
@@ -102,13 +119,7 @@ func (b BaseController) RespondErrorCode(c *gin.Context, code int, err error) {
 
 	// If it is a validation error, format it and send it to respond API error
 	if validateErrs, ok := err.(validator.ValidationErrors); ok {
-		errs := make([]error, len(validateErrs))
-		i := 0
-		for field, fieldErr := range validateErrs {
-			errs[i] = fmt.Errorf("validation for field %s failed on the '%s' requirement", field, fieldErr.Tag)
-			i++
-		}
-		b.RespondAPIError(c, lib.NewErrorRequestDataValidationFailed(errs))
+		b.respondValidationError(c, validateErrs)
 		return
 	}
 
