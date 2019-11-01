@@ -30,7 +30,7 @@ func (t *Controller) ListDiscussions(c *gin.Context) {
 
 	err := c.ShouldBindQuery(&params)
 	if err != nil {
-		t.RespondError(c, err)
+		t.RespondBadBind(c, err)
 		return
 	}
 
@@ -81,7 +81,7 @@ func (t *Controller) GetDiscussion(c *gin.Context) {
 
 	err = c.ShouldBindQuery(&params)
 	if err != nil {
-		t.RespondError(c, err)
+		t.RespondBadBind(c, err)
 		return
 	}
 
@@ -143,7 +143,7 @@ func (t *Controller) GetDiscussionPosts(c *gin.Context) {
 
 	err = c.ShouldBindQuery(&params)
 	if err != nil {
-		t.RespondError(c, err)
+		t.RespondBadBind(c, err)
 		return
 	}
 
@@ -188,7 +188,7 @@ func (t *Controller) CreateDiscussion(c *gin.Context) {
 	createData := CreateDiscussionParams{}
 	err := c.ShouldBind(&createData)
 	if err != nil {
-		t.RespondError(c, err)
+		t.RespondBadBind(c, err)
 		return
 	}
 

@@ -117,7 +117,7 @@ func (t *Controller) CreateAgreement(c *gin.Context) {
 	createData := AgreementCreateParams{}
 	err = c.ShouldBind(&createData)
 	if err != nil {
-		t.RespondError(c, err)
+		t.RespondBadBind(c, err)
 		return
 	}
 
@@ -199,7 +199,7 @@ func (t *Controller) UpdateAgreement(c *gin.Context) {
 	updateData := AgreementUpdateParams{}
 	err = c.ShouldBind(&updateData)
 	if err != nil {
-		t.RespondError(c, err)
+		t.RespondBadBind(c, err)
 		return
 	}
 

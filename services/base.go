@@ -77,6 +77,11 @@ func (BaseController) RespondAPIError(c *gin.Context, err *lib.APIError) {
 }
 
 // Respond to request with an error and abort
+func (b BaseController) RespondBadBind(c *gin.Context, err error) {
+	b.RespondAPIError(c, lib.NewErrorMalformedRequestData(err))
+}
+
+// Respond to request with an error and abort
 func (b BaseController) RespondError(c *gin.Context, err error) {
 	b.RespondErrorCode(c, http.StatusInternalServerError, err)
 }
