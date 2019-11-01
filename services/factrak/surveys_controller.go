@@ -37,7 +37,7 @@ func (t *Controller) ListSurveys(c *gin.Context) {
 
 	err := c.ShouldBindQuery(&params)
 	if err != nil {
-		t.RespondError(c, err)
+		t.RespondBadBind(c, err)
 		return
 	}
 
@@ -185,7 +185,7 @@ func (t *Controller) CreateSurvey(c *gin.Context) {
 	createData := SurveyCreateParams{}
 	err := c.ShouldBind(&createData)
 	if err != nil {
-		t.RespondError(c, err)
+		t.RespondBadBind(c, err)
 		return
 	}
 
@@ -381,7 +381,7 @@ func (t *Controller) UpdateSurvey(c *gin.Context) {
 	updateData := SurveyUpdateParams{}
 	err = c.ShouldBind(&updateData)
 	if err != nil {
-		t.RespondError(c, err)
+		t.RespondBadBind(c, err)
 		return
 	}
 

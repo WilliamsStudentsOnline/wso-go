@@ -61,7 +61,7 @@ func (t *Controller) ListUserSurveys(c *gin.Context) {
 	params := models.GetAllFactrakSurveysOptions{}
 	err = c.ShouldBindQuery(&params)
 	if err != nil {
-		t.RespondError(c, err)
+		t.RespondBadBind(c, err)
 		return
 	}
 

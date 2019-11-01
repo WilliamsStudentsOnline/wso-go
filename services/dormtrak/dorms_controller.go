@@ -30,7 +30,7 @@ func (t *Controller) ListDorms(c *gin.Context) {
 
 	opts := models.GetAllDormsOptions{}
 	if err = c.ShouldBindQuery(&opts); err != nil {
-		t.RespondError(c, err)
+		t.RespondBadBind(c, err)
 		return
 	}
 

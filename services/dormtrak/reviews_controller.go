@@ -36,7 +36,7 @@ func (t *Controller) ListReviews(c *gin.Context) {
 
 	err := c.ShouldBindQuery(&params)
 	if err != nil {
-		t.RespondError(c, err)
+		t.RespondBadBind(c, err)
 		return
 	}
 
@@ -145,7 +145,7 @@ func (t *Controller) CreateReview(c *gin.Context) {
 	createData := ReviewCreateParams{}
 	err := c.ShouldBind(&createData)
 	if err != nil {
-		t.RespondError(c, err)
+		t.RespondBadBind(c, err)
 		return
 	}
 
@@ -268,7 +268,7 @@ func (t *Controller) UpdateReview(c *gin.Context) {
 	updateData := ReviewUpdateParams{}
 	err = c.ShouldBind(&updateData)
 	if err != nil {
-		t.RespondError(c, err)
+		t.RespondBadBind(c, err)
 		return
 	}
 

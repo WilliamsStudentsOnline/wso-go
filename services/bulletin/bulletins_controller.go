@@ -33,7 +33,7 @@ func (t *Controller) ListBulletins(c *gin.Context) {
 
 	err := c.ShouldBindQuery(params)
 	if err != nil {
-		t.RespondError(c, err)
+		t.RespondBadBind(c, err)
 		return
 	}
 
@@ -130,7 +130,7 @@ func (t *Controller) CreateBulletin(c *gin.Context) {
 	createData := CreateBulletinParams{}
 	err := c.ShouldBind(&createData)
 	if err != nil {
-		t.RespondError(c, err)
+		t.RespondBadBind(c, err)
 		return
 	}
 
@@ -213,7 +213,7 @@ func (t *Controller) UpdateBulletin(c *gin.Context) {
 	updateData := UpdateBulletinParams{}
 	err = c.ShouldBind(&updateData)
 	if err != nil {
-		t.RespondError(c, err)
+		t.RespondBadBind(c, err)
 		return
 	}
 
