@@ -51,9 +51,9 @@ func NewInvalidSearchTokenError(err error) *APIError {
 
 var (
 	// Standard HTTP error 0404
-	ErrorRecordNotFound = NewAPIErrorWithHTTP(0404, http.StatusNotFound, "record not found")
+	ErrorRecordNotFound = NewAPIErrorWithHTTP(404, http.StatusNotFound, "record not found")
 	// HTTP 500
-	ErrorInternalServerError = NewAPIErrorWithHTTP(0500, http.StatusInternalServerError, "internal server error")
+	ErrorInternalServerError = NewAPIErrorWithHTTP(500, http.StatusInternalServerError, "internal server error")
 
 	// 11** are general errors
 	ErrorMalformedRequestData        = NewAPIErrorWithHTTP(1100, http.StatusBadRequest, "could not parse malformed request data")
@@ -108,8 +108,9 @@ var (
 	ErrorDiscussionNotFound     = NewAPIErrorWithHTTP(1850, http.StatusNotFound, "discussion cannot be found")
 
 	// 19** are ephmatch errors
-	ErrorEphmatchLikeNoSelf    = NewAPIError(1930, "cannot ephmatch-like yourself")
-	ErrorEphmatcherNotFound    = NewAPIError(1931, "ephmatcher could not be found")
-	ErrorEphmatchAlreadyExists = NewAPIError(1932, "ephmatch already exists with user ID and passed ephmatcher ID")
-	ErrorEphmatchDoesNotExist  = NewAPIError(1932, "ephmatch does not exist with user ID and passed ephmatcher ID")
+	ErrorEphmatchLikeNoSelf      = NewAPIError(1930, "cannot ephmatch-like yourself")
+	ErrorEphmatchProfileNotFound = NewAPIError(1931, "ephmatch profile could not be found")
+	ErrorEphmatchAlreadyExists   = NewAPIError(1932, "ephmatch already exists with user ID and passed ephmatch profile user ID")
+	ErrorEphmatchDoesNotExist    = NewAPIError(1932, "ephmatch does not exist with user ID and passed ephmatch profile user ID")
+	ErrorEphmatchGenderUnknown   = NewAPIError(1940, "unknown gender type specified; use other gender flag for custom gender")
 )

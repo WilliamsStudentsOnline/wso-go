@@ -23,11 +23,42 @@ func TestController_ListMatches(t *testing.T) {
 	srYear := (&models.StudentModel{}).SeniorYear()
 
 	s := []*models.User{
-		{},
-		{},
-		{},
-		{},
-		{},
+		{
+			EphmatchProfile: &models.EphmatchProfile{
+				Gender:      "he/him/his",
+				Description: "description1",
+			},
+		},
+		{
+			EphmatchProfile: &models.EphmatchProfile{
+				Gender:      "gender2",
+				Description: "description2",
+			},
+		},
+		{
+			EphmatchProfile: &models.EphmatchProfile{
+				Gender:      "gender3",
+				Description: "description3",
+			},
+		},
+		{
+			EphmatchProfile: &models.EphmatchProfile{
+				Gender:      "gender4",
+				Description: "description4",
+			},
+		},
+		{
+			EphmatchProfile: &models.EphmatchProfile{
+				Gender:      "gender5",
+				Description: "description5",
+			},
+		},
+		{
+			EphmatchProfile: &models.EphmatchProfile{
+				Gender:      "gender6",
+				Description: "description6",
+			},
+		},
 	}
 	for i, val := range s {
 		val.Name = fmt.Sprintf("Student %d", i)
@@ -57,6 +88,17 @@ func TestController_ListMatches(t *testing.T) {
 		UserID:  s[1].ID,
 		OtherID: s[0].ID,
 	}).Error)
+	// Match user 6 and 0 but delete user 6's profile and expect it not to be returned
+	assert.NoError(db.Create(&models.Ephmatch{
+		UserID:  s[0].ID,
+		OtherID: s[5].ID,
+	}).Error)
+	assert.NoError(db.Create(&models.Ephmatch{
+		UserID:  s[5].ID,
+		OtherID: s[0].ID,
+	}).Error)
+	// Delete user 6 and expect it not to be a response
+	assert.NoError(db.Delete(s[5].EphmatchProfile).Error)
 
 	utils.AddUserContexts(router, s[0].ID)
 	SetupRouter(router, db, cfg)
@@ -74,6 +116,10 @@ func TestController_ListMatches(t *testing.T) {
 
 	// Check if correct users
 	assert.Len(resp, 2)
-	assert.Equal(s[1].ID, resp[1].Other.ID)
-	assert.Equal(s[4].ID, resp[0].Other.ID)
+	assert.Equal(s[1].ID, resp[0].Other.ID)
+	assert.Equal(s[4].ID, resp[1].Other.ID)
+	assert.Equal(s[1].EphmatchProfile.Description, resp[0].Other.EphmatchProfile.Description)
+	assert.Equal(s[1].EphmatchProfile.Gender, resp[0].Other.EphmatchProfile.Gender)
+	assert.Equal(s[4].EphmatchProfile.Description, resp[1].Other.EphmatchProfile.Description)
+	assert.Equal(s[4].EphmatchProfile.Gender, resp[1].Other.EphmatchProfile.Gender)
 }

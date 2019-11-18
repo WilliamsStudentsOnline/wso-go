@@ -10,14 +10,14 @@ import (
 type Controller struct {
 	services.BaseController
 	// Put a model here, like:
-	ephmatchModel   *models.EphmatchModel
-	ephmatcherModel *models.EphmatcherModel
+	ephmatchModel *models.EphmatchModel
+	profileModel  *models.EphmatchProfileModel
 }
 
 // Construct a new dormtrak controller
 func NewController(db *gorm.DB, cfg *config.Config) *Controller {
 	return &Controller{
-		ephmatchModel:   models.NewEphmatchModel(db),
-		ephmatcherModel: models.NewEphmatcherModel(db),
+		ephmatchModel: models.NewEphmatchModel(db),
+		profileModel:  models.NewEphmatchProfileModel(db),
 	}
 }
