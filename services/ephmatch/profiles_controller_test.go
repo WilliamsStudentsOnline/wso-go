@@ -14,7 +14,7 @@ import (
 	testify "github.com/stretchr/testify/assert"
 )
 
-func TestController_ListEphmatchers(t *testing.T) {
+func TestController_ListProfiles(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
@@ -24,15 +24,51 @@ func TestController_ListEphmatchers(t *testing.T) {
 	srYear := (&models.StudentModel{}).SeniorYear()
 
 	s := []*models.User{
-		{},
-		{},
-		{},
+		{
+			EphmatchProfile: &models.EphmatchProfile{
+				Gender:      "he/him/his",
+				Description: "foobar",
+			},
+		},
+		{
+
+			EphmatchProfile: &models.EphmatchProfile{
+				Gender:      "she/her/hers",
+				Description: "test123",
+			},
+		},
+		{
+
+			EphmatchProfile: &models.EphmatchProfile{
+				Gender:      "they/them/theirs",
+				Description: "hello world",
+			},
+		},
 		// Not student
-		{Type: models.UserTypeProfessor, Name: "Professor 1", UnixID: "p1"},
+		{
+			Type:   models.UserTypeProfessor,
+			Name:   "Professor 1",
+			UnixID: "p1",
+			EphmatchProfile: &models.EphmatchProfile{
+				Gender:      "bteevev",
+				Description: "42",
+			},
+		},
 		// Not visible
-		{Visible: lib.BoolToPtr(false)},
+		{
+			Visible: lib.BoolToPtr(false),
+			EphmatchProfile: &models.EphmatchProfile{
+				Gender:      "1",
+				Description: "2",
+			},
+		},
 		// Opted out
-		{OptOutEphmatch: lib.BoolToPtr(true)},
+		{
+			EphmatchProfile: &models.EphmatchProfile{
+				Gender:      "gender",
+				Description: "desc",
+			},
+		},
 	}
 	for i, val := range s {
 		if val.Name == "" {
@@ -55,11 +91,13 @@ func TestController_ListEphmatchers(t *testing.T) {
 		OtherID: s[2].ID,
 	}).Error)
 
+	assert.NoError(db.Delete(s[5].EphmatchProfile).Error)
+
 	utils.AddUserContexts(router, s[0].ID)
 	SetupRouter(router, db, cfg)
 
 	// Get test user
-	w, err := utils.DoHTTPReq(router, http.MethodGet, "/ephmatchers", nil)
+	w, err := utils.DoHTTPReq(router, http.MethodGet, "/profiles", nil)
 	assert.NoError(err)
 
 	// Status is okay
@@ -68,20 +106,22 @@ func TestController_ListEphmatchers(t *testing.T) {
 	// Decode response
 	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
 	assert.Nil(respData.Error)
-	var resp []models.Ephmatcher
+	var resp []models.EphmatchProfile
 	assert.NoError(json.Unmarshal(respData.Data, &resp))
 
 	// Check if correct users
 	assert.Len(resp, 3)
 	for i, exp := range []*models.User{s[0], s[1], s[2]} {
-		assert.Equal(exp.ID, resp[i].ID)
+		assert.Equal(exp.EphmatchProfile.ID, resp[i].ID)
+		assert.Equal(exp.EphmatchProfile.Description, resp[i].Description)
+		assert.Equal(exp.ID, resp[i].User.ID)
 	}
 	assert.False(resp[0].Liked)
 	assert.False(resp[1].Liked)
 	assert.True(resp[2].Liked)
 }
 
-func TestController_GetEphmatcher(t *testing.T) {
+func TestController_GetProfile(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
@@ -91,15 +131,51 @@ func TestController_GetEphmatcher(t *testing.T) {
 	srYear := (&models.StudentModel{}).SeniorYear()
 
 	s := []*models.User{
-		{},
-		{},
-		{},
+		{
+			EphmatchProfile: &models.EphmatchProfile{
+				Gender:      "he/him/his",
+				Description: "foobar",
+			},
+		},
+		{
+
+			EphmatchProfile: &models.EphmatchProfile{
+				Gender:      "she/her/hers",
+				Description: "test123",
+			},
+		},
+		{
+
+			EphmatchProfile: &models.EphmatchProfile{
+				Gender:      "they/them/theirs",
+				Description: "hello world",
+			},
+		},
 		// Not student
-		{Type: models.UserTypeProfessor, Name: "Professor 1", UnixID: "p1"},
+		{
+			Type:   models.UserTypeProfessor,
+			Name:   "Professor 1",
+			UnixID: "p1",
+			EphmatchProfile: &models.EphmatchProfile{
+				Gender:      "bteevev",
+				Description: "42",
+			},
+		},
 		// Not visible
-		{Visible: lib.BoolToPtr(false)},
+		{
+			Visible: lib.BoolToPtr(false),
+			EphmatchProfile: &models.EphmatchProfile{
+				Gender:      "1",
+				Description: "2",
+			},
+		},
 		// Opted out
-		{OptOutEphmatch: lib.BoolToPtr(true)},
+		{
+			EphmatchProfile: &models.EphmatchProfile{
+				Gender:      "gender",
+				Description: "desc",
+			},
+		},
 	}
 	for i, val := range s {
 		if val.Name == "" {
@@ -122,11 +198,13 @@ func TestController_GetEphmatcher(t *testing.T) {
 		OtherID: s[2].ID,
 	}).Error)
 
+	assert.NoError(db.Delete(s[5].EphmatchProfile).Error)
+
 	utils.AddUserContexts(router, s[0].ID)
 	SetupRouter(router, db, cfg)
 
-	// Get test ephmatcher
-	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/ephmatchers/%d", s[2].ID), nil)
+	// Get test profile
+	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/profiles/%d", s[2].ID), nil)
 	assert.NoError(err)
 
 	// Status is okay
@@ -135,17 +213,18 @@ func TestController_GetEphmatcher(t *testing.T) {
 	// Decode response
 	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
 	assert.Nil(respData.Error)
-	var resp models.Ephmatcher
+	var resp models.EphmatchProfile
 	assert.NoError(json.Unmarshal(respData.Data, &resp))
 
 	// Check if correct users
-	assert.Equal(s[2].ID, resp.ID)
+	assert.Equal(s[2].EphmatchProfile.ID, resp.ID)
+	assert.Equal(s[2].EphmatchProfile.Description, resp.Description)
 	assert.True(resp.Liked)
 
 	// Assert these fail
 	for _, u := range []*models.User{s[3], s[4], s[5]} {
 		/* Get test student 1 (expect failure) */
-		w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/ephmatchers/%d", u.ID), nil)
+		w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/profiles/%d", u.ID), nil)
 		assert.NoError(err)
 
 		// Status is not found
@@ -153,7 +232,7 @@ func TestController_GetEphmatcher(t *testing.T) {
 	}
 }
 
-func TestController_LikeEphmatcher(t *testing.T) {
+func TestController_LikeProfile(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
@@ -163,9 +242,26 @@ func TestController_LikeEphmatcher(t *testing.T) {
 	srYear := (&models.StudentModel{}).SeniorYear()
 
 	s := []*models.User{
-		{},
-		{},
-		{},
+		{
+			EphmatchProfile: &models.EphmatchProfile{
+				Gender:      "he/him/his",
+				Description: "foobar",
+			},
+		},
+		{
+
+			EphmatchProfile: &models.EphmatchProfile{
+				Gender:      "she/her/hers",
+				Description: "test123",
+			},
+		},
+		{
+
+			EphmatchProfile: &models.EphmatchProfile{
+				Gender:      "they/them/theirs",
+				Description: "hello world",
+			},
+		},
 	}
 	for i, val := range s {
 		val.Name = fmt.Sprintf("Student %d", i)
@@ -185,27 +281,27 @@ func TestController_LikeEphmatcher(t *testing.T) {
 
 	/* Create ephmatch with self (expect failure) */
 	apiErr := lib.ErrorEphmatchLikeNoSelf
-	w, err := utils.DoHTTPReq(router, http.MethodPost, fmt.Sprintf("/ephmatchers/%d/like", s[0].ID), nil)
+	w, err := utils.DoHTTPReq(router, http.MethodPost, fmt.Sprintf("/profiles/%d/like", s[0].ID), nil)
 	assert.NoError(err)
 	assert.Equal(apiErr.HTTPCode, w.Code)
 	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
 
-	/* Create ephmatch with bad ephmatcher (expect failure) */
-	apiErr = lib.ErrorEphmatcherNotFound
-	w, err = utils.DoHTTPReq(router, http.MethodPost, fmt.Sprintf("/ephmatchers/%d/like", 42), nil)
+	/* Create ephmatch with bad profile (expect failure) */
+	apiErr = lib.ErrorEphmatchProfileNotFound
+	w, err = utils.DoHTTPReq(router, http.MethodPost, fmt.Sprintf("/profiles/%d/like", 42), nil)
 	assert.NoError(err)
 	assert.Equal(apiErr.HTTPCode, w.Code)
 	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
 
 	/* Create ephmatch as duplicate (expect failure) */
 	apiErr = lib.ErrorEphmatchAlreadyExists
-	w, err = utils.DoHTTPReq(router, http.MethodPost, fmt.Sprintf("/ephmatchers/%d/like", s[2].ID), nil)
+	w, err = utils.DoHTTPReq(router, http.MethodPost, fmt.Sprintf("/profiles/%d/like", s[2].ID), nil)
 	assert.NoError(err)
 	assert.Equal(apiErr.HTTPCode, w.Code)
 	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
 
 	/* Create ephmatch as duplicate (expect success) */
-	w, err = utils.DoHTTPReq(router, http.MethodPost, fmt.Sprintf("/ephmatchers/%d/like", s[1].ID), nil)
+	w, err = utils.DoHTTPReq(router, http.MethodPost, fmt.Sprintf("/profiles/%d/like", s[1].ID), nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusCreated, w.Code)
 
@@ -217,7 +313,7 @@ func TestController_LikeEphmatcher(t *testing.T) {
 	assert.Equal(1, count)
 }
 
-func TestController_UnlikeEphmatcher(t *testing.T) {
+func TestController_UnlikeProfile(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
@@ -227,9 +323,26 @@ func TestController_UnlikeEphmatcher(t *testing.T) {
 	srYear := (&models.StudentModel{}).SeniorYear()
 
 	s := []*models.User{
-		{},
-		{},
-		{},
+		{
+			EphmatchProfile: &models.EphmatchProfile{
+				Gender:      "he/him/his",
+				Description: "foobar",
+			},
+		},
+		{
+
+			EphmatchProfile: &models.EphmatchProfile{
+				Gender:      "she/her/hers",
+				Description: "test123",
+			},
+		},
+		{
+
+			EphmatchProfile: &models.EphmatchProfile{
+				Gender:      "they/them/theirs",
+				Description: "hello world",
+			},
+		},
 	}
 	for i, val := range s {
 		val.Name = fmt.Sprintf("Student %d", i)
@@ -249,20 +362,20 @@ func TestController_UnlikeEphmatcher(t *testing.T) {
 
 	/* Delete ephmatch with random user (expect failure) */
 	apiErr := lib.ErrorEphmatchDoesNotExist
-	w, err := utils.DoHTTPReq(router, http.MethodPost, fmt.Sprintf("/ephmatchers/%d/unlike", s[2].ID), nil)
+	w, err := utils.DoHTTPReq(router, http.MethodPost, fmt.Sprintf("/profiles/%d/unlike", s[2].ID), nil)
 	assert.NoError(err)
 	assert.Equal(apiErr.HTTPCode, w.Code)
 	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
 
 	/* Delete ephmatch with bad user (expect failure) */
-	apiErr = lib.ErrorEphmatcherNotFound
-	w, err = utils.DoHTTPReq(router, http.MethodPost, fmt.Sprintf("/ephmatchers/%d/unlike", 42), nil)
+	apiErr = lib.ErrorEphmatchProfileNotFound
+	w, err = utils.DoHTTPReq(router, http.MethodPost, fmt.Sprintf("/profiles/%d/unlike", 42), nil)
 	assert.NoError(err)
 	assert.Equal(apiErr.HTTPCode, w.Code)
 	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
 
 	/* Create ephmatch as duplicate (expect success) */
-	w, err = utils.DoHTTPReq(router, http.MethodPost, fmt.Sprintf("/ephmatchers/%d/unlike", s[1].ID), nil)
+	w, err = utils.DoHTTPReq(router, http.MethodPost, fmt.Sprintf("/profiles/%d/unlike", s[1].ID), nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w.Code)
 

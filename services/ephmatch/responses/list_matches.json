@@ -79,6 +79,9 @@
         },
         "offCycle": {
           "type": "boolean"
+        },
+        "ephmatchProfile": {
+          "$ref": "#/definitions/EphmatchProfile"
         }
       },
       "required": [
@@ -89,6 +92,25 @@
       ],
       "title": "Other",
       "goOtherName": "User",
+      "goOtherPackage": "github.com/WilliamsStudentsOnline/wso-go/models"
+    },
+    "EphmatchProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "gender": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "description",
+        "gender"
+      ],
+      "title": "EphmatchProfile",
+      "goOtherName": "EphmatchProfile",
       "goOtherPackage": "github.com/WilliamsStudentsOnline/wso-go/models"
     }
   },

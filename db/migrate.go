@@ -63,6 +63,7 @@ func MigrateDB(db *gorm.DB) error {
 			&models.Discussion{},
 			&models.Post{},
 			&models.Ephmatch{},
+			&models.EphmatchProfile{},
 		).Error
 		if err != nil {
 			return err
