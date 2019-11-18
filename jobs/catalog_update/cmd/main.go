@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"os"
+	"time"
 
 	catalog "github.com/WilliamsStudentsOnline/wso-go/jobs/catalog_update"
 	log "github.com/sirupsen/logrus"
@@ -21,7 +22,7 @@ func main() {
 	var springSemesterID int
 	var filename string
 
-	flag.IntVar(&year, "year", 2019, "the calendar year; set this to the year of fall semester")
+	flag.IntVar(&year, "year", 0, "the calendar year; set this to the year of fall semester")
 	flag.IntVar(&academicYear, "academic-year", 0, "academic year of courses (eg 1819, 1920)")
 	flag.IntVar(&fallSemesterID, "fall", 0, "fall courses semester id")
 	flag.IntVar(&winterSemesterID, "winter", 0, "winter courses semester id")
@@ -31,6 +32,14 @@ func main() {
 	flag.Parse()
 
 	/* Flag Defaults */
+
+	// Default year is now, but if it is march or before (early-mid 2nd semester), set it to the previous year
+	if year == 0 {
+		year = time.Now().Year()
+		if time.Now().Month() <= time.March {
+			year = year - 1
+		}
+	}
 
 	// Set the academic year from the last 2 digits of the year and the last 2 digits of the next year
 	if academicYear == 0 {
