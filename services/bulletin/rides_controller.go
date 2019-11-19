@@ -33,7 +33,7 @@ func (t *Controller) ListRides(c *gin.Context) {
 
 	err := c.ShouldBindQuery(&params)
 	if err != nil {
-		t.RespondError(c, err)
+		t.RespondBadBind(c, err)
 		return
 	}
 
@@ -128,7 +128,7 @@ func (t *Controller) CreateRide(c *gin.Context) {
 	createData := CreateRideParams{}
 	err := c.ShouldBind(&createData)
 	if err != nil {
-		t.RespondError(c, err)
+		t.RespondBadBind(c, err)
 		return
 	}
 
@@ -200,7 +200,7 @@ func (t *Controller) UpdateRide(c *gin.Context) {
 	updateData := UpdateRideParams{}
 	err = c.ShouldBind(&updateData)
 	if err != nil {
-		t.RespondError(c, err)
+		t.RespondBadBind(c, err)
 		return
 	}
 

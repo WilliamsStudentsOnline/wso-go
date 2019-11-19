@@ -32,7 +32,7 @@ func (t *Controller) ListEphcatchers(c *gin.Context) {
 
 	opts := models.GetAllEphcatchersOptions{}
 	if err = c.ShouldBindQuery(&opts); err != nil {
-		t.RespondError(c, err)
+		t.RespondBadBind(c, err)
 		return
 	}
 

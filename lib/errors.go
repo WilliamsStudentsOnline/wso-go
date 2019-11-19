@@ -40,7 +40,17 @@ func NewErrorRequestDataValidationFailed(errs []error) *APIError {
 	}
 }
 
-func NewInvalidSearchTokenError(err error) *APIError {
+// This may have multiple errors, so pass them.
+func NewErrorMalformedRequestData(err error) *APIError {
+	return &APIError{
+		Code:     ErrorMalformedRequestData.Code,
+		Message:  ErrorMalformedRequestData.Message,
+		HTTPCode: ErrorMalformedRequestData.HTTPCode,
+		Errors:   []error{err},
+	}
+}
+
+func NewErrorInvalidSearchToken(err error) *APIError {
 	errStr := err.Error()
 	return &APIError{
 		Code:     ErrorInvalidSearchToken.Code,

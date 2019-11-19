@@ -89,7 +89,7 @@ func (t *Controller) CreatePost(c *gin.Context) {
 	createData := CreatePostParams{}
 	err := c.ShouldBind(&createData)
 	if err != nil {
-		t.RespondError(c, err)
+		t.RespondBadBind(c, err)
 		return
 	}
 
@@ -168,7 +168,7 @@ func (t *Controller) UpdatePost(c *gin.Context) {
 	updateData := UpdatePostParams{}
 	err = c.ShouldBind(&updateData)
 	if err != nil {
-		t.RespondError(c, err)
+		t.RespondBadBind(c, err)
 		return
 	}
 

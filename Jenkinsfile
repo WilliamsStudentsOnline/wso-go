@@ -34,7 +34,8 @@ pipeline {
         branch 'master'
       }
       steps {
-        sh '''make build-linux'''
+        sh '''make build-prod-linux'''
+        sh '''make build-jobs-prod-linux'''
         script {
           def remote_dev = [:]
           remote_dev.name = "wsodev"
@@ -46,15 +47,35 @@ pipeline {
             remote_dev.user = SSH_USER
             remote_dev.password = SSH_PASS
 
+            // Main executable:
             sshRemove remote: remote_dev, path: '/home/wsodev/wso-go/wso-backend'
             sshPut remote: remote_dev, from: 'wso-backend_linux', into: '/home/wsodev/wso-go/wso-backend'
             sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/wso-backend'
+
+            // Jobs:
+            sshRemove remote: remote_dev, path: '/home/wsodev/wso-go/job-catalog-update'
+            sshPut remote: remote_dev, from: 'job-catalog-update_linux', into: '/home/wsodev/wso-go/job-catalog-update'
+            sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/job-catalog-update'
+
+            sshRemove remote: remote_dev, path: '/home/wsodev/wso-go/job-update-all-factrak-survey-deficits'
+            sshPut remote: remote_dev, from: 'job-update-all-factrak-survey-deficits_linux', into: '/home/wsodev/wso-go/job-update-all-factrak-survey-deficits'
+            sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/job-update-all-factrak-survey-deficits'
+
+            sshRemove remote: remote_dev, path: '/home/wsodev/wso-go/job-update-all-users-from-ldap'
+            sshPut remote: remote_dev, from: 'job-update-all-users-from-ldap_linux', into: '/home/wsodev/wso-go/job-update-all-users-from-ldap'
+            sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/job-update-all-users-from-ldap'
+
+            sshRemove remote: remote_dev, path: '/home/wsodev/wso-go/job-dorms-update'
+            sshPut remote: remote_dev, from: 'job-dorms-update_linux', into: '/home/wsodev/wso-go/job-dorms-update'
+            sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/job-dorms-update'
+
+            // Restart WSO-Go
             sshCommand remote: remote_dev, command: '/bin/systemctl restart WSO-Go', sudo: true
           }
         }
         script {
           try {
-            URL apiUrl = new URL("https://wso.williams.edu/api/v2/health-check")
+            URL apiUrl = new URL("https://wso-dev.williams.edu/api/v2/health-check")
             def resp = new JsonSlurper().parseText(apiUrl.getText())
             return resp.ok
           } catch (Exception e) {
@@ -64,7 +85,7 @@ pipeline {
       }
       post {
         success {
-          slackSend (color: '#00FF00', message: "SUCCESSFUL: Deployed on Development.\n Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+          slackSend (color: '#00FF00', message: "WSO-Go Deployed on Development\n Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
         }
       }
     }
@@ -73,7 +94,8 @@ pipeline {
             branch 'production'
           }
           steps {
-            sh '''make build-linux'''
+            sh '''make build-prod-linux'''
+            sh '''make build-jobs-prod-linux'''
             script {
               def remote_dev = [:]
               remote_dev.name = "wso"
@@ -85,16 +107,37 @@ pipeline {
                 remote_dev.user = SSH_USER
                 remote_dev.password = SSH_PASS
 
+                // Main executable:
                 sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/wso-backend'
                 sshPut remote: remote_dev, from: 'wso-backend_linux', into: '/home/wso/wso/wso-backend/wso-backend'
                 sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/wso-backend'
+
+                // Jobs:
+                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/job-catalog-update'
+                sshPut remote: remote_dev, from: 'job-catalog-update_linux', into: '/home/wso/wso/wso-backend/jobs/catalog-update'
+                sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/catalog-update'
+
+                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/job-update-all-factrak-survey-deficits'
+                sshPut remote: remote_dev, from: 'job-update-all-factrak-survey-deficits_linux', into: '/home/wso/wso/wso-backend/jobs/update-all-factrak-survey-deficits'
+                sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/update-all-factrak-survey-deficits'
+
+                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/job-update-all-users-from-ldap'
+                sshPut remote: remote_dev, from: 'job-update-all-users-from-ldap_linux', into: '/home/wso/wso/wso-backend/jobs/update-all-users-from-ldap'
+                sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/update-all-users-from-ldap'
+
+                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/job-dorms-update'
+                sshPut remote: remote_dev, from: 'job-dorms-update_linux', into: '/home/wso/wso/wso-backend/jobs/dorms-update'
+                sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/dorms-update'
+
+                // Restart WSO-Go
                 sshCommand remote: remote_dev, command: '/bin/systemctl restart WSO-Go', sudo: true
               }
             }
             script {
               try {
-                new URL("https://wso.williams.edu/api/v2/health-check").getText()
-                return true
+                URL apiUrl = new URL("https://wso.williams.edu/api/v2/health-check")
+                def resp = new JsonSlurper().parseText(apiUrl.getText())
+                return resp.ok
               } catch (Exception e) {
                 return false
               }
@@ -102,7 +145,7 @@ pipeline {
           }
           post {
             success {
-              slackSend (color: '#00FF00', message: "SUCCESSFUL: Deployed on Production.\n Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+              slackSend (color: '#00FF00', message: "WSO-Go Deployed on Production\n Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
             }
           }
         }

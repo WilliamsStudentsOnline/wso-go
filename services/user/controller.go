@@ -71,7 +71,7 @@ func (t *Controller) ListUsers(c *gin.Context) {
 
 	opts := models.GetAllUsersOptions{}
 	if err = c.ShouldBindQuery(&opts); err != nil {
-		t.RespondError(c, err)
+		t.RespondBadBind(c, err)
 		return
 	}
 
@@ -80,7 +80,7 @@ func (t *Controller) ListUsers(c *gin.Context) {
 
 		if err != nil {
 			if searchLib.IsInvalidTokenError(err) {
-				err = lib.NewInvalidSearchTokenError(err)
+				err = lib.NewErrorInvalidSearchToken(err)
 			}
 			t.RespondError(c, err)
 			return
@@ -240,7 +240,7 @@ func (t *Controller) UpdateUser(c *gin.Context) {
 	updateData := UpdateUserParams{}
 	err = c.ShouldBind(&updateData)
 	if err != nil {
-		t.RespondError(c, lib.ErrorMalformedRequestData)
+		t.RespondBadBind(c, lib.ErrorMalformedRequestData)
 		return
 	}
 
@@ -320,7 +320,7 @@ func (t *Controller) UpdateUserTags(c *gin.Context) {
 	var update UpdateUserTagsParams
 	err = c.ShouldBind(&update)
 	if err != nil {
-		t.RespondError(c, lib.ErrorMalformedRequestData)
+		t.RespondBadBind(c, lib.ErrorMalformedRequestData)
 		return
 	}
 
