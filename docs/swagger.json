@@ -3135,7 +3135,7 @@
                         "Bearer": []
                     }
                 ],
-                "description": "updates self's ephmatch profile",
+                "description": "updates self's ephmatch profile. Profile must be created",
                 "consumes": [
                     "application/json"
                 ],
@@ -7117,6 +7117,10 @@
         "models.EphmatchProfile": {
             "type": "object",
             "properties": {
+                "deleted": {
+                    "description": "Non db entry that acts as a flag for deleted_at column",
+                    "type": "boolean"
+                },
                 "description": {
                     "type": "string"
                 },
@@ -7541,9 +7545,6 @@
                     "type": "integer"
                 },
                 "optOutEphcatch": {
-                    "type": "boolean"
-                },
-                "optOutEphmatch": {
                     "type": "boolean"
                 },
                 "pronoun": {

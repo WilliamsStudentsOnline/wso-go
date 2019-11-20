@@ -207,8 +207,8 @@ func GenerateClaims(v *AuthenticatorPayload) jwt.MapClaims {
 				}
 			}
 
-			// If month is January (winter study) and user has not opted out of ephmatch, add the ephmatch scope
-			if isWinterStudy() && !(v.User.OptOutEphmatch != nil && *v.User.OptOutEphmatch) {
+			// If month is January (winter study), add the ephmatch scope. User opts out by deleting profile. By default opt in.
+			if isWinterStudy() {
 				scope = append(scope, auth.ScopeEphmatch)
 			}
 

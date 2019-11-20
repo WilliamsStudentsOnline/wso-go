@@ -64,8 +64,6 @@ type User struct {
 	OptOutEphcatch      *bool `gorm:"DEFAULT:false;not null" json:"optOutEphcatch"`
 	EphcatchEligibility *bool `gorm:"DEFAULT:false;not null" json:"ephcatchEligibility"`
 
-	OptOutEphmatch *bool `gorm:"DEFAULT:false;not null" json:"optOutEphmatch"`
-
 	// Keep this in here as long as we want to maintain this type of searching.
 	SearchFields string `gorm:"default:'';not null'" json:"-"`
 

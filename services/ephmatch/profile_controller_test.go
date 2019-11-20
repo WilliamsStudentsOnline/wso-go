@@ -298,7 +298,7 @@ func TestController_UpdateProfile(t *testing.T) {
 
 	/* Update profile with bad gender (expect failure) */
 	apiErr := lib.ErrorEphmatchGenderUnknown
-	params := ProfileCreateParams{Gender: lib.StrToPtr("custom gender")}
+	params := ProfileUpdateParams{Gender: lib.StrToPtr("custom gender")}
 	paramsData, err := json.Marshal(&params)
 	assert.NoError(err)
 	w, err := utils.DoHTTPReq(routers[0], http.MethodPatch, "/profile", bytes.NewBuffer(paramsData))
@@ -308,7 +308,7 @@ func TestController_UpdateProfile(t *testing.T) {
 
 	/* Update profile with missing profile (expect failure) */
 	apiErr = lib.ErrorRecordNotFound
-	params = ProfileCreateParams{Description: lib.StrToPtr("what's up")}
+	params = ProfileUpdateParams{Description: lib.StrToPtr("what's up")}
 	paramsData, err = json.Marshal(&params)
 	assert.NoError(err)
 	w, err = utils.DoHTTPReq(routers[2], http.MethodPatch, "/profile", bytes.NewBuffer(paramsData))
@@ -316,8 +316,18 @@ func TestController_UpdateProfile(t *testing.T) {
 	assert.Equal(apiErr.HTTPCode, w.Code)
 	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
 
+	/* Update profile with deleted profile (expect failure) */
+	apiErr = lib.ErrorRecordNotFound
+	params = ProfileUpdateParams{Description: lib.StrToPtr("foobar123 hello world 54231")}
+	paramsData, err = json.Marshal(&params)
+	assert.NoError(err)
+	w, err = utils.DoHTTPReq(routers[1], http.MethodPatch, "/profile", bytes.NewBuffer(paramsData))
+	assert.NoError(err)
+	assert.Equal(apiErr.HTTPCode, w.Code)
+	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+
 	/* Update profile with good custom gender (expect success on user 1) */
-	params = ProfileCreateParams{Gender: lib.StrToPtr("abcdefg fewvc"), OtherGender: true}
+	params = ProfileUpdateParams{Gender: lib.StrToPtr("abcdefg fewvc"), OtherGender: true}
 	paramsData, err = json.Marshal(&params)
 	assert.NoError(err)
 	w, err = utils.DoHTTPReq(routers[0], http.MethodPatch, "/profile", bytes.NewBuffer(paramsData))
@@ -328,19 +338,6 @@ func TestController_UpdateProfile(t *testing.T) {
 	assert.NoError(db.Where(models.EphmatchProfile{UserID: s[0].ID}).First(&resDB).Error)
 	assert.Equal(s[0].EphmatchProfile.Description, resDB.Description)
 	assert.Equal(*params.Gender, resDB.Gender)
-
-	/* Update profile with good custom gender (expect success on user 2) */
-	params = ProfileCreateParams{Description: lib.StrToPtr("foobar123 hello world 54231")}
-	paramsData, err = json.Marshal(&params)
-	assert.NoError(err)
-	w, err = utils.DoHTTPReq(routers[1], http.MethodPatch, "/profile", bytes.NewBuffer(paramsData))
-	assert.NoError(err)
-	assert.Equal(http.StatusOK, w.Code)
-	// Get from DB
-	resDB = models.EphmatchProfile{}
-	assert.NoError(db.Unscoped().Where(models.EphmatchProfile{UserID: s[1].ID}).First(&resDB).Error)
-	assert.Equal(*params.Description, resDB.Description)
-	assert.Equal(s[1].EphmatchProfile.Gender, resDB.Gender)
 }
 
 func TestController_DeleteProfile(t *testing.T) {

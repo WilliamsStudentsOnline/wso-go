@@ -37,6 +37,7 @@ const (
 	ScopeUsers = "service:users"
 	// Allows you to access other services not mentioned above
 	ScopeAllOther = "service:other"
+	// Ephmatch service
 	ScopeEphmatch = "service:ephmatch"
 )
 

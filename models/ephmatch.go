@@ -47,12 +47,16 @@ func (m *EphmatchModel) DeleteEphmatchWithUserOther(userID uint, otherID uint) (
 func (m *EphmatchModel) GetMatches(userID uint, p *[]*Ephmatch) (err error) {
 	// Get matches
 	err = m.DB.Model(&Ephmatch{}).
+		// Join on itself to get ephmatches that actually match
 		Joins("INNER JOIN ephmatches b ON b.other_id = ephmatches.user_id").
 		Where("ephmatches.user_id = ? AND ephmatches.other_id = b.user_id", userID).
+		// Join on users to ensure student type and visibility type
 		Joins("INNER JOIN users u ON u.id = ephmatches.other_id").
 		Where("u.type = ? AND u.visible = ?", UserTypeStudent, true).
+		// Join on profiles for other user to ensure each
 		Joins("INNER JOIN ephmatch_profiles p ON p.user_id = u.id").
 		Where("p.deleted_at IS NULL").
+		// Preload other column and other's ephmatch profile
 		Preload("Other").
 		Preload("Other.EphmatchProfile").
 		Find(p).Error

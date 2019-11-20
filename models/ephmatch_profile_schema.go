@@ -31,8 +31,18 @@ type EphmatchProfile struct {
 	Description string `json:"description"`
 
 	Liked bool `gorm:"-" json:"liked"` // If me (user) has an ephmatch entry where ephmatch.other_id=users.id and ephmatch.user_id=myID
+
+	// Non db entry that acts as a flag for deleted_at column
+	Deleted bool `gorm:"-" json:"deleted"`
 }
 
 func (*EphmatchProfile) TableName() string {
 	return "ephmatch_profiles"
+}
+
+// Again, I hate hooks but this is the best way.
+// This populates the deleted flag on the profile
+func (p *EphmatchProfile) AfterFind() (err error) {
+	p.Deleted = p.DeletedAt != nil
+	return
 }

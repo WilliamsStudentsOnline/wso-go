@@ -113,13 +113,13 @@ func (m *EphmatchProfileModel) CreateOrUpdateProfileUnscoped(userID uint, newPro
 	return tx.Commit().Error
 }
 
-func (m *EphmatchProfileModel) UpdateProfileUnscoped(p *EphmatchProfile) (err error) {
-	err = m.DB.Unscoped().Save(&p).Error
+func (m *EphmatchProfileModel) UpdateProfile(p *EphmatchProfile) (err error) {
+	err = m.DB.Save(&p).Error
 	if err != nil {
 		return
 	}
 
-	err = m.DB.Unscoped().Preload("User").First(p, p.ID).Error
+	err = m.DB.Preload("User").First(p, p.ID).Error
 	return
 }
 
@@ -140,14 +140,6 @@ func (m *EphmatchProfileModel) GetSelfProfileByID(userID uint, p *EphmatchProfil
 func (m *EphmatchProfileModel) GetSelfProfileByIDScopedNoDefault(userID uint, p *EphmatchProfile) (err error) {
 	err = m.DB.Model(&EphmatchProfile{}).
 		Preload("User").
-		Where("ephmatch_profiles.user_id = ?", userID).
-		Scan(p).Error
-	return
-}
-
-func (m *EphmatchProfileModel) GetProfileByUserIDUnscoped(userID uint, p *EphmatchProfile) (err error) {
-	err = m.DB.Model(&EphmatchProfile{}).
-		Unscoped().
 		Where("ephmatch_profiles.user_id = ?", userID).
 		Scan(p).Error
 	return

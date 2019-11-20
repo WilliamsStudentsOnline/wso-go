@@ -108,7 +108,7 @@ type ProfileUpdateParams struct {
 
 // UpdateProfile godoc
 // @Summary Update an Ephmatch profile
-// @Description updates self's ephmatch profile
+// @Description updates self's ephmatch profile. Profile must be created
 // @ID ephmatch-update-profile
 // @Tags ephmatch
 // @Accept  json
@@ -147,7 +147,7 @@ func (t *Controller) UpdateProfile(c *gin.Context) {
 
 	// Do database query
 	var profile models.EphmatchProfile
-	err = t.profileModel.GetProfileByUserIDUnscoped(userID, &profile)
+	err = t.profileModel.GetSelfProfileByIDScopedNoDefault(userID, &profile)
 	if err != nil {
 		t.RespondError(c, err)
 		return
@@ -156,7 +156,7 @@ func (t *Controller) UpdateProfile(c *gin.Context) {
 	profile.Gender = *lib.StrPtrDefaults(updateData.Gender, &profile.Gender)
 	profile.Description = *lib.StrPtrDefaults(updateData.Description, &profile.Description)
 
-	err = t.profileModel.UpdateProfileUnscoped(&profile)
+	err = t.profileModel.UpdateProfile(&profile)
 	if err != nil {
 		t.RespondError(c, err)
 		return

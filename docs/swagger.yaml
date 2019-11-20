@@ -736,6 +736,9 @@ definitions:
     type: object
   models.EphmatchProfile:
     properties:
+      deleted:
+        description: Non db entry that acts as a flag for deleted_at column
+        type: boolean
       description:
         type: string
       gender:
@@ -1037,8 +1040,6 @@ definitions:
         description: Belongs to Office iff staff/professor
         type: integer
       optOutEphcatch:
-        type: boolean
-      optOutEphmatch:
         type: boolean
       pronoun:
         type: string
@@ -3385,7 +3386,7 @@ paths:
     patch:
       consumes:
       - application/json
-      description: updates self's ephmatch profile
+      description: updates self's ephmatch profile. Profile must be created
       operationId: ephmatch-update-profile
       parameters:
       - description: Update Profile Params
