@@ -18,7 +18,19 @@ func NewDefaultProductionLog(cfg *Config) (*zap.SugaredLogger, error) {
 		Encoding:         "console",
 		OutputPaths:      []string{"stdout"},
 		ErrorOutputPaths: []string{"stdout"},
-		EncoderConfig:    zap.NewProductionEncoderConfig(),
+		EncoderConfig: zapcore.EncoderConfig{
+			TimeKey:        "ts",
+			LevelKey:       "level",
+			NameKey:        "logger",
+			CallerKey:      "caller",
+			MessageKey:     "msg",
+			StacktraceKey:  "stacktrace",
+			LineEnding:     zapcore.DefaultLineEnding,
+			EncodeLevel:    zapcore.CapitalLevelEncoder,
+			EncodeTime:     zapcore.RFC3339NanoTimeEncoder,
+			EncodeDuration: zapcore.SecondsDurationEncoder,
+			EncodeCaller:   zapcore.ShortCallerEncoder,
+		},
 	}
 	if cfg != nil {
 		logCfg.Level = zap.NewAtomicLevelAt(cfg.ParsedLogLevel())

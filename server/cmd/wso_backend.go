@@ -52,11 +52,19 @@ func main() {
 		Encoding:         "console",
 		OutputPaths:      []string{"stderr"},
 		ErrorOutputPaths: []string{"stderr"},
-	}
-	if cfg.IsProduction() {
-		logCfg.EncoderConfig = zap.NewProductionEncoderConfig()
-	} else {
-		logCfg.EncoderConfig = zap.NewDevelopmentEncoderConfig()
+		EncoderConfig: zapcore.EncoderConfig{
+			TimeKey:        "ts",
+			LevelKey:       "level",
+			NameKey:        "logger",
+			CallerKey:      "caller",
+			MessageKey:     "msg",
+			StacktraceKey:  "stacktrace",
+			LineEnding:     zapcore.DefaultLineEnding,
+			EncodeLevel:    zapcore.CapitalLevelEncoder,
+			EncodeTime:     zapcore.RFC3339NanoTimeEncoder,
+			EncodeDuration: zapcore.SecondsDurationEncoder,
+			EncodeCaller:   zapcore.ShortCallerEncoder,
+		},
 	}
 	if cfg.LogPath != "" {
 		logCfg.OutputPaths = []string{cfg.LogPath}
