@@ -1,4 +1,4 @@
-FROM golang:1.13.1
+FROM golang:1.13.4
 LABEL stage=intermediate
 
 # Turn on modules
