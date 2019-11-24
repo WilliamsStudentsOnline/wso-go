@@ -29,7 +29,7 @@ var Migrations = []*gormigrate.Migration{
 	migrations.CreatePosts20190812232529,
 	migrations.AddNicknameToUsers20190826115256,
 	migrations.CreateEphmatches20190926015114,
-	migrations.AddOptOutEphmatchToUsers20190926015139,
+	migrations.CreateEphmatchProfiles20191124040019,
 }
 
 var MigrationGormOptions = gormigrate.DefaultOptions
