@@ -16,6 +16,7 @@ import (
 	. "github.com/WilliamsStudentsOnline/wso-go/services/factrak"
 	"github.com/gin-gonic/gin"
 	testify "github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
 	"go.uber.org/zap/zaptest"
 )
 
@@ -593,7 +594,7 @@ func TestController_CreateSurvey(t *testing.T) {
 	createSurveyExpectError(assert, r1, params, lib.ErrorSurveyStudentNotFound)
 
 	// Test 5: error on student prefrosh
-	assert.NoError(db.Model(&s1).Update("class_year", models.NewStudentModel(db).SeniorYear()+4).Error)
+	assert.NoError(db.Model(&s1).Update("class_year", models.NewStudentModel(db, zap.S()).SeniorYear()+4).Error)
 	params = SurveyCreateParams{CourseID: &c1.ID, Comment: generateSurveyTestComment(), ProfessorID: &p1.ID}
 	createSurveyExpectError(assert, router, params, lib.ErrorUserCannotBePrefrosh)
 	// Revert

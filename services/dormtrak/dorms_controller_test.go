@@ -13,6 +13,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	. "github.com/WilliamsStudentsOnline/wso-go/services/dormtrak"
 	testify "github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
 	"go.uber.org/zap/zaptest"
 )
 
@@ -223,7 +224,7 @@ func TestController_GetDormFacts(t *testing.T) {
 	}
 	assert.NoError(db.Create(&dorm).Create(&u1).Error)
 
-	srYear := models.NewStudentModel(db).SeniorYear()
+	srYear := models.NewStudentModel(db, zap.S()).SeniorYear()
 
 	rooms := []*models.DormRoom{
 		{

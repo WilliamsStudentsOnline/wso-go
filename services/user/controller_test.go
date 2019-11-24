@@ -75,7 +75,7 @@ func TestController_ListUsers(t *testing.T) {
 	// Test 2: get test user via search (expect success)
 	// Update users to have search fields
 	for _, u := range []models.User{u1, u2, u3, u4} {
-		assert.NoError(models.NewUserModel(db).PopulateSearchFields(u.ID))
+		assert.NoError(models.NewUserModel(db, zap.S()).PopulateSearchFields(u.ID))
 	}
 
 	qs := url.Values{}
@@ -133,7 +133,7 @@ func TestController_ListUsers_Pagination(t *testing.T) {
 	}
 	// Update users to have search fields
 	for _, u := range users {
-		assert.NoError(models.NewUserModel(db).PopulateSearchFields(u.ID))
+		assert.NoError(models.NewUserModel(db, zap.S()).PopulateSearchFields(u.ID))
 	}
 
 	testCases := []struct {
