@@ -18,7 +18,7 @@ func (m *NeighborhoodModel) GetNeighborhoodFacts(id uint, p *NeighborhoodFacts) 
 		return
 	}
 
-	studModel := NewStudentModel(m.DB)
+	studModel := NewStudentModel(m.DB, m.log)
 
 	queries := []*gorm.DB{
 		m.DB.Model(&User{}).Where(

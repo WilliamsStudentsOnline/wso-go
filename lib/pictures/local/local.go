@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	log "github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 )
 
 const (
@@ -21,7 +21,7 @@ type Backend struct {
 	path string
 }
 
-func NewBackend(path string) (*Backend, error) {
+func NewBackend(path string, log *zap.SugaredLogger) (*Backend, error) {
 	absPath, err := filepath.Abs(path)
 	if err != nil {
 		return nil, err

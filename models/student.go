@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
 const StudentCutoffMonth = time.July // The month after which rising X are now X
@@ -23,9 +24,9 @@ type StudentModel struct {
 	Clock Clock
 }
 
-func NewStudentModel(db *gorm.DB) *StudentModel {
+func NewStudentModel(db *gorm.DB, log *zap.SugaredLogger) *StudentModel {
 	return &StudentModel{
-		UserModel: NewUserModel(db),
+		UserModel: NewUserModel(db, log),
 		Clock:     localClock{},
 	}
 }
@@ -34,7 +35,7 @@ func NewStudentModel(db *gorm.DB) *StudentModel {
 // We require 2 surveys this semester in order to access it.
 func (m *StudentModel) UpdateFactrakSurveyDeficit(user *User) (err error) {
 	// Count written surveys
-	fsM := NewFactrakSurveyModel(m.DB)
+	fsM := NewFactrakSurveyModel(m.DB, m.log)
 	surveyCount, err := fsM.CountSurveysByUser(user.ID)
 	if err != nil {
 		return

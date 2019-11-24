@@ -21,7 +21,7 @@ func (s *SearchDormtrakMySQL) SearchDorms(query string, dorms *[]*models.Dorm, o
 	// Do SQL
 	tx := s.DB.Model(&models.Dorm{})
 	tx = tx.Where("lower(dorms.name) LIKE ?", "%"+strings.ToLower(query)+"%")
-	tx = models.NewDormModel(nil).ScopeTrakked(tx)
+	tx = models.NewDormModel(nil, nil).ScopeTrakked(tx)
 	// Run options
 	if opts != nil {
 		tx = opts.Paginate(tx)

@@ -5,14 +5,23 @@ import (
 
 	"github.com/jinzhu/gorm"
 	funk "github.com/thoas/go-funk"
+	"go.uber.org/zap"
 )
 
 type BaseModel struct {
-	DB *gorm.DB
+	DB  *gorm.DB
+	log *zap.SugaredLogger
 }
 
-func NewBaseModel(db *gorm.DB) *BaseModel {
-	return &BaseModel{db}
+func NewBaseModel(db *gorm.DB, log *zap.SugaredLogger) *BaseModel {
+	if log == nil {
+		log = zap.NewNop().Sugar()
+	}
+
+	return &BaseModel{
+		DB:  db,
+		log: log,
+	}
 }
 
 type BaseSchema struct {

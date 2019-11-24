@@ -2,6 +2,7 @@ package models
 
 import (
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
 // Ephcatcher schema to cast into from a user
@@ -17,9 +18,9 @@ type EphcatcherModel struct {
 	*UserModel
 }
 
-func NewEphcatcherModel(db *gorm.DB) *EphcatcherModel {
+func NewEphcatcherModel(db *gorm.DB, log *zap.SugaredLogger) *EphcatcherModel {
 	return &EphcatcherModel{
-		UserModel: NewUserModel(db),
+		UserModel: NewUserModel(db, log),
 	}
 }
 

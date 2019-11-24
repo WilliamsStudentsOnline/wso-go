@@ -1,15 +1,18 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import (
+	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
+)
 
 // FactrakAgreement Model
 type FactrakAgreementModel struct {
 	*BaseModel
 }
 
-func NewFactrakAgreementModel(db *gorm.DB) *FactrakAgreementModel {
+func NewFactrakAgreementModel(db *gorm.DB, log *zap.SugaredLogger) *FactrakAgreementModel {
 	return &FactrakAgreementModel{
-		BaseModel: NewBaseModel(db),
+		BaseModel: NewBaseModel(db, log),
 	}
 }
 

@@ -5,6 +5,7 @@ import (
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
 // Course Model
@@ -12,9 +13,9 @@ type CourseModel struct {
 	*BaseModel
 }
 
-func NewCourseModel(db *gorm.DB) *CourseModel {
+func NewCourseModel(db *gorm.DB, log *zap.SugaredLogger) *CourseModel {
 	return &CourseModel{
-		BaseModel: NewBaseModel(db),
+		BaseModel: NewBaseModel(db, log),
 	}
 }
 
@@ -61,14 +62,14 @@ func (o *GetAllCoursesOptions) Preloader(db *gorm.DB) *gorm.DB {
 		db = db.Preload("AreaOfStudy")
 	}
 	if lib.StringsContains(o.Preload, "surveys") {
-		fsm := NewFactrakSurveyModel(nil)
+		fsm := NewFactrakSurveyModel(nil, nil)
 		db = db.Preload("FactrakSurveys", fsm.scopeCurrent, fsm.scopeProfAtWilliams)
 	}
 	// We get profs in factrak surveys here, but in Post() we convert those professors into course professors
 	if lib.StringsContains(o.Preload, "professors") {
 		// Ensure to preload only recent professors
-		fsm := NewFactrakSurveyModel(nil)
-		pm := NewProfessorModel(nil)
+		fsm := NewFactrakSurveyModel(nil, nil)
+		pm := NewProfessorModel(nil, nil)
 		db = db.Preload("FactrakSurveys", fsm.scopeCurrent).Preload("FactrakSurveys.Professor", pm.scopeAtWilliams)
 	}
 
@@ -95,7 +96,7 @@ func (o *GetAllCoursesOptions) Run(db *gorm.DB) *gorm.DB {
 	db = o.Paginate(db)
 	db = o.Preloader(db)
 
-	m := NewCourseModel(db.New())
+	m := NewCourseModel(db.New(), nil)
 
 	if o.AreaOfStudyID != nil {
 		db = m.withAreaOfStudy(*o.AreaOfStudyID)(db)

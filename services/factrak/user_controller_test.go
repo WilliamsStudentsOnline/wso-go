@@ -10,6 +10,7 @@ import (
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	testify "github.com/stretchr/testify/assert"
+	"go.uber.org/zap/zaptest"
 
 	. "github.com/WilliamsStudentsOnline/wso-go/services/factrak"
 )
@@ -63,7 +64,7 @@ func TestController_ListUserSurveys(t *testing.T) {
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(router, s1.ID)
 	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	/* Get test student 1 (expect success) */
 	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/users/%d/surveys", s1.ID), nil)
@@ -91,7 +92,7 @@ func TestController_ListUserSurveys(t *testing.T) {
 	/* Get test prof 1 (expect empty success) */
 	r2 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(r2, p1.ID)
-	SetupRouter(r2, db, cfg)
+	SetupRouter(r2, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	w, err = utils.DoHTTPReq(r2, http.MethodGet, fmt.Sprintf("/users/%d/surveys", p1.ID), nil)
 	assert.NoError(err)

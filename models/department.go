@@ -1,15 +1,18 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import (
+	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
+)
 
 // Department Model
 type DepartmentModel struct {
 	*BaseModel
 }
 
-func NewDepartmentModel(db *gorm.DB) *DepartmentModel {
+func NewDepartmentModel(db *gorm.DB, log *zap.SugaredLogger) *DepartmentModel {
 	return &DepartmentModel{
-		BaseModel: NewBaseModel(db),
+		BaseModel: NewBaseModel(db, log),
 	}
 }
 

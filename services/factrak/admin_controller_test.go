@@ -12,6 +12,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	. "github.com/WilliamsStudentsOnline/wso-go/services/factrak"
 	testify "github.com/stretchr/testify/assert"
+	"go.uber.org/zap/zaptest"
 )
 
 func TestController_ListFlaggedSurveys(t *testing.T) {
@@ -20,7 +21,7 @@ func TestController_ListFlaggedSurveys(t *testing.T) {
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf, auth.ScopeFactrakAdmin)
 	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	c1 := models.Course{
 		Number: "c1",
@@ -70,7 +71,7 @@ func TestController_ListFlaggedSurveys(t *testing.T) {
 
 	// Fail on no admin
 	noAdminR := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	SetupRouter(noAdminR, db, cfg)
+	SetupRouter(noAdminR, db, cfg, zaptest.NewLogger(t).Sugar())
 	w, err := utils.DoHTTPReq(noAdminR, http.MethodGet, "/admin/surveys", nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusForbidden, w.Code)
@@ -131,13 +132,13 @@ func TestController_UnflagSurvey(t *testing.T) {
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf, auth.ScopeFactrakAdmin)
 	utils.AddUserContexts(router, s1.ID)
 	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	// First, we run tests on validations
 
 	// Test 0: Fail on no admin
 	noAdminR := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	SetupRouter(noAdminR, db, cfg)
+	SetupRouter(noAdminR, db, cfg, zaptest.NewLogger(t).Sugar())
 	w, err := utils.DoHTTPReq(noAdminR, http.MethodDelete,
 		fmt.Sprintf("/admin/surveys/%d/flag", survey.ID), nil)
 	assert.NoError(err)

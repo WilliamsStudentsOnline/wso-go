@@ -12,6 +12,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	. "github.com/WilliamsStudentsOnline/wso-go/services/factrak"
 	testify "github.com/stretchr/testify/assert"
+	"go.uber.org/zap/zaptest"
 )
 
 func TestController_ListAreasOfStudy(t *testing.T) {
@@ -20,7 +21,7 @@ func TestController_ListAreasOfStudy(t *testing.T) {
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	d1 := models.Department{
 		Name: "Computer Science",
@@ -76,7 +77,7 @@ func TestController_GetAreaOfStudy(t *testing.T) {
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	a1 := models.AreaOfStudy{
 		Name:         "Computer Science",
@@ -126,7 +127,7 @@ func TestController_ListAreaOfStudyProfessors(t *testing.T) {
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	// Insert test user into db
 	p1 := models.User{
@@ -243,7 +244,7 @@ func TestController_ListAreaOfStudyCourses(t *testing.T) {
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	// Need this to satisfy not null
 	d1 := models.Department{

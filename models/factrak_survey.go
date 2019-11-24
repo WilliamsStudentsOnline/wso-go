@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
 // FactrakSurvey Model
@@ -14,9 +15,9 @@ type FactrakSurveyModel struct {
 	*BaseModel
 }
 
-func NewFactrakSurveyModel(db *gorm.DB) *FactrakSurveyModel {
+func NewFactrakSurveyModel(db *gorm.DB, log *zap.SugaredLogger) *FactrakSurveyModel {
 	return &FactrakSurveyModel{
-		BaseModel: NewBaseModel(db),
+		BaseModel: NewBaseModel(db, log),
 	}
 }
 
@@ -76,7 +77,7 @@ func (o *GetAllFactrakSurveysOptions) Preloader(db *gorm.DB) *gorm.DB {
 		return db
 	}
 
-	fsM := NewFactrakSurveyModel(nil)
+	fsM := NewFactrakSurveyModel(nil, nil)
 
 	if stringsContains(o.Preload, "professor") {
 		db = fsM.preloadProfessor(db)
@@ -92,7 +93,7 @@ func (o *GetAllFactrakSurveysOptions) Run(db *gorm.DB) *gorm.DB {
 	db = o.Paginate(db)
 	db = o.Preloader(db)
 
-	m := NewFactrakSurveyModel(nil)
+	m := NewFactrakSurveyModel(nil, nil)
 
 	if o.ProfessorID != nil {
 		db = m.withProfessorID(*o.ProfessorID)(db)
@@ -115,14 +116,14 @@ func (o *GetAllFactrakSurveysOptions) Run(db *gorm.DB) *gorm.DB {
 
 func (o *GetAllFactrakSurveysOptions) Post(db *gorm.DB, surveys *[]*FactrakSurvey) (err error) {
 	if o.PopulateAgreements {
-		m := NewFactrakSurveyModel(db)
+		m := NewFactrakSurveyModel(db, nil)
 		err = m.PopulateAgreementCountsSlice(*surveys)
 		if err != nil {
 			return err
 		}
 	}
 	if o.PopulateClientAgreement && o.ClientAgreementUserID > 0 {
-		m := NewFactrakSurveyModel(db)
+		m := NewFactrakSurveyModel(db, nil)
 		err = m.PopulateClientAgreementsSlice(o.ClientAgreementUserID, *surveys)
 		if err != nil {
 			return err

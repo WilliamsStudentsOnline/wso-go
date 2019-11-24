@@ -9,11 +9,11 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/gin-gonic/gin"
 	"github.com/nlopes/slack"
-	log "github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 )
 
 // If SlackWebhookURL is defined, we post errors to slack
-func SlackRecovery(cfg *config.Config) func(c *gin.Context) {
+func SlackRecovery(cfg *config.Config, log *zap.SugaredLogger) func(c *gin.Context) {
 	if cfg.SlackWebhookURL == "" {
 		return func(c *gin.Context) {}
 	}

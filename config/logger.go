@@ -6,11 +6,34 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
-// Logger is the logrus logger handler
-func Logger(logger logrus.FieldLogger) gin.HandlerFunc {
+func NewDefaultProductionLog(cfg *Config) (*zap.SugaredLogger, error) {
+	logCfg := zap.Config{
+		Level:            zap.NewAtomicLevelAt(zapcore.InfoLevel),
+		Development:      false,
+		Sampling:         nil,
+		Encoding:         "console",
+		OutputPaths:      []string{"stdout"},
+		ErrorOutputPaths: []string{"stdout"},
+		EncoderConfig:    zap.NewProductionEncoderConfig(),
+	}
+	if cfg != nil {
+		logCfg.Level = zap.NewAtomicLevelAt(cfg.ParsedLogLevel())
+	}
+
+	fastLog, err := logCfg.Build(zap.AddStacktrace(zapcore.ErrorLevel))
+	if err != nil {
+		return nil, err
+	}
+
+	return fastLog.Sugar(), nil
+}
+
+// Logger is the zap logger handler
+func Logger(log *zap.SugaredLogger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// other handler can change c.Path so:
 		path := c.Request.URL.Path
@@ -27,22 +50,20 @@ func Logger(logger logrus.FieldLogger) gin.HandlerFunc {
 		errorCode := c.GetInt("ErrorCodeKey")
 		userID, _ := c.Get("id")
 
-		fields := logrus.Fields{
-			"statusCode": statusCode,
-			"latency":    latency,
-			"clientIP":   clientIP,
-			"method":     c.Request.Method,
-			"path":       path,
-			"query":      query,
-			"userAgent":  clientUserAgent,
-			"userID":     userID,
-		}
+		entry := log.With(
+			"statusCode", statusCode,
+			"latency", latency,
+			"clientIP", clientIP,
+			"method", c.Request.Method,
+			"path", path,
+			"query", query,
+			"userAgent", clientUserAgent,
+			"userID", userID,
+		)
 
 		if errorCode > 0 {
-			fields["errorCode"] = errorCode
+			entry.With("errorCode", errorCode)
 		}
-
-		entry := logger.WithFields(fields)
 
 		queryUrl := query
 		if queryUrl != "" {

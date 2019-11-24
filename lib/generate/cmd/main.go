@@ -208,10 +208,12 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
 type Controller struct {
@@ -221,13 +223,10 @@ type Controller struct {
 }
 
 // Construct a new user controller
-func NewController(db *gorm.db) *Controller {
+func NewController(db *gorm.db, cfg *config.Config, log *zap.SugaredLogger) *Controller {
 	return &Controller{
-		{{.modelDC}}Model: &models.{{.model}}{
-			BaseModel: models.BaseModel{
-				db: db,
-			},
-		},
+		BaseController: services.BaseController{Log: log},
+		{{.modelDC}}Model: New{{.model}}Model(db, log),
 	}
 }
 
@@ -250,12 +249,14 @@ func (t *Controller) FetchAllUsers(c *gin.Context) {
 var serviceRouterTmpl = `package {{.name}}
 
 import (
+	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
-func SetupRouter(r gin.IRouter, db *gorm.db) {
-	c := NewController(db)
+func SetupRouter(r gin.IRouter, db *gorm.db, cfg *config.Config, log *zap.SugaredLogger) {
+	c := NewController(db, log)
 	// Example route:
 	/*
 	r.GET("/", c.FetchAllUsers)
@@ -279,14 +280,18 @@ func (*{{.name}}) TableName() string {
 
 var modelModelTmpl = `package models
 
+import (
+	"go.uber.org/zap"
+)
+
 // {{.name}} Model
 type {{.name}}Model struct {
 	*BaseModel
 }
 
-func New{{.name}}Model(db *gorm.db) *{{.name}}Model {
+func New{{.name}}Model(db *gorm.db, log *zap.SugaredLogger) *{{.name}}Model {
 	return &{{.name}}Model{
-		BaseModel: NewBaseModel(db),
+		BaseModel: NewBaseModel(db, log),
 	}
 }
 `

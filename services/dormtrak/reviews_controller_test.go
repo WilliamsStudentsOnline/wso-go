@@ -16,6 +16,7 @@ import (
 	. "github.com/WilliamsStudentsOnline/wso-go/services/dormtrak"
 	"github.com/gin-gonic/gin"
 	testify "github.com/stretchr/testify/assert"
+	"go.uber.org/zap/zaptest"
 )
 
 func TestController_ListReviews(t *testing.T) {
@@ -122,7 +123,7 @@ func TestController_ListReviews(t *testing.T) {
 	router := utils.SetupRouter(auth.ScopeDormtrak, auth.ScopeWriteSelf)
 	utils.AddUserContexts(router, u1.ID)
 	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	// Test 1: Get all reviews
 	w, err := utils.DoHTTPReq(router, http.MethodGet, "/reviews", nil)
@@ -311,7 +312,7 @@ func TestController_GetReview(t *testing.T) {
 	router := utils.SetupRouter(auth.ScopeDormtrak, auth.ScopeWriteSelf)
 	utils.AddUserContexts(router, u1.ID)
 	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	// Test 1: Get review
 	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/reviews/%d", reviews[0].ID), nil)
@@ -407,7 +408,7 @@ func TestController_CreateReview(t *testing.T) {
 	router := utils.SetupRouter(auth.ScopeDormtrak, auth.ScopeDormtrakWrite)
 	utils.AddUserContexts(router, u1.ID)
 	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	// First, we run tests on validations
 
@@ -424,7 +425,7 @@ func TestController_CreateReview(t *testing.T) {
 	// Setup bad student router
 	r1 := utils.SetupRouter(auth.ScopeDormtrak, auth.ScopeDormtrakWrite)
 	utils.AddUserContexts(r1, u2.ID)
-	SetupRouter(r1, db, cfg)
+	SetupRouter(r1, db, cfg, zaptest.NewLogger(t).Sugar())
 	createReviewExpectError(assert, r1, params, lib.ErrorReviewAlreadyExists)
 
 	// Test 4: create review
@@ -507,7 +508,7 @@ func TestController_UpdateReview(t *testing.T) {
 	router := utils.SetupRouter(auth.ScopeDormtrak, auth.ScopeDormtrakWrite)
 	utils.AddUserContexts(router, u1.ID)
 	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	// First, we run tests on validations
 
@@ -551,7 +552,7 @@ func TestController_UpdateReview(t *testing.T) {
 	params = ReviewUpdateParams{Location: lib.IntToPtr(3)}
 	r1 := utils.SetupRouter(auth.ScopeDormtrak, auth.ScopeDormtrakWrite)
 	utils.AddUserContexts(r1, u2.ID)
-	SetupRouter(r1, db, cfg)
+	SetupRouter(r1, db, cfg, zaptest.NewLogger(t).Sugar())
 	paramsData, err = json.Marshal(&params)
 	assert.NoError(err)
 	// Get bad review (expect failure)
@@ -640,7 +641,7 @@ func TestController_DeleteReview(t *testing.T) {
 	router := utils.SetupRouter(auth.ScopeDormtrak, auth.ScopeDormtrakWrite)
 	utils.AddUserContexts(router, u1.ID)
 	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	// First, we run tests on validations
 
@@ -655,7 +656,7 @@ func TestController_DeleteReview(t *testing.T) {
 	// Test 2: error on bad user
 	r1 := utils.SetupRouter(auth.ScopeDormtrak, auth.ScopeDormtrakWrite)
 	utils.AddUserContexts(r1, u2.ID)
-	SetupRouter(r1, db, cfg)
+	SetupRouter(r1, db, cfg, zaptest.NewLogger(t).Sugar())
 	apiErr = lib.ErrorMustBeSelf
 	w, err = utils.DoHTTPReq(r1, http.MethodDelete, fmt.Sprintf("/reviews/%d", review.ID), nil)
 	assert.NoError(err)

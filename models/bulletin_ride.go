@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
 // BulletinRide Model
@@ -11,9 +12,9 @@ type BulletinRideModel struct {
 	*BaseModel
 }
 
-func NewBulletinRideModel(db *gorm.DB) *BulletinRideModel {
+func NewBulletinRideModel(db *gorm.DB, log *zap.SugaredLogger) *BulletinRideModel {
 	return &BulletinRideModel{
-		BaseModel: NewBaseModel(db),
+		BaseModel: NewBaseModel(db, log),
 	}
 }
 

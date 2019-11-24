@@ -3,6 +3,7 @@ package models
 import (
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
 // Professor Model
@@ -10,9 +11,9 @@ type ProfessorModel struct {
 	*UserModel
 }
 
-func NewProfessorModel(db *gorm.DB) *ProfessorModel {
+func NewProfessorModel(db *gorm.DB, log *zap.SugaredLogger) *ProfessorModel {
 	return &ProfessorModel{
-		UserModel: NewUserModel(db),
+		UserModel: NewUserModel(db, log),
 	}
 }
 
@@ -78,7 +79,7 @@ func (o *GetAllProfessorsOptions) Run(db *gorm.DB) *gorm.DB {
 	db = o.Preloader(db)
 	db = o.Paginate(db)
 
-	m := NewProfessorModel(db.New())
+	m := NewProfessorModel(db.New(), nil)
 
 	if o.CourseID != nil {
 		db = m.withCourse(*o.CourseID)(db)

@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/imdario/mergo"
 	"github.com/kelseyhightower/envconfig"
-	"github.com/sirupsen/logrus"
+	"go.uber.org/zap/zapcore"
 	"gopkg.in/yaml.v2"
 )
 
@@ -71,8 +71,7 @@ type Config struct {
 	KubeNamespace       string `yaml:"kube_namespace" envconfig:"kube_namespace"`
 	KubeJobImageVersion string `yaml:"kube_job_image_version" envconfig:"kube_job_image_version"`
 
-	Secrets        *Secrets     `yaml:"-" envconfig:"-"`
-	LogLevelParsed logrus.Level `yaml:"-" envconfig:"-"`
+	Secrets *Secrets `yaml:"-" envconfig:"-"`
 
 	/* Pictures */
 	PictureBackend   string `yaml:"picture_backend" envconfig:"picture_backend"`
@@ -94,6 +93,25 @@ func (c *Config) IsTest() bool {
 
 func (c *Config) IsProduction() bool {
 	return c.IsEnv("production")
+}
+
+func (c *Config) ParsedLogLevel() zapcore.Level {
+	switch c.LogLevel {
+	case "fatal":
+		return zapcore.FatalLevel
+	case "panic":
+		return zapcore.PanicLevel
+	case "error":
+		return zapcore.ErrorLevel
+	case "warn":
+		return zapcore.WarnLevel
+	case "info":
+		return zapcore.InfoLevel
+	case "debug":
+		return zapcore.DebugLevel
+	default:
+		return zapcore.InfoLevel
+	}
 }
 
 // Get the config and parse any info. Environment variables will look like WSO_PUT_CONFIG_NAME_HERE
@@ -190,24 +208,6 @@ func SetupConfig(c *Config) error {
 		} else {
 			c.LogLevel = "info"
 		}
-	}
-
-	// Set log level parsed
-	switch c.LogLevel {
-	case "panic":
-		c.LogLevelParsed = logrus.PanicLevel
-	case "fatal":
-		c.LogLevelParsed = logrus.FatalLevel
-	case "error":
-		c.LogLevelParsed = logrus.ErrorLevel
-	case "warn":
-		c.LogLevelParsed = logrus.WarnLevel
-	case "info":
-		c.LogLevelParsed = logrus.InfoLevel
-	case "debug":
-		c.LogLevelParsed = logrus.DebugLevel
-	case "trace":
-		c.LogLevelParsed = logrus.TraceLevel
 	}
 
 	// Setup database info

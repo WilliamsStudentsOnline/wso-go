@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
 // DormtrakReview Model
@@ -11,9 +12,9 @@ type DormtrakReviewModel struct {
 	*BaseModel
 }
 
-func NewDormtrakReviewModel(db *gorm.DB) *DormtrakReviewModel {
+func NewDormtrakReviewModel(db *gorm.DB, log *zap.SugaredLogger) *DormtrakReviewModel {
 	return &DormtrakReviewModel{
-		BaseModel: NewBaseModel(db),
+		BaseModel: NewBaseModel(db, log),
 	}
 }
 
@@ -138,7 +139,7 @@ func (o *GetAllDormtrakReviewsOptions) Run(db *gorm.DB) *gorm.DB {
 	db = o.Preloader(db)
 	db = o.Paginate(db)
 
-	m := NewDormtrakReviewModel(nil)
+	m := NewDormtrakReviewModel(nil, nil)
 
 	if o.DormID != nil {
 		db = m.withDormID(*o.DormID)(db)

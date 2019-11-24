@@ -12,6 +12,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	. "github.com/WilliamsStudentsOnline/wso-go/services/dormtrak"
 	testify "github.com/stretchr/testify/assert"
+	"go.uber.org/zap/zaptest"
 )
 
 func TestController_ListNeighborhoods(t *testing.T) {
@@ -20,7 +21,7 @@ func TestController_ListNeighborhoods(t *testing.T) {
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeDormtrak, auth.ScopeWriteSelf)
 	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	n1 := models.Neighborhood{
 		Name: "Currier",
@@ -62,7 +63,7 @@ func TestController_GetNeighborhood(t *testing.T) {
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeDormtrak, auth.ScopeWriteSelf)
 	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	n1 := models.Neighborhood{
 		Name: "Currier",

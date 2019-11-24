@@ -7,13 +7,14 @@ import (
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	. "github.com/WilliamsStudentsOnline/wso-go/models"
 	testify "github.com/stretchr/testify/assert"
+	"go.uber.org/zap/zaptest"
 )
 
 func TestFactrakSurveyModel_GetSurveyRatingsByProfessorOrCourse(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 
-	m := NewFactrakSurveyModel(db)
+	m := NewFactrakSurveyModel(db, zaptest.NewLogger(t).Sugar())
 
 	student := User{
 		Type:   UserTypeStudent,

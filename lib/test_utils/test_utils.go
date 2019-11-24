@@ -15,13 +15,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
 )
 
 func SetupServiceTest(assert *assert.Assertions) *gorm.DB {
 	gin.SetMode(gin.TestMode)
 	cfg := SetupConfig()
 
-	db := config.LoadDatabase(cfg)
+	db := config.LoadDatabase(cfg, zap.NewNop().Sugar())
 	db.SetLogger(gorm.Logger{LogWriter: log.New(os.Stdout, "\r\n", 0)})
 	err := migrate.MigrateDB(db)
 	assert.NoError(err)

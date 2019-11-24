@@ -10,6 +10,8 @@ import (
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	. "github.com/WilliamsStudentsOnline/wso-go/models"
 	testify "github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zaptest"
 )
 
 func TestUserModel_Students(t *testing.T) {
@@ -34,7 +36,7 @@ func TestUserModel_Students(t *testing.T) {
 		UnixID: "u3",
 	})
 
-	userModel := NewUserModel(db)
+	userModel := NewUserModel(db, zaptest.NewLogger(t).Sugar())
 
 	students, err := userModel.Students()
 	assert.NoError(err)
@@ -73,7 +75,7 @@ func TestUserModel_PopulateSearchFields(t *testing.T) {
 	}
 	assert.NoError(db.Create(&u1).Error)
 
-	m := NewUserModel(db)
+	m := NewUserModel(db, zaptest.NewLogger(t).Sugar())
 	assert.NoError(m.PopulateSearchFields(u1.ID))
 
 	var res User
@@ -94,7 +96,7 @@ func ExampleUserModel_LDAPLookup() {
 		},
 	}
 
-	db := config.LoadDatabase(cfg)
+	db := config.LoadDatabase(cfg, zap.S())
 	db.LogMode(true)
 	err := db.AutoMigrate(
 		User{},
@@ -109,7 +111,7 @@ func ExampleUserModel_LDAPLookup() {
 		panic(err)
 	}
 
-	userModel := NewUserModel(db)
+	userModel := NewUserModel(db, zap.S())
 
 	users, err := userModel.LDAPLookup("al15", cfg)
 	if err != nil {
@@ -141,7 +143,7 @@ func TestUserModel_DoesUserExist(t *testing.T) {
 		UnixID: "u3",
 	})
 
-	m := NewUserModel(db)
+	m := NewUserModel(db, zaptest.NewLogger(t).Sugar())
 
 	t.Run("does exist", func(t *testing.T) {
 		exists, err := m.DoesUserExist(2)
@@ -159,7 +161,9 @@ func TestUserModel_DoesUserExist(t *testing.T) {
 func BenchmarkUserModel_DoesUserExist(b *testing.B) {
 	cfg := utils.SetupConfig()
 
-	db := config.LoadDatabase(cfg)
+	log := zaptest.NewLogger(b).Sugar()
+
+	db := config.LoadDatabase(cfg, log)
 	_ = migrate.MigrateDB(db)
 
 	db.Create(&User{
@@ -180,7 +184,7 @@ func BenchmarkUserModel_DoesUserExist(b *testing.B) {
 		UnixID: "u3",
 	})
 
-	m := NewUserModel(db)
+	m := NewUserModel(db, log)
 
 	b.Run("does exist", func(b *testing.B) {
 		for n := 0; n < b.N; n++ {

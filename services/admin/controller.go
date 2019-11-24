@@ -7,6 +7,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 	v1 "k8s.io/api/batch/v1"
 )
 
@@ -18,11 +19,12 @@ type Controller struct {
 }
 
 // Construct a new user controller
-func NewController(db *gorm.DB, cfg *config.Config) *Controller {
+func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Controller {
 	return &Controller{
-		userModel:    models.NewUserModel(db),
-		studentModel: models.NewStudentModel(db),
-		cfg:          cfg,
+		BaseController: services.BaseController{Log: log},
+		userModel:      models.NewUserModel(db, log),
+		studentModel:   models.NewStudentModel(db, log),
+		cfg:            cfg,
 	}
 }
 

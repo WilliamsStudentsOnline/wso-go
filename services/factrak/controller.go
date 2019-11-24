@@ -10,6 +10,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
 type Controller struct {
@@ -27,17 +28,18 @@ type Controller struct {
 }
 
 // Construct a new user controller
-func NewController(db *gorm.DB, cfg *config.Config) *Controller {
+func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Controller {
 	return &Controller{
-		professorModel:   models.NewProfessorModel(db),
-		userModel:        models.NewUserModel(db),
-		courseModel:      models.NewCourseModel(db),
-		departmentModel:  models.NewDepartmentModel(db),
-		areaOfStudyModel: models.NewAreaOfStudyModel(db),
-		agreementModel:   models.NewFactrakAgreementModel(db),
-		surveyModel:      models.NewFactrakSurveyModel(db),
-		studentModel:     models.NewStudentModel(db),
-		factrakSearch:    search.NewSearchFactrak(db, cfg),
+		BaseController:   services.BaseController{Log: log},
+		professorModel:   models.NewProfessorModel(db, log),
+		userModel:        models.NewUserModel(db, log),
+		courseModel:      models.NewCourseModel(db, log),
+		departmentModel:  models.NewDepartmentModel(db, log),
+		areaOfStudyModel: models.NewAreaOfStudyModel(db, log),
+		agreementModel:   models.NewFactrakAgreementModel(db, log),
+		surveyModel:      models.NewFactrakSurveyModel(db, log),
+		studentModel:     models.NewStudentModel(db, log),
+		factrakSearch:    search.NewSearchFactrak(db, cfg, log),
 	}
 }
 

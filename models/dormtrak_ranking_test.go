@@ -8,13 +8,14 @@ import (
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	. "github.com/WilliamsStudentsOnline/wso-go/models"
 	testify "github.com/stretchr/testify/assert"
+	"go.uber.org/zap/zaptest"
 )
 
 func TestDormModel_GetDormtrakRankings(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 
-	m := NewDormModel(db)
+	m := NewDormModel(db, zaptest.NewLogger(t).Sugar())
 
 	// Test 0: Missing dorm ranking
 	res := NewDormtrakRanking()
