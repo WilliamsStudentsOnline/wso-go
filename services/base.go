@@ -8,10 +8,13 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 	"gopkg.in/go-playground/validator.v8"
 )
 
-type BaseController struct{}
+type BaseController struct {
+	Log *zap.SugaredLogger
+}
 
 type BaseResponse struct {
 	Status          int         `json:"status"`

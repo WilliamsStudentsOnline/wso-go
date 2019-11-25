@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
 // BulletinModel models a bulletin
@@ -11,9 +12,9 @@ type BulletinModel struct {
 	*BaseModel
 }
 
-func NewBulletinModel(db *gorm.DB) *BulletinModel {
+func NewBulletinModel(db *gorm.DB, log *zap.SugaredLogger) *BulletinModel {
 	return &BulletinModel{
-		BaseModel: NewBaseModel(db),
+		BaseModel: NewBaseModel(db, log),
 	}
 }
 

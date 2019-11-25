@@ -5,6 +5,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/lib/search"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
 type SearchUsers interface {
@@ -18,7 +19,7 @@ func NewSearchUsersMySQL(db *gorm.DB) *SearchUsersMySQL {
 	}
 }
 
-func NewSearchUsers(db *gorm.DB, cfg *config.Config) SearchUsers {
+func NewSearchUsers(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) SearchUsers {
 	switch cfg.SearchBackend {
 	case search.SearchBackendSQL:
 		return NewSearchUsersMySQL(db)

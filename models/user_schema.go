@@ -183,7 +183,7 @@ func (u *User) AfterCreate(scope *gorm.Scope) (err error) {
 	if u.IsStudent() {
 		// Update survey deficit
 		// This way, only student get a default, non-nil value for this
-		userModel := NewUserModel(scope.DB())
+		userModel := NewUserModel(scope.DB(), nil)
 
 		err = userModel.UpdateFactrakSurveyDeficit(u)
 		if err != nil {

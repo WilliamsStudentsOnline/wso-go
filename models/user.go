@@ -9,7 +9,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/ldap"
 	"github.com/jinzhu/gorm"
-	log "github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 	ldapconn "gopkg.in/ldap.v3"
 )
 
@@ -18,9 +18,9 @@ type UserModel struct {
 	*BaseModel
 }
 
-func NewUserModel(db *gorm.DB) *UserModel {
+func NewUserModel(db *gorm.DB, log *zap.SugaredLogger) *UserModel {
 	return &UserModel{
-		BaseModel: NewBaseModel(db),
+		BaseModel: NewBaseModel(db, log),
 	}
 }
 
@@ -275,7 +275,7 @@ func (m *UserModel) generateSearchFieldsByUser(user User) (searchFields string, 
 
 func (m *UserModel) updateUserUnsafe(dbUser *User, toUser *User) (err error) {
 	if toUser.Type != dbUser.Type {
-		log.Infof("Changing type of user %s from %s to %s", dbUser.UnixID, dbUser.Type, toUser.Type)
+		m.log.Infof("Changing type of user %s from %s to %s", dbUser.UnixID, dbUser.Type, toUser.Type)
 		dbUser.Type = toUser.Type
 	}
 
@@ -396,13 +396,13 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 	}
 	defer willyLdap.Close()
 
-	log.Info("Start Williams LDAP each")
+	m.log.Info("Start Williams LDAP each")
 	// Get all users from Williams LDAP
 	userEntries, err := willyLdap.Each("uid", unixSearch)
 	if err != nil {
 		return nil, err
 	}
-	log.Info("End Williams LDAP each")
+	m.log.Info("End Williams LDAP each")
 
 	// Connect the NDS LDAP
 	err = ndsLdap.Connect()
@@ -503,9 +503,9 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 					if gorm.IsRecordNotFoundError(err) {
 						// If user is an off-campus senior, just give us an info. Otherwise warn.
 						if user.Student().Senior() {
-							log.WithField("unixID", user.UnixID).Info("Encountered off-campus dorm:", dormName)
+							m.log.With("unixID", user.UnixID).Info("Encountered off-campus dorm:", dormName)
 						} else {
-							log.WithField("unixID", user.UnixID).Warn("Encountered unknown dorm:", dormName)
+							m.log.With("unixID", user.UnixID).Warn("Encountered unknown dorm:", dormName)
 						}
 
 						user.DormRoomID = nil
@@ -579,15 +579,15 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 }
 
 func (m *UserModel) UpdateAllFromLDAP(cfg *config.Config) error {
-	log.Info("Begin user update from LDAP")
+	m.log.Info("Begin user update from LDAP")
 	unixesAtWilliams := make(map[string]bool)
 
-	log.Info("Start LDAP lookup")
+	m.log.Info("Start LDAP lookup")
 	toUsers, err := m.LDAPLookup("*", cfg)
 	if err != nil {
 		return err
 	}
-	log.Info("End LDAP lookup")
+	m.log.Info("End LDAP lookup")
 
 	for _, toUser := range toUsers {
 		unixesAtWilliams[toUser.UnixID] = true
@@ -607,19 +607,19 @@ func (m *UserModel) UpdateAllFromLDAP(cfg *config.Config) error {
 			// TODO: Figure out a way to batch these calls
 			err = m.updateUserUnsafe(dbUser, toUser)
 			if err != nil {
-				log.WithError(err).Errorf("Could not save user %s with %#+v", toUser.UnixID, toUser)
+				m.log.With(err).Errorf("Could not save user %s with %#+v", toUser.UnixID, toUser)
 			}
 		} else {
 			// If the user does not exist
-			log.Infof("Creating new user %s type %s", toUser.UnixID, toUser.Type)
+			m.log.Infof("Creating new user %s type %s", toUser.UnixID, toUser.Type)
 			err = m.DB.Create(toUser).Error
 			if err != nil {
-				log.WithError(err).Errorf("Could not create user %s with %#+v", toUser.UnixID, toUser)
+				m.log.With(err).Errorf("Could not create user %s with %#+v", toUser.UnixID, toUser)
 			}
 			// Update user with search field
 			err = m.PopulateSearchFields(toUser.ID)
 			if err != nil {
-				log.WithError(err).Errorf("Could not update user (%s) search field", toUser.UnixID)
+				m.log.With(err).Errorf("Could not update user (%s) search field", toUser.UnixID)
 			}
 		}
 	}
@@ -645,12 +645,12 @@ func (m *UserModel) UpdateAllFromLDAP(cfg *config.Config) error {
 			// TODO: Figure out a way to batch these calls
 			err = m.updateNotInLDAP(&user, ndsLdap)
 			if err != nil {
-				log.WithError(err).Errorf("Could not update (not in LDAP) user %s with %#+v", user.UnixID, user)
+				m.log.With(err).Errorf("Could not update (not in LDAP) user %s with %#+v", user.UnixID, user)
 			}
 		}
 	}
 
-	log.Info("Finished user update from LDAP")
+	m.log.Info("Finished user update from LDAP")
 	return nil
 }
 
@@ -658,7 +658,7 @@ func (m *UserModel) UpdateFactrakSurveyDeficit(user *User) error {
 	if !user.IsStudent() {
 		return errors.New("user must be student")
 	}
-	return NewStudentModel(m.DB).UpdateFactrakSurveyDeficit(user)
+	return NewStudentModel(m.DB, m.log).UpdateFactrakSurveyDeficit(user)
 }
 
 func (*UserModel) scopeVisible(db *gorm.DB) *gorm.DB {
@@ -686,7 +686,7 @@ func (m *UserModel) updateNotInLDAP(user *User, ndsLdap *ldap.LDAP) error {
 	if entry != nil {
 		assocType := userAssociationType(entry)
 		if user.Type != assocType {
-			log.Infof("Changing type of missing user %s from %s to %s", user.UnixID, user.Type, assocType)
+			m.log.Infof("Changing type of missing user %s from %s to %s", user.UnixID, user.Type, assocType)
 		}
 		user.Type = assocType
 	}

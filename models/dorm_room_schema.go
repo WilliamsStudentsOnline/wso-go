@@ -54,6 +54,6 @@ func (*DormRoom) TableName() string {
 
 // This updates the dorm after we change the dorm room
 func (r *DormRoom) AfterSave(tx *gorm.DB) (err error) {
-	err = NewDormModel(tx).UpdateDormFacts(r.DormID)
+	err = NewDormModel(tx, nil).UpdateDormFacts(r.DormID)
 	return
 }

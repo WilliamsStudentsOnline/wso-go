@@ -13,6 +13,8 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	. "github.com/WilliamsStudentsOnline/wso-go/services/dormtrak"
 	testify "github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zaptest"
 )
 
 func TestController_ListDorms(t *testing.T) {
@@ -21,7 +23,7 @@ func TestController_ListDorms(t *testing.T) {
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeDormtrak, auth.ScopeWriteSelf)
 	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	n1 := models.Neighborhood{
 		Name: "Currier",
@@ -71,7 +73,7 @@ func TestController_GetDorm(t *testing.T) {
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeDormtrak, auth.ScopeWriteSelf)
 	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	n1 := models.Neighborhood{
 		Name: "Currier",
@@ -137,7 +139,7 @@ func TestController_GetDormRooms(t *testing.T) {
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeDormtrak, auth.ScopeWriteSelf)
 	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	n1 := models.Neighborhood{
 		Name: "Currier",
@@ -206,7 +208,7 @@ func TestController_GetDormFacts(t *testing.T) {
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeDormtrak, auth.ScopeWriteSelf)
 	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	dorm := models.Dorm{
 		Neighborhood: &models.Neighborhood{
@@ -222,7 +224,7 @@ func TestController_GetDormFacts(t *testing.T) {
 	}
 	assert.NoError(db.Create(&dorm).Create(&u1).Error)
 
-	srYear := models.NewStudentModel(db).SeniorYear()
+	srYear := models.NewStudentModel(db, zap.S()).SeniorYear()
 
 	rooms := []*models.DormRoom{
 		{

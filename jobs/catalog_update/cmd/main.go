@@ -5,8 +5,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/WilliamsStudentsOnline/wso-go/config"
 	catalog "github.com/WilliamsStudentsOnline/wso-go/jobs/catalog_update"
-	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -60,28 +60,39 @@ func main() {
 		springSemesterID = fallSemesterID + 2
 	}
 
+	/* LOGGING */
+	log, err := config.NewDefaultProductionLog(nil)
+	if err != nil {
+		panic(err)
+	}
+	defer log.Sync()
+
 	/* Command Code */
 
 	rawCourses, err := catalog.GetCatalog(academicYear)
 	if err != nil {
 		log.Fatal(err)
+		return
 	}
 
 	courses, err := catalog.ParseCatalog(rawCourses, fallSemesterID, winterSemesterID, springSemesterID)
 	if err != nil {
 		log.Fatal(err)
+		return
 	}
 
 	// Open a file to save it as
 	f, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		log.Fatal(err)
+		return
 	}
 	defer f.Close()
 
 	err = catalog.SaveCatalog(f, courses)
 	if err != nil {
 		log.Fatal(err)
+		return
 	}
 
 	log.Infof("Saved parsed course catalog to %s", filename)

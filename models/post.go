@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
 // Post Model
@@ -11,9 +12,9 @@ type PostModel struct {
 	*BaseModel
 }
 
-func NewPostModel(db *gorm.DB) *PostModel {
+func NewPostModel(db *gorm.DB, log *zap.SugaredLogger) *PostModel {
 	return &PostModel{
-		BaseModel: NewBaseModel(db),
+		BaseModel: NewBaseModel(db, log),
 	}
 }
 

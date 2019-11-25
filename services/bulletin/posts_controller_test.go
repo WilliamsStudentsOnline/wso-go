@@ -14,6 +14,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	. "github.com/WilliamsStudentsOnline/wso-go/services/bulletin"
 	testify "github.com/stretchr/testify/assert"
+	"go.uber.org/zap/zaptest"
 )
 
 func TestController_GetPost(t *testing.T) {
@@ -43,7 +44,7 @@ func TestController_GetPost(t *testing.T) {
 	assert.NoError(db.Create(&u1).Create(&p1).Error)
 
 	utils.AddUserContexts(router, u1.ID)
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	/* Get test discussion (signed in) */
 	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/posts/%d", p1.ID), nil)
@@ -67,7 +68,7 @@ func TestController_GetPost(t *testing.T) {
 
 	/* Get test discussion (signed out) */
 	r1 := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf)
-	SetupRouter(r1, db, cfg)
+	SetupRouter(r1, db, cfg, zaptest.NewLogger(t).Sugar())
 	w, err = utils.DoHTTPReq(r1, http.MethodGet, fmt.Sprintf("/posts/%d", p1.ID), nil)
 	assert.NoError(err)
 
@@ -115,7 +116,7 @@ func TestController_CreatePost(t *testing.T) {
 	assert.NoError(db.Create(&u1).Create(&d1).Error)
 
 	utils.AddUserContexts(router, u1.ID)
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	/* Create ride with missing data (expect failure) */
 	apiErr := lib.ErrorRequestDataValidationFailed
@@ -199,7 +200,7 @@ func TestController_UpdatePost(t *testing.T) {
 	assert.NoError(db.Create(&u1).Create(&d1).Create(&p1).Create(&p2).Error)
 
 	utils.AddUserContexts(router, u1.ID)
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	/* Update post with bad user (expect failure) */
 	apiErr := lib.ErrorMustBeSelf
@@ -285,7 +286,7 @@ func TestController_DeletePost(t *testing.T) {
 	assert.NoError(db.Create(&u1).Create(&d1).Create(&badP1).Error)
 
 	utils.AddUserContexts(router, u1.ID)
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	/* Delete post with bad user (expect failure) */
 	apiErr := lib.ErrorMustBeSelf

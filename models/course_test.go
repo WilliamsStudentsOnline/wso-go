@@ -6,13 +6,14 @@ import (
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	. "github.com/WilliamsStudentsOnline/wso-go/models"
 	testify "github.com/stretchr/testify/assert"
+	"go.uber.org/zap/zaptest"
 )
 
 func TestCourseModel_GetAllCourses(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 
-	m := NewCourseModel(db)
+	m := NewCourseModel(db, zaptest.NewLogger(t).Sugar())
 
 	courses := []Course{
 		{
@@ -59,7 +60,7 @@ func TestCourseModel_GetCourseByID(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 
-	m := NewCourseModel(db)
+	m := NewCourseModel(db, zaptest.NewLogger(t).Sugar())
 
 	course := Course{
 		Number: "256",
@@ -87,7 +88,7 @@ func TestCourseModel_FindOrCreate(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 
-	m := NewCourseModel(db)
+	m := NewCourseModel(db, zaptest.NewLogger(t).Sugar())
 
 	course := Course{
 		Number: "256",
@@ -127,7 +128,7 @@ func TestCourseModel_FindByAbbrevAndNumber(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 
-	m := NewCourseModel(db)
+	m := NewCourseModel(db, zaptest.NewLogger(t).Sugar())
 
 	a1 := AreaOfStudy{
 		Name:         "Computer Science",
@@ -174,7 +175,7 @@ func TestCourseModel_GetCoursesByAreaOfStudyAndProfessors(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 
-	m := NewCourseModel(db)
+	m := NewCourseModel(db, zaptest.NewLogger(t).Sugar())
 
 	a1 := AreaOfStudy{
 		Name:         "Computer Science",

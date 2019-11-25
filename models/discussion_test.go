@@ -6,13 +6,14 @@ import (
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	. "github.com/WilliamsStudentsOnline/wso-go/models"
 	testify "github.com/stretchr/testify/assert"
+	"go.uber.org/zap/zaptest"
 )
 
 func TestDiscussionModel_GetDiscussionWithDeletedUser(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 
-	m := NewDiscussionModel(db)
+	m := NewDiscussionModel(db, zaptest.NewLogger(t).Sugar())
 
 	u1 := User{
 		Type:   UserTypeStudent,

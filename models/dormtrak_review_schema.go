@@ -62,12 +62,12 @@ func (m *DormtrakReview) AfterFind() (err error) {
 
 // This updates the dorm room after we update the review. It also chains to update the dorm as well
 func (r *DormtrakReview) AfterSave(tx *gorm.DB) (err error) {
-	err = NewDormRoomModel(tx).ReloadStatistics(r.DormRoomID)
+	err = NewDormRoomModel(tx, nil).ReloadStatistics(r.DormRoomID)
 	return
 }
 
 // This updates the dorm room after we delete a review. It also chains to update the dorm as well
 func (r *DormtrakReview) AfterDelete(tx *gorm.DB) (err error) {
-	err = NewDormRoomModel(tx).ReloadStatistics(r.DormRoomID)
+	err = NewDormRoomModel(tx, nil).ReloadStatistics(r.DormRoomID)
 	return
 }

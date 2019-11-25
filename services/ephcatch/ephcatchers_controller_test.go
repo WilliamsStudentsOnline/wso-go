@@ -12,6 +12,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	. "github.com/WilliamsStudentsOnline/wso-go/services/ephcatch"
 	testify "github.com/stretchr/testify/assert"
+	"go.uber.org/zap/zaptest"
 )
 
 func TestController_ListEphcatchers(t *testing.T) {
@@ -60,7 +61,7 @@ func TestController_ListEphcatchers(t *testing.T) {
 	}).Error)
 
 	utils.AddUserContexts(router, s[0].ID)
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	// Get test user
 	w, err := utils.DoHTTPReq(router, http.MethodGet, "/ephcatchers", nil)
@@ -131,7 +132,7 @@ func TestController_GetEphcatcher(t *testing.T) {
 	}).Error)
 
 	utils.AddUserContexts(router, s[0].ID)
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	// Get test ephcatcher
 	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/ephcatchers/%d", s[2].ID), nil)
@@ -189,7 +190,7 @@ func TestController_LikeEphcatcher(t *testing.T) {
 	}).Error)
 
 	utils.AddUserContexts(router, s[0].ID)
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	/* Create ephcatch with self (expect failure) */
 	apiErr := lib.ErrorEphcatchLikeNoSelf
@@ -253,7 +254,7 @@ func TestController_UnlikeEphcatcher(t *testing.T) {
 	}).Error)
 
 	utils.AddUserContexts(router, s[0].ID)
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	/* Delete ephcatch with random user (expect failure) */
 	apiErr := lib.ErrorEphcatchDoesNotExist

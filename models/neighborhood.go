@@ -1,15 +1,18 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import (
+	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
+)
 
 // Neighborhood Model
 type NeighborhoodModel struct {
 	*BaseModel
 }
 
-func NewNeighborhoodModel(db *gorm.DB) *NeighborhoodModel {
+func NewNeighborhoodModel(db *gorm.DB, log *zap.SugaredLogger) *NeighborhoodModel {
 	return &NeighborhoodModel{
-		BaseModel: NewBaseModel(db),
+		BaseModel: NewBaseModel(db, log),
 	}
 }
 

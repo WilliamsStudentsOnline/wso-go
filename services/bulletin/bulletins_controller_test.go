@@ -15,6 +15,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	. "github.com/WilliamsStudentsOnline/wso-go/services/bulletin"
 	testify "github.com/stretchr/testify/assert"
+	"go.uber.org/zap/zaptest"
 )
 
 func TestController_ListBulletins(t *testing.T) {
@@ -126,7 +127,7 @@ func TestController_ListBulletins(t *testing.T) {
 		},
 	}
 
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -177,7 +178,7 @@ func TestController_GetBulletin(t *testing.T) {
 	assert.NoError(db.Create(&b1).Error)
 
 	utils.AddUserContexts(router, b1.User.ID)
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	/* Get test bulletin (signed in) */
 	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/bulletins/%d", b1.ID), nil)
@@ -201,7 +202,7 @@ func TestController_GetBulletin(t *testing.T) {
 
 	/* Get test bulletin (signed out) */
 	r1 := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf)
-	SetupRouter(r1, db, cfg)
+	SetupRouter(r1, db, cfg, zaptest.NewLogger(t).Sugar())
 	w, err = utils.DoHTTPReq(r1, http.MethodGet, fmt.Sprintf("/bulletins/%d", b1.ID), nil)
 	assert.NoError(err)
 
@@ -242,7 +243,7 @@ func TestController_CreateBulletin(t *testing.T) {
 	assert.NoError(db.Create(&u1).Error)
 
 	utils.AddUserContexts(router, u1.ID)
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	/* Create bulletin with missing data (expect failure) */
 	apiErr := lib.ErrorRequestDataValidationFailed
@@ -345,7 +346,7 @@ func TestController_UpdateBulletin(t *testing.T) {
 	assert.NoError(db.Create(&u1).Create(&b1).Create(&b2).Error)
 
 	utils.AddUserContexts(router, u1.ID)
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	/* Update bulletin with bad bulletin (expect failure) */
 	params := UpdateBulletinParams{
@@ -444,7 +445,7 @@ func TestController_DeleteBulletin(t *testing.T) {
 	assert.NoError(db.Create(&u1).Create(&b1).Create(&b2).Error)
 
 	utils.AddUserContexts(router, u1.ID)
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	/* Delete bulletin with bad bulletin (expect failure) */
 	apiErr := lib.ErrorRecordNotFound
