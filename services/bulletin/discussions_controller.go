@@ -18,9 +18,11 @@ import (
 // @Tags bulletins
 // @Accept  json
 // @Produce  json
-// @Param offset query string false "Offset Pagination (timestamp)"
+// @Param start query string false "Start Pagination (timestamp)"
+// @Param offset query int false "Offset Pagination"
 // @Param limit query int false "Limit Pagination"
 // @Param preload query []string false "Preload List"
+// @Param getLastPost query bool false "Get Last Post (get last/latest post of the discussion)"
 // @Success 200 {array} models.Discussion
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
@@ -113,7 +115,8 @@ func (t *Controller) GetDiscussion(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param discussionID path uint true "Discussion ID"
-// @Param offset query string false "Offset Pagination (timestamp)"
+// @Param start query string false "Start Pagination (timestamp)"
+// @Param offset query int false "Offset Pagination"
 // @Param limit query int false "Limit Pagination"
 // @Param preload query []string false "Preload List"
 // @Success 200 {array} models.Post
