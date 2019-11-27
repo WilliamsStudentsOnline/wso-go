@@ -15,10 +15,10 @@ import (
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	migrate "github.com/WilliamsStudentsOnline/wso-go/db"
+	"github.com/WilliamsStudentsOnline/wso-go/lib/logging"
 	"github.com/WilliamsStudentsOnline/wso-go/server"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 )
 
 func main() {
@@ -45,38 +45,11 @@ func main() {
 	}
 
 	/* LOGGING */
-	logCfg := zap.Config{
-		Level:            zap.NewAtomicLevelAt(cfg.ParsedLogLevel()),
-		Development:      !cfg.IsProduction(),
-		Sampling:         nil,
-		Encoding:         "console",
-		OutputPaths:      []string{"stderr"},
-		ErrorOutputPaths: []string{"stderr"},
-		EncoderConfig: zapcore.EncoderConfig{
-			TimeKey:        "ts",
-			LevelKey:       "level",
-			NameKey:        "logger",
-			CallerKey:      "caller",
-			MessageKey:     "msg",
-			StacktraceKey:  "stacktrace",
-			LineEnding:     zapcore.DefaultLineEnding,
-			EncodeLevel:    zapcore.CapitalLevelEncoder,
-			EncodeTime:     zapcore.RFC3339NanoTimeEncoder,
-			EncodeDuration: zapcore.SecondsDurationEncoder,
-			EncodeCaller:   zapcore.ShortCallerEncoder,
-		},
-	}
-	if cfg.LogPath != "" {
-		logCfg.OutputPaths = []string{cfg.LogPath}
-		logCfg.ErrorOutputPaths = []string{cfg.LogPath}
-	}
-
-	fastLog, err := logCfg.Build(zap.AddStacktrace(zapcore.ErrorLevel))
+	log, err := logging.SetupLog(cfg, "wso-backend")
 	if err != nil {
-		panic(err)
+		panic("Log Setup Error: " + err.Error())
 		return
 	}
-	log := fastLog.Sugar()
 	defer log.Sync()
 
 	/* DATABASE */

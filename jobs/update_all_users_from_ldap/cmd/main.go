@@ -5,6 +5,7 @@ import (
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	migrate "github.com/WilliamsStudentsOnline/wso-go/db"
+	"github.com/WilliamsStudentsOnline/wso-go/lib/logging"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 )
 
@@ -27,9 +28,10 @@ func main() {
 	}
 
 	/* LOGGING */
-	log, err := config.NewDefaultProductionLog(cfg)
+	log, err := logging.SetupLog(cfg, "update-all-users-from-ldap")
 	if err != nil {
-		panic(err)
+		panic("Log Setup Error: " + err.Error())
+		return
 	}
 	defer log.Sync()
 

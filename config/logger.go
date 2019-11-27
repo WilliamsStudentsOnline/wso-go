@@ -7,42 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 )
-
-func NewDefaultProductionLog(cfg *Config) (*zap.SugaredLogger, error) {
-	logCfg := zap.Config{
-		Level:            zap.NewAtomicLevelAt(zapcore.InfoLevel),
-		Development:      false,
-		Sampling:         nil,
-		Encoding:         "console",
-		OutputPaths:      []string{"stdout"},
-		ErrorOutputPaths: []string{"stdout"},
-		EncoderConfig: zapcore.EncoderConfig{
-			TimeKey:        "ts",
-			LevelKey:       "level",
-			NameKey:        "logger",
-			CallerKey:      "caller",
-			MessageKey:     "msg",
-			StacktraceKey:  "stacktrace",
-			LineEnding:     zapcore.DefaultLineEnding,
-			EncodeLevel:    zapcore.CapitalLevelEncoder,
-			EncodeTime:     zapcore.RFC3339NanoTimeEncoder,
-			EncodeDuration: zapcore.SecondsDurationEncoder,
-			EncodeCaller:   zapcore.ShortCallerEncoder,
-		},
-	}
-	if cfg != nil {
-		logCfg.Level = zap.NewAtomicLevelAt(cfg.ParsedLogLevel())
-	}
-
-	fastLog, err := logCfg.Build(zap.AddStacktrace(zapcore.ErrorLevel))
-	if err != nil {
-		return nil, err
-	}
-
-	return fastLog.Sugar(), nil
-}
 
 // Logger is the zap logger handler
 func Logger(log *zap.SugaredLogger) gin.HandlerFunc {

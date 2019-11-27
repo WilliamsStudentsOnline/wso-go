@@ -7,6 +7,7 @@ import (
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	catalog "github.com/WilliamsStudentsOnline/wso-go/jobs/catalog_update"
+	"github.com/WilliamsStudentsOnline/wso-go/lib/logging"
 )
 
 const (
@@ -15,6 +16,7 @@ const (
 )
 
 func main() {
+	var configPath string
 	var year int
 	var academicYear int
 	var fallSemesterID int
@@ -22,6 +24,7 @@ func main() {
 	var springSemesterID int
 	var filename string
 
+	flag.StringVar(&configPath, "config", "", "path to config file")
 	flag.IntVar(&year, "year", 0, "the calendar year; set this to the year of fall semester")
 	flag.IntVar(&academicYear, "academic-year", 0, "academic year of courses (eg 1819, 1920)")
 	flag.IntVar(&fallSemesterID, "fall", 0, "fall courses semester id")
@@ -60,10 +63,26 @@ func main() {
 		springSemesterID = fallSemesterID + 2
 	}
 
+	/* CONFIG */
+	var cfg *config.Config
+	var err error
+	if configPath != "" {
+		/* Config */
+		cfg, err = config.LoadConfig(configPath)
+		if err != nil {
+			panic("Config Error: " + err.Error())
+		}
+	} else {
+		cfg = &config.Config{
+			LogLevel: "info",
+		}
+	}
+
 	/* LOGGING */
-	log, err := config.NewDefaultProductionLog(nil)
+	log, err := logging.SetupLog(cfg, "catalog-update")
 	if err != nil {
-		panic(err)
+		panic("Log Setup Error: " + err.Error())
+		return
 	}
 	defer log.Sync()
 

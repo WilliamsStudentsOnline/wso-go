@@ -61,7 +61,9 @@ type Config struct {
 	DisableLDAP   bool   `yaml:"disable_ldap" envconfig:"disable_ldap"`
 	LogLevel      string `yaml:"log_level" envconfig:"log_level"`
 	Hostname      string `yaml:"hostname" envconfig:"hostname"`
-	LogPath       string `yaml:"log_path" envconfig:"log_path"`
+	//LogPath       string `yaml:"log_path" envconfig:"log_path"`
+	LogDirectory string   `yaml:"log_directory" envconfig:"log_directory"`
+	LogFormats   []string `yaml:"log_formats" envconfig:"log_formats"`
 
 	/* Search */
 	SearchBackend string `yaml:"search_backend" envconfig:"search_backend"`
