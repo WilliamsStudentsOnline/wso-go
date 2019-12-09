@@ -26,7 +26,7 @@ func NewWilliamsLDAP() *LDAP {
 
 func NewNDSLDAP() *LDAP {
 	return &LDAP{
-		Host:  "nds1.williams.edu",
+		Host:  "nds4.williams.edu",
 		Base:  "o=williams",
 		Scope: ldap.ScopeWholeSubtree,
 		Port:  389,
