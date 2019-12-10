@@ -31,7 +31,7 @@ pipeline {
     }
     stage('Deploy for development') {
       when {
-        branch 'master'
+        branch 'features/improve-latency'
       }
       steps {
         sh '''make build-prod-linux'''
