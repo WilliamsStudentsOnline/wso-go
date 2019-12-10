@@ -46,7 +46,7 @@ type Config struct {
 	// Asymmetric algorithm setup
 	JWTPublicKeyFile  string `yaml:"jwt_public_key_file" envconfig:"jwt_public_key_file"`
 	JWTPrivateKeyFile string `yaml:"jwt_private_key_file" envconfig:"jwt_private_key_file"`
-	JWTUseAsymmetric  bool   `yaml:"jwt_use_asymmetric" envconfig:"jwt_use_asymmetric"`
+	JWTSigningAlgo    string `yaml:"jwt_signing_algo" envconfig:"jwt_signing_algo"`
 
 	/* Gin */
 	GinMode string `yaml:"gin_mode" envconfig:"gin_mode"`
@@ -195,10 +195,6 @@ func SetupConfig(c *Config) error {
 		return errors.New("missing JWT key signature: either need pub key & priv key, or secret key")
 	}
 
-	if c.JWTUseAsymmetric && (c.JWTPrivateKeyFile == "" || c.JWTPublicKeyFile == "") {
-		return errors.New("missing JWT priv or pub key for asymmetric algorithm")
-	}
-
 	// Set log level if empty
 	if c.LogLevel == "" {
 		if c.IsProduction() {
@@ -252,6 +248,19 @@ func SetupConfig(c *Config) error {
 
 	if c.PictureBackend == "" {
 		c.PictureBackend = "none"
+	}
+
+	switch c.JWTSigningAlgo {
+	case "HS256", "HS384", "HS512":
+		break
+	case "RS256", "RS384", "RS512", "ES256", "ES384", "ES512":
+		if c.JWTPrivateKeyFile == "" || c.JWTPublicKeyFile == "" {
+			return errors.New("missing JWT priv or pub key for asymmetric algorithm")
+		}
+	case "":
+		c.JWTSigningAlgo = "HS256"
+	default:
+		return errors.New("unknown JWT signing algorithm")
 	}
 
 	return nil

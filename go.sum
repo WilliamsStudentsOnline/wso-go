@@ -23,6 +23,8 @@ github.com/Shopify/sarama v1.19.0/go.mod h1:FVkBWblsNy7DGZRfXLU0O9RCGt5g3g3yEuWX
 github.com/Shopify/toxiproxy v2.1.4+incompatible/go.mod h1:OXgGpZ6Cli1/URJOF1DMxUHB2q5Ap20/P/eIdh4G0pI=
 github.com/WilliamsStudentsOnline/gin-jwt/v2 v2.6.3 h1:Jn3mFJZL9rX40E9X3l1FiQxpKFCkb/0RWkR2WbjngIk=
 github.com/WilliamsStudentsOnline/gin-jwt/v2 v2.6.3/go.mod h1:bF+y3CgeIk8w8p43cX+GhFfDIBk0VZ2ZuQVuAhqa+LQ=
+github.com/WilliamsStudentsOnline/gin-jwt/v2 v2.6.5 h1:QGyWV48NTcfqCktL0DHGGBIZLnDOI1rOyEVDBJJMxG0=
+github.com/WilliamsStudentsOnline/gin-jwt/v2 v2.6.5/go.mod h1:GX4jghrL4t4aCiG85pg5RjufW/4Z/nVJckzAP0pUyBI=
 github.com/agext/levenshtein v1.2.2 h1:0S/Yg6LYmFJ5stwQeRp6EeOcCbj7xiqQSdNelsXvaqE=
 github.com/agext/levenshtein v1.2.2/go.mod h1:JEDfjyjHDjOF/1e4FlBE/PkbqA9OfWu2ki2W0IB5558=
 github.com/agnivade/levenshtein v1.0.2 h1:xKF7WlEzoa+ZVkzBxy0ukdzI2etYiWGlTPMNTBGncKI=

@@ -30,17 +30,13 @@ type AuthResponse struct {
 }
 
 func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (authMiddleware *jwt.GinJWTMiddleware, err error) {
-	algo := "HS256"
-	if cfg.JWTUseAsymmetric {
-		algo = "RS256"
-	}
 
 	// The JWT middleware
 	authMiddleware, err = jwt.New(&jwt.GinJWTMiddleware{
 		Realm: cfg.JWTRealm,
 
 		// Signing algorithm setup. Contains both secret key and pub/priv keys
-		SigningAlgorithm: algo,
+		SigningAlgorithm: cfg.JWTSigningAlgo,
 		Key:              []byte(cfg.Secrets.JWTSecretKey),
 		PubKeyFile:       cfg.JWTPublicKeyFile,
 		PrivKeyFile:      cfg.JWTPrivateKeyFile,
