@@ -36,6 +36,7 @@ func Logger(log *zap.SugaredLogger) gin.HandlerFunc {
 			"query", query,
 			"userAgent", clientUserAgent,
 			"userID", userID,
+			"handler", c.HandlerName(),
 		)
 
 		if errorCode > 0 {
