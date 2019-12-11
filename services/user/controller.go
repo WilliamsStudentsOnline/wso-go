@@ -365,21 +365,38 @@ func (t *Controller) UploadProfilePhoto(c *gin.Context) {
 		return
 	}
 
-	imgScaled := imaging.Fill(img, 300, 300, imaging.Center, imaging.Lanczos)
-	imgThumb := imaging.Fill(img, 50, 50, imaging.Center, imaging.Lanczos)
+	done := make(chan bool)
+	errors := make(chan error)
 
-	err = t.pictureBackend.SaveLarge(imgScaled, user.UnixID)
-	if err != nil {
-		// Put error in the context so it can be reported
-		c.Error(err)
-		t.RespondAPIError(c, lib.ErrorUnableToSavePicture)
-		return
-	}
+	go func() {
+		imgScaled := imaging.Fill(img, 300, 300, imaging.Center, imaging.Lanczos)
+		err = t.pictureBackend.SaveLarge(imgScaled, user.UnixID)
+		if err != nil {
+			errors <- err
+			// Put error in the context so it can be reported
+			c.Error(err)
+		}
+		done <- true
+	}()
 
-	err = t.pictureBackend.SaveThumb(imgThumb, user.UnixID)
+	go func() {
+		imgThumb := imaging.Fill(img, 50, 50, imaging.Center, imaging.Lanczos)
+
+		err = t.pictureBackend.SaveThumb(imgThumb, user.UnixID)
+		if err != nil {
+			errors <- err
+			// Put error in the context so it can be reported
+			c.Error(err)
+		}
+		done <- true
+	}()
+
+	<-done
+	<-done
+	close(errors)
+
+	err = <-errors
 	if err != nil {
-		// Put error in the context so it can be reported
-		c.Error(err)
 		t.RespondAPIError(c, lib.ErrorUnableToSavePicture)
 		return
 	}
