@@ -6,6 +6,7 @@ import (
 	_ "image/jpeg"
 	_ "image/png"
 	"net/http"
+	"sync"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
@@ -365,10 +366,11 @@ func (t *Controller) UploadProfilePhoto(c *gin.Context) {
 		return
 	}
 
-	done := make(chan bool)
+	var wg sync.WaitGroup
 	errors := make(chan error)
 
-	go func() {
+	wg.Add(1)
+	go func(wg *sync.WaitGroup) {
 		imgScaled := imaging.Fill(img, 300, 300, imaging.Center, imaging.Lanczos)
 		err = t.pictureBackend.SaveLarge(imgScaled, user.UnixID)
 		if err != nil {
@@ -376,10 +378,11 @@ func (t *Controller) UploadProfilePhoto(c *gin.Context) {
 			// Put error in the context so it can be reported
 			c.Error(err)
 		}
-		done <- true
-	}()
+		wg.Done()
+	}(&wg)
 
-	go func() {
+	wg.Add(1)
+	go func(wg *sync.WaitGroup) {
 		imgThumb := imaging.Fill(img, 50, 50, imaging.Center, imaging.Lanczos)
 
 		err = t.pictureBackend.SaveThumb(imgThumb, user.UnixID)
@@ -388,11 +391,10 @@ func (t *Controller) UploadProfilePhoto(c *gin.Context) {
 			// Put error in the context so it can be reported
 			c.Error(err)
 		}
-		done <- true
-	}()
+		wg.Done()
+	}(&wg)
 
-	<-done
-	<-done
+	wg.Wait()
 	close(errors)
 
 	err = <-errors
