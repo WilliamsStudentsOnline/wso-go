@@ -2,6 +2,7 @@ package models
 
 import (
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
 // EphmatchProfile Model
@@ -9,9 +10,9 @@ type EphmatchProfileModel struct {
 	*BaseModel
 }
 
-func NewEphmatchProfileModel(db *gorm.DB) *EphmatchProfileModel {
+func NewEphmatchProfileModel(db *gorm.DB, log *zap.SugaredLogger) *EphmatchProfileModel {
 	return &EphmatchProfileModel{
-		BaseModel: NewBaseModel(db),
+		BaseModel: NewBaseModel(db, log),
 	}
 }
 

@@ -6,10 +6,11 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/db/seed"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
 func Ephmatches(n int, db *gorm.DB) (err error) {
-	profModel := models.NewEphmatchProfileModel(db)
+	profModel := models.NewEphmatchProfileModel(db, zap.S())
 
 	var profiles []*models.EphmatchProfile
 	err = profModel.GetAllProfiles(&profiles, nil)
@@ -17,7 +18,7 @@ func Ephmatches(n int, db *gorm.DB) (err error) {
 		return
 	}
 
-	ephmModel := models.NewEphmatchModel(db)
+	ephmModel := models.NewEphmatchModel(db, zap.S())
 
 	for i := 0; i < n; i++ {
 		u1 := profiles[rand.Intn(len(profiles))]
@@ -43,8 +44,8 @@ func Ephmatches(n int, db *gorm.DB) (err error) {
 }
 
 func EphmatchProfiles(n int, db *gorm.DB) (err error) {
-	userModel := models.NewUserModel(db)
-	profileModel := models.NewEphmatchProfileModel(db)
+	userModel := models.NewUserModel(db, zap.S())
+	profileModel := models.NewEphmatchProfileModel(db, zap.S())
 
 	var students []models.User
 	err = userModel.GetAllUsersByType(&students, models.UserTypeStudent)

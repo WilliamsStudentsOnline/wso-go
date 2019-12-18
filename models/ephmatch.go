@@ -1,15 +1,18 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import (
+	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
+)
 
 // Ephmatch Model
 type EphmatchModel struct {
 	*BaseModel
 }
 
-func NewEphmatchModel(db *gorm.DB) *EphmatchModel {
+func NewEphmatchModel(db *gorm.DB, log *zap.SugaredLogger) *EphmatchModel {
 	return &EphmatchModel{
-		BaseModel: NewBaseModel(db),
+		BaseModel: NewBaseModel(db, log),
 	}
 }
 
