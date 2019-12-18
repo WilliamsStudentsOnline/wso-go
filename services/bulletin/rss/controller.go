@@ -10,14 +10,15 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
-	"github.com/WilliamsStudentsOnline/wso-go/services/bulletin"
+	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/feeds"
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
 type Controller struct {
-	*bulletin.Controller
+	services.BaseController
 	bulletinModel   *models.BulletinModel
 	rideModel       *models.BulletinRideModel
 	discussionModel *models.DiscussionModel
@@ -25,12 +26,12 @@ type Controller struct {
 }
 
 // NewController constructs a new user controller
-func NewController(db *gorm.DB, cfg *config.Config) *Controller {
+func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Controller {
 	return &Controller{
-		Controller:      bulletin.NewController(db),
-		bulletinModel:   models.NewBulletinModel(db),
-		rideModel:       models.NewBulletinRideModel(db),
-		discussionModel: models.NewDiscussionModel(db),
+		BaseController:  services.BaseController{Log: log},
+		bulletinModel:   models.NewBulletinModel(db, log),
+		rideModel:       models.NewBulletinRideModel(db, log),
+		discussionModel: models.NewDiscussionModel(db, log),
 		cfg:             cfg,
 	}
 }

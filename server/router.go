@@ -153,7 +153,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 
 		// Bulletin RSS Service
 		bulletinRSSGroup := r.Group("/api/v2/bulletin/rss")
-		bulletinRSSService.SetupRouter(bulletinRSSGroup, db, cfg)
+		bulletinRSSService.SetupRouter(bulletinRSSGroup, db, cfg, log.Named("bulletin").Named("rss"))
 	}
 
 	return r, nil
