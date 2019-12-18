@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
 // Discussion Model
@@ -11,9 +12,9 @@ type DiscussionModel struct {
 	*BaseModel
 }
 
-func NewDiscussionModel(db *gorm.DB) *DiscussionModel {
+func NewDiscussionModel(db *gorm.DB, log *zap.SugaredLogger) *DiscussionModel {
 	return &DiscussionModel{
-		BaseModel: NewBaseModel(db),
+		BaseModel: NewBaseModel(db, log),
 	}
 }
 

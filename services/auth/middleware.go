@@ -11,6 +11,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
 type TokenLevel int
@@ -28,7 +29,7 @@ type AuthResponse struct {
 	Expire time.Time `json:"expire"`
 }
 
-func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB) (authMiddleware *jwt.GinJWTMiddleware, err error) {
+func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (authMiddleware *jwt.GinJWTMiddleware, err error) {
 	algo := "HS256"
 	if cfg.JWTUseAsymmetric {
 		algo = "RS256"
@@ -82,7 +83,7 @@ func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB) (authMiddleware *jwt.Gi
 		},
 
 		// Called on login to authenticate
-		Authenticator: NewController(cfg, db).Authenticator,
+		Authenticator: NewController(db, cfg, log).Authenticator,
 
 		// What to do when a JWT is unauthorized
 		Unauthorized: func(c *gin.Context, statusCode int, errorMsg string) {

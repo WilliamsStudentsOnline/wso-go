@@ -5,6 +5,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/lib/search"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
 type SearchFactrak interface {
@@ -14,7 +15,7 @@ type SearchFactrak interface {
 	NewCoursesOptions(offset *uint, limit *uint, preload []string) SearchCoursesOptions
 }
 
-func NewSearchFactrak(db *gorm.DB, cfg *config.Config) SearchFactrak {
+func NewSearchFactrak(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) SearchFactrak {
 	switch cfg.SearchBackend {
 	case search.SearchBackendSQL:
 		return NewSearchFactrakMySQL(db)

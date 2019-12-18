@@ -76,7 +76,7 @@ func (m *DormModel) GetDormFacts(id uint, p *DormFacts) (err error) {
 	p.AverageLoudness = dorm.Loudness
 	p.AverageLocation = dorm.Location
 
-	studModel := NewStudentModel(m.DB)
+	studModel := NewStudentModel(m.DB, m.log)
 
 	var commonRoomAccessCount int
 

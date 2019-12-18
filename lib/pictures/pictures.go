@@ -6,6 +6,7 @@ import (
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/pictures/local"
+	"go.uber.org/zap"
 )
 
 const (
@@ -19,10 +20,10 @@ type PictureBackend interface {
 	Save(img image.Image, unixID string, category string) error
 }
 
-func NewPictureBackend(cfg *config.Config) (PictureBackend, error) {
+func NewPictureBackend(cfg *config.Config, log *zap.SugaredLogger) (PictureBackend, error) {
 	switch cfg.PictureBackend {
 	case PictureBackendLocal:
-		return local.NewBackend(cfg.PictureLocalPath)
+		return local.NewBackend(cfg.PictureLocalPath, log)
 	case PictureBackendNone:
 		return &pictureBackendDummy{}, nil
 	default:

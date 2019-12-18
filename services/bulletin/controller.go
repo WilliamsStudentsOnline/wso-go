@@ -1,12 +1,14 @@
 package bulletin
 
 import (
+	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/sanitize"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
 // Controller refers to the struct for the bulletinModel
@@ -20,13 +22,14 @@ type Controller struct {
 }
 
 // NewController constructs a new user controller
-func NewController(db *gorm.DB) *Controller {
+func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Controller {
 	return &Controller{
-		bulletinModel:   models.NewBulletinModel(db),
-		rideModel:       models.NewBulletinRideModel(db),
-		discussionModel: models.NewDiscussionModel(db),
-		postModel:       models.NewPostModel(db),
-		userModel:       models.NewUserModel(db),
+		BaseController:  services.BaseController{Log: log},
+		bulletinModel:   models.NewBulletinModel(db, log),
+		rideModel:       models.NewBulletinRideModel(db, log),
+		discussionModel: models.NewDiscussionModel(db, log),
+		postModel:       models.NewPostModel(db, log),
+		userModel:       models.NewUserModel(db, log),
 	}
 }
 

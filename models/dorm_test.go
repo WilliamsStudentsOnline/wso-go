@@ -8,6 +8,7 @@ import (
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	. "github.com/WilliamsStudentsOnline/wso-go/models"
 	testify "github.com/stretchr/testify/assert"
+	"go.uber.org/zap/zaptest"
 )
 
 // This tests UpdateDormFacts and Dorm.BeforeSave()
@@ -148,7 +149,9 @@ func TestDormModel_GetDormFacts(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 
-	m := NewDormModel(db)
+	log := zaptest.NewLogger(t).Sugar()
+
+	m := NewDormModel(db, log)
 
 	// Create dorm
 	dorm := Dorm{
@@ -183,7 +186,7 @@ func TestDormModel_GetDormFacts(t *testing.T) {
 	assert.Nil(res.AverageLoudness)
 	assert.Nil(res.AverageSatisfaction)
 
-	srYear := NewStudentModel(db).SeniorYear()
+	srYear := NewStudentModel(db, log).SeniorYear()
 
 	// Test 1
 	// Add one dorm room

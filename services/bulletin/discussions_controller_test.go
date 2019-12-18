@@ -15,6 +15,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	. "github.com/WilliamsStudentsOnline/wso-go/services/bulletin"
 	testify "github.com/stretchr/testify/assert"
+	"go.uber.org/zap/zaptest"
 )
 
 func TestController_ListDiscussions(t *testing.T) {
@@ -96,7 +97,7 @@ func TestController_ListDiscussions(t *testing.T) {
 		},
 	}
 
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -182,7 +183,7 @@ func TestController_GetDiscussion(t *testing.T) {
 	assert.NoError(db.Create(&u1).Create(&d1).Error)
 
 	utils.AddUserContexts(router, u1.ID)
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	/* Get test discussion (signed in) */
 	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/discussions/%d?preload[]=user&preload[]=posts&preload[]=postsUsers", d1.ID), nil)
@@ -210,7 +211,7 @@ func TestController_GetDiscussion(t *testing.T) {
 
 	/* Get test discussion (signed out) */
 	r1 := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf)
-	SetupRouter(r1, db, cfg)
+	SetupRouter(r1, db, cfg, zaptest.NewLogger(t).Sugar())
 	w, err = utils.DoHTTPReq(r1, http.MethodGet, fmt.Sprintf("/discussions/%d?preload[]=user&preload[]=posts&preload[]=postsUsers", d1.ID), nil)
 	assert.NoError(err)
 
@@ -299,7 +300,7 @@ func TestController_GetDiscussionPosts(t *testing.T) {
 		},
 	}
 
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -342,7 +343,7 @@ func TestController_CreateDiscussion(t *testing.T) {
 	assert.NoError(db.Create(&u1).Error)
 
 	utils.AddUserContexts(router, u1.ID)
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	/* Create ride with missing data (expect failure) */
 	apiErr := lib.ErrorRequestDataValidationFailed
@@ -415,12 +416,12 @@ func TestController_DeleteDiscussion(t *testing.T) {
 	assert.NoError(db.Create(&d1).Error)
 
 	utils.AddUserContexts(router, u1.ID)
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	/* Delete discussion with incorrect scopes (expect failure) */
 	apiErr := lib.ErrorNoScopeAuthorization
 	r1 := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf)
-	SetupRouter(r1, db, cfg)
+	SetupRouter(r1, db, cfg, zaptest.NewLogger(t).Sugar())
 	w, err := utils.DoHTTPReq(r1, http.MethodDelete, fmt.Sprintf("/discussions/%d", d1.ID), nil)
 	assert.NoError(err)
 	assert.Equal(apiErr.HTTPCode, w.Code)

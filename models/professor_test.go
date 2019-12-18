@@ -1,8 +1,6 @@
 package models_test
 
 import (
-	"log"
-	"os"
 	"testing"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
@@ -10,6 +8,8 @@ import (
 	. "github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/jinzhu/gorm"
 	testify "github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zaptest"
 )
 
 func TestProfessorModel_GetProfessorsByAreaOfStudy(t *testing.T) {
@@ -26,8 +26,10 @@ func TestProfessorModel_GetProfessorsByAreaOfStudy(t *testing.T) {
 		},
 	}
 
-	db := config.LoadDatabase(cfg)
-	db.SetLogger(gorm.Logger{LogWriter: log.New(os.Stdout, "\r\n", 0)})
+	log := zaptest.NewLogger(t).Sugar()
+
+	db := config.LoadDatabase(cfg, log)
+	db.SetLogger(gorm.Logger{LogWriter: zap.NewStdLog(log.Desugar())})
 	db.LogMode(true)
 	err := db.AutoMigrate(
 		User{},
@@ -100,7 +102,7 @@ func TestProfessorModel_GetProfessorsByAreaOfStudy(t *testing.T) {
 	}
 	assert.NoError(db.Create(&d1).Create(&d2).Error)
 
-	m := NewProfessorModel(db)
+	m := NewProfessorModel(db, log)
 	var resProfs []*User
 	areaID := d1.AreasOfStudy[0].ID
 	err = m.GetProfessorsByAreaOfStudy(areaID, &resProfs)

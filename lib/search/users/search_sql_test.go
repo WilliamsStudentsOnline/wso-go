@@ -8,6 +8,7 @@ import (
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	testify "github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
 )
 
 func TestSearchUsersMySQL(t *testing.T) {
@@ -104,7 +105,7 @@ func TestSearchUsersMySQL(t *testing.T) {
 
 	assert.NoError(db.Create(&u1).Create(&u2).Create(&u3).Error)
 
-	userModel := models.NewUserModel(db)
+	userModel := models.NewUserModel(db, zap.S())
 
 	// Populate search fields
 	for _, u := range []models.User{u1, u2, u3} {
@@ -247,6 +248,32 @@ func TestSearchUsersMySQL(t *testing.T) {
 			for i := range tc.expected {
 				testify.Equal(t, tc.expected[i].ID, res[i].ID)
 			}
+		})
+	}
+
+	errorCases := []struct {
+		name     string
+		query    string
+		expected *lib.APIError
+	}{
+		{
+			"bad field",
+			"aidan foobar:hi",
+			lib.NewErrorUnknownSearchField("foobar"),
+		},
+		{
+			"bad field 2",
+			"Location:md3",
+			lib.NewErrorUnknownSearchField("Location"),
+		},
+	}
+
+	for _, tc := range errorCases {
+		t.Run(tc.name, func(t *testing.T) {
+			_, _, err := s.Search(tc.query, nil)
+			testify.Error(t, err)
+			testify.IsType(t, &lib.APIError{}, err)
+			testify.Equal(t, tc.expected, err.(*lib.APIError))
 		})
 	}
 

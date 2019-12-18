@@ -5,6 +5,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/lib/search"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
 type SearchDormtrak interface {
@@ -12,7 +13,7 @@ type SearchDormtrak interface {
 	NewDormsOptions(offset *uint, limit *uint, preload []string) SearchOptions
 }
 
-func NewSearchDormtrak(db *gorm.DB, cfg *config.Config) SearchDormtrak {
+func NewSearchDormtrak(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) SearchDormtrak {
 	switch cfg.SearchBackend {
 	case search.SearchBackendSQL:
 		return NewSearchDormtrakMySQL(db)

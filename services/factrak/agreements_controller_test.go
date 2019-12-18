@@ -13,6 +13,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	. "github.com/WilliamsStudentsOnline/wso-go/services/factrak"
 	testify "github.com/stretchr/testify/assert"
+	"go.uber.org/zap/zaptest"
 )
 
 func TestController_GetAgreement(t *testing.T) {
@@ -61,7 +62,7 @@ func TestController_GetAgreement(t *testing.T) {
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(router, s1.ID)
 	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	// First, we run tests on validations
 
@@ -77,7 +78,7 @@ func TestController_GetAgreement(t *testing.T) {
 	apiErr = lib.ErrorSurveyAgreementNotFound
 	r1 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(r1, s2.ID)
-	SetupRouter(r1, db, cfg)
+	SetupRouter(r1, db, cfg, zaptest.NewLogger(t).Sugar())
 	w, err = utils.DoHTTPReq(r1, http.MethodGet, fmt.Sprintf("/surveys/%d/agreement", survey.ID), nil)
 	assert.NoError(err)
 	assert.Equal(apiErr.HTTPCode, w.Code)
@@ -152,7 +153,7 @@ func TestController_CreateAgreement(t *testing.T) {
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(router, s2.ID)
 	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	// First, we run tests on validations
 
@@ -180,7 +181,7 @@ func TestController_CreateAgreement(t *testing.T) {
 	apiErr = lib.ErrorSurveyAgreementAlreadyExists
 	r1 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(r1, s3.ID)
-	SetupRouter(r1, db, cfg)
+	SetupRouter(r1, db, cfg, zaptest.NewLogger(t).Sugar())
 	w, err = utils.DoHTTPReq(r1, http.MethodPost, fmt.Sprintf("/surveys/%d/agreement", survey.ID), bytes.NewBuffer(paramsData))
 	assert.NoError(err)
 	assert.Equal(apiErr.HTTPCode, w.Code)
@@ -191,7 +192,7 @@ func TestController_CreateAgreement(t *testing.T) {
 	apiErr = lib.ErrorSurveyAgreementNoSelf
 	r2 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(r2, s1.ID)
-	SetupRouter(r2, db, cfg)
+	SetupRouter(r2, db, cfg, zaptest.NewLogger(t).Sugar())
 	w, err = utils.DoHTTPReq(r2, http.MethodPost, fmt.Sprintf("/surveys/%d/agreement", survey.ID), bytes.NewBuffer(paramsData))
 	assert.NoError(err)
 	assert.Equal(apiErr.HTTPCode, w.Code)
@@ -267,7 +268,7 @@ func TestController_UpdateAgreement(t *testing.T) {
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(router, s1.ID)
 	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	// First, we run tests on validations
 
@@ -296,7 +297,7 @@ func TestController_UpdateAgreement(t *testing.T) {
 	apiErr = lib.ErrorSurveyAgreementNotFound
 	r1 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(r1, s2.ID)
-	SetupRouter(r1, db, cfg)
+	SetupRouter(r1, db, cfg, zaptest.NewLogger(t).Sugar())
 	w, err = utils.DoHTTPReq(r1, http.MethodPatch, fmt.Sprintf("/surveys/%d/agreement", survey.ID), bytes.NewBuffer(paramsData))
 	assert.NoError(err)
 	assert.Equal(apiErr.HTTPCode, w.Code)
@@ -372,7 +373,7 @@ func TestController_DeleteAgreement(t *testing.T) {
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(router, s1.ID)
 	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	// First, we run tests on validations
 
@@ -388,7 +389,7 @@ func TestController_DeleteAgreement(t *testing.T) {
 	apiErr = lib.ErrorSurveyAgreementNotFound
 	r1 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(r1, s2.ID)
-	SetupRouter(r1, db, cfg)
+	SetupRouter(r1, db, cfg, zaptest.NewLogger(t).Sugar())
 	w, err = utils.DoHTTPReq(r1, http.MethodDelete, fmt.Sprintf("/surveys/%d/agreement", survey.ID), nil)
 	assert.NoError(err)
 	assert.Equal(apiErr.HTTPCode, w.Code)

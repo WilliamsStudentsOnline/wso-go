@@ -38,7 +38,7 @@ func NewDormtrakRanking() *DormtrakRanking {
 }
 
 func (m *DormModel) GetDormtrakRankings(max int, p *DormtrakRanking) (err error) {
-	drM := NewDormRoomModel(nil)
+	drM := NewDormRoomModel(m.DB, m.log)
 
 	queries := []*gorm.DB{
 		m.DB.Model(&Dorm{}).Limit(max).Scopes(m.ScopeTrakked).Where("dorms.average_single_area IS NOT NULL").

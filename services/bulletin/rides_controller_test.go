@@ -14,6 +14,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	. "github.com/WilliamsStudentsOnline/wso-go/services/bulletin"
 	testify "github.com/stretchr/testify/assert"
+	"go.uber.org/zap/zaptest"
 )
 
 func TestController_ListRides(t *testing.T) {
@@ -95,7 +96,7 @@ func TestController_ListRides(t *testing.T) {
 		},
 	}
 
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -146,7 +147,7 @@ func TestController_GetRide(t *testing.T) {
 	assert.NoError(db.Create(&b1).Error)
 
 	utils.AddUserContexts(router, b1.User.ID)
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	/* Get test ride (signed in) */
 	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/rides/%d", b1.ID), nil)
@@ -170,7 +171,7 @@ func TestController_GetRide(t *testing.T) {
 
 	/* Get test ride (signed out) */
 	r1 := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf)
-	SetupRouter(r1, db, cfg)
+	SetupRouter(r1, db, cfg, zaptest.NewLogger(t).Sugar())
 	w, err = utils.DoHTTPReq(r1, http.MethodGet, fmt.Sprintf("/rides/%d", b1.ID), nil)
 	assert.NoError(err)
 
@@ -211,7 +212,7 @@ func TestController_CreateRide(t *testing.T) {
 	assert.NoError(db.Create(&u1).Error)
 
 	utils.AddUserContexts(router, u1.ID)
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	/* Create ride with missing data (expect failure) */
 	apiErr := lib.ErrorRequestDataValidationFailed
@@ -302,7 +303,7 @@ func TestController_UpdateRide(t *testing.T) {
 	assert.NoError(db.Create(&u1).Create(&b1).Create(&b2).Error)
 
 	utils.AddUserContexts(router, u1.ID)
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	/* Update ride with bad ride (expect failure) */
 	params := UpdateRideParams{
@@ -402,7 +403,7 @@ func TestController_DeleteRide(t *testing.T) {
 	assert.NoError(db.Create(&u1).Create(&b1).Create(&b2).Error)
 
 	utils.AddUserContexts(router, u1.ID)
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	/* Delete ride with bad bulletin (expect failure) */
 	apiErr := lib.ErrorRecordNotFound

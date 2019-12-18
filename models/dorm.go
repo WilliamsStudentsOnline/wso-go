@@ -5,6 +5,7 @@ import (
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
 // Dorm Model
@@ -12,9 +13,9 @@ type DormModel struct {
 	*BaseModel
 }
 
-func NewDormModel(db *gorm.DB) *DormModel {
+func NewDormModel(db *gorm.DB, log *zap.SugaredLogger) *DormModel {
 	return &DormModel{
-		BaseModel: NewBaseModel(db),
+		BaseModel: NewBaseModel(db, log),
 	}
 }
 

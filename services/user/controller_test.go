@@ -14,6 +14,8 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	. "github.com/WilliamsStudentsOnline/wso-go/services/user"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zaptest"
 
 	testify "github.com/stretchr/testify/assert"
 )
@@ -24,7 +26,7 @@ func TestController_ListUsers(t *testing.T) {
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeUsers, auth.ScopeWriteSelf)
 	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zap.S())
 
 	// Insert test users into db
 	u1 := models.User{
@@ -73,7 +75,7 @@ func TestController_ListUsers(t *testing.T) {
 	// Test 2: get test user via search (expect success)
 	// Update users to have search fields
 	for _, u := range []models.User{u1, u2, u3, u4} {
-		assert.NoError(models.NewUserModel(db).PopulateSearchFields(u.ID))
+		assert.NoError(models.NewUserModel(db, zap.S()).PopulateSearchFields(u.ID))
 	}
 
 	qs := url.Values{}
@@ -102,7 +104,7 @@ func TestController_ListUsers_Pagination(t *testing.T) {
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeUsers, auth.ScopeWriteSelf)
 	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zap.S())
 
 	users := []*models.User{
 		{
@@ -131,7 +133,7 @@ func TestController_ListUsers_Pagination(t *testing.T) {
 	}
 	// Update users to have search fields
 	for _, u := range users {
-		assert.NoError(models.NewUserModel(db).PopulateSearchFields(u.ID))
+		assert.NoError(models.NewUserModel(db, zap.S()).PopulateSearchFields(u.ID))
 	}
 
 	testCases := []struct {
@@ -259,7 +261,7 @@ func TestController_GetUser(t *testing.T) {
 	router := gin.Default()
 	utils.AddUserContexts(router, u1.ID)
 	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zap.S())
 
 	// Get test user (expect success)
 	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/%d", u1.ID), nil)
@@ -344,7 +346,7 @@ func TestController_UpdateUser(t *testing.T) {
 	router := utils.SetupRouter(auth.ScopeUsers, auth.ScopeWriteSelf)
 	utils.AddUserContexts(router, u1.ID)
 	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	postData, err := json.Marshal(map[string]interface{}{
 		"visible":     false,

@@ -3,6 +3,7 @@ package models
 import (
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
 // Dorm Model
@@ -10,9 +11,9 @@ type DormRoomModel struct {
 	*BaseModel
 }
 
-func NewDormRoomModel(db *gorm.DB) *DormRoomModel {
+func NewDormRoomModel(db *gorm.DB, log *zap.SugaredLogger) *DormRoomModel {
 	return &DormRoomModel{
-		BaseModel: NewBaseModel(db),
+		BaseModel: NewBaseModel(db, log),
 	}
 }
 
@@ -84,7 +85,7 @@ func (m *DormRoomModel) ReloadStatistics(id uint) (err error) {
 	}
 
 	// Update the dorm rating statistics now
-	err = NewDormModel(m.DB).ReloadStatistics(room.DormID)
+	err = NewDormModel(m.DB, m.log).ReloadStatistics(room.DormID)
 	return
 }
 

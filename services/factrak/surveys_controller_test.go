@@ -16,6 +16,8 @@ import (
 	. "github.com/WilliamsStudentsOnline/wso-go/services/factrak"
 	"github.com/gin-gonic/gin"
 	testify "github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zaptest"
 )
 
 func TestController_ListSurveys(t *testing.T) {
@@ -24,7 +26,7 @@ func TestController_ListSurveys(t *testing.T) {
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	c1 := models.Course{
 		Number: "c1",
@@ -93,7 +95,7 @@ func TestController_ListSurveys2(t *testing.T) {
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	c1 := models.Course{
 		Number: "c1",
@@ -302,7 +304,7 @@ func TestController_ListSurveys2(t *testing.T) {
 	// Get test surveys
 	r1 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(r1, s2.ID)
-	SetupRouter(r1, db, cfg)
+	SetupRouter(r1, db, cfg, zaptest.NewLogger(t).Sugar())
 	w, err = utils.DoHTTPReq(r1, http.MethodGet, fmt.Sprintf("/surveys?userID=%d", s2.ID), nil)
 	assert.NoError(err)
 	// Status is okay
@@ -341,7 +343,7 @@ func TestController_ListSurveys2(t *testing.T) {
 	// Get test surveys
 	r2 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(r2, s1.ID)
-	SetupRouter(r2, db, cfg)
+	SetupRouter(r2, db, cfg, zaptest.NewLogger(t).Sugar())
 	w, err = utils.DoHTTPReq(r2, http.MethodGet, fmt.Sprintf("/surveys?userID=%d", s2.ID), nil)
 	assert.NoError(err)
 	// Status is okay
@@ -413,7 +415,7 @@ func TestController_ListSurveys2(t *testing.T) {
 	// Get test surveys
 	r3 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(r3, s2.ID)
-	SetupRouter(r3, db, cfg)
+	SetupRouter(r3, db, cfg, zaptest.NewLogger(t).Sugar())
 	w, err = utils.DoHTTPReq(r3, http.MethodGet, "/surveys?populateClientAgreement=true", nil)
 	assert.NoError(err)
 	// Status is okay
@@ -438,7 +440,7 @@ func TestController_GetSurvey(t *testing.T) {
 	db := utils.SetupServiceTest(assert)
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	c1 := models.Course{
 		Number: "c1",
@@ -565,7 +567,7 @@ func TestController_CreateSurvey(t *testing.T) {
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(router, s1.ID)
 	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	// First, we run tests on validations
 
@@ -588,11 +590,11 @@ func TestController_CreateSurvey(t *testing.T) {
 	// Setup bad student router
 	r1 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(r1, p2.ID)
-	SetupRouter(r1, db, cfg)
+	SetupRouter(r1, db, cfg, zaptest.NewLogger(t).Sugar())
 	createSurveyExpectError(assert, r1, params, lib.ErrorSurveyStudentNotFound)
 
 	// Test 5: error on student prefrosh
-	assert.NoError(db.Model(&s1).Update("class_year", models.NewStudentModel(db).SeniorYear()+4).Error)
+	assert.NoError(db.Model(&s1).Update("class_year", models.NewStudentModel(db, zap.S()).SeniorYear()+4).Error)
 	params = SurveyCreateParams{CourseID: &c1.ID, Comment: generateSurveyTestComment(), ProfessorID: &p1.ID}
 	createSurveyExpectError(assert, router, params, lib.ErrorUserCannotBePrefrosh)
 	// Revert
@@ -753,7 +755,7 @@ func TestController_UpdateSurvey(t *testing.T) {
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(router, s1.ID)
 	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	// First, we run tests on validations
 
@@ -773,7 +775,7 @@ func TestController_UpdateSurvey(t *testing.T) {
 	params = SurveyUpdateParams{CourseStimulating: lib.IntToPtr(3)}
 	r1 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(r1, s2.ID)
-	SetupRouter(r1, db, cfg)
+	SetupRouter(r1, db, cfg, zaptest.NewLogger(t).Sugar())
 	updateSurveyExpectError(assert, r1, survey.ID, params, lib.ErrorMustBeSelf)
 
 	// Test 5: error on too small comment
@@ -898,7 +900,7 @@ func TestController_DeleteSurvey(t *testing.T) {
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(router, s1.ID)
 	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	// First, we run tests on validations
 
@@ -952,7 +954,7 @@ func TestController_DeleteSurvey(t *testing.T) {
 
 	// Test 4: delete when admin
 	adminR := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf, auth.ScopeFactrakAdmin)
-	SetupRouter(adminR, db, cfg)
+	SetupRouter(adminR, db, cfg, zaptest.NewLogger(t).Sugar())
 	w, err = utils.DoHTTPReq(adminR, http.MethodDelete,
 		fmt.Sprintf("/surveys/%d", survey2.ID), nil)
 	assert.NoError(err)
@@ -995,7 +997,7 @@ func TestController_FlagSurvey(t *testing.T) {
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(router, s1.ID)
 	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	// First, we run tests on validations
 

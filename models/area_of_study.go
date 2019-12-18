@@ -5,6 +5,7 @@ import (
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
 // AreaOfStudy Model
@@ -12,9 +13,9 @@ type AreaOfStudyModel struct {
 	*BaseModel
 }
 
-func NewAreaOfStudyModel(db *gorm.DB) *AreaOfStudyModel {
+func NewAreaOfStudyModel(db *gorm.DB, log *zap.SugaredLogger) *AreaOfStudyModel {
 	return &AreaOfStudyModel{
-		BaseModel: NewBaseModel(db),
+		BaseModel: NewBaseModel(db, log),
 	}
 }
 

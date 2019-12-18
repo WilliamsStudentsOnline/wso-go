@@ -6,11 +6,11 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 )
 
-// Logger is the logrus logger handler
-func Logger(logger logrus.FieldLogger) gin.HandlerFunc {
+// Logger is the zap logger handler
+func Logger(log *zap.SugaredLogger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// other handler can change c.Path so:
 		path := c.Request.URL.Path
@@ -27,22 +27,21 @@ func Logger(logger logrus.FieldLogger) gin.HandlerFunc {
 		errorCode := c.GetInt("ErrorCodeKey")
 		userID, _ := c.Get("id")
 
-		fields := logrus.Fields{
-			"statusCode": statusCode,
-			"latency":    latency,
-			"clientIP":   clientIP,
-			"method":     c.Request.Method,
-			"path":       path,
-			"query":      query,
-			"userAgent":  clientUserAgent,
-			"userID":     userID,
-		}
+		entry := log.With(
+			"statusCode", statusCode,
+			"latency", latency,
+			"clientIP", clientIP,
+			"method", c.Request.Method,
+			"path", path,
+			"query", query,
+			"userAgent", clientUserAgent,
+			"userID", userID,
+			"handler", c.HandlerName(),
+		)
 
 		if errorCode > 0 {
-			fields["errorCode"] = errorCode
+			entry.With("errorCode", errorCode)
 		}
-
-		entry := logger.WithFields(fields)
 
 		queryUrl := query
 		if queryUrl != "" {

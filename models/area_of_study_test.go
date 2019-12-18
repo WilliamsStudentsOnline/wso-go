@@ -6,13 +6,14 @@ import (
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	. "github.com/WilliamsStudentsOnline/wso-go/models"
 	testify "github.com/stretchr/testify/assert"
+	"go.uber.org/zap/zaptest"
 )
 
 func TestAreaOfStudyModel_GetAllAreasOfStudy(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 
-	m := NewAreaOfStudyModel(db)
+	m := NewAreaOfStudyModel(db, zaptest.NewLogger(t).Sugar())
 
 	areasOfStudy := []AreaOfStudy{
 		{
@@ -49,7 +50,7 @@ func TestAreaOfStudyModel_GetAreaOfStudyByID(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 
-	m := NewAreaOfStudyModel(db)
+	m := NewAreaOfStudyModel(db, zaptest.NewLogger(t).Sugar())
 
 	areaOfStudy := AreaOfStudy{
 		Name:         "Computer Science",
@@ -75,7 +76,7 @@ func TestAreaOfStudyModel_DoesAreaOfStudyExist(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 
-	m := NewAreaOfStudyModel(db)
+	m := NewAreaOfStudyModel(db, zaptest.NewLogger(t).Sugar())
 
 	areaOfStudy := AreaOfStudy{
 		Name:         "Computer Science",
@@ -100,7 +101,7 @@ func TestAreaOfStudyModel_GetAreaOfStudyByAbbreviation(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 
-	m := NewAreaOfStudyModel(db)
+	m := NewAreaOfStudyModel(db, zaptest.NewLogger(t).Sugar())
 
 	areasOfStudy := []AreaOfStudy{
 		{

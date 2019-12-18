@@ -1,8 +1,6 @@
 package models
 
 import (
-	"log"
-	"os"
 	"testing"
 	"time"
 
@@ -10,6 +8,8 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/jinzhu/gorm"
 	testify "github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zaptest"
 )
 
 type testClock struct {
@@ -32,8 +32,10 @@ func TestStudentModel_UpdateFactrakSurveyDeficit(t *testing.T) {
 		},
 	}
 
-	db := config.LoadDatabase(cfg)
-	db.SetLogger(gorm.Logger{LogWriter: log.New(os.Stdout, "\r\n", 0)})
+	log := zaptest.NewLogger(t).Sugar()
+
+	db := config.LoadDatabase(cfg, log)
+	db.SetLogger(gorm.Logger{LogWriter: zap.NewStdLog(log.Desugar())})
 	db.LogMode(true)
 	err := db.AutoMigrate(
 		User{},
@@ -45,11 +47,11 @@ func TestStudentModel_UpdateFactrakSurveyDeficit(t *testing.T) {
 	).Error
 	testify.NoError(t, err)
 
-	fsM := NewFactrakSurveyModel(db)
+	fsM := NewFactrakSurveyModel(db, log)
 
 	t.Run("prefrosh", func(t *testing.T) {
 		assert := testify.New(t)
-		m := NewStudentModel(db)
+		m := NewStudentModel(db, zaptest.NewLogger(t).Sugar())
 
 		// Set time to be may
 		m.Clock = testClock{time.Date(
@@ -84,7 +86,7 @@ func TestStudentModel_UpdateFactrakSurveyDeficit(t *testing.T) {
 
 	t.Run("freshman pre-fall", func(t *testing.T) {
 		assert := testify.New(t)
-		m := NewStudentModel(db)
+		m := NewStudentModel(db, zaptest.NewLogger(t).Sugar())
 
 		// Test user
 		student := User{
@@ -120,7 +122,7 @@ func TestStudentModel_UpdateFactrakSurveyDeficit(t *testing.T) {
 
 	t.Run("freshman fall", func(t *testing.T) {
 		assert := testify.New(t)
-		m := NewStudentModel(db)
+		m := NewStudentModel(db, zaptest.NewLogger(t).Sugar())
 
 		// Test user
 		student := User{
@@ -157,7 +159,7 @@ func TestStudentModel_UpdateFactrakSurveyDeficit(t *testing.T) {
 	t.Run("freshman january", func(t *testing.T) {
 		assert := testify.New(t)
 		m := &StudentModel{
-			UserModel: NewUserModel(db),
+			UserModel: NewUserModel(db, zaptest.NewLogger(t).Sugar()),
 		}
 
 		// Test user
@@ -198,7 +200,7 @@ func TestStudentModel_UpdateFactrakSurveyDeficit(t *testing.T) {
 	t.Run("when new survey created", func(t *testing.T) {
 		assert := testify.New(t)
 		m := &StudentModel{
-			UserModel: NewUserModel(db),
+			UserModel: NewUserModel(db, zaptest.NewLogger(t).Sugar()),
 		}
 
 		// Test user
@@ -254,7 +256,7 @@ func TestStudentModel_UpdateFactrakSurveyDeficit(t *testing.T) {
 	t.Run("when survey is deleted", func(t *testing.T) {
 		assert := testify.New(t)
 		m := &StudentModel{
-			UserModel: NewUserModel(db),
+			UserModel: NewUserModel(db, zaptest.NewLogger(t).Sugar()),
 		}
 
 		// Test user

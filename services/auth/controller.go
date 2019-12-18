@@ -8,6 +8,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
 var ErrorFailedAuthentication = errors.New("incorrect unix id or password")
@@ -31,11 +32,12 @@ type Controller struct {
 }
 
 // Construct a new user controller
-func NewController(cfg *config.Config, db *gorm.DB) *Controller {
+func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Controller {
 	return &Controller{
-		cfg:       cfg,
-		DB:        db,
-		userModel: models.NewUserModel(db),
+		BaseController: services.BaseController{Log: log},
+		DB:             db,
+		cfg:            cfg,
+		userModel:      models.NewUserModel(db, log),
 	}
 }
 

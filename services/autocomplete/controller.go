@@ -10,6 +10,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
 // Controller refers to the struct for the bulletinModel
@@ -19,9 +20,10 @@ type Controller struct {
 }
 
 // NewController constructs a new user controller
-func NewController(db *gorm.DB, cfg *config.Config) *Controller {
+func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Controller {
 	return &Controller{
-		autocomplete: autocompletor.NewAutocomplete(cfg, db),
+		BaseController: services.BaseController{Log: log},
+		autocomplete:   autocompletor.NewAutocomplete(cfg, db, log),
 	}
 }
 

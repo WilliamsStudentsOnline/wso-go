@@ -2,12 +2,11 @@ package main
 
 import (
 	"flag"
-	"os"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	migrate "github.com/WilliamsStudentsOnline/wso-go/db"
+	"github.com/WilliamsStudentsOnline/wso-go/lib/logging"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
-	log "github.com/sirupsen/logrus"
 )
 
 func main() {
@@ -22,25 +21,23 @@ func main() {
 
 	flag.Parse()
 
-	/* Logging */
-	log.SetOutput(os.Stdout)
-	log.SetFormatter(&log.TextFormatter{
-		FullTimestamp: true,
-	})
-
 	/* Config */
 	cfg, err := config.LoadConfig(configPath)
 	if err != nil {
-		log.Fatal("Config Error: " + err.Error())
-		return
+		panic("Config Error: " + err.Error())
 	}
 
-	/* Set Logging Level */
-	log.SetLevel(cfg.LogLevelParsed)
+	/* LOGGING */
+	log, err := logging.SetupLog(cfg, "update-all-users-from-ldap")
+	if err != nil {
+		panic("Log Setup Error: " + err.Error())
+		return
+	}
+	defer log.Sync()
 
 	/* DATABASE */
-	db := config.LoadDatabase(cfg)
-	defer config.CloseDatabase(db)
+	db := config.LoadDatabase(cfg, log)
+	defer config.CloseDatabase(db, log)
 
 	/* Database Migrations */
 	// NOTE: Job will not migrate anything; will fail if db is not updated on migrations
@@ -58,7 +55,7 @@ func main() {
 	}
 
 	// Do the actual stuff
-	userModel := models.NewUserModel(db)
+	userModel := models.NewUserModel(db, log)
 
 	err = userModel.UpdateAllFromLDAP(cfg)
 	if err != nil {

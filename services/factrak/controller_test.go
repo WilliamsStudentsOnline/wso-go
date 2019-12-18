@@ -13,6 +13,7 @@ import (
 	. "github.com/WilliamsStudentsOnline/wso-go/services/factrak"
 	"github.com/gin-gonic/gin"
 	testify "github.com/stretchr/testify/assert"
+	"go.uber.org/zap/zaptest"
 )
 
 func TestRemoveUserIDFromSurveys(t *testing.T) {
@@ -219,7 +220,7 @@ func TestLimitedScopeAccess(t *testing.T) {
 	r := utils.SetupRouter(auth.ScopeFactrakLimited, auth.ScopeUsers, auth.ScopeWriteSelf)
 	utils.AddUserContexts(r, s1.ID)
 	cfg := utils.SetupConfig()
-	SetupRouter(r, db, cfg)
+	SetupRouter(r, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	// Can list professors
 	w, err := utils.DoHTTPReq(r, http.MethodGet, fmt.Sprintf("/professors"), nil)

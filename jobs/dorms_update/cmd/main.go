@@ -13,8 +13,8 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	migrate "github.com/WilliamsStudentsOnline/wso-go/db"
 	"github.com/WilliamsStudentsOnline/wso-go/jobs/dorms_update"
+	"github.com/WilliamsStudentsOnline/wso-go/lib/logging"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
-	"github.com/sirupsen/logrus"
 )
 
 //go:generate go run gen.go
@@ -36,22 +36,19 @@ func main() {
 
 	flag.Parse()
 
-	/* Logging */
-	log := logrus.New()
-	log.SetOutput(os.Stdout)
-	log.SetFormatter(&logrus.TextFormatter{
-		FullTimestamp: true,
-	})
-
 	/* Config */
 	cfg, err := config.LoadConfig(configPath)
 	if err != nil {
-		log.Fatal("Config Error: " + err.Error())
-		return
+		panic("Config Error: " + err.Error())
 	}
 
-	/* Set Logging Level */
-	log.SetLevel(cfg.LogLevelParsed)
+	/* LOGGING */
+	log, err := logging.SetupLog(cfg, "dorms-update")
+	if err != nil {
+		panic("Log Setup Error: " + err.Error())
+		return
+	}
+	defer log.Sync()
 
 	/* Parse params */
 	dormPath, err = filepath.Abs(dormPath)
@@ -67,8 +64,8 @@ func main() {
 	}
 
 	/* DATABASE */
-	db := config.LoadDatabase(cfg)
-	defer config.CloseDatabase(db)
+	db := config.LoadDatabase(cfg, log)
+	defer config.CloseDatabase(db, log)
 
 	/* Database Migrations */
 	// NOTE: Job will not migrate anything; will fail if db is not updated on migrations
@@ -107,7 +104,7 @@ func main() {
 
 	// Get trakked dorms in database
 	var dbDorms []*models.Dorm
-	err = db.Scopes(models.NewDormModel(nil).ScopeTrakked).Find(&dbDorms).Error
+	err = db.Scopes(models.NewDormModel(nil, log).ScopeTrakked).Find(&dbDorms).Error
 	if err != nil {
 		log.Fatal("Get Trakked Dorms Error: " + err.Error())
 		return

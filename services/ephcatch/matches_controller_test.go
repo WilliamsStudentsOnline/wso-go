@@ -11,6 +11,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	. "github.com/WilliamsStudentsOnline/wso-go/services/ephcatch"
 	testify "github.com/stretchr/testify/assert"
+	"go.uber.org/zap/zaptest"
 )
 
 func TestController_ListMatches(t *testing.T) {
@@ -59,7 +60,7 @@ func TestController_ListMatches(t *testing.T) {
 	}).Error)
 
 	utils.AddUserContexts(router, s[0].ID)
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	/* Create ephcatch as duplicate (expect success) */
 	w, err := utils.DoHTTPReq(router, http.MethodGet, "/matches", nil)

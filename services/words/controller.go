@@ -3,9 +3,11 @@ package words
 import (
 	"math/rand"
 
+	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
 type Controller struct {
@@ -15,8 +17,10 @@ type Controller struct {
 //go:generate go run words_gen.go
 
 // NewController constructs a new words controller
-func NewController(db *gorm.DB) *Controller {
-	return &Controller{}
+func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Controller {
+	return &Controller{
+		BaseController: services.BaseController{Log: log},
+	}
 }
 
 // GetWords godoc

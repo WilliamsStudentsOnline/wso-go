@@ -8,6 +8,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
 type Controller struct {
@@ -22,14 +23,15 @@ type Controller struct {
 }
 
 // Construct a new dormtrak controller
-func NewController(db *gorm.DB, cfg *config.Config) *Controller {
+func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Controller {
 	return &Controller{
-		neighborhoodModel: models.NewNeighborhoodModel(db),
-		dormModel:         models.NewDormModel(db),
-		dormRoomModel:     models.NewDormRoomModel(db),
-		reviewModel:       models.NewDormtrakReviewModel(db),
-		userModel:         models.NewUserModel(db),
-		dormtrakSearch:    search.NewSearchDormtrak(db, cfg),
+		BaseController:    services.BaseController{Log: log},
+		neighborhoodModel: models.NewNeighborhoodModel(db, log),
+		dormModel:         models.NewDormModel(db, log),
+		dormRoomModel:     models.NewDormRoomModel(db, log),
+		reviewModel:       models.NewDormtrakReviewModel(db, log),
+		userModel:         models.NewUserModel(db, log),
+		dormtrakSearch:    search.NewSearchDormtrak(db, cfg, log),
 	}
 }
 

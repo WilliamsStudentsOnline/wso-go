@@ -5,6 +5,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
 type Controller struct {
@@ -15,9 +16,10 @@ type Controller struct {
 }
 
 // Construct a new dormtrak controller
-func NewController(db *gorm.DB, cfg *config.Config) *Controller {
+func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Controller {
 	return &Controller{
-		ephcatchModel:   models.NewEphcatchModel(db),
-		ephcatcherModel: models.NewEphcatcherModel(db),
+		BaseController:  services.BaseController{Log: log},
+		ephcatchModel:   models.NewEphcatchModel(db, log),
+		ephcatcherModel: models.NewEphcatcherModel(db, log),
 	}
 }

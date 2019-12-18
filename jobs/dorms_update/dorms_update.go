@@ -5,7 +5,7 @@ import (
 
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/jinzhu/gorm"
-	"github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 )
 
 // name,neighborhood_name,number_singles,number_doubles,number_flex,description,number_bathrooms,number_washers
@@ -30,7 +30,7 @@ type Room struct {
 	CommonRoomAccess bool
 }
 
-func UpdateDorms(db *gorm.DB, log *logrus.Logger, dorms []*Dorm) (err error) {
+func UpdateDorms(db *gorm.DB, log *zap.SugaredLogger, dorms []*Dorm) (err error) {
 	dormNames := make(map[string]bool)
 
 	// Add/update dorms from data to db
@@ -140,7 +140,7 @@ func UpdateDorms(db *gorm.DB, log *logrus.Logger, dorms []*Dorm) (err error) {
 	return
 }
 
-func UpdateRooms(db *gorm.DB, log *logrus.Logger, rooms []*Room, dorm *models.Dorm) (err error) {
+func UpdateRooms(db *gorm.DB, log *zap.SugaredLogger, rooms []*Room, dorm *models.Dorm) (err error) {
 	roomNumbers := make(map[string]bool)
 
 	// Add/update dorm rooms from data to db
@@ -228,8 +228,8 @@ func UpdateRooms(db *gorm.DB, log *logrus.Logger, rooms []*Room, dorm *models.Do
 	return nil
 }
 
-func UpdateDormsStatistics(db *gorm.DB, log *logrus.Logger) (err error) {
-	dormModel := models.NewDormModel(db)
+func UpdateDormsStatistics(db *gorm.DB, log *zap.SugaredLogger) (err error) {
+	dormModel := models.NewDormModel(db, log)
 
 	// Remove dorms from db that don't appear in data
 	var dorms []*models.Dorm

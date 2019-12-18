@@ -1,18 +1,24 @@
+// +build go1.8
+
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
-	"io"
+	"net/http"
 	"os"
+	"os/signal"
 	"path/filepath"
+	"syscall"
+	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	migrate "github.com/WilliamsStudentsOnline/wso-go/db"
+	"github.com/WilliamsStudentsOnline/wso-go/lib/logging"
 	"github.com/WilliamsStudentsOnline/wso-go/server"
-	"github.com/fvbock/endless"
 	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 )
 
 func main() {
@@ -31,34 +37,25 @@ func main() {
 		configPath = filepath.Join("config", "environment", "development.yaml")
 	}
 
-	/* Logging */
-	log.SetOutput(os.Stdout)
-	log.SetFormatter(&log.TextFormatter{
-		FullTimestamp: true,
-	})
-
 	/* Config */
 	cfg, err := config.LoadConfig(configPath)
 	if err != nil {
-		log.Fatal("Config Error: " + err.Error())
+		panic("Config Error: " + err.Error())
 		return
 	}
 
 	/* LOGGING */
-	log.SetLevel(cfg.LogLevelParsed)
-	if cfg.LogPath != "" {
-		logWriter, err := logSetup(cfg)
-		if err != nil {
-			log.Error(err)
-			log.Warn("Using stdout as log output")
-		} else {
-			log.SetOutput(logWriter)
-		}
+	log, err := logging.SetupLog(cfg, "wso-backend")
+	if err != nil {
+		panic("Log Setup Error: " + err.Error())
+		return
 	}
+	defer log.Sync()
 
 	/* DATABASE */
-	db := config.LoadDatabase(cfg)
-	defer config.CloseDatabase(db)
+	dbLog := log.Named("database")
+	db := config.LoadDatabase(cfg, dbLog)
+	defer config.CloseDatabase(db, dbLog)
 
 	/* Database Migrations */
 	err = migrate.MigrateDB(db)
@@ -72,33 +69,61 @@ func main() {
 
 	/* Set Gin Print Route Func */
 	gin.DebugPrintRouteFunc = func(httpMethod, absolutePath, handlerName string, nuHandlers int) {
-		log.Debugf("endpoint %v %v %v %v\n", httpMethod, absolutePath, handlerName, nuHandlers)
+		log.Debugf("endpoint %s %s %s %d", httpMethod, absolutePath, handlerName, nuHandlers)
 	}
 
 	/* Router */
-	r, err := server.SetupRouter(cfg, db)
+	r, err := server.SetupRouter(cfg, db, log)
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
 
 	addr := fmt.Sprintf(":%d", cfg.Port)
-
-	if cfg.EnableTLS {
-		err = endless.ListenAndServeTLS(addr, cfg.TLSCertPath, cfg.TLSKeyPath, r)
-	} else {
-		err = endless.ListenAndServe(addr, r)
-	}
-	if err != nil {
-		log.Fatal("Server Error: " + err.Error())
-		return
-	}
+	gracefulServe(addr, cfg, r, log)
 }
 
-func logSetup(cfg *config.Config) (io.Writer, error) {
-	logPath, err := filepath.Abs(cfg.LogPath)
-	if err != nil {
-		return nil, err
+func gracefulServe(addr string, cfg *config.Config, handler http.Handler, log *zap.SugaredLogger) {
+	srv := &http.Server{
+		Addr:    addr,
+		Handler: handler,
 	}
-	return os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+
+	if cfg.EnableTLS {
+		go func() {
+			// service connections
+			if err := srv.ListenAndServeTLS(cfg.TLSCertPath, cfg.TLSKeyPath); err != nil && err != http.ErrServerClosed {
+				log.Fatalf("listen and serve error: %s\n", err)
+			}
+		}()
+	} else {
+		go func() {
+			// service connections
+			if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+				log.Fatalf("listen and serve error: %s\n", err)
+			}
+		}()
+	}
+
+	// Wait for interrupt signal to gracefully shutdown the server with
+	// a timeout of 5 seconds.
+	quit := make(chan os.Signal)
+	// kill (no param) default send syscall.SIGTERM
+	// kill -2 is syscall.SIGINT
+	// kill -9 is syscall.SIGKILL but can't be catch, so don't need add it
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	log.Warn("shutting down server...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatal("server shutdown error:", err)
+	}
+	// catching ctx.Done(). timeout of 5 seconds.
+	select {
+	case <-ctx.Done():
+		log.Info("5 seconds timeout complete")
+	}
+	log.Info("server exited")
 }

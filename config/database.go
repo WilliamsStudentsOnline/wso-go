@@ -8,27 +8,29 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
-	log "github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 )
 
-func LoadDatabase(cfg *Config) *gorm.DB {
+func LoadDatabase(cfg *Config, log *zap.SugaredLogger) *gorm.DB {
 	// Database params passed by config
 	db, err := gorm.Open(cfg.DatabaseType, cfg.DatabaseArgs)
 	if err != nil {
-		log.WithError(err).Fatal("failed to connect database")
+		log.With(err).Fatal("failed to connect database")
 	}
 
 	if cfg.IsDevelopment() || cfg.IsTest() {
 		db.LogMode(true)
 	}
 
-	db.SetLogger(DBLogger{})
+	db.SetLogger(DBLogger{
+		log: log,
+	})
 
 	return db
 }
 
 // Safely closes db when done
-func CloseDatabase(db *gorm.DB) {
+func CloseDatabase(db *gorm.DB, log *zap.SugaredLogger) {
 	if err := db.Close(); err != nil {
 		log.Fatal(err)
 	}
@@ -80,9 +82,10 @@ func SetupSQLiteConfig(cfg *Config) {
 
 type DBLogger struct {
 	gorm.Logger
+	log *zap.SugaredLogger
 }
 
-func (DBLogger) Print(v ...interface{}) {
+func (l DBLogger) Print(v ...interface{}) {
 	buf := new(bytes.Buffer)
 	for argNum, arg := range v {
 		if argNum > 0 {
@@ -90,5 +93,5 @@ func (DBLogger) Print(v ...interface{}) {
 		}
 		buf.WriteString(fmt.Sprint(arg))
 	}
-	log.Debug(buf.String())
+	l.log.Debug(buf.String())
 }
