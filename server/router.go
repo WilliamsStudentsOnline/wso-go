@@ -12,7 +12,6 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-contrib/cors"
-	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	swaggerFiles "github.com/swaggo/files"
@@ -55,7 +54,6 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 	}
 
 	r := gin.New()
-	pprof.Register(r, "/api/v2/debug/pprof")
 
 	// Logger middleware will write the logs to gin.DefaultWriter even if you set with GIN_MODE=release.
 	// By default gin.DefaultWriter = os.Stdout
