@@ -14,6 +14,7 @@ import (
 	. "github.com/WilliamsStudentsOnline/wso-go/services/ephmatch"
 	"github.com/gin-gonic/gin"
 	testify "github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
 )
 
 func TestController_GetSelfProfile(t *testing.T) {
@@ -121,7 +122,7 @@ func TestController_GetSelfProfile(t *testing.T) {
 			a := testify.New(t)
 			router := utils.SetupRouter(auth.ScopeEphmatch)
 			utils.AddUserContexts(router, tc.user.ID)
-			SetupRouter(router, db, cfg)
+			SetupRouter(router, db, cfg, zap.S())
 
 			w, err := utils.DoHTTPReq(router, http.MethodGet, "/profile", nil)
 			a.NoError(err)
@@ -185,7 +186,7 @@ func TestController_CreateProfile(t *testing.T) {
 
 		r := utils.SetupRouter(auth.ScopeEphmatch)
 		utils.AddUserContexts(r, val.ID)
-		SetupRouter(r, db, cfg)
+		SetupRouter(r, db, cfg, zap.S())
 		routers = append(routers, r)
 	}
 
@@ -289,7 +290,7 @@ func TestController_UpdateProfile(t *testing.T) {
 
 		r := utils.SetupRouter(auth.ScopeEphmatch)
 		utils.AddUserContexts(r, val.ID)
-		SetupRouter(r, db, cfg)
+		SetupRouter(r, db, cfg, zap.S())
 		routers = append(routers, r)
 	}
 
@@ -377,7 +378,7 @@ func TestController_DeleteProfile(t *testing.T) {
 
 		r := utils.SetupRouter(auth.ScopeEphmatch)
 		utils.AddUserContexts(r, val.ID)
-		SetupRouter(r, db, cfg)
+		SetupRouter(r, db, cfg, zap.S())
 		routers = append(routers, r)
 	}
 

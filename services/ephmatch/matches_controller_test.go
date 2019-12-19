@@ -11,6 +11,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	. "github.com/WilliamsStudentsOnline/wso-go/services/ephmatch"
 	testify "github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
 )
 
 func TestController_ListMatches(t *testing.T) {
@@ -101,7 +102,7 @@ func TestController_ListMatches(t *testing.T) {
 	assert.NoError(db.Delete(s[5].EphmatchProfile).Error)
 
 	utils.AddUserContexts(router, s[0].ID)
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zap.S())
 
 	/* Create ephmatch as duplicate (expect success) */
 	w, err := utils.DoHTTPReq(router, http.MethodGet, "/matches", nil)

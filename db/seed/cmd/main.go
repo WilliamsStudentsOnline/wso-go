@@ -7,6 +7,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	migrate "github.com/WilliamsStudentsOnline/wso-go/db"
 	"github.com/WilliamsStudentsOnline/wso-go/db/seed/seeder"
+	"github.com/WilliamsStudentsOnline/wso-go/lib/logging"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -40,11 +41,16 @@ func main() {
 	}
 
 	/* Set Logging Level */
-	log.SetLevel(cfg.LogLevelParsed)
+	log, err := logging.SetupLog(cfg, "seed")
+	if err != nil {
+		panic("Log Setup Error: " + err.Error())
+		return
+	}
+	defer log.Sync()
 
 	/* DATABASE */
-	db := config.LoadDatabase(cfg)
-	defer config.CloseDatabase(db)
+	db := config.LoadDatabase(cfg, log)
+	defer config.CloseDatabase(db, log)
 
 	/* Database Migrations */
 	// NOTE: Job will not migrate anything; will fail if db is not updated on migrations

@@ -12,6 +12,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	. "github.com/WilliamsStudentsOnline/wso-go/services/ephmatch"
 	testify "github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
 )
 
 func TestController_ListProfiles(t *testing.T) {
@@ -94,7 +95,7 @@ func TestController_ListProfiles(t *testing.T) {
 	assert.NoError(db.Delete(s[5].EphmatchProfile).Error)
 
 	utils.AddUserContexts(router, s[0].ID)
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zap.S())
 
 	// Get test user
 	w, err := utils.DoHTTPReq(router, http.MethodGet, "/profiles", nil)
@@ -201,7 +202,7 @@ func TestController_GetProfile(t *testing.T) {
 	assert.NoError(db.Delete(s[5].EphmatchProfile).Error)
 
 	utils.AddUserContexts(router, s[0].ID)
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zap.S())
 
 	// Get test profile
 	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/profiles/%d", s[2].ID), nil)
@@ -277,7 +278,7 @@ func TestController_LikeProfile(t *testing.T) {
 	}).Error)
 
 	utils.AddUserContexts(router, s[0].ID)
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zap.S())
 
 	/* Create ephmatch with self (expect failure) */
 	apiErr := lib.ErrorEphmatchLikeNoSelf
@@ -358,7 +359,7 @@ func TestController_UnlikeProfile(t *testing.T) {
 	}).Error)
 
 	utils.AddUserContexts(router, s[0].ID)
-	SetupRouter(router, db, cfg)
+	SetupRouter(router, db, cfg, zap.S())
 
 	/* Delete ephmatch with random user (expect failure) */
 	apiErr := lib.ErrorEphmatchDoesNotExist
