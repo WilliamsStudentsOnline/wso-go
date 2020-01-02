@@ -83,6 +83,8 @@ func (t *Controller) ListUsers(c *gin.Context) {
 		if err != nil {
 			if searchLib.IsInvalidTokenError(err) {
 				err = lib.NewErrorInvalidSearchToken(err)
+			} else if searchLib.IsQueryError(err) {
+				err = lib.NewErrorInvalidSearchQuery(err)
 			}
 			t.RespondError(c, err)
 			return
