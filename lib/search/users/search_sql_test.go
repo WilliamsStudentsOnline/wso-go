@@ -251,4 +251,30 @@ func TestSearchUsersMySQL(t *testing.T) {
 		})
 	}
 
+	errorCases := []struct {
+		name     string
+		query    string
+		expected *lib.APIError
+	}{
+		{
+			"bad field",
+			"aidan foobar:hi",
+			lib.NewErrorUnknownSearchField("foobar"),
+		},
+		{
+			"bad field 2",
+			"Location:md3",
+			lib.NewErrorUnknownSearchField("Location"),
+		},
+	}
+
+	for _, tc := range errorCases {
+		t.Run(tc.name, func(t *testing.T) {
+			_, _, err := s.Search(tc.query, nil)
+			testify.Error(t, err)
+			testify.IsType(t, &lib.APIError{}, err)
+			testify.Equal(t, tc.expected, err.(*lib.APIError))
+		})
+	}
+
 }

@@ -59,6 +59,22 @@ func NewErrorInvalidSearchToken(err error) *APIError {
 	}
 }
 
+func NewErrorUnknownSearchField(field string) *APIError {
+	return &APIError{
+		Code:     ErrorUnknownSearchField.Code,
+		Message:  fmt.Sprintf("unknown search field %q", field),
+		HTTPCode: ErrorUnknownSearchField.HTTPCode,
+	}
+}
+
+func NewErrorInvalidSearchQuery(err error) *APIError {
+	return &APIError{
+		Code:     ErrorInvalidSearchQuery.Code,
+		Message:  fmt.Sprintf("invalid search query %q", err.Error()),
+		HTTPCode: ErrorInvalidSearchQuery.HTTPCode,
+	}
+}
+
 var (
 	// Standard HTTP error 0404
 	ErrorRecordNotFound = NewAPIErrorWithHTTP(0404, http.StatusNotFound, "record not found")
@@ -69,6 +85,8 @@ var (
 	ErrorMalformedRequestData        = NewAPIErrorWithHTTP(1100, http.StatusBadRequest, "could not parse malformed request data")
 	ErrorRequestDataValidationFailed = NewAPIErrorWithHTTP(1101, http.StatusBadRequest, "request data validation failed")
 	ErrorInvalidSearchToken          = NewAPIErrorWithHTTP(1150, http.StatusBadRequest, "invalid search token")
+	ErrorInvalidSearchQuery          = NewAPIErrorWithHTTP(1151, http.StatusBadRequest, "invalid search query")
+	ErrorUnknownSearchField          = NewAPIErrorWithHTTP(1152, http.StatusBadRequest, "unknown search field")
 
 	// 13** are authorization errors
 	ErrorNoScopeAuthorization = NewAPIErrorWithHTTP(1330, http.StatusForbidden, "no scope authorization")

@@ -4,6 +4,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/search"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/jinzhu/gorm"
@@ -14,6 +15,7 @@ var FieldNamesStd = map[string]string{
 	"name":         "name",
 	"class":        "class_year",
 	"year":         "class_year",
+	"class_year":   "class_year",
 	"neighborhood": "neighborhood",
 	"cluster":      "neighborhood",
 	"room":         "room",
@@ -55,8 +57,13 @@ func (s *SearchUsersMySQL) Search(query string, opts SearchOptions) (users []*mo
 		vals:          []interface{}{},
 		simpleQueries: []string{},
 		db:            s.DB,
+		errors:        []error{},
 	}
 	at.Traverse()
+
+	if len(at.errors) > 0 {
+		return users, totalResults, at.errors[len(at.errors)-1]
+	}
 
 	tx := s.DB.Model(&models.User{})
 	tx = at.ConstructSQL(tx)
@@ -99,6 +106,7 @@ type astTraverser struct {
 	simpleQueries []string
 	db            *gorm.DB
 	traversed     bool
+	errors        []error
 }
 
 func (t *astTraverser) Traverse() {
@@ -172,6 +180,7 @@ func (t *astTraverser) parseBasicValue(val string) {
 func (t *astTraverser) parseField(field *search.Field) (ignore bool) {
 	fieldName, ok := FieldNamesStd[strings.ToLower(field.Key)]
 	if !ok {
+		t.errors = append(t.errors, lib.NewErrorUnknownSearchField(field.Key))
 		ignore = true
 		return
 	}
@@ -249,6 +258,7 @@ func (t *astTraverser) parseField(field *search.Field) (ignore bool) {
 		t.vals = append(t.vals, valueSearch)
 	default:
 		ignore = true
+		t.errors = append(t.errors, lib.NewErrorUnknownSearchField(fieldName))
 	}
 
 	return
