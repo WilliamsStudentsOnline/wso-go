@@ -5,6 +5,7 @@ import (
 	"math"
 	"time"
 
+	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -24,7 +25,7 @@ func Logger(log *zap.SugaredLogger) gin.HandlerFunc {
 		statusCode := c.Writer.Status()
 		clientIP := c.ClientIP()
 		clientUserAgent := c.Request.UserAgent()
-		errorCode := c.GetInt("ErrorCodeKey")
+		errorCode := c.GetInt(services.ErrorCodeKey)
 		userID, _ := c.Get("id")
 
 		entry := log.With(
