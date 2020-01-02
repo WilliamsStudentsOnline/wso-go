@@ -40,8 +40,8 @@ func (t *Controller) GetSelfProfile(c *gin.Context) {
 }
 
 type ProfileCreateParams struct {
-	Description *string `json:"description" binding:"required"`
-	Gender      *string `json:"gender" binding:"required"`
+	Description *string `json:"description"`
+	Gender      *string `json:"gender"`
 	OtherGender bool    `json:"otherGender"`
 }
 

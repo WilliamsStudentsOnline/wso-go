@@ -200,9 +200,6 @@ definitions:
         type: string
       otherGender:
         type: boolean
-    required:
-    - description
-    - gender
     type: object
   ephmatch.ProfileUpdateParams:
     properties:

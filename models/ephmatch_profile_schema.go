@@ -4,7 +4,8 @@ const (
 	EphmatchProfileGenderMale   = "he/him/his"
 	EphmatchProfileGenderFemale = "she/her/hers"
 	EphmatchProfileGenderNB     = "they/them/theirs"
-	EphmatchProfileGenderOther  = ""
+	EphmatchProfileGenderOther  = "<OTHER>"
+	EphmatchProfileGenderNone   = ""
 )
 
 func EphmatchProfileGenderType(gender string) string {
@@ -15,6 +16,8 @@ func EphmatchProfileGenderType(gender string) string {
 		return EphmatchProfileGenderFemale
 	case EphmatchProfileGenderNB:
 		return EphmatchProfileGenderNB
+	case "":
+		return EphmatchProfileGenderNone
 	default:
 		return EphmatchProfileGenderOther
 	}

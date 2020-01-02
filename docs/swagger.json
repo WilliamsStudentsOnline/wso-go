@@ -6325,10 +6325,6 @@
         },
         "ephmatch.ProfileCreateParams": {
             "type": "object",
-            "required": [
-                "description",
-                "gender"
-            ],
             "properties": {
                 "description": {
                     "type": "string"

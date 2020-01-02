@@ -193,22 +193,12 @@ func TestController_CreateProfile(t *testing.T) {
 	// Delete the deleted profile
 	assert.NoError(db.Delete(s[2].EphmatchProfile).Error)
 
-	/* Create ephmatch with bad profile (expect failure) */
-	apiErr := lib.ErrorRequestDataValidationFailed
-	params := ProfileCreateParams{}
+	/* Create ephmatch with bad gender (expect failure) */
+	apiErr := lib.ErrorEphmatchGenderUnknown
+	params := ProfileCreateParams{Description: lib.StrToPtr("foobar"), Gender: lib.StrToPtr("custom gender")}
 	paramsData, err := json.Marshal(&params)
 	assert.NoError(err)
 	w, err := utils.DoHTTPReq(routers[0], http.MethodPost, "/profile", bytes.NewBuffer(paramsData))
-	assert.NoError(err)
-	assert.Equal(apiErr.HTTPCode, w.Code)
-	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
-
-	/* Create ephmatch with bad gender (expect failure) */
-	apiErr = lib.ErrorEphmatchGenderUnknown
-	params = ProfileCreateParams{Description: lib.StrToPtr("foobar"), Gender: lib.StrToPtr("custom gender")}
-	paramsData, err = json.Marshal(&params)
-	assert.NoError(err)
-	w, err = utils.DoHTTPReq(routers[0], http.MethodPost, "/profile", bytes.NewBuffer(paramsData))
 	assert.NoError(err)
 	assert.Equal(apiErr.HTTPCode, w.Code)
 	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
