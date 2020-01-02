@@ -9,6 +9,32 @@ import (
 	"go.uber.org/zap/zaptest"
 )
 
+func TestDiscussionModel_GetDiscussionByID_CreatedTime(t *testing.T) {
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+
+	m := NewDiscussionModel(db, zaptest.NewLogger(t).Sugar())
+
+	u1 := User{
+		Type:   UserTypeStudent,
+		Name:   "User 1",
+		UnixID: "u1",
+	}
+	assert.NoError(db.Create(&u1).Error)
+
+	d1 := Discussion{
+		User:  &u1,
+		Title: "Discussion 1",
+	}
+
+	assert.NoError(db.Create(&d1).Error)
+
+	/* Test getting the normal discussion */
+	res := Discussion{}
+	assert.NoError(m.GetDiscussionByID(d1.ID, &res, nil))
+	assert.True(d1.CreatedAt.Equal(res.CreatedTime))
+}
+
 func TestDiscussionModel_GetDiscussionWithDeletedUser(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)

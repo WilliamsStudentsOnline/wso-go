@@ -134,7 +134,7 @@ func (m *EphmatchProfileModel) GetSelfProfileByID(userID uint, p *EphmatchProfil
 		Unscoped().
 		Preload("User").
 		Where("ephmatch_profiles.user_id = ?", userID).
-		Scan(p).Error
+		First(p).Error
 	return
 }
 
@@ -142,7 +142,7 @@ func (m *EphmatchProfileModel) GetSelfProfileByIDScopedNoDefault(userID uint, p 
 	err = m.DB.Model(&EphmatchProfile{}).
 		Preload("User").
 		Where("ephmatch_profiles.user_id = ?", userID).
-		Scan(p).Error
+		First(p).Error
 	return
 }
 
@@ -151,7 +151,7 @@ func (m *EphmatchProfileModel) GetProfileByID(profileUserID uint, p *EphmatchPro
 		Scopes(m.scopeDefault).
 		Where("ephmatch_profiles.user_id = ?", profileUserID).
 		Preload("User").
-		Scan(p).Error
+		First(p).Error
 	if err != nil {
 		return
 	}
