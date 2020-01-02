@@ -41,7 +41,7 @@ func Logger(log *zap.SugaredLogger) gin.HandlerFunc {
 		)
 
 		if errorCode > 0 {
-			entry.With("errorCode", errorCode)
+			entry = entry.With("errorCode", errorCode)
 		}
 
 		queryUrl := query
