@@ -19,7 +19,8 @@ import (
 // @Tags bulletins
 // @Accept  json
 // @Produce  json
-// @Param offset query string false "Offset Pagination (timestamp)"
+// @Param start query string false "Start Pagination (timestamp)"
+// @Param offset query int false "Offset Pagination"
 // @Param limit query int false "Limit Pagination"
 // @Param preload query []string false "Preload List"
 // @Param type query string false "Bulletin Type"

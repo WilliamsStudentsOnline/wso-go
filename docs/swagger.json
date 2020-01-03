@@ -632,7 +632,13 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Offset Pagination (timestamp)",
+                        "description": "Start Pagination (timestamp)",
+                        "name": "start",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset Pagination",
                         "name": "offset",
                         "in": "query"
                     },
@@ -1022,7 +1028,13 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Offset Pagination (timestamp)",
+                        "description": "Start Pagination (timestamp)",
+                        "name": "start",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset Pagination",
                         "name": "offset",
                         "in": "query"
                     },
@@ -1039,6 +1051,12 @@
                         },
                         "description": "Preload List",
                         "name": "preload",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Get Last Post (get last/latest post of the discussion)",
+                        "name": "getLastPost",
                         "in": "query"
                     }
                 ],
@@ -1218,7 +1236,13 @@
                     },
                     {
                         "type": "string",
-                        "description": "Offset Pagination (timestamp)",
+                        "description": "Start Pagination (timestamp)",
+                        "name": "start",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset Pagination",
                         "name": "offset",
                         "in": "query"
                     },
@@ -1536,7 +1560,13 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Offset Pagination (timestamp)",
+                        "description": "Start Pagination (timestamp)",
+                        "name": "start",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset Pagination",
                         "name": "offset",
                         "in": "query"
                     },
@@ -1831,6 +1861,354 @@
                         "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/bulletin/rss/announcement": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "lists announcement bulletins in RSS",
+                "produces": [
+                    "text/xml"
+                ],
+                "tags": [
+                    "bulletins"
+                ],
+                "summary": "List announcement bulletins RSS",
+                "operationId": "bulletins-list-announcement-rss",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Start Pagination (timestamp)",
+                        "name": "start",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset Pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Get All Bulletins (no restriction on startDate, endDate)",
+                        "name": "all",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github.com/gorilla/feeds.Feed"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/bulletin/rss/discussion": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "lists discussion bulletins in RSS",
+                "produces": [
+                    "text/xml"
+                ],
+                "tags": [
+                    "bulletins"
+                ],
+                "summary": "List discussion bulletins RSS",
+                "operationId": "bulletins-list-discussion-rss",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Start Pagination (timestamp)",
+                        "name": "start",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset Pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github.com/gorilla/feeds.Feed"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/bulletin/rss/exchange": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "lists exchange bulletins in RSS",
+                "produces": [
+                    "text/xml"
+                ],
+                "tags": [
+                    "bulletins"
+                ],
+                "summary": "List exchange bulletins RSS",
+                "operationId": "bulletins-list-exchange-rss",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Start Pagination (timestamp)",
+                        "name": "start",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset Pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Get All Bulletins (no restriction on startDate, endDate)",
+                        "name": "all",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github.com/gorilla/feeds.Feed"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/bulletin/rss/job": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "lists job bulletins in RSS",
+                "produces": [
+                    "text/xml"
+                ],
+                "tags": [
+                    "bulletins"
+                ],
+                "summary": "List job bulletins RSS",
+                "operationId": "bulletins-list-job-rss",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Start Pagination (timestamp)",
+                        "name": "start",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset Pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Get All Bulletins (no restriction on startDate, endDate)",
+                        "name": "all",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github.com/gorilla/feeds.Feed"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/bulletin/rss/lostAndFound": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "lists lost and found bulletins in RSS",
+                "produces": [
+                    "text/xml"
+                ],
+                "tags": [
+                    "bulletins"
+                ],
+                "summary": "List lost and found bulletins RSS",
+                "operationId": "bulletins-list-lostAndFound-rss",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Start Pagination (timestamp)",
+                        "name": "start",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset Pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Get All Bulletins (no restriction on startDate, endDate)",
+                        "name": "all",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github.com/gorilla/feeds.Feed"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/bulletin/rss/ride": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "lists ride bulletins in RSS",
+                "produces": [
+                    "text/xml"
+                ],
+                "tags": [
+                    "bulletins"
+                ],
+                "summary": "List ride bulletins RSS",
+                "operationId": "bulletins-list-ride-rss",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Start Pagination (timestamp)",
+                        "name": "start",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset Pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Ride Type (request, offer)",
+                        "name": "type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Get All Bulletins (no restriction on startDate, endDate)",
+                        "name": "all",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github.com/gorilla/feeds.Feed"
                         }
                     },
                     "500": {
