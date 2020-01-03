@@ -28,7 +28,7 @@ type GetAllDiscussionsOptions struct {
 	// What to preload (user, posts, postsUsers)
 	Preload []string `json:"preload" form:"preload[]"`
 
-	// If to get the last/latest post of the discussion.
+	// If true get the last/latest post of the discussion.
 	GetLastPost *bool `json:"getLastPost" form:"getLastPost"`
 }
 

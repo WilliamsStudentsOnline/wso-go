@@ -17,6 +17,7 @@ require (
 	github.com/gin-gonic/gin v1.4.0
 	github.com/go-openapi/spec v0.19.2 // indirect
 	github.com/go-openapi/swag v0.19.4 // indirect
+	github.com/gorilla/feeds v1.1.1
 	github.com/iancoleman/strcase v0.0.0-20190422225806-e506e3ef7365
 	github.com/imdario/mergo v0.3.7
 	github.com/jinzhu/gorm v1.9.10

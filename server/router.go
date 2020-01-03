@@ -24,6 +24,7 @@ import (
 	authService "github.com/WilliamsStudentsOnline/wso-go/services/auth"
 	autocompleteService "github.com/WilliamsStudentsOnline/wso-go/services/autocomplete"
 	bulletinService "github.com/WilliamsStudentsOnline/wso-go/services/bulletin"
+	bulletinRSSService "github.com/WilliamsStudentsOnline/wso-go/services/bulletin/rss"
 	dormtrakService "github.com/WilliamsStudentsOnline/wso-go/services/dormtrak"
 	ephcatchService "github.com/WilliamsStudentsOnline/wso-go/services/ephcatch"
 	factrakService "github.com/WilliamsStudentsOnline/wso-go/services/factrak"
@@ -149,6 +150,10 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 		// Autocomplete Service
 		autocompleteGroup := v2.Group("/autocomplete")
 		autocompleteService.SetupRouter(autocompleteGroup, db, cfg, log.Named("autocomplete"))
+
+		// Bulletin RSS Service
+		bulletinRSSGroup := r.Group("/api/v2/bulletin/rss")
+		bulletinRSSService.SetupRouter(bulletinRSSGroup, db, cfg, log.Named("bulletin").Named("rss"))
 	}
 
 	return r, nil

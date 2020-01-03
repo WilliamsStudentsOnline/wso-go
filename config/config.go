@@ -2,6 +2,8 @@ package config
 
 import (
 	"errors"
+	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
 
@@ -95,6 +97,18 @@ func (c *Config) IsTest() bool {
 
 func (c *Config) IsProduction() bool {
 	return c.IsEnv("production")
+}
+
+func (c *Config) GenerateURL() *url.URL {
+	scheme := "http"
+	if c.EnableTLS {
+		scheme = "https"
+	}
+
+	return &url.URL{
+		Scheme: scheme,
+		Host:   fmt.Sprintf("%s:%d", c.Hostname, c.Port),
+	}
 }
 
 func (c *Config) ParsedLogLevel() zapcore.Level {
