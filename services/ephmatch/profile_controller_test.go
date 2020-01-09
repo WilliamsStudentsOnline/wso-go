@@ -243,6 +243,67 @@ func TestController_CreateProfile(t *testing.T) {
 	assert.Equal(*params.Gender, resDB.Gender)
 }
 
+func TestController_CreateProfile_DeleteUndelete(t *testing.T) {
+	// Setup (can copy and paste this basically)
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+	cfg := utils.SetupConfig()
+
+	srYear := (&models.StudentModel{}).SeniorYear()
+
+	u := &models.User{
+		Name:      "Student 1",
+		UnixID:    "s1",
+		Type:      models.UserTypeStudent,
+		ClassYear: &srYear,
+		EphmatchProfile: &models.EphmatchProfile{
+			Gender:      "she/her/hers",
+			Description: "test123",
+		},
+	}
+	assert.NoError(db.Create(&u).Error)
+
+	r := utils.SetupRouter(auth.ScopeEphmatch)
+	utils.AddUserContexts(r, u.ID)
+	SetupRouter(r, db, cfg, zap.S())
+
+	/* Delete profile */
+	w, err := utils.DoHTTPReq(r, http.MethodDelete, "/profile", nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+
+	/* Create profile where it was deleted (expect success) */
+	params := ProfileCreateParams{Description: lib.StrToPtr("test123"), Gender: lib.StrToPtr("she/her/hers")}
+	paramsData, err := json.Marshal(&params)
+	assert.NoError(err)
+	w, err = utils.DoHTTPReq(r, http.MethodPost, "/profile", bytes.NewBuffer(paramsData))
+	assert.NoError(err)
+	assert.Equal(http.StatusCreated, w.Code)
+
+	// Get from DB
+	resDB := models.EphmatchProfile{}
+	assert.NoError(db.Where(models.EphmatchProfile{UserID: u.ID}).First(&resDB).Error)
+	assert.Equal(*params.Description, resDB.Description)
+	assert.Equal(*params.Gender, resDB.Gender)
+	assert.Nil(resDB.DeletedAt)
+
+	var count int
+	assert.NoError(db.Model(models.EphmatchProfile{}).Where(models.EphmatchProfile{UserID: u.ID}).Count(&count).Error)
+	assert.Equal(1, count)
+
+	w, err = utils.DoHTTPReq(r, http.MethodGet, "/profile", nil)
+	assert.NoError(err)
+	resp := utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Equal(http.StatusOK, w.Code)
+	assert.Nil(resp.Error)
+	var res models.EphmatchProfile
+	err = json.Unmarshal(resp.Data, &res)
+	assert.NoError(err)
+	assert.Equal(*params.Description, res.Description)
+	assert.Equal(*params.Gender, res.Gender)
+	assert.False(res.Deleted)
+}
+
 func TestController_UpdateProfile(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)

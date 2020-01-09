@@ -76,30 +76,30 @@ func (m *EphmatchProfileModel) CreateProfile(p *EphmatchProfile) (err error) {
 
 // Create or update a new profile unscoped about deleted.
 func (m *EphmatchProfileModel) CreateOrUpdateProfileUnscoped(userID uint, newProfile EphmatchProfile, p *EphmatchProfile) (err error) {
-	tx := m.DB.Begin()
-
-	defer tx.RollbackUnlessCommitted()
 
 	var tempProf EphmatchProfile
-	err = tx.Unscoped().Where(EphmatchProfile{UserID: userID}).First(&tempProf).Error
+	err = m.DB.Unscoped().Where(EphmatchProfile{UserID: userID}).First(&tempProf).Error
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		return err
 	}
 
 	// If our profile was deleted, undelete it
 	if tempProf.DeletedAt != nil {
-		err = tx.
+		err = m.DB.
 			Unscoped().
-			Model(&tempProf).
+			Model(&EphmatchProfile{}).
 			Where(EphmatchProfile{UserID: userID}).
-			Update("deleted_at = ?", nil).
+			UpdateColumn("deleted_at", nil).
+			Update("gender", newProfile.Gender).
+			Update("description", newProfile.Description).
+			Preload("User").
 			Error
-		if err != nil {
-			return err
-		}
+
+		return err
 	}
 
-	err = tx.
+	err = m.DB.
+		Model(&EphmatchProfile{}).
 		Where(EphmatchProfile{UserID: userID}).
 		Assign(EphmatchProfile{
 			Gender:      newProfile.Gender,
@@ -107,11 +107,7 @@ func (m *EphmatchProfileModel) CreateOrUpdateProfileUnscoped(userID uint, newPro
 		}).
 		Preload("User").
 		FirstOrCreate(p).Error
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit().Error
+	return err
 }
 
 func (m *EphmatchProfileModel) UpdateProfile(p *EphmatchProfile) (err error) {
