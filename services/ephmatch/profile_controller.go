@@ -94,6 +94,9 @@ func (t *Controller) CreateProfile(c *gin.Context) {
 		return
 	}
 
+	// Update when created
+	t.SetUpdateToken(c)
+
 	// Sanitize user preloaded
 	sanitize.User(profile.User, c)
 
@@ -201,6 +204,9 @@ func (t *Controller) DeleteProfile(c *gin.Context) {
 
 	// Sanitize user preloaded
 	sanitize.User(profile.User, c)
+
+	// Update when deleted
+	t.SetUpdateToken(c)
 
 	t.RespondOK(c, profile)
 }
