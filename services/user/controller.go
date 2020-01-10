@@ -104,6 +104,23 @@ func (t *Controller) ListUsers(c *gin.Context) {
 		}
 	}
 
+	// Secure home and dorm if not admin
+	if !auth.HasScope(c, auth.ScopeAdminAll) {
+		for i := range users {
+			if !*users[i].HomeVisible {
+				users[i].HomeTown = nil
+				users[i].HomeState = nil
+				users[i].HomeZip = nil
+				users[i].HomeCountry = nil
+			}
+
+			if !*users[i].DormVisible {
+				users[i].DormRoom = nil
+				users[i].DormRoomID = nil
+			}
+		}
+	}
+
 	t.SetPaginationTotal(c, totalResults)
 
 	sanitize.Users(users, c)
@@ -159,6 +176,19 @@ func (t *Controller) GetUser(c *gin.Context) {
 		if !*user.AtWilliams {
 			t.RespondError(c, lib.ErrorUserNotAtWilliams)
 			return
+		}
+
+		// Secure home and dorm
+		if !*user.HomeVisible {
+			user.HomeTown = nil
+			user.HomeState = nil
+			user.HomeZip = nil
+			user.HomeCountry = nil
+		}
+
+		if !*user.DormVisible {
+			user.DormRoom = nil
+			user.DormRoomID = nil
 		}
 	}
 

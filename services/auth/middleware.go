@@ -204,6 +204,11 @@ func GenerateClaims(v *AuthenticatorPayload) jwt.MapClaims {
 				}
 			}
 
+			// If month is January (winter study), add the ephmatch scope. User opts out by deleting profile. By default opt in.
+			if isWinterStudy() {
+				scope = append(scope, auth.ScopeEphmatch)
+			}
+
 			// For factrak, user must be student and user accepted factrak policy
 			if v.User.HasAcceptedFactrakPolicy != nil && *v.User.HasAcceptedFactrakPolicy {
 				// TODO: ensure limited cannot get access via preloading
@@ -255,4 +260,8 @@ func isSeniorWeek() bool {
 	seniorWeek := time.Date(now.Year(), time.May, 15, 0, 0, 0, 0, now.Location())
 	seniorWeekEnd := time.Date(now.Year(), models.StudentCutoffMonth, 1, 0, 0, 0, 0, now.Location())
 	return now.After(seniorWeek) && now.Before(seniorWeekEnd)
+}
+
+func isWinterStudy() bool {
+	return time.Now().Month() == time.January
 }

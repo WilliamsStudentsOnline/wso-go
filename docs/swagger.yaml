@@ -192,6 +192,24 @@ definitions:
       wifi:
         type: integer
     type: object
+  ephmatch.ProfileCreateParams:
+    properties:
+      description:
+        type: string
+      gender:
+        type: string
+      otherGender:
+        type: boolean
+    type: object
+  ephmatch.ProfileUpdateParams:
+    properties:
+      description:
+        type: string
+      gender:
+        type: string
+      otherGender:
+        type: boolean
+    type: object
   factrak.AgreementCreateParams:
     properties:
       agree:
@@ -713,6 +731,29 @@ definitions:
       unixID:
         type: string
     type: object
+  models.EphmatchProfile:
+    properties:
+      deleted:
+        description: Non db entry that acts as a flag for deleted_at column
+        type: boolean
+      description:
+        type: string
+      gender:
+        description: These are optional
+        type: string
+      id:
+        type: integer
+      liked:
+        description: If me (user) has an ephmatch entry where ephmatch.other_id=users.id
+          and ephmatch.user_id=myID
+        type: boolean
+      user:
+        $ref: '#/definitions/models.User'
+        type: object
+      userID:
+        description: Belongs to user
+        type: integer
+    type: object
   models.FactrakAgreement:
     properties:
       agrees:
@@ -944,6 +985,10 @@ definitions:
         items:
           $ref: '#/definitions/models.Ephcatch'
         type: array
+      ephmatchProfile:
+        $ref: '#/definitions/models.EphmatchProfile'
+        description: Has one ephmatch profile
+        type: object
       factrakAdmin:
         type: boolean
       factrakAgreements:
@@ -1137,6 +1182,55 @@ definitions:
         type: string
       visible:
         type: boolean
+      williamsEmail:
+        type: string
+    type: object
+  responses.ListMatchesResponseEphmatch:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: integer
+      other:
+        $ref: '#/definitions/responses.ListMatchesResponseOther'
+        type: object
+      otherID:
+        type: integer
+      seen:
+        type: boolean
+    type: object
+  responses.ListMatchesResponseEphmatchProfile:
+    properties:
+      description:
+        type: string
+      gender:
+        type: string
+    type: object
+  responses.ListMatchesResponseOther:
+    properties:
+      classYear:
+        type: integer
+      entry:
+        type: string
+      ephmatchProfile:
+        $ref: '#/definitions/responses.ListMatchesResponseEphmatchProfile'
+        type: object
+      id:
+        type: integer
+      major:
+        type: string
+      name:
+        type: string
+      nickname:
+        type: string
+      offCycle:
+        type: boolean
+      pronoun:
+        type: string
+      title:
+        type: string
+      unixID:
+        type: string
       williamsEmail:
         type: string
     type: object
@@ -3446,6 +3540,329 @@ paths:
       summary: List matches
       tags:
       - ephcatch
+  /ephmatch/matches:
+    get:
+      consumes:
+      - application/json
+      description: lists all Ephmatch-eligible students that user has matched with
+      operationId: ephmatch-list-matches
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/responses.ListMatchesResponseEphmatch'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List matches
+      tags:
+      - ephmatch
+  /ephmatch/profile:
+    delete:
+      consumes:
+      - application/json
+      description: delete self's ephmatch profile
+      operationId: ephmatch-delete-profile
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.EphmatchProfile'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Delete profile
+      tags:
+      - ephmatch
+    get:
+      consumes:
+      - application/json
+      description: gets self ephmatch profile even if deleted
+      operationId: ephmatch-get-self-profile
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.EphmatchProfile'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get Ephmatch profile of self
+      tags:
+      - ephmatch
+    patch:
+      consumes:
+      - application/json
+      description: updates self's ephmatch profile. Profile must be created
+      operationId: ephmatch-update-profile
+      parameters:
+      - description: Update Profile Params
+        in: body
+        name: updateParams
+        required: true
+        schema:
+          $ref: '#/definitions/ephmatch.ProfileUpdateParams'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.EphmatchProfile'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1101":
+          description: request data validation failed
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1940":
+          description: unknown gender type specified; use other gender flag for custom
+            gender
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Update an Ephmatch profile
+      tags:
+      - ephmatch
+    post:
+      consumes:
+      - application/json
+      description: creates self ephmatch profile
+      operationId: ephmatch-create-profile
+      parameters:
+      - description: Create Profile Params
+        in: body
+        name: createParams
+        required: true
+        schema:
+          $ref: '#/definitions/ephmatch.ProfileCreateParams'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.EphmatchProfile'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1101":
+          description: request data validation failed
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1940":
+          description: unknown gender type specified; use other gender flag for custom
+            gender
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Create an Ephmatch profile
+      tags:
+      - ephmatch
+  /ephmatch/profiles:
+    get:
+      consumes:
+      - application/json
+      description: lists all Ephmatch-eligible student profiles
+      operationId: ephmatch-list-profiles
+      parameters:
+      - description: Offset Pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.EphmatchProfile'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List Ephmatchn profiles
+      tags:
+      - ephmatch
+  /ephmatch/profiles/{profileUserID}:
+    get:
+      consumes:
+      - application/json
+      description: gets one ephmatch-eligible user profile
+      operationId: ephmatch-get-profile
+      parameters:
+      - description: Profile User ID
+        in: path
+        name: profileUserID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.EphmatchProfile'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get Ephmatch profile
+      tags:
+      - ephmatch
+  /ephmatch/profiles/{profileUserID}/like:
+    post:
+      consumes:
+      - application/json
+      description: Likes one ephmatch-eligible user profile
+      operationId: ephmatch-like-profile
+      parameters:
+      - description: Profile User ID
+        in: path
+        name: profileUserID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201": {}
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1730":
+          description: cannot ephmatch-like yourself
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1731":
+          description: ephmatch profile could not be found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1732":
+          description: ephmatch already exists with user ID and passed ephmatch profile
+            user ID
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Like Ephmatch profile
+      tags:
+      - ephmatch
+  /ephmatch/profiles/{profileUserID}/unlike:
+    post:
+      consumes:
+      - application/json
+      description: Removes a like from one ephmatch-eligible user profile
+      operationId: ephmatch-unlike-profile
+      parameters:
+      - description: Profile User ID
+        in: path
+        name: profileUserID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201": {}
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Unlike ephmatch profile
+      tags:
+      - ephmatch
   /factrak/admin/surveys:
     get:
       consumes:

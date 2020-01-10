@@ -28,6 +28,8 @@ var Migrations = []*gormigrate.Migration{
 	migrations.CreateDiscussions20190812232511,
 	migrations.CreatePosts20190812232529,
 	migrations.AddNicknameToUsers20190826115256,
+	migrations.CreateEphmatches20190926015114,
+	migrations.CreateEphmatchProfiles20191124040019,
 }
 
 var MigrationGormOptions = gormigrate.DefaultOptions
@@ -60,6 +62,8 @@ func MigrateDB(db *gorm.DB) error {
 			&models.BulletinRide{},
 			&models.Discussion{},
 			&models.Post{},
+			&models.Ephmatch{},
+			&models.EphmatchProfile{},
 		).Error
 		if err != nil {
 			return err

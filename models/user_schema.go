@@ -87,6 +87,9 @@ type User struct {
 
 	// Has many ephcatches (owner side)
 	Ephcatches []*Ephcatch `gorm:"foreignkey:UserID" json:"ephcatches,omitempty"`
+
+	// Has one ephmatch profile
+	EphmatchProfile *EphmatchProfile `json:"ephmatchProfile,omitempty"`
 }
 
 func (*User) TableName() string {

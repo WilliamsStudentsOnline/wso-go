@@ -1,0 +1,122 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "title": "ListMatchesResponse",
+  "type": "array",
+  "items": {
+    "$ref": "#/definitions/Ephmatch"
+  },
+  "definitions": {
+    "Ephmatch": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "integer",
+          "goOtherName": "ID",
+          "goType": "uint"
+        },
+        "seen": {
+          "type": "boolean"
+        },
+        "other": {
+          "$ref": "#/definitions/Other"
+        },
+        "otherID": {
+          "type": "integer",
+          "goType": "uint"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "goType": "time.Time"
+        }
+      },
+      "required": [
+        "createdAt",
+        "id",
+        "other",
+        "otherID"
+      ],
+      "title": "Ephmatch",
+      "goOtherName": "Ephmatch",
+      "goOtherPackage": "github.com/WilliamsStudentsOnline/wso-go/models"
+    },
+    "Other": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "integer",
+          "goOtherName": "ID",
+          "goType": "uint"
+        },
+        "name": {
+          "type": "string"
+        },
+        "unixID": {
+          "type": "string"
+        },
+        "williamsEmail": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "classYear": {
+          "type": "integer"
+        },
+        "nickname": {
+          "type": "string"
+        },
+        "major": {
+          "type": "string"
+        },
+        "entry": {
+          "type": "string"
+        },
+        "pronoun": {
+          "type": "string"
+        },
+        "offCycle": {
+          "type": "boolean"
+        },
+        "ephmatchProfile": {
+          "$ref": "#/definitions/EphmatchProfile"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "unixID",
+        "williamsEmail"
+      ],
+      "title": "Other",
+      "goOtherName": "User",
+      "goOtherPackage": "github.com/WilliamsStudentsOnline/wso-go/models"
+    },
+    "EphmatchProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "type": "string",
+          "goPtr": true
+        },
+        "gender": {
+          "type": "string",
+          "goPtr": true
+        }
+      },
+      "required": [
+        "description",
+        "gender"
+      ],
+      "title": "EphmatchProfile",
+      "goOtherName": "EphmatchProfile",
+      "goOtherPackage": "github.com/WilliamsStudentsOnline/wso-go/models"
+    }
+  },
+  "goPackages": [
+    "time"
+  ]
+}
