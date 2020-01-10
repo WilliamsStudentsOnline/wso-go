@@ -81,8 +81,8 @@ func (t *Controller) CreateProfile(c *gin.Context) {
 	}
 
 	newProfile := models.EphmatchProfile{
-		Gender:      *createData.Gender,
-		Description: *createData.Description,
+		Gender:      createData.Gender,
+		Description: createData.Description,
 		UserID:      userID,
 	}
 
@@ -153,8 +153,8 @@ func (t *Controller) UpdateProfile(c *gin.Context) {
 		return
 	}
 
-	profile.Gender = *lib.StrPtrDefaults(updateData.Gender, &profile.Gender)
-	profile.Description = *lib.StrPtrDefaults(updateData.Description, &profile.Description)
+	profile.Gender = lib.StrPtrDefaults(updateData.Gender, profile.Gender)
+	profile.Description = lib.StrPtrDefaults(updateData.Description, profile.Description)
 
 	err = t.profileModel.UpdateProfile(&profile)
 	if err != nil {

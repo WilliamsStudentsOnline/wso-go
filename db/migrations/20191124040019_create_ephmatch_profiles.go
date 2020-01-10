@@ -25,8 +25,8 @@ var CreateEphmatchProfiles20191124040019 = &gormigrate.Migration{
 			// Belongs to user
 			UserID uint `gorm:"index:index_ephmatch_profiles_on_user_id;not null;" json:"userID"`
 
-			Gender      string `json:"gender"`
-			Description string `json:"description"`
+			Gender      *string `json:"gender"`
+			Description *string `json:"description"`
 		}
 		return tx.AutoMigrate(&EphmatchProfile{}).Error
 	},

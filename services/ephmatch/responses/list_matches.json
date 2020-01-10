@@ -99,10 +99,12 @@
       "additionalProperties": false,
       "properties": {
         "description": {
-          "type": "string"
+          "type": "string",
+          "goPtr": true
         },
         "gender": {
-          "type": "string"
+          "type": "string",
+          "goPtr": true
         }
       },
       "required": [

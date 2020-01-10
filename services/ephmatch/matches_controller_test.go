@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
@@ -26,38 +27,38 @@ func TestController_ListMatches(t *testing.T) {
 	s := []*models.User{
 		{
 			EphmatchProfile: &models.EphmatchProfile{
-				Gender:      "he/him/his",
-				Description: "description1",
+				Gender:      lib.StrToPtr("he/him/his"),
+				Description: lib.StrToPtr("description1"),
 			},
 		},
 		{
 			EphmatchProfile: &models.EphmatchProfile{
-				Gender:      "gender2",
-				Description: "description2",
+				Gender:      lib.StrToPtr("gender2"),
+				Description: lib.StrToPtr("description2"),
 			},
 		},
 		{
 			EphmatchProfile: &models.EphmatchProfile{
-				Gender:      "gender3",
-				Description: "description3",
+				Gender:      lib.StrToPtr("gender3"),
+				Description: lib.StrToPtr("description3"),
 			},
 		},
 		{
 			EphmatchProfile: &models.EphmatchProfile{
-				Gender:      "gender4",
-				Description: "description4",
+				Gender:      lib.StrToPtr("gender4"),
+				Description: lib.StrToPtr("description4"),
 			},
 		},
 		{
 			EphmatchProfile: &models.EphmatchProfile{
-				Gender:      "gender5",
-				Description: "description5",
+				Gender:      lib.StrToPtr("gender5"),
+				Description: lib.StrToPtr("description5"),
 			},
 		},
 		{
 			EphmatchProfile: &models.EphmatchProfile{
-				Gender:      "gender6",
-				Description: "description6",
+				Gender:      lib.StrToPtr("gender6"),
+				Description: lib.StrToPtr("description6"),
 			},
 		},
 	}

@@ -30,15 +30,15 @@ func TestController_GetSelfProfile(t *testing.T) {
 		{
 
 			EphmatchProfile: &models.EphmatchProfile{
-				Gender:      "she/her/hers",
-				Description: "test123",
+				Gender:      lib.StrToPtr("she/her/hers"),
+				Description: lib.StrToPtr("test123"),
 			},
 		},
 		// Case: deleted profile
 		{
 			EphmatchProfile: &models.EphmatchProfile{
-				Gender:      "they/them/theirs",
-				Description: "hello world",
+				Gender:      lib.StrToPtr("they/them/theirs"),
+				Description: lib.StrToPtr("hello world"),
 			},
 		},
 		// Case: not student
@@ -47,16 +47,16 @@ func TestController_GetSelfProfile(t *testing.T) {
 			Name:   "Professor 1",
 			UnixID: "p1",
 			EphmatchProfile: &models.EphmatchProfile{
-				Gender:      "bteevev",
-				Description: "42",
+				Gender:      lib.StrToPtr("bteevev"),
+				Description: lib.StrToPtr("42"),
 			},
 		},
 		// Case: not visible
 		{
 			Visible: lib.BoolToPtr(false),
 			EphmatchProfile: &models.EphmatchProfile{
-				Gender:      "1",
-				Description: "2",
+				Gender:      lib.StrToPtr("1"),
+				Description: lib.StrToPtr("2"),
 			},
 		},
 		// Case: no profile
@@ -164,15 +164,15 @@ func TestController_CreateProfile(t *testing.T) {
 		{
 
 			EphmatchProfile: &models.EphmatchProfile{
-				Gender:      "she/her/hers",
-				Description: "test123",
+				Gender:      lib.StrToPtr("she/her/hers"),
+				Description: lib.StrToPtr("test123"),
 			},
 		},
 		// Case: deleted profile
 		{
 			EphmatchProfile: &models.EphmatchProfile{
-				Gender:      "they/them/theirs",
-				Description: "hello world",
+				Gender:      lib.StrToPtr("they/them/theirs"),
+				Description: lib.StrToPtr("hello world"),
 			},
 		},
 	}
@@ -213,8 +213,8 @@ func TestController_CreateProfile(t *testing.T) {
 	// Get from DB
 	resDB := models.EphmatchProfile{}
 	assert.NoError(db.Where(models.EphmatchProfile{UserID: s[0].ID}).First(&resDB).Error)
-	assert.Equal(*params.Description, resDB.Description)
-	assert.Equal(*params.Gender, resDB.Gender)
+	assert.Equal(*params.Description, *resDB.Description)
+	assert.Equal(*params.Gender, *resDB.Gender)
 
 	/* Create profile where it already exists (expect success on user 2) */
 	params = ProfileCreateParams{Description: lib.StrToPtr("description here 123"), Gender: lib.StrToPtr("he/him/his")}
@@ -226,8 +226,8 @@ func TestController_CreateProfile(t *testing.T) {
 	// Get from DB
 	resDB = models.EphmatchProfile{}
 	assert.NoError(db.Where(models.EphmatchProfile{UserID: s[1].ID}).First(&resDB).Error)
-	assert.Equal(*params.Description, resDB.Description)
-	assert.Equal(*params.Gender, resDB.Gender)
+	assert.Equal(*params.Description, *resDB.Description)
+	assert.Equal(*params.Gender, *resDB.Gender)
 
 	/* Create profile where it was deleted (expect success on user 3) */
 	params = ProfileCreateParams{Description: lib.StrToPtr("abc 123 hello world"), Gender: lib.StrToPtr("she/her/hers")}
@@ -239,8 +239,8 @@ func TestController_CreateProfile(t *testing.T) {
 	// Get from DB
 	resDB = models.EphmatchProfile{}
 	assert.NoError(db.Where(models.EphmatchProfile{UserID: s[2].ID}).First(&resDB).Error)
-	assert.Equal(*params.Description, resDB.Description)
-	assert.Equal(*params.Gender, resDB.Gender)
+	assert.Equal(*params.Description, *resDB.Description)
+	assert.Equal(*params.Gender, *resDB.Gender)
 }
 
 func TestController_CreateProfile_DeleteUndelete(t *testing.T) {
@@ -257,8 +257,8 @@ func TestController_CreateProfile_DeleteUndelete(t *testing.T) {
 		Type:      models.UserTypeStudent,
 		ClassYear: &srYear,
 		EphmatchProfile: &models.EphmatchProfile{
-			Gender:      "she/her/hers",
-			Description: "test123",
+			Gender:      lib.StrToPtr("she/her/hers"),
+			Description: lib.StrToPtr("test123"),
 		},
 	}
 	assert.NoError(db.Create(&u).Error)
@@ -283,8 +283,8 @@ func TestController_CreateProfile_DeleteUndelete(t *testing.T) {
 	// Get from DB
 	resDB := models.EphmatchProfile{}
 	assert.NoError(db.Where(models.EphmatchProfile{UserID: u.ID}).First(&resDB).Error)
-	assert.Equal(*params.Description, resDB.Description)
-	assert.Equal(*params.Gender, resDB.Gender)
+	assert.Equal(*params.Description, *resDB.Description)
+	assert.Equal(*params.Gender, *resDB.Gender)
 	assert.Nil(resDB.DeletedAt)
 
 	var count int
@@ -299,8 +299,8 @@ func TestController_CreateProfile_DeleteUndelete(t *testing.T) {
 	var res models.EphmatchProfile
 	err = json.Unmarshal(resp.Data, &res)
 	assert.NoError(err)
-	assert.Equal(*params.Description, res.Description)
-	assert.Equal(*params.Gender, res.Gender)
+	assert.Equal(*params.Description, *res.Description)
+	assert.Equal(*params.Gender, *res.Gender)
 	assert.False(res.Deleted)
 }
 
@@ -317,15 +317,15 @@ func TestController_UpdateProfile(t *testing.T) {
 		{
 
 			EphmatchProfile: &models.EphmatchProfile{
-				Gender:      "she/her/hers",
-				Description: "test123",
+				Gender:      lib.StrToPtr("she/her/hers"),
+				Description: lib.StrToPtr("test123"),
 			},
 		},
 		// Case: deleted profile
 		{
 			EphmatchProfile: &models.EphmatchProfile{
-				Gender:      "they/them/theirs",
-				Description: "hello world",
+				Gender:      lib.StrToPtr("they/them/theirs"),
+				Description: lib.StrToPtr("hello world"),
 			},
 		},
 		// Case: no profile
@@ -388,8 +388,8 @@ func TestController_UpdateProfile(t *testing.T) {
 	// Get from DB
 	resDB := models.EphmatchProfile{}
 	assert.NoError(db.Where(models.EphmatchProfile{UserID: s[0].ID}).First(&resDB).Error)
-	assert.Equal(s[0].EphmatchProfile.Description, resDB.Description)
-	assert.Equal(*params.Gender, resDB.Gender)
+	assert.Equal(*s[0].EphmatchProfile.Description, *resDB.Description)
+	assert.Equal(*params.Gender, *resDB.Gender)
 }
 
 func TestController_DeleteProfile(t *testing.T) {
@@ -405,15 +405,15 @@ func TestController_DeleteProfile(t *testing.T) {
 		{
 
 			EphmatchProfile: &models.EphmatchProfile{
-				Gender:      "she/her/hers",
-				Description: "test123",
+				Gender:      lib.StrToPtr("she/her/hers"),
+				Description: lib.StrToPtr("test123"),
 			},
 		},
 		// Case: deleted profile
 		{
 			EphmatchProfile: &models.EphmatchProfile{
-				Gender:      "they/them/theirs",
-				Description: "hello world",
+				Gender:      lib.StrToPtr("they/them/theirs"),
+				Description: lib.StrToPtr("hello world"),
 			},
 		},
 		// Case: no profile

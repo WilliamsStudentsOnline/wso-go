@@ -30,8 +30,9 @@ type EphmatchProfile struct {
 	UserID uint  `gorm:"index:index_ephmatch_profiles_on_user_id;not null;" json:"userID"`
 	User   *User `json:"user,omitempty"`
 
-	Gender      string `json:"gender"`
-	Description string `json:"description"`
+	// These are optional
+	Gender      *string `json:"gender"`
+	Description *string `json:"description"`
 
 	Liked bool `gorm:"-" json:"liked"` // If me (user) has an ephmatch entry where ephmatch.other_id=users.id and ephmatch.user_id=myID
 

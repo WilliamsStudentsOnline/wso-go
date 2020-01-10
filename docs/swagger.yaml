@@ -739,6 +739,7 @@ definitions:
       description:
         type: string
       gender:
+        description: These are optional
         type: string
       id:
         type: integer

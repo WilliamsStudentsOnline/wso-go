@@ -74,7 +74,7 @@ func (m *EphmatchProfileModel) CreateProfile(p *EphmatchProfile) (err error) {
 	return
 }
 
-// Create or update a new profile unscoped about deleted.
+// Create or update a new profile unscoped about deleted. Updating a deleted profile will make it be undeleted
 func (m *EphmatchProfileModel) CreateOrUpdateProfileUnscoped(userID uint, newProfile EphmatchProfile, p *EphmatchProfile) (err error) {
 
 	var tempProf EphmatchProfile
@@ -85,14 +85,19 @@ func (m *EphmatchProfileModel) CreateOrUpdateProfileUnscoped(userID uint, newPro
 
 	// If our profile was deleted, undelete it
 	if tempProf.DeletedAt != nil {
-		err = m.DB.
+		query := m.DB.
 			Unscoped().
 			Model(&EphmatchProfile{}).
-			Where(EphmatchProfile{UserID: userID}).
-			UpdateColumn("deleted_at", nil).
-			Update("gender", newProfile.Gender).
-			Update("description", newProfile.Description).
+			Where(EphmatchProfile{UserID: userID})
+		if newProfile.Gender != nil {
+			query = query.Update("gender", newProfile.Gender)
+		}
+		if newProfile.Description != nil {
+			query = query.Update("description", newProfile.Description)
+		}
+		err = query.UpdateColumn("deleted_at", nil).
 			Preload("User").
+			First(p).
 			Error
 
 		return err

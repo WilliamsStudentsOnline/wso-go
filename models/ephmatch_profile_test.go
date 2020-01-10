@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/WilliamsStudentsOnline/wso-go/db/seed"
+	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	. "github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/jinzhu/gorm"
@@ -24,8 +25,8 @@ func TestEphmatchProfileModel_DeleteProfile(t *testing.T) {
 	// Create Profile
 	profile := &EphmatchProfile{
 		UserID:      user.ID,
-		Gender:      EphmatchProfileGenderNB,
-		Description: "hello world 123 abc foo bar",
+		Gender:      lib.StrToPtr(EphmatchProfileGenderNB),
+		Description: lib.StrToPtr("hello world 123 abc foo bar"),
 	}
 	assert.NoError(db.Create(profile).Error)
 
@@ -64,4 +65,99 @@ func TestEphmatchProfileModel_DeleteProfile(t *testing.T) {
 	assert.Equal(profile.Description, res.Description)
 	assert.NotNil(res.DeletedAt)
 	assert.True(res.Deleted)
+}
+
+func TestEphmatchProfileModel_CreateOrUpdateProfileUnscoped(t *testing.T) {
+	db := utils.SetupServiceTest(testify.New(t))
+
+	m := NewEphmatchProfileModel(db, zaptest.NewLogger(t).Sugar())
+
+	t.Run("Create Profile", func(t *testing.T) {
+		assert := testify.New(t)
+
+		user := seed.GenerateStudent()
+		assert.NoError(db.Create(user).Error)
+
+		// Create Profile
+		newProfile := EphmatchProfile{
+			UserID:      user.ID,
+			Gender:      lib.StrToPtr(EphmatchProfileGenderNB),
+			Description: lib.StrToPtr("hello world 123 abc foo bar"),
+		}
+
+		var profile EphmatchProfile
+		assert.NoError(m.CreateOrUpdateProfileUnscoped(user.ID, newProfile, &profile))
+
+		var res EphmatchProfile
+		assert.NoError(db.Model(EphmatchProfile{}).Where(EphmatchProfile{UserID: newProfile.UserID}).First(&res).Error)
+
+		assert.Equal(profile.ID, res.ID)
+		assert.Equal(profile.Gender, res.Gender)
+		assert.Equal(profile.Description, res.Description)
+		assert.Nil(res.DeletedAt)
+		assert.Equal(newProfile.Gender, res.Gender)
+		assert.Equal(newProfile.Description, res.Description)
+	})
+
+	t.Run("Create Profile with empty description and gender", func(t *testing.T) {
+		assert := testify.New(t)
+
+		user := seed.GenerateStudent()
+		assert.NoError(db.Create(user).Error)
+
+		// Create Profile
+		newProfile := EphmatchProfile{
+			UserID: user.ID,
+		}
+
+		var profile EphmatchProfile
+		assert.NoError(m.CreateOrUpdateProfileUnscoped(user.ID, newProfile, &profile))
+
+		var res EphmatchProfile
+		assert.NoError(db.Model(EphmatchProfile{}).Where(EphmatchProfile{UserID: newProfile.UserID}).First(&res).Error)
+
+		assert.Equal(profile.ID, res.ID)
+		assert.Equal(profile.Gender, res.Gender)
+		assert.Equal(profile.Description, res.Description)
+		assert.Nil(res.DeletedAt)
+		assert.Equal(newProfile.Gender, res.Gender)
+		assert.Equal(newProfile.Description, res.Description)
+	})
+
+	t.Run("Update deleted profile", func(t *testing.T) {
+		assert := testify.New(t)
+
+		user := seed.GenerateStudent()
+		assert.NoError(db.Create(user).Error)
+
+		// Create Profile
+		newProfile := EphmatchProfile{
+			UserID:      user.ID,
+			Gender:      lib.StrToPtr(EphmatchProfileGenderNB),
+			Description: lib.StrToPtr("hello world 123 abc foo bar"),
+		}
+
+		var profile EphmatchProfile
+		assert.NoError(m.CreateOrUpdateProfileUnscoped(user.ID, newProfile, &profile))
+
+		// Delete it
+		assert.NoError(m.DeleteProfile(&profile))
+
+		profile = EphmatchProfile{}
+		newProfileDeleted := EphmatchProfile{
+			UserID: user.ID,
+		}
+		assert.NoError(m.CreateOrUpdateProfileUnscoped(user.ID, newProfileDeleted, &profile))
+
+		var res EphmatchProfile
+		assert.NoError(db.Model(EphmatchProfile{}).Where(EphmatchProfile{UserID: newProfile.UserID}).First(&res).Error)
+
+		assert.Equal(profile.ID, res.ID)
+		assert.Equal(profile.Gender, res.Gender)
+		assert.Equal(profile.Description, res.Description)
+		assert.Nil(res.DeletedAt)
+		assert.Equal(newProfile.Gender, res.Gender)
+		assert.Equal(newProfile.Description, res.Description)
+	})
+
 }

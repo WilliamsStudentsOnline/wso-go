@@ -10,7 +10,7 @@ func GenerateEphmatchProfile() *models.EphmatchProfile {
 	desc := gofakeit.Sentence(10)
 
 	return &models.EphmatchProfile{
-		Gender:      gender,
-		Description: desc,
+		Gender:      &gender,
+		Description: &desc,
 	}
 }
