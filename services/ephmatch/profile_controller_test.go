@@ -392,6 +392,83 @@ func TestController_UpdateProfile(t *testing.T) {
 	assert.Equal(*params.Gender, *resDB.Gender)
 }
 
+func TestController_UpdateProfile_Deleted(t *testing.T) {
+	// Setup (can copy and paste this basically)
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+	cfg := utils.SetupConfig()
+
+	srYear := (&models.StudentModel{}).SeniorYear()
+
+	u := &models.User{
+		Name:      "Student 1",
+		UnixID:    "s1",
+		Type:      models.UserTypeStudent,
+		ClassYear: &srYear,
+		EphmatchProfile: &models.EphmatchProfile{
+			Gender:      lib.StrToPtr("she/her/hers"),
+			Description: lib.StrToPtr("test123"),
+		},
+	}
+	assert.NoError(db.Create(&u).Error)
+
+	r := utils.SetupRouter(auth.ScopeEphmatch)
+	utils.AddUserContexts(r, u.ID)
+	SetupRouter(r, db, cfg, zap.S())
+
+	/* Delete profile */
+	w, err := utils.DoHTTPReq(r, http.MethodDelete, "/profile", nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+
+	/* Updated profile where it was deleted (expect failure) */
+	apiErr := lib.ErrorRecordNotFound
+	params := ProfileUpdateParams{Description: lib.StrToPtr("4gwe"), Gender: lib.StrToPtr(models.EphmatchProfileGenderNB)}
+	paramsData, err := json.Marshal(&params)
+	assert.NoError(err)
+	w, err = utils.DoHTTPReq(r, http.MethodPatch, "/profile", bytes.NewBuffer(paramsData))
+	assert.NoError(err)
+	assert.Equal(apiErr.HTTPCode, w.Code)
+	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+}
+
+func TestController_UpdateProfile_Again(t *testing.T) {
+	// Setup (can copy and paste this basically)
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+	cfg := utils.SetupConfig()
+
+	srYear := (&models.StudentModel{}).SeniorYear()
+
+	u := &models.User{
+		Name:      "Student 1",
+		UnixID:    "s1",
+		Type:      models.UserTypeStudent,
+		ClassYear: &srYear,
+		EphmatchProfile: &models.EphmatchProfile{
+			Gender:      lib.StrToPtr("she/her/hers"),
+			Description: lib.StrToPtr("test123"),
+		},
+	}
+	assert.NoError(db.Create(&u).Error)
+
+	r := utils.SetupRouter(auth.ScopeEphmatch)
+	utils.AddUserContexts(r, u.ID)
+	SetupRouter(r, db, cfg, zap.S())
+
+	/* Update profile */
+	params := ProfileUpdateParams{Description: lib.StrToPtr("4gwe"), Gender: lib.StrToPtr(models.EphmatchProfileGenderNB)}
+	paramsData, err := json.Marshal(&params)
+	assert.NoError(err)
+	w, err := utils.DoHTTPReq(r, http.MethodPatch, "/profile", bytes.NewBuffer(paramsData))
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+
+	var count int
+	assert.NoError(db.Model(models.EphmatchProfile{}).Where(models.EphmatchProfile{UserID: u.ID}).Count(&count).Error)
+	assert.Equal(1, count)
+}
+
 func TestController_DeleteProfile(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
