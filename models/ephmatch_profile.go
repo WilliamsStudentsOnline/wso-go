@@ -29,6 +29,21 @@ func (m *EphmatchProfileModel) GetAllProfiles(p *[]*EphmatchProfile, opts Option
 	return db.Find(p).Error
 }
 
+// Get all ephmatch profiles.
+func (m *EphmatchProfileModel) GetAllProfilesNoSelf(p *[]*EphmatchProfile, selfID uint, opts Options) (err error) {
+	// Get profiles
+	db := m.DB.Model(&EphmatchProfile{}).Preload("User")
+
+	db = m.scopeDefault(db)
+	if opts != nil {
+		db = opts.Run(db)
+	}
+
+	db = db.Not(EphmatchProfile{UserID: selfID})
+
+	return db.Find(p).Error
+}
+
 type GetAllProfilesOptions struct {
 	// Offset is ignored unless limit is supplied
 	Offset *uint `json:"offset" form:"offset"`

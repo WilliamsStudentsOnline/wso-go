@@ -110,16 +110,15 @@ func TestController_ListProfiles(t *testing.T) {
 	var resp []models.EphmatchProfile
 	assert.NoError(json.Unmarshal(respData.Data, &resp))
 
-	// Check if correct users
-	assert.Len(resp, 3)
-	for i, exp := range []*models.User{s[0], s[1], s[2]} {
+	// Check if correct users. should not return self (s[0])
+	assert.Len(resp, 2)
+	for i, exp := range []*models.User{s[1], s[2]} {
 		assert.Equal(exp.EphmatchProfile.ID, resp[i].ID)
 		assert.Equal(exp.EphmatchProfile.Description, resp[i].Description)
 		assert.Equal(exp.ID, resp[i].User.ID)
 	}
 	assert.False(resp[0].Liked)
-	assert.False(resp[1].Liked)
-	assert.True(resp[2].Liked)
+	assert.True(resp[1].Liked)
 }
 
 func TestController_GetProfile(t *testing.T) {
