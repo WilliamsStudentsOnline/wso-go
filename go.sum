@@ -21,8 +21,8 @@ github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 h1:d+Bc7a5rLufV
 github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578/go.mod h1:uGdkoq3SwY9Y+13GIhn11/XLaGBb4BfwItxLd5jeuXE=
 github.com/Shopify/sarama v1.19.0/go.mod h1:FVkBWblsNy7DGZRfXLU0O9RCGt5g3g3yEuWXgklEdEo=
 github.com/Shopify/toxiproxy v2.1.4+incompatible/go.mod h1:OXgGpZ6Cli1/URJOF1DMxUHB2q5Ap20/P/eIdh4G0pI=
-github.com/WilliamsStudentsOnline/gin-jwt/v2 v2.6.3 h1:Jn3mFJZL9rX40E9X3l1FiQxpKFCkb/0RWkR2WbjngIk=
-github.com/WilliamsStudentsOnline/gin-jwt/v2 v2.6.3/go.mod h1:bF+y3CgeIk8w8p43cX+GhFfDIBk0VZ2ZuQVuAhqa+LQ=
+github.com/WilliamsStudentsOnline/gin-jwt/v2 v2.6.5 h1:QGyWV48NTcfqCktL0DHGGBIZLnDOI1rOyEVDBJJMxG0=
+github.com/WilliamsStudentsOnline/gin-jwt/v2 v2.6.5/go.mod h1:GX4jghrL4t4aCiG85pg5RjufW/4Z/nVJckzAP0pUyBI=
 github.com/agext/levenshtein v1.2.2 h1:0S/Yg6LYmFJ5stwQeRp6EeOcCbj7xiqQSdNelsXvaqE=
 github.com/agext/levenshtein v1.2.2/go.mod h1:JEDfjyjHDjOF/1e4FlBE/PkbqA9OfWu2ki2W0IB5558=
 github.com/agnivade/levenshtein v1.0.2 h1:xKF7WlEzoa+ZVkzBxy0ukdzI2etYiWGlTPMNTBGncKI=
@@ -35,7 +35,6 @@ github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751 h1:JYp7IbQjafo
 github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=
 github.com/apache/thrift v0.12.0/go.mod h1:cp2SuWMxlEZw2r+iP2GNCdIi4C1qmUzdZFSVb+bacwQ=
-github.com/appleboy/gin-jwt/v2 v2.6.2/go.mod h1:fPyTIp4l5gtQnThEGuMBzCcfvMVSs9dsfrZlXsaTJMY=
 github.com/appleboy/gofight/v2 v2.1.1 h1:mBiMmXAofKf1GdEHxp8QkfrRaj/nBCoDnkwjn8axsq8=
 github.com/appleboy/gofight/v2 v2.1.1/go.mod h1:6E7pthKhmwss84j/zEixBNim8Q6ahhHcYOtmW5ts5vA=
 github.com/arbovm/levenshtein v0.0.0-20160628152529-48b4e1c0c4d0 h1:jfIu9sQUG6Ig+0+Ap1h4unLjW6YQJpKZVmUzxsD4E/Q=
@@ -159,6 +158,8 @@ github.com/googleapis/gnostic v0.0.0-20170729233727-0c5108395e2d h1:7XGaL1e6bYS1
 github.com/googleapis/gnostic v0.0.0-20170729233727-0c5108395e2d/go.mod h1:sJBsCZ4ayReDTBIg8b9dl28c5xFWyhBTVRp3pOg5EKY=
 github.com/gophercloud/gophercloud v0.0.0-20190126172459-c818fa66e4c8/go.mod h1:3WdhXV3rUYy9p6AUW8d94kr+HS62Y4VL9mBnFxsD8q4=
 github.com/gorilla/context v1.1.1/go.mod h1:kBGZzfjB9CEq2AlWe17Uuf7NDRt0dE0s8S51q0aT7Yg=
+github.com/gorilla/feeds v1.1.1 h1:HwKXxqzcRNg9to+BbvJog4+f3s/xzvtZXICcQGutYfY=
+github.com/gorilla/feeds v1.1.1/go.mod h1:Nk0jZrvPFZX1OBe5NPiddPw7CfwF6Q9eqzaBbaightA=
 github.com/gorilla/mux v1.6.2/go.mod h1:1lud6UwP+6orDFRuTfBEV8e9/aOM/c4fVVCaMa2zaAs=
 github.com/gorilla/mux v1.7.2 h1:zoNxOV7WjqXptQOVngLmcSQgXmgk4NMz1HibBchjl/I=
 github.com/gorilla/mux v1.7.2/go.mod h1:1lud6UwP+6orDFRuTfBEV8e9/aOM/c4fVVCaMa2zaAs=

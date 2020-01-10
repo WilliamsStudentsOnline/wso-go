@@ -1801,10 +1801,14 @@ paths:
       description: lists all bulletins
       operationId: bulletins-list-bulletins
       parameters:
-      - description: Offset Pagination (timestamp)
+      - description: Start Pagination (timestamp)
+        in: query
+        name: start
+        type: string
+      - description: Offset Pagination
         in: query
         name: offset
-        type: string
+        type: integer
       - description: Limit Pagination
         in: query
         name: limit
@@ -2054,10 +2058,14 @@ paths:
       description: lists all bulletin discussions
       operationId: bulletins-list-discussions
       parameters:
-      - description: Offset Pagination (timestamp)
+      - description: Start Pagination (timestamp)
+        in: query
+        name: start
+        type: string
+      - description: Offset Pagination
         in: query
         name: offset
-        type: string
+        type: integer
       - description: Limit Pagination
         in: query
         name: limit
@@ -2068,6 +2076,10 @@ paths:
           type: string
         name: preload
         type: array
+      - description: Get Last Post (get last/latest post of the discussion)
+        in: query
+        name: getLastPost
+        type: boolean
       produces:
       - application/json
       responses:
@@ -2181,10 +2193,14 @@ paths:
         name: discussionID
         required: true
         type: integer
-      - description: Offset Pagination (timestamp)
+      - description: Start Pagination (timestamp)
+        in: query
+        name: start
+        type: string
+      - description: Offset Pagination
         in: query
         name: offset
-        type: string
+        type: integer
       - description: Limit Pagination
         in: query
         name: limit
@@ -2387,10 +2403,14 @@ paths:
       description: lists all bulletin rides
       operationId: bulletins-list-rides
       parameters:
-      - description: Offset Pagination (timestamp)
+      - description: Start Pagination (timestamp)
+        in: query
+        name: start
+        type: string
+      - description: Offset Pagination
         in: query
         name: offset
-        type: string
+        type: integer
       - description: Limit Pagination
         in: query
         name: limit
@@ -2591,6 +2611,228 @@ paths:
       security:
       - Bearer: []
       summary: Update ride
+      tags:
+      - bulletins
+  /bulletin/rss/announcement:
+    get:
+      description: lists announcement bulletins in RSS
+      operationId: bulletins-list-announcement-rss
+      parameters:
+      - description: Start Pagination (timestamp)
+        in: query
+        name: start
+        type: string
+      - description: Offset Pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      - description: Get All Bulletins (no restriction on startDate, endDate)
+        in: query
+        name: all
+        type: string
+      produces:
+      - text/xml
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github.com/gorilla/feeds.Feed'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List announcement bulletins RSS
+      tags:
+      - bulletins
+  /bulletin/rss/discussion:
+    get:
+      description: lists discussion bulletins in RSS
+      operationId: bulletins-list-discussion-rss
+      parameters:
+      - description: Start Pagination (timestamp)
+        in: query
+        name: start
+        type: string
+      - description: Offset Pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - text/xml
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github.com/gorilla/feeds.Feed'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List discussion bulletins RSS
+      tags:
+      - bulletins
+  /bulletin/rss/exchange:
+    get:
+      description: lists exchange bulletins in RSS
+      operationId: bulletins-list-exchange-rss
+      parameters:
+      - description: Start Pagination (timestamp)
+        in: query
+        name: start
+        type: string
+      - description: Offset Pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      - description: Get All Bulletins (no restriction on startDate, endDate)
+        in: query
+        name: all
+        type: string
+      produces:
+      - text/xml
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github.com/gorilla/feeds.Feed'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List exchange bulletins RSS
+      tags:
+      - bulletins
+  /bulletin/rss/job:
+    get:
+      description: lists job bulletins in RSS
+      operationId: bulletins-list-job-rss
+      parameters:
+      - description: Start Pagination (timestamp)
+        in: query
+        name: start
+        type: string
+      - description: Offset Pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      - description: Get All Bulletins (no restriction on startDate, endDate)
+        in: query
+        name: all
+        type: string
+      produces:
+      - text/xml
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github.com/gorilla/feeds.Feed'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List job bulletins RSS
+      tags:
+      - bulletins
+  /bulletin/rss/lostAndFound:
+    get:
+      description: lists lost and found bulletins in RSS
+      operationId: bulletins-list-lostAndFound-rss
+      parameters:
+      - description: Start Pagination (timestamp)
+        in: query
+        name: start
+        type: string
+      - description: Offset Pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      - description: Get All Bulletins (no restriction on startDate, endDate)
+        in: query
+        name: all
+        type: string
+      produces:
+      - text/xml
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github.com/gorilla/feeds.Feed'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List lost and found bulletins RSS
+      tags:
+      - bulletins
+  /bulletin/rss/ride:
+    get:
+      description: lists ride bulletins in RSS
+      operationId: bulletins-list-ride-rss
+      parameters:
+      - description: Start Pagination (timestamp)
+        in: query
+        name: start
+        type: string
+      - description: Offset Pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      - description: Ride Type (request, offer)
+        in: query
+        name: type
+        type: string
+      - description: Get All Bulletins (no restriction on startDate, endDate)
+        in: query
+        name: all
+        type: string
+      produces:
+      - text/xml
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github.com/gorilla/feeds.Feed'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List ride bulletins RSS
       tags:
       - bulletins
   /dormtrak/dorms:

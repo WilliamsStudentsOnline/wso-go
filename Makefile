@@ -16,7 +16,7 @@ $(BINARY_NAME): $(BUILD_DEPS)
 jobs/dorms_update/cmd/data.go: $(wildcard jobs/dorms_update/data/*) jobs/dorms_update/cmd/gen.go
 	go generate $(GIT_REPO)/jobs/dorms_update/cmd
 
-docs/docs.go docs/swagger.json docs/swagger.yaml: $(wildcard models/*.go) $(wildcard services/**/*.go) server/router.go
+docs docs/docs.go docs/swagger.json docs/swagger.yaml: $(wildcard models/*.go) $(wildcard services/**/*.go) $(wildcard services/**/**/*.go) server/router.go
 ifdef SWAGGER
 	swag init -g server/router.go
 endif
