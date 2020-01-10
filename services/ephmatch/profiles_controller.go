@@ -36,7 +36,7 @@ func (t *Controller) ListProfiles(c *gin.Context) {
 	}
 
 	// We could implement search here as well...
-	err = t.profileModel.GetAllProfiles(&profiles, &opts)
+	err = t.profileModel.GetAllProfilesNoSelf(&profiles, userID, &opts)
 
 	if err != nil {
 		t.RespondError(c, err)
