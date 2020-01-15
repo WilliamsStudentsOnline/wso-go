@@ -10,10 +10,10 @@ import (
 func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) {
 	c := NewController(db, cfg, log)
 
-	//r.GET("/profiles", c.ListProfiles)
-	//r.GET("/profiles/:profileUserID", c.GetProfile)
-	//r.POST("/profiles/:profileUserID/like", c.LikeProfile)
-	//r.POST("/profiles/:profileUserID/unlike", c.UnlikeProfile)
+	r.GET("/profiles", c.ListProfiles)
+	r.GET("/profiles/:profileUserID", c.GetProfile)
+	r.POST("/profiles/:profileUserID/like", c.LikeProfile)
+	r.POST("/profiles/:profileUserID/unlike", c.UnlikeProfile)
 
 	// Get self profile
 	r.GET("/profile", c.GetSelfProfile)
@@ -24,6 +24,6 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	// Delete profile
 	r.DELETE("/profile", c.DeleteProfile)
 
-	//r.GET("/matches", c.ListMatches) // TODO: set seen:true
+	r.GET("/matches", c.ListMatches) // TODO: set seen:true
 
 }
