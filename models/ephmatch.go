@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
 )
@@ -45,11 +46,33 @@ func (m *EphmatchModel) DeleteEphmatchWithUserOther(userID uint, otherID uint) (
 	return
 }
 
+type GetMatchesOptions struct {
+	// You can preload: tags
+	Preload []string `json:"preload" form:"preload[]"`
+}
+
+// Preload specifically allowed parts if requested
+func (o *GetMatchesOptions) Preloader(db *gorm.DB) *gorm.DB {
+	if o.Preload == nil {
+		return db
+	}
+
+	if lib.StringsContains(o.Preload, "tags") {
+		db = db.Preload("Other.Tags")
+	}
+
+	return db
+}
+
+func (p *GetMatchesOptions) Run(db *gorm.DB) *gorm.DB {
+	return p.Preloader(db)
+}
+
 // Get ephmatch matches of user.
 // TODO: Do we want matches between profiles or users?
-func (m *EphmatchModel) GetMatches(userID uint, p *[]*Ephmatch) (err error) {
+func (m *EphmatchModel) GetMatches(userID uint, opts *GetMatchesOptions, p *[]*Ephmatch) (err error) {
 	// Get matches
-	err = m.DB.Model(&Ephmatch{}).
+	db := m.DB.Model(&Ephmatch{}).
 		// Join on itself to get ephmatches that actually match
 		Joins("INNER JOIN ephmatches b ON b.other_id = ephmatches.user_id").
 		Where("ephmatches.user_id = ? AND ephmatches.other_id = b.user_id", userID).
@@ -61,8 +84,10 @@ func (m *EphmatchModel) GetMatches(userID uint, p *[]*Ephmatch) (err error) {
 		Where("p.deleted_at IS NULL").
 		// Preload other column and other's ephmatch profile
 		Preload("Other").
-		Preload("Other.EphmatchProfile").
-		Find(p).Error
+		Preload("Other.EphmatchProfile")
+
+	db = opts.Run(db)
+	err = db.Find(p).Error
 	return
 }
 

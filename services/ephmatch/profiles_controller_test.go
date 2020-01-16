@@ -16,7 +16,6 @@ import (
 )
 
 func TestController_ListProfiles(t *testing.T) {
-	t.Skip()
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
@@ -37,6 +36,9 @@ func TestController_ListProfiles(t *testing.T) {
 			EphmatchProfile: &models.EphmatchProfile{
 				Gender:      lib.StrToPtr("she/her/hers"),
 				Description: lib.StrToPtr("test123"),
+			},
+			Tags: []*models.Tag{
+				{Name: "WOC"},
 			},
 		},
 		{
@@ -99,7 +101,7 @@ func TestController_ListProfiles(t *testing.T) {
 	SetupRouter(router, db, cfg, zap.S())
 
 	// Get test user
-	w, err := utils.DoHTTPReq(router, http.MethodGet, "/profiles", nil)
+	w, err := utils.DoHTTPReq(router, http.MethodGet, "/profiles?preload[]=tags", nil)
 	assert.NoError(err)
 
 	// Status is okay
@@ -120,10 +122,12 @@ func TestController_ListProfiles(t *testing.T) {
 	}
 	assert.False(resp[0].Liked)
 	assert.True(resp[1].Liked)
+
+	assert.Len(resp[0].User.Tags, 1)
+	assert.Equal(s[1].Tags[0].Name, resp[0].User.Tags[0].Name)
 }
 
 func TestController_GetProfile(t *testing.T) {
-	t.Skip()
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
@@ -235,7 +239,6 @@ func TestController_GetProfile(t *testing.T) {
 }
 
 func TestController_LikeProfile(t *testing.T) {
-	t.Skip()
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
@@ -317,7 +320,6 @@ func TestController_LikeProfile(t *testing.T) {
 }
 
 func TestController_UnlikeProfile(t *testing.T) {
-	t.Skip()
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)

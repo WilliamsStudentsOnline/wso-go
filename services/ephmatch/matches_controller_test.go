@@ -16,7 +16,6 @@ import (
 )
 
 func TestController_ListMatches(t *testing.T) {
-	t.Skip()
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
@@ -36,6 +35,9 @@ func TestController_ListMatches(t *testing.T) {
 			EphmatchProfile: &models.EphmatchProfile{
 				Gender:      lib.StrToPtr("gender2"),
 				Description: lib.StrToPtr("description2"),
+			},
+			Tags: []*models.Tag{
+				{Name: "WOC"},
 			},
 		},
 		{
@@ -107,7 +109,7 @@ func TestController_ListMatches(t *testing.T) {
 	SetupRouter(router, db, cfg, zap.S())
 
 	/* Create ephmatch as duplicate (expect success) */
-	w, err := utils.DoHTTPReq(router, http.MethodGet, "/matches", nil)
+	w, err := utils.DoHTTPReq(router, http.MethodGet, "/matches?preload[]=tags", nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w.Code)
 
@@ -125,4 +127,6 @@ func TestController_ListMatches(t *testing.T) {
 	assert.Equal(s[1].EphmatchProfile.Gender, resp[0].Other.EphmatchProfile.Gender)
 	assert.Equal(s[4].EphmatchProfile.Description, resp[1].Other.EphmatchProfile.Description)
 	assert.Equal(s[4].EphmatchProfile.Gender, resp[1].Other.EphmatchProfile.Gender)
+	assert.Len(resp[0].Other.Tags, 1)
+	assert.Equal(s[1].Tags[0].Name, resp[0].Other.Tags[0].Name)
 }
