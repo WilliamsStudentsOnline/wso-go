@@ -3557,6 +3557,13 @@ paths:
       - application/json
       description: lists all Ephmatch-eligible students that user has matched with
       operationId: ephmatch-list-matches
+      parameters:
+      - description: Preload List
+        in: query
+        items:
+          type: string
+        name: preload
+        type: array
       produces:
       - application/json
       responses:

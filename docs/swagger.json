@@ -3328,6 +3328,17 @@
                 ],
                 "summary": "List matches",
                 "operationId": "ephmatch-list-matches",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Preload List",
+                        "name": "preload",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",

@@ -17,6 +17,7 @@ import (
 // @Tags ephmatch
 // @Accept  json
 // @Produce  json
+// @Param preload query []string false "Preload List"
 // @Success 200 {array} responses.ListMatchesResponseEphmatch
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
