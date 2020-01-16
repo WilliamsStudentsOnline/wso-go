@@ -17,6 +17,7 @@ import (
 // @Tags ephmatch
 // @Accept  json
 // @Produce  json
+// @Param preload query []string false "Preload List"
 // @Success 200 {array} responses.ListMatchesResponseEphmatch
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
@@ -27,13 +28,21 @@ func (t *Controller) ListMatches(c *gin.Context) {
 	var matches []*models.Ephmatch
 	var err error
 
+	opts := models.GetMatchesOptions{}
+	if err = c.ShouldBindQuery(&opts); err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
 	// We could implement search here as well...
-	err = t.ephmatchModel.GetMatches(userID, &matches)
+	err = t.ephmatchModel.GetMatches(userID, &opts, &matches)
 
 	if err != nil {
 		t.RespondError(c, err)
 		return
 	}
+
+	// TODO: Sort by when they matched
 
 	for _, match := range matches {
 		sanitize.User(match.User, c)

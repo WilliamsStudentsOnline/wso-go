@@ -80,6 +80,12 @@
         "offCycle": {
           "type": "boolean"
         },
+        "tags": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Tag"
+          }
+        },
         "ephmatchProfile": {
           "$ref": "#/definitions/EphmatchProfile"
         }
@@ -113,6 +119,27 @@
       ],
       "title": "EphmatchProfile",
       "goOtherName": "EphmatchProfile",
+      "goOtherPackage": "github.com/WilliamsStudentsOnline/wso-go/models"
+    },
+    "Tag": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "integer",
+          "goOtherName": "ID",
+          "goType": "uint"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ],
+      "title": "Tag",
+      "goOtherName": "Tag",
       "goOtherPackage": "github.com/WilliamsStudentsOnline/wso-go/models"
     }
   },

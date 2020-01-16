@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
 )
@@ -48,6 +49,9 @@ type GetAllProfilesOptions struct {
 	// Offset is ignored unless limit is supplied
 	Offset *uint `json:"offset" form:"offset"`
 	Limit  *uint `json:"limit" form:"limit"`
+
+	// You can preload: tags
+	Preload []string `json:"preload" form:"preload[]"`
 }
 
 func (p *GetAllProfilesOptions) Order(db *gorm.DB) *gorm.DB {
@@ -66,8 +70,21 @@ func (p *GetAllProfilesOptions) Paginate(db *gorm.DB) *gorm.DB {
 	return db
 }
 
+// Preload specifically allowed parts if requested
+func (o *GetAllProfilesOptions) Preloader(db *gorm.DB) *gorm.DB {
+	if o.Preload == nil {
+		return db
+	}
+
+	if lib.StringsContains(o.Preload, "tags") {
+		db = db.Preload("User.Tags")
+	}
+
+	return db
+}
+
 func (p *GetAllProfilesOptions) Run(db *gorm.DB) *gorm.DB {
-	return p.Paginate(db)
+	return p.Paginate(p.Preloader(db))
 }
 
 func (m *EphmatchProfileModel) CountProfiles() (count int, err error) {
@@ -149,6 +166,7 @@ func (m *EphmatchProfileModel) GetSelfProfileByID(userID uint, p *EphmatchProfil
 	err = m.DB.Model(&EphmatchProfile{}).
 		Unscoped().
 		Preload("User").
+		Preload("User.Tags").
 		Where("ephmatch_profiles.user_id = ?", userID).
 		First(p).Error
 	return
@@ -157,6 +175,7 @@ func (m *EphmatchProfileModel) GetSelfProfileByID(userID uint, p *EphmatchProfil
 func (m *EphmatchProfileModel) GetSelfProfileByIDScopedNoDefault(userID uint, p *EphmatchProfile) (err error) {
 	err = m.DB.Model(&EphmatchProfile{}).
 		Preload("User").
+		Preload("User.Tags").
 		Where("ephmatch_profiles.user_id = ?", userID).
 		First(p).Error
 	return
@@ -167,6 +186,7 @@ func (m *EphmatchProfileModel) GetProfileByID(profileUserID uint, p *EphmatchPro
 		Scopes(m.scopeDefault).
 		Where("ephmatch_profiles.user_id = ?", profileUserID).
 		Preload("User").
+		Preload("User.Tags").
 		First(p).Error
 	if err != nil {
 		return

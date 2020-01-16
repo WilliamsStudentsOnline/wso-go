@@ -11,7 +11,7 @@ import (
 )
 
 // ListProfiles godoc
-// @Summary List Ephmatchn profiles
+// @Summary List Ephmatch profiles
 // @Description lists all Ephmatch-eligible student profiles
 // @ID ephmatch-list-profiles
 // @Tags ephmatch
@@ -19,6 +19,7 @@ import (
 // @Produce  json
 // @Param offset query int false "Offset Pagination"
 // @Param limit query int false "Limit Pagination"
+// @Param preload query []string false "Preload List"
 // @Success 200 {array} models.EphmatchProfile
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
