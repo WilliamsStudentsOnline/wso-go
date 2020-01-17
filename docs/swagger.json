@@ -3609,6 +3609,12 @@
                 "operationId": "ephmatch-list-profiles",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "Sort (new, updated, alphabetical)",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
                         "type": "integer",
                         "description": "Offset Pagination",
                         "name": "offset",

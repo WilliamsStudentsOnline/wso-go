@@ -46,6 +46,9 @@ func (m *EphmatchProfileModel) GetAllProfilesNoSelf(p *[]*EphmatchProfile, selfI
 }
 
 type GetAllProfilesOptions struct {
+	// Can be new, updated, or alphabetical
+	Sort *string `json:"sort" form:"sort"`
+
 	// Offset is ignored unless limit is supplied
 	Offset *uint `json:"offset" form:"offset"`
 	Limit  *uint `json:"limit" form:"limit"`
@@ -55,6 +58,14 @@ type GetAllProfilesOptions struct {
 }
 
 func (p *GetAllProfilesOptions) Order(db *gorm.DB) *gorm.DB {
+	if p.Sort != nil {
+		if *p.Sort == "new" {
+			return db.Order("ephmatch_profiles.created_at DESC", true)
+		} else if *p.Sort == "updated" {
+			return db.Order("ephmatch_profiles.updated_at DESC", true)
+		}
+	}
+
 	return db.Order("users.name ASC", true)
 }
 

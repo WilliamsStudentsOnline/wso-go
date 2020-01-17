@@ -125,6 +125,27 @@ func TestController_ListProfiles(t *testing.T) {
 
 	assert.Len(resp[0].User.Tags, 1)
 	assert.Equal(s[1].Tags[0].Name, resp[0].User.Tags[0].Name)
+
+	// Get test user (sorted)
+	w, err = utils.DoHTTPReq(router, http.MethodGet, "/profiles?sort=new", nil)
+	assert.NoError(err)
+
+	// Status is okay
+	assert.Equal(http.StatusOK, w.Code)
+
+	// Decode response
+	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+	resp = []models.EphmatchProfile{}
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+
+	// Check if correct users. should not return self (s[0])
+	assert.Len(resp, 2)
+	for i, exp := range []*models.User{s[2], s[1]} {
+		assert.Equal(exp.EphmatchProfile.ID, resp[i].ID)
+		assert.Equal(exp.EphmatchProfile.Description, resp[i].Description)
+		assert.Equal(exp.ID, resp[i].User.ID)
+	}
 }
 
 func TestController_GetProfile(t *testing.T) {

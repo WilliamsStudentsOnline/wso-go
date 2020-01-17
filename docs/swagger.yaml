@@ -3740,6 +3740,10 @@ paths:
       description: lists all Ephmatch-eligible student profiles
       operationId: ephmatch-list-profiles
       parameters:
+      - description: Sort (new, updated, alphabetical)
+        in: query
+        name: sort
+        type: string
       - description: Offset Pagination
         in: query
         name: offset

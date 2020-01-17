@@ -17,6 +17,7 @@ import (
 // @Tags ephmatch
 // @Accept  json
 // @Produce  json
+// @Param sort query string false "Sort (new, updated, alphabetical)"
 // @Param offset query int false "Offset Pagination"
 // @Param limit query int false "Limit Pagination"
 // @Param preload query []string false "Preload List"
