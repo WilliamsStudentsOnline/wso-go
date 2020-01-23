@@ -12,6 +12,7 @@ const (
 	UserTypeAlum      = "alum"
 	UserTypeProfessor = "professor"
 	UserTypeStaff     = "staff"
+	UserTypeUnknown   = "unknown"
 )
 
 // User Model Schema
@@ -118,6 +119,10 @@ func (u *User) IsProfessor() bool {
 
 func (u *User) IsStaff() bool {
 	return u.Type == UserTypeStaff
+}
+
+func (u *User) IsUnknown() bool {
+	return u.Type == UserTypeUnknown
 }
 
 func (u *User) Student() *Student {
