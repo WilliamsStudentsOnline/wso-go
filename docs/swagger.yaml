@@ -198,6 +198,8 @@ definitions:
         type: string
       gender:
         type: string
+      matchMessage:
+        type: string
       otherGender:
         type: boolean
     type: object
@@ -206,6 +208,8 @@ definitions:
       description:
         type: string
       gender:
+        type: string
+      matchMessage:
         type: string
       otherGender:
         type: boolean
@@ -747,6 +751,8 @@ definitions:
         description: If me (user) has an ephmatch entry where ephmatch.other_id=users.id
           and ephmatch.user_id=myID
         type: boolean
+      matchMessage:
+        type: string
       user:
         $ref: '#/definitions/models.User'
         type: object
@@ -1204,6 +1210,8 @@ definitions:
       description:
         type: string
       gender:
+        type: string
+      matchMessage:
         type: string
     type: object
   responses.ListMatchesResponseOther:

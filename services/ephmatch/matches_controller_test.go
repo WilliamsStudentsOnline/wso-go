@@ -33,8 +33,9 @@ func TestController_ListMatches(t *testing.T) {
 		},
 		{
 			EphmatchProfile: &models.EphmatchProfile{
-				Gender:      lib.StrToPtr("gender2"),
-				Description: lib.StrToPtr("description2"),
+				Gender:       lib.StrToPtr("gender2"),
+				Description:  lib.StrToPtr("description2"),
+				MatchMessage: lib.StrToPtr("matched!"),
 			},
 			Tags: []*models.Tag{
 				{Name: "WOC"},
@@ -125,6 +126,7 @@ func TestController_ListMatches(t *testing.T) {
 	assert.Equal(s[4].ID, resp[1].Other.ID)
 	assert.Equal(s[1].EphmatchProfile.Description, resp[0].Other.EphmatchProfile.Description)
 	assert.Equal(s[1].EphmatchProfile.Gender, resp[0].Other.EphmatchProfile.Gender)
+	assert.Equal(s[1].EphmatchProfile.MatchMessage, resp[0].Other.EphmatchProfile.MatchMessage)
 	assert.Equal(s[4].EphmatchProfile.Description, resp[1].Other.EphmatchProfile.Description)
 	assert.Equal(s[4].EphmatchProfile.Gender, resp[1].Other.EphmatchProfile.Gender)
 	assert.Len(resp[0].Other.Tags, 1)

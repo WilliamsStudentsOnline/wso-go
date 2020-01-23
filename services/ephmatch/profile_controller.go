@@ -40,9 +40,10 @@ func (t *Controller) GetSelfProfile(c *gin.Context) {
 }
 
 type ProfileCreateParams struct {
-	Description *string `json:"description"`
-	Gender      *string `json:"gender"`
-	OtherGender bool    `json:"otherGender"`
+	Description  *string `json:"description"`
+	Gender       *string `json:"gender"`
+	OtherGender  bool    `json:"otherGender"`
+	MatchMessage *string `json:"matchMessage"`
 }
 
 // CreateProfile godoc
@@ -104,9 +105,10 @@ func (t *Controller) CreateProfile(c *gin.Context) {
 }
 
 type ProfileUpdateParams struct {
-	Description *string `json:"description"`
-	Gender      *string `json:"gender"`
-	OtherGender bool    `json:"otherGender"`
+	Description  *string `json:"description"`
+	Gender       *string `json:"gender"`
+	OtherGender  bool    `json:"otherGender"`
+	MatchMessage *string `json:"matchMessage"`
 }
 
 // UpdateProfile godoc
