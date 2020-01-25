@@ -30,6 +30,7 @@ var Migrations = []*gormigrate.Migration{
 	migrations.AddNicknameToUsers20190826115256,
 	migrations.CreateEphmatches20190926015114,
 	migrations.CreateEphmatchProfiles20191124040019,
+	migrations.MatchMessageColumn20200123225124,
 }
 
 var MigrationGormOptions = gormigrate.DefaultOptions
