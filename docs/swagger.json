@@ -7934,6 +7934,10 @@
                 "nickname": {
                     "type": "string"
                 },
+                "offCampus": {
+                    "description": "If user is Off-Campus and thus doesn't have a dorm",
+                    "type": "boolean"
+                },
                 "offCycle": {
                     "type": "boolean"
                 },
@@ -8125,6 +8129,9 @@
                 },
                 "name": {
                     "type": "string"
+                },
+                "offCampus": {
+                    "type": "boolean"
                 },
                 "offCycle": {
                     "type": "boolean"
@@ -8406,6 +8413,9 @@
                 },
                 "name": {
                     "type": "string"
+                },
+                "offCampus": {
+                    "type": "boolean"
                 },
                 "offCycle": {
                     "type": "boolean"
