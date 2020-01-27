@@ -114,8 +114,8 @@ func TestController_ListProfiles(t *testing.T) {
 	assert.NoError(json.Unmarshal(respData.Data, &resp))
 
 	// Check if correct users. should not return self (s[0])
-	assert.Len(resp, 2)
-	for i, exp := range []*models.User{s[1], s[2]} {
+	assert.Len(resp, 3)
+	for i, exp := range []*models.User{s[1], s[2], s[4]} {
 		assert.Equal(exp.EphmatchProfile.ID, resp[i].ID)
 		assert.Equal(exp.EphmatchProfile.Description, resp[i].Description)
 		assert.Equal(exp.ID, resp[i].User.ID)
@@ -140,8 +140,8 @@ func TestController_ListProfiles(t *testing.T) {
 	assert.NoError(json.Unmarshal(respData.Data, &resp))
 
 	// Check if correct users. should not return self (s[0])
-	assert.Len(resp, 2)
-	for i, exp := range []*models.User{s[2], s[1]} {
+	assert.Len(resp, 3)
+	for i, exp := range []*models.User{s[4], s[2], s[1]} {
 		assert.Equal(exp.EphmatchProfile.ID, resp[i].ID)
 		assert.Equal(exp.EphmatchProfile.Description, resp[i].Description)
 		assert.Equal(exp.ID, resp[i].User.ID)
@@ -249,13 +249,23 @@ func TestController_GetProfile(t *testing.T) {
 	assert.True(resp.Liked)
 
 	// Assert these fail
-	for _, u := range []*models.User{s[3], s[4], s[5]} {
+	for _, u := range []*models.User{s[3], s[5]} {
 		/* Get test student 1 (expect failure) */
 		w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/profiles/%d", u.ID), nil)
 		assert.NoError(err)
 
 		// Status is not found
 		assert.Equal(http.StatusNotFound, w.Code)
+	}
+
+	// Assert these succeede
+	for _, u := range []*models.User{s[4]} {
+		/* Get test student 1 (expect failure) */
+		w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/profiles/%d", u.ID), nil)
+		assert.NoError(err)
+
+		// Status is not found
+		assert.Equal(http.StatusOK, w.Code)
 	}
 }
 

@@ -78,7 +78,7 @@ func (m *EphmatchModel) GetMatches(userID uint, opts *GetMatchesOptions, p *[]*E
 		Where("ephmatches.user_id = ? AND ephmatches.other_id = b.user_id", userID).
 		// Join on users to ensure student type and visibility type
 		Joins("INNER JOIN users u ON u.id = ephmatches.other_id").
-		Where("u.type = ? AND u.visible = ?", UserTypeStudent, true).
+		Where("u.type = ?", UserTypeStudent).
 		// Join on profiles for other user to ensure each
 		Joins("INNER JOIN ephmatch_profiles p ON p.user_id = u.id").
 		Where("p.deleted_at IS NULL").
