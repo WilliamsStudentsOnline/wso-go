@@ -111,6 +111,10 @@
         "gender": {
           "type": "string",
           "goPtr": true
+        },
+        "matchMessage": {
+          "type": "string",
+          "goPtr": true
         }
       },
       "required": [

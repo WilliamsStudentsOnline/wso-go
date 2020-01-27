@@ -80,6 +80,8 @@ func (t *Controller) ListProfiles(c *gin.Context) {
 
 	/* Sanitize Users */
 	for _, profile := range profiles {
+		// Remove match message as we dont know if matched
+		profile.MatchMessage = nil
 		sanitize.User(profile.User, c)
 	}
 
@@ -129,6 +131,7 @@ func (t *Controller) GetProfile(c *gin.Context) {
 			return
 		}
 
+		// TODO: Should this be liked rather than matching??
 		isMatching, err = t.ephmatchModel.IsMatching(userID, profileUserID)
 		if err != nil {
 			t.RespondError(c, err)
@@ -137,6 +140,9 @@ func (t *Controller) GetProfile(c *gin.Context) {
 	}
 
 	profile.Liked = isMatching
+
+	// Remove match message as we dont know if matched
+	profile.MatchMessage = nil
 
 	// Sanitize user preloaded
 	sanitize.User(profile.User, c)

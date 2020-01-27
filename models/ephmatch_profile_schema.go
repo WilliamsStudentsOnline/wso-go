@@ -31,8 +31,9 @@ type EphmatchProfile struct {
 	User   *User `json:"user,omitempty"`
 
 	// These are optional
-	Gender      *string `json:"gender"`
-	Description *string `json:"description"`
+	Gender       *string `json:"gender"`
+	Description  *string `json:"description"`
+	MatchMessage *string `json:"matchMessage"`
 
 	Liked bool `gorm:"-" json:"liked"` // If me (user) has an ephmatch entry where ephmatch.other_id=users.id and ephmatch.user_id=myID
 

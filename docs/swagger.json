@@ -6736,6 +6736,9 @@
                 "gender": {
                     "type": "string"
                 },
+                "matchMessage": {
+                    "type": "string"
+                },
                 "otherGender": {
                     "type": "boolean"
                 }
@@ -6748,6 +6751,9 @@
                     "type": "string"
                 },
                 "gender": {
+                    "type": "string"
+                },
+                "matchMessage": {
                     "type": "string"
                 },
                 "otherGender": {
@@ -7535,6 +7541,9 @@
                     "description": "If me (user) has an ephmatch entry where ephmatch.other_id=users.id and ephmatch.user_id=myID",
                     "type": "boolean"
                 },
+                "matchMessage": {
+                    "type": "string"
+                },
                 "user": {
                     "type": "object",
                     "$ref": "#/definitions/models.User"
@@ -8196,6 +8205,9 @@
                     "type": "string"
                 },
                 "gender": {
+                    "type": "string"
+                },
+                "matchMessage": {
                     "type": "string"
                 }
             }

@@ -34,8 +34,9 @@ func TestController_ListProfiles(t *testing.T) {
 		{
 
 			EphmatchProfile: &models.EphmatchProfile{
-				Gender:      lib.StrToPtr("she/her/hers"),
-				Description: lib.StrToPtr("test123"),
+				Gender:       lib.StrToPtr("she/her/hers"),
+				Description:  lib.StrToPtr("test123"),
+				MatchMessage: lib.StrToPtr("matched!"),
 			},
 			Tags: []*models.Tag{
 				{Name: "WOC"},
@@ -119,6 +120,7 @@ func TestController_ListProfiles(t *testing.T) {
 		assert.Equal(exp.EphmatchProfile.ID, resp[i].ID)
 		assert.Equal(exp.EphmatchProfile.Description, resp[i].Description)
 		assert.Equal(exp.ID, resp[i].User.ID)
+		assert.Nil(resp[i].MatchMessage)
 	}
 	assert.False(resp[0].Liked)
 	assert.True(resp[1].Liked)
@@ -174,8 +176,9 @@ func TestController_GetProfile(t *testing.T) {
 		{
 
 			EphmatchProfile: &models.EphmatchProfile{
-				Gender:      lib.StrToPtr("they/them/theirs"),
-				Description: lib.StrToPtr("hello world"),
+				Gender:       lib.StrToPtr("they/them/theirs"),
+				Description:  lib.StrToPtr("hello world"),
+				MatchMessage: lib.StrToPtr("matched!"),
 			},
 		},
 		// Not student
@@ -247,6 +250,7 @@ func TestController_GetProfile(t *testing.T) {
 	assert.Equal(s[2].EphmatchProfile.ID, resp.ID)
 	assert.Equal(s[2].EphmatchProfile.Description, resp.Description)
 	assert.True(resp.Liked)
+	assert.Nil(resp.MatchMessage)
 
 	// Assert these fail
 	for _, u := range []*models.User{s[3], s[5]} {
