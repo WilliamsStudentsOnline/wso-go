@@ -228,7 +228,6 @@ func (m *EphmatchProfileModel) DoesProfileExist(id uint) (exists bool, err error
 // Default scope: is student and is visible. Make sure to enumerate users on join
 func (m *EphmatchProfileModel) scopeDefault(db *gorm.DB) *gorm.DB {
 	db = db.Joins("INNER JOIN users ON users.id = ephmatch_profiles.user_id").
-		Where("users.type = ?", UserTypeStudent).
-		Where("users.visible = ?", true)
+		Where("users.type = ?", UserTypeStudent)
 	return db
 }
