@@ -160,6 +160,7 @@ func (t *Controller) UpdateProfile(c *gin.Context) {
 
 	profile.Gender = lib.StrPtrDefaults(updateData.Gender, profile.Gender)
 	profile.Description = lib.StrPtrDefaults(updateData.Description, profile.Description)
+	profile.MatchMessage = lib.StrPtrDefaults(updateData.MatchMessage, profile.MatchMessage)
 
 	err = t.profileModel.UpdateProfile(&profile)
 	if err != nil {
