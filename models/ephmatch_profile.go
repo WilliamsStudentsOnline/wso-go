@@ -138,6 +138,9 @@ func (m *EphmatchProfileModel) CreateOrUpdateProfileUnscoped(userID uint, newPro
 		if newProfile.Description != nil {
 			query = query.Update("description", newProfile.Description)
 		}
+		if newProfile.MatchMessage != nil {
+			query = query.Update("match_message", newProfile.MatchMessage)
+		}
 		err = query.UpdateColumn("deleted_at", nil).
 			Preload("User").
 			First(p).
@@ -150,8 +153,9 @@ func (m *EphmatchProfileModel) CreateOrUpdateProfileUnscoped(userID uint, newPro
 		Model(&EphmatchProfile{}).
 		Where(EphmatchProfile{UserID: userID}).
 		Assign(EphmatchProfile{
-			Gender:      newProfile.Gender,
-			Description: newProfile.Description,
+			Gender:       newProfile.Gender,
+			Description:  newProfile.Description,
+			MatchMessage: newProfile.MatchMessage,
 		}).
 		Preload("User").
 		FirstOrCreate(p).Error
