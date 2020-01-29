@@ -82,9 +82,10 @@ func (t *Controller) CreateProfile(c *gin.Context) {
 	}
 
 	newProfile := models.EphmatchProfile{
-		Gender:      createData.Gender,
-		Description: createData.Description,
-		UserID:      userID,
+		Gender:       createData.Gender,
+		Description:  createData.Description,
+		MatchMessage: createData.MatchMessage,
+		UserID:       userID,
 	}
 
 	var profile models.EphmatchProfile
