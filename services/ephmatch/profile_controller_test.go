@@ -30,14 +30,12 @@ func TestController_GetSelfProfile(t *testing.T) {
 		{
 
 			EphmatchProfile: &models.EphmatchProfile{
-				Gender:      lib.StrToPtr("she/her/hers"),
 				Description: lib.StrToPtr("test123"),
 			},
 		},
 		// Case: deleted profile
 		{
 			EphmatchProfile: &models.EphmatchProfile{
-				Gender:      lib.StrToPtr("they/them/theirs"),
 				Description: lib.StrToPtr("hello world"),
 			},
 		},
@@ -47,7 +45,6 @@ func TestController_GetSelfProfile(t *testing.T) {
 			Name:   "Professor 1",
 			UnixID: "p1",
 			EphmatchProfile: &models.EphmatchProfile{
-				Gender:      lib.StrToPtr("bteevev"),
 				Description: lib.StrToPtr("42"),
 			},
 		},
@@ -55,7 +52,6 @@ func TestController_GetSelfProfile(t *testing.T) {
 		{
 			Visible: lib.BoolToPtr(false),
 			EphmatchProfile: &models.EphmatchProfile{
-				Gender:      lib.StrToPtr("1"),
 				Description: lib.StrToPtr("2"),
 			},
 		},
@@ -142,7 +138,6 @@ func TestController_GetSelfProfile(t *testing.T) {
 				a.NoError(err)
 
 				a.Equal(tc.expected.Description, res.Description)
-				a.Equal(tc.expected.Gender, res.Gender)
 				a.Equal(tc.user.ID, res.UserID)
 			}
 		})
@@ -164,14 +159,12 @@ func TestController_CreateProfile(t *testing.T) {
 		{
 
 			EphmatchProfile: &models.EphmatchProfile{
-				Gender:      lib.StrToPtr("she/her/hers"),
 				Description: lib.StrToPtr("test123"),
 			},
 		},
 		// Case: deleted profile
 		{
 			EphmatchProfile: &models.EphmatchProfile{
-				Gender:      lib.StrToPtr("they/them/theirs"),
 				Description: lib.StrToPtr("hello world"),
 			},
 		},
@@ -193,31 +186,20 @@ func TestController_CreateProfile(t *testing.T) {
 	// Delete the deleted profile
 	assert.NoError(db.Delete(s[2].EphmatchProfile).Error)
 
-	/* Create ephmatch with bad gender (expect failure) */
-	apiErr := lib.ErrorEphmatchGenderUnknown
-	params := ProfileCreateParams{Description: lib.StrToPtr("foobar"), Gender: lib.StrToPtr("custom gender")}
+	/* Create ephmatch with good custom gender (expect success on user 1) */
+	params := ProfileCreateParams{Description: lib.StrToPtr("foobar")}
 	paramsData, err := json.Marshal(&params)
 	assert.NoError(err)
 	w, err := utils.DoHTTPReq(routers[0], http.MethodPost, "/profile", bytes.NewBuffer(paramsData))
-	assert.NoError(err)
-	assert.Equal(apiErr.HTTPCode, w.Code)
-	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
-
-	/* Create ephmatch with good custom gender (expect success on user 1) */
-	params = ProfileCreateParams{Description: lib.StrToPtr("foobar"), Gender: lib.StrToPtr("custom gender"), OtherGender: true}
-	paramsData, err = json.Marshal(&params)
-	assert.NoError(err)
-	w, err = utils.DoHTTPReq(routers[0], http.MethodPost, "/profile", bytes.NewBuffer(paramsData))
 	assert.NoError(err)
 	assert.Equal(http.StatusCreated, w.Code)
 	// Get from DB
 	resDB := models.EphmatchProfile{}
 	assert.NoError(db.Where(models.EphmatchProfile{UserID: s[0].ID}).First(&resDB).Error)
 	assert.Equal(*params.Description, *resDB.Description)
-	assert.Equal(*params.Gender, *resDB.Gender)
 
 	/* Create profile where it already exists (expect success on user 2) */
-	params = ProfileCreateParams{Description: lib.StrToPtr("description here 123"), Gender: lib.StrToPtr("he/him/his")}
+	params = ProfileCreateParams{Description: lib.StrToPtr("description here 123")}
 	paramsData, err = json.Marshal(&params)
 	assert.NoError(err)
 	w, err = utils.DoHTTPReq(routers[1], http.MethodPost, "/profile", bytes.NewBuffer(paramsData))
@@ -227,10 +209,9 @@ func TestController_CreateProfile(t *testing.T) {
 	resDB = models.EphmatchProfile{}
 	assert.NoError(db.Where(models.EphmatchProfile{UserID: s[1].ID}).First(&resDB).Error)
 	assert.Equal(*params.Description, *resDB.Description)
-	assert.Equal(*params.Gender, *resDB.Gender)
 
 	/* Create profile where it was deleted (expect success on user 3) */
-	params = ProfileCreateParams{Description: lib.StrToPtr("abc 123 hello world"), Gender: lib.StrToPtr("she/her/hers")}
+	params = ProfileCreateParams{Description: lib.StrToPtr("abc 123 hello world")}
 	paramsData, err = json.Marshal(&params)
 	assert.NoError(err)
 	w, err = utils.DoHTTPReq(routers[2], http.MethodPost, "/profile", bytes.NewBuffer(paramsData))
@@ -240,7 +221,6 @@ func TestController_CreateProfile(t *testing.T) {
 	resDB = models.EphmatchProfile{}
 	assert.NoError(db.Where(models.EphmatchProfile{UserID: s[2].ID}).First(&resDB).Error)
 	assert.Equal(*params.Description, *resDB.Description)
-	assert.Equal(*params.Gender, *resDB.Gender)
 }
 
 func TestController_CreateProfile_DeleteUndelete(t *testing.T) {
@@ -257,7 +237,6 @@ func TestController_CreateProfile_DeleteUndelete(t *testing.T) {
 		Type:      models.UserTypeStudent,
 		ClassYear: &srYear,
 		EphmatchProfile: &models.EphmatchProfile{
-			Gender:      lib.StrToPtr("she/her/hers"),
 			Description: lib.StrToPtr("test123"),
 		},
 	}
@@ -273,7 +252,7 @@ func TestController_CreateProfile_DeleteUndelete(t *testing.T) {
 	assert.Equal(http.StatusOK, w.Code)
 
 	/* Create profile where it was deleted (expect success) */
-	params := ProfileCreateParams{Description: lib.StrToPtr("test123"), Gender: lib.StrToPtr("she/her/hers")}
+	params := ProfileCreateParams{Description: lib.StrToPtr("test123")}
 	paramsData, err := json.Marshal(&params)
 	assert.NoError(err)
 	w, err = utils.DoHTTPReq(r, http.MethodPost, "/profile", bytes.NewBuffer(paramsData))
@@ -284,7 +263,6 @@ func TestController_CreateProfile_DeleteUndelete(t *testing.T) {
 	resDB := models.EphmatchProfile{}
 	assert.NoError(db.Where(models.EphmatchProfile{UserID: u.ID}).First(&resDB).Error)
 	assert.Equal(*params.Description, *resDB.Description)
-	assert.Equal(*params.Gender, *resDB.Gender)
 	assert.Nil(resDB.DeletedAt)
 
 	var count int
@@ -300,7 +278,6 @@ func TestController_CreateProfile_DeleteUndelete(t *testing.T) {
 	err = json.Unmarshal(resp.Data, &res)
 	assert.NoError(err)
 	assert.Equal(*params.Description, *res.Description)
-	assert.Equal(*params.Gender, *res.Gender)
 	assert.False(res.Deleted)
 }
 
@@ -317,15 +294,15 @@ func TestController_UpdateProfile(t *testing.T) {
 		{
 
 			EphmatchProfile: &models.EphmatchProfile{
-				Gender:      lib.StrToPtr("she/her/hers"),
-				Description: lib.StrToPtr("test123"),
+				Description:  lib.StrToPtr("test123"),
+				MatchMessage: lib.StrToPtr("abc124"),
 			},
 		},
 		// Case: deleted profile
 		{
 			EphmatchProfile: &models.EphmatchProfile{
-				Gender:      lib.StrToPtr("they/them/theirs"),
-				Description: lib.StrToPtr("hello world"),
+				Description:  lib.StrToPtr("hello world"),
+				MatchMessage: lib.StrToPtr("567890riu"),
 			},
 		},
 		// Case: no profile
@@ -348,22 +325,12 @@ func TestController_UpdateProfile(t *testing.T) {
 	// Delete the deleted profile
 	assert.NoError(db.Delete(s[1].EphmatchProfile).Error)
 
-	/* Update profile with bad gender (expect failure) */
-	apiErr := lib.ErrorEphmatchGenderUnknown
-	params := ProfileUpdateParams{Gender: lib.StrToPtr("custom gender")}
+	/* Update profile with missing profile (expect failure) */
+	apiErr := lib.ErrorRecordNotFound
+	params := ProfileUpdateParams{Description: lib.StrToPtr("what's up")}
 	paramsData, err := json.Marshal(&params)
 	assert.NoError(err)
-	w, err := utils.DoHTTPReq(routers[0], http.MethodPatch, "/profile", bytes.NewBuffer(paramsData))
-	assert.NoError(err)
-	assert.Equal(apiErr.HTTPCode, w.Code)
-	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
-
-	/* Update profile with missing profile (expect failure) */
-	apiErr = lib.ErrorRecordNotFound
-	params = ProfileUpdateParams{Description: lib.StrToPtr("what's up")}
-	paramsData, err = json.Marshal(&params)
-	assert.NoError(err)
-	w, err = utils.DoHTTPReq(routers[2], http.MethodPatch, "/profile", bytes.NewBuffer(paramsData))
+	w, err := utils.DoHTTPReq(routers[2], http.MethodPatch, "/profile", bytes.NewBuffer(paramsData))
 	assert.NoError(err)
 	assert.Equal(apiErr.HTTPCode, w.Code)
 	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
@@ -378,8 +345,8 @@ func TestController_UpdateProfile(t *testing.T) {
 	assert.Equal(apiErr.HTTPCode, w.Code)
 	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
 
-	/* Update profile with good custom gender (expect success on user 1) */
-	params = ProfileUpdateParams{Gender: lib.StrToPtr("abcdefg fewvc"), OtherGender: true}
+	/* Update profile with good match message (expect success on user 1) */
+	params = ProfileUpdateParams{MatchMessage: lib.StrToPtr("etwvinoerineroiv")}
 	paramsData, err = json.Marshal(&params)
 	assert.NoError(err)
 	w, err = utils.DoHTTPReq(routers[0], http.MethodPatch, "/profile", bytes.NewBuffer(paramsData))
@@ -389,7 +356,7 @@ func TestController_UpdateProfile(t *testing.T) {
 	resDB := models.EphmatchProfile{}
 	assert.NoError(db.Where(models.EphmatchProfile{UserID: s[0].ID}).First(&resDB).Error)
 	assert.Equal(*s[0].EphmatchProfile.Description, *resDB.Description)
-	assert.Equal(*params.Gender, *resDB.Gender)
+	assert.Equal(*params.MatchMessage, *resDB.MatchMessage)
 }
 
 func TestController_UpdateProfile_Deleted(t *testing.T) {
@@ -406,7 +373,6 @@ func TestController_UpdateProfile_Deleted(t *testing.T) {
 		Type:      models.UserTypeStudent,
 		ClassYear: &srYear,
 		EphmatchProfile: &models.EphmatchProfile{
-			Gender:      lib.StrToPtr("she/her/hers"),
 			Description: lib.StrToPtr("test123"),
 		},
 	}
@@ -423,7 +389,7 @@ func TestController_UpdateProfile_Deleted(t *testing.T) {
 
 	/* Updated profile where it was deleted (expect failure) */
 	apiErr := lib.ErrorRecordNotFound
-	params := ProfileUpdateParams{Description: lib.StrToPtr("4gwe"), Gender: lib.StrToPtr(models.EphmatchProfileGenderNB)}
+	params := ProfileUpdateParams{Description: lib.StrToPtr("4gwe")}
 	paramsData, err := json.Marshal(&params)
 	assert.NoError(err)
 	w, err = utils.DoHTTPReq(r, http.MethodPatch, "/profile", bytes.NewBuffer(paramsData))
@@ -446,7 +412,6 @@ func TestController_UpdateProfile_Again(t *testing.T) {
 		Type:      models.UserTypeStudent,
 		ClassYear: &srYear,
 		EphmatchProfile: &models.EphmatchProfile{
-			Gender:      lib.StrToPtr("she/her/hers"),
 			Description: lib.StrToPtr("test123"),
 		},
 	}
@@ -457,7 +422,7 @@ func TestController_UpdateProfile_Again(t *testing.T) {
 	SetupRouter(r, db, cfg, zap.S())
 
 	/* Update profile */
-	params := ProfileUpdateParams{Description: lib.StrToPtr("4gwe"), Gender: lib.StrToPtr(models.EphmatchProfileGenderNB)}
+	params := ProfileUpdateParams{Description: lib.StrToPtr("4gwe")}
 	paramsData, err := json.Marshal(&params)
 	assert.NoError(err)
 	w, err := utils.DoHTTPReq(r, http.MethodPatch, "/profile", bytes.NewBuffer(paramsData))
@@ -482,14 +447,12 @@ func TestController_DeleteProfile(t *testing.T) {
 		{
 
 			EphmatchProfile: &models.EphmatchProfile{
-				Gender:      lib.StrToPtr("she/her/hers"),
 				Description: lib.StrToPtr("test123"),
 			},
 		},
 		// Case: deleted profile
 		{
 			EphmatchProfile: &models.EphmatchProfile{
-				Gender:      lib.StrToPtr("they/them/theirs"),
 				Description: lib.StrToPtr("hello world"),
 			},
 		},
