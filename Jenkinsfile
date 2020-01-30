@@ -87,6 +87,9 @@ pipeline {
         success {
           slackSend (color: '#00FF00', message: "WSO-Go Deployed on Development\n Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
         }
+        failure {
+          slackSend (color: 'danger', message: "WSO-Go Failed to Deploy on Development\n Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+        }
       }
     }
     stage('Deploy for production') {
@@ -146,6 +149,9 @@ pipeline {
           post {
             success {
               slackSend (color: '#00FF00', message: "WSO-Go Deployed on Production\n Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+            }
+            failure {
+              slackSend (color: 'danger', message: "WSO-Go Failed to Deploy on Production\n Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
             }
           }
         }
