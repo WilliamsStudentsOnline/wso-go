@@ -89,9 +89,11 @@ var (
 	ErrorUnknownSearchField          = NewAPIErrorWithHTTP(1152, http.StatusBadRequest, "unknown search field")
 
 	// 13** are authorization errors
-	ErrorNoScopeAuthorization = NewAPIErrorWithHTTP(1330, http.StatusForbidden, "no scope authorization")
-	ErrorMustBeSelf           = NewAPIErrorWithHTTP(1331, http.StatusForbidden, "must be self")
-	ErrorAuthedUserNotFound   = NewAPIErrorWithHTTP(1332, http.StatusForbidden, "authenticated user not found")
+	ErrorNoScopeAuthorization         = NewAPIErrorWithHTTP(1330, http.StatusForbidden, "no scope authorization")
+	ErrorMustBeSelf                   = NewAPIErrorWithHTTP(1331, http.StatusForbidden, "must be self")
+	ErrorAuthedUserNotFound           = NewAPIErrorWithHTTP(1332, http.StatusForbidden, "authenticated user not found")
+	ErrorMissingIdentityCredentials   = NewAPIErrorWithHTTP(1351, http.StatusBadRequest, "missing identity credentials (unix id or password)")
+	ErrorFailedIdentityAuthentication = NewAPIErrorWithHTTP(1351, http.StatusBadRequest, "failed to authenticate identity (incorrect unix id or password)")
 
 	// 14** are user service errors
 	ErrorUserMustBeStudent    = NewAPIError(1401, "user must be a student")

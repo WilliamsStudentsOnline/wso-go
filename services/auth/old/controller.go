@@ -1,4 +1,4 @@
-package auth
+package old
 
 import (
 	"errors"
@@ -6,6 +6,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
+	"github.com/WilliamsStudentsOnline/wso-go/services/auth"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
@@ -41,11 +42,6 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 	}
 }
 
-type AuthenticatorPayload struct {
-	User       *models.User
-	TokenLevel TokenLevel
-}
-
 // Checks if passed login credentials are valid and if user should be authenticated.
 func (t *Controller) Authenticator(c *gin.Context) (interface{}, error) {
 	// Bind the POST parameters
@@ -55,14 +51,14 @@ func (t *Controller) Authenticator(c *gin.Context) (interface{}, error) {
 	}
 
 	// The payload of data we return
-	payload := &AuthenticatorPayload{
-		TokenLevel: TokenLevelUnauthenticated,
+	payload := &auth.AuthenticatorPayload{
+		TokenLevel: auth.TokenLevelUnauthenticated,
 	}
 
 	// If client is requesting a off-campus/on-campus JWT (aka client is on/off campus and wants read-only WSO access)
 	if loginVals.UseIP || loginVals.IsLocalIP {
-		if OnCampusIP(c.ClientIP()) {
-			payload.TokenLevel = TokenLevelOnCampus
+		if auth.OnCampusIP(c.ClientIP()) {
+			payload.TokenLevel = auth.TokenLevelOnCampus
 			return payload, nil
 		} else if loginVals.IsLocalIP {
 			return nil, errors.New("could not verify on-campus IP")
@@ -70,7 +66,7 @@ func (t *Controller) Authenticator(c *gin.Context) (interface{}, error) {
 		}
 
 		// Otherwise, instead of an error, sign a token for off-campus IP
-		payload.TokenLevel = TokenLevelOffCampus
+		payload.TokenLevel = auth.TokenLevelOffCampus
 		return payload, nil
 	}
 
@@ -94,12 +90,12 @@ func (t *Controller) Authenticator(c *gin.Context) (interface{}, error) {
 		if err != nil {
 			return nil, ErrorFailedAuthentication
 		}
-		payload.TokenLevel = TokenLevelSignedIn
+		payload.TokenLevel = auth.TokenLevelUser
 		return payload, nil
 	}
 
 	// Assuming we are not doing an internal network authentication, and LDAP is not disabled, do LDAP authentication
-	isAuthed, err := OITAuth(unixID, password)
+	isAuthed, err := auth.OITAuth(unixID, password)
 	if err != nil {
 		// Record the error in the log, as it is an internal server error (but response will be an unauthorized error)
 		_ = c.Error(err)
@@ -118,7 +114,7 @@ func (t *Controller) Authenticator(c *gin.Context) (interface{}, error) {
 		return nil, err
 	}
 
-	payload.TokenLevel = TokenLevelSignedIn
+	payload.TokenLevel = auth.TokenLevelUser
 	payload.User = user
 
 	return payload, nil
@@ -133,8 +129,8 @@ func (t *Controller) Authenticator(c *gin.Context) (interface{}, error) {
 // @Tags auth
 // @Accept  json
 // @Produce  json
-// @Param loginParams body auth.LoginParams true "Login Parameters"
-// @Success 200 {object} auth.AuthResponse
+// @Param loginParams body old.LoginParams true "Login Parameters"
+// @Success 200 {object} old.AuthResponse
 // @Failure 400 {object} lib.APIError
 // @Failure 401 {object} lib.APIError
 // @Failure 500 {object} lib.APIError
@@ -148,7 +144,7 @@ func authLogin() {}
 // @Tags auth
 // @Accept  json
 // @Produce  json
-// @Success 200 {object} auth.AuthResponse
+// @Success 200 {object} old.AuthResponse
 // @Failure 400 {object} lib.APIError
 // @Failure 401 {object} lib.APIError
 // @Failure 500 {object} lib.APIError
@@ -163,7 +159,7 @@ func authUpdate() {}
 // @Tags auth
 // @Accept  json
 // @Produce  json
-// @Success 200 {object} auth.AuthResponse
+// @Success 200 {object} old.AuthResponse
 // @Failure 400 {object} lib.APIError
 // @Failure 401 {object} lib.APIError
 // @Failure 500 {object} lib.APIError

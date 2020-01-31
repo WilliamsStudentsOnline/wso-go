@@ -21,7 +21,9 @@ import (
 
 	// Services
 	adminService "github.com/WilliamsStudentsOnline/wso-go/services/admin"
-	authService "github.com/WilliamsStudentsOnline/wso-go/services/auth"
+	authAPIService "github.com/WilliamsStudentsOnline/wso-go/services/auth/api"
+	authIdentService "github.com/WilliamsStudentsOnline/wso-go/services/auth/identity"
+	authOldService "github.com/WilliamsStudentsOnline/wso-go/services/auth/old"
 	autocompleteService "github.com/WilliamsStudentsOnline/wso-go/services/autocomplete"
 	bulletinService "github.com/WilliamsStudentsOnline/wso-go/services/bulletin"
 	bulletinRSSService "github.com/WilliamsStudentsOnline/wso-go/services/bulletin/rss"
@@ -79,8 +81,24 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 	corsConfig.AllowAllOrigins = true
 	r.Use(cors.New(corsConfig))
 
-	// Build JWT auth middleware
-	authMiddleware, err := authService.LoadAuthMiddleware(cfg, db, log.Named("auth"))
+	/* Initialize Authentication Middlewares  */
+
+	// Old authentication middleware for backwards compatibility
+	authOldMiddleware, err := authOldService.LoadAuthMiddleware(cfg, db, log.Named("auth.old"))
+	if err != nil {
+		return nil, errors.New("JWT Error: " + err.Error())
+	}
+
+	// New authentication middleware
+
+	// This runs the identification authentication, which is involved with long-term tokens
+	authIdentMiddleware, err := authIdentService.LoadMiddleware(cfg, db, log.Named("auth.ident"))
+	if err != nil {
+		return nil, errors.New("JWT Error: " + err.Error())
+	}
+
+	// This is the standard authentication needed to access the API
+	authAPIMiddleware, err := authAPIService.LoadMiddleware(cfg, db, log.Named("auth.api"))
 	if err != nil {
 		return nil, errors.New("JWT Error: " + err.Error())
 	}
@@ -90,8 +108,17 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 	// Health check endpoint
 	r.GET("/health-check", HealthCheck)
 
-	// Initialize login
-	r.POST("/api/v2/auth/login", authMiddleware.LoginHandler)
+	// Token creation for identity tokens
+	r.POST("/api/v2/auth/identity/token", authIdentMiddleware.LoginHandler)
+
+	// Token creation for API tokens (requires identity token authentication)
+	r.POST("/api/v2/auth/api/token", authIdentMiddleware.MiddlewareFunc(), authAPIMiddleware.LoginHandler)
+
+	// Allow API tokens to be refreshed (updated)
+	r.GET("/api/v2/auth/api/refresh", authAPIMiddleware.UpdateHandler)
+
+	// Token creation for old authentication (backwards compatible)
+	r.POST("/api/v2/auth/login", authOldMiddleware.LoginHandler)
 
 	// Initialize words endpoint
 	wordsService.SetupRouter(r.Group("/api/v2/words"), db, cfg, log.Named("words"))
@@ -104,19 +131,21 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 	}
 
 	// Require authentication for 404s
-	r.NoRoute(authMiddleware.MiddlewareFunc(), func(c *gin.Context) {
+	r.NoRoute(authAPIMiddleware.MiddlewareFunc(), func(c *gin.Context) {
 		services.Base.RespondErrorCode(c, http.StatusNotFound, errors.New("page not found"))
 	})
 
-	// Wrap everything else in authentication
+	// Wrap everything else in authentication. We use the new API authentication middleware, as parsing tokens is
+	//backwards compatible.
 	router := r.Group("")
-	router.Use(authMiddleware.MiddlewareFunc())
+	router.Use(authAPIMiddleware.MiddlewareFunc())
 
 	// Actual API routing
 	v2 := router.Group("/api/v2")
 	{
 		// Authentication for refresh user & other auth commands for already logged in users
-		authService.SetupRouter(v2.Group("/auth"), authMiddleware)
+		// THIS IS FOR OLD DEPRECATED AUTHENTICATION
+		authOldService.SetupRouter(v2.Group("/auth"), authOldMiddleware)
 
 		// User Service
 		userGroup := v2.Group("/users")
