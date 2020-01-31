@@ -196,23 +196,15 @@ definitions:
     properties:
       description:
         type: string
-      gender:
-        type: string
       matchMessage:
         type: string
-      otherGender:
-        type: boolean
     type: object
   ephmatch.ProfileUpdateParams:
     properties:
       description:
         type: string
-      gender:
-        type: string
       matchMessage:
         type: string
-      otherGender:
-        type: boolean
     type: object
   factrak.AgreementCreateParams:
     properties:
@@ -741,8 +733,6 @@ definitions:
         description: Non db entry that acts as a flag for deleted_at column
         type: boolean
       description:
-        type: string
-      gender:
         description: These are optional
         type: string
       id:
@@ -1208,8 +1198,6 @@ definitions:
   responses.ListMatchesResponseEphmatchProfile:
     properties:
       description:
-        type: string
-      gender:
         type: string
       matchMessage:
         type: string
@@ -3685,11 +3673,6 @@ paths:
           description: request data validation failed
           schema:
             $ref: '#/definitions/lib.APIError'
-        "1940":
-          description: unknown gender type specified; use other gender flag for custom
-            gender
-          schema:
-            $ref: '#/definitions/lib.APIError'
       security:
       - Bearer: []
       summary: Update an Ephmatch profile
@@ -3729,11 +3712,6 @@ paths:
             $ref: '#/definitions/lib.APIError'
         "1101":
           description: request data validation failed
-          schema:
-            $ref: '#/definitions/lib.APIError'
-        "1940":
-          description: unknown gender type specified; use other gender flag for custom
-            gender
           schema:
             $ref: '#/definitions/lib.APIError'
       security:

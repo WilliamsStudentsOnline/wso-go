@@ -132,9 +132,6 @@ func (m *EphmatchProfileModel) CreateOrUpdateProfileUnscoped(userID uint, newPro
 			Unscoped().
 			Model(&EphmatchProfile{}).
 			Where(EphmatchProfile{UserID: userID})
-		if newProfile.Gender != nil {
-			query = query.Update("gender", newProfile.Gender)
-		}
 		if newProfile.Description != nil {
 			query = query.Update("description", newProfile.Description)
 		}
@@ -153,7 +150,6 @@ func (m *EphmatchProfileModel) CreateOrUpdateProfileUnscoped(userID uint, newPro
 		Model(&EphmatchProfile{}).
 		Where(EphmatchProfile{UserID: userID}).
 		Assign(EphmatchProfile{
-			Gender:       newProfile.Gender,
 			Description:  newProfile.Description,
 			MatchMessage: newProfile.MatchMessage,
 		}).
