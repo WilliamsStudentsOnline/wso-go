@@ -16,6 +16,7 @@ import (
 )
 
 func TestController_ListProfiles(t *testing.T) {
+	t.Skip()
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
@@ -145,6 +146,7 @@ func TestController_ListProfiles(t *testing.T) {
 }
 
 func TestController_GetProfile(t *testing.T) {
+	t.Skip()
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
@@ -262,6 +264,7 @@ func TestController_GetProfile(t *testing.T) {
 }
 
 func TestController_LikeProfile(t *testing.T) {
+	t.Skip()
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
@@ -340,6 +343,7 @@ func TestController_LikeProfile(t *testing.T) {
 }
 
 func TestController_UnlikeProfile(t *testing.T) {
+	t.Skip()
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
