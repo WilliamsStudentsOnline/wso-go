@@ -41,8 +41,6 @@ func (t *Controller) GetSelfProfile(c *gin.Context) {
 
 type ProfileCreateParams struct {
 	Description  *string `json:"description"`
-	Gender       *string `json:"gender"`
-	OtherGender  bool    `json:"otherGender"`
 	MatchMessage *string `json:"matchMessage"`
 }
 
@@ -56,7 +54,6 @@ type ProfileCreateParams struct {
 // @Param createParams body ephmatch.ProfileCreateParams true "Create Profile Params"
 // @Success 201 {object} models.EphmatchProfile
 // @Failure 1101 {object} lib.APIError "request data validation failed"
-// @Failure 1940 {object} lib.APIError "unknown gender type specified; use other gender flag for custom gender"
 // @Failure 400 {object} lib.APIError
 // @Failure 404 {object} lib.APIError
 // @Failure 500 {object} lib.APIError
@@ -73,18 +70,10 @@ func (t *Controller) CreateProfile(c *gin.Context) {
 		return
 	}
 
-	// If the gender is unknown (or other), we check if the other gender flag is set. If so, we use that. Otherwise, we error
-	// This is mostly to ensure that the majority of people explicitly use our set gender strings, rather than custom
-	// ones (hard to distinguish between "he/him" and "he/him/his" etc.)
-	if models.EphmatchProfileGenderType(*createData.Gender) == models.EphmatchProfileGenderOther && !createData.OtherGender {
-		t.RespondError(c, lib.ErrorEphmatchGenderUnknown)
-		return
-	}
-
 	newProfile := models.EphmatchProfile{
-		Gender:      createData.Gender,
-		Description: createData.Description,
-		UserID:      userID,
+		Description:  createData.Description,
+		MatchMessage: createData.MatchMessage,
+		UserID:       userID,
 	}
 
 	var profile models.EphmatchProfile
@@ -106,8 +95,6 @@ func (t *Controller) CreateProfile(c *gin.Context) {
 
 type ProfileUpdateParams struct {
 	Description  *string `json:"description"`
-	Gender       *string `json:"gender"`
-	OtherGender  bool    `json:"otherGender"`
 	MatchMessage *string `json:"matchMessage"`
 }
 
@@ -121,7 +108,6 @@ type ProfileUpdateParams struct {
 // @Param updateParams body ephmatch.ProfileUpdateParams true "Update Profile Params"
 // @Success 200 {object} models.EphmatchProfile
 // @Failure 1101 {object} lib.APIError "request data validation failed"
-// @Failure 1940 {object} lib.APIError "unknown gender type specified; use other gender flag for custom gender"
 // @Failure 400 {object} lib.APIError
 // @Failure 404 {object} lib.APIError
 // @Failure 500 {object} lib.APIError
@@ -138,18 +124,6 @@ func (t *Controller) UpdateProfile(c *gin.Context) {
 		return
 	}
 
-	// If we set gender, and...
-	// If the gender is unknown (or other), we check if the other gender flag is set. If so, we use that. Otherwise, we error
-	// This is mostly to ensure that the majority of people explicitly use our set gender strings, rather than custom
-	// ones (hard to distinguish between "he/him" and "he/him/his" etc.)
-	if updateData.Gender != nil &&
-		models.EphmatchProfileGenderType(*updateData.Gender) == models.EphmatchProfileGenderOther &&
-		!updateData.OtherGender {
-
-		t.RespondError(c, lib.ErrorEphmatchGenderUnknown)
-		return
-	}
-
 	// Do database query
 	var profile models.EphmatchProfile
 	err = t.profileModel.GetSelfProfileByIDScopedNoDefault(userID, &profile)
@@ -158,8 +132,8 @@ func (t *Controller) UpdateProfile(c *gin.Context) {
 		return
 	}
 
-	profile.Gender = lib.StrPtrDefaults(updateData.Gender, profile.Gender)
 	profile.Description = lib.StrPtrDefaults(updateData.Description, profile.Description)
+	profile.MatchMessage = lib.StrPtrDefaults(updateData.MatchMessage, profile.MatchMessage)
 
 	err = t.profileModel.UpdateProfile(&profile)
 	if err != nil {

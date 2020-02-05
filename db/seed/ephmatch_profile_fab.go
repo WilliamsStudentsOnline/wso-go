@@ -6,11 +6,11 @@ import (
 )
 
 func GenerateEphmatchProfile() *models.EphmatchProfile {
-	gender := gofakeit.RandString([]string{models.EphmatchProfileGenderMale, models.EphmatchProfileGenderFemale, models.EphmatchProfileGenderNB, "other gender"})
 	desc := gofakeit.Sentence(10)
+	matchMessage := gofakeit.Sentence(4)
 
 	return &models.EphmatchProfile{
-		Gender:      &gender,
-		Description: &desc,
+		Description:  &desc,
+		MatchMessage: &matchMessage,
 	}
 }

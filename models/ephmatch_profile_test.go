@@ -25,7 +25,6 @@ func TestEphmatchProfileModel_DeleteProfile(t *testing.T) {
 	// Create Profile
 	profile := &EphmatchProfile{
 		UserID:      user.ID,
-		Gender:      lib.StrToPtr(EphmatchProfileGenderNB),
 		Description: lib.StrToPtr("hello world 123 abc foo bar"),
 	}
 	assert.NoError(db.Create(profile).Error)
@@ -81,7 +80,6 @@ func TestEphmatchProfileModel_CreateOrUpdateProfileUnscoped(t *testing.T) {
 		// Create Profile
 		newProfile := EphmatchProfile{
 			UserID:      user.ID,
-			Gender:      lib.StrToPtr(EphmatchProfileGenderNB),
 			Description: lib.StrToPtr("hello world 123 abc foo bar"),
 		}
 
@@ -92,10 +90,8 @@ func TestEphmatchProfileModel_CreateOrUpdateProfileUnscoped(t *testing.T) {
 		assert.NoError(db.Model(EphmatchProfile{}).Where(EphmatchProfile{UserID: newProfile.UserID}).First(&res).Error)
 
 		assert.Equal(profile.ID, res.ID)
-		assert.Equal(profile.Gender, res.Gender)
 		assert.Equal(profile.Description, res.Description)
 		assert.Nil(res.DeletedAt)
-		assert.Equal(newProfile.Gender, res.Gender)
 		assert.Equal(newProfile.Description, res.Description)
 	})
 
@@ -117,10 +113,8 @@ func TestEphmatchProfileModel_CreateOrUpdateProfileUnscoped(t *testing.T) {
 		assert.NoError(db.Model(EphmatchProfile{}).Where(EphmatchProfile{UserID: newProfile.UserID}).First(&res).Error)
 
 		assert.Equal(profile.ID, res.ID)
-		assert.Equal(profile.Gender, res.Gender)
 		assert.Equal(profile.Description, res.Description)
 		assert.Nil(res.DeletedAt)
-		assert.Equal(newProfile.Gender, res.Gender)
 		assert.Equal(newProfile.Description, res.Description)
 	})
 
@@ -133,7 +127,6 @@ func TestEphmatchProfileModel_CreateOrUpdateProfileUnscoped(t *testing.T) {
 		// Create Profile
 		newProfile := EphmatchProfile{
 			UserID:      user.ID,
-			Gender:      lib.StrToPtr(EphmatchProfileGenderNB),
 			Description: lib.StrToPtr("hello world 123 abc foo bar"),
 		}
 
@@ -153,10 +146,8 @@ func TestEphmatchProfileModel_CreateOrUpdateProfileUnscoped(t *testing.T) {
 		assert.NoError(db.Model(EphmatchProfile{}).Where(EphmatchProfile{UserID: newProfile.UserID}).First(&res).Error)
 
 		assert.Equal(profile.ID, res.ID)
-		assert.Equal(profile.Gender, res.Gender)
 		assert.Equal(profile.Description, res.Description)
 		assert.Nil(res.DeletedAt)
-		assert.Equal(newProfile.Gender, res.Gender)
 		assert.Equal(newProfile.Description, res.Description)
 	})
 
