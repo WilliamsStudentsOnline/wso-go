@@ -30,6 +30,22 @@ services/*/responses/%.go: services/*/responses/%.json
 services/words/words_data.go: services/words/words.json
 	go generate $(GIT_REPO)/services/words
 
+.PHONY: job-catalog-update
+job-catalog-update:
+	go build -tags=jsoniter -o job-catalog-update ./jobs/catalog_update/cmd
+
+.PHONY: job-update-all-factrak-survey-deficits
+job-update-all-factrak-survey-deficits:
+	go build -tags=jsoniter -o job-update-all-factrak-survey-deficits ./jobs/update_all_factrak_survey_deficits/cmd
+
+.PHONY: job-update-all-users-from-ldap
+job-update-all-users-from-ldap:
+	go build -tags=jsoniter -o job-update-all-users-from-ldap ./jobs/update_all_users_from_ldap/cmd
+
+.PHONY: job-dorms-update
+job-dorms-update:
+	go build -tags=jsoniter -o job-dorms-update ./jobs/dorms_update/cmd
+
 .PHONY: build-prod-linux
 build-prod-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o $(BINARY_NAME)_linux ./server/cmd
