@@ -132,11 +132,11 @@ func (m *EphmatchProfileModel) CreateOrUpdateProfileUnscoped(userID uint, newPro
 			Unscoped().
 			Model(&EphmatchProfile{}).
 			Where(EphmatchProfile{UserID: userID})
-		if newProfile.Gender != nil {
-			query = query.Update("gender", newProfile.Gender)
-		}
 		if newProfile.Description != nil {
 			query = query.Update("description", newProfile.Description)
+		}
+		if newProfile.MatchMessage != nil {
+			query = query.Update("match_message", newProfile.MatchMessage)
 		}
 		err = query.UpdateColumn("deleted_at", nil).
 			Preload("User").
@@ -150,8 +150,8 @@ func (m *EphmatchProfileModel) CreateOrUpdateProfileUnscoped(userID uint, newPro
 		Model(&EphmatchProfile{}).
 		Where(EphmatchProfile{UserID: userID}).
 		Assign(EphmatchProfile{
-			Gender:      newProfile.Gender,
-			Description: newProfile.Description,
+			Description:  newProfile.Description,
+			MatchMessage: newProfile.MatchMessage,
 		}).
 		Preload("User").
 		FirstOrCreate(p).Error
@@ -228,7 +228,6 @@ func (m *EphmatchProfileModel) DoesProfileExist(id uint) (exists bool, err error
 // Default scope: is student and is visible. Make sure to enumerate users on join
 func (m *EphmatchProfileModel) scopeDefault(db *gorm.DB) *gorm.DB {
 	db = db.Joins("INNER JOIN users ON users.id = ephmatch_profiles.user_id").
-		Where("users.type = ?", UserTypeStudent).
-		Where("users.visible = ?", true)
+		Where("users.type = ?", UserTypeStudent)
 	return db
 }

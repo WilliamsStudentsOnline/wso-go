@@ -3441,12 +3441,6 @@
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
-                    "1940": {
-                        "description": "unknown gender type specified; use other gender flag for custom gender",
-                        "schema": {
-                            "$ref": "#/definitions/lib.APIError"
-                        }
-                    },
                     "201": {
                         "description": "Created",
                         "schema": {
@@ -3551,12 +3545,6 @@
                 "responses": {
                     "1101": {
                         "description": "request data validation failed",
-                        "schema": {
-                            "$ref": "#/definitions/lib.APIError"
-                        }
-                    },
-                    "1940": {
-                        "description": "unknown gender type specified; use other gender flag for custom gender",
                         "schema": {
                             "$ref": "#/definitions/lib.APIError"
                         }
@@ -6733,11 +6721,8 @@
                 "description": {
                     "type": "string"
                 },
-                "gender": {
+                "matchMessage": {
                     "type": "string"
-                },
-                "otherGender": {
-                    "type": "boolean"
                 }
             }
         },
@@ -6747,11 +6732,8 @@
                 "description": {
                     "type": "string"
                 },
-                "gender": {
+                "matchMessage": {
                     "type": "string"
-                },
-                "otherGender": {
-                    "type": "boolean"
                 }
             }
         },
@@ -7522,9 +7504,6 @@
                     "type": "boolean"
                 },
                 "description": {
-                    "type": "string"
-                },
-                "gender": {
                     "description": "These are optional",
                     "type": "string"
                 },
@@ -7534,6 +7513,9 @@
                 "liked": {
                     "description": "If me (user) has an ephmatch entry where ephmatch.other_id=users.id and ephmatch.user_id=myID",
                     "type": "boolean"
+                },
+                "matchMessage": {
+                    "type": "string"
                 },
                 "user": {
                     "type": "object",
@@ -8202,7 +8184,7 @@
                 "description": {
                     "type": "string"
                 },
-                "gender": {
+                "matchMessage": {
                     "type": "string"
                 }
             }

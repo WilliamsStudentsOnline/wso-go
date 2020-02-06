@@ -263,5 +263,6 @@ func isSeniorWeek() bool {
 }
 
 func isWinterStudy() bool {
-	return time.Now().Month() == time.January
+	return time.Now().Month() == time.January || (time.Now().Month() == time.February && time.Now().Day() <= 4)
+	//return time.Now().Month() == time.January
 }

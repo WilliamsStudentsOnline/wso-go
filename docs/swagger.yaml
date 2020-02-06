@@ -196,19 +196,15 @@ definitions:
     properties:
       description:
         type: string
-      gender:
+      matchMessage:
         type: string
-      otherGender:
-        type: boolean
     type: object
   ephmatch.ProfileUpdateParams:
     properties:
       description:
         type: string
-      gender:
+      matchMessage:
         type: string
-      otherGender:
-        type: boolean
     type: object
   factrak.AgreementCreateParams:
     properties:
@@ -737,8 +733,6 @@ definitions:
         description: Non db entry that acts as a flag for deleted_at column
         type: boolean
       description:
-        type: string
-      gender:
         description: These are optional
         type: string
       id:
@@ -747,6 +741,8 @@ definitions:
         description: If me (user) has an ephmatch entry where ephmatch.other_id=users.id
           and ephmatch.user_id=myID
         type: boolean
+      matchMessage:
+        type: string
       user:
         $ref: '#/definitions/models.User'
         type: object
@@ -1208,7 +1204,7 @@ definitions:
     properties:
       description:
         type: string
-      gender:
+      matchMessage:
         type: string
     type: object
   responses.ListMatchesResponseOther:
@@ -3684,11 +3680,6 @@ paths:
           description: request data validation failed
           schema:
             $ref: '#/definitions/lib.APIError'
-        "1940":
-          description: unknown gender type specified; use other gender flag for custom
-            gender
-          schema:
-            $ref: '#/definitions/lib.APIError'
       security:
       - Bearer: []
       summary: Update an Ephmatch profile
@@ -3728,11 +3719,6 @@ paths:
             $ref: '#/definitions/lib.APIError'
         "1101":
           description: request data validation failed
-          schema:
-            $ref: '#/definitions/lib.APIError'
-        "1940":
-          description: unknown gender type specified; use other gender flag for custom
-            gender
           schema:
             $ref: '#/definitions/lib.APIError'
       security:

@@ -108,14 +108,13 @@
           "type": "string",
           "goPtr": true
         },
-        "gender": {
+        "matchMessage": {
           "type": "string",
           "goPtr": true
         }
       },
       "required": [
-        "description",
-        "gender"
+        "description"
       ],
       "title": "EphmatchProfile",
       "goOtherName": "EphmatchProfile",
