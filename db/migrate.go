@@ -31,6 +31,7 @@ var Migrations = []*gormigrate.Migration{
 	migrations.CreateEphmatches20190926015114,
 	migrations.CreateEphmatchProfiles20191124040019,
 	migrations.MatchMessageColumn20200123225124,
+	migrations.UserAddOffCampusColumn20200125225400,
 }
 
 var MigrationGormOptions = gormigrate.DefaultOptions

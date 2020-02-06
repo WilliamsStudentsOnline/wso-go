@@ -1025,6 +1025,9 @@ definitions:
         type: string
       nickname:
         type: string
+      offCampus:
+        description: If user is Off-Campus and thus doesn't have a dorm
+        type: boolean
       offCycle:
         type: boolean
       office:
@@ -1153,6 +1156,8 @@ definitions:
         type: string
       name:
         type: string
+      offCampus:
+        type: boolean
       offCycle:
         type: boolean
       office:
@@ -1339,6 +1344,8 @@ definitions:
         type: string
       name:
         type: string
+      offCampus:
+        type: boolean
       offCycle:
         type: boolean
       office:

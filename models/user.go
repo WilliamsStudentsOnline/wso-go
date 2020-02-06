@@ -514,7 +514,16 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 		// Student personal parsing
 		if user.IsStudent() || user.IsAlum() {
 			dormName := entry.GetAttributeValue("wmsDormAddr1")
-			if dormName != "" && !skipDorm {
+
+			// If dormName is off-campus, treat it as such
+			if !skipDorm && dormName == "Off-Campus" {
+				user.OffCampus = lib.TruePtr()
+				user.DormRoom = nil
+				user.DormRoomID = nil
+			} else if dormName != "" && !skipDorm {
+				// Otherwise, off-campus should be false.
+				user.OffCampus = lib.FalsePtr()
+
 				var dorm Dorm
 				err = m.DB.Where(&Dorm{
 					Name: dormName,
@@ -523,11 +532,7 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 				if err != nil {
 					if gorm.IsRecordNotFoundError(err) {
 						// If user is an off-campus senior, just give us an info. Otherwise warn.
-						if user.Student().Senior() {
-							m.log.With("unixID", user.UnixID).Infof("Encountered off-campus dorm: %s", dormName)
-						} else {
-							m.log.With("unixID", user.UnixID).Warnf("Encountered unknown dorm: %s", dormName)
-						}
+						m.log.With("unixID", user.UnixID).Warnf("Encountered unknown dorm: %s", dormName)
 
 						user.DormRoomID = nil
 						user.DormRoom = nil
