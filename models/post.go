@@ -126,7 +126,7 @@ func (m *PostModel) DeletePost(p *Post) (err error) {
 	err = m.DB.
 		Where("posts.discussion_id = ?", p.DiscussionID).
 		Not("posts.id = ?", p.ID).
-		Order("posts.created_at").
+		Order("posts.created_at desc").
 		First(&recentPost).Error
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		return
