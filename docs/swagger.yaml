@@ -272,7 +272,7 @@ definitions:
       wouldTakeAnother:
         type: boolean
     type: object
-  identity.IdentityCredentials:
+  identity.Credentials:
     properties:
       localIP:
         description: If true, will authenticate based on IP. Fail if cannot get on-campus
@@ -1641,7 +1641,7 @@ paths:
         name: identityCredentials
         required: true
         schema:
-          $ref: '#/definitions/identity.IdentityCredentials'
+          $ref: '#/definitions/identity.Credentials'
           type: object
       produces:
       - application/json

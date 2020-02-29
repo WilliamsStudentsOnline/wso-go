@@ -320,7 +320,7 @@
                         "required": true,
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/identity.IdentityCredentials"
+                            "$ref": "#/definitions/identity.Credentials"
                         }
                     }
                 ],
@@ -7005,7 +7005,7 @@
                 }
             }
         },
-        "identity.IdentityCredentials": {
+        "identity.Credentials": {
             "type": "object",
             "properties": {
                 "localIP": {

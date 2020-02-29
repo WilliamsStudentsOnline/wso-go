@@ -127,7 +127,7 @@ func (t *Controller) Authenticator(c *gin.Context) (interface{}, error) {
 // @Tags auth, auth-2.0
 // @Accept  json
 // @Produce  json
-// @Param identityCredentials body identity.IdentityCredentials true "Identity Credentials"
+// @Param identityCredentials body identity.Credentials true "Identity Credentials"
 // @Success 200 {object} auth.AuthResponse
 // @Failure 400 {object} lib.APIError
 // @Failure 401 {object} lib.APIError
