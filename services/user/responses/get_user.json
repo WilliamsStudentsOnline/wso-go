@@ -122,6 +122,9 @@
         "offCycle": {
           "type": "boolean"
         },
+        "offCampus": {
+          "type": "boolean"
+        },
         "factrakSurveyDeficit": {
           "type": "integer"
         },

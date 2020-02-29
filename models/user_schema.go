@@ -12,6 +12,7 @@ const (
 	UserTypeAlum      = "alum"
 	UserTypeProfessor = "professor"
 	UserTypeStaff     = "staff"
+	UserTypeUnknown   = "unknown"
 )
 
 // User Model Schema
@@ -63,6 +64,9 @@ type User struct {
 
 	OptOutEphcatch      *bool `gorm:"DEFAULT:false;not null" json:"optOutEphcatch"`
 	EphcatchEligibility *bool `gorm:"DEFAULT:false;not null" json:"ephcatchEligibility"`
+
+	// If user is Off-Campus and thus doesn't have a dorm
+	OffCampus *bool `gorm:"DEFAULT:false;not null" json:"offCampus"`
 
 	// Keep this in here as long as we want to maintain this type of searching.
 	SearchFields string `gorm:"default:'';not null'" json:"-"`
@@ -118,6 +122,10 @@ func (u *User) IsProfessor() bool {
 
 func (u *User) IsStaff() bool {
 	return u.Type == UserTypeStaff
+}
+
+func (u *User) IsUnknown() bool {
+	return u.Type == UserTypeUnknown
 }
 
 func (u *User) Student() *Student {

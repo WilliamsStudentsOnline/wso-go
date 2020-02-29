@@ -1,28 +1,5 @@
 package models
 
-const (
-	EphmatchProfileGenderMale   = "he/him/his"
-	EphmatchProfileGenderFemale = "she/her/hers"
-	EphmatchProfileGenderNB     = "they/them/theirs"
-	EphmatchProfileGenderOther  = "<OTHER>"
-	EphmatchProfileGenderNone   = ""
-)
-
-func EphmatchProfileGenderType(gender string) string {
-	switch gender {
-	case EphmatchProfileGenderMale:
-		return EphmatchProfileGenderMale
-	case EphmatchProfileGenderFemale:
-		return EphmatchProfileGenderFemale
-	case EphmatchProfileGenderNB:
-		return EphmatchProfileGenderNB
-	case "":
-		return EphmatchProfileGenderNone
-	default:
-		return EphmatchProfileGenderOther
-	}
-}
-
 type EphmatchProfile struct {
 	BaseSchema
 
@@ -31,7 +8,6 @@ type EphmatchProfile struct {
 	User   *User `json:"user,omitempty"`
 
 	// These are optional
-	Gender       *string `json:"gender"`
 	Description  *string `json:"description"`
 	MatchMessage *string `json:"matchMessage"`
 

@@ -3596,12 +3596,6 @@
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
-                    "1940": {
-                        "description": "unknown gender type specified; use other gender flag for custom gender",
-                        "schema": {
-                            "$ref": "#/definitions/lib.APIError"
-                        }
-                    },
                     "201": {
                         "description": "Created",
                         "schema": {
@@ -3706,12 +3700,6 @@
                 "responses": {
                     "1101": {
                         "description": "request data validation failed",
-                        "schema": {
-                            "$ref": "#/definitions/lib.APIError"
-                        }
-                    },
-                    "1940": {
-                        "description": "unknown gender type specified; use other gender flag for custom gender",
                         "schema": {
                             "$ref": "#/definitions/lib.APIError"
                         }
@@ -6869,14 +6857,8 @@
                 "description": {
                     "type": "string"
                 },
-                "gender": {
-                    "type": "string"
-                },
                 "matchMessage": {
                     "type": "string"
-                },
-                "otherGender": {
-                    "type": "boolean"
                 }
             }
         },
@@ -6886,14 +6868,8 @@
                 "description": {
                     "type": "string"
                 },
-                "gender": {
-                    "type": "string"
-                },
                 "matchMessage": {
                     "type": "string"
-                },
-                "otherGender": {
-                    "type": "boolean"
                 }
             }
         },
@@ -7683,9 +7659,6 @@
                     "type": "boolean"
                 },
                 "description": {
-                    "type": "string"
-                },
-                "gender": {
                     "description": "These are optional",
                     "type": "string"
                 },
@@ -8098,6 +8071,10 @@
                 "nickname": {
                     "type": "string"
                 },
+                "offCampus": {
+                    "description": "If user is Off-Campus and thus doesn't have a dorm",
+                    "type": "boolean"
+                },
                 "offCycle": {
                     "type": "boolean"
                 },
@@ -8320,6 +8297,9 @@
                 "name": {
                     "type": "string"
                 },
+                "offCampus": {
+                    "type": "boolean"
+                },
                 "offCycle": {
                     "type": "boolean"
                 },
@@ -8387,9 +8367,6 @@
             "type": "object",
             "properties": {
                 "description": {
-                    "type": "string"
-                },
-                "gender": {
                     "type": "string"
                 },
                 "matchMessage": {
@@ -8603,6 +8580,9 @@
                 },
                 "name": {
                     "type": "string"
+                },
+                "offCampus": {
+                    "type": "boolean"
                 },
                 "offCycle": {
                     "type": "boolean"

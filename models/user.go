@@ -4,13 +4,13 @@ import (
 	"errors"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/ldap"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
-	ldapconn "gopkg.in/ldap.v3"
 )
 
 // User Model
@@ -381,7 +381,7 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 
 	// Initialize LDAPs
 	willyLdap := ldap.NewWilliamsLDAP()
-	ndsLdap := ldap.NewNDSLDAP()
+	adLdap := ldap.NewADLDAP()
 
 	// We need the Willy LDAP credentials for this
 	err := config.Secrets.RequireLDAPAuth()
@@ -404,12 +404,12 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 	}
 	m.log.Info("End Williams LDAP each")
 
-	// Connect the NDS LDAP
-	err = ndsLdap.Connect()
+	// Connect the AD LDAP
+	err = adLdap.ConnectWithBind(config.Secrets.ADLDAPDn, config.Secrets.ADLDAPPassword)
 	if err != nil {
 		return nil, err
 	}
-	defer ndsLdap.Close()
+	defer adLdap.Close()
 
 	// This is our result
 	users := []*User{}
@@ -424,22 +424,43 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 			// User is in Ldap, therefore is at williams.
 			// Explicitly set this to handle alums who return as fac/staff
 			AtWilliams: lib.BoolToPtr(true),
-			// By default we set everyone as staff, as there are many edge case affiliations.
-			Type: UserTypeStaff,
+			// By default we set everyone as unknown, as there are many edge case affiliations.
+			Type: UserTypeUnknown,
 		}
 
-		// Get the NDS info of the user
-		ndsUser, err := ndsLdap.Get("uid", user.UnixID)
-		if err != nil {
-			return nil, err
-		}
-
+		// Get the AD info of the user
+		adUser, err := adLdap.Get("cn", user.UnixID)
 		// If we didn't find anything in search, just continue.
-		if ndsUser == nil {
+		if adUser == nil {
 			continue
 		}
 
-		user.Type = userAssociationType(ndsUser)
+		memberGroups := adUser.GetAttributeValues("memberOf")
+		ua := lib.NewUserAssociation(memberGroups)
+		adUserDN := strings.ToLower(adUser.DN)
+
+		/*
+			Order of types:
+			1. unknown
+			2. faculty (if group has faculty)
+			3. staff (if group has staff)
+			4. student (if group has student)
+			5. alum (if qualifies for student but class year is after this year AND is not in LDAP servers)
+		*/
+		switch {
+		case ua.IsFaculty():
+			//TODO: Delete emeriti faculty or mark as not at williams
+			user.Type = UserTypeProfessor
+		case ua.IsStaff():
+			user.Type = UserTypeStaff
+		case ua.IsStudent():
+			user.Type = UserTypeStudent
+		}
+
+		// If the user was a student and is now unknown, they're probably off-cycle alum
+		if strings.Contains(adUserDN, "ou=student") && user.Type == UserTypeUnknown {
+			user.Type = UserTypeAlum
+		}
 
 		// Skip adding dorm
 		skipDorm := false
@@ -493,7 +514,16 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 		// Student personal parsing
 		if user.IsStudent() || user.IsAlum() {
 			dormName := entry.GetAttributeValue("wmsDormAddr1")
-			if dormName != "" && !skipDorm {
+
+			// If dormName is off-campus, treat it as such
+			if !skipDorm && dormName == "Off-Campus" {
+				user.OffCampus = lib.TruePtr()
+				user.DormRoom = nil
+				user.DormRoomID = nil
+			} else if dormName != "" && !skipDorm {
+				// Otherwise, off-campus should be false.
+				user.OffCampus = lib.FalsePtr()
+
 				var dorm Dorm
 				err = m.DB.Where(&Dorm{
 					Name: dormName,
@@ -502,11 +532,7 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 				if err != nil {
 					if gorm.IsRecordNotFoundError(err) {
 						// If user is an off-campus senior, just give us an info. Otherwise warn.
-						if user.Student().Senior() {
-							m.log.With("unixID", user.UnixID).Info("Encountered off-campus dorm:", dormName)
-						} else {
-							m.log.With("unixID", user.UnixID).Warn("Encountered unknown dorm:", dormName)
-						}
+						m.log.With("unixID", user.UnixID).Warnf("Encountered unknown dorm: %s", dormName)
 
 						user.DormRoomID = nil
 						user.DormRoom = nil
@@ -630,20 +656,12 @@ func (m *UserModel) UpdateAllFromLDAP(cfg *config.Config) error {
 		return err
 	}
 
-	// Connect to NDS
-	ndsLdap := ldap.NewNDSLDAP()
-	err = ndsLdap.Connect()
-	if err != nil {
-		return err
-	}
-	defer ndsLdap.Close()
-
 	for _, user := range users {
 		// If user's unix was not found in the LDAP
 		if _, ok := unixesAtWilliams[user.UnixID]; !ok {
 			// Update not in LDAP:
 			// TODO: Figure out a way to batch these calls
-			err = m.updateNotInLDAP(&user, ndsLdap)
+			err = m.updateNotInLDAP(&user)
 			if err != nil {
 				m.log.With(err).Errorf("Could not update (not in LDAP) user %s with %#+v", user.UnixID, user)
 			}
@@ -675,20 +693,14 @@ func (*UserModel) scopeAlphabetical(db *gorm.DB) *gorm.DB {
 
 // Updates users that are not found in LDAP anymore (alumni usually) by searching for them on NDS,
 // finding their type, and then updating the user.
-func (m *UserModel) updateNotInLDAP(user *User, ndsLdap *ldap.LDAP) error {
+func (m *UserModel) updateNotInLDAP(user *User) error {
+	// TODO: remove at_williams and replace with deleted_at
 	user.AtWilliams = lib.BoolToPtr(false)
-	entry, err := ndsLdap.Get("uid", user.UnixID)
-	if err != nil {
-		return err
-	}
 
-	// if LDAP returned anything
-	if entry != nil {
-		assocType := userAssociationType(entry)
-		if user.Type != assocType {
-			m.log.Infof("Changing type of missing user %s from %s to %s", user.UnixID, user.Type, assocType)
-		}
-		user.Type = assocType
+	// If user is student and the class year is this year or less, set user type to be alum
+	if user.Type == UserTypeStudent && user.ClassYear != nil && *user.ClassYear <= time.Now().Year() {
+		m.log.Infof("Changing type of missing user %s from %s to alum", user.UnixID, user.Type)
+		user.Type = UserTypeAlum
 	}
 
 	user.DormRoom = nil
@@ -699,27 +711,6 @@ func (m *UserModel) updateNotInLDAP(user *User, ndsLdap *ldap.LDAP) error {
 	user.SearchFields = user.GenerateSearchFields()
 
 	return m.DB.Save(user).Error
-}
-
-func userAssociationType(ndsUser *ldapconn.Entry) string {
-	ua := lib.NewUserAssociation(
-		ndsUser.GetAttributeValue("wmsAffiliation"),
-		ndsUser.GetAttributeValue("wmsAffiliationFamily"),
-	)
-
-	if ua.IsClassStudent() {
-		if ua.IsAlum() {
-			return UserTypeAlum
-		} else if ua.IsCurrentStudent() {
-			return UserTypeStudent
-		}
-	} else if ua.IsClassEmployee() && ua.IsFaculty() {
-		return UserTypeProfessor
-	} else if ua.IsStaff() {
-		return UserTypeStaff
-	}
-
-	return UserTypeStaff
 }
 
 func parseStrToPtr(str string) *string {

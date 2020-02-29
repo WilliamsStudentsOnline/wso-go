@@ -17,7 +17,7 @@ type LDAP struct {
 
 func NewWilliamsLDAP() *LDAP {
 	return &LDAP{
-		Host:  "ldap.williams.edu",
+		Host:  "ldap://ldap.williams.edu",
 		Base:  "ou=people,o=williams",
 		Scope: ldap.ScopeWholeSubtree,
 		Port:  389,
@@ -26,10 +26,19 @@ func NewWilliamsLDAP() *LDAP {
 
 func NewNDSLDAP() *LDAP {
 	return &LDAP{
-		Host:  "nds4.williams.edu",
+		Host:  "ldap://nds4.williams.edu",
 		Base:  "o=williams",
 		Scope: ldap.ScopeWholeSubtree,
 		Port:  389,
+	}
+}
+
+func NewADLDAP() *LDAP {
+	return &LDAP{
+		Host:  "ldaps://adldap.williams.edu",
+		Base:  "ou=williams,dc=ad,dc=williams,dc=edu",
+		Scope: ldap.ScopeWholeSubtree,
+		Port:  636,
 	}
 }
 
@@ -49,7 +58,7 @@ func (l *LDAP) ConnectWithBind(bindDN, password string) error {
 }
 
 func (l *LDAP) Connect() error {
-	conn, err := ldap.Dial("tcp", fmt.Sprintf("%s:%d", l.Host, l.Port))
+	conn, err := ldap.DialURL(fmt.Sprintf("%s:%d", l.Host, l.Port))
 	if err != nil {
 		return err
 	}

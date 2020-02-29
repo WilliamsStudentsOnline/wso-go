@@ -142,5 +142,4 @@ var (
 	ErrorEphmatchProfileNotFound = NewAPIError(1931, "ephmatch profile could not be found")
 	ErrorEphmatchAlreadyExists   = NewAPIError(1932, "ephmatch already exists with user ID and passed ephmatch profile user ID")
 	ErrorEphmatchDoesNotExist    = NewAPIError(1932, "ephmatch does not exist with user ID and passed ephmatch profile user ID")
-	ErrorEphmatchGenderUnknown   = NewAPIError(1940, "unknown gender type specified; use other gender flag for custom gender")
 )
