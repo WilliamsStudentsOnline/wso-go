@@ -12,21 +12,6 @@ definitions:
       token:
         type: string
     type: object
-  auth.LoginParams:
-    properties:
-      localIP:
-        description: If true, will authenticate based on IP. Fail if cannot get on-campus
-          token.
-        type: boolean
-      password:
-        type: string
-      unixID:
-        type: string
-      useIP:
-        description: If true, will authenticate based on IP. Will return either off-campus
-          or on-campus token
-        type: boolean
-    type: object
   autocomplete.ACEntry:
     properties:
       id:
@@ -277,6 +262,21 @@ definitions:
       wouldRecommendCourse:
         type: boolean
       wouldTakeAnother:
+        type: boolean
+    type: object
+  identity.Credentials:
+    properties:
+      localIP:
+        description: If true, will authenticate based on IP. Fail if cannot get on-campus
+          token.
+        type: boolean
+      password:
+        type: string
+      unixID:
+        type: string
+      useIP:
+        description: If true, will authenticate based on IP. Will return either off-campus
+          or on-campus token
         type: boolean
     type: object
   lib.APIError:
@@ -1058,6 +1058,28 @@ definitions:
       williamsEmail:
         type: string
     type: object
+  old.AuthResponse:
+    properties:
+      expire:
+        type: string
+      token:
+        type: string
+    type: object
+  old.LoginParams:
+    properties:
+      localIP:
+        description: If true, will authenticate based on IP. Fail if cannot get on-campus
+          token.
+        type: boolean
+      password:
+        type: string
+      unixID:
+        type: string
+      useIP:
+        description: If true, will authenticate based on IP. Will return either off-campus
+          or on-campus token
+        type: boolean
+    type: object
   responses.GetUserResponseDepartment:
     properties:
       id:
@@ -1535,6 +1557,110 @@ paths:
       summary: Updates all users from LDAP
       tags:
       - admin
+  /auth/api/refresh:
+    get:
+      consumes:
+      - application/json
+      description: issues an API JWT by taking an existing API JWT and updating the
+        fields. This calls the db, so it will actually modify the token's payload.
+      operationId: auth-api-update
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Refresh API Token
+      tags:
+      - auth
+      - auth-2.0
+  /auth/api/token:
+    post:
+      consumes:
+      - application/json
+      description: issues an API JWT given an identity token.
+      operationId: auth-api-token
+      parameters:
+      - description: Identity Token
+        in: query
+        name: identityToken
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      summary: Authenticate API Token
+      tags:
+      - auth
+      - auth-2.0
+  /auth/identity/token:
+    post:
+      consumes:
+      - application/json
+      description: issues an Identity JWT given identity credentials.
+      operationId: auth-identity-token
+      parameters:
+      - description: Identity Credentials
+        in: body
+        name: identityCredentials
+        required: true
+        schema:
+          $ref: '#/definitions/identity.Credentials'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      summary: Authenticate Identity Token
+      tags:
+      - auth
+      - auth-2.0
   /auth/login:
     post:
       consumes:
@@ -1547,7 +1673,7 @@ paths:
         name: loginParams
         required: true
         schema:
-          $ref: '#/definitions/auth.LoginParams'
+          $ref: '#/definitions/old.LoginParams'
           type: object
       produces:
       - application/json
@@ -1555,7 +1681,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/auth.AuthResponse'
+            $ref: '#/definitions/old.AuthResponse'
         "400":
           description: Bad Request
           schema:
@@ -1584,7 +1710,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/auth.AuthResponse'
+            $ref: '#/definitions/old.AuthResponse'
         "400":
           description: Bad Request
           schema:
@@ -1615,7 +1741,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/auth.AuthResponse'
+            $ref: '#/definitions/old.AuthResponse'
         "400":
           description: Bad Request
           schema:

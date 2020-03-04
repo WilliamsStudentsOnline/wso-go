@@ -1,4 +1,4 @@
-package auth
+package old
 
 import (
 	"errors"
@@ -6,22 +6,12 @@ import (
 
 	jwt "github.com/WilliamsStudentsOnline/gin-jwt/v2"
 	"github.com/WilliamsStudentsOnline/wso-go/config"
-	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
+	"github.com/WilliamsStudentsOnline/wso-go/services/auth"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
-)
-
-type TokenLevel int
-
-// Token signing levels for payload to give scopes
-const (
-	TokenLevelUnauthenticated TokenLevel = iota
-	TokenLevelOffCampus
-	TokenLevelOnCampus
-	TokenLevelSignedIn
 )
 
 type AuthResponse struct {
@@ -51,8 +41,8 @@ func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger)
 		// Called on login to create JWT payload
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			// We take the data (which is a User) and create the payload
-			if v, ok := data.(*AuthenticatorPayload); ok {
-				return GenerateClaims(v)
+			if v, ok := data.(*auth.AuthenticatorPayload); ok {
+				return auth.GenerateClaims(v)
 			}
 			return jwt.MapClaims{}
 		},
@@ -109,7 +99,7 @@ func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger)
 		Authorizator: func(data interface{}, c *gin.Context) bool {
 			// Only allow token level authenticated and above
 			tokenLevel := c.GetInt("tokenLevel")
-			if TokenLevel(tokenLevel) == TokenLevelUnauthenticated {
+			if auth.TokenLevel(tokenLevel) == auth.TokenLevelUnauthenticated {
 				return false
 			}
 			return true
@@ -119,20 +109,20 @@ func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger)
 		// context. From there, the function should work somewhat like payload func to generate
 		// a new payload.
 		UpdateClaims: func(claims jwt.MapClaims, c *gin.Context) (jwt.MapClaims, error) {
-			tokenLevel := TokenLevel(claims["tokenLevel"].(float64))
+			tokenLevel := auth.TokenLevel(claims["tokenLevel"].(float64))
 
-			payload := new(AuthenticatorPayload)
+			payload := new(auth.AuthenticatorPayload)
 			payload.TokenLevel = tokenLevel
 
 			// Deal with special token-level data.
-			if tokenLevel == TokenLevelOffCampus || tokenLevel == TokenLevelOnCampus {
+			if tokenLevel == auth.TokenLevelOffCampus || tokenLevel == auth.TokenLevelOnCampus {
 				// If lower-level token, check if we must upgrade/downgrade the token's level
-				if OnCampusIP(c.ClientIP()) {
-					payload.TokenLevel = TokenLevelOnCampus
+				if auth.OnCampusIP(c.ClientIP()) {
+					payload.TokenLevel = auth.TokenLevelOnCampus
 				} else {
-					payload.TokenLevel = TokenLevelOffCampus
+					payload.TokenLevel = auth.TokenLevelOffCampus
 				}
-			} else if tokenLevel == TokenLevelSignedIn {
+			} else if tokenLevel == auth.TokenLevelUser {
 				// If signed in token, get userID and find it in db.
 				userID, ok := claims["id"].(float64)
 				if !ok {
@@ -146,7 +136,7 @@ func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger)
 				}
 			}
 
-			return GenerateClaims(payload), nil
+			return auth.GenerateClaims(payload), nil
 		},
 
 		// TokenLookup is a string in the form of "<source>:<name>" that is used
@@ -169,100 +159,4 @@ func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger)
 	})
 
 	return
-}
-
-func GenerateClaims(v *AuthenticatorPayload) jwt.MapClaims {
-	var scope []string
-
-	// By default, can access bulletins
-	if v.TokenLevel >= TokenLevelOffCampus {
-		scope = append(scope, auth.ScopeBulletin)
-	}
-
-	// If on-campus, can access user info
-	if v.TokenLevel >= TokenLevelOnCampus {
-		scope = append(scope, auth.ScopeUsers)
-	}
-
-	// If signed in, can access: all other
-	if v.TokenLevel >= TokenLevelSignedIn {
-		scope = append(scope, auth.ScopeAllOther)
-	}
-
-	// If user exists that we signed in with
-	if v.TokenLevel >= TokenLevelSignedIn && v.User != nil {
-		// Allow writing
-		scope = append(scope, auth.ScopeWriteSelf)
-
-		// For ephcatch and factrak, user must be a student
-		if v.User.IsStudent() {
-			// If user is a senior or ephcatch eligible, add ephcatch scope
-			if v.User.Student().Senior() || (v.User.EphcatchEligibility != nil && *v.User.EphcatchEligibility) {
-				// Ensure that it is senior week and that the user has not opted out of ephcatch
-				if isSeniorWeek() && !(v.User.OptOutEphcatch != nil && *v.User.OptOutEphcatch) {
-					scope = append(scope, auth.ScopeEphcatch)
-				}
-			}
-
-			// If month is January (winter study), add the ephmatch scope. User opts out by deleting profile. By default opt in.
-			if isWinterStudy() {
-				scope = append(scope, auth.ScopeEphmatch)
-			}
-
-			// For factrak, user must be student and user accepted factrak policy
-			if v.User.HasAcceptedFactrakPolicy != nil && *v.User.HasAcceptedFactrakPolicy {
-				// TODO: ensure limited cannot get access via preloading
-				// If no factrak survey deficit, give full access
-				if v.User.FactrakSurveyDeficit != nil && *v.User.FactrakSurveyDeficit == 0 {
-					scope = append(scope, auth.ScopeFactrakFull)
-				} else {
-					// Otherwise, give limited access
-					scope = append(scope, auth.ScopeFactrakLimited)
-				}
-			}
-
-			// For dormtrak, user must be a student and user accepted dormtrak policy
-			if v.User.HasAcceptedDormtrakPolicy != nil && *v.User.HasAcceptedDormtrakPolicy {
-				scope = append(scope, auth.ScopeDormtrak)
-
-				// If the student is upper class, they can write reviews
-				if v.User.Student().IsUpperClass() {
-					scope = append(scope, auth.ScopeDormtrakWrite)
-				}
-			}
-		}
-
-		// Add admin scope
-		if v.User.Admin != nil && *v.User.Admin {
-			scope = append(scope, auth.ScopeAdminAll)
-			scope = append(scope, auth.ScopeFactrakAdmin)
-		} else if v.User.FactrakAdmin != nil && *v.User.FactrakAdmin {
-			// If not admin, check if factrak admin
-			scope = append(scope, auth.ScopeFactrakAdmin)
-		}
-	}
-
-	var jwtUserID uint = 0
-	if v.User != nil {
-		jwtUserID = v.User.ID
-	}
-
-	// This is the final payload
-	return jwt.MapClaims{
-		"id":         jwtUserID,
-		"tokenLevel": v.TokenLevel,
-		"scope":      scope,
-	}
-}
-
-func isSeniorWeek() bool {
-	now := time.Now()
-	seniorWeek := time.Date(now.Year(), time.May, 15, 0, 0, 0, 0, now.Location())
-	seniorWeekEnd := time.Date(now.Year(), models.StudentCutoffMonth, 1, 0, 0, 0, 0, now.Location())
-	return now.After(seniorWeek) && now.Before(seniorWeekEnd)
-}
-
-func isWinterStudy() bool {
-	return time.Now().Month() == time.January || (time.Now().Month() == time.February && time.Now().Day() <= 4)
-	//return time.Now().Month() == time.January
 }

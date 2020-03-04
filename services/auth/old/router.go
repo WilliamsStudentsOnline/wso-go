@@ -1,4 +1,4 @@
-package auth
+package old
 
 import (
 	jwt "github.com/WilliamsStudentsOnline/gin-jwt/v2"

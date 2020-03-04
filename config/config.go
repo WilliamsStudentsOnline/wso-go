@@ -43,8 +43,11 @@ type Config struct {
 
 	/* JWT */
 	JWTRealm string `yaml:"jwt_realm" envconfig:"jwt_realm"`
-	// Timeout in hours
+	// Timeout in hours (DEPRECATED: FOR OLD AUTH)
 	JWTTimeoutHours int `yaml:"jwt_timeout_hours" envconfig:"jwt_timeout_hours"`
+	// Auth 2.0 Timeouts: (for identity and API tokens)
+	JWTIdentityTimeoutHours int `yaml:"jwt_identity_timeout_hours" envconfig:"jwt_identity_timeout_hours"`
+	JWTAPITimeoutHours      int `yaml:"jwt_api_timeout_hours" envconfig:"jwt_api_timeout_hours"`
 	// Asymmetric algorithm setup
 	JWTPublicKeyFile  string `yaml:"jwt_public_key_file" envconfig:"jwt_public_key_file"`
 	JWTPrivateKeyFile string `yaml:"jwt_private_key_file" envconfig:"jwt_private_key_file"`
@@ -203,6 +206,10 @@ func SetupConfig(c *Config) error {
 
 	if c.JWTTimeoutHours == 0 {
 		c.JWTTimeoutHours = 1
+	}
+
+	if c.JWTAPITimeoutHours == 0 || c.JWTIdentityTimeoutHours == 0 {
+		return errors.New("unknown JWT timeout for Auth 2.0")
 	}
 
 	if (c.JWTPublicKeyFile == "" || c.JWTPrivateKeyFile == "") && c.Secrets.JWTSecretKey == "" {

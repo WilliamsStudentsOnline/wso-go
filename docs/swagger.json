@@ -197,6 +197,161 @@
                 }
             }
         },
+        "/auth/api/refresh": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "issues an API JWT by taking an existing API JWT and updating the fields. This calls the db, so it will actually modify the token's payload.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth",
+                    "auth-2.0"
+                ],
+                "summary": "Refresh API Token",
+                "operationId": "auth-api-update",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/auth.AuthResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/api/token": {
+            "post": {
+                "description": "issues an API JWT given an identity token.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth",
+                    "auth-2.0"
+                ],
+                "summary": "Authenticate API Token",
+                "operationId": "auth-api-token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Identity Token",
+                        "name": "identityToken",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/auth.AuthResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/identity/token": {
+            "post": {
+                "description": "issues an Identity JWT given identity credentials.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth",
+                    "auth-2.0"
+                ],
+                "summary": "Authenticate Identity Token",
+                "operationId": "auth-identity-token",
+                "parameters": [
+                    {
+                        "description": "Identity Credentials",
+                        "name": "identityCredentials",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "$ref": "#/definitions/identity.Credentials"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/auth.AuthResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/login": {
             "post": {
                 "description": "attempts to get a JWT by logging into server.",
@@ -219,7 +374,7 @@
                         "required": true,
                         "schema": {
                             "type": "object",
-                            "$ref": "#/definitions/auth.LoginParams"
+                            "$ref": "#/definitions/old.LoginParams"
                         }
                     }
                 ],
@@ -227,7 +382,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/auth.AuthResponse"
+                            "$ref": "#/definitions/old.AuthResponse"
                         }
                     },
                     "400": {
@@ -274,7 +429,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/auth.AuthResponse"
+                            "$ref": "#/definitions/old.AuthResponse"
                         }
                     },
                     "400": {
@@ -321,7 +476,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/auth.AuthResponse"
+                            "$ref": "#/definitions/old.AuthResponse"
                         }
                     },
                     "400": {
@@ -6448,25 +6603,6 @@
                 }
             }
         },
-        "auth.LoginParams": {
-            "type": "object",
-            "properties": {
-                "localIP": {
-                    "description": "If true, will authenticate based on IP. Fail if cannot get on-campus token.",
-                    "type": "boolean"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "unixID": {
-                    "type": "string"
-                },
-                "useIP": {
-                    "description": "If true, will authenticate based on IP. Will return either off-campus or on-campus token",
-                    "type": "boolean"
-                }
-            }
-        },
         "autocomplete.ACEntry": {
             "type": "object",
             "properties": {
@@ -6841,6 +6977,25 @@
                     "type": "boolean"
                 },
                 "wouldTakeAnother": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "identity.Credentials": {
+            "type": "object",
+            "properties": {
+                "localIP": {
+                    "description": "If true, will authenticate based on IP. Fail if cannot get on-campus token.",
+                    "type": "boolean"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "unixID": {
+                    "type": "string"
+                },
+                "useIP": {
+                    "description": "If true, will authenticate based on IP. Will return either off-campus or on-campus token",
                     "type": "boolean"
                 }
             }
@@ -7961,6 +8116,36 @@
                 },
                 "williamsEmail": {
                     "type": "string"
+                }
+            }
+        },
+        "old.AuthResponse": {
+            "type": "object",
+            "properties": {
+                "expire": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "old.LoginParams": {
+            "type": "object",
+            "properties": {
+                "localIP": {
+                    "description": "If true, will authenticate based on IP. Fail if cannot get on-campus token.",
+                    "type": "boolean"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "unixID": {
+                    "type": "string"
+                },
+                "useIP": {
+                    "description": "If true, will authenticate based on IP. Will return either off-campus or on-campus token",
+                    "type": "boolean"
                 }
             }
         },
