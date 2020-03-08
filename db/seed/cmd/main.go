@@ -2,13 +2,11 @@ package main
 
 import (
 	"flag"
-	"os"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	migrate "github.com/WilliamsStudentsOnline/wso-go/db"
 	"github.com/WilliamsStudentsOnline/wso-go/db/seed/seeder"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/logging"
-	log "github.com/sirupsen/logrus"
 )
 
 func main() {
@@ -27,20 +25,13 @@ func main() {
 
 	flag.Parse()
 
-	/* Logging */
-	log.SetOutput(os.Stdout)
-	log.SetFormatter(&log.TextFormatter{
-		FullTimestamp: true,
-	})
-
 	/* Config */
 	cfg, err := config.LoadConfig(configPath)
 	if err != nil {
-		log.Fatal("Config Error: " + err.Error())
-		return
+		panic("Config Error: " + err.Error())
 	}
 
-	/* Set Logging Level */
+	/* Logging */
 	log, err := logging.SetupLog(cfg, "seed")
 	if err != nil {
 		panic("Log Setup Error: " + err.Error())

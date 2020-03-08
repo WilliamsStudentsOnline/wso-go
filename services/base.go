@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
-	"gopkg.in/go-playground/validator.v8"
+	"gopkg.in/go-playground/validator.v9"
 )
 
 type BaseController struct {
@@ -93,10 +93,8 @@ func (b BaseController) RespondBadBind(c *gin.Context, err error) {
 func (b BaseController) respondValidationError(c *gin.Context, validateErrs validator.ValidationErrors) {
 	// If it is a validation error, format it and send it to respond API error
 	errs := make([]error, len(validateErrs))
-	i := 0
-	for field, fieldErr := range validateErrs {
-		errs[i] = fmt.Errorf("validation for field %s failed on the '%s' requirement", field, fieldErr.Tag)
-		i++
+	for i, validErr := range validateErrs {
+		errs[i] = fmt.Errorf("validation for field %s failed on the '%s' requirement", validErr.Field(), validErr.Tag())
 	}
 	b.RespondAPIError(c, lib.NewErrorRequestDataValidationFailed(errs))
 }
