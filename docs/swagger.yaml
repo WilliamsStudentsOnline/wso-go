@@ -1966,7 +1966,7 @@ paths:
       - description: Get All Bulletins (no restriction on startDate, endDate)
         in: query
         name: all
-        type: string
+        type: boolean
       produces:
       - application/json
       responses:
@@ -3206,7 +3206,7 @@ paths:
       parameters:
       - description: Neighborhood ID
         in: path
-        name: dormID
+        name: neighborhoodID
         required: true
         type: integer
       produces:
@@ -5610,10 +5610,7 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.User'
+        "200": {}
         "400":
           description: Bad Request
           schema:
@@ -5662,10 +5659,7 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.User'
+        "200": {}
         "400":
           description: Bad Request
           schema:

@@ -72,7 +72,7 @@ func (t *Controller) GetNeighborhood(c *gin.Context) {
 // @Tags dormtrak
 // @Accept  json
 // @Produce  json
-// @Param dormID path uint true "Neighborhood ID"
+// @Param neighborhoodID path uint true "Neighborhood ID"
 // @Success 200 {object} models.NeighborhoodFacts
 // @Failure 400 {object} lib.APIError
 // @Failure 404 {object} lib.APIError

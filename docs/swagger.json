@@ -819,7 +819,7 @@
                         "in": "query"
                     },
                     {
-                        "type": "string",
+                        "type": "boolean",
                         "description": "Get All Bulletins (no restriction on startDate, endDate)",
                         "name": "all",
                         "in": "query"
@@ -2742,7 +2742,7 @@
                     {
                         "type": "integer",
                         "description": "Neighborhood ID",
-                        "name": "dormID",
+                        "name": "neighborhoodID",
                         "in": "path",
                         "required": true
                     }
@@ -6430,12 +6430,7 @@
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.User"
-                        }
-                    },
+                    "200": {},
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -6520,12 +6515,7 @@
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.User"
-                        }
-                    },
+                    "200": {},
                     "400": {
                         "description": "Bad Request",
                         "schema": {

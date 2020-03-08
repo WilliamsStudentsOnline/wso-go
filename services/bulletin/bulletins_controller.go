@@ -24,7 +24,7 @@ import (
 // @Param limit query int false "Limit Pagination"
 // @Param preload query []string false "Preload List"
 // @Param type query string false "Bulletin Type"
-// @Param all query string false "Get All Bulletins (no restriction on startDate, endDate)"
+// @Param all query bool false "Get All Bulletins (no restriction on startDate, endDate)"
 // @Success 200 {array} models.Bulletin
 // @Failure 500 {object} lib.APIError
 // @Security Bearer

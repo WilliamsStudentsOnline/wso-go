@@ -296,7 +296,7 @@ type UpdateUserTagsParams struct {
 // @Produce  json
 // @Param userID path uint true "User ID"
 // @Param updateTagsParams body user.UpdateUserTagsParams true "Update Tags Params"
-// @Success 200 {object} models.User
+// @Success 200
 // @Failure 1405 {object} lib.APIError "user id could not be parsed"
 // @Failure 1331 {object} lib.APIError "must be self"
 // @Failure 1100 {object} lib.APIError "could not parse malformed request data"
@@ -348,7 +348,7 @@ func (t *Controller) UpdateUserTags(c *gin.Context) {
 // @Produce  json
 // @Param userID path uint true "User ID"
 // @Param file formData file true "Profile Photo"
-// @Success 200 {object} models.User
+// @Success 200
 // @Failure 1405 {object} lib.APIError "user id could not be parsed"
 // @Failure 1331 {object} lib.APIError "must be self"
 // @Failure 400 {object} lib.APIError
