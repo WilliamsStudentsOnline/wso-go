@@ -42,10 +42,9 @@ func GenerateClaims(v *AuthenticatorPayload) jwt.MapClaims {
 			}
 
 			// If month is January (winter study), add the ephmatch scope. User opts out by deleting profile. By default opt in.
-			/*if isWinterStudy() {
+			if isWinterStudy() {
 				scope = append(scope, auth.ScopeEphmatch)
-			}*/
-			scope = append(scope, auth.ScopeEphmatch)
+			}
 
 			// For factrak, user must be student and user accepted factrak policy
 			if v.User.HasAcceptedFactrakPolicy != nil && *v.User.HasAcceptedFactrakPolicy {
