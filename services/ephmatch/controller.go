@@ -13,6 +13,8 @@ type Controller struct {
 	// Put a model here, like:
 	ephmatchModel *models.EphmatchModel
 	profileModel  *models.EphmatchProfileModel
+	likeModel     *models.EphmatchLikeModel
+	matchModel    *models.EphmatchMatchesModel
 }
 
 // Construct a new dormtrak controller
@@ -21,5 +23,7 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 		BaseController: services.BaseController{Log: log},
 		ephmatchModel:  models.NewEphmatchModel(db, log),
 		profileModel:   models.NewEphmatchProfileModel(db, log),
+		likeModel:      models.NewEphmatchLikeModel(db, log),
+		matchModel:     models.NewEphmatchMatchesModel(db, log),
 	}
 }

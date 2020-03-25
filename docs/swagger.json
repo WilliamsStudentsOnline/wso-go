@@ -3489,7 +3489,7 @@
                         "items": {
                             "type": "string"
                         },
-                        "description": "Preload List",
+                        "description": "Preload List [tags]",
                         "name": "preload",
                         "in": "query"
                     }
@@ -3500,7 +3500,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/responses.ListMatchesResponseEphmatch"
+                                "$ref": "#/definitions/responses.ListMatchesResponseEphmatchMatch"
                             }
                         }
                     },
@@ -3774,7 +3774,7 @@
                         "items": {
                             "type": "string"
                         },
-                        "description": "Preload List",
+                        "description": "Preload List [tags, liked, matched]",
                         "name": "preload",
                         "in": "query"
                     }
@@ -3901,7 +3901,12 @@
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
-                    "201": {},
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/LikeProfileResp"
+                        }
+                    },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -7656,11 +7661,15 @@
                     "type": "integer"
                 },
                 "liked": {
-                    "description": "If me (user) has an ephmatch entry where ephmatch.other_id=users.id and ephmatch.user_id=myID",
+                    "description": "If self has liked this profile (user)",
                     "type": "boolean"
                 },
                 "matchMessage": {
                     "type": "string"
+                },
+                "matched": {
+                    "description": "If user and self are matched",
+                    "type": "boolean"
                 },
                 "user": {
                     "type": "object",
@@ -8332,7 +8341,7 @@
                 }
             }
         },
-        "responses.ListMatchesResponseEphmatch": {
+        "responses.ListMatchesResponseEphmatchMatch": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -8341,15 +8350,15 @@
                 "id": {
                     "type": "integer"
                 },
-                "other": {
+                "matchedUser": {
                     "type": "object",
-                    "$ref": "#/definitions/responses.ListMatchesResponseOther"
+                    "$ref": "#/definitions/responses.ListMatchesResponseMatchedUser"
                 },
-                "otherID": {
+                "matchedUserID": {
                     "type": "integer"
                 },
-                "seen": {
-                    "type": "boolean"
+                "updatedAt": {
+                    "type": "string"
                 }
             }
         },
@@ -8364,7 +8373,7 @@
                 }
             }
         },
-        "responses.ListMatchesResponseOther": {
+        "responses.ListMatchesResponseMatchedUser": {
             "type": "object",
             "properties": {
                 "classYear": {

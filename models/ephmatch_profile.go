@@ -31,7 +31,7 @@ func (m *EphmatchProfileModel) GetAllProfiles(p *[]*EphmatchProfile, opts Option
 }
 
 // Get all ephmatch profiles.
-func (m *EphmatchProfileModel) GetAllProfilesNoSelf(p *[]*EphmatchProfile, selfID uint, opts Options) (err error) {
+func (m *EphmatchProfileModel) GetAllProfilesNoSelf(p *[]*EphmatchProfile, selfID uint, opts *GetAllProfilesOptions) (err error) {
 	// Get profiles
 	db := m.DB.Model(&EphmatchProfile{}).Preload("User")
 
@@ -42,7 +42,86 @@ func (m *EphmatchProfileModel) GetAllProfilesNoSelf(p *[]*EphmatchProfile, selfI
 
 	db = db.Not(EphmatchProfile{UserID: selfID})
 
-	return db.Find(p).Error
+	err = db.Find(p).Error
+	if err != nil {
+		return
+	}
+
+	// Populate liked field
+	if opts != nil && lib.StringsContains(opts.Preload, "liked") {
+		err = m.populateLiked(p, selfID)
+		if err != nil {
+			return
+		}
+	}
+
+	// Populate matched field
+	if opts != nil && lib.StringsContains(opts.Preload, "matched") {
+		err = m.populateMatched(p, selfID)
+		if err != nil {
+			return
+		}
+	}
+
+	return
+}
+
+// Populate liked field on set of profiles
+func (m *EphmatchProfileModel) populateLiked(p *[]*EphmatchProfile, selfID uint) (err error) {
+	// Get ephmatch likes made by user self (selfID) to populate "liked" field. This is significantly faster
+	// than a SQL query by several magnitudes.
+	var likes []*EphmatchLike
+	lm := NewEphmatchLikeModel(m.DB, m.log)
+	err = lm.GetUserLikes(selfID, &likes)
+	if err != nil {
+		return
+	}
+
+	// Create a map of users we liked.
+	likedUserMap := make(map[uint]bool)
+	for _, like := range likes {
+		likedUserMap[like.LikedID] = true
+	}
+
+	// If a profile is in the likedUserMap, set it to liked
+	for _, profile := range *p {
+		if _, ok := likedUserMap[profile.UserID]; ok {
+			profile.Liked = lib.TruePtr()
+		} else {
+			profile.Liked = lib.FalsePtr()
+		}
+	}
+
+	return
+}
+
+// Populate matched field on set of profiles
+func (m *EphmatchProfileModel) populateMatched(p *[]*EphmatchProfile, selfID uint) (err error) {
+	// Get ephmatch matches made by user self (selfID) to populate "matched" field. This is significantly faster
+	// than a SQL query by several magnitudes.
+	var matches []*EphmatchMatch
+	mm := NewEphmatchMatchesModel(m.DB, m.log)
+	err = mm.GetRawUserMatches(selfID, &matches)
+	if err != nil {
+		return
+	}
+
+	// Create a map of users we matched with.
+	matchedUserMap := make(map[uint]bool)
+	for _, match := range matches {
+		matchedUserMap[match.MatchedUserID] = true
+	}
+
+	// If a profile is in the matchedUserMap, set it to matched
+	for _, profile := range *p {
+		if _, ok := matchedUserMap[profile.UserID]; ok {
+			profile.Matched = lib.TruePtr()
+		} else {
+			profile.Matched = lib.FalsePtr()
+		}
+	}
+
+	return
 }
 
 type GetAllProfilesOptions struct {
@@ -53,8 +132,9 @@ type GetAllProfilesOptions struct {
 	Offset *uint `json:"offset" form:"offset"`
 	Limit  *uint `json:"limit" form:"limit"`
 
-	// You can preload: tags
+	// You can preload: tags, liked, matched
 	Preload []string `json:"preload" form:"preload[]"`
+	// Note: [liked, matched] preloads are done not in the preload step
 }
 
 func (p *GetAllProfilesOptions) Order(db *gorm.DB) *gorm.DB {
@@ -203,18 +283,6 @@ func (m *EphmatchProfileModel) GetProfileByID(profileUserID uint, p *EphmatchPro
 		return
 	}
 
-	return
-}
-
-// Get ephmatch matches of user.
-// TODO: Deprecate or remove this?
-func (m *EphmatchProfileModel) GetMatches(userID uint, p *[]*User) (err error) {
-	// Get matches
-	err = m.DB.Model(&User{}).Scopes(m.scopeDefault).Where("users.id IN (?)",
-		m.DB.Model(&Ephmatch{}).Select("ephmatches.other_id").
-			Joins("INNER JOIN ephmatches b ON b.other_id = ephmatches.user_id").
-			Where("ephmatches.user_id = ? AND ephmatches.other_id = b.user_id", userID).QueryExpr(),
-	).Find(p).Error
 	return
 }
 

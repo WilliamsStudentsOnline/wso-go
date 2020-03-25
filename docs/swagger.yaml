@@ -738,11 +738,13 @@ definitions:
       id:
         type: integer
       liked:
-        description: If me (user) has an ephmatch entry where ephmatch.other_id=users.id
-          and ephmatch.user_id=myID
+        description: If self has liked this profile (user)
         type: boolean
       matchMessage:
         type: string
+      matched:
+        description: If user and self are matched
+        type: boolean
       user:
         $ref: '#/definitions/models.User'
         type: object
@@ -1208,19 +1210,19 @@ definitions:
       williamsEmail:
         type: string
     type: object
-  responses.ListMatchesResponseEphmatch:
+  responses.ListMatchesResponseEphmatchMatch:
     properties:
       createdAt:
         type: string
       id:
         type: integer
-      other:
-        $ref: '#/definitions/responses.ListMatchesResponseOther'
+      matchedUser:
+        $ref: '#/definitions/responses.ListMatchesResponseMatchedUser'
         type: object
-      otherID:
+      matchedUserID:
         type: integer
-      seen:
-        type: boolean
+      updatedAt:
+        type: string
     type: object
   responses.ListMatchesResponseEphmatchProfile:
     properties:
@@ -1229,7 +1231,7 @@ definitions:
       matchMessage:
         type: string
     type: object
-  responses.ListMatchesResponseOther:
+  responses.ListMatchesResponseMatchedUser:
     properties:
       classYear:
         type: integer
@@ -3687,7 +3689,7 @@ paths:
       description: lists all Ephmatch-eligible students that user has matched with
       operationId: ephmatch-list-matches
       parameters:
-      - description: Preload List
+      - description: Preload List [tags]
         in: query
         items:
           type: string
@@ -3700,7 +3702,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/responses.ListMatchesResponseEphmatch'
+              $ref: '#/definitions/responses.ListMatchesResponseEphmatchMatch'
             type: array
         "500":
           description: Internal Server Error
@@ -3871,7 +3873,7 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - description: Preload List [tags, liked, matched]
         in: query
         items:
           type: string
@@ -3946,7 +3948,10 @@ paths:
       produces:
       - application/json
       responses:
-        "201": {}
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/LikeProfileResp'
         "400":
           description: Bad Request
           schema:

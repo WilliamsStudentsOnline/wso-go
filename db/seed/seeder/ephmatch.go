@@ -19,6 +19,7 @@ func Ephmatches(n int, db *gorm.DB) (err error) {
 	}
 
 	ephmModel := models.NewEphmatchModel(db, zap.S())
+	matchModel := models.NewEphmatchMatchesModel(db, zap.S())
 
 	for i := 0; i < n; i++ {
 		u1 := profiles[rand.Intn(len(profiles))]
@@ -26,7 +27,7 @@ func Ephmatches(n int, db *gorm.DB) (err error) {
 		if u1 == u2 {
 			continue
 		}
-		isMatching, err := ephmModel.IsMatching(u1.UserID, u2.UserID)
+		isMatching, err := matchModel.IsMatching(u1.UserID, u2.UserID)
 		if err != nil {
 			return err
 		}
@@ -34,7 +35,7 @@ func Ephmatches(n int, db *gorm.DB) (err error) {
 			continue
 		}
 
-		err = ephmModel.CreateEphmatchWithUserOther(u1.UserID, u2.UserID)
+		_, err = ephmModel.CreateLikeAndMatch(u1.UserID, u2.UserID)
 		if err != nil {
 			return err
 		}

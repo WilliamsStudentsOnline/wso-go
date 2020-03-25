@@ -11,7 +11,8 @@ type EphmatchProfile struct {
 	Description  *string `json:"description"`
 	MatchMessage *string `json:"matchMessage"`
 
-	Liked bool `gorm:"-" json:"liked"` // If me (user) has an ephmatch entry where ephmatch.other_id=users.id and ephmatch.user_id=myID
+	Liked   *bool `gorm:"-" json:"liked,omitempty"`   // If self has liked this profile (user)
+	Matched *bool `gorm:"-" json:"matched,omitempty"` // If user and self are matched
 
 	// Non db entry that acts as a flag for deleted_at column
 	Deleted bool `gorm:"-" json:"deleted"`

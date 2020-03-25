@@ -1,7 +1,6 @@
 package models
 
 import (
-	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
 )
@@ -17,85 +16,115 @@ func NewEphmatchModel(db *gorm.DB, log *zap.SugaredLogger) *EphmatchModel {
 	}
 }
 
-// Check if two users are matching by seeing if there is already an ephmatch from that user and with the other user.
-func (m *EphmatchModel) IsMatching(userID uint, otherID uint) (matching bool, err error) {
-	var count int
-	err = m.DB.Model(&Ephmatch{}).Where(&Ephmatch{
-		UserID:  userID,
-		OtherID: otherID,
-	}).Count(&count).Error
-	matching = count > 0
-	return
-}
+func (m *EphmatchModel) CreateLikeAndMatch(userID uint, likedID uint) (matched bool, err error) {
+	// Transaction setup
+	tx := m.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
 
-// Check if ephmatch already exists by seeing if there is already an ephmatch from that user and with the other user.
-func (m *EphmatchModel) CheckDuplicateEphmatch(userID uint, otherID uint) (duplicate bool, err error) {
-	return m.IsMatching(userID, otherID)
-}
+	// More transaction setup
+	if err := tx.Error; err != nil {
+		return false, err
+	}
 
-func (m *EphmatchModel) CreateEphmatchWithUserOther(userID uint, otherID uint) (err error) {
-	err = m.DB.Create(&Ephmatch{
+	// Create like
+	err = tx.Create(&EphmatchLike{
 		UserID:  userID,
-		OtherID: otherID,
+		LikedID: likedID,
 	}).Error
-	return
-}
-
-func (m *EphmatchModel) DeleteEphmatchWithUserOther(userID uint, otherID uint) (err error) {
-	err = m.DB.Unscoped().Where("user_id = ? AND other_id = ?", userID, otherID).Delete(Ephmatch{}).Error
-	return
-}
-
-type GetMatchesOptions struct {
-	// You can preload: tags
-	Preload []string `json:"preload" form:"preload[]"`
-}
-
-// Preload specifically allowed parts if requested
-func (o *GetMatchesOptions) Preloader(db *gorm.DB) *gorm.DB {
-	if o.Preload == nil {
-		return db
+	if err != nil {
+		tx.Rollback()
+		return
 	}
 
-	if lib.StringsContains(o.Preload, "tags") {
-		db = db.Preload("Other.Tags")
+	// Check like other way
+	lm := NewEphmatchLikeModel(tx, m.log)
+	otherLike, err := lm.DoesLikeExist(likedID, userID)
+	if err != nil {
+		tx.Rollback()
+		return
 	}
 
-	return db
+	// If other user liked us, create a match!
+	if otherLike {
+		// Get old match if it exists
+		var match EphmatchMatch
+		err = tx.Unscoped().Model(&EphmatchMatch{}).Where(&EphmatchMatch{
+			UserAID: userID,
+			UserBID: likedID,
+		}).Or(&EphmatchMatch{
+			UserAID: likedID,
+			UserBID: userID,
+		}).First(&match).Error
+
+		// Then either create a new match or update the old one
+		if err != nil && !gorm.IsRecordNotFoundError(err) {
+			// If we have an error, error!
+			tx.Rollback()
+			return
+		} else if err != nil && gorm.IsRecordNotFoundError(err) {
+			// If we couldn't find the match, create a new one
+			err = tx.Create(&EphmatchMatch{
+				UserAID: userID,
+				UserBID: likedID,
+			}).Error
+			if err != nil {
+				tx.Rollback()
+				return
+			}
+		} else {
+			// If the match exists, set deleted to false and update it!
+			err = tx.Unscoped().
+				Model(&EphmatchMatch{}).
+				Where("id = ?", match.ID).
+				Update("deleted_at", nil).Error
+			if err != nil {
+				tx.Rollback()
+				return
+			}
+		}
+
+	}
+
+	return otherLike, tx.Commit().Error
 }
 
-func (p *GetMatchesOptions) Run(db *gorm.DB) *gorm.DB {
-	return p.Preloader(db)
-}
+func (m *EphmatchModel) DeleteLikeAndMatch(userID uint, likedID uint) (err error) {
+	// Transaction setup
+	tx := m.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
 
-// Get ephmatch matches of user.
-// TODO: Do we want matches between profiles or users?
-func (m *EphmatchModel) GetMatches(userID uint, opts *GetMatchesOptions, p *[]*Ephmatch) (err error) {
-	// Get matches
-	db := m.DB.Model(&Ephmatch{}).
-		// Join on itself to get ephmatches that actually match
-		Joins("INNER JOIN ephmatches b ON b.other_id = ephmatches.user_id").
-		Where("ephmatches.user_id = ? AND ephmatches.other_id = b.user_id", userID).
-		// Join on users to ensure student type and visibility type
-		Joins("INNER JOIN users u ON u.id = ephmatches.other_id").
-		Where("u.type = ?", UserTypeStudent).
-		// Join on profiles for other user to ensure each
-		Joins("INNER JOIN ephmatch_profiles p ON p.user_id = u.id").
-		Where("p.deleted_at IS NULL").
-		// Preload other column and other's ephmatch profile
-		Preload("Other").
-		Preload("Other.EphmatchProfile")
+	// More transaction setup
+	if err := tx.Error; err != nil {
+		return err
+	}
 
-	db = opts.Run(db)
-	err = db.Find(p).Error
-	return
-}
+	// Delete the like
+	err = tx.Unscoped().Where(&EphmatchLike{UserID: userID, LikedID: likedID}).Delete(EphmatchLike{}).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
 
-// Gets an ephmatch for every user a specific user likes.
-// Gives no info about if the other user likes the specified user.
-func (m *EphmatchModel) GetUserLikes(userID uint, p *[]*Ephmatch) (err error) {
-	err = m.DB.Model(&Ephmatch{}).
-		Where("user_id = ?", userID).
-		Find(p).Error
-	return
+	// Delete the match if it exists
+	err = tx.Where(EphmatchMatch{
+		UserAID: userID,
+		UserBID: likedID,
+	}).Or(EphmatchMatch{
+		UserAID: likedID,
+		UserBID: userID,
+	}).Delete(EphmatchMatch{}).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit().Error
 }

@@ -17,15 +17,15 @@ import (
 // @Tags ephmatch
 // @Accept  json
 // @Produce  json
-// @Param preload query []string false "Preload List"
-// @Success 200 {array} responses.ListMatchesResponseEphmatch
+// @Param preload query []string false "Preload List [tags]"
+// @Success 200 {array} responses.ListMatchesResponseEphmatchMatch
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
 // @Router /ephmatch/matches [get]
 func (t *Controller) ListMatches(c *gin.Context) {
 	userID := services.GetUserID(c)
 
-	var matches []*models.Ephmatch
+	var matches []*models.EphmatchMatch
 	var err error
 
 	opts := models.GetMatchesOptions{}
@@ -35,18 +35,15 @@ func (t *Controller) ListMatches(c *gin.Context) {
 	}
 
 	// We could implement search here as well...
-	err = t.ephmatchModel.GetMatches(userID, &opts, &matches)
+	err = t.matchModel.GetMatches(userID, &opts, &matches)
 
 	if err != nil {
 		t.RespondError(c, err)
 		return
 	}
 
-	// TODO: Sort by when they matched
-
 	for _, match := range matches {
-		sanitize.User(match.User, c)
-		sanitize.User(match.Other, c)
+		sanitize.User(match.MatchedUser, c)
 	}
 
 	t.RespondOK(c, responses.ConvertListMatchesResponse(matches))
