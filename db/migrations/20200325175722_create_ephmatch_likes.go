@@ -22,11 +22,10 @@ var CreateEphmatchLikes20200325175722 = &gormigrate.Migration{
 		type EphmatchLike struct {
 			models.BaseSchema
 
-			// Belongs to user
-			UserID uint `json:"userID"`
+			UserID uint `gorm:"index:index_ephmatch_likes_on_user_id;not null;" json:"userID"`
 
 			// Belongs to the user that the User liked
-			LikedID uint `json:"likedID"`
+			LikedID uint `gorm:"index:index_ephmatch_likes_on_liked_id;not null;" json:"likedID"`
 		}
 		return tx.AutoMigrate(&EphmatchLike{}).Error
 	},

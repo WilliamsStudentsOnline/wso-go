@@ -17,16 +17,25 @@ func NewEphmatchMatchesModel(db *gorm.DB, log *zap.SugaredLogger) *EphmatchMatch
 	}
 }
 
+func orderUIntPair(a uint, b uint) (smallest uint, largest uint) {
+	smallest = a
+	largest = b
+	if smallest > largest {
+		smallest = b
+		largest = a
+	}
+	return
+}
+
 // Check if two users are matching by seeing if there is already an ephmatch from that user and with the other user.
 func (m *EphmatchMatchesModel) IsMatching(userAID uint, userBID uint) (matching bool, err error) {
+	smallest, largest := orderUIntPair(userAID, userBID)
+
 	var count int
 	// Search for both orders
 	err = m.DB.Model(&EphmatchMatch{}).Where(&EphmatchMatch{
-		UserAID: userAID,
-		UserBID: userBID,
-	}).Or(&EphmatchMatch{
-		UserAID: userBID,
-		UserBID: userAID,
+		UserAID: smallest,
+		UserBID: largest,
 	}).Count(&count).Error
 	matching = count > 0
 	return

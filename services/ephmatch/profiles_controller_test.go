@@ -20,7 +20,7 @@ func TestController_ListProfiles(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeEphmatch)
+	router := utils.SetupRouter(auth.ScopeEphmatch, auth.ScopeEphmatchMatches, auth.ScopeEphmatchProfiles)
 	cfg := utils.SetupConfig()
 
 	srYear := (&models.StudentModel{}).SeniorYear()
@@ -165,7 +165,7 @@ func TestController_GetProfile(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeEphmatch)
+	router := utils.SetupRouter(auth.ScopeEphmatch, auth.ScopeEphmatchMatches, auth.ScopeEphmatchProfiles)
 	cfg := utils.SetupConfig()
 
 	srYear := (&models.StudentModel{}).SeniorYear()
@@ -282,7 +282,7 @@ func TestController_LikeProfile(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeEphmatch)
+	router := utils.SetupRouter(auth.ScopeEphmatch, auth.ScopeEphmatchMatches, auth.ScopeEphmatchProfiles)
 	cfg := utils.SetupConfig()
 
 	srYear := (&models.StudentModel{}).SeniorYear()
@@ -381,7 +381,7 @@ func TestController_LikeProfileAndCreateMatch(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeEphmatch)
+	router := utils.SetupRouter(auth.ScopeEphmatch, auth.ScopeEphmatchMatches, auth.ScopeEphmatchProfiles)
 	cfg := utils.SetupConfig()
 
 	srYear := (&models.StudentModel{}).SeniorYear()
@@ -464,7 +464,7 @@ func TestController_UnlikeProfile(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeEphmatch)
+	router := utils.SetupRouter(auth.ScopeEphmatch, auth.ScopeEphmatchMatches, auth.ScopeEphmatchProfiles)
 	cfg := utils.SetupConfig()
 
 	srYear := (&models.StudentModel{}).SeniorYear()
@@ -566,8 +566,8 @@ func TestController_UnlikeProfileAndDeleteMatch(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	routerU0 := utils.SetupRouter(auth.ScopeEphmatch)
-	routerU1 := utils.SetupRouter(auth.ScopeEphmatch)
+	routerU0 := utils.SetupRouter(auth.ScopeEphmatch, auth.ScopeEphmatchMatches, auth.ScopeEphmatchProfiles)
+	routerU1 := utils.SetupRouter(auth.ScopeEphmatch, auth.ScopeEphmatchMatches, auth.ScopeEphmatchProfiles)
 	cfg := utils.SetupConfig()
 
 	srYear := (&models.StudentModel{}).SeniorYear()
@@ -680,23 +680,29 @@ func numLikes(db *gorm.DB, assert *testify.Assertions, userID uint, likedID uint
 }
 
 func numMatches(db *gorm.DB, assert *testify.Assertions, userID uint, likedID uint) (count int) {
+	s, l := orderUIntPair(userID, likedID)
 	assert.NoError(db.Model(&models.EphmatchMatch{}).Where(&models.EphmatchMatch{
-		UserAID: userID,
-		UserBID: likedID,
-	}).Or(&models.EphmatchMatch{
-		UserAID: likedID,
-		UserBID: userID,
+		UserAID: s,
+		UserBID: l,
 	}).Count(&count).Error)
 	return
 }
 
 func numMatchesUnscoped(db *gorm.DB, assert *testify.Assertions, userID uint, likedID uint) (count int) {
+	s, l := orderUIntPair(userID, likedID)
 	assert.NoError(db.Unscoped().Model(&models.EphmatchMatch{}).Where(&models.EphmatchMatch{
-		UserAID: userID,
-		UserBID: likedID,
-	}).Or(&models.EphmatchMatch{
-		UserAID: likedID,
-		UserBID: userID,
+		UserAID: s,
+		UserBID: l,
 	}).Count(&count).Error)
+	return
+}
+
+func orderUIntPair(a uint, b uint) (smallest uint, largest uint) {
+	smallest = a
+	largest = b
+	if smallest > largest {
+		smallest = b
+		largest = a
+	}
 	return
 }

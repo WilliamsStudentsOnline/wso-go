@@ -23,10 +23,10 @@ var CreateEphmatchMatches20200324005606 = &gormigrate.Migration{
 			models.BaseSchema
 
 			// Belongs to user A (only in DB, not JSON)
-			UserAID uint `gorm:"column:user_a_id" json:"-"`
+			UserAID uint `gorm:"column:user_a_id;index:index_ephmatch_matches_on_user_a_id;not null;" json:"-"`
 
 			// Belongs to user B (only in DB, not JSON)
-			UserBID uint `gorm:"column:user_b_id" json:"-"`
+			UserBID uint `gorm:"column:user_b_id;index:index_ephmatch_matches_on_user_b_id;not null;" json:"-"`
 		}
 		return tx.AutoMigrate(&EphmatchMatch{}).Error
 	},

@@ -2,6 +2,7 @@ package ephmatch
 
 import (
 	"github.com/WilliamsStudentsOnline/wso-go/config"
+	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
@@ -10,20 +11,30 @@ import (
 func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) {
 	c := NewController(db, cfg, log)
 
-	r.GET("/profiles", c.ListProfiles)
-	r.GET("/profiles/:profileUserID", c.GetProfile)
-	r.POST("/profiles/:profileUserID/like", c.LikeProfile)
-	r.POST("/profiles/:profileUserID/unlike", c.UnlikeProfile)
+	r.GET("/availability", c.GetAvailability)
 
+	// Requires ephmatch eligibility
+	selfGroup := r.Group("", auth.RequireScopes(auth.ScopeEphmatch, auth.ScopeAdminAll))
+
+	// Always do self profile
 	// Get self profile
-	r.GET("/profile", c.GetSelfProfile)
+	selfGroup.GET("/profile", c.GetSelfProfile)
 	// Create profile
-	r.POST("/profile", c.CreateProfile)
+	selfGroup.POST("/profile", c.CreateProfile)
 	// Edit profile
-	r.PATCH("/profile", c.UpdateProfile)
+	selfGroup.PATCH("/profile", c.UpdateProfile)
 	// Delete profile
-	r.DELETE("/profile", c.DeleteProfile)
+	selfGroup.DELETE("/profile", c.DeleteProfile)
 
-	r.GET("/matches", c.ListMatches) // TODO: set seen:true
+	// Only get matches with scope
+	matchesGroup := selfGroup.Group("", auth.RequireScopes(auth.ScopeEphmatchMatches, auth.ScopeAdminAll))
+	// TODO: set seen:true?
+	matchesGroup.GET("/matches", c.ListMatches)
 
+	// Only get profiles with scope
+	profilesGroup := matchesGroup.Group("", auth.RequireScopes(auth.ScopeEphmatchProfiles, auth.ScopeAdminAll))
+	profilesGroup.GET("/profiles", c.ListProfiles)
+	profilesGroup.GET("/profiles/:profileUserID", c.GetProfile)
+	profilesGroup.POST("/profiles/:profileUserID/like", c.LikeProfile)
+	profilesGroup.POST("/profiles/:profileUserID/unlike", c.UnlikeProfile)
 }

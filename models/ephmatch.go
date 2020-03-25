@@ -50,14 +50,13 @@ func (m *EphmatchModel) CreateLikeAndMatch(userID uint, likedID uint) (matched b
 
 	// If other user liked us, create a match!
 	if otherLike {
+		smallestID, largestID := orderUIntPair(userID, likedID)
+
 		// Get old match if it exists
 		var match EphmatchMatch
 		err = tx.Unscoped().Model(&EphmatchMatch{}).Where(&EphmatchMatch{
-			UserAID: userID,
-			UserBID: likedID,
-		}).Or(&EphmatchMatch{
-			UserAID: likedID,
-			UserBID: userID,
+			UserAID: smallestID,
+			UserBID: largestID,
 		}).First(&match).Error
 
 		// Then either create a new match or update the old one
@@ -68,8 +67,8 @@ func (m *EphmatchModel) CreateLikeAndMatch(userID uint, likedID uint) (matched b
 		} else if err != nil && gorm.IsRecordNotFoundError(err) {
 			// If we couldn't find the match, create a new one
 			err = tx.Create(&EphmatchMatch{
-				UserAID: userID,
-				UserBID: likedID,
+				UserAID: smallestID,
+				UserBID: largestID,
 			}).Error
 			if err != nil {
 				tx.Rollback()
@@ -113,13 +112,12 @@ func (m *EphmatchModel) DeleteLikeAndMatch(userID uint, likedID uint) (err error
 		return err
 	}
 
+	smallestID, largestID := orderUIntPair(userID, likedID)
+
 	// Delete the match if it exists
 	err = tx.Where(EphmatchMatch{
-		UserAID: userID,
-		UserBID: likedID,
-	}).Or(EphmatchMatch{
-		UserAID: likedID,
-		UserBID: userID,
+		UserAID: smallestID,
+		UserBID: largestID,
 	}).Delete(EphmatchMatch{}).Error
 	if err != nil {
 		tx.Rollback()

@@ -3682,6 +3682,26 @@ paths:
       summary: List matches
       tags:
       - ephcatch
+  /ephmatch/availability:
+    get:
+      description: gives data on Ephmatch availability
+      operationId: ephmatch-get-availability
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GetAvailabilityResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get availability
+      tags:
+      - ephmatch
   /ephmatch/matches:
     get:
       consumes:

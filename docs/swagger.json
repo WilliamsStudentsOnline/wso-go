@@ -3464,6 +3464,38 @@
                 }
             }
         },
+        "/ephmatch/availability": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "gives data on Ephmatch availability",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ephmatch"
+                ],
+                "summary": "Get availability",
+                "operationId": "ephmatch-get-availability",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/GetAvailabilityResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
         "/ephmatch/matches": {
             "get": {
                 "security": [

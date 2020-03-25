@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib/search"
 	"github.com/gin-gonic/gin"
@@ -73,6 +74,12 @@ type Config struct {
 	/* Search */
 	SearchBackend string `yaml:"search_backend" envconfig:"search_backend"`
 
+	/* Ephmatch */
+	// Periods/eras of time when ephmatch is open
+	EphmatchEras []EphmatchEra `yaml:"ephmatch_eras" envconfig:"ephmatch_eras"`
+	// Enable ephmatch indefinitely
+	EphmatchEnableNow bool `yaml:"ephmatch_enable_now" envconfig:"ephmatch_enable_now"`
+
 	/* Kubernetes */
 	KubernetesEnabled   bool   `yaml:"kubernetes_enabled" envconfig:"kubernetes_enabled"`
 	KubeNamespace       string `yaml:"kube_namespace" envconfig:"kube_namespace"`
@@ -83,6 +90,11 @@ type Config struct {
 	/* Pictures */
 	PictureBackend   string `yaml:"picture_backend" envconfig:"picture_backend"`
 	PictureLocalPath string `yaml:"picture_local_path" envconfig:"picture_local_path"`
+}
+
+type EphmatchEra struct {
+	Start time.Time `yaml:"start"`
+	End   time.Time `yaml:"end"`
 }
 
 // Check what environment our config is in

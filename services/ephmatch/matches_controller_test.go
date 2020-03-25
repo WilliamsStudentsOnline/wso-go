@@ -19,7 +19,7 @@ func TestController_ListMatches(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeEphmatch)
+	router := utils.SetupRouter(auth.ScopeEphmatch, auth.ScopeEphmatchMatches)
 	cfg := utils.SetupConfig()
 
 	srYear := (&models.StudentModel{}).SeniorYear()

@@ -4,13 +4,19 @@ package models
 type EphmatchMatch struct {
 	BaseSchema
 
-	// Belongs to user A (only in DB, not JSON)
-	UserA   *User `gorm:"foreignkey:UserAID" json:"-"`
-	UserAID uint  `gorm:"column:user_a_id" json:"-"`
+	// In order to have efficient search, UserA and UserB are sorted by id such that
+	// UserA will always have an ID smaller than UserB
+	// That is:
+	// UserAID = min{userA.ID, userB.ID}
+	// UserBID = max{userA.ID, userB.ID}
 
-	// Belongs to user B (only in DB, not JSON)
+	// Belongs to user A, whoever has the smallest ID (only in DB, not JSON)
+	UserA   *User `gorm:"foreignkey:UserAID" json:"-"`
+	UserAID uint  `gorm:"column:user_a_id;index:index_ephmatch_matches_on_user_a_id;not null;" json:"-"`
+
+	// Belongs to user B, whoever has the largest ID (only in DB, not JSON)
 	UserB   *User `gorm:"foreignkey:UserBID" json:"-"`
-	UserBID uint  `gorm:"column:user_b_id" json:"-"`
+	UserBID uint  `gorm:"column:user_b_id;index:index_ephmatch_matches_on_user_b_id;not null;" json:"-"`
 
 	// The user that self matched with. We dont report self, as that should be obvious.
 	MatchedUser   *User `gorm:"-" json:"matchedUser"`

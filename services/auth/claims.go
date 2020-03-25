@@ -4,92 +4,113 @@ import (
 	"time"
 
 	jwt "github.com/WilliamsStudentsOnline/gin-jwt/v2"
+	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
+	"github.com/jinzhu/gorm"
 )
 
-func GenerateClaims(v *AuthenticatorPayload) jwt.MapClaims {
-	var scope []string
+func GenerateClaimsFactory(cfg *config.Config, db *gorm.DB) func(v *AuthenticatorPayload) jwt.MapClaims {
+	return func(v *AuthenticatorPayload) jwt.MapClaims {
+		var scope []string
 
-	// By default, can access bulletins
-	if v.TokenLevel >= TokenLevelOffCampus {
-		scope = append(scope, auth.ScopeBulletin)
-	}
+		// By default, can access bulletins
+		if v.TokenLevel >= TokenLevelOffCampus {
+			scope = append(scope, auth.ScopeBulletin)
+		}
 
-	// If on-campus, can access user info
-	if v.TokenLevel >= TokenLevelOnCampus {
-		scope = append(scope, auth.ScopeUsers)
-	}
+		// If on-campus, can access user info
+		if v.TokenLevel >= TokenLevelOnCampus {
+			scope = append(scope, auth.ScopeUsers)
+		}
 
-	// If signed in, can access: all other
-	if v.TokenLevel >= TokenLevelUser {
-		scope = append(scope, auth.ScopeAllOther)
-	}
+		// If signed in, can access: all other
+		if v.TokenLevel >= TokenLevelUser {
+			scope = append(scope, auth.ScopeAllOther)
+		}
 
-	// If user exists that we signed in with
-	if v.TokenLevel >= TokenLevelUser && v.User != nil {
-		// Allow writing
-		scope = append(scope, auth.ScopeWriteSelf)
+		// If user exists that we signed in with
+		if v.TokenLevel >= TokenLevelUser && v.User != nil {
+			// Allow writing
+			scope = append(scope, auth.ScopeWriteSelf)
 
-		// For ephcatch and factrak, user must be a student
-		if v.User.IsStudent() {
-			// If user is a senior or ephcatch eligible, add ephcatch scope
-			if v.User.Student().Senior() || (v.User.EphcatchEligibility != nil && *v.User.EphcatchEligibility) {
-				// Ensure that it is senior week and that the user has not opted out of ephcatch
-				if isSeniorWeek() && !(v.User.OptOutEphcatch != nil && *v.User.OptOutEphcatch) {
-					scope = append(scope, auth.ScopeEphcatch)
+			// For ephcatch and factrak, user must be a student
+			if v.User.IsStudent() {
+				// If user is a senior or ephcatch eligible, add ephcatch scope
+				if v.User.Student().Senior() || (v.User.EphcatchEligibility != nil && *v.User.EphcatchEligibility) {
+					// Ensure that it is senior week and that the user has not opted out of ephcatch
+					if isSeniorWeek() && !(v.User.OptOutEphcatch != nil && *v.User.OptOutEphcatch) {
+						scope = append(scope, auth.ScopeEphcatch)
+					}
 				}
-			}
 
-			// If month is January (winter study), add the ephmatch scope. User opts out by deleting profile. By default opt in.
-			if isWinterStudy() {
+				// Ephmatch
+				// Give access to edit self profile on ephmatch to all eligible users
 				scope = append(scope, auth.ScopeEphmatch)
-			}
+				// If user has signed up, give access to matches
+				if hasEphmatchProfile(db, v.User.ID) {
+					scope = append(scope, auth.ScopeEphmatchMatches)
+					// If ephmatch is open, give access to like/unlike, other profiles
+					if enableEphmatch(cfg) {
+						scope = append(scope, auth.ScopeEphmatchProfiles)
+					}
+				}
 
-			// For factrak, user must be student and user accepted factrak policy
-			if v.User.HasAcceptedFactrakPolicy != nil && *v.User.HasAcceptedFactrakPolicy {
-				// TODO: ensure limited cannot get access via preloading
-				// If no factrak survey deficit, give full access
-				if v.User.FactrakSurveyDeficit != nil && *v.User.FactrakSurveyDeficit == 0 {
-					scope = append(scope, auth.ScopeFactrakFull)
-				} else {
-					// Otherwise, give limited access
-					scope = append(scope, auth.ScopeFactrakLimited)
+				// For factrak, user must be student and user accepted factrak policy
+				if v.User.HasAcceptedFactrakPolicy != nil && *v.User.HasAcceptedFactrakPolicy {
+					// TODO: ensure limited cannot get access via preloading
+					// If no factrak survey deficit, give full access
+					if v.User.FactrakSurveyDeficit != nil && *v.User.FactrakSurveyDeficit == 0 {
+						scope = append(scope, auth.ScopeFactrakFull)
+					} else {
+						// Otherwise, give limited access
+						scope = append(scope, auth.ScopeFactrakLimited)
+					}
+				}
+
+				// For dormtrak, user must be a student and user accepted dormtrak policy
+				if v.User.HasAcceptedDormtrakPolicy != nil && *v.User.HasAcceptedDormtrakPolicy {
+					scope = append(scope, auth.ScopeDormtrak)
+
+					// If the student is upper class, they can write reviews
+					if v.User.Student().IsUpperClass() {
+						scope = append(scope, auth.ScopeDormtrakWrite)
+					}
 				}
 			}
 
-			// For dormtrak, user must be a student and user accepted dormtrak policy
-			if v.User.HasAcceptedDormtrakPolicy != nil && *v.User.HasAcceptedDormtrakPolicy {
-				scope = append(scope, auth.ScopeDormtrak)
-
-				// If the student is upper class, they can write reviews
-				if v.User.Student().IsUpperClass() {
-					scope = append(scope, auth.ScopeDormtrakWrite)
-				}
+			// Add admin scope
+			if v.User.Admin != nil && *v.User.Admin {
+				scope = append(scope, auth.ScopeAdminAll)
+				scope = append(scope, auth.ScopeFactrakAdmin)
+			} else if v.User.FactrakAdmin != nil && *v.User.FactrakAdmin {
+				// If not admin, check if factrak admin
+				scope = append(scope, auth.ScopeFactrakAdmin)
 			}
 		}
 
-		// Add admin scope
-		if v.User.Admin != nil && *v.User.Admin {
-			scope = append(scope, auth.ScopeAdminAll)
-			scope = append(scope, auth.ScopeFactrakAdmin)
-		} else if v.User.FactrakAdmin != nil && *v.User.FactrakAdmin {
-			// If not admin, check if factrak admin
-			scope = append(scope, auth.ScopeFactrakAdmin)
+		var jwtUserID uint = 0
+		if v.User != nil {
+			jwtUserID = v.User.ID
+		}
+
+		// This is the final payload
+		return jwt.MapClaims{
+			"id":         jwtUserID,
+			"tokenLevel": v.TokenLevel,
+			"scope":      scope,
 		}
 	}
+}
 
-	var jwtUserID uint = 0
-	if v.User != nil {
-		jwtUserID = v.User.ID
+func hasEphmatchProfile(db *gorm.DB, userID uint) bool {
+	var count int
+	err := db.Model(&models.EphmatchProfile{}).Where("ephmatch_profiles.user_id = ?", userID).Count(&count).Error
+	if err != nil {
+		return false
 	}
 
-	// This is the final payload
-	return jwt.MapClaims{
-		"id":         jwtUserID,
-		"tokenLevel": v.TokenLevel,
-		"scope":      scope,
-	}
+	return count > 0
 }
 
 func isSeniorWeek() bool {
@@ -97,6 +118,21 @@ func isSeniorWeek() bool {
 	seniorWeek := time.Date(now.Year(), time.May, 15, 0, 0, 0, 0, now.Location())
 	seniorWeekEnd := time.Date(now.Year(), models.StudentCutoffMonth, 1, 0, 0, 0, 0, now.Location())
 	return now.After(seniorWeek) && now.Before(seniorWeekEnd)
+}
+
+func enableEphmatch(cfg *config.Config) bool {
+	if cfg.EphmatchEnableNow {
+		return true
+	}
+
+	now := time.Now()
+	for _, era := range cfg.EphmatchEras {
+		if era.Start.Before(now) && era.End.After(now) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func isWinterStudy() bool {

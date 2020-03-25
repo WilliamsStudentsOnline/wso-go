@@ -183,7 +183,6 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 
 		// Ephmatch Service
 		ephmatchGroup := v2.Group("/ephmatch")
-		ephmatchGroup.Use(auth.RequireScopes(auth.ScopeEphmatch, auth.ScopeAdminAll))
 		ephmatchService.SetupRouter(ephmatchGroup, db, cfg, log.Named("ephmatch"))
 
 		// Bulletin RSS Service
