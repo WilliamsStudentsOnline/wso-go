@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"crypto/tls"
 	"fmt"
 	"net"
 
@@ -8,7 +9,7 @@ import (
 )
 
 const LDAPServer = "adldap.williams.edu"
-const LDAPServerPort = 389 //TODO(EMERGENCY FIX 3/26/20): make this ssl (635)
+const LDAPServerPort = 636
 
 // Given a unix ID and a password, will check if the credentials are valid by
 // authenticating into the OIT LDAP server.
@@ -34,10 +35,10 @@ func LDAPAuth(server, bindDN, password string, port int) (bool, error) {
 	}
 
 	// Connect to LDAP
-	//TODO(EMERGENCY FIX 3/26/20): MAKE THIS ldap.DialTLS
-	l, err := ldap.Dial("tcp", fmt.Sprintf("%s:%d", server, port))/*&tls.Config{
-		ServerName: server,
-	}*/
+	l, err := ldap.DialTLS("tcp", fmt.Sprintf("%s:%d", server, port), &tls.Config{
+		ServerName:         server,
+		InsecureSkipVerify: true, //TODO(EMERGENCY FIX 3/26/20): MAKE THIS false
+	})
 	if err != nil {
 		return false, err
 	}
