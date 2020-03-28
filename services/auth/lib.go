@@ -36,8 +36,7 @@ func LDAPAuth(server, bindDN, password string, port int) (bool, error) {
 
 	// Connect to LDAP
 	l, err := ldap.DialTLS("tcp", fmt.Sprintf("%s:%d", server, port), &tls.Config{
-		ServerName:         server,
-		InsecureSkipVerify: true, //TODO(EMERGENCY FIX 3/26/20): MAKE THIS false
+		ServerName: server,
 	})
 	if err != nil {
 		return false, err
