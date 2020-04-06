@@ -16,8 +16,9 @@ import (
 
 const (
 	// CatalogURL stores the endpoint for the catalog
-	CatalogURL = "https://catalog.williams.edu/wp-json/courses/v1/year"
-	hourFormat = "15:04"
+	CatalogURL      = "https://catalog.williams.edu/wp-json/courses/v1/year"
+	DraftCatalogURL = "https://catalog.draft.williams.edu/wp-json/courses/v1/year"
+	hourFormat      = "15:04"
 )
 
 // Instructor holds the url and name of the instructors
@@ -418,12 +419,17 @@ func UpdateCrossListing(courses []Course) {
 }
 
 // GetCatalog fetches the json from the CatalogURL endpoint and parses it into an array of RawCourses.
-func GetCatalog(academicYear int) ([]RawCourse, error) {
+func GetCatalog(academicYear int, draft bool) ([]RawCourse, error) {
 	catalogClient := &http.Client{
 		Timeout: time.Second * 30, // Maximum of 30 seconds
 	}
 
-	url := fmt.Sprintf("%s/%d", CatalogURL, academicYear)
+	var url string
+	if draft {
+		url = fmt.Sprintf("%s/%d", DraftCatalogURL, academicYear)
+	} else {
+		url = fmt.Sprintf("%s/%d", CatalogURL, academicYear)
+	}
 
 	// Send the GET request and get back the response
 	res, err := catalogClient.Get(url)
