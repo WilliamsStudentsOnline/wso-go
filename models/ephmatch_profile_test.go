@@ -3,12 +3,16 @@ package models_test
 import (
 	"testing"
 
+	"github.com/WilliamsStudentsOnline/wso-go/config"
+	migrate "github.com/WilliamsStudentsOnline/wso-go/db"
 	"github.com/WilliamsStudentsOnline/wso-go/db/seed"
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	. "github.com/WilliamsStudentsOnline/wso-go/models"
+	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	testify "github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
 	"go.uber.org/zap/zaptest"
 )
 
@@ -150,5 +154,35 @@ func TestEphmatchProfileModel_CreateOrUpdateProfileUnscoped(t *testing.T) {
 		assert.Nil(res.DeletedAt)
 		assert.Equal(newProfile.Description, res.Description)
 	})
+
+}
+
+func BenchmarkEphmatchProfileModel_SuggestUsers(b *testing.B) {
+	b.Skip()
+
+	assert := testify.New(b)
+	gin.SetMode(gin.TestMode)
+	cfg, err := config.LoadConfig("./../config/environment/aidan-development.yaml")
+	if err != nil {
+		b.Error("Config Error: " + err.Error())
+		return
+	}
+
+	db := config.LoadDatabase(cfg, zap.NewNop().Sugar())
+	assert.NoError(migrate.MigrateDB(db))
+
+	m := NewEphmatchProfileModel(db, zaptest.NewLogger(b).Sugar())
+
+	var userID uint = 10291
+
+	b.ResetTimer() // Done with setup so reset timer
+
+	for i := 0; i < b.N; i++ {
+		_, err = m.SuggestUsers(userID)
+		if err != nil {
+			b.Error(err)
+			return
+		}
+	}
 
 }

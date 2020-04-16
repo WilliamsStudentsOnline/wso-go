@@ -1,6 +1,10 @@
 package models
 
 import (
+	"sort"
+	"strconv"
+	"strings"
+
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
@@ -47,19 +51,58 @@ func (m *EphmatchProfileModel) GetAllProfilesNoSelf(p *[]*EphmatchProfile, selfI
 		return
 	}
 
-	// Populate liked field
-	if opts != nil && lib.StringsContains(opts.Preload, "liked") {
-		err = m.populateLiked(p, selfID)
-		if err != nil {
-			return
-		}
-	}
+	if opts != nil {
+		// Do recommended sorting algorithm
+		if opts.Sort != nil && *opts.Sort == "recommended" {
+			suggestedUsers, err := m.SuggestUsers(selfID)
+			if err != nil {
+				return err
+			}
 
-	// Populate matched field
-	if opts != nil && lib.StringsContains(opts.Preload, "matched") {
-		err = m.populateMatched(p, selfID)
-		if err != nil {
-			return
+			usersToIdx := make(map[uint]int, len(suggestedUsers))
+			for i, u := range suggestedUsers {
+				usersToIdx[u] = i
+			}
+
+			// Sort by order if both users are suggested, then by the suggested user if there is only one, and then by
+			// the most active user if both users are not suggested
+			sort.Slice(*p, func(i, j int) bool {
+				iIdx, iOk := usersToIdx[(*p)[i].UserID]
+				jIdx, jOk := usersToIdx[(*p)[j].UserID]
+				if iOk && jOk {
+					return iIdx > jIdx
+				} else if iOk && !jOk {
+					return true
+				} else if !iOk && jOk {
+					return false
+				} else {
+					return (*p)[i].UpdatedAt.After((*p)[j].UpdatedAt)
+				}
+			})
+
+			// Do manual offset, limit as we cant do it in SQL
+			if opts.Offset != nil && *opts.Offset < uint(len(*p))-1 { // Ensure bounds
+				*p = (*p)[*opts.Offset:]
+			}
+			if opts.Limit != nil && *opts.Limit < uint(len(*p)) {
+				*p = (*p)[:*opts.Limit]
+			}
+		}
+
+		// Populate liked field
+		if lib.StringsContains(opts.Preload, "liked") {
+			err = m.populateLiked(p, selfID)
+			if err != nil {
+				return
+			}
+		}
+
+		// Populate matched field
+		if lib.StringsContains(opts.Preload, "matched") {
+			err = m.populateMatched(p, selfID)
+			if err != nil {
+				return
+			}
 		}
 	}
 
@@ -125,7 +168,7 @@ func (m *EphmatchProfileModel) populateMatched(p *[]*EphmatchProfile, selfID uin
 }
 
 type GetAllProfilesOptions struct {
-	// Can be new, updated, or alphabetical
+	// Can be new, updated, alphabetical, or recommended
 	Sort *string `json:"sort" form:"sort"`
 
 	// Offset is ignored unless limit is supplied
@@ -143,6 +186,8 @@ func (p *GetAllProfilesOptions) Order(db *gorm.DB) *gorm.DB {
 			return db.Order("ephmatch_profiles.created_at DESC", true)
 		} else if *p.Sort == "updated" {
 			return db.Order("ephmatch_profiles.updated_at DESC", true)
+		} else if *p.Sort == "recommended" {
+			return db
 		}
 	}
 
@@ -150,6 +195,11 @@ func (p *GetAllProfilesOptions) Order(db *gorm.DB) *gorm.DB {
 }
 
 func (p *GetAllProfilesOptions) Paginate(db *gorm.DB) *gorm.DB {
+	// Do server-side limit/offset if recommended due to complex sorting algorithm
+	if p.Sort != nil && *p.Sort == "recommended" {
+		return db
+	}
+
 	db = p.Order(db)
 	if p.Limit != nil {
 		db = db.Limit(*p.Limit)
@@ -298,4 +348,100 @@ func (m *EphmatchProfileModel) scopeDefault(db *gorm.DB) *gorm.DB {
 	db = db.Joins("INNER JOIN users ON users.id = ephmatch_profiles.user_id").
 		Where("users.type = ?", UserTypeStudent)
 	return db
+}
+
+func (m *EphmatchProfileModel) SuggestUsers(userID uint) ([]uint, error) {
+	/*
+		Algorithm:
+		  1. find similar users based on similar likes
+		  2. find what else the similar users liked
+	*/
+
+	// Get who user liked
+	rows, err := m.DB.Table("ephmatch_likes").
+		Select("liked_id").
+		Where("user_id = ?", userID).
+		Rows()
+	if err != nil {
+		return nil, err
+	}
+
+	var likedUsers []uint
+	var likedUsersStr []string
+	likedUsersExists := make(map[uint]struct{}) // to check if a given userID was liked
+	for rows.Next() {
+		var likedUserID uint
+		err = rows.Scan(&likedUserID)
+		if err != nil {
+			return nil, err
+		}
+
+		likedUsers = append(likedUsers, likedUserID)
+		likedUsersStr = append(likedUsersStr, strconv.Itoa(int(likedUserID)))
+		likedUsersExists[likedUserID] = struct{}{}
+	}
+
+	rows.Close()
+
+	// Get users with similar like preferences (admirers of people user has liked)
+	rows, err = m.DB.Table("ephmatch_likes").
+		Select("user_id").
+		Where("liked_id IN (" + strings.Join(likedUsersStr, ",") + ")").
+		Rows()
+	if err != nil {
+		return nil, err
+	}
+
+	var admirers []uint // users similar to us
+	var admirersStr []string
+	for rows.Next() {
+		var admirerID uint
+		err = rows.Scan(&admirerID)
+		if err != nil {
+			return nil, err
+		}
+
+		admirers = append(admirers, admirerID)
+		admirersStr = append(admirersStr, strconv.Itoa(int(admirerID)))
+	}
+
+	rows.Close()
+
+	// Get other users that admirers liked
+
+	rows, err = m.DB.Table("ephmatch_likes").
+		Select("liked_id, count(*)").
+		Where("user_id IN (" + strings.Join(admirersStr, ",") + ")").
+		Group("liked_id").Rows()
+	if err != nil {
+		return nil, err
+	}
+
+	suggestedUsersToLikes := make(map[uint]int) // users suggested: mapped userID to number of times suggested
+	var suggestedUsers []uint
+	for rows.Next() {
+		var likedID uint
+		var count int
+		err = rows.Scan(&likedID, &count)
+		if err != nil {
+			return nil, err
+		}
+
+		// Scale down the count if this user has already been liked. This way, liked users aren't all at the start
+		if _, ok := likedUsersExists[likedID]; ok {
+			// Simulate floats with 1 digit of accuracy as a faster way to do math
+			count = (10 * count) / 15
+		}
+
+		suggestedUsersToLikes[likedID] = count
+		suggestedUsers = append(suggestedUsers, likedID)
+	}
+
+	rows.Close()
+
+	sort.Slice(suggestedUsers, func(i, j int) bool {
+		return suggestedUsersToLikes[suggestedUsers[i]] < suggestedUsersToLikes[suggestedUsers[j]]
+	})
+
+	return suggestedUsers, nil
 }
