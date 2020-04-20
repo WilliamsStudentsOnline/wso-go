@@ -2977,6 +2977,36 @@ paths:
       summary: List ride bulletins RSS
       tags:
       - bulletins
+  /chat/auth/token:
+    get:
+      consumes:
+      - application/json
+      description: gets auth JWT token of chat feature
+      operationId: chat-get-auth-token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get Chat Auth JWT token
+      tags:
+      - chat
   /dormtrak/dorms:
     get:
       consumes:

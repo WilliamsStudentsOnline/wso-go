@@ -90,6 +90,10 @@ type Config struct {
 	/* Pictures */
 	PictureBackend   string `yaml:"picture_backend" envconfig:"picture_backend"`
 	PictureLocalPath string `yaml:"picture_local_path" envconfig:"picture_local_path"`
+
+	/* Chat */
+	// The name of ejabberd service, like wso.williams.edu
+	ChatEjabberdName string `yaml:"chat_ejabberd_name" envconfig:"chat_ejabberd_name"`
 }
 
 type EphmatchEra struct {
@@ -294,6 +298,10 @@ func SetupConfig(c *Config) error {
 		c.JWTSigningAlgo = "HS256"
 	default:
 		return errors.New("unknown JWT signing algorithm")
+	}
+
+	if c.ChatEjabberdName == "" {
+		c.ChatEjabberdName = "wso.williams.edu"
 	}
 
 	return nil
