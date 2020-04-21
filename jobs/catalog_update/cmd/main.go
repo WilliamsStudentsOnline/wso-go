@@ -23,6 +23,7 @@ func main() {
 	var winterSemesterID int
 	var springSemesterID int
 	var filename string
+	var draftCatalog bool
 
 	flag.StringVar(&configPath, "config", "", "path to config file")
 	flag.IntVar(&year, "year", 0, "the calendar year; set this to the year of fall semester")
@@ -31,6 +32,7 @@ func main() {
 	flag.IntVar(&winterSemesterID, "winter", 0, "winter courses semester id")
 	flag.IntVar(&springSemesterID, "spring", 0, "spring courses semester id")
 	flag.StringVar(&filename, "file", "courses.json", "where to save the courses JSON file")
+	flag.BoolVar(&draftCatalog, "draft", false, "get the draft catalog at catalog.draft.williams.edu")
 
 	flag.Parse()
 
@@ -88,7 +90,7 @@ func main() {
 
 	/* Command Code */
 
-	rawCourses, err := catalog.GetCatalog(academicYear)
+	rawCourses, err := catalog.GetCatalog(academicYear, draftCatalog)
 	if err != nil {
 		log.Fatal(err)
 		return

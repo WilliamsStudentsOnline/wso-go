@@ -10,6 +10,17 @@ Note: you must include a secrets file. So, run `cp config/secrets_example.yaml c
 ### Current Go Version: 1.13.4
 It is worth noting that you should install Go via the official site, not a package repository like apt-get or brew, which often have outdated versions. You can find info on how to install Go [here](https://golang.org/doc/install).
 
+## Onboarding 
+
+### Learning Go
+There are a number of resources out there to learn Go. The official tutorial is found [here](tour.golang.org). However, I prefer [Learn Go in Y Minutes](https://learnxinyminutes.com/docs/go/), which is pretty short and informative. 
+
+### IDE
+You can use whatever you want as your Go IDE. Personally, I use Intellij Goland, which you can get for free as a student. If you want something more lightweight, I suggest using Emacs.
+
+### First Issue
+Choose an unassigned issue tagged "good first issue" and reach out to the Backend team lead for more information and guidance. If you want some examples of good wso-go code, check out `wso-go/services/ephmatch` or `wso-go/services/users`.
+
 ## Development
 
 ### Git Workflow/Pipeline
@@ -20,6 +31,7 @@ Steps for a 10/10 development workflow:
 3. Write the code and create the tests.
     * Please follow this [helpful guide](https://github.com/golang/go/wiki/CodeReviewComments) on how to write commit-worthy Go code.
 4. Make a pull request and link your original issue.
+    * The pull request will be automatically tested on Jenkins. If it passes, you can just ignore it. However, if Jenkins fails and you want to see why, *you must be on the Williams network to access Jenkins*.
 5. After approval merge the pull request by squashing all of your commits into one.
 
 **CHANGES INFO:** Before committing any changes, run `make commit` to autoformat and update your code.
@@ -69,6 +81,7 @@ API Endpoints are documented at `localhost:8080/docs`, and in the director `docs
 look at controller comments for any endpoint info.
 
 ## Authentication Flow
+*NOTE: THIS IS DEPRECATED*
 We use something called a [JWT](jwt.io), or JSON Web Token for the API. This allows us to keep sessions and verify user identities without cookies or database queries. It works like this:
 1. A user will request a token from the `auth/login` endpoint. They will pass in their login credentials, which will be checked with LDAP (not implemented yet).
 2. If the user is verified, the server will then pull their user from the DB and create a payload. This payload will consist of the user's ID and the scopes the user is allowed (e.g. if the user is a senior, they can go to ephcatch; if the user is an admin, they can do other queries; if the user is not signed in but on school wifi, they can be read only).
