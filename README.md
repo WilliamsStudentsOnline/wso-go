@@ -78,7 +78,8 @@ To build the Go binary, run `make`. You can then just execute `./wso-backend`.
 ## API Endpoints
 
 API Endpoints are documented at `localhost:8080/docs`, and in the director `docs/` as swagger files. You can also 
-look at controller comments for any endpoint info.
+look at controller comments for any endpoint info. Don't use the provided query tools, bc they don't play nice 
+with our authentication.
 
 ## Authentication Flow
 *NOTE: THIS IS DEPRECATED*
