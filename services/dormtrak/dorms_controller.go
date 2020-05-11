@@ -81,10 +81,10 @@ func (t *Controller) GetDorm(c *gin.Context) {
 	t.RespondOK(c, dorm)
 }
 
-// GetDormRooms godoc
-// @Summary Get dorm rooms
-// @Description gets dorm rooms of one dorm building
-// @ID dormtrak-get-dorm-rooms
+// ListDormRooms godoc
+// @Summary List dorm rooms
+// @Description lists dorm rooms of one dorm building
+// @ID dormtrak-list-dorm-rooms
 // @Tags dormtrak
 // @Accept  json
 // @Produce  json
@@ -97,7 +97,7 @@ func (t *Controller) GetDorm(c *gin.Context) {
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
 // @Router /dormtrak/dorms/{dormID}/rooms [get]
-func (t *Controller) GetDormRooms(c *gin.Context) {
+func (t *Controller) ListDormRooms(c *gin.Context) {
 	// Decode dormID.
 	dormID, err := services.GetUIntParam(c, "dormID")
 	if err != nil {
@@ -171,4 +171,37 @@ func (t *Controller) GetDormFacts(c *gin.Context) {
 	}
 
 	t.RespondOK(c, facts)
+}
+
+// GetDormRoom godoc
+// @Summary Get dorm room
+// @Description gets a dorm room
+// @ID dormtrak-get-dorm-room
+// @Tags dormtrak
+// @Accept  json
+// @Produce  json
+// @Param dormRoomID path uint true "Dorm Room ID"
+// @Success 200 {object} models.DormRoom
+// @Failure 400 {object} lib.APIError
+// @Failure 404 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /dormtrak/rooms/{dormRoomID} [get]
+func (t *Controller) GetDormRoom(c *gin.Context) {
+	// Decode dormRoomID.
+	dormRoomID, err := services.GetUIntParam(c, "dormRoomID")
+	if err != nil {
+		t.RespondErrorCode(c, http.StatusBadRequest, err)
+		return
+	}
+
+	// Do database query
+	var room models.DormRoom
+	err = t.dormRoomModel.GetDormRoomByID(dormRoomID, &room)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	t.RespondOK(c, room)
 }

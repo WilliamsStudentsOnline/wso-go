@@ -2561,7 +2561,7 @@
                         "Bearer": []
                     }
                 ],
-                "description": "gets dorm rooms of one dorm building",
+                "description": "lists dorm rooms of one dorm building",
                 "consumes": [
                     "application/json"
                 ],
@@ -2571,8 +2571,8 @@
                 "tags": [
                     "dormtrak"
                 ],
-                "summary": "Get dorm rooms",
-                "operationId": "dormtrak-get-dorm-rooms",
+                "summary": "List dorm rooms",
+                "operationId": "dormtrak-list-dorm-rooms",
                 "parameters": [
                     {
                         "type": "integer",
@@ -3160,6 +3160,62 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.DormtrakReview"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/dormtrak/rooms/{dormRoomID}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "gets a dorm room",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dormtrak"
+                ],
+                "summary": "Get dorm room",
+                "operationId": "dormtrak-get-dorm-room",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Dorm Room ID",
+                        "name": "dormRoomID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.DormRoom"
                         }
                     },
                     "400": {

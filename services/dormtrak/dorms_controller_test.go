@@ -133,7 +133,7 @@ func TestController_GetDorm(t *testing.T) {
 	assert.Equal(http.StatusNotFound, w.Code)
 }
 
-func TestController_GetDormRooms(t *testing.T) {
+func TestController_ListDormRooms(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
@@ -379,6 +379,54 @@ func TestController_GetDormFacts(t *testing.T) {
 
 	/* Get test bad dorm id (expect failure) */
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/dorms/%d/facts", 42), nil)
+	assert.NoError(err)
+
+	// Status is not found
+	assert.Equal(http.StatusNotFound, w.Code)
+}
+
+func TestController_GetDormRoom(t *testing.T) {
+	// Setup (can copy and paste this basically)
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+	router := utils.SetupRouter(auth.ScopeDormtrak, auth.ScopeWriteSelf)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+
+	n1 := models.Neighborhood{
+		Name: "Currier",
+	}
+	assert.NoError(db.Create(&n1).Error)
+
+	dr1 := models.DormRoom{
+		Number: "102",
+		Dorm: &models.Dorm{
+			Neighborhood: &n1,
+			Name:         "East",
+		},
+	}
+	assert.NoError(db.Create(&dr1).Error)
+
+	// Get test neighborhood
+	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/rooms/%d", dr1.ID), nil)
+	assert.NoError(err)
+
+	// Status is okay
+	assert.Equal(http.StatusOK, w.Code)
+
+	// Decode response
+	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+	var resp models.DormRoom
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+
+	// Check if correct dorm rooms
+	assert.Equal(dr1.Number, resp.Number)
+	assert.Equal(dr1.Dorm.Name, resp.Dorm.Name)
+	assert.Equal(dr1.Dorm.Neighborhood.Name, resp.Dorm.Neighborhood.Name)
+
+	/* Get test bad dorm id (expect failure) */
+	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/rooms/%d", 42), nil)
 	assert.NoError(err)
 
 	// Status is not found

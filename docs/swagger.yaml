@@ -3095,8 +3095,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: gets dorm rooms of one dorm building
-      operationId: dormtrak-get-dorm-rooms
+      description: lists dorm rooms of one dorm building
+      operationId: dormtrak-list-dorm-rooms
       parameters:
       - description: Dorm ID
         in: path
@@ -3134,7 +3134,7 @@ paths:
             $ref: '#/definitions/lib.APIError'
       security:
       - Bearer: []
-      summary: Get dorm rooms
+      summary: List dorm rooms
       tags:
       - dormtrak
   /dormtrak/neighborhoods:
@@ -3496,6 +3496,42 @@ paths:
       security:
       - Bearer: []
       summary: Update review
+      tags:
+      - dormtrak
+  /dormtrak/rooms/{dormRoomID}:
+    get:
+      consumes:
+      - application/json
+      description: gets a dorm room
+      operationId: dormtrak-get-dorm-room
+      parameters:
+      - description: Dorm Room ID
+        in: path
+        name: dormRoomID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DormRoom'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get dorm room
       tags:
       - dormtrak
   /ephcatch/ephcatchers:

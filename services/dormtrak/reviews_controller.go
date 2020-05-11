@@ -7,6 +7,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
+	"github.com/WilliamsStudentsOnline/wso-go/sanitize"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -54,7 +55,7 @@ func (t *Controller) ListReviews(c *gin.Context) {
 		return
 	}
 
-	RemoveUserIDFromReviews(c, reviews)
+	sanitize.DormtrakReviews(reviews, c)
 
 	t.RespondOK(c, reviews)
 }
@@ -88,11 +89,9 @@ func (t *Controller) GetReview(c *gin.Context) {
 		t.RespondError(c, err)
 		return
 	}
+
 	// Remove user info unless self or admin
-	if !auth.CheckIDIsSelf(c, review.UserID) && !auth.HasScope(c, auth.ScopeAdminAll) {
-		review.UserID = 0
-		review.User = nil
-	}
+	sanitize.DormtrakReview(&review, c)
 
 	t.RespondOK(c, review)
 }

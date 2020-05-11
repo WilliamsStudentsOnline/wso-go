@@ -9,6 +9,7 @@ BUILD_DEPS = $(call rwildcard, $(BUILD_DIRS), *.go) jobs/jobs.go $(wildcard jobs
 SERVICE_DIRS = $(wildcard services/*)
 SWAGGER := $(shell which swag 2>/dev/null)
 GOIMPORTS := $(shell which goimports 2>/dev/null)
+JOBS := job-catalog-update job-update-all-factrak-survey-deficits job-update-all-users-from-ldap job-dorms-update job-dorm-lottery-update
 
 $(BINARY_NAME): $(BUILD_DEPS)
 	go build -tags=jsoniter -o $(BINARY_NAME) ./server/cmd
@@ -30,32 +31,53 @@ services/*/responses/%.go: services/*/responses/%.json
 services/words/words_data.go: services/words/words.json
 	go generate $(GIT_REPO)/services/words
 
-.PHONY: job-catalog-update
-job-catalog-update:
-	go build -tags=jsoniter -o job-catalog-update ./jobs/catalog_update/cmd
+.PHONY: jobs
+jobs: $(JOBS)
 
-.PHONY: job-update-all-factrak-survey-deficits
-job-update-all-factrak-survey-deficits:
-	go build -tags=jsoniter -o job-update-all-factrak-survey-deficits ./jobs/update_all_factrak_survey_deficits/cmd
+.PHONY: $(JOBS)
+.SECONDEXPANSION:
+$(JOBS): %: ./jobs/$$(subst -,_,$$(subst job-,,%))/cmd ./jobs/$$(subst -,_,$$(subst job-,,%))/*
+	go build -tags=jsoniter -o $@ $<
 
-.PHONY: job-update-all-users-from-ldap
-job-update-all-users-from-ldap:
-	go build -tags=jsoniter -o job-update-all-users-from-ldap ./jobs/update_all_users_from_ldap/cmd
+#.PHONY: job-catalog-update
+#job-catalog-update:
+#	go build -tags=jsoniter -o job-catalog-update ./jobs/catalog_update/cmd
 
-.PHONY: job-dorms-update
-job-dorms-update:
-	go build -tags=jsoniter -o job-dorms-update ./jobs/dorms_update/cmd
+#.PHONY: job-update-all-factrak-survey-deficits
+#job-update-all-factrak-survey-deficits:
+#	go build -tags=jsoniter -o job-update-all-factrak-survey-deficits ./jobs/update_all_factrak_survey_deficits/cmd
+
+#.PHONY: job-update-all-users-from-ldap
+#job-update-all-users-from-ldap:
+#	go build -tags=jsoniter -o job-update-all-users-from-ldap ./jobs/update_all_users_from_ldap/cmd
+
+#.PHONY: job-dorms-update
+#job-dorms-update:
+#	go build -tags=jsoniter -o job-dorms-update ./jobs/dorms_update/cmd
+
+#.PHONY: job-dorm-lottery-update
+#job-dorm-lottery-update:
+#	go build -tags=jsoniter -o job-dorm-lottery-update ./jobs/dorm_lottery_update/cmd
 
 .PHONY: build-prod-linux
 build-prod-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o $(BINARY_NAME)_linux ./server/cmd
 
 .PHONY: build-jobs-prod-linux
-build-jobs-prod-linux:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-catalog-update_linux ./jobs/catalog_update/cmd
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-update-all-factrak-survey-deficits_linux ./jobs/update_all_factrak_survey_deficits/cmd
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-update-all-users-from-ldap_linux ./jobs/update_all_users_from_ldap/cmd
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-dorms-update_linux ./jobs/dorms_update/cmd
+build-jobs-prod-linux: $(patsubst %, %_linux, $(JOBS))
+
+.PHONY: $(patsubst %, %_linux, $(JOBS))
+.SECONDEXPANSION:
+$(patsubst %, %_linux, $(JOBS)): %: ./jobs/$$(subst -,_,$$(subst _linux,,$$(subst job-,,%)))/cmd ./jobs/$$(subst -,_,$$(subst _linux,,$$(subst job-,,%)))/*
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o $@ $<
+
+#.PHONY: build-jobs-prod-linux
+#build-jobs-prod-linux:
+#	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-catalog-update_linux ./jobs/catalog_update/cmd
+#	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-update-all-factrak-survey-deficits_linux ./jobs/update_all_factrak_survey_deficits/cmd
+#	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-update-all-users-from-ldap_linux ./jobs/update_all_users_from_ldap/cmd
+#	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-dorms-update_linux ./jobs/dorms_update/cmd
+#	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-dorm-lottery-update_linux ./jobs/dorm_lottery_update/cmd
 
 .PHONY: go-gen
 go-gen:

@@ -25,6 +25,7 @@ require (
 	github.com/jinzhu/inflection v1.0.0
 	github.com/json-iterator/go v1.1.9 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0
+	github.com/ledongthuc/pdf v0.0.0-20200323191019-23c5852adbd2
 	github.com/leodido/go-urn v1.2.0 // indirect
 	github.com/lib/pq v1.2.0 // indirect
 	github.com/m1ome/leven v0.0.0-20170305195354-a3732db01c54

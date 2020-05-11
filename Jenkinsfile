@@ -69,6 +69,10 @@ pipeline {
             sshPut remote: remote_dev, from: 'job-dorms-update_linux', into: '/home/wsodev/wso-go/job-dorms-update'
             sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/job-dorms-update'
 
+            sshRemove remote: remote_dev, path: '/home/wsodev/wso-go/job-dorm-lottery-update'
+            sshPut remote: remote_dev, from: 'job-dorm-lottery-update_linux', into: '/home/wsodev/wso-go/job-dorm-lottery-update'
+            sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/job-dorm-lottery-update'
+
             // Restart WSO-Go
             sshCommand remote: remote_dev, command: '/bin/systemctl restart WSO-Go', sudo: true
           }
@@ -116,21 +120,25 @@ pipeline {
                 sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/wso-backend'
 
                 // Jobs:
-                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/job-catalog-update'
+                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/catalog-update'
                 sshPut remote: remote_dev, from: 'job-catalog-update_linux', into: '/home/wso/wso/wso-backend/jobs/catalog-update'
                 sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/catalog-update'
 
-                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/job-update-all-factrak-survey-deficits'
+                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/update-all-factrak-survey-deficits'
                 sshPut remote: remote_dev, from: 'job-update-all-factrak-survey-deficits_linux', into: '/home/wso/wso/wso-backend/jobs/update-all-factrak-survey-deficits'
                 sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/update-all-factrak-survey-deficits'
 
-                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/job-update-all-users-from-ldap'
+                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/update-all-users-from-ldap'
                 sshPut remote: remote_dev, from: 'job-update-all-users-from-ldap_linux', into: '/home/wso/wso/wso-backend/jobs/update-all-users-from-ldap'
                 sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/update-all-users-from-ldap'
 
-                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/job-dorms-update'
+                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/dorms-update'
                 sshPut remote: remote_dev, from: 'job-dorms-update_linux', into: '/home/wso/wso/wso-backend/jobs/dorms-update'
                 sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/dorms-update'
+
+                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/dorm-lottery-update'
+                sshPut remote: remote_dev, from: 'job-dorm-lottery-update_linux', into: '/home/wso/wso/wso-backend/jobs/dorm-lottery-update'
+                sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/dorm-lottery-update'
 
                 // Restart WSO-Go
                 sshCommand remote: remote_dev, command: '/bin/systemctl restart WSO-Go', sudo: true
