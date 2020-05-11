@@ -119,5 +119,6 @@ func GenerateClaims(v *Payload) jwt.MapClaims {
 	return jwt.MapClaims{
 		"id":         v.UserID,
 		"tokenLevel": v.TokenLevel,
+		"type":       auth.TokenTypeIdentity,
 	}
 }

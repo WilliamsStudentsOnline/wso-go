@@ -8,7 +8,15 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 )
 
-func GenerateClaims(v *AuthenticatorPayload) jwt.MapClaims {
+type TokenType string
+
+var (
+	TokenTypeOld      TokenType = "old"
+	TokenTypeIdentity TokenType = "identity"
+	TokenTypeAPI      TokenType = "api"
+)
+
+func GenerateClaims(v *AuthenticatorPayload, tokenType TokenType) jwt.MapClaims {
 	var scope []string
 
 	// By default, can access bulletins
@@ -89,6 +97,7 @@ func GenerateClaims(v *AuthenticatorPayload) jwt.MapClaims {
 		"id":         jwtUserID,
 		"tokenLevel": v.TokenLevel,
 		"scope":      scope,
+		"type":       tokenType,
 	}
 }
 

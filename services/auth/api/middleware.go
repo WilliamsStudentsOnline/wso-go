@@ -37,7 +37,7 @@ func LoadMiddleware(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (au
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			// We take the data (which is a User) and create the payload
 			if v, ok := data.(*auth.AuthenticatorPayload); ok {
-				return auth.GenerateClaims(v)
+				return auth.GenerateClaims(v, auth.TokenTypeAPI)
 			}
 			return jwt.MapClaims{}
 		},
@@ -131,7 +131,7 @@ func LoadMiddleware(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (au
 				}
 			}
 
-			return auth.GenerateClaims(payload), nil
+			return auth.GenerateClaims(payload, auth.TokenTypeAPI), nil
 		},
 
 		// TokenLookup is a string in the form of "<source>:<name>" that is used

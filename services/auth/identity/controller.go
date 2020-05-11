@@ -91,6 +91,7 @@ func (t *Controller) Authenticator(c *gin.Context) (interface{}, error) {
 			return nil, lib.ErrorFailedIdentityAuthentication
 		}
 		payload.TokenLevel = auth.TokenLevelUser
+		payload.UserID = user.ID
 		return payload, nil
 	}
 
