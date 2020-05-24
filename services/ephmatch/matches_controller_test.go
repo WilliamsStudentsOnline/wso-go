@@ -34,6 +34,7 @@ func TestController_ListMatches(t *testing.T) {
 			EphmatchProfile: &models.EphmatchProfile{
 				Description:  lib.StrToPtr("description2"),
 				MatchMessage: lib.StrToPtr("matched!"),
+				LocationTown: lib.StrToPtr("Portola Valley"),
 			},
 			Tags: []*models.Tag{
 				{Name: "WOC"},
@@ -51,7 +52,9 @@ func TestController_ListMatches(t *testing.T) {
 		},
 		{
 			EphmatchProfile: &models.EphmatchProfile{
-				Description: lib.StrToPtr("description5"),
+				Description:     lib.StrToPtr("description5"),
+				LocationTown:    lib.StrToPtr("Williamstown"),
+				LocationVisible: lib.FalsePtr(),
 			},
 		},
 		{
@@ -147,7 +150,10 @@ func TestController_ListMatches(t *testing.T) {
 	assert.Equal(s[4].ID, resp[1].MatchedUser.ID)
 	assert.Equal(s[1].EphmatchProfile.Description, resp[0].MatchedUser.EphmatchProfile.Description)
 	assert.Equal(s[1].EphmatchProfile.MatchMessage, resp[0].MatchedUser.EphmatchProfile.MatchMessage)
+	assert.Equal(s[1].EphmatchProfile.LocationTown, resp[0].MatchedUser.EphmatchProfile.LocationTown)
 	assert.Equal(s[4].EphmatchProfile.Description, resp[1].MatchedUser.EphmatchProfile.Description)
+	assert.Nil(resp[1].MatchedUser.EphmatchProfile.LocationTown)
+	assert.False(*resp[1].MatchedUser.EphmatchProfile.LocationVisible)
 	assert.Len(resp[0].MatchedUser.Tags, 1)
 	assert.Equal(s[1].Tags[0].Name, resp[0].MatchedUser.Tags[0].Name)
 }

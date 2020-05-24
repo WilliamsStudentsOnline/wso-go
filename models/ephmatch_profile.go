@@ -54,44 +54,15 @@ func (m *EphmatchProfileModel) GetAllProfilesNoSelf(p *[]*EphmatchProfile, selfI
 	if opts != nil {
 		// Do recommended sorting algorithm
 		if opts.Sort != nil && *opts.Sort == "recommended" {
-			suggestedUsers, err := m.SuggestUsers(selfID)
+			err = m.SortProfilesByLiked(p, selfID, opts)
 			if err != nil {
-				return err
-			}
-
-			usersToIdx := make(map[uint]int, len(suggestedUsers))
-			for i, u := range suggestedUsers {
-				usersToIdx[u] = i
-			}
-
-			// Sort by order if both users are suggested, then by the suggested user if there is only one, and then by
-			// the most active user if both users are not suggested
-			sort.Slice(*p, func(i, j int) bool {
-				iIdx, iOk := usersToIdx[(*p)[i].UserID]
-				jIdx, jOk := usersToIdx[(*p)[j].UserID]
-				if iOk && jOk {
-					return iIdx > jIdx
-				} else if iOk && !jOk {
-					return true
-				} else if !iOk && jOk {
-					return false
-				} else {
-					return (*p)[i].UpdatedAt.After((*p)[j].UpdatedAt)
-				}
-			})
-
-			// Do manual offset, limit as we cant do it in SQL
-			if opts.Offset != nil && *opts.Offset < uint(len(*p))-1 { // Ensure bounds
-				*p = (*p)[*opts.Offset:]
-			}
-			if opts.Limit != nil && *opts.Limit < uint(len(*p)) {
-				*p = (*p)[:*opts.Limit]
+				return
 			}
 		}
 
 		// Populate liked field
 		if lib.StringsContains(opts.Preload, "liked") {
-			err = m.populateLiked(p, selfID)
+			err = m.PopulateLiked(p, selfID)
 			if err != nil {
 				return
 			}
@@ -99,7 +70,7 @@ func (m *EphmatchProfileModel) GetAllProfilesNoSelf(p *[]*EphmatchProfile, selfI
 
 		// Populate matched field
 		if lib.StringsContains(opts.Preload, "matched") {
-			err = m.populateMatched(p, selfID)
+			err = m.PopulateMatched(p, selfID)
 			if err != nil {
 				return
 			}
@@ -109,8 +80,46 @@ func (m *EphmatchProfileModel) GetAllProfilesNoSelf(p *[]*EphmatchProfile, selfI
 	return
 }
 
+func (m *EphmatchProfileModel) SortProfilesByLiked(p *[]*EphmatchProfile, selfID uint, opts *GetAllProfilesOptions) error {
+	suggestedUsers, err := m.SuggestUsers(selfID)
+	if err != nil {
+		return err
+	}
+
+	usersToIdx := make(map[uint]int, len(suggestedUsers))
+	for i, u := range suggestedUsers {
+		usersToIdx[u] = i
+	}
+
+	// Sort by order if both users are suggested, then by the suggested user if there is only one, and then by
+	// the most active user if both users are not suggested
+	sort.Slice(*p, func(i, j int) bool {
+		iIdx, iOk := usersToIdx[(*p)[i].UserID]
+		jIdx, jOk := usersToIdx[(*p)[j].UserID]
+		if iOk && jOk {
+			return iIdx > jIdx
+		} else if iOk && !jOk {
+			return true
+		} else if !iOk && jOk {
+			return false
+		} else {
+			return (*p)[i].UpdatedAt.After((*p)[j].UpdatedAt)
+		}
+	})
+
+	// Do manual offset, limit as we cant do it in SQL
+	if opts.Offset != nil && *opts.Offset < uint(len(*p))-1 { // Ensure bounds
+		*p = (*p)[*opts.Offset:]
+	}
+	if opts.Limit != nil && *opts.Limit < uint(len(*p)) {
+		*p = (*p)[:*opts.Limit]
+	}
+
+	return nil
+}
+
 // Populate liked field on set of profiles
-func (m *EphmatchProfileModel) populateLiked(p *[]*EphmatchProfile, selfID uint) (err error) {
+func (m *EphmatchProfileModel) PopulateLiked(p *[]*EphmatchProfile, selfID uint) (err error) {
 	// Get ephmatch likes made by user self (selfID) to populate "liked" field. This is significantly faster
 	// than a SQL query by several magnitudes.
 	var likes []*EphmatchLike
@@ -139,7 +148,7 @@ func (m *EphmatchProfileModel) populateLiked(p *[]*EphmatchProfile, selfID uint)
 }
 
 // Populate matched field on set of profiles
-func (m *EphmatchProfileModel) populateMatched(p *[]*EphmatchProfile, selfID uint) (err error) {
+func (m *EphmatchProfileModel) PopulateMatched(p *[]*EphmatchProfile, selfID uint) (err error) {
 	// Get ephmatch matches made by user self (selfID) to populate "matched" field. This is significantly faster
 	// than a SQL query by several magnitudes.
 	var matches []*EphmatchMatch
@@ -268,6 +277,18 @@ func (m *EphmatchProfileModel) CreateOrUpdateProfileUnscoped(userID uint, newPro
 		if newProfile.MatchMessage != nil {
 			query = query.Update("match_message", newProfile.MatchMessage)
 		}
+		if newProfile.LocationVisible != nil {
+			query = query.Update("location_visible", newProfile.LocationVisible)
+		}
+		if newProfile.LocationTown != nil {
+			query = query.Update("location_town", newProfile.LocationTown)
+		}
+		if newProfile.LocationState != nil {
+			query = query.Update("location_state", newProfile.LocationState)
+		}
+		if newProfile.LocationCountry != nil {
+			query = query.Update("location_country", newProfile.LocationCountry)
+		}
 		err = query.UpdateColumn("deleted_at", nil).
 			Preload("User").
 			First(p).
@@ -276,12 +297,29 @@ func (m *EphmatchProfileModel) CreateOrUpdateProfileUnscoped(userID uint, newPro
 		return err
 	}
 
+	// Otherwise, create an ephmatch profile
+
+	// Get a user profile to load in the location data if we don't have it
+	var user User
+	err = NewUserModel(m.DB, m.log).GetUserByID(userID, &user)
+	if err != nil {
+		return err
+	}
+
+	locationTown := lib.StrPtrDefaults(newProfile.LocationTown, user.HomeTown)
+	locationState := lib.StrPtrDefaults(newProfile.LocationState, user.HomeState)
+	locationCountry := lib.StrPtrDefaults(newProfile.LocationCountry, user.HomeCountry)
+
 	err = m.DB.
 		Model(&EphmatchProfile{}).
 		Where(EphmatchProfile{UserID: userID}).
 		Assign(EphmatchProfile{
-			Description:  newProfile.Description,
-			MatchMessage: newProfile.MatchMessage,
+			Description:     newProfile.Description,
+			MatchMessage:    newProfile.MatchMessage,
+			LocationVisible: newProfile.LocationVisible,
+			LocationTown:    locationTown,
+			LocationState:   locationState,
+			LocationCountry: locationCountry,
 		}).
 		Preload("User").
 		FirstOrCreate(p).Error

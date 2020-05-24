@@ -60,6 +60,7 @@ func (t *Controller) ListProfiles(c *gin.Context) {
 		if profile.Matched == nil || !*profile.Matched {
 			profile.MatchMessage = nil
 		}
+		sanitize.EphmatchProfile(profile, c)
 		sanitize.User(profile.User, c)
 	}
 
@@ -135,6 +136,7 @@ func (t *Controller) GetProfile(c *gin.Context) {
 
 	// Sanitize user preloaded
 	sanitize.User(profile.User, c)
+	sanitize.EphmatchProfile(&profile, c)
 
 	t.RespondOK(c, profile)
 }

@@ -114,6 +114,22 @@
         "matchMessage": {
           "type": "string",
           "goPtr": true
+        },
+        "locationVisible": {
+          "type": "boolean",
+          "goPtr": true
+        },
+        "locationTown": {
+          "type": "string",
+          "goPtr": true
+        },
+        "locationState": {
+          "type": "string",
+          "goPtr": true
+        },
+        "locationCountry": {
+          "type": "string",
+          "goPtr": true
         }
       },
       "required": [

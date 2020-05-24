@@ -9,20 +9,14 @@ import (
 )
 
 type SearchEphmatch interface {
-	SearchProfiles(query string, profiles *[]*models.EphmatchProfile, opts SearchOptions) (err error)
-	NewProfilesOptions(offset *uint, limit *uint, preload []string) SearchOptions
+	SearchProfiles(query string, profiles *[]*models.EphmatchProfile, selfID uint, opts *models.GetAllProfilesOptions) (err error)
 }
 
 func NewSearchEphmatch(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) SearchEphmatch {
 	switch cfg.SearchBackend {
 	case search.SearchBackendSQL:
-		return NewSearchEphmatchMySQL(db)
+		return NewSearchEphmatchMySQL(db, log)
 	default:
 		return nil
 	}
-}
-
-type SearchOptions interface {
-	models.Preloader
-	models.Paginator
 }

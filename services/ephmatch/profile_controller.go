@@ -40,8 +40,12 @@ func (t *Controller) GetSelfProfile(c *gin.Context) {
 }
 
 type ProfileCreateParams struct {
-	Description  *string `json:"description"`
-	MatchMessage *string `json:"matchMessage"`
+	Description     *string `json:"description"`
+	MatchMessage    *string `json:"matchMessage"`
+	LocationVisible *bool   `json:"locationVisible"`
+	LocationTown    *string `json:"locationTown"`
+	LocationState   *string `json:"locationState"`
+	LocationCountry *string `json:"LocationCountry"`
 }
 
 // CreateProfile godoc
@@ -71,9 +75,13 @@ func (t *Controller) CreateProfile(c *gin.Context) {
 	}
 
 	newProfile := models.EphmatchProfile{
-		Description:  createData.Description,
-		MatchMessage: createData.MatchMessage,
-		UserID:       userID,
+		Description:     createData.Description,
+		MatchMessage:    createData.MatchMessage,
+		UserID:          userID,
+		LocationVisible: createData.LocationVisible,
+		LocationTown:    createData.LocationTown,
+		LocationState:   createData.LocationState,
+		LocationCountry: createData.LocationCountry,
 	}
 
 	var profile models.EphmatchProfile
@@ -94,8 +102,12 @@ func (t *Controller) CreateProfile(c *gin.Context) {
 }
 
 type ProfileUpdateParams struct {
-	Description  *string `json:"description"`
-	MatchMessage *string `json:"matchMessage"`
+	Description     *string `json:"description"`
+	MatchMessage    *string `json:"matchMessage"`
+	LocationVisible *bool   `json:"locationVisible"`
+	LocationTown    *string `json:"locationTown"`
+	LocationState   *string `json:"locationState"`
+	LocationCountry *string `json:"LocationCountry"`
 }
 
 // UpdateProfile godoc
@@ -134,6 +146,10 @@ func (t *Controller) UpdateProfile(c *gin.Context) {
 
 	profile.Description = lib.StrPtrDefaults(updateData.Description, profile.Description)
 	profile.MatchMessage = lib.StrPtrDefaults(updateData.MatchMessage, profile.MatchMessage)
+	profile.LocationVisible = lib.BoolPtrDefaults(updateData.LocationVisible, profile.LocationVisible)
+	profile.LocationTown = lib.StrPtrDefaults(updateData.LocationTown, profile.LocationTown)
+	profile.LocationState = lib.StrPtrDefaults(updateData.LocationState, profile.LocationState)
+	profile.LocationCountry = lib.StrPtrDefaults(updateData.LocationCountry, profile.LocationCountry)
 
 	err = t.profileModel.UpdateProfile(&profile)
 	if err != nil {

@@ -179,15 +179,31 @@ definitions:
     type: object
   ephmatch.ProfileCreateParams:
     properties:
+      LocationCountry:
+        type: string
       description:
         type: string
+      locationState:
+        type: string
+      locationTown:
+        type: string
+      locationVisible:
+        type: boolean
       matchMessage:
         type: string
     type: object
   ephmatch.ProfileUpdateParams:
     properties:
+      LocationCountry:
+        type: string
       description:
         type: string
+      locationState:
+        type: string
+      locationTown:
+        type: string
+      locationVisible:
+        type: boolean
       matchMessage:
         type: string
     type: object
@@ -729,6 +745,8 @@ definitions:
     type: object
   models.EphmatchProfile:
     properties:
+      LocationCountry:
+        type: string
       deleted:
         description: Non db entry that acts as a flag for deleted_at column
         type: boolean
@@ -739,6 +757,13 @@ definitions:
         type: integer
       liked:
         description: If self has liked this profile (user)
+        type: boolean
+      locationState:
+        type: string
+      locationTown:
+        type: string
+      locationVisible:
+        description: Current location columns
         type: boolean
       matchMessage:
         type: string
@@ -1228,6 +1253,14 @@ definitions:
     properties:
       description:
         type: string
+      locationCountry:
+        type: string
+      locationState:
+        type: string
+      locationTown:
+        type: string
+      locationVisible:
+        type: boolean
       matchMessage:
         type: string
     type: object

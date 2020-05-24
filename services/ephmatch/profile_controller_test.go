@@ -30,7 +30,8 @@ func TestController_GetSelfProfile(t *testing.T) {
 		{
 
 			EphmatchProfile: &models.EphmatchProfile{
-				Description: lib.StrToPtr("test123"),
+				Description:  lib.StrToPtr("test123"),
+				LocationTown: lib.StrToPtr("Palo Alto"),
 			},
 		},
 		// Case: deleted profile
@@ -138,6 +139,7 @@ func TestController_GetSelfProfile(t *testing.T) {
 				a.NoError(err)
 
 				a.Equal(tc.expected.Description, res.Description)
+				a.Equal(tc.expected.LocationTown, res.LocationTown)
 				a.Equal(tc.user.ID, res.UserID)
 			}
 		})
@@ -154,18 +156,22 @@ func TestController_CreateProfile(t *testing.T) {
 
 	s := []*models.User{
 		// Case: no profile
-		{},
+		{
+			HomeTown: lib.StrToPtr("San Francisco"),
+		},
 		// Case: active profile (overwrite)
 		{
 
 			EphmatchProfile: &models.EphmatchProfile{
-				Description: lib.StrToPtr("test123"),
+				Description:  lib.StrToPtr("test123"),
+				LocationTown: lib.StrToPtr("Williamstown"),
 			},
 		},
 		// Case: deleted profile
 		{
 			EphmatchProfile: &models.EphmatchProfile{
-				Description: lib.StrToPtr("hello world"),
+				Description:  lib.StrToPtr("hello world"),
+				LocationTown: lib.StrToPtr("Amherst"),
 			},
 		},
 	}
@@ -186,8 +192,8 @@ func TestController_CreateProfile(t *testing.T) {
 	// Delete the deleted profile
 	assert.NoError(db.Delete(s[2].EphmatchProfile).Error)
 
-	/* Create ephmatch with good custom gender (expect success on user 1) */
-	params := ProfileCreateParams{Description: lib.StrToPtr("foobar")}
+	/* Create ephmatch with good data (expect success on user 1) */
+	params := ProfileCreateParams{Description: lib.StrToPtr("foobar"), LocationState: lib.StrToPtr("California")}
 	paramsData, err := json.Marshal(&params)
 	assert.NoError(err)
 	w, err := utils.DoHTTPReq(routers[0], http.MethodPost, "/profile", bytes.NewBuffer(paramsData))
@@ -197,6 +203,8 @@ func TestController_CreateProfile(t *testing.T) {
 	resDB := models.EphmatchProfile{}
 	assert.NoError(db.Where(models.EphmatchProfile{UserID: s[0].ID}).First(&resDB).Error)
 	assert.Equal(*params.Description, *resDB.Description)
+	assert.Equal(*s[0].HomeTown, *resDB.LocationTown)
+	assert.Equal(*params.LocationState, *resDB.LocationState)
 
 	/* Create profile where it already exists (expect success on user 2) */
 	params = ProfileCreateParams{Description: lib.StrToPtr("description here 123")}
@@ -296,6 +304,7 @@ func TestController_UpdateProfile(t *testing.T) {
 			EphmatchProfile: &models.EphmatchProfile{
 				Description:  lib.StrToPtr("test123"),
 				MatchMessage: lib.StrToPtr("abc124"),
+				LocationTown: lib.StrToPtr("Woodside"),
 			},
 		},
 		// Case: deleted profile
@@ -346,7 +355,7 @@ func TestController_UpdateProfile(t *testing.T) {
 	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
 
 	/* Update profile with good match message (expect success on user 1) */
-	params = ProfileUpdateParams{MatchMessage: lib.StrToPtr("etwvinoerineroiv")}
+	params = ProfileUpdateParams{MatchMessage: lib.StrToPtr("etwvinoerineroiv"), LocationTown: lib.StrToPtr("Portola Valley")}
 	paramsData, err = json.Marshal(&params)
 	assert.NoError(err)
 	w, err = utils.DoHTTPReq(routers[0], http.MethodPatch, "/profile", bytes.NewBuffer(paramsData))
@@ -357,6 +366,7 @@ func TestController_UpdateProfile(t *testing.T) {
 	assert.NoError(db.Where(models.EphmatchProfile{UserID: s[0].ID}).First(&resDB).Error)
 	assert.Equal(*s[0].EphmatchProfile.Description, *resDB.Description)
 	assert.Equal(*params.MatchMessage, *resDB.MatchMessage)
+	assert.Equal(*params.LocationTown, *resDB.LocationTown)
 }
 
 func TestController_UpdateProfile_Deleted(t *testing.T) {

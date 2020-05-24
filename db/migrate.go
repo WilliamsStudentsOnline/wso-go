@@ -34,6 +34,7 @@ var Migrations = []*gormigrate.Migration{
 	migrations.UserAddOffCampusColumn20200125225400,
 	migrations.CreateEphmatchMatches20200324005606,
 	migrations.CreateEphmatchLikes20200325175722,
+	migrations.CurrentLocationColumns20200524014728,
 }
 
 var MigrationGormOptions = gormigrate.DefaultOptions

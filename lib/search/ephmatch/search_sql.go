@@ -3,21 +3,25 @@ package ephmatch
 import (
 	"strings"
 
+	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
 type SearchEphmatchMySQL struct {
-	DB *gorm.DB
+	DB  *gorm.DB
+	Log *zap.SugaredLogger
 }
 
-func NewSearchEphmatchMySQL(db *gorm.DB) *SearchEphmatchMySQL {
+func NewSearchEphmatchMySQL(db *gorm.DB, log *zap.SugaredLogger) *SearchEphmatchMySQL {
 	return &SearchEphmatchMySQL{
-		DB: db,
+		DB:  db,
+		Log: log,
 	}
 }
 
-func (s *SearchEphmatchMySQL) SearchProfiles(query string, profiles *[]*models.EphmatchProfile, opts SearchOptions) (err error) {
+func (s *SearchEphmatchMySQL) SearchProfiles(query string, profiles *[]*models.EphmatchProfile, selfID uint, opts *models.GetAllProfilesOptions) (err error) {
 	words := strings.Split(strings.ToLower(query), " ")
 
 	// Generate an SQL query with each word being different
@@ -33,16 +37,50 @@ func (s *SearchEphmatchMySQL) SearchProfiles(query string, profiles *[]*models.E
 	}
 
 	// Do SQL
-	tx := s.DB.Model(&models.EphmatchProfile{}). //.Model(&models.User{})
-							Joins("JOIN users ON users.id = ephmatch_profiles.user_id").
-							Where(sqlSB.String(), sqlParams...)
-	tx = tx.Where("users.at_williams = ? AND users.type = ?", true, models.UserTypeProfessor)
+	tx := s.DB.Model(&models.EphmatchProfile{}).
+		Joins("INNER JOIN users ON users.id = ephmatch_profiles.user_id").
+		Where(sqlSB.String(), sqlParams...)
+	tx = tx.Where("users.type = ?", models.UserTypeStudent).
+		Preload("User")
 	// Run options
 	if opts != nil {
-		tx = opts.Paginate(tx)
-		tx = opts.Preloader(tx)
+		tx = opts.Run(tx)
 	}
 
-	err = tx.Find(users).Error
+	tx = tx.Not(models.EphmatchProfile{UserID: selfID})
+
+	err = tx.Find(profiles).Error
+	if err != nil {
+		return
+	}
+
+	epM := models.NewEphmatchProfileModel(s.DB, s.Log)
+
+	if opts != nil {
+		// Do recommended sorting algorithm
+		if opts.Sort != nil && *opts.Sort == "recommended" {
+			err = epM.SortProfilesByLiked(profiles, selfID, opts)
+			if err != nil {
+				return
+			}
+		}
+
+		// Populate liked field
+		if lib.StringsContains(opts.Preload, "liked") {
+			err = epM.PopulateLiked(profiles, selfID)
+			if err != nil {
+				return
+			}
+		}
+
+		// Populate matched field
+		if lib.StringsContains(opts.Preload, "matched") {
+			err = epM.PopulateMatched(profiles, selfID)
+			if err != nil {
+				return
+			}
+		}
+	}
+
 	return
 }

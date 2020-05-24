@@ -36,6 +36,7 @@ func TestController_ListProfiles(t *testing.T) {
 			EphmatchProfile: &models.EphmatchProfile{
 				Description:  lib.StrToPtr("test123"),
 				MatchMessage: lib.StrToPtr("matched!"),
+				LocationTown: lib.StrToPtr("Portola Valley"),
 			},
 			Tags: []*models.Tag{
 				{Name: "WOC"},
@@ -44,7 +45,9 @@ func TestController_ListProfiles(t *testing.T) {
 		{
 
 			EphmatchProfile: &models.EphmatchProfile{
-				Description: lib.StrToPtr("hello world"),
+				Description:     lib.StrToPtr("hello world"),
+				LocationTown:    lib.StrToPtr("Serene Lakes"),
+				LocationVisible: lib.FalsePtr(),
 			},
 		},
 		// Not student
@@ -129,6 +132,11 @@ func TestController_ListProfiles(t *testing.T) {
 	assert.True(*resp[1].Liked)
 	assert.False(*resp[0].Matched)
 	assert.True(*resp[1].Matched)
+
+	// Test location visibility
+	assert.Equal(s[1].EphmatchProfile.LocationTown, resp[0].LocationTown)
+	assert.Nil(resp[1].LocationTown)
+	assert.False(*resp[1].LocationVisible)
 
 	// Test match message nil when not matched
 	assert.Nil(resp[0].MatchMessage)

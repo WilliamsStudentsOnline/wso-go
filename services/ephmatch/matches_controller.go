@@ -43,6 +43,7 @@ func (t *Controller) ListMatches(c *gin.Context) {
 	}
 
 	for _, match := range matches {
+		sanitize.EphmatchProfile(match.MatchedUser.EphmatchProfile, c)
 		sanitize.User(match.MatchedUser, c)
 	}
 
