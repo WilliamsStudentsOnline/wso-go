@@ -18,7 +18,7 @@ type EphmatchProfile struct {
 	LocationVisible *bool   `gorm:"DEFAULT:true;not null" json:"locationVisible"`
 	LocationTown    *string `json:"locationTown"`
 	LocationState   *string `json:"locationState"`
-	LocationCountry *string `json:"LocationCountry"`
+	LocationCountry *string `json:"locationCountry"`
 
 	// Non db entry that acts as a flag for deleted_at column
 	Deleted bool `gorm:"-" json:"deleted"`

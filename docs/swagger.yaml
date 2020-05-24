@@ -745,8 +745,6 @@ definitions:
     type: object
   models.EphmatchProfile:
     properties:
-      LocationCountry:
-        type: string
       deleted:
         description: Non db entry that acts as a flag for deleted_at column
         type: boolean
@@ -758,6 +756,8 @@ definitions:
       liked:
         description: If self has liked this profile (user)
         type: boolean
+      locationCountry:
+        type: string
       locationState:
         type: string
       locationTown:
