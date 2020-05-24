@@ -10,4 +10,5 @@ jwt_timeout_hours: 168
 enable_api_docs: true
 hostname: localhost
 jwt_identity_timeout_hours: 4272
-jwt_api_timeout_hours: 3
+jwt_api_timeout_hours: 168
+log_formats: ['console']

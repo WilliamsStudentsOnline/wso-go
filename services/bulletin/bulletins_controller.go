@@ -240,11 +240,9 @@ func (t *Controller) UpdateBulletin(c *gin.Context) {
 	bulletin.Offer = lib.BoolPtrDefaults(updateData.Offer, bulletin.Offer)
 
 	// Start date (or default time now) has to be before end date, if we have end date as a field.
-	if updateData.StartDate != nil || updateData.EndDate != nil {
-		if bulletin.StartDate.After(*bulletin.EndDate) {
-			t.RespondAPIError(c, lib.ErrorBulletinInvalidDates)
-			return
-		}
+	if updateData.EndDate != nil && bulletin.StartDate.After(*bulletin.EndDate) {
+		t.RespondAPIError(c, lib.ErrorBulletinInvalidDates)
+		return
 	}
 
 	// Update the bulletin in the db

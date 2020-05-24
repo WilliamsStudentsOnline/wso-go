@@ -10,8 +10,16 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-func GenerateClaimsFactory(cfg *config.Config, db *gorm.DB) func(v *AuthenticatorPayload) jwt.MapClaims {
-	return func(v *AuthenticatorPayload) jwt.MapClaims {
+type TokenType string
+
+var (
+	TokenTypeOld      TokenType = "old"
+	TokenTypeIdentity TokenType = "identity"
+	TokenTypeAPI      TokenType = "api"
+)
+
+func GenerateClaimsFactory(cfg *config.Config, db *gorm.DB) func(v *AuthenticatorPayload, tokenType TokenType) jwt.MapClaims {
+	return func(v *AuthenticatorPayload, tokenType TokenType) jwt.MapClaims {
 		var scope []string
 
 		// By default, can access bulletins
@@ -99,6 +107,7 @@ func GenerateClaimsFactory(cfg *config.Config, db *gorm.DB) func(v *Authenticato
 			"id":         jwtUserID,
 			"tokenLevel": v.TokenLevel,
 			"scope":      scope,
+			"type":       tokenType,
 		}
 	}
 }
