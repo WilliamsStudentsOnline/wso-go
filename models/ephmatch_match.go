@@ -127,16 +127,26 @@ func (m *EphmatchMatchesModel) GetMatches(userID uint, opts *GetMatchesOptions, 
 
 	// Combine matches and fill in the other user as the matched user
 	allMatches := make([]*EphmatchMatch, len(matchesA)+len(matchesB))
-	for i := range matchesA {
+	for i, match := range matchesA {
 		allMatches[i] = &EphmatchMatch{
-			MatchedUser:   matchesA[i].UserB,
-			MatchedUserID: matchesA[i].UserBID,
+			BaseSchema: BaseSchema{
+				ID:        match.ID,
+				CreatedAt: match.CreatedAt,
+				UpdatedAt: match.UpdatedAt,
+			},
+			MatchedUser:   match.UserB,
+			MatchedUserID: match.UserBID,
 		}
 	}
-	for i := range matchesB {
+	for i, match := range matchesB {
 		allMatches[i+len(matchesA)] = &EphmatchMatch{
-			MatchedUser:   matchesB[i].UserA,
-			MatchedUserID: matchesB[i].UserAID,
+			BaseSchema: BaseSchema{
+				ID:        match.ID,
+				CreatedAt: match.CreatedAt,
+				UpdatedAt: match.UpdatedAt,
+			},
+			MatchedUser:   match.UserA,
+			MatchedUserID: match.UserAID,
 		}
 	}
 	*p = allMatches

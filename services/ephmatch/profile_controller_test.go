@@ -192,11 +192,31 @@ func TestController_CreateProfile(t *testing.T) {
 	// Delete the deleted profile
 	assert.NoError(db.Delete(s[2].EphmatchProfile).Error)
 
-	/* Create ephmatch with good data (expect success on user 1) */
-	params := ProfileCreateParams{Description: lib.StrToPtr("foobar"), LocationState: lib.StrToPtr("California")}
+	/* Create ephmatch with bad messaging platform (expect failure on user 1) */
+	apiErr := lib.ErrorEphmatchInvalidMessagingPlatform
+	params := ProfileCreateParams{Description: lib.StrToPtr("foobar"), LocationState: lib.StrToPtr("California"), MessagingPlatform: lib.StrToPtr("WilliamsMedia")}
 	paramsData, err := json.Marshal(&params)
 	assert.NoError(err)
 	w, err := utils.DoHTTPReq(routers[0], http.MethodPost, "/profile", bytes.NewBuffer(paramsData))
+	assert.NoError(err)
+	assert.Equal(apiErr.HTTPCode, w.Code)
+	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+
+	/* Create ephmatch with missing messaging username (expect failure on user 1) */
+	apiErr = lib.ErrorEphmatchEmptyMessagingUsername
+	params = ProfileCreateParams{Description: lib.StrToPtr("foobar"), LocationState: lib.StrToPtr("California"), MessagingPlatform: lib.StrToPtr(models.EphmatchMessagingPlatformInstagram), MessagingUsername: nil}
+	paramsData, err = json.Marshal(&params)
+	assert.NoError(err)
+	w, err = utils.DoHTTPReq(routers[0], http.MethodPost, "/profile", bytes.NewBuffer(paramsData))
+	assert.NoError(err)
+	assert.Equal(apiErr.HTTPCode, w.Code)
+	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+
+	/* Create ephmatch with good data (expect success on user 1) */
+	params = ProfileCreateParams{Description: lib.StrToPtr("foobar"), LocationState: lib.StrToPtr("California")}
+	paramsData, err = json.Marshal(&params)
+	assert.NoError(err)
+	w, err = utils.DoHTTPReq(routers[0], http.MethodPost, "/profile", bytes.NewBuffer(paramsData))
 	assert.NoError(err)
 	assert.Equal(http.StatusCreated, w.Code)
 	// Get from DB
@@ -350,6 +370,26 @@ func TestController_UpdateProfile(t *testing.T) {
 	paramsData, err = json.Marshal(&params)
 	assert.NoError(err)
 	w, err = utils.DoHTTPReq(routers[1], http.MethodPatch, "/profile", bytes.NewBuffer(paramsData))
+	assert.NoError(err)
+	assert.Equal(apiErr.HTTPCode, w.Code)
+	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+
+	/* Update profile with bad message platform (expect failure) */
+	apiErr = lib.ErrorEphmatchInvalidMessagingPlatform
+	params = ProfileUpdateParams{MessagingPlatform: lib.StrToPtr("FakeSocialMedia")}
+	paramsData, err = json.Marshal(&params)
+	assert.NoError(err)
+	w, err = utils.DoHTTPReq(routers[0], http.MethodPatch, "/profile", bytes.NewBuffer(paramsData))
+	assert.NoError(err)
+	assert.Equal(apiErr.HTTPCode, w.Code)
+	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+
+	/* Update profile with missing messaging username (expect failure) */
+	apiErr = lib.ErrorEphmatchEmptyMessagingUsername
+	params = ProfileUpdateParams{MessagingPlatform: lib.StrToPtr(models.EphmatchMessagingPlatformInstagram), MessagingUsername: lib.StrToPtr("")}
+	paramsData, err = json.Marshal(&params)
+	assert.NoError(err)
+	w, err = utils.DoHTTPReq(routers[0], http.MethodPatch, "/profile", bytes.NewBuffer(paramsData))
 	assert.NoError(err)
 	assert.Equal(apiErr.HTTPCode, w.Code)
 	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)

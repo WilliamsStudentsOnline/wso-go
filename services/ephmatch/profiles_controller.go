@@ -59,6 +59,8 @@ func (t *Controller) ListProfiles(c *gin.Context) {
 		// Remove match message if did not match (or did not preload for matched)
 		if profile.Matched == nil || !*profile.Matched {
 			profile.MatchMessage = nil
+			profile.MessagingPlatform = nil
+			profile.MessagingUsername = nil
 		}
 		sanitize.EphmatchProfile(profile, c)
 		sanitize.User(profile.User, c)
@@ -132,6 +134,8 @@ func (t *Controller) GetProfile(c *gin.Context) {
 	// Remove match message if not matched
 	if !matchExists {
 		profile.MatchMessage = nil
+		profile.MessagingPlatform = nil
+		profile.MessagingUsername = nil
 	}
 
 	// Sanitize user preloaded

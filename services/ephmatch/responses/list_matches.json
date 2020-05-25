@@ -130,6 +130,14 @@
         "locationCountry": {
           "type": "string",
           "goPtr": true
+        },
+        "messagingPlatform": {
+          "type": "string",
+          "goPtr": true
+        },
+        "messagingUsername": {
+          "type": "string",
+          "goPtr": true
         }
       },
       "required": [

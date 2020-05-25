@@ -289,6 +289,12 @@ func (m *EphmatchProfileModel) CreateOrUpdateProfileUnscoped(userID uint, newPro
 		if newProfile.LocationCountry != nil {
 			query = query.Update("location_country", newProfile.LocationCountry)
 		}
+		if newProfile.MessagingPlatform != nil {
+			query = query.Update("messaging_platform", newProfile.MessagingPlatform)
+		}
+		if newProfile.MessagingUsername != nil {
+			query = query.Update("messaging_username", newProfile.MessagingUsername)
+		}
 		err = query.UpdateColumn("deleted_at", nil).
 			Preload("User").
 			First(p).
@@ -314,12 +320,14 @@ func (m *EphmatchProfileModel) CreateOrUpdateProfileUnscoped(userID uint, newPro
 		Model(&EphmatchProfile{}).
 		Where(EphmatchProfile{UserID: userID}).
 		Assign(EphmatchProfile{
-			Description:     newProfile.Description,
-			MatchMessage:    newProfile.MatchMessage,
-			LocationVisible: newProfile.LocationVisible,
-			LocationTown:    locationTown,
-			LocationState:   locationState,
-			LocationCountry: locationCountry,
+			Description:       newProfile.Description,
+			MatchMessage:      newProfile.MatchMessage,
+			LocationVisible:   newProfile.LocationVisible,
+			LocationTown:      locationTown,
+			LocationState:     locationState,
+			LocationCountry:   locationCountry,
+			MessagingPlatform: newProfile.MessagingPlatform,
+			MessagingUsername: newProfile.MessagingUsername,
 		}).
 		Preload("User").
 		FirstOrCreate(p).Error

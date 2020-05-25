@@ -191,12 +191,16 @@ definitions:
         type: boolean
       matchMessage:
         type: string
+      messagingPlatform:
+        type: string
+      messagingUsername:
+        type: string
     type: object
   ephmatch.ProfileUpdateParams:
     properties:
-      LocationCountry:
-        type: string
       description:
+        type: string
+      locationCountry:
         type: string
       locationState:
         type: string
@@ -205,6 +209,10 @@ definitions:
       locationVisible:
         type: boolean
       matchMessage:
+        type: string
+      messagingPlatform:
+        type: string
+      messagingUsername:
         type: string
     type: object
   factrak.AgreementCreateParams:
@@ -770,6 +778,11 @@ definitions:
       matched:
         description: If user and self are matched
         type: boolean
+      messagingPlatform:
+        description: Messaging platform columns
+        type: string
+      messagingUsername:
+        type: string
       user:
         $ref: '#/definitions/models.User'
         type: object
@@ -1262,6 +1275,10 @@ definitions:
       locationVisible:
         type: boolean
       matchMessage:
+        type: string
+      messagingPlatform:
+        type: string
+      messagingUsername:
         type: string
     type: object
   responses.ListMatchesResponseMatchedUser:

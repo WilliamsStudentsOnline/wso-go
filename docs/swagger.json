@@ -6945,16 +6945,22 @@
                 },
                 "matchMessage": {
                     "type": "string"
+                },
+                "messagingPlatform": {
+                    "type": "string"
+                },
+                "messagingUsername": {
+                    "type": "string"
                 }
             }
         },
         "ephmatch.ProfileUpdateParams": {
             "type": "object",
             "properties": {
-                "LocationCountry": {
+                "description": {
                     "type": "string"
                 },
-                "description": {
+                "locationCountry": {
                     "type": "string"
                 },
                 "locationState": {
@@ -6967,6 +6973,12 @@
                     "type": "boolean"
                 },
                 "matchMessage": {
+                    "type": "string"
+                },
+                "messagingPlatform": {
+                    "type": "string"
+                },
+                "messagingUsername": {
                     "type": "string"
                 }
             }
@@ -7787,6 +7799,13 @@
                     "description": "If user and self are matched",
                     "type": "boolean"
                 },
+                "messagingPlatform": {
+                    "description": "Messaging platform columns",
+                    "type": "string"
+                },
+                "messagingUsername": {
+                    "type": "string"
+                },
                 "user": {
                     "type": "object",
                     "$ref": "#/definitions/models.User"
@@ -8497,6 +8516,12 @@
                     "type": "boolean"
                 },
                 "matchMessage": {
+                    "type": "string"
+                },
+                "messagingPlatform": {
+                    "type": "string"
+                },
+                "messagingUsername": {
                     "type": "string"
                 }
             }
