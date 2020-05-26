@@ -48,4 +48,45 @@ func (t *Controller) ListMatches(c *gin.Context) {
 	}
 
 	t.RespondOK(c, responses.ConvertListMatchesResponse(matches))
+
+	err = t.matchModel.SetMatchesAsSeen(userID)
+	if err != nil {
+		lg := t.Log.With(
+			"userID", userID,
+			"err", err)
+		lg.Warn("error when setting matches as seen")
+	}
+}
+
+type CountMatchesResponse struct {
+	Total  int `json:"total"`
+	Unseen int `json:"unseen"`
+}
+
+// CountMatches godoc
+// @Summary Count matches
+// @Description counts all Ephmatch-eligible students that user has matched with by unseen and total
+// @ID ephmatch-count-matches
+// @Tags ephmatch
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} CountMatchesResponse
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /ephmatch/matches-count [get]
+func (t *Controller) CountMatches(c *gin.Context) {
+	userID := services.GetUserID(c)
+	var err error
+
+	// We could implement search here as well...
+	unseen, total, err := t.matchModel.CountMatchesAndUnseen(userID)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	t.RespondOK(c, CountMatchesResponse{
+		Unseen: unseen,
+		Total:  total,
+	})
 }

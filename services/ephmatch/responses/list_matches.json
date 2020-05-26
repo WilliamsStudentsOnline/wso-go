@@ -22,6 +22,12 @@
           "type": "integer",
           "goType": "uint"
         },
+        "seenByMatchedUser": {
+          "type": "boolean"
+        },
+        "seenBySelf": {
+          "type": "boolean"
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",

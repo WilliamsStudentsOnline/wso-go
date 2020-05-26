@@ -1,6 +1,8 @@
 package models
 
 import (
+	"sort"
+
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
@@ -134,8 +136,10 @@ func (m *EphmatchMatchesModel) GetMatches(userID uint, opts *GetMatchesOptions, 
 				CreatedAt: match.CreatedAt,
 				UpdatedAt: match.UpdatedAt,
 			},
-			MatchedUser:   match.UserB,
-			MatchedUserID: match.UserBID,
+			MatchedUser:       match.UserB,
+			MatchedUserID:     match.UserBID,
+			SeenByMatchedUser: match.UserBSeen,
+			SeenBySelf:        match.UserASeen,
 		}
 	}
 	for i, match := range matchesB {
@@ -145,11 +149,103 @@ func (m *EphmatchMatchesModel) GetMatches(userID uint, opts *GetMatchesOptions, 
 				CreatedAt: match.CreatedAt,
 				UpdatedAt: match.UpdatedAt,
 			},
-			MatchedUser:   match.UserA,
-			MatchedUserID: match.UserAID,
+			MatchedUser:       match.UserA,
+			MatchedUserID:     match.UserAID,
+			SeenByMatchedUser: match.UserASeen,
+			SeenBySelf:        match.UserBSeen,
 		}
 	}
+	sort.Slice(allMatches, func(i, j int) bool {
+		return allMatches[i].CreatedAt.After(allMatches[j].CreatedAt)
+	})
 	*p = allMatches
+
+	return
+}
+
+func (m *EphmatchMatchesModel) SetMatchesAsSeen(userID uint) (err error) {
+	err = m.DB.Model(&EphmatchMatch{}).Where(&EphmatchMatch{
+		UserAID:   userID,
+		UserASeen: lib.FalsePtr(),
+	}).Update("user_a_seen", lib.TruePtr()).Error
+	if err != nil {
+		return
+	}
+
+	err = m.DB.Model(&EphmatchMatch{}).Where(&EphmatchMatch{
+		UserBID:   userID,
+		UserBSeen: lib.FalsePtr(),
+	}).Update("user_b_seen", lib.TruePtr()).Error
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+func (m *EphmatchMatchesModel) CountMatchesAndUnseen(userID uint) (unseen int, total int, err error) {
+	var totalA, totalB, unseenA, unseenB int
+
+	err = m.DB.Model(&EphmatchMatch{}).Where(&EphmatchMatch{
+		UserAID: userID,
+	}).
+		// Join on users to ensure student type and visibility type
+		Joins("INNER JOIN users u ON u.id = ephmatch_matches.user_b_id").
+		Where("u.type = ?", UserTypeStudent).
+		// Join on profiles for other user to ensure each
+		Joins("INNER JOIN ephmatch_profiles p ON p.user_id = ephmatch_matches.user_b_id").
+		Where("p.deleted_at IS NULL").
+		Count(&totalA).Error
+	if err != nil {
+		return
+	}
+
+	err = m.DB.Model(&EphmatchMatch{}).Where(&EphmatchMatch{
+		UserBID: userID,
+	}).
+		// Join on users to ensure student type and visibility type
+		Joins("INNER JOIN users u ON u.id = ephmatch_matches.user_a_id").
+		Where("u.type = ?", UserTypeStudent).
+		// Join on profiles for other user to ensure each
+		Joins("INNER JOIN ephmatch_profiles p ON p.user_id = ephmatch_matches.user_a_id").
+		Where("p.deleted_at IS NULL").
+		Count(&totalB).Error
+	if err != nil {
+		return
+	}
+
+	err = m.DB.Model(&EphmatchMatch{}).Where(&EphmatchMatch{
+		UserAID:   userID,
+		UserASeen: lib.FalsePtr(),
+	}).
+		// Join on users to ensure student type and visibility type
+		Joins("INNER JOIN users u ON u.id = ephmatch_matches.user_b_id").
+		Where("u.type = ?", UserTypeStudent).
+		// Join on profiles for other user to ensure each
+		Joins("INNER JOIN ephmatch_profiles p ON p.user_id = ephmatch_matches.user_b_id").
+		Where("p.deleted_at IS NULL").
+		Count(&unseenA).Error
+	if err != nil {
+		return
+	}
+
+	err = m.DB.Model(&EphmatchMatch{}).Where(&EphmatchMatch{
+		UserBID:   userID,
+		UserBSeen: lib.FalsePtr(),
+	}).
+		// Join on users to ensure student type and visibility type
+		Joins("INNER JOIN users u ON u.id = ephmatch_matches.user_a_id").
+		Where("u.type = ?", UserTypeStudent).
+		// Join on profiles for other user to ensure each
+		Joins("INNER JOIN ephmatch_profiles p ON p.user_id = ephmatch_matches.user_a_id").
+		Where("p.deleted_at IS NULL").
+		Count(&totalB).Error
+	if err != nil {
+		return
+	}
+
+	unseen = unseenA + unseenB
+	total = totalA + totalB
 
 	return
 }

@@ -1259,6 +1259,10 @@ definitions:
         type: object
       matchedUserID:
         type: integer
+      seenByMatchedUser:
+        type: boolean
+      seenBySelf:
+        type: boolean
       updatedAt:
         type: string
     type: object
@@ -3811,6 +3815,29 @@ paths:
       security:
       - Bearer: []
       summary: List matches
+      tags:
+      - ephmatch
+  /ephmatch/matches-count:
+    get:
+      consumes:
+      - application/json
+      description: counts all Ephmatch-eligible students that user has matched with
+        by unseen and total
+      operationId: ephmatch-count-matches
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/CountMatchesResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Count matches
       tags:
       - ephmatch
   /ephmatch/profile:

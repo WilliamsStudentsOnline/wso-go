@@ -3592,6 +3592,41 @@
                 }
             }
         },
+        "/ephmatch/matches-count": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "counts all Ephmatch-eligible students that user has matched with by unseen and total",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ephmatch"
+                ],
+                "summary": "Count matches",
+                "operationId": "ephmatch-count-matches",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/CountMatchesResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
         "/ephmatch/profile": {
             "get": {
                 "security": [
@@ -8491,6 +8526,12 @@
                 },
                 "matchedUserID": {
                     "type": "integer"
+                },
+                "seenByMatchedUser": {
+                    "type": "boolean"
+                },
+                "seenBySelf": {
+                    "type": "boolean"
                 },
                 "updatedAt": {
                     "type": "string"
