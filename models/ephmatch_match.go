@@ -239,7 +239,7 @@ func (m *EphmatchMatchesModel) CountMatchesAndUnseen(userID uint) (unseen int, t
 		// Join on profiles for other user to ensure each
 		Joins("INNER JOIN ephmatch_profiles p ON p.user_id = ephmatch_matches.user_a_id").
 		Where("p.deleted_at IS NULL").
-		Count(&totalB).Error
+		Count(&unseenB).Error
 	if err != nil {
 		return
 	}
