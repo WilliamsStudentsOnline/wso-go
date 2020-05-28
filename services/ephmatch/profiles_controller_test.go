@@ -11,6 +11,7 @@ import (
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	. "github.com/WilliamsStudentsOnline/wso-go/services/ephmatch"
+	"github.com/jinzhu/gorm"
 	testify "github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 )
@@ -19,7 +20,7 @@ func TestController_ListProfiles(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeEphmatch)
+	router := utils.SetupRouter(auth.ScopeEphmatch, auth.ScopeEphmatchMatches, auth.ScopeEphmatchProfiles)
 	cfg := utils.SetupConfig()
 
 	srYear := (&models.StudentModel{}).SeniorYear()
@@ -35,6 +36,7 @@ func TestController_ListProfiles(t *testing.T) {
 			EphmatchProfile: &models.EphmatchProfile{
 				Description:  lib.StrToPtr("test123"),
 				MatchMessage: lib.StrToPtr("matched!"),
+				LocationTown: lib.StrToPtr("Portola Valley"),
 			},
 			Tags: []*models.Tag{
 				{Name: "WOC"},
@@ -43,7 +45,9 @@ func TestController_ListProfiles(t *testing.T) {
 		{
 
 			EphmatchProfile: &models.EphmatchProfile{
-				Description: lib.StrToPtr("hello world"),
+				Description:     lib.StrToPtr("hello world"),
+				LocationTown:    lib.StrToPtr("Serene Lakes"),
+				LocationVisible: lib.FalsePtr(),
 			},
 		},
 		// Not student
@@ -85,9 +89,17 @@ func TestController_ListProfiles(t *testing.T) {
 		assert.NoError(db.Create(val).Error)
 	}
 
-	assert.NoError(db.Create(&models.Ephmatch{
+	assert.NoError(db.Create(&models.EphmatchLike{
 		UserID:  s[0].ID,
-		OtherID: s[2].ID,
+		LikedID: s[2].ID,
+	}).Error)
+	assert.NoError(db.Create(&models.EphmatchLike{
+		UserID:  s[2].ID,
+		LikedID: s[0].ID,
+	}).Error)
+	assert.NoError(db.Create(&models.EphmatchMatch{
+		UserAID: s[2].ID,
+		UserBID: s[0].ID,
 	}).Error)
 
 	assert.NoError(db.Delete(s[5].EphmatchProfile).Error)
@@ -96,7 +108,7 @@ func TestController_ListProfiles(t *testing.T) {
 	SetupRouter(router, db, cfg, zap.S())
 
 	// Get test user
-	w, err := utils.DoHTTPReq(router, http.MethodGet, "/profiles?preload[]=tags", nil)
+	w, err := utils.DoHTTPReq(router, http.MethodGet, "/profiles?preload[]=tags&preload[]=liked&preload[]=matched", nil)
 	assert.NoError(err)
 
 	// Status is okay
@@ -114,10 +126,22 @@ func TestController_ListProfiles(t *testing.T) {
 		assert.Equal(exp.EphmatchProfile.ID, resp[i].ID)
 		assert.Equal(exp.EphmatchProfile.Description, resp[i].Description)
 		assert.Equal(exp.ID, resp[i].User.ID)
-		assert.Nil(resp[i].MatchMessage)
 	}
-	assert.False(resp[0].Liked)
-	assert.True(resp[1].Liked)
+	// Test Liked,Matched flags
+	assert.False(*resp[0].Liked)
+	assert.True(*resp[1].Liked)
+	assert.False(*resp[0].Matched)
+	assert.True(*resp[1].Matched)
+
+	// Test location visibility
+	assert.Equal(s[1].EphmatchProfile.LocationTown, resp[0].LocationTown)
+	assert.Nil(resp[1].LocationTown)
+	assert.False(*resp[1].LocationVisible)
+
+	// Test match message nil when not matched
+	assert.Nil(resp[0].MatchMessage)
+	assert.Equal(resp[1].MatchMessage, s[2].EphmatchProfile.MatchMessage)
+	assert.Nil(resp[2].MatchMessage)
 
 	assert.Len(resp[0].User.Tags, 1)
 	assert.Equal(s[1].Tags[0].Name, resp[0].User.Tags[0].Name)
@@ -141,6 +165,7 @@ func TestController_ListProfiles(t *testing.T) {
 		assert.Equal(exp.EphmatchProfile.ID, resp[i].ID)
 		assert.Equal(exp.EphmatchProfile.Description, resp[i].Description)
 		assert.Equal(exp.ID, resp[i].User.ID)
+		assert.Nil(resp[i].MatchMessage) // All should be null, as not getting matched flag
 	}
 }
 
@@ -148,7 +173,7 @@ func TestController_GetProfile(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeEphmatch)
+	router := utils.SetupRouter(auth.ScopeEphmatch, auth.ScopeEphmatchMatches, auth.ScopeEphmatchProfiles)
 	cfg := utils.SetupConfig()
 
 	srYear := (&models.StudentModel{}).SeniorYear()
@@ -211,9 +236,9 @@ func TestController_GetProfile(t *testing.T) {
 		assert.NoError(db.Create(val).Error)
 	}
 
-	assert.NoError(db.Create(&models.Ephmatch{
+	assert.NoError(db.Create(&models.EphmatchLike{
 		UserID:  s[0].ID,
-		OtherID: s[2].ID,
+		LikedID: s[2].ID,
 	}).Error)
 
 	assert.NoError(db.Delete(s[5].EphmatchProfile).Error)
@@ -237,7 +262,7 @@ func TestController_GetProfile(t *testing.T) {
 	// Check if correct users
 	assert.Equal(s[2].EphmatchProfile.ID, resp.ID)
 	assert.Equal(s[2].EphmatchProfile.Description, resp.Description)
-	assert.True(resp.Liked)
+	assert.True(*resp.Liked)
 	assert.Nil(resp.MatchMessage)
 
 	// Assert these fail
@@ -265,7 +290,7 @@ func TestController_LikeProfile(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeEphmatch)
+	router := utils.SetupRouter(auth.ScopeEphmatch, auth.ScopeEphmatchMatches, auth.ScopeEphmatchProfiles)
 	cfg := utils.SetupConfig()
 
 	srYear := (&models.StudentModel{}).SeniorYear()
@@ -297,9 +322,9 @@ func TestController_LikeProfile(t *testing.T) {
 		assert.NoError(db.Create(val).Error)
 	}
 
-	assert.NoError(db.Create(&models.Ephmatch{
+	assert.NoError(db.Create(&models.EphmatchLike{
 		UserID:  s[0].ID,
-		OtherID: s[2].ID,
+		LikedID: s[2].ID,
 	}).Error)
 
 	utils.AddUserContexts(router, s[0].ID)
@@ -326,24 +351,128 @@ func TestController_LikeProfile(t *testing.T) {
 	assert.Equal(apiErr.HTTPCode, w.Code)
 	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
 
-	/* Create ephmatch as duplicate (expect success) */
+	/* Create ephmatch (expect success) */
 	w, err = utils.DoHTTPReq(router, http.MethodPost, fmt.Sprintf("/profiles/%d/like", s[1].ID), nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusCreated, w.Code)
 
-	var count int
-	assert.NoError(db.Model(&models.Ephmatch{}).Where(&models.Ephmatch{
+	// Decode response
+	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+	resp := LikeProfileResp{}
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+
+	// Assert did not match
+	assert.False(resp.Matched)
+
+	// Ensure one like was created
+	var likedCount int
+	assert.NoError(db.Model(&models.EphmatchLike{}).Where(&models.EphmatchLike{
 		UserID:  s[0].ID,
-		OtherID: s[1].ID,
-	}).Count(&count).Error)
-	assert.Equal(1, count)
+		LikedID: s[1].ID,
+	}).Count(&likedCount).Error)
+	assert.Equal(1, likedCount)
+
+	// Ensure a match wasn't created
+	var matchedCount int
+	assert.NoError(db.Model(&models.EphmatchMatch{}).Where(&models.EphmatchMatch{
+		UserAID: s[0].ID,
+		UserBID: s[1].ID,
+	}).Or(&models.EphmatchMatch{
+		UserAID: s[1].ID,
+		UserBID: s[0].ID,
+	}).Count(&matchedCount).Error)
+	assert.Equal(0, matchedCount)
+}
+
+func TestController_LikeProfileAndCreateMatch(t *testing.T) {
+	// Setup (can copy and paste this basically)
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+	router := utils.SetupRouter(auth.ScopeEphmatch, auth.ScopeEphmatchMatches, auth.ScopeEphmatchProfiles)
+	cfg := utils.SetupConfig()
+
+	srYear := (&models.StudentModel{}).SeniorYear()
+
+	s := []*models.User{
+		{
+			EphmatchProfile: &models.EphmatchProfile{
+				Description: lib.StrToPtr("foobar"),
+			},
+		},
+		{
+
+			EphmatchProfile: &models.EphmatchProfile{
+				Description: lib.StrToPtr("test123"),
+			},
+		},
+	}
+	for i, val := range s {
+		val.Name = fmt.Sprintf("Student %d", i)
+		val.UnixID = fmt.Sprintf("s%d", i)
+		val.Type = models.UserTypeStudent
+		val.ClassYear = &srYear
+		assert.NoError(db.Create(val).Error)
+	}
+
+	assert.NoError(db.Create(&models.EphmatchLike{
+		UserID:  s[1].ID,
+		LikedID: s[0].ID,
+	}).Error)
+
+	utils.AddUserContexts(router, s[0].ID)
+	SetupRouter(router, db, cfg, zap.S())
+	likeModel := models.NewEphmatchLikeModel(db, zap.S())
+	matchModel := models.NewEphmatchMatchesModel(db, zap.S())
+
+	// Ensure match, like doesnt exist
+	likeExists, err := likeModel.DoesLikeExist(s[0].ID, s[1].ID)
+	assert.NoError(err)
+	assert.False(likeExists)
+
+	matchExists, err := matchModel.IsMatching(s[0].ID, s[1].ID)
+	assert.NoError(err)
+	assert.False(matchExists)
+
+	/* Create ephmatch (expect success) */
+	w, err := utils.DoHTTPReq(router, http.MethodPost, fmt.Sprintf("/profiles/%d/like", s[1].ID), nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusCreated, w.Code)
+
+	// Decode response
+	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+	resp := LikeProfileResp{}
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+
+	// Assert did match
+	assert.True(resp.Matched)
+
+	// Ensure one like was created
+	var likedCount int
+	assert.NoError(db.Model(&models.EphmatchLike{}).Where(&models.EphmatchLike{
+		UserID:  s[0].ID,
+		LikedID: s[1].ID,
+	}).Count(&likedCount).Error)
+	assert.Equal(1, likedCount)
+
+	// Ensure a match was created
+	var matchedCount int
+	assert.NoError(db.Model(&models.EphmatchMatch{}).Where(&models.EphmatchMatch{
+		UserAID: s[0].ID,
+		UserBID: s[1].ID,
+	}).Or(&models.EphmatchMatch{
+		UserAID: s[1].ID,
+		UserBID: s[0].ID,
+	}).Count(&matchedCount).Error)
+	assert.Equal(1, matchedCount)
 }
 
 func TestController_UnlikeProfile(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeEphmatch)
+	router := utils.SetupRouter(auth.ScopeEphmatch, auth.ScopeEphmatchMatches, auth.ScopeEphmatchProfiles)
 	cfg := utils.SetupConfig()
 
 	srYear := (&models.StudentModel{}).SeniorYear()
@@ -375,9 +504,9 @@ func TestController_UnlikeProfile(t *testing.T) {
 		assert.NoError(db.Create(val).Error)
 	}
 
-	assert.NoError(db.Create(&models.Ephmatch{
+	assert.NoError(db.Create(&models.EphmatchLike{
 		UserID:  s[0].ID,
-		OtherID: s[1].ID,
+		LikedID: s[1].ID,
 	}).Error)
 
 	utils.AddUserContexts(router, s[0].ID)
@@ -397,15 +526,191 @@ func TestController_UnlikeProfile(t *testing.T) {
 	assert.Equal(apiErr.HTTPCode, w.Code)
 	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
 
-	/* Create ephmatch as duplicate (expect success) */
+	/* Delete ephmatch (expect success) */
 	w, err = utils.DoHTTPReq(router, http.MethodPost, fmt.Sprintf("/profiles/%d/unlike", s[1].ID), nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w.Code)
 
 	var count int
-	assert.NoError(db.Model(&models.Ephmatch{}).Where(&models.Ephmatch{
+	assert.NoError(db.Model(&models.EphmatchLike{}).Where(&models.EphmatchLike{
 		UserID:  s[0].ID,
-		OtherID: s[1].ID,
+		LikedID: s[1].ID,
 	}).Count(&count).Error)
 	assert.Equal(0, count)
+
+	// Ensure a match wasn't created
+	var matchedCount int
+	assert.NoError(db.Model(&models.EphmatchMatch{}).Where(&models.EphmatchMatch{
+		UserAID: s[0].ID,
+		UserBID: s[1].ID,
+	}).Or(&models.EphmatchMatch{
+		UserAID: s[1].ID,
+		UserBID: s[0].ID,
+	}).Count(&matchedCount).Error)
+	assert.Equal(0, matchedCount)
+}
+
+func TestController_UnlikeProfileAndDeleteMatch(t *testing.T) {
+	/*
+		Flow:
+		1. Create like, match by u0
+		 - like created
+		 - match created
+		2. Delete like, match by u0
+		 - like deleted
+		 - match deleted
+		 - match soft deleted
+		3. Create like, match by u0
+		 - like created
+		 - match updated
+		4. Delete like, match by u1
+		 - like deleted
+		 - match deleted
+		 - match soft deleted
+		5. Create like, match by u1
+		 - like created
+		 - match updated
+	*/
+	// Setup (can copy and paste this basically)
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+	routerU0 := utils.SetupRouter(auth.ScopeEphmatch, auth.ScopeEphmatchMatches, auth.ScopeEphmatchProfiles)
+	routerU1 := utils.SetupRouter(auth.ScopeEphmatch, auth.ScopeEphmatchMatches, auth.ScopeEphmatchProfiles)
+	cfg := utils.SetupConfig()
+
+	srYear := (&models.StudentModel{}).SeniorYear()
+
+	s := []*models.User{
+		{
+			EphmatchProfile: &models.EphmatchProfile{
+				Description: lib.StrToPtr("foobar"),
+			},
+		},
+		{
+
+			EphmatchProfile: &models.EphmatchProfile{
+				Description: lib.StrToPtr("test123"),
+			},
+		},
+	}
+	for i, val := range s {
+		val.Name = fmt.Sprintf("Student %d", i)
+		val.UnixID = fmt.Sprintf("s%d", i)
+		val.Type = models.UserTypeStudent
+		val.ClassYear = &srYear
+		assert.NoError(db.Create(val).Error)
+	}
+
+	assert.NoError(db.Create(&models.EphmatchLike{
+		UserID:  s[1].ID,
+		LikedID: s[0].ID,
+	}).Error)
+
+	utils.AddUserContexts(routerU0, s[0].ID)
+	SetupRouter(routerU0, db, cfg, zap.S())
+	utils.AddUserContexts(routerU1, s[1].ID)
+	SetupRouter(routerU1, db, cfg, zap.S())
+
+	/* 1. Create like, match (expect success) */
+	w, err := utils.DoHTTPReq(routerU0, http.MethodPost, fmt.Sprintf("/profiles/%d/like", s[1].ID), nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusCreated, w.Code)
+
+	// Ensure like was created
+	assert.Equal(1, numLikes(db, assert, s[0].ID, s[1].ID))
+
+	// Ensure a match was created
+	assert.Equal(1, numMatches(db, assert, s[0].ID, s[1].ID))
+
+	/* 2. Delete like, match (expect success) */
+	w, err = utils.DoHTTPReq(routerU0, http.MethodPost, fmt.Sprintf("/profiles/%d/unlike", s[1].ID), nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+
+	// Ensure like was deleted
+	assert.Equal(0, numLikes(db, assert, s[0].ID, s[1].ID))
+
+	// Ensure match was deleted
+	assert.Equal(0, numMatches(db, assert, s[0].ID, s[1].ID))
+
+	// Ensure match was soft deleted
+	assert.Equal(1, numMatchesUnscoped(db, assert, s[0].ID, s[1].ID))
+
+	/* 3. Create like, match (expect success) */
+	w, err = utils.DoHTTPReq(routerU0, http.MethodPost, fmt.Sprintf("/profiles/%d/like", s[1].ID), nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusCreated, w.Code)
+
+	// Ensure like was created
+	assert.Equal(1, numLikes(db, assert, s[0].ID, s[1].ID))
+
+	// Ensure a match was created
+	assert.Equal(1, numMatches(db, assert, s[0].ID, s[1].ID))
+
+	// Ensure a match was updated (only one match exists
+	assert.Equal(1, numMatchesUnscoped(db, assert, s[0].ID, s[1].ID))
+
+	/* 4. Delete like, match by u1 (expect success) */
+	w, err = utils.DoHTTPReq(routerU1, http.MethodPost, fmt.Sprintf("/profiles/%d/unlike", s[0].ID), nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+
+	// Ensure like was deleted
+	assert.Equal(0, numLikes(db, assert, s[1].ID, s[0].ID))
+
+	// Ensure match was deleted
+	assert.Equal(0, numMatches(db, assert, s[0].ID, s[1].ID))
+
+	// Ensure match was soft deleted
+	assert.Equal(1, numMatchesUnscoped(db, assert, s[0].ID, s[1].ID))
+
+	/* 5. Create like, match by u1 (expect success) */
+	w, err = utils.DoHTTPReq(routerU1, http.MethodPost, fmt.Sprintf("/profiles/%d/like", s[0].ID), nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusCreated, w.Code)
+
+	// Ensure like was created
+	assert.Equal(1, numLikes(db, assert, s[1].ID, s[0].ID))
+
+	// Ensure a match was created
+	assert.Equal(1, numMatches(db, assert, s[0].ID, s[1].ID))
+
+	// Ensure a match was updated (only one match exists)
+	assert.Equal(1, numMatchesUnscoped(db, assert, s[0].ID, s[1].ID))
+}
+
+func numLikes(db *gorm.DB, assert *testify.Assertions, userID uint, likedID uint) (count int) {
+	assert.NoError(db.Model(&models.EphmatchLike{}).Where(&models.EphmatchLike{
+		UserID:  userID,
+		LikedID: likedID,
+	}).Count(&count).Error)
+	return
+}
+
+func numMatches(db *gorm.DB, assert *testify.Assertions, userID uint, likedID uint) (count int) {
+	s, l := orderUIntPair(userID, likedID)
+	assert.NoError(db.Model(&models.EphmatchMatch{}).Where(&models.EphmatchMatch{
+		UserAID: s,
+		UserBID: l,
+	}).Count(&count).Error)
+	return
+}
+
+func numMatchesUnscoped(db *gorm.DB, assert *testify.Assertions, userID uint, likedID uint) (count int) {
+	s, l := orderUIntPair(userID, likedID)
+	assert.NoError(db.Unscoped().Model(&models.EphmatchMatch{}).Where(&models.EphmatchMatch{
+		UserAID: s,
+		UserBID: l,
+	}).Count(&count).Error)
+	return
+}
+
+func orderUIntPair(a uint, b uint) (smallest uint, largest uint) {
+	smallest = a
+	largest = b
+	if smallest > largest {
+		smallest = b
+		largest = a
+	}
+	return
 }

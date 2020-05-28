@@ -179,16 +179,40 @@ definitions:
     type: object
   ephmatch.ProfileCreateParams:
     properties:
+      LocationCountry:
+        type: string
       description:
         type: string
+      locationState:
+        type: string
+      locationTown:
+        type: string
+      locationVisible:
+        type: boolean
       matchMessage:
+        type: string
+      messagingPlatform:
+        type: string
+      messagingUsername:
         type: string
     type: object
   ephmatch.ProfileUpdateParams:
     properties:
       description:
         type: string
+      locationCountry:
+        type: string
+      locationState:
+        type: string
+      locationTown:
+        type: string
+      locationVisible:
+        type: boolean
       matchMessage:
+        type: string
+      messagingPlatform:
+        type: string
+      messagingUsername:
         type: string
     type: object
   factrak.AgreementCreateParams:
@@ -738,10 +762,26 @@ definitions:
       id:
         type: integer
       liked:
-        description: If me (user) has an ephmatch entry where ephmatch.other_id=users.id
-          and ephmatch.user_id=myID
+        description: If self has liked this profile (user)
+        type: boolean
+      locationCountry:
+        type: string
+      locationState:
+        type: string
+      locationTown:
+        type: string
+      locationVisible:
+        description: Current location columns
         type: boolean
       matchMessage:
+        type: string
+      matched:
+        description: If user and self are matched
+        type: boolean
+      messagingPlatform:
+        description: Messaging platform columns
+        type: string
+      messagingUsername:
         type: string
       user:
         $ref: '#/definitions/models.User'
@@ -1208,28 +1248,44 @@ definitions:
       williamsEmail:
         type: string
     type: object
-  responses.ListMatchesResponseEphmatch:
+  responses.ListMatchesResponseEphmatchMatch:
     properties:
       createdAt:
         type: string
       id:
         type: integer
-      other:
-        $ref: '#/definitions/responses.ListMatchesResponseOther'
+      matchedUser:
+        $ref: '#/definitions/responses.ListMatchesResponseMatchedUser'
         type: object
-      otherID:
+      matchedUserID:
         type: integer
-      seen:
+      seenByMatchedUser:
         type: boolean
+      seenBySelf:
+        type: boolean
+      updatedAt:
+        type: string
     type: object
   responses.ListMatchesResponseEphmatchProfile:
     properties:
       description:
         type: string
+      locationCountry:
+        type: string
+      locationState:
+        type: string
+      locationTown:
+        type: string
+      locationVisible:
+        type: boolean
       matchMessage:
         type: string
+      messagingPlatform:
+        type: string
+      messagingUsername:
+        type: string
     type: object
-  responses.ListMatchesResponseOther:
+  responses.ListMatchesResponseMatchedUser:
     properties:
       classYear:
         type: integer
@@ -2975,6 +3031,36 @@ paths:
       summary: List ride bulletins RSS
       tags:
       - bulletins
+  /chat/auth/token:
+    get:
+      consumes:
+      - application/json
+      description: gets auth JWT token of chat feature
+      operationId: chat-get-auth-token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get Chat Auth JWT token
+      tags:
+      - chat
   /dormtrak/dorms:
     get:
       consumes:
@@ -3680,6 +3766,26 @@ paths:
       summary: List matches
       tags:
       - ephcatch
+  /ephmatch/availability:
+    get:
+      description: gives data on Ephmatch availability
+      operationId: ephmatch-get-availability
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GetAvailabilityResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get availability
+      tags:
+      - ephmatch
   /ephmatch/matches:
     get:
       consumes:
@@ -3687,7 +3793,7 @@ paths:
       description: lists all Ephmatch-eligible students that user has matched with
       operationId: ephmatch-list-matches
       parameters:
-      - description: Preload List
+      - description: Preload List [tags]
         in: query
         items:
           type: string
@@ -3700,7 +3806,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/responses.ListMatchesResponseEphmatch'
+              $ref: '#/definitions/responses.ListMatchesResponseEphmatchMatch'
             type: array
         "500":
           description: Internal Server Error
@@ -3709,6 +3815,29 @@ paths:
       security:
       - Bearer: []
       summary: List matches
+      tags:
+      - ephmatch
+  /ephmatch/matches-count:
+    get:
+      consumes:
+      - application/json
+      description: counts all Ephmatch-eligible students that user has matched with
+        by unseen and total
+      operationId: ephmatch-count-matches
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/CountMatchesResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Count matches
       tags:
       - ephmatch
   /ephmatch/profile:
@@ -3871,7 +4000,7 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - description: Preload List [tags, liked, matched]
         in: query
         items:
           type: string
@@ -3946,7 +4075,10 @@ paths:
       produces:
       - application/json
       responses:
-        "201": {}
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/LikeProfileResp'
         "400":
           description: Bad Request
           schema:

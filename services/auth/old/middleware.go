@@ -20,6 +20,7 @@ type AuthResponse struct {
 }
 
 func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (authMiddleware *jwt.GinJWTMiddleware, err error) {
+	genClaimsFunc := auth.GenerateClaimsFactory(cfg, db)
 
 	// The JWT middleware
 	authMiddleware, err = jwt.New(&jwt.GinJWTMiddleware{
@@ -42,7 +43,7 @@ func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger)
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			// We take the data (which is a User) and create the payload
 			if v, ok := data.(*auth.AuthenticatorPayload); ok {
-				return auth.GenerateClaims(v, auth.TokenTypeOld)
+				return genClaimsFunc(v, auth.TokenTypeOld)
 			}
 			return jwt.MapClaims{}
 		},
@@ -136,7 +137,7 @@ func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger)
 				}
 			}
 
-			return auth.GenerateClaims(payload, auth.TokenTypeOld), nil
+			return genClaimsFunc(payload, auth.TokenTypeOld), nil
 		},
 
 		// TokenLookup is a string in the form of "<source>:<name>" that is used

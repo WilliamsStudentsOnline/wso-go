@@ -20,7 +20,7 @@ import (
 // @Param sort query string false "Sort (new, updated, alphabetical)"
 // @Param offset query int false "Offset Pagination"
 // @Param limit query int false "Limit Pagination"
-// @Param preload query []string false "Preload List"
+// @Param preload query []string false "Preload List [tags, liked, matched]"
 // @Success 200 {array} models.EphmatchProfile
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
@@ -45,30 +45,6 @@ func (t *Controller) ListProfiles(c *gin.Context) {
 		return
 	}
 
-	/* Populate liked field */
-
-	// Get ephmatches made by user self (userID) to populate "liked" field. This is significantly faster
-	// than a SQL query by several magnitudes.
-	var ephmatches []*models.Ephmatch
-	err = t.ephmatchModel.GetUserLikes(userID, &ephmatches)
-	if err != nil {
-		t.RespondError(c, err)
-		return
-	}
-
-	// Create a map of users we liked.
-	likedUserMap := make(map[uint]bool)
-	for _, match := range ephmatches {
-		likedUserMap[match.OtherID] = true
-	}
-
-	// If a profile is in the likedUserMap, set it to liked
-	for _, profile := range profiles {
-		if _, ok := likedUserMap[profile.UserID]; ok {
-			profile.Liked = true
-		}
-	}
-
 	/* Get total count */
 
 	count, err := t.profileModel.CountProfiles()
@@ -80,8 +56,13 @@ func (t *Controller) ListProfiles(c *gin.Context) {
 
 	/* Sanitize Users */
 	for _, profile := range profiles {
-		// Remove match message as we dont know if matched
-		profile.MatchMessage = nil
+		// Remove match message if did not match (or did not preload for matched)
+		if profile.Matched == nil || !*profile.Matched {
+			profile.MatchMessage = nil
+			profile.MessagingPlatform = nil
+			profile.MessagingUsername = nil
+		}
+		sanitize.EphmatchProfile(profile, c)
 		sanitize.User(profile.User, c)
 	}
 
@@ -113,7 +94,8 @@ func (t *Controller) GetProfile(c *gin.Context) {
 	}
 
 	var profile models.EphmatchProfile
-	isMatching := false
+	likeExists := false
+	matchExists := false
 
 	// If get self, get it regardless. Otherwise, user must be valid
 	if profileUserID == userID {
@@ -131,23 +113,40 @@ func (t *Controller) GetProfile(c *gin.Context) {
 			return
 		}
 
-		// TODO: Should this be liked rather than matching??
-		isMatching, err = t.ephmatchModel.IsMatching(userID, profileUserID)
+		// This is liked, not matching
+		likeExists, err = t.likeModel.DoesLikeExist(userID, profileUserID)
+		if err != nil {
+			t.RespondError(c, err)
+			return
+		}
+
+		// This is liked, not matching
+		matchExists, err = t.matchModel.IsMatching(userID, profileUserID)
 		if err != nil {
 			t.RespondError(c, err)
 			return
 		}
 	}
 
-	profile.Liked = isMatching
+	profile.Liked = &likeExists
+	profile.Matched = &matchExists
 
-	// Remove match message as we dont know if matched
-	profile.MatchMessage = nil
+	// Remove match message if not matched
+	if !matchExists {
+		profile.MatchMessage = nil
+		profile.MessagingPlatform = nil
+		profile.MessagingUsername = nil
+	}
 
 	// Sanitize user preloaded
 	sanitize.User(profile.User, c)
+	sanitize.EphmatchProfile(&profile, c)
 
 	t.RespondOK(c, profile)
+}
+
+type LikeProfileResp struct {
+	Matched bool `json:"matched"`
 }
 
 // LikeProfile godoc
@@ -158,7 +157,7 @@ func (t *Controller) GetProfile(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param profileUserID path uint true "Profile User ID"
-// @Success 201
+// @Success 201 {object} LikeProfileResp
 // @Failure 1730 {object} lib.APIError "cannot ephmatch-like yourself"
 // @Failure 1731 {object} lib.APIError "ephmatch profile could not be found"
 // @Failure 1732 {object} lib.APIError "ephmatch already exists with user ID and passed ephmatch profile user ID"
@@ -192,7 +191,7 @@ func (t *Controller) LikeProfile(c *gin.Context) {
 		return
 	}
 
-	dupe, err := t.ephmatchModel.CheckDuplicateEphmatch(userID, profileUserID)
+	dupe, err := t.likeModel.DoesLikeExist(userID, profileUserID)
 	if err != nil {
 		t.RespondError(c, err)
 		return
@@ -203,13 +202,15 @@ func (t *Controller) LikeProfile(c *gin.Context) {
 	}
 
 	// Do database query
-	err = t.ephmatchModel.CreateEphmatchWithUserOther(userID, profileUserID)
+	matched, err := t.ephmatchModel.CreateLikeAndMatch(userID, profileUserID)
 	if err != nil {
 		t.RespondError(c, err)
 		return
 	}
 
-	t.RespondCreated(c, nil)
+	t.RespondCreated(c, LikeProfileResp{
+		Matched: matched,
+	})
 }
 
 // UnlikeProfile godoc
@@ -246,7 +247,7 @@ func (t *Controller) UnlikeProfile(c *gin.Context) {
 		return
 	}
 
-	dupe, err := t.ephmatchModel.CheckDuplicateEphmatch(userID, profileUserID)
+	dupe, err := t.likeModel.DoesLikeExist(userID, profileUserID)
 	if err != nil {
 		t.RespondError(c, err)
 		return
@@ -256,8 +257,8 @@ func (t *Controller) UnlikeProfile(c *gin.Context) {
 		return
 	}
 
-	// Do database query
-	err = t.ephmatchModel.DeleteEphmatchWithUserOther(userID, profileUserID)
+	// Do database query (delete like, match if exists)
+	err = t.ephmatchModel.DeleteLikeAndMatch(userID, profileUserID)
 	if err != nil {
 		t.RespondError(c, err)
 		return

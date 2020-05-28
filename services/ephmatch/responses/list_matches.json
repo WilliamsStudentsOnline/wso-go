@@ -3,10 +3,10 @@
   "title": "ListMatchesResponse",
   "type": "array",
   "items": {
-    "$ref": "#/definitions/Ephmatch"
+    "$ref": "#/definitions/EphmatchMatch"
   },
   "definitions": {
-    "Ephmatch": {
+    "EphmatchMatch": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
@@ -15,17 +15,25 @@
           "goOtherName": "ID",
           "goType": "uint"
         },
-        "seen": {
-          "type": "boolean"
+        "matchedUser": {
+          "$ref": "#/definitions/MatchedUser"
         },
-        "other": {
-          "$ref": "#/definitions/Other"
-        },
-        "otherID": {
+        "matchedUserID": {
           "type": "integer",
           "goType": "uint"
         },
+        "seenByMatchedUser": {
+          "type": "boolean"
+        },
+        "seenBySelf": {
+          "type": "boolean"
+        },
         "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "goType": "time.Time"
+        },
+        "updatedAt": {
           "type": "string",
           "format": "date-time",
           "goType": "time.Time"
@@ -33,15 +41,16 @@
       },
       "required": [
         "createdAt",
+        "updatedAt",
         "id",
-        "other",
-        "otherID"
+        "matchedUser",
+        "matchedUserID"
       ],
-      "title": "Ephmatch",
-      "goOtherName": "Ephmatch",
+      "title": "EphmatchMatch",
+      "goOtherName": "EphmatchMatch",
       "goOtherPackage": "github.com/WilliamsStudentsOnline/wso-go/models"
     },
-    "Other": {
+    "MatchedUser": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
@@ -109,6 +118,30 @@
           "goPtr": true
         },
         "matchMessage": {
+          "type": "string",
+          "goPtr": true
+        },
+        "locationVisible": {
+          "type": "boolean",
+          "goPtr": true
+        },
+        "locationTown": {
+          "type": "string",
+          "goPtr": true
+        },
+        "locationState": {
+          "type": "string",
+          "goPtr": true
+        },
+        "locationCountry": {
+          "type": "string",
+          "goPtr": true
+        },
+        "messagingPlatform": {
+          "type": "string",
+          "goPtr": true
+        },
+        "messagingUsername": {
           "type": "string",
           "goPtr": true
         }

@@ -138,8 +138,10 @@ var (
 	ErrorDiscussionNotFound     = NewAPIErrorWithHTTP(1850, http.StatusNotFound, "discussion cannot be found")
 
 	// 19** are ephmatch errors
-	ErrorEphmatchLikeNoSelf      = NewAPIError(1930, "cannot ephmatch-like yourself")
-	ErrorEphmatchProfileNotFound = NewAPIError(1931, "ephmatch profile could not be found")
-	ErrorEphmatchAlreadyExists   = NewAPIError(1932, "ephmatch already exists with user ID and passed ephmatch profile user ID")
-	ErrorEphmatchDoesNotExist    = NewAPIError(1932, "ephmatch does not exist with user ID and passed ephmatch profile user ID")
+	ErrorEphmatchLikeNoSelf               = NewAPIError(1930, "cannot ephmatch-like yourself")
+	ErrorEphmatchProfileNotFound          = NewAPIError(1931, "ephmatch profile could not be found")
+	ErrorEphmatchAlreadyExists            = NewAPIError(1932, "ephmatch already exists with user ID and passed ephmatch profile user ID")
+	ErrorEphmatchDoesNotExist             = NewAPIError(1933, "ephmatch does not exist with user ID and passed ephmatch profile user ID")
+	ErrorEphmatchInvalidMessagingPlatform = NewAPIError(1934, "ephmatch messaging platform is invalid")
+	ErrorEphmatchEmptyMessagingUsername   = NewAPIError(1935, "ephmatch messaging username is empty")
 )

@@ -40,8 +40,14 @@ func (t *Controller) GetSelfProfile(c *gin.Context) {
 }
 
 type ProfileCreateParams struct {
-	Description  *string `json:"description"`
-	MatchMessage *string `json:"matchMessage"`
+	Description       *string `json:"description"`
+	MatchMessage      *string `json:"matchMessage"`
+	LocationVisible   *bool   `json:"locationVisible"`
+	LocationTown      *string `json:"locationTown"`
+	LocationState     *string `json:"locationState"`
+	LocationCountry   *string `json:"LocationCountry"`
+	MessagingPlatform *string `json:"messagingPlatform"`
+	MessagingUsername *string `json:"messagingUsername"`
 }
 
 // CreateProfile godoc
@@ -70,10 +76,36 @@ func (t *Controller) CreateProfile(c *gin.Context) {
 		return
 	}
 
+	// Can have no platform and no username
+	if createData.MessagingPlatform != nil && (*createData.MessagingPlatform == "NONE" || *createData.MessagingPlatform == "") {
+		createData.MessagingPlatform = lib.StrToPtr("")
+		createData.MessagingUsername = lib.StrToPtr("")
+	}
+
+	if createData.MessagingPlatform != nil && *createData.MessagingPlatform != "" {
+		// Must have valid platform or no platform (NONE)
+		if !models.ValidateEphmatchMessagingPlatform(*createData.MessagingPlatform) {
+			t.RespondError(c, lib.ErrorEphmatchInvalidMessagingPlatform)
+			return
+		}
+
+		// Cannot have a valid platform and no username
+		if createData.MessagingUsername == nil {
+			t.RespondError(c, lib.ErrorEphmatchEmptyMessagingUsername)
+			return
+		}
+	}
+
 	newProfile := models.EphmatchProfile{
-		Description:  createData.Description,
-		MatchMessage: createData.MatchMessage,
-		UserID:       userID,
+		Description:       createData.Description,
+		MatchMessage:      createData.MatchMessage,
+		UserID:            userID,
+		LocationVisible:   createData.LocationVisible,
+		LocationTown:      createData.LocationTown,
+		LocationState:     createData.LocationState,
+		LocationCountry:   createData.LocationCountry,
+		MessagingPlatform: createData.MessagingPlatform,
+		MessagingUsername: createData.MessagingUsername,
 	}
 
 	var profile models.EphmatchProfile
@@ -94,8 +126,14 @@ func (t *Controller) CreateProfile(c *gin.Context) {
 }
 
 type ProfileUpdateParams struct {
-	Description  *string `json:"description"`
-	MatchMessage *string `json:"matchMessage"`
+	Description       *string `json:"description"`
+	MatchMessage      *string `json:"matchMessage"`
+	LocationVisible   *bool   `json:"locationVisible"`
+	LocationTown      *string `json:"locationTown"`
+	LocationState     *string `json:"locationState"`
+	LocationCountry   *string `json:"locationCountry"`
+	MessagingPlatform *string `json:"messagingPlatform"`
+	MessagingUsername *string `json:"messagingUsername"`
 }
 
 // UpdateProfile godoc
@@ -134,6 +172,32 @@ func (t *Controller) UpdateProfile(c *gin.Context) {
 
 	profile.Description = lib.StrPtrDefaults(updateData.Description, profile.Description)
 	profile.MatchMessage = lib.StrPtrDefaults(updateData.MatchMessage, profile.MatchMessage)
+	profile.LocationVisible = lib.BoolPtrDefaults(updateData.LocationVisible, profile.LocationVisible)
+	profile.LocationTown = lib.StrPtrDefaults(updateData.LocationTown, profile.LocationTown)
+	profile.LocationState = lib.StrPtrDefaults(updateData.LocationState, profile.LocationState)
+	profile.LocationCountry = lib.StrPtrDefaults(updateData.LocationCountry, profile.LocationCountry)
+	profile.MessagingPlatform = lib.StrPtrDefaults(updateData.MessagingPlatform, profile.MessagingPlatform)
+	profile.MessagingUsername = lib.StrPtrDefaults(updateData.MessagingUsername, profile.MessagingUsername)
+
+	// Can have no platform and no username
+	if profile.MessagingPlatform != nil && (*profile.MessagingPlatform == "NONE" || *profile.MessagingPlatform == "") {
+		profile.MessagingPlatform = lib.StrToPtr("")
+		profile.MessagingUsername = lib.StrToPtr("")
+	}
+
+	if profile.MessagingPlatform != nil && *profile.MessagingPlatform != "" {
+		// Must have valid platform or no platform (NONE)
+		if !models.ValidateEphmatchMessagingPlatform(*profile.MessagingPlatform) {
+			t.RespondError(c, lib.ErrorEphmatchInvalidMessagingPlatform)
+			return
+		}
+
+		// Cannot have a valid platform and no username
+		if profile.MessagingUsername == nil || *profile.MessagingUsername == "" {
+			t.RespondError(c, lib.ErrorEphmatchEmptyMessagingUsername)
+			return
+		}
+	}
 
 	err = t.profileModel.UpdateProfile(&profile)
 	if err != nil {
