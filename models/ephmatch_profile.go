@@ -429,6 +429,11 @@ func (m *EphmatchProfileModel) SuggestUsers(userID uint) ([]uint, error) {
 
 	rows.Close()
 
+	// Fix base case of no liked users:
+	if len(likedUsers) == 0 {
+		return []uint{}, nil
+	}
+
 	// Get users with similar like preferences (admirers of people user has liked)
 	rows, err = m.DB.Table("ephmatch_likes").
 		Select("user_id").
@@ -452,6 +457,11 @@ func (m *EphmatchProfileModel) SuggestUsers(userID uint) ([]uint, error) {
 	}
 
 	rows.Close()
+
+	// Fix base case of no admirers:
+	if len(admirers) == 0 {
+		return []uint{}, nil
+	}
 
 	// Get other users that admirers liked
 
@@ -484,6 +494,11 @@ func (m *EphmatchProfileModel) SuggestUsers(userID uint) ([]uint, error) {
 	}
 
 	rows.Close()
+
+	// Fix base case of no admirers:
+	if len(suggestedUsers) == 0 {
+		return []uint{}, nil
+	}
 
 	sort.Slice(suggestedUsers, func(i, j int) bool {
 		return suggestedUsersToLikes[suggestedUsers[i]] < suggestedUsersToLikes[suggestedUsers[j]]
