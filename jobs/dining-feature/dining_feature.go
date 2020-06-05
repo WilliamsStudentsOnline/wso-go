@@ -5,10 +5,11 @@ import(
 	// "strings"
 	// "log"
 	// "io"
+	"encoding/json"
 	"io/ioutil"
 	// "os"
 	"net/http"
-	
+
 	// "golang.org/x/net/html"
 )
 
@@ -17,8 +18,6 @@ func main(){
 	parsedHTTP, err := getXML("https://dining.williams.edu/eats4ephs/")
 	fmt.Errorf("Error: &v", err)
 	fmt.Println(parsedHTTP)
-
-	
 }
 
 func getXML(url string) (string, error) {

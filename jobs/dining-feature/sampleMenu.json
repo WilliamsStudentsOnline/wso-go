@@ -1,0 +1,41 @@
+{
+    "driscoll": [
+        {
+            "meal_type": "appetizers",
+            "meal_entries": {
+                "name": "seasoned pita chips",
+                "contains": [
+                    "wheat",
+                    "soy"
+                ],
+                "serving_size": "2oz"
+            }
+        },
+        {
+            "meal_type": "entrees",
+            "meal_entries": [
+                {
+                    "name": "mustard crumb chicken",
+                    "contains": [
+                        "alcohol",
+                        "milk",
+                        "soy",
+                        "sesame",
+                        "wheat"
+                    ],
+                    "serving_size": "5oz"
+                },
+                {
+                    "name": "panfried eggplant with hollandaise",
+                    "contains": [
+                        "eggs",
+                        "milk",
+                        "soy",
+                        "wheat"
+                    ],
+                    "serving_size": "each"
+                }
+            ]
+        }
+    ]
+}
