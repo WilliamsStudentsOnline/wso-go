@@ -5580,6 +5580,34 @@ paths:
       security:
       - Bearer: []
       summary: Health check
+  /onboarding/canonical/{unixID}:
+    get:
+      consumes:
+      - application/json
+      description: Gets a user from their unix. Onboarding exercise.
+      operationId: onboarding-canonical-get-user-by-unix
+      parameters:
+      - description: Unix ID
+        in: path
+        name: unixID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Gets a user
+      tags:
+      - onboarding
   /users:
     get:
       consumes:

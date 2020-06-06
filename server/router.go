@@ -32,6 +32,7 @@ import (
 	ephcatchService "github.com/WilliamsStudentsOnline/wso-go/services/ephcatch"
 	ephmatchService "github.com/WilliamsStudentsOnline/wso-go/services/ephmatch"
 	factrakService "github.com/WilliamsStudentsOnline/wso-go/services/factrak"
+	onboardingService "github.com/WilliamsStudentsOnline/wso-go/services/onboarding"
 	userService "github.com/WilliamsStudentsOnline/wso-go/services/user"
 	wordsService "github.com/WilliamsStudentsOnline/wso-go/services/words"
 )
@@ -199,6 +200,10 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 		chatGroup := v2.Group("/chat")
 		chatGroup.Use(auth.RequireScopes(auth.ScopeUsers))
 		chatService.SetupRouter(chatGroup, db, cfg, log.Named("chat"))
+
+		// Onboarding Service
+		onboardingGroup := v2.Group("/onboarding")
+		onboardingService.SetupRouter(onboardingGroup, db, cfg, log.Named("onboarding"))
 	}
 
 	return r, nil
