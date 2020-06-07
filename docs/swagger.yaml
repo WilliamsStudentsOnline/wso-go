@@ -177,6 +177,13 @@ definitions:
       wifi:
         type: integer
     type: object
+  ephmatch.CountMatchesResponse:
+    properties:
+      total:
+        type: integer
+      unseen:
+        type: integer
+    type: object
   ephmatch.ProfileCreateParams:
     properties:
       LocationCountry:
@@ -3830,7 +3837,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/CountMatchesResponse'
+            $ref: '#/definitions/ephmatch.CountMatchesResponse'
         "500":
           description: Internal Server Error
           schema:

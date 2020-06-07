@@ -3615,7 +3615,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/CountMatchesResponse"
+                            "$ref": "#/definitions/ephmatch.CountMatchesResponse"
                         }
                     },
                     "500": {
@@ -7000,6 +7000,17 @@
                     "type": "boolean"
                 },
                 "wifi": {
+                    "type": "integer"
+                }
+            }
+        },
+        "ephmatch.CountMatchesResponse": {
+            "type": "object",
+            "properties": {
+                "total": {
+                    "type": "integer"
+                },
+                "unseen": {
                     "type": "integer"
                 }
             }
