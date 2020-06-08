@@ -13,6 +13,24 @@ import(
 	// "golang.org/x/net/html"
 )
 
+// Holds the information relevant to a dining hall's menu
+type Menu struct {
+	dining_hall String
+	courses []Course
+}
+
+// Holds info relevant to a course (e.g. Appetizers or Entrees will be comprised of many meals)
+type Course struct {
+	meals []Meal
+}
+
+// Holds the information relevant to a meal
+type Meal struct {
+	meal_name string
+	contains [10]string
+	serving_size string
+	price float32
+}
 
 func main(){
 	parsedHTTP, err := getXML("https://dining.williams.edu/eats4ephs/")
