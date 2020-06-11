@@ -40,7 +40,7 @@ func GenerateClaimsFactory(cfg *config.Config, db *gorm.DB) func(v *Authenticato
 		// If user exists that we signed in with
 		if v.TokenLevel >= TokenLevelUser && v.User != nil {
 			// Allow writing
-			scope = append(scope, auth.ScopeWriteSelf)
+			scope = append(scope, auth.ScopeWriteSelf, auth.ScopeChat)
 
 			// For ephcatch and factrak, user must be a student
 			if v.User.IsStudent() {

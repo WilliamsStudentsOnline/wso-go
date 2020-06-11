@@ -46,7 +46,7 @@ type GetAvailabilityResp struct {
 // @ID ephmatch-get-availability
 // @Tags ephmatch
 // @Produce  json
-// @Success 200 {object} GetAvailabilityResp
+// @Success 200 {object} ephmatch.GetAvailabilityResp
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
 // @Router /ephmatch/availability [get]

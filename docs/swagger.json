@@ -3531,7 +3531,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/GetAvailabilityResp"
+                            "$ref": "#/definitions/ephmatch.GetAvailabilityResp"
                         }
                     },
                     "500": {
@@ -7012,6 +7012,27 @@
                 },
                 "unseen": {
                     "type": "integer"
+                }
+            }
+        },
+        "ephmatch.GetAvailabilityResp": {
+            "type": "object",
+            "properties": {
+                "available": {
+                    "description": "If Ephmatch is currently available",
+                    "type": "boolean"
+                },
+                "closingTime": {
+                    "description": "Closing time for current Ephmatch era/period",
+                    "type": "string"
+                },
+                "nextOpenTime": {
+                    "description": "Next time Ephmatch will be open",
+                    "type": "string"
+                },
+                "openIndefinitely": {
+                    "description": "If Ephmatch has no closing time set",
+                    "type": "boolean"
                 }
             }
         },
