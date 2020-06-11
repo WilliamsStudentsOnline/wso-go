@@ -22,25 +22,26 @@ const (
 )
 
 
-// Holds the information relevant to a dining hall's menu
+// Holds the information relevant to the menu
 type Menu struct {
-	dining_halls []DiningHall
+	dining_halls *[]DiningHall
 }
 
 type DiningHall struct {
-	dining_hall_name String
-	meals []Meal
+	dining_hall_name string
+	meals *[]Meal
 }
 
 // Holds the information relevant to a meal (e.g. Breakfast, Dinner)
 type Meal struct {
-	meal_name String
-	courses []Course
+	meal_name string
+	courses *[]Course
 }
+
 // Holds info relevant to a course (e.g. Appetizers or Entrees will be comprised of many meals)
 type Course struct {
-	course_name String
-	foods []Food
+	course_name string
+	foods *[]Food
 }
 
 // Holds the information relevant to food
@@ -94,151 +95,146 @@ func GetRawMeals(draft bool) ([]RawMeal, error) {
 	// ParseMenu processes the RawMeal data taken from the JSON endpoint to create a Menu object
 	func ParseMenu(rawMeals []RawMeal) (Menu, error) {
 		// Initialize the slice this way in order to ensure it will never respond as a nil slice
-		meals := []Meal{}
 
 		// declare dining halls
-		var driscoll DiningHall
-		driscoll.name = "driscoll"
-		var mission DiningHall
-		mission.name = "mission"
-		var paresky DiningHall
-		paresky.name = "paresky"
+		var driscoll *DiningHall
+		(*driscoll).name = "driscoll"
+		var mission *DiningHall
+		(*mission).name = "mission"
+		var paresky *DiningHall
+		(*paresky).name = "paresky"
 
 		var menu Menu
 		menu.dining_halls = []DiningHall{driscoll, mission, paresky}
 
+		// begin traversal of rawMeals
 		for _, rawMeal := range rawMeals {
-			var food Food
+			var food *Food
 
 			// PARSE NAME
-			food.food_name = rawMeal.FormalName
+			(*food).food_name = rawMeal.FormalName
 
 			// PARSE SERVING_SIZE AND UNIT
 			arr := split(rawMeal.PortionSize, " ")
 			if len(arr) == 1{
-				food.unit = arr[0]
+				(*food).unit = arr[0]
 				} else{
-					food.serving_size = arr[0]
-					food.unit = arr[1]
+					(*food).serving_size = arr[0]
+					(*food).unit = arr[1]
 				}
 
 				// PARSE CONTAINS ***
 				// PARSE PRICE *****
 
-				var newMeal Meal
-				switch sv:= rawMeal.ServiceUnit; sv {
+
+				switch sv:= awMeal.ServiceUnit; sv {
 				case "Driscoll Dining Hall":
+					var newMeal *Meal
+					var newCourse *Course
+
 					// if the meal name already exists in driscoll's meals, do not add it
 					mealExists := mealExists(rawMeal.meal, driscoll.meals)
 
 					// check if the meal exists
 					if !mealExists {
-						newMeal.name = rawMeal.meal
-						//driscoll.meals = append(driscoll.meals, newMeal)
+						(*newMeal).name = rawMeal.meal
+						// if the meal doesn't exist append to the dining hall
+						driscoll.meals = append(driscoll.meals, newMeal)
 						} else {
 							// if the meal exists, get the meal object
-
-							// does this return a copy of the meal object or the meal itself? A COPY
 							newMeal = getMeal(rawMeal.meal, driscoll.meals)
 						}
 
-						var newCourse course
+
 						courseExists := courseExists(rawMeal.course, newMeal.courses)
 						// check if the course exists
 						if !courseExists {
-							newCourse.name = rawMeal.course
-							//append(newMeal, newMeal.cous)
-						} else {
-							// does this return a copy of the course object or the course itself? A COPY
-							newCourse = getCourse(rawMeal.course, newMeal.courses)
+							(*newCourse).name = rawMeal.course
+							// if the course doesn't exist append to the meal
+							newMeal.courses = append(newMeal.courses, newCourse)
+							} else {
+								// does this return a copy of the course object or the course itself? A COPY
+								newCourse = getCourse(rawMeal.course, newMeal.courses)
+							}
+
+							// append the food to the course
+							newCourse.foods = append(newCourse.foods, food)
+
+
+							case "Mission Dining Hall": // ?
+							case "Paresky Dining Hall":  // ?
 						}
 
-						// append the food to that specific course
-						append(food, newCourse.foods)
-						// append the course to to the meals
-						// append the meal to the dining hall
+						} // end for loop
+						fmt.Println(meals)
 
-						case "Mission Dining Hall": // ?
-						case "Paresky Dining Hall":  // ?
 					}
 
 
 
-					meals = append(meals, meal)
 
-
-					} // end for loop
-					fmt.Println(meals)
-
-					var men Menu
-					return men, nil
-
-
-
-				}
-
-				func getMeal(mealName String, diningHallMeals []Meal) Meal {
-					for _,existingMeal := range diningHallMeals {
-						if mealName == existingMeal.name{
-							return existingMeal
+					func getMeal(mealName String, diningHallMeals []*Meal) *Meal {
+						var nilMeal *Meal
+						for _,existingMeal := range diningHallMeals {
+							if mealName == (*existingMeal).name{
+								return *existingMeal
+							}
 						}
+						return nilMeal
 					}
-					return nil
-				}
 
-				func mealExists(mealName String, diningHallMeals []Meal) bool{
-					for _,existingMeal := range diningHallMeals {
-						if mealName == existingMeal.name{
-							return true
+					func mealExists(mealName String, diningHallMeals []*Meal) bool{
+						for _,existingMeal := range diningHallMeals {
+							if mealName == (*existingMeal).name{
+								return true
+							}
 						}
+						return false
 					}
-					return false
-				}
 
-				func getCourse(courseName String, mealCourses []Course) Course {
-					for _,existingCourse := range mealCourses {
-						if courseName == existingCourse.name{
-							return existingCourse
+					func getCourse(courseName String, mealCourses []*Course) *Course {
+						var nilCourse *Course
+						for _,existingCourse := range mealCourses {
+							if courseName == (*existingCourse).name{
+								return *existingCourse
+							}
 						}
+						return nilCourse
 					}
-					return nil
-				}
 
-				func courseExists(courseName String, mealCourses []Course) boolean{
-					for _,existingCourse := range mealCourses {
-						if courseName == existingCourse.name{
-							return true
+					func courseExists(courseName String, mealCourses []*Course) boolean{
+						for _,existingCourse := range mealCourses {
+							if courseName == (*existingCourse).name{
+								return true
+							}
 						}
-					}
-					return false
-				}
-
-
-
-				func main(){
-					// parsedHTTP, err := getXML("https://dining.williams.edu/wp-json/dining/menus")
-					rawMeals, err := GetRawMeals(false)
-					fmt.Errorf("Error: &v", err)
-					menu, _ := ParseMenu(rawMeals)
-					fmt.Println(menu)
-					//fmt.Printf("RawMeals : \"%+v\"", rawMeals)
-				}
-
-				func getXML(url string) (string, error) {
-					resp, err := http.Get(url)
-					if err != nil {
-						return "", fmt.Errorf("GET error: %v", err)
-					}
-					defer resp.Body.Close()
-
-					if resp.StatusCode != http.StatusOK {
-						return "", fmt.Errorf("Status error: %v", resp.StatusCode)
+						return false
 					}
 
-					data, err := ioutil.ReadAll(resp.Body)
-					if err != nil {
-						return "", fmt.Errorf("Read body: %v", err)
+					func main(){
+						// parsedHTTP, err := getXML("https://dining.williams.edu/wp-json/dining/menus")
+						rawMeals, err := GetRawMeals(false)
+						fmt.Errorf("Error: &v", err)
+						menu, _ := ParseMenu(rawMeals)
+						fmt.Println(menu)
+						//fmt.Printf("RawMeals : \"%+v\"", rawMeals)
 					}
-					fmt.Println(string(data))
-					return string(data), nil
-				}
+
+					func getXML(url string) (string, error) {
+						resp, err := http.Get(url)
+						if err != nil {
+							return "", fmt.Errorf("GET error: %v", err)
+						}
+						defer resp.Body.Close()
+
+						if resp.StatusCode != http.StatusOK {
+							return "", fmt.Errorf("Status error: %v", resp.StatusCode)
+						}
+
+						data, err := ioutil.ReadAll(resp.Body)
+						if err != nil {
+							return "", fmt.Errorf("Read body: %v", err)
+						}
+						fmt.Println(string(data))
+						return string(data), nil
+					}
