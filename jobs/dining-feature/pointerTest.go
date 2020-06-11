@@ -34,21 +34,30 @@ func getPerson(id int, personArr []*Person) *Person {
 
 func main() {
   var students People
-  arr := []int{1,2,3,4}
-  arr = append(arr,10)
+
   nate := Person{ firstName: "Nathan", lastName: "Thimothe", uniqueID: 666,}
-  //students.people = make([]*Person, 100)
-  //students.people[0] = &nate
-  students.people = append(students.people, &nate)
+  students.people = make([]*Person, 100)
+  students.people[0] = &nate
+
+  var nateTwo *Person = new(Person)
+  (*nateTwo).firstName = "woah"
+  // THE FOLLOWING WORKS: NOT SURE WHY
+  // var nateTwo Person
+  // nateTwo.firstName = "woah"
+  // nateTwo.lastName = "there"
+  // (&nateTwo).firstName = "HEY"
+  fmt.Printf("natTwo: %+v", nateTwo)
+  // OR students.people = append(students.people, &nate)
   fmt.Println(reflect.ValueOf(students.people).Kind())
-  fmt.Println(reflect.ValueOf(arr).Kind())
-  fmt.Println(arr)
+  //fmt.Println(reflect.ValueOf(slice).Kind())
+  //fmt.Println(slice)
   // fmt.Printf("%s's memory address: %p\n", nate.firstName, &nate)
   // fmt.Printf("Students.people memory address: %p\n", &students.people)
   // students.people = append(students.people, &nate)
   //fmt.Printf("Students.people memory address 2: %p\n", &students.people)
 
-  var personFound *Person
+  var personFound *Person = new(Person)
+  fmt.Printf("personFound's before getPerson memory address: %p\n", personFound)
   personFound = getPerson(666, students.people)
   fmt.Printf("personFound's (Nathan) memory address: %p\n", personFound)
 }
