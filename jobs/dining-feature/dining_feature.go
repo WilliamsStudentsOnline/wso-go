@@ -1,4 +1,4 @@
-package main
+package dining_feature
 
 import (
 	"encoding/json"
@@ -8,11 +8,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	// "strings"
-	// "log"
-	// "io"
-	// "os"
-	// "golang.org/x/net/html"
 )
 
 const (
@@ -26,6 +21,7 @@ type Menu struct {
 	DiningHalls []*DiningHall
 }
 
+// Holds the information relevant to a dining hall
 type DiningHall struct {
 	DiningHallName string
 	Meals          []*Meal
@@ -46,10 +42,10 @@ type Course struct {
 // Holds the information relevant to food
 type Food struct {
 	FoodName    string
-	Contains    []string // allergens -- (e.g. soy, wheat, nuts)
+	Contains    []string // allergens -- (e.g. soy, wheat, nuts) // TO IMPLEMENT
 	ServingSize float64
-	Unit        string // (e.g. oz, cups, etc.)
-	Price       float64
+	Unit        string  // (e.g. oz, cups, etc.)
+	Price       float64 // TO IMPLEMENT
 }
 
 // RawMeal represents the unparsed course information we get from the dining-menu endpoint.
@@ -129,50 +125,55 @@ func ParseMenu(rawMeals []RawMeal) (Menu, error) {
 			(*food).Unit = strings.TrimSuffix(strings.ToLower(arr[1]), ".")
 		}
 
-		// PARSE CONTAINS ***
-		// PARSE PRICE *****
+		// TODO : get allergens
+		// TODO: get price to IMPLEMENT
 
 		switch sv := rawMeal.ServiceUnit; sv {
 		case "Driscoll Dining Hall":
-			var newMeal *Meal
-			var newCourse *Course
-
-			// if the meal name already exists in driscoll's Meals, do not add it
-			mealExists := mealExists(rawMeal.Meal, driscoll.Meals)
-
-			// check if the meal exists
-			if !mealExists {
-				// if the meal doesn't exist, allocate memory for it, set name, append
-				newMeal = new(Meal)
-				(*newMeal).MealName = rawMeal.Meal
-				driscoll.Meals = append(driscoll.Meals, newMeal)
-			} else {
-				// if the meal exists, get the meal object
-				newMeal = getMeal(rawMeal.Meal, driscoll.Meals)
-			}
-
-			courseExists := courseExists(rawMeal.Course, newMeal.Courses)
-			// check if the course exists
-			if !courseExists {
-				// if the course doesn't exist, allocate memory for it, set name, append
-				newCourse = new(Course)
-				(*newCourse).CourseName = rawMeal.Course
-				newMeal.Courses = append(newMeal.Courses, newCourse)
-			} else {
-				// does this return a copy of the course object or the course itself? A COPY
-				newCourse = getCourse(rawMeal.Course, newMeal.Courses)
-			}
-
-			// append the food to the course
-			newCourse.Foods = append(newCourse.Foods, food)
-
-		case "Mission Dining Hall": // ?
-		case "Paresky Dining Hall": // ?
+			addMeal(driscoll, rawMeal, food)
+		case "Mission Dining Hall":
+			addMeal(mission, rawMeal, food)
+		case "Paresky Dining Hall":
+			addMeal(paresky, rawMeal, food)
+		default:
+			fmt.Printf("\nDining Hall %s does not exist.\n", sv)
 		}
 
 	} // end for loop
 
 	return menu, nil
+}
+
+func addMeal(diningHall *DiningHall, rawMeal RawMeal, food *Food) {
+	var newMeal *Meal
+	var newCourse *Course
+	// if the meal name already exists in driscoll's Meals, do not add it
+	mealExists := mealExists(rawMeal.Meal, (*diningHall).Meals)
+
+	// check if the meal exists
+	if !mealExists {
+		// if the meal doesn't exist, allocate memory for it, set name, append
+		newMeal = new(Meal)
+		(*newMeal).MealName = rawMeal.Meal
+		(*diningHall).Meals = append((*diningHall).Meals, newMeal)
+	} else {
+		// if the meal exists, get the meal object
+		newMeal = getMeal(rawMeal.Meal, (*diningHall).Meals)
+	}
+
+	courseExists := courseExists(rawMeal.Course, newMeal.Courses)
+	// check if the course exists
+	if !courseExists {
+		// if the course doesn't exist, allocate memory for it, set name, append
+		newCourse = new(Course)
+		(*newCourse).CourseName = rawMeal.Course
+		newMeal.Courses = append(newMeal.Courses, newCourse)
+	} else {
+		// does this return a copy of the course object or the course itself? A COPY
+		newCourse = getCourse(rawMeal.Course, newMeal.Courses)
+	}
+	// append the food to the course
+	newCourse.Foods = append(newCourse.Foods, food)
 }
 
 func getMeal(mealName string, diningHallMeals []*Meal) *Meal {
@@ -213,55 +214,12 @@ func courseExists(courseName string, mealCourses []*Course) bool {
 	return false
 }
 
-func main() {
-	// parsedHTTP, err := getXML("https://dining.williams.edu/wp-json/dining/menus")
-	rawMeals, err := GetRawMeals(false)
-	checkError(err)
-
-	menu, err := ParseMenu(rawMeals)
-	checkError(err)
-
-	// spew.Dump(menu.dining_halls)
-
-	time, err := writeToJSON(menu)
-
-	if err == nil {
-		fmt.Printf("Sucess! New menu processed on: %s", time)
-	} else {
-		fmt.Println(err)
-	}
-
-}
-
-func getXML(url string) (string, error) {
-	resp, err := http.Get(url)
-	if err != nil {
-		return "", fmt.Errorf("GET error: %v", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("Status error: %v", resp.StatusCode)
-	}
-
-	data, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "", fmt.Errorf("Read body: %v", err)
-	}
-	fmt.Println(string(data))
-	return string(data), nil
-}
-
+// takes the Menu struct, exports data the JSON and writes it to a local file
+//	returns date as well
 func writeToJSON(menu Menu) (string, error) {
 	menuJSON, _ := json.Marshal(&menu)
 	err := ioutil.WriteFile("dining_data.json", menuJSON, 0644)
 	dt := time.Now()
 
 	return dt.Format("01-02-2006 15:04:05 Mon"), err
-}
-
-func checkError(err error) {
-	if err != nil {
-		fmt.Println(err)
-	}
 }
