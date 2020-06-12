@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 )
 
 const (
@@ -92,13 +93,13 @@ func ParseMenu(rawMeals []RawMeal) (Menu, error) {
 
 	// declare dining halls
 	var driscoll *DiningHall = new(DiningHall)
-	(*driscoll).DiningHallName = "driscoll"
+	(*driscoll).DiningHallName = "Driscoll"
 
 	var mission *DiningHall = new(DiningHall)
-	(*mission).DiningHallName = "mission"
+	(*mission).DiningHallName = "Mission"
 
 	var paresky *DiningHall = new(DiningHall)
-	(*paresky).DiningHallName = "paresky"
+	(*paresky).DiningHallName = "Paresky"
 
 	// define the slice
 	menu.DiningHalls = []*DiningHall{driscoll, mission, paresky}
@@ -106,7 +107,8 @@ func ParseMenu(rawMeals []RawMeal) (Menu, error) {
 	// begin traversal of rawMeals
 	for _, rawMeal := range rawMeals {
 		var food *Food = new(Food)
-
+		// reformat the formal name of the food
+		rawMeal.FormalName = reformat(rawMeal.FormalName)
 		// PARSE NAME
 		(*food).FoodName = rawMeal.FormalName
 
@@ -147,6 +149,9 @@ func ParseMenu(rawMeals []RawMeal) (Menu, error) {
 func addMeal(diningHall *DiningHall, rawMeal RawMeal, food *Food) {
 	var newMeal *Meal
 	var newCourse *Course
+	rawMeal.Meal = capitalizeFirst(rawMeal.Meal)
+	rawMeal.Course = reformat(rawMeal.Course)
+
 	// if the meal name already exists in driscoll's Meals, do not add it
 	mealExists := mealExists(rawMeal.Meal, (*diningHall).Meals)
 
@@ -174,6 +179,33 @@ func addMeal(diningHall *DiningHall, rawMeal RawMeal, food *Food) {
 	}
 	// append the food to the course
 	newCourse.Foods = append(newCourse.Foods, food)
+}
+
+// reformats words that are all uppercase to have 0th letter of each word as uppercase
+func reformat(name string) string {
+	for _, ch := range name {
+		if ch == ' ' {
+			continue
+		}
+		// found lowercase letter, no need to reformat
+		if !(unicode.IsUpper(ch)) {
+				return name
+		}
+	}
+	var formatted string
+	arr := strings.Split(name, " ")
+	// capitalize each word in the array and create formatted
+	for _, word := range arr {
+		formatted += capitalizeFirst(word) + " "
+	}
+	return formatted
+}
+
+func capitalizeFirst(str string) string {
+	if str == "" {
+		return ""
+	}
+	return strings.ToUpper(str[:1]) + strings.ToLower(str[1:])
 }
 
 func getMeal(mealName string, diningHallMeals []*Meal) *Meal {
@@ -222,4 +254,289 @@ func WriteToJSON(menu Menu) (string, error) {
 	dt := time.Now()
 
 	return dt.Format("01-02-2006 15:04:05 Mon"), err
+}
+
+{
+  "DiningHalls": [
+    {
+      "DiningHallName": "Driscoll",
+      "Meals": [
+        {
+          "MealName": "Dinner",
+          "Courses": [
+            {
+              "CourseName": "Salads",
+              "Foods": [
+                {
+                  "FoodName": "Mixed Many Greens Salad",
+                  "Contains": null,
+                  "ServingSize": 0,
+                  "Unit": "serving",
+                  "Price": 0
+                },
+                {
+                  "FoodName": "Deviled Eggs  VGT",
+                  "Contains": null,
+                  "ServingSize": 0,
+                  "Unit": "each",
+                  "Price": 0
+                }
+              ]
+            },
+            {
+              "CourseName": "Desserts",
+              "Foods": [
+                {
+                  "FoodName": "Pie Pumpkin",
+                  "Contains": null,
+                  "ServingSize": 0,
+                  "Unit": "slice",
+                  "Price": 0
+                },
+                {
+                  "FoodName": "Aerosol Whipped Topping",
+                  "Contains": null,
+                  "ServingSize": 0,
+                  "Unit": "tablespoon",
+                  "Price": 0
+                }
+              ]
+            },
+            {
+              "CourseName": "Entrees",
+              "Foods": [
+                {
+                  "FoodName": "Halal Beef Meatloaf",
+                  "Contains": null,
+                  "ServingSize": 5,
+                  "Unit": "oz",
+                  "Price": 0
+                },
+                {
+                  "FoodName": "Beef Gravy",
+                  "Contains": null,
+                  "ServingSize": 2,
+                  "Unit": "oz",
+                  "Price": 0
+                },
+                {
+                  "FoodName": "Lentils W/ Kale, Yogurt, \\u0026 Cucumber RFH",
+                  "Contains": null,
+                  "ServingSize": 4,
+                  "Unit": "oz",
+                  "Price": 0
+                },
+                {
+                  "FoodName": "Curried Tofu with Chickpeas",
+                  "Contains": null,
+                  "ServingSize": 6,
+                  "Unit": "oz",
+                  "Price": 0
+                },
+                {
+                  "FoodName": "Roasted Pork Loin",
+                  "Contains": null,
+                  "ServingSize": 5,
+                  "Unit": "oz",
+                  "Price": 0
+                }
+              ]
+            },
+            {
+              "CourseName": "Vegetables",
+              "Foods": [
+                {
+                  "FoodName": "Mixed Vegetables  V",
+                  "Contains": null,
+                  "ServingSize": 4,
+                  "Unit": "oz",
+                  "Price": 0
+                }
+              ]
+            },
+            {
+              "CourseName": "Condiments",
+              "Foods": [
+                {
+                  "FoodName": "Sour Cream",
+                  "Contains": null,
+                  "ServingSize": 2,
+                  "Unit": "oz",
+                  "Price": 0
+                }
+              ]
+            },
+            {
+              "CourseName": "Starch",
+              "Foods": [
+                {
+                  "FoodName": "White Rice GF V",
+                  "Contains": null,
+                  "ServingSize": 4,
+                  "Unit": "oz",
+                  "Price": 0
+                },
+                {
+                  "FoodName": "Potato Baby White Steamed",
+                  "Contains": null,
+                  "ServingSize": 0,
+                  "Unit": "servings",
+                  "Price": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "MealName": "Brunch",
+          "Courses": [
+            {
+              "CourseName": "Breakfast Grill",
+              "Foods": [
+                {
+                  "FoodName": "Pancakes",
+                  "Contains": null,
+                  "ServingSize": 0,
+                  "Unit": "each",
+                  "Price": 0
+                },
+                {
+                  "FoodName": "Local  Fried Eggs",
+                  "Contains": null,
+                  "ServingSize": 2,
+                  "Unit": "egg",
+                  "Price": 0
+                },
+                {
+                  "FoodName": "Scrambled Eggs",
+                  "Contains": null,
+                  "ServingSize": 2,
+                  "Unit": "eggs",
+                  "Price": 0
+                },
+                {
+                  "FoodName": "Turkey Sausage Link",
+                  "Contains": null,
+                  "ServingSize": 0,
+                  "Unit": "ounce",
+                  "Price": 0
+                }
+              ]
+            },
+            {
+              "CourseName": "Sides",
+              "Foods": [
+                {
+                  "FoodName": "Sidewinder Fries",
+                  "Contains": null,
+                  "ServingSize": 4,
+                  "Unit": "oz",
+                  "Price": 0
+                }
+              ]
+            },
+            {
+              "CourseName": "Starch",
+              "Foods": [
+                {
+                  "FoodName": "Home Fries  V",
+                  "Contains": null,
+                  "ServingSize": 4,
+                  "Unit": "oz",
+                  "Price": 0
+                }
+              ]
+            },
+            {
+              "CourseName": "Salads",
+              "Foods": [
+                {
+                  "FoodName": "Mixed Many Greens Salad",
+                  "Contains": null,
+                  "ServingSize": 0,
+                  "Unit": "serving",
+                  "Price": 0
+                }
+              ]
+            },
+            {
+              "CourseName": "Condiments",
+              "Foods": [
+                {
+                  "FoodName": "Tartar Sauce",
+                  "Contains": null,
+                  "ServingSize": 2,
+                  "Unit": "oz",
+                  "Price": 0
+                }
+              ]
+            },
+            {
+              "CourseName": "The Sweeter Side",
+              "Foods": [
+                {
+                  "FoodName": "Gluten Free Oatmeal V",
+                  "Contains": null,
+                  "ServingSize": 4,
+                  "Unit": "oz",
+                  "Price": 0
+                },
+                {
+                  "FoodName": "Fresh Fruit Salad  V",
+                  "Contains": null,
+                  "ServingSize": 4,
+                  "Unit": "oz",
+                  "Price": 0
+                }
+              ]
+            },
+            {
+              "CourseName": "Fresh Local",
+              "Foods": [
+                {
+                  "FoodName": "Garlic Basil Fettuccini ",
+                  "Contains": null,
+                  "ServingSize": 6,
+                  "Unit": "oz",
+                  "Price": 0
+                }
+              ]
+            },
+            {
+              "CourseName": "Entrees",
+              "Foods": [
+                {
+                  "FoodName": "Turkey Fuse Burger",
+                  "Contains": null,
+                  "ServingSize": 0,
+                  "Unit": "sandwich",
+                  "Price": 0
+                }
+              ]
+            },
+            {
+              "CourseName": "Soups",
+              "Foods": [
+                {
+                  "FoodName": "Cream of Mushroom",
+                  "Contains": null,
+                  "ServingSize": 6,
+                  "Unit": "oz",
+                  "Price": 0
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "DiningHallName": "Mission",
+      "Meals": null
+    },
+    {
+      "DiningHallName": "Paresky",
+      "Meals": null
+    }
+  ]
 }
