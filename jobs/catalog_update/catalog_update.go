@@ -21,14 +21,6 @@ const (
 	hourFormat      = "15:04"
 )
 
-func foo(){
-	fmt.Println("foo!\n\n")
-}
-
-func Dummy() {
-	fmt.Println("Hello, world!")
-}
-
 // Instructor holds the url and name of the instructors
 type Instructor struct {
 	ID   uint   `json:"id"`
