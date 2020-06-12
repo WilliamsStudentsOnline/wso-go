@@ -17,7 +17,7 @@ func main() {
 		fmt.Println(err)
 	}
 
-	time, err := DiningParser.writeToJSON(menu)
+	time, err := DiningParser.WriteToJSON(menu)
 	if err != nil {
 		fmt.Println(err)
 	}

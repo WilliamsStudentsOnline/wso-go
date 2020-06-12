@@ -216,7 +216,7 @@ func courseExists(courseName string, mealCourses []*Course) bool {
 
 // takes the Menu struct, exports data the JSON and writes it to a local file
 //	returns date as well
-func writeToJSON(menu Menu) (string, error) {
+func WriteToJSON(menu Menu) (string, error) {
 	menuJSON, _ := json.Marshal(&menu)
 	err := ioutil.WriteFile("dining_data.json", menuJSON, 0644)
 	dt := time.Now()
