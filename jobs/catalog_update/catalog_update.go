@@ -21,6 +21,10 @@ const (
 	hourFormat      = "15:04"
 )
 
+func Dummy() {
+	fmt.Println("Hello, world!")
+}
+
 // Instructor holds the url and name of the instructors
 type Instructor struct {
 	ID   uint   `json:"id"`
