@@ -21,6 +21,10 @@ const (
 	hourFormat      = "15:04"
 )
 
+func foo(){
+	fmt.Println("foo!\n\n")
+}
+
 func Dummy() {
 	fmt.Println("Hello, world!")
 }
