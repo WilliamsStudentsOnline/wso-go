@@ -192,7 +192,7 @@ func reformat(name string) string {
 		}
 		// found lowercase letter, no need to reformat
 		if !(unicode.IsUpper(ch)) {
-				return name
+			return name
 		}
 	}
 	var formatted string
@@ -204,10 +204,10 @@ func reformat(name string) string {
 	return formatted
 }
 
-func findFirstDigit(str string) string{
+func findFirstDigit(str string) string {
 	for i, ch := range str {
-		if unicode.IsDigit(ch){
-			fmt.Println("returning" + str[i: ])
+		if unicode.IsDigit(ch) {
+			fmt.Println("returning" + str[i:])
 			return str[i:]
 		}
 	}
