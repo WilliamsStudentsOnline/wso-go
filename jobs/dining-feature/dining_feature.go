@@ -149,16 +149,6 @@ func ParseMenu(rawMeals []RawMeal) (Menu, error) {
 	return menu, nil
 }
 
-func findFirstDigit(str string) string{
-	for i, ch := range str {
-		if unicode.IsDigit(ch){
-			fmt.Println("returning" + str[i: ])
-			return str[i:]
-		}
-	}
-	// if unable to find a digit, return the string as is
-	return str
-}
 func addMeal(diningHall *DiningHall, rawMeal RawMeal, food *Food) {
 	var newMeal *Meal
 	var newCourse *Course
@@ -212,6 +202,17 @@ func reformat(name string) string {
 		formatted += capitalizeFirst(word) + " "
 	}
 	return formatted
+}
+
+func findFirstDigit(str string) string{
+	for i, ch := range str {
+		if unicode.IsDigit(ch){
+			fmt.Println("returning" + str[i: ])
+			return str[i:]
+		}
+	}
+	// if unable to find a digit, return the string as is
+	return str
 }
 
 func capitalizeFirst(str string) string {
