@@ -127,7 +127,7 @@ func ParseMenu(rawMeals []RawMeal) (Menu, error) {
 			if err != nil {
 				fmt.Println(err)
 			}
-			(*food).Unit = strings.TrimSuffix(strings.ToLower(arr[1]), ".")
+			(*food).Unit = strings.TrimSuffix(strings.ToLower(arr[arr.length-1]), ".")
 		}
 
 		// TODO : get allergens
