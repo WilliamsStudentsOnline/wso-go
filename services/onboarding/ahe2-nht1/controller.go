@@ -1,4 +1,4 @@
-package main
+package controller
 
 import (
 	"fmt"
@@ -38,20 +38,22 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 // @Router /onboarding/$UNIX/{unixID} [get]
 func (t *Controller) GetUserByUnix(c *gin.Context) {
 	id := c.Param("unixID")
-	fmt.Printf("id: %+v", id)
+	 //assume no error for now
+
+	 (*t).userModel.GetUserByUnixID
+	
 }
 
-func main() {
-	var control Controller
-	control.NewController()
-	control.GetUserByUnix()
-}
+// func main() {
+// 	var control Controller
+// 	control.NewController()
+// 	control.GetUserByUnix()
+// }
 
 /*
 Hints:
-
-c.Param("unixID") should return the passed unix ID
-Use userModel.GetUserByUnixID to get a user from a unix ID
-Make sure to respond to errors and stop execution of the function.
-Be sure to sanitize the user of any secret information with sanitize.User(&user, c)
+1. c.Param("unixID") should return the passed unix ID
+2. Use userModel.GetUserByUnixID to get a user from a unix ID
+2. Make sure to respond to errors and stop execution of the function.
+3. Be sure to sanitize the user of any secret information with sanitize.User(&user, c)
 */
