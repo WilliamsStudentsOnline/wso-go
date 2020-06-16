@@ -116,5 +116,5 @@ func main() {
 		return
 	}
 
-	log.Infof("Saved parsed course catalog to %s", filename)
+	log.Infof("successfully saved parsed course catalog to %s", filename)
 }

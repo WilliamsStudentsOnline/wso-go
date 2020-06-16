@@ -38,6 +38,9 @@ const (
 	// Allows you to access other services not mentioned above
 	ScopeAllOther = "service:other"
 
+	// Service: Chat
+	ScopeChat = "service:chat"
+
 	// Service: Ephmatch
 	// Allows access to read/write self profile on Ephmatch. For when a user is eligible but not signed up
 	ScopeEphmatch = "service:ephmatch"

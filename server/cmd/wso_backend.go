@@ -105,6 +105,8 @@ func gracefulServe(addr string, cfg *config.Config, handler http.Handler, log *z
 		}()
 	}
 
+	log.Infof("server running on %s", addr)
+
 	// Wait for interrupt signal to gracefully shutdown the server with
 	// a timeout of 5 seconds.
 	quit := make(chan os.Signal)

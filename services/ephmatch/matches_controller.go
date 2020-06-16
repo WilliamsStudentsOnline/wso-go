@@ -70,7 +70,7 @@ type CountMatchesResponse struct {
 // @Tags ephmatch
 // @Accept  json
 // @Produce  json
-// @Success 200 {object} CountMatchesResponse
+// @Success 200 {object} ephmatch.CountMatchesResponse
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
 // @Router /ephmatch/matches-count [get]

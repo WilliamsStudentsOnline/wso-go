@@ -12,10 +12,12 @@ import (
 func main() {
 	/* Flags */
 	var configPath string
+	var console bool
 
 	// Command-line flags
 	// Note: these can be overridden by env vars
 	flag.StringVar(&configPath, "config", "", "path to config file")
+	flag.BoolVar(&console, "console", false, "print logs in console as well as in ")
 
 	flag.Parse()
 
@@ -23,6 +25,10 @@ func main() {
 	cfg, err := config.LoadConfig(configPath)
 	if err != nil {
 		panic("Config Error: " + err.Error())
+	}
+
+	if console {
+		cfg.LogFormats = append(cfg.LogFormats, "console")
 	}
 
 	/* LOGGING */
@@ -55,4 +61,6 @@ func main() {
 	if err != nil {
 		log.Fatal("Update All Factrak Survey Deficits Error: " + err.Error())
 	}
+
+	log.Info("successfully updated all Factrak survey deficits")
 }
