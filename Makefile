@@ -98,6 +98,10 @@ run-dev: $(BINARY_NAME)
 test:
 	go test -race ./...
 
+.PHONY: fast-test
+fast-test:
+	go test ./...
+
 .PHONY: mod
 mod:
 	go mod tidy

@@ -26,6 +26,7 @@ func main() {
 	var dormPath string
 	var roomsPath string
 	var disableMigrationCheck bool
+	var console bool
 
 	// Command-line flags
 	flag.StringVar(&configPath, "config", "", "path to config file")
@@ -33,6 +34,7 @@ func main() {
 	flag.StringVar(&dormPath, "dorm", "jobs/dorms_update/data/dorms.csv", "path to dorm info csv file")
 	flag.StringVar(&roomsPath, "rooms", "jobs/dorms_update/data/rooms", "path to room info directory of csv files")
 	flag.BoolVar(&disableMigrationCheck, "disable-migration-check", false, "don't check for outdated migrations")
+	flag.BoolVar(&console, "console", false, "print logs in console as well as in ")
 
 	flag.Parse()
 
@@ -40,6 +42,10 @@ func main() {
 	cfg, err := config.LoadConfig(configPath)
 	if err != nil {
 		panic("Config Error: " + err.Error())
+	}
+
+	if console {
+		cfg.LogFormats = append(cfg.LogFormats, "console")
 	}
 
 	/* LOGGING */
@@ -135,7 +141,7 @@ func main() {
 		return
 	}
 
-	log.Info("Finished")
+	log.Info("successfully updated dorm info")
 }
 
 func ReadDorms(file string, useLocal bool) ([]*dorms_update.Dorm, error) {

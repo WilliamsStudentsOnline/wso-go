@@ -1,5 +1,20 @@
 package models
 
+const (
+	EphmatchMessagingPlatformPhone     = "Phone"
+	EphmatchMessagingPlatformSnapchat  = "Snapchat"
+	EphmatchMessagingPlatformInstagram = "Instagram"
+)
+
+func ValidateEphmatchMessagingPlatform(str string) bool {
+	switch str {
+	case EphmatchMessagingPlatformPhone, EphmatchMessagingPlatformSnapchat, EphmatchMessagingPlatformInstagram:
+		return true
+	default:
+		return false
+	}
+}
+
 type EphmatchProfile struct {
 	BaseSchema
 
@@ -11,7 +26,18 @@ type EphmatchProfile struct {
 	Description  *string `json:"description"`
 	MatchMessage *string `json:"matchMessage"`
 
-	Liked bool `gorm:"-" json:"liked"` // If me (user) has an ephmatch entry where ephmatch.other_id=users.id and ephmatch.user_id=myID
+	Liked   *bool `gorm:"-" json:"liked,omitempty"`   // If self has liked this profile (user)
+	Matched *bool `gorm:"-" json:"matched,omitempty"` // If user and self are matched
+
+	// Current location columns
+	LocationVisible *bool   `gorm:"DEFAULT:true;not null" json:"locationVisible"`
+	LocationTown    *string `json:"locationTown"`
+	LocationState   *string `json:"locationState"`
+	LocationCountry *string `json:"locationCountry"`
+
+	// Messaging platform columns
+	MessagingPlatform *string `json:"messagingPlatform"`
+	MessagingUsername *string `json:"messagingUsername"`
 
 	// Non db entry that acts as a flag for deleted_at column
 	Deleted bool `gorm:"-" json:"deleted"`

@@ -17,15 +17,15 @@ import (
 // @Tags ephmatch
 // @Accept  json
 // @Produce  json
-// @Param preload query []string false "Preload List"
-// @Success 200 {array} responses.ListMatchesResponseEphmatch
+// @Param preload query []string false "Preload List [tags]"
+// @Success 200 {array} responses.ListMatchesResponseEphmatchMatch
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
 // @Router /ephmatch/matches [get]
 func (t *Controller) ListMatches(c *gin.Context) {
 	userID := services.GetUserID(c)
 
-	var matches []*models.Ephmatch
+	var matches []*models.EphmatchMatch
 	var err error
 
 	opts := models.GetMatchesOptions{}
@@ -35,19 +35,58 @@ func (t *Controller) ListMatches(c *gin.Context) {
 	}
 
 	// We could implement search here as well...
-	err = t.ephmatchModel.GetMatches(userID, &opts, &matches)
+	err = t.matchModel.GetMatches(userID, &opts, &matches)
 
 	if err != nil {
 		t.RespondError(c, err)
 		return
 	}
 
-	// TODO: Sort by when they matched
-
 	for _, match := range matches {
-		sanitize.User(match.User, c)
-		sanitize.User(match.Other, c)
+		sanitize.EphmatchProfile(match.MatchedUser.EphmatchProfile, c)
+		sanitize.User(match.MatchedUser, c)
 	}
 
 	t.RespondOK(c, responses.ConvertListMatchesResponse(matches))
+
+	err = t.matchModel.SetMatchesAsSeen(userID)
+	if err != nil {
+		lg := t.Log.With(
+			"userID", userID,
+			"err", err)
+		lg.Warn("error when setting matches as seen")
+	}
+}
+
+type CountMatchesResponse struct {
+	Total  int `json:"total"`
+	Unseen int `json:"unseen"`
+}
+
+// CountMatches godoc
+// @Summary Count matches
+// @Description counts all Ephmatch-eligible students that user has matched with by unseen and total
+// @ID ephmatch-count-matches
+// @Tags ephmatch
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} ephmatch.CountMatchesResponse
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /ephmatch/matches-count [get]
+func (t *Controller) CountMatches(c *gin.Context) {
+	userID := services.GetUserID(c)
+	var err error
+
+	// We could implement search here as well...
+	unseen, total, err := t.matchModel.CountMatchesAndUnseen(userID)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	t.RespondOK(c, CountMatchesResponse{
+		Unseen: unseen,
+		Total:  total,
+	})
 }

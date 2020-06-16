@@ -113,6 +113,16 @@ func (m *UserModel) GetUserByID(id uint, u *User) (err error) {
 	return
 }
 
+func (m *UserModel) GetUserByUnixID(unix string, u *User) (err error) {
+	err = m.DB.Where(&User{UnixID: unix}).
+		Preload("DormRoom").Preload("DormRoom.Dorm").
+		Preload("Tags").
+		Preload("Department").
+		Preload("Office").
+		First(u).Error
+	return
+}
+
 func (m *UserModel) DoesUserExist(id uint) (exists bool, err error) {
 	var count int
 	err = m.DB.Model(&User{}).Scopes(m.scopeVisible, m.scopeAtWilliams).Where("users.id = ?", id).Count(&count).Error
