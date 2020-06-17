@@ -1,4 +1,4 @@
-package router
+package exercise
 
 import (
 	"fmt"
