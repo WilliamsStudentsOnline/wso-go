@@ -45,13 +45,13 @@ func (t *Controller) GetUserByUnix(c *gin.Context) {
 	}
 
 	var user *models.User
-	 //assume no error for now
-	 err := (*t).userModel.GetUserByUnixID(id, user)
-	 if err != nil {
-		 fmt.Println(err)
-		 return
-	 }
-	 sanitize.User(&user, c)
+	//assume no error for now
+	err := (*t).userModel.GetUserByUnixID(id, user)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	sanitize.User(&user, c)
 }
 
 // func main() {
