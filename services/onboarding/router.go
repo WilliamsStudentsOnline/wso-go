@@ -3,6 +3,7 @@ package onboarding
 import (
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/services/onboarding/canonical"
+	"github.com/WilliamsStudentsOnline/wso-go/services/onboarding/ahe2-nht1"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
@@ -16,6 +17,6 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	canonical.SetupRouter(canonicalGroup, db, cfg, log.Named("canonical"))
 
 	exerciseGroup := r.Group("/ahe2-nht1")
-	exercise.SetupRouter(exerciseGroup, db, cfg, log.Named("exercise"))
+	ahe2-nht1.SetupRouter(exerciseGroup, db, cfg, log.Named("exercise"))
 
 }
