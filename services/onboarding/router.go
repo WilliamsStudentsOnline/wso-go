@@ -14,4 +14,8 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	canonicalGroup := r.Group("/canonical")
 	// Send all URLs in this group to the canonical service
 	canonical.SetupRouter(canonicalGroup, db, cfg, log.Named("canonical"))
+
+	exerciseGroup := r.Group("/ahe2-nht1")
+	exercise.SetupRouter(exerciseGroup, db, cfg, log.Named("exercise"))
+
 }
