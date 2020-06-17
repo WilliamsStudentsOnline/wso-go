@@ -38,10 +38,20 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 // @Router /onboarding/$UNIX/{unixID} [get]
 func (t *Controller) GetUserByUnix(c *gin.Context) {
 	id := c.Param("unixID")
-	 //assume no error for now
 
-	 (*t).userModel.GetUserByUnixID
-	
+	if id == "" {
+		fmt.Println("error: empty unix.")
+		return
+	}
+
+	var user *models.User
+	 //assume no error for now
+	 err := (*t).userModel.GetUserByUnixID(id, user)
+	 if err != nil {
+		 fmt.Println(err)
+		 return
+	 }
+	 sanitize.User(&user, c)
 }
 
 // func main() {
