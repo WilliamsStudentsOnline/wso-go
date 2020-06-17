@@ -1,8 +1,8 @@
-package exercise
+package ahe2nht1
 
 import (
 	"github.com/WilliamsStudentsOnline/wso-go/config"
-	"github.com/WilliamsStudentsOnline/wso-go/services/auth"
+	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"

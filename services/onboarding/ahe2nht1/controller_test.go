@@ -1,4 +1,4 @@
-package exercise
+package ahe2nht1
 
 import (
 	"encoding/json"

@@ -1,4 +1,4 @@
-package exercise
+package ahe2nht1
 
 import (
 	"fmt"
@@ -6,6 +6,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
+	"github.com/WilliamsStudentsOnline/wso-go/sanitize"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
@@ -51,7 +52,7 @@ func (t *Controller) GetUserByUnix(c *gin.Context) {
 		fmt.Println(err)
 		return
 	}
-	sanitize.User(&user, c)
+	sanitize.User(user, c)
 }
 
 // func main() {
