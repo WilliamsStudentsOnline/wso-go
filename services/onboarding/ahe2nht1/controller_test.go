@@ -20,12 +20,12 @@ func TestController_GetUserByUnix(t *testing.T) {
 
 	u1 := models.User{
 		Name:      "Test 1",
-		UnixId:    "unix1",
-		ClassYear: lib.InToPtr(2022),
+		UnixID:    "unix1",
+		ClassYear: lib.IntToPtr(2022),
 	}
 	require.NoError(db.Create(&u1).Error) // puts user in DB!
 	// init routing
-	routing := utils.SetupRouter(auth.ScopeUsers) // creat test router
+	router := utils.SetupRouter(auth.ScopeUsers) // creat test router
 	// make it seem like requests are coming from user1
 	utils.AddUserContexts(router, u1.ID)
 	// creates testing config
@@ -44,9 +44,9 @@ func TestController_GetUserByUnix(t *testing.T) {
 	require.Nil(resp.Error)                                // ensure no error from resp
 
 	// store decoded response in respUser
-	respUser := models.User{}                   // initialize an empty user
-	err = json.Unmarshall(resp.Data, &respUser) // put the data into user struct API
-	require.NoError(err)                        // ensure no errors from dumping into user struct
+	respUser := models.User{}                  // initialize an empty user
+	err = json.Unmarshal(resp.Data, &respUser) // put the data into user struct API
+	require.NoError(err)                       // ensure no errors from dumping into user struct
 
 	// An example test that ensures that the unixID from the user
 	// we inserted into the DB and the unixID we got from the API are the same.
