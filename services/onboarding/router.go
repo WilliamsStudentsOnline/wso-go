@@ -11,7 +11,7 @@ import (
 
 func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) {
 	/* Set up the canonical group */
-	// Group all URLs with /canonical
+	//Group all URLs with /canonical
 	canonicalGroup := r.Group("/canonical")
 	// Send all URLs in this group to the canonical service
 	canonical.SetupRouter(canonicalGroup, db, cfg, log.Named("canonical"))

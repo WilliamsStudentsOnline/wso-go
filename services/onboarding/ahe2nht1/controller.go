@@ -1,7 +1,8 @@
 package ahe2nht1
 
 import (
-	"fmt"
+	"errors"
+	"net/http"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
@@ -28,7 +29,7 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 // GetUserByUnix godoc
 // @Summary Gets a user
 // @Description Gets a user from their unix. Onboarding exercise.
-// @ID onboarding-$UNIX-get-user-by-unix
+// @ID onboarding-ahe2nht1-get-user-by-unix
 // @Tags onboarding
 // @Accept  json
 // @Produce  json
@@ -36,35 +37,23 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 // @Success 200 {object} models.User
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
-// @Router /onboarding/$UNIX/{unixID} [get]
+// @Router /onboarding/ahe2nht1/{unixID} [get]
 func (t *Controller) GetUserByUnix(c *gin.Context) {
 	id := c.Param("unixID")
 
 	if id == "" {
-		fmt.Println("error: empty unix.")
+		t.RespondErrorCode(c, http.StatusBadRequest, errors.New("missing unixID"))
 		return
 	}
 
-	var user *models.User
+	var user models.User
 	//assume no error for now
-	err := (*t).userModel.GetUserByUnixID(id, user)
+	err := t.userModel.GetUserByUnixID(id, &user)
 	if err != nil {
-		fmt.Println(err)
+		t.RespondError(c, err)
 		return
 	}
-	sanitize.User(user, c)
+	sanitize.User(&user, c)
+
+	t.RespondOK(c, user)
 }
-
-// func main() {
-// 	var control Controller
-// 	control.NewController()
-// 	control.GetUserByUnix()
-// }
-
-/*
-Hints:
-1. c.Param("unixID") should return the passed unix ID
-2. Use userModel.GetUserByUnixID to get a user from a unix ID
-2. Make sure to respond to errors and stop execution of the function.
-3. Be sure to sanitize the user of any secret information with sanitize.User(&user, c)
-*/
