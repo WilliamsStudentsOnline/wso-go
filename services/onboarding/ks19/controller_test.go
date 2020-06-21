@@ -54,7 +54,7 @@ func TestController_GetUserByUnix(t *testing.T) {
 	// test 2, expect failure with 404
 	w, err = utils.DoHTTPReq(router, http.MethodGet, "fakeUnix", nil)
 	require.NoError(err)
-	// Error status
+	// Error status 404
 	require.Equal(http.StatusNotFound, w.Code)
 }
 

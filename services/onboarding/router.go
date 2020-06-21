@@ -16,8 +16,8 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	// Send all URLs in this group to the canonical service
 	canonical.SetupRouter(canonicalGroup, db, cfg, log.Named("canonical"))
 
-	onboardingGroup := r.Group("/ks19")
-	ks19.SetupRouter(onboardingGroup, db, cfg, log.Named("canonical"))
+	unixGroup := r.Group("/ks19")
+	ks19.SetupRouter(unixGroup, db, cfg, log.Named("canonical"))
 
 
 }

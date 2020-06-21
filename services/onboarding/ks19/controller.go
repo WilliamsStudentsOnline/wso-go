@@ -40,14 +40,7 @@ func (t *Controller) GetUserByUnix(c *gin.Context) {
 	var user models.User
 	var err error
 
-	//what exactly is a controller? and a gin.Context type?
-	//c.Param  does what? stores passed param from URI as unixID
-	//whats the purpose of 2 variables here? why is one an error type
-	//what exactly is the purpose of this method? is the info of the user in user? or err?
-	//GetUserByUnixID takes unix, and empty struct models.User, retrieves info from DB
-	// and passes to models.User struct?
-	// whats the point of the config.Config parameter in NewController?
-
+	//respond with 400 if unix is empty
 	unixID := c.Param("unixID")
 	if unixID == "" {
 		t.RespondErrorCode(c, http.StatusBadRequest, errors.New("missing unixID") )
@@ -61,6 +54,7 @@ func (t *Controller) GetUserByUnix(c *gin.Context) {
 	// sanitize user
 	sanitize.User(&user, c)
 
+	//respond ok
 	t.RespondOK(c, user)
 
 }

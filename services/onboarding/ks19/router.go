@@ -11,8 +11,8 @@ package ks19
  )
 
 func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) {
-	c := NewController(db, cfg, log)
-	rUser := r.Group("")
+	c := NewController(db, cfg, log) //intialize NewController
+	rUser := r.Group("") //group is empty
 	rUser.Use(auth.RequireScopes(auth.ScopeUsers))
-	rUser.GET("/:unixID", c.GetUserByUnix)
+	rUser.GET("/:unixID", c.GetUserByUnix) //set path
 }
