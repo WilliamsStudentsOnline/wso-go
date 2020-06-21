@@ -1,0 +1,60 @@
+package rmn1
+
+import (
+	"encoding/json"
+	"net/http"
+	"testing"
+
+	"github.com/WilliamsStudentsOnline/wso-go/lib"
+	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
+	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
+	"github.com/WilliamsStudentsOnline/wso-go/models"
+	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
+)
+
+// With consultation from the canonical package
+func TestController_GetUserByUnix(t *testing.T) {
+     // create a testing assertion
+     require := assert.New(t);
+     // initialize the test DB
+     db := utils.SetupServiceTest(require)
+
+     // create a test user
+     u1 := models.User {
+     	Name:	       "Test 1",
+	UnixID:	       "unix1",
+	ClassYear:     lib.IntToPtr(2022),
+     }
+     require.NoError(db.Create(&u1).Error)
+
+     // initialize routing
+     router := utils.SetupRouter(auth.ScopeUsers)
+     utils.AddUserContexts(router, u1.ID)
+     cfg := utils.SetupConfig()
+     logger := zap.S()
+     SetupRouter(router, db, cfg, logger)
+
+     // go a GET request for unix1
+     w, err := utils.DoHTTPReq(router, http.MethodGet, "/unix1", nil)
+     require.NoError(err)
+
+     // decode response
+     resp := utils.GetHTTPDataResp(require, w.Body.Bytes())
+     require.Nil(resp.Error)
+
+     // get the decoded response in respUser
+     respUser := models.User{}
+     err = json.Unmarshal(resp.Data, &respUser)
+     require.NoError(err)
+
+     // test to ensure the UnixID, ID, and Name are equal when passing a good unix
+     require.Equal(u1.UnixID, respUser.UnixID)
+     require.Equal(u1.ID, respUser.ID)
+     require.Equal(u1.Name, respUser.Name)
+
+     // test to ensure error occurs when passing a bad unix
+     w, err = utils.DoHTTPReq(router, http.MethodGet, "badUnix", nil)
+     require.NoError(err)
+     require.Equal(http.StatusNotFound, w.Code)
+}
