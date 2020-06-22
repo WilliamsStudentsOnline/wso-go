@@ -8,6 +8,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// With consultation from the canonical package
 func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) {
 	// create a Controller
 	controller := NewController(db, cfg, log)

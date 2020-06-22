@@ -9,9 +9,9 @@ import (
 )
 
 func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) {
-	/* Set up the canonical group */
-	// Group all URLs with /canonical
-	canonicalGroup := r.Group("/canonical")
-	// Send all URLs in this group to the canonical service
-	canonical.SetupRouter(canonicalGroup, db, cfg, log.Named("canonical"))
+	/* Set up the rmn1 group */
+	// Group all URLs with /rmn1
+	rmn1Group := r.Group("/rmn1")
+	// Send all URLs in this group to the rmn1 service
+	canonical.SetupRouter(rmn1Group, db, cfg, log.Named("rmn1"))
 }
