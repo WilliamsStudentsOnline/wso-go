@@ -10,6 +10,20 @@ SERVICE_DIRS = $(wildcard services/*)
 SWAGGER := $(shell which swag 2>/dev/null)
 GOIMPORTS := $(shell which goimports 2>/dev/null)
 
+define GOIMPORTS_ERROR
+goimports command is missing.
+
+GoImports Installation Instructions
+---
+Run:
+  go get golang.org/x/tools/cmd/goimports
+
+Ensure your go bin is in your $$PATH.
+Edit your ~/.bashrc to add this line:
+  export PATH=$$PATH:$$(go env GOPATH)/bin
+
+endef
+
 $(BINARY_NAME): $(BUILD_DEPS)
 	go build -tags=jsoniter -o $(BINARY_NAME) ./server/cmd
 
@@ -22,6 +36,8 @@ ifdef SWAGGER
 endif
 ifdef GOIMPORTS
 	goimports -w docs/docs.go
+else
+	$(warning $(GOIMPORTS_ERROR))
 endif
 
 services/*/responses/%.go: services/*/responses/%.json
@@ -63,7 +79,11 @@ go-gen:
 
 .PHONY: fmt
 fmt:
+ifdef GOIMPORTS
 	goimports -w ./
+else
+	$(error $(GOIMPORTS_ERROR))
+endif
 
 .PHONY: commit
 commit: jobs/dorms_update/cmd/data.go docs/docs.go fmt services/*/responses/*.go
