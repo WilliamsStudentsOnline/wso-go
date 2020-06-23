@@ -160,7 +160,7 @@ Cats                []struct {
     if err != nil {
       return nil, err
     }
-    fmt.Printf("%+v", res.Body)
+    fmt.Printf("%+v\n", res.Body)
     var rawAnnouncements []RawGeneralAnnouncement
     //populate the array of RawGeneralAnnouncements
     err = json.NewDecoder(res.Body).Decode(&rawAnnouncements)
@@ -172,6 +172,15 @@ Cats                []struct {
     return rawAnnouncements, nil
   }
 
+  func ParseDailyMessages([]RawDailyMessages rawMessages) ([]DailyMessage, err){
+    var messages []DailyMessage
+    for rawMessage, _ := range rawMessages {
+        var message DailyMessage
+
+        messages = append(messages,message)
+    }
+    return
+  }
   // func GetDailyMessages() (map[string]DailyMessage, error) {
   //   return nil, nil
   // }
