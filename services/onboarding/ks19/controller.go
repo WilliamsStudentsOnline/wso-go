@@ -39,11 +39,11 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 // @Security Bearer
 // @Router /onboarding/$UNIX/{unixID} [get]
 func (t *Controller) GetUserByUnix(c *gin.Context) {
-	var user models.User
-	var err error
+	var user models.User //empty User struct
+	var err error        //error type
 
 	//respond with 400 if unix is empty
-	unixID := c.Param("unixID")
+	unixID := c.Param("unixID") //returns unixID as string
 	if unixID == "" {
 		t.RespondErrorCode(c, http.StatusBadRequest, errors.New("missing unixID"))
 		return

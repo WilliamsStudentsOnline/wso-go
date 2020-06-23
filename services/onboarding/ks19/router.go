@@ -10,7 +10,7 @@ import (
 )
 
 func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) {
-	c := NewController(db, cfg, log) //intialize NewController
+	c := NewController(db, cfg, log) //initialize Controller
 	rUser := r.Group("")             //group is empty
 	rUser.Use(auth.RequireScopes(auth.ScopeUsers))
 	rUser.GET("/:unixID", c.GetUserByUnix) //set path

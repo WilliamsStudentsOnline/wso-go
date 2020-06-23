@@ -45,7 +45,7 @@ func TestController_GetUserByUnix(t *testing.T) {
 	err = json.Unmarshal(resp.Data, &respUser) // Put the user data we got from the API into the user struct we just created
 	require.NoError(err)
 
-	// DO THE TESTS HERE:
+	// added more tests:
 	require.Equal(u1.UnixID, respUser.UnixID) // An example test that ensures that the unixID from the user we inserted into the DB and the unixID we got from the API are the same.
 	require.Equal(u1.Title, respUser.Title)
 	require.Equal(u1.ID, respUser.ID)
