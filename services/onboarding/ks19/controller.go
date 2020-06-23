@@ -37,7 +37,7 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 // @Success 200 {object} models.User
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
-// @Router /onboarding/$UNIX/{unixID} [get]
+// @Router /onboarding/ks19/{unixID} [get]
 func (t *Controller) GetUserByUnix(c *gin.Context) {
 	var user models.User //empty User struct
 	var err error        //error type
