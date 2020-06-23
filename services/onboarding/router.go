@@ -19,6 +19,4 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	unixGroup := r.Group("/ks19")
 	ks19.SetupRouter(unixGroup, db, cfg, log.Named("canonical"))
 
-
 }
-

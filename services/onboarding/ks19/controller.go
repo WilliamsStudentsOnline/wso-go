@@ -2,6 +2,8 @@ package ks19
 
 import (
 	"errors"
+	"net/http"
+
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/sanitize"
@@ -9,18 +11,18 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
-	"net/http"
 )
+
 type Controller struct {
-	services.BaseController // Inherit the base controller
-	userModel *models.UserModel // DB communication to get user info
+	services.BaseController                   // Inherit the base controller
+	userModel               *models.UserModel // DB communication to get user info
 }
 
 // Construct new controller
 func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Controller {
-	return &Controller {
+	return &Controller{
 		BaseController: services.BaseController{Log: log},
-		userModel: models.NewUserModel(db, log),
+		userModel:      models.NewUserModel(db, log),
 	}
 }
 
@@ -43,7 +45,7 @@ func (t *Controller) GetUserByUnix(c *gin.Context) {
 	//respond with 400 if unix is empty
 	unixID := c.Param("unixID")
 	if unixID == "" {
-		t.RespondErrorCode(c, http.StatusBadRequest, errors.New("missing unixID") )
+		t.RespondErrorCode(c, http.StatusBadRequest, errors.New("missing unixID"))
 		return
 	}
 	err = t.userModel.GetUserByUnixID(unixID, &user)
@@ -51,7 +53,7 @@ func (t *Controller) GetUserByUnix(c *gin.Context) {
 		t.RespondError(c, err)
 		return
 	}
-	// sanitize user
+	// sanitize user of secret info
 	sanitize.User(&user, c)
 
 	//respond ok

@@ -2,11 +2,11 @@ package ks19
 
 import (
 	"encoding/json"
-	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	"net/http"
 	"testing"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
+	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/stretchr/testify/assert"
@@ -14,7 +14,7 @@ import (
 )
 
 func TestController_GetUserByUnix(t *testing.T) {
-	require := assert.New(t) // This creates a testing assertion for us to use
+	require := assert.New(t)              // This creates a testing assertion for us to use
 	db := utils.SetupServiceTest(require) // This initializes our test DB
 
 	// Insert test users into db
@@ -27,21 +27,21 @@ func TestController_GetUserByUnix(t *testing.T) {
 
 	// Initialize Routing
 	router := utils.SetupRouter(auth.ScopeUsers) // Creates a test router with the scope users. Thus, it will be authorized
-	utils.AddUserContexts(router, u1.ID) // Set the router to look like requests are coming from user 1.
-	cfg := utils.SetupConfig() // Creates the testing server config
-	logger := zap.S() // Creates the testing server logger
-	SetupRouter(router, db, cfg, logger) // Pass all these parameters into our SetupRouter function that will set up the controller
+	utils.AddUserContexts(router, u1.ID)         // Set the router to look like requests are coming from user 1.
+	cfg := utils.SetupConfig()                   // Creates the testing server config
+	logger := zap.S()                            // Creates the testing server logger
+	SetupRouter(router, db, cfg, logger)         // Pass all these parameters into our SetupRouter function that will set up the controller
 
 	w, err := utils.DoHTTPReq(router, http.MethodGet, "/unix1", nil) // does a GET request for unix1 on our router
-	require.NoError(err) // Ensure we don't fail
+	require.NoError(err)                                             // Ensure we don't fail
 	require.Equal(http.StatusOK, w.Code)
 
 	// Decode response
 	resp := utils.GetHTTPDataResp(require, w.Body.Bytes()) // Decodes the response into our API response structure (everything from the API is in this format)
-	require.Nil(resp.Error) // Ensure no errors from response
+	require.Nil(resp.Error)                                // Ensure no errors from response
 
 	// Get the decoded response in respUser
-	respUser := models.User{} // Initialize an empty user to put the response data into
+	respUser := models.User{}                  // Initialize an empty user to put the response data into
 	err = json.Unmarshal(resp.Data, &respUser) // Put the user data we got from the API into the user struct we just created
 	require.NoError(err)
 
@@ -57,5 +57,3 @@ func TestController_GetUserByUnix(t *testing.T) {
 	// Error status 404
 	require.Equal(http.StatusNotFound, w.Code)
 }
-
-
