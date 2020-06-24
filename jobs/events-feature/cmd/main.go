@@ -1,13 +1,13 @@
 package main
 
 import (
-	"fmt"
-
+	//"fmt"
 	events "github.com/WilliamsStudentsOnline/wso-go/jobs/events-feature"
 )
 
 func main() {
-	announcements, _ := events.GetRawDailyMessages()
-	fmt.Printf("%+v\n", announcements)
+	events.GetRawDailyMessages()
+
+	//fmt.Printf("%+v\n", announcements)
 
 }
