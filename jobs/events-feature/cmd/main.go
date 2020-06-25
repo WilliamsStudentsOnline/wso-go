@@ -10,6 +10,7 @@ func main() {
 
   categories, _ := events.ParseDailyMessages(rawCategories)
 
-  events.DumpCategories(categories)
+  //events.DumpCategories(categories)
 
-}
+  events.WriteToJSON(categories)
+} 

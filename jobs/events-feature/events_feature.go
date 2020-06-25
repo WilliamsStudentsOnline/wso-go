@@ -3,7 +3,7 @@ package events_update
 import (
 	"encoding/json"
 	"fmt"
-	//"io/ioutil"
+	"io/ioutil"
 	"net/http"
 	//"log"
 	//"strconv"
@@ -148,8 +148,8 @@ type RawDailyMessage struct {
 
 
 type MessageCategory struct {
-	CategoryName string
-	DailyMessages []DailyMessage
+	CategoryName string `json:"category_name"`
+	DailyMessages []DailyMessage `json:"daily_messages"`
 }
 type DailyMessage struct {
 	ID               uint `json:"id"`
@@ -260,4 +260,20 @@ func DumpCategories(categories []MessageCategory){
 
 func describe(i interface{}) {
 	fmt.Printf("(%v, %T)\n", i, i)
+}
+
+// takes the Menu struct, exports data the JSON and writes it to a local file
+//	returns date as well
+func WriteToJSON(categories []MessageCategory) (string, error) {
+	announcements, err:= json.Marshal(categories)
+	if err != nil{
+		return "", err
+	}
+	err = ioutil.WriteFile("daily_messages.json", announcements, 0644)
+	if err != nil {
+		return "", err
+	}
+	dt := time.Now()
+
+	return dt.Format("01-02-2006 15:04:05 Mon"), err
 }
