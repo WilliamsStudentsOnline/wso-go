@@ -265,11 +265,11 @@ func describe(i interface{}) {
 // takes the Menu struct, exports data the JSON and writes it to a local file
 //	returns date as well
 func WriteToJSON(categories []MessageCategory) (string, error) {
-	announcements, err:= json.Marshal(categories)
+	eventsJSON, err:= json.Marshal(categories)
 	if err != nil{
 		return "", err
 	}
-	err = ioutil.WriteFile("daily_messages.json", announcements, 0644)
+	err = ioutil.WriteFile("events_data.json", eventsJSON, 0644)
 	if err != nil {
 		return "", err
 	}

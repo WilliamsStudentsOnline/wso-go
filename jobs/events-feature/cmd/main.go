@@ -13,4 +13,4 @@ func main() {
   //events.DumpCategories(categories)
 
   events.WriteToJSON(categories)
-} 
+}
