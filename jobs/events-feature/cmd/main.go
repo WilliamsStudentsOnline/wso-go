@@ -6,8 +6,10 @@ import (
 )
 
 func main() {
-	events.GetRawDailyMessages()
+	rawCategories := events.GetRawCategories()
 
-	//fmt.Printf("%+v\n", announcements)
+  categories := events.ParseDailyMessages(rawCategories)
+
+  DumpCategories(categories)
 
 }

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	//"io/ioutil"
 	"net/http"
-
+	//"log"
 	//"strconv"
 	//"strings"
 	"time"
@@ -17,21 +17,17 @@ const (
 	EVENTS_URL = "https://events.williams.edu/wp-json/wms/events/v1/list/dm"
 )
 
-type RawAnnouncements struct {
-	HeaderName string
-	announcements []RawGeneralAnnouncement
-}
 
 type Cats struct {
-	TermID         string `json:"term_id"`
+	TermID         int `json:"term_id"`
 	Name           string `json:"name"`
 	Slug           string `json:"slug"`
-	TermGroup      string `json:"term_group"`
-	TermTaxonomyID string `json:"term_taxonomy_id"`
+	TermGroup      int `json:"term_group"`
+	TermTaxonomyID int `json:"term_taxonomy_id"`
 	Taxonomy       string `json:"taxonomy"`
 	Description    string `json:"description"`
-	Parent         string `json:"parent"`
-	Count          string `json:"count"`
+	Parent         int `json:"parent"`
+	Count          int `json:"count"`
 	Filter         string `json:"filter"`
 	TermOrder      string `json:"term_order"`
 }
@@ -59,8 +55,15 @@ type CSS struct {
 	TextWIndent string `json:"text_w_indent"`
 }
 
-type RawGeneralAnnouncement struct {
-	ID                  string `json:"post_author"`
+
+type RawCategory struct {
+	RawCategoryName string
+	RawDailyMessages []RawDailyMessage
+}
+
+type RawDailyMessage struct {
+	ID                  uint     `json:"ID"`
+	PostAuthor          string `json:"post_author"`
 	PostDate            string `json:"post_date"`
 	PostDateGMT         string `json:"post_date_gmt"`
 	PostContent         string `json:"post_content"`
@@ -76,35 +79,35 @@ type RawGeneralAnnouncement struct {
 	PostModified        string `json:"post_modified"`
 	PostModifiedGMT     string `json:"post_modified_gmt"`
 	PostContentFiltered string `json:"post_content_filtered"`
-	PostParent          string `json:"post_parent"`
+	PostParent          int `json:"post_parent"`
 	GUID                string `json:"guid"`
-	MenuOrder           string `json:"menu_order"`
+	MenuOrder           int `json:"menu_order"`
 	PostType            string `json:"post_type"`
 	PostMimeType        string `json:"post_mime_type"`
 	CommentCount        string `json:"comment_count"`
 	Filter              string `json:"filter"`
 	EventStartDate      string `json:"EventStartDate"`
 	EventEndDate        string `json:"EventEndDate"`
-	Init                string `json:"init"`
+	Init                bool `json:"init"`
 	Content             string `json:"content"`
-	EditLink            string `json:"edit_link"`
+	EditLink            interface{}  `json:"edit_link"`
 	EventURL            string `json:"event_url"`
 	Permalink           string `json:"permalink"`
 	User                string `json:"user"`
 	Author              string `json:"author"`
 	AuthorEmail         string `json:"author_email"`
 	Type                string `json:"type"`
-	Private             string `json:"private"`
+	Private             interface{}  `json:"private"`
 	LDAPDepartment      string `json:"ldap_department"`
-	DeptsArr            string `json:"depts_arr"`
+	DeptsArr            []interface{} `json:"depts_arr"`
 	Depts               string `json:"depts"`
 	Orgs                string `json:"orgs"`
-	Cats                Cats  `json:"cats"`
+	Cats                []Cats  `json:"cats"`
 	Category            string `json:"category"`
 	CategoryHTML        string `json:"category_html"`
 	Title               string `json:"title"`
 	Cost                string `json:"cost"`
-	Venue               string `json:"venue"`
+	Venue               interface{} `json:"venue"`
 	VenuePhone          string `json:"venue_phone"`
 	VenueRoom           string `json:"venue_room"`
 	Map                 string `json:"map"`
@@ -112,30 +115,30 @@ type RawGeneralAnnouncement struct {
 	WebsiteURL          string `json:"website_url"`
 	TwitterHash         string `json:"twitter_hash"`
 	TwitterURL          string `json:"twitter_url"`
-	Tags                string `json:"tags"`
-	Recurring           string `json:"recurring"`
+	Tags                bool `json:"tags"`
+	Recurring           bool `json:"recurring"`
 	RecurrenceURL       string `json:"recurrence_url"`
-	CTDSite             string `json:"ctd_site"`
+	CTDSite             []interface{} `json:"ctd_site"`
 	OrganizersLabel     string `json:"organizers_label"`
-	Organizers          string `json:"organizers"`
+	Organizers          interface{} `json:"organizers"`
 	OrganizerPhone      string `json:"organizer_phone"`
 	OrganizerEmail      string `json:"organizer_email"`
 	OrganizerWebsite    string `json:"organizer_website"`
-	IsDM                string `json:"is_dm"`
+	IsDM                bool `json:"is_dm"`
 	DMText              string `json:"dm_text"`
-	DMDates             string `json:"dm_dates"`
-	EventDates          string `json:"event_dates"`
+	DMDates             []string  `json:"dm_dates"`
+	EventDates          []string  `json:"event_dates"`
 	StartDateTime       string `json:"StartDateTime"`
 	TimeFormatted       string `json:"time_formatted"`
 	StartDate           string `json:"start_date"`
 	StartTS             string `json:"start_ts"`
 	EndTS               string `json:"end_ts"`
-	ThumbID             string `json:"thumb_id"`
+	ThumbID             bool `json:"thumb_id"`
 	IMG                 string `json:"img"`
-	ThumbURL            string `json:"thumb_url"`
-	ThumbURLUncropped   string `json:"thumb_url_uncropped"`
-	ThumbURLMedium      string `json:"thumb_url_medium"`
-	Debug               string `json:"debug"`
+	ThumbURL            bool `json:"thumb_url"`
+	ThumbURLUncropped   bool `json:"thumb_url_uncropped"`
+	ThumbURLMedium      bool `json:"thumb_url_medium"`
+	Debug               bool `json:"debug"`
 	CSS                 CSS    `json:"css"`
 	ArrowDown           string `json:"arrow_down"`
 	ArrowUp             string `json:"arrow_up"`
@@ -143,19 +146,24 @@ type RawGeneralAnnouncement struct {
 	HashLink            string `json:"hash_link"`
 }
 
+
+type MessageCategory struct {
+	CategoryName string
+	DailyMessages []DailyMessage
+}
 type DailyMessage struct {
 	ID               uint `json:"id"`
-	Description      string
-	Title            string
-	ShortDescription string // dm_text
-	Author           string
-	AuthorEmail      string
-	Department       string
-	Category         string
-	Venue            string
+	Title            string `json:"title"`
+	Description      string `json:"description"`
+	ShortDescription string `json:"short_description"`// dm_text
+	Author           string `json:"author"`
+	AuthorEmail      string `json:"author_email"`
+	Department       string `json:"dept"`
+	// Category         string UNNCESSARY SINCE WE HAVE PARENT STRUCT
+	Venue            string `json:"venue"`
 }
 
-func GetRawDailyMessages() ([]RawAnnouncements, error) {
+func GetRawCategories() ([]RawCategory, error) {
 	eventsClient := &http.Client{
 		Timeout: time.Second * 30, // maximum of 30s
 	}
@@ -168,34 +176,87 @@ func GetRawDailyMessages() ([]RawAnnouncements, error) {
 	if err != nil {
 		return nil, err
 	}
-	// defer res.Body.Close()
-	//fmt.Printf("%+v\n", res.Body)
-	// body, err := ioutil.ReadAll(res.Body)
-	//
-	// fmt.Println(body)
+	defer res.Body.Close()
 
-	//populate the array of RawGeneralAnnouncements
-	var rawAnnouncements []RawAnnouncements
-	err = json.NewDecoder(res.Body).Decode(&rawAnnouncements)
-
+	// decode get request's body into a raw data map
+	var rawData map[string]interface{}
+	err = json.NewDecoder(res.Body).Decode(&rawData)
 	if err != nil {
-		fmt.Println("returning badly")
 		return nil, err
 	}
 
-	fmt.Printf("rawAnnouncements!!! %+v", rawAnnouncements)
-	return rawAnnouncements, nil
+	// define an array of RawCategory that will contain -- key (category name )and an []RDM
+	var rawCategories []RawCategory
+	// convert raw data map into an array of RawCategory
+	for k, v := range rawData {
+		var rawCategory RawCategory
+		// define the header name as the key
+		rawCategory.RawCategoryName = k
+
+		// convert interface{} to JSON string
+		JSONString, err := json.Marshal(v)
+		if err != nil {
+			return nil, err
+		}
+
+		// convert JSON string to an array of RDM structs
+    var rawDailyMessages []RawDailyMessage
+    json.Unmarshal(JSONString, &rawDailyMessages)
+		rawCategory.RawDailyMessages = rawDailyMessages
+
+		// append this fully written RawCategory to rawCategories to return
+		rawCategories = append(rawCategories, rawCategory)
+	}
+	fmt.Printf("%+v", rawCategories)
+	return rawCategories, nil
 }
 
-// func ParseDailyMessages(rawMessages []RawGeneralAnnouncement) ([]DailyMessage, err){
-//   var messages []DailyMessage
-//   for rawMessage, _ := range rawMessages {
-//       var message DailyMessage
-//
-//       messages = append(messages,message)
-//   }
-//   return
-// }
-// func GetDailyMessages() (map[string]DailyMessage, error) {
-//   return nil, nil
+func ParseDailyMessages(rawCategories []RawCategory) ([]MessageCategory, error){
+	var categories []MessageCategory
+	// iterate through each rawCategory in rawCategories
+  for rawCategory, i := range rawCategories {
+			fmt.Println("i" + i)
+			fmt.Println("rc" + rawCategory)
+			// // create a new MessageCategory for each rawCategory you see
+			// var category MessageCategory
+			// category.CategoryName = rawCategory.RawCategoryName
+			// // traverse each raw daily message in the rawCategory's array of RawDailyMessages
+			// for rawDailyMessage, _ := range rawCategory.RawDailyMessages {
+			// 	// create a new DailyMessage for each RawDailyMessage you see
+			// 	var message DailyMessage
+			// 	message.ID = rawDailyMessage.ID
+			// 	message.Title = rawDailyMessage.Title
+			// 	message.Description = rawDailyMessage.Description
+			// 	message.ShortDescription = rawDailyMessage.ShortDescription
+			// 	message.Author = rawDailyMessage.Author
+			// 	message.AuthorEmail = rawDailyMessage.AuthorEmail
+			// 	message.Department = rawDailyMessage.LdapDepartment
+			// 	message.Venue = rawDailyMessage.Venue
+			// 	// append this message to its appropriate category
+			// 	category.DailyMessages = append(category.DailyMessages, message)
+			// }
+    	// // append category to category array
+			// categories = append(categories, category)
+  }
+
+  return categories, nil
+}
+
+// func DumpCategories(categories []MessageCategory){
+// 	for category, _ := range categories {
+// 		fmt.Println("category_name: " + category.CategoryName + "\n")
+// 		for message, _ := range category.DailyMessages {
+// 			fmt.Println("\tid: " + category.ID)
+// 			fmt.Println("\ttitle: " + category.Title)
+// 			fmt.Println("\tdescription: " + category.Description)
+// 			fmt.Println("\tshort_description: " + category.ShortDescription)
+// 			fmt.Println("\tauthor: " + category.Author)
+// 			fmt.Println("\tautor_email: " + category.AuthorEmail)
+// 			fmt.Println("\tdept: " + category.Department)
+// 			fmt.Println("\tvenue: " + category.Venue)
+// 			fmt.Println("\n")
+// 		}
+// 		fmt.Println("\n")
+// 		fmt.Println("\n")
+// 	}
 // }
