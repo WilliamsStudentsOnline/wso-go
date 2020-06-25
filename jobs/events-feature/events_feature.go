@@ -160,7 +160,7 @@ type DailyMessage struct {
 	AuthorEmail      string `json:"author_email"`
 	Department       string `json:"dept"`
 	// Category         string UNNCESSARY SINCE WE HAVE PARENT STRUCT
-	Venue            string `json:"venue"`
+	Venue            interface{} `json:"venue"`
 }
 
 func GetRawCategories() ([]RawCategory, error) {
@@ -207,56 +207,57 @@ func GetRawCategories() ([]RawCategory, error) {
 		// append this fully written RawCategory to rawCategories to return
 		rawCategories = append(rawCategories, rawCategory)
 	}
-	fmt.Printf("%+v", rawCategories)
 	return rawCategories, nil
 }
 
 func ParseDailyMessages(rawCategories []RawCategory) ([]MessageCategory, error){
 	var categories []MessageCategory
 	// iterate through each rawCategory in rawCategories
-  for rawCategory, i := range rawCategories {
-			fmt.Println("i" + i)
-			fmt.Println("rc" + rawCategory)
-			// // create a new MessageCategory for each rawCategory you see
-			// var category MessageCategory
-			// category.CategoryName = rawCategory.RawCategoryName
-			// // traverse each raw daily message in the rawCategory's array of RawDailyMessages
-			// for rawDailyMessage, _ := range rawCategory.RawDailyMessages {
-			// 	// create a new DailyMessage for each RawDailyMessage you see
-			// 	var message DailyMessage
-			// 	message.ID = rawDailyMessage.ID
-			// 	message.Title = rawDailyMessage.Title
-			// 	message.Description = rawDailyMessage.Description
-			// 	message.ShortDescription = rawDailyMessage.ShortDescription
-			// 	message.Author = rawDailyMessage.Author
-			// 	message.AuthorEmail = rawDailyMessage.AuthorEmail
-			// 	message.Department = rawDailyMessage.LdapDepartment
-			// 	message.Venue = rawDailyMessage.Venue
-			// 	// append this message to its appropriate category
-			// 	category.DailyMessages = append(category.DailyMessages, message)
-			// }
-    	// // append category to category array
-			// categories = append(categories, category)
+  for _ , rawCategory := range rawCategories {
+			// create a new MessageCategory for each rawCategory you see
+			var category MessageCategory
+			category.CategoryName = rawCategory.RawCategoryName
+			// traverse each raw daily message in the rawCategory's array of RawDailyMessages
+			for _ ,rawDailyMessage := range rawCategory.RawDailyMessages {
+				// create a new DailyMessage for each RawDailyMessage you see
+				var message DailyMessage
+				message.ID = rawDailyMessage.ID
+				message.Title = rawDailyMessage.PostTitle
+				message.ShortDescription = rawDailyMessage.DMText
+				message.Description = rawDailyMessage.PostContent
+				message.Author = rawDailyMessage.Author
+				message.AuthorEmail = rawDailyMessage.AuthorEmail
+				message.Department = rawDailyMessage.LDAPDepartment
+				message.Venue = rawDailyMessage.Venue
+				// append this message to its appropriate category
+				category.DailyMessages = append(category.DailyMessages, message)
+			}
+    	// append category to category array
+			categories = append(categories, category)
   }
 
   return categories, nil
 }
 
-// func DumpCategories(categories []MessageCategory){
-// 	for category, _ := range categories {
-// 		fmt.Println("category_name: " + category.CategoryName + "\n")
-// 		for message, _ := range category.DailyMessages {
-// 			fmt.Println("\tid: " + category.ID)
-// 			fmt.Println("\ttitle: " + category.Title)
-// 			fmt.Println("\tdescription: " + category.Description)
-// 			fmt.Println("\tshort_description: " + category.ShortDescription)
-// 			fmt.Println("\tauthor: " + category.Author)
-// 			fmt.Println("\tautor_email: " + category.AuthorEmail)
-// 			fmt.Println("\tdept: " + category.Department)
-// 			fmt.Println("\tvenue: " + category.Venue)
-// 			fmt.Println("\n")
-// 		}
-// 		fmt.Println("\n")
-// 		fmt.Println("\n")
-// 	}
-// }
+func DumpCategories(categories []MessageCategory){
+	for _, category := range categories {
+		fmt.Println("category_name: " + category.CategoryName + "\n")
+		for _, message := range category.DailyMessages {
+			fmt.Printf("\tid: %d\n",message.ID)
+			fmt.Println("\ttitle: " + message.Title)
+			fmt.Println("\tshort_description: " + message.ShortDescription)
+			fmt.Println("\tdescription: " + message.Description)
+			fmt.Println("\tauthor: " + message.Author)
+			fmt.Println("\tautor_email: " + message.AuthorEmail)
+			fmt.Println("\tdept: " + message.Department)
+			fmt.Print("\tvenue: ")
+			describe(message.Venue)
+			fmt.Println("**************************************************************")
+		}
+		fmt.Println("\n")
+	}
+}
+
+func describe(i interface{}) {
+	fmt.Printf("(%v, %T)\n", i, i)
+}

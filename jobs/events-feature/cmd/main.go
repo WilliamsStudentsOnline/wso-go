@@ -6,10 +6,10 @@ import (
 )
 
 func main() {
-	rawCategories := events.GetRawCategories()
+	rawCategories, _ := events.GetRawCategories()
 
-  categories := events.ParseDailyMessages(rawCategories)
+  categories, _ := events.ParseDailyMessages(rawCategories)
 
-  DumpCategories(categories)
+  events.DumpCategories(categories)
 
 }
