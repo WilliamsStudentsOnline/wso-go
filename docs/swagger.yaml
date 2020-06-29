@@ -184,6 +184,21 @@ definitions:
       unseen:
         type: integer
     type: object
+  ephmatch.GetAvailabilityResp:
+    properties:
+      available:
+        description: If Ephmatch is currently available
+        type: boolean
+      closingTime:
+        description: Closing time for current Ephmatch era/period
+        type: string
+      nextOpenTime:
+        description: Next time Ephmatch will be open
+        type: string
+      openIndefinitely:
+        description: If Ephmatch has no closing time set
+        type: boolean
+    type: object
   ephmatch.ProfileCreateParams:
     properties:
       LocationCountry:
@@ -3783,7 +3798,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/GetAvailabilityResp'
+            $ref: '#/definitions/ephmatch.GetAvailabilityResp'
         "500":
           description: Internal Server Error
           schema:
@@ -5593,6 +5608,34 @@ paths:
       - application/json
       description: Gets a user from their unix. Onboarding exercise.
       operationId: onboarding-canonical-get-user-by-unix
+      parameters:
+      - description: Unix ID
+        in: path
+        name: unixID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Gets a user
+      tags:
+      - onboarding
+  /onboarding/ks19/{unixID}:
+    get:
+      consumes:
+      - application/json
+      description: Gets a user from their unix. Onboarding exercise.
+      operationId: onboarding-ks19-get-user-by-unix
       parameters:
       - description: Unix ID
         in: path

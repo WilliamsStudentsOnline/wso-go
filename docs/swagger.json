@@ -3531,7 +3531,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/GetAvailabilityResp"
+                            "$ref": "#/definitions/ephmatch.GetAvailabilityResp"
                         }
                     },
                     "500": {
@@ -6334,6 +6334,50 @@
                 }
             }
         },
+        "/onboarding/ks19/{unixID}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Gets a user from their unix. Onboarding exercise.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "onboarding"
+                ],
+                "summary": "Gets a user",
+                "operationId": "onboarding-ks19-get-user-by-unix",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Unix ID",
+                        "name": "unixID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
         "/users": {
             "get": {
                 "security": [
@@ -7012,6 +7056,27 @@
                 },
                 "unseen": {
                     "type": "integer"
+                }
+            }
+        },
+        "ephmatch.GetAvailabilityResp": {
+            "type": "object",
+            "properties": {
+                "available": {
+                    "description": "If Ephmatch is currently available",
+                    "type": "boolean"
+                },
+                "closingTime": {
+                    "description": "Closing time for current Ephmatch era/period",
+                    "type": "string"
+                },
+                "nextOpenTime": {
+                    "description": "Next time Ephmatch will be open",
+                    "type": "string"
+                },
+                "openIndefinitely": {
+                    "description": "If Ephmatch has no closing time set",
+                    "type": "boolean"
                 }
             }
         },

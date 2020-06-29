@@ -4,6 +4,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/services/onboarding/canonical"
 	"github.com/WilliamsStudentsOnline/wso-go/services/onboarding/rmn1"
+	"github.com/WilliamsStudentsOnline/wso-go/services/onboarding/ks19"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
@@ -21,4 +22,8 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	rmn1Group := r.Group("/rmn1")
 	// Send all URLs in this group to the rmn1 service
 	rmn1.SetupRouter(rmn1Group, db, cfg, log.Named("rmn1"))
+  
+	unixGroup := r.Group("/ks19")
+	ks19.SetupRouter(unixGroup, db, cfg, log.Named("ks19"))
+
 }

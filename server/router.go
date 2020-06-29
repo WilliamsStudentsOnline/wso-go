@@ -198,7 +198,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 
 		// Chat Service
 		chatGroup := v2.Group("/chat")
-		chatGroup.Use(auth.RequireScopes(auth.ScopeUsers))
+		chatGroup.Use(auth.RequireScopes(auth.ScopeChat))
 		chatService.SetupRouter(chatGroup, db, cfg, log.Named("chat"))
 
 		// Onboarding Service
