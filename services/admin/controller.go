@@ -13,18 +13,24 @@ import (
 
 type Controller struct {
 	services.BaseController
-	userModel    *models.UserModel
-	studentModel *models.StudentModel
-	cfg          *config.Config
+	userModel            *models.UserModel
+	studentModel         *models.StudentModel
+	ephmatchProfileModel *models.EphmatchProfileModel //maybe
+	factrakSurveyModel   *models.FactrakSurveyModel   //maybe
+	ephmatchMatchesModel *models.EphmatchMatchesModel //maybe
+	cfg                  *config.Config
 }
 
 // Construct a new user controller
 func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Controller {
 	return &Controller{
-		BaseController: services.BaseController{Log: log},
-		userModel:      models.NewUserModel(db, log),
-		studentModel:   models.NewStudentModel(db, log),
-		cfg:            cfg,
+		BaseController:       services.BaseController{Log: log},
+		userModel:            models.NewUserModel(db, log),
+		studentModel:         models.NewStudentModel(db, log),
+		ephmatchProfileModel: models.NewEphmatchProfileModel(db, log),
+		factrakSurveyModel:   models.NewFactrakSurveyModel(db, log),
+		ephmatchMatchesModel: models.NewEphmatchMatchesModel(db, log),
+		cfg:                  cfg,
 	}
 }
 

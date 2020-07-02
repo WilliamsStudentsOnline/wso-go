@@ -482,3 +482,9 @@ type FactrakSurveyAvgRatings struct {
 	AvgOutsideHelpfulness   float64 `json:"avgOutsideHelpfulness"`
 	NumOutsideHelpfulness   int     `json:"numOutsideHelpfulness"`
 }
+
+// factrak survey model, would need to add factrak survey model to controller
+func (m *FactrakSurveyModel) CountSurveys() (count int, err error) {
+	err = m.DB.Model(&FactrakSurvey{}).Count(&count).Error
+	return
+}

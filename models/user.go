@@ -740,3 +740,16 @@ func parseBool(str string) bool {
 
 	return b
 }
+
+func (*UserModel) scopeStudent(db *gorm.DB) *gorm.DB {
+	return db.Where("users.type = ?", UserTypeStudent)
+}
+
+func (m *UserModel) CountAllStudents() (count int, err error) {
+	db := m.DB.Model(&User{})
+	db = m.scopeVisible(db)
+	db = m.scopeAtWilliams(db)
+	db = m.scopeStudent(db)
+	err = db.Count(&count).Error
+	return
+}

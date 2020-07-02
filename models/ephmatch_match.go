@@ -289,3 +289,17 @@ func (m *EphmatchMatchesModel) GetRawUserMatches(userID uint, p *[]*EphmatchMatc
 
 	return
 }
+
+// return int count of ephmatch matches
+func (m *EphmatchMatchesModel) CountMatches() (count int, err error) {
+	db := m.scopeProfile(m.DB.Model(&EphmatchMatch{}))
+	err = db.Count(&count).Error
+	return
+}
+
+// matches are from user ids with ephmatch profiles
+func (m *EphmatchMatchesModel) scopeProfile(db *gorm.DB) *gorm.DB {
+	db = db.Joins("INNER JOIN ephmatch_profiles p ON p.user_id = ephmatch_matches.user_a_id")
+
+	return db
+}

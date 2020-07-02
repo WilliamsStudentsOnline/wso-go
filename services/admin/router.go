@@ -15,4 +15,5 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	r.POST("/dorms-update", c.DormsUpdate)
 
 	r.GET("/jobs/:jobID/status", c.GetJobStatus)
+	r.GET("/get-stats", c.GetStats)
 }
