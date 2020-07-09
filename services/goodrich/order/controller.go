@@ -1,4 +1,4 @@
-package order_store
+package order
 
 import (
 	"github.com/WilliamsStudentsOnline/wso-go/config"
