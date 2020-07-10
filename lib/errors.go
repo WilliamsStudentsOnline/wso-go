@@ -144,4 +144,11 @@ var (
 	ErrorEphmatchDoesNotExist             = NewAPIError(1933, "ephmatch does not exist with user ID and passed ephmatch profile user ID")
 	ErrorEphmatchInvalidMessagingPlatform = NewAPIError(1934, "ephmatch messaging platform is invalid")
 	ErrorEphmatchEmptyMessagingUsername   = NewAPIError(1935, "ephmatch messaging username is empty")
+
+	// 2150-2199 are order_store errors
+	ErrorUnknownItemID = NewAPIError(2150, "unknown item(s) id")
+	ErrorMissingPhoneNumber = NewAPIError(2151, "missing phone number in create order params")
+	ErrorOrderNotFound = NewAPIError(2152, "order could not be found")
+
+
 )
