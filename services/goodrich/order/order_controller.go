@@ -8,12 +8,19 @@ import (
 )
 
 type CreateOrderParams struct {
-	ItemIDs       []uint
-	User          *User
-	UserID        uint
-	PhoneNumber   string
-	PreferredTime time.Time
-	Notes         string
+	ItemIDs []uint `json: "itemIDS"`
+	//User          *User
+	//UserID        uint
+	PhoneNumber   string    `json: "phoneNumber"`
+	PreferredTime time.Time `json: "preferredTime"`
+	Notes         string    `json: "notes"`
+}
+
+type UpdateOrderParams struct {
+	OrderStatus   OrderStatus `json: "orderStatus"`
+	AdminNotes    string      `json: "adminNotes"`
+	EstimatedTime time.Time   `json: "estimatedTime"`
+	Items         []MenuItems `json: "items"`
 }
 
 // CreateOrder godoc
