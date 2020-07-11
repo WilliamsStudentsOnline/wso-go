@@ -1,8 +1,7 @@
-package goodrich_order
+package models
 
 import (
 	"time"
-	"github.com/WilliamsStudentsOnline/wso-go/models"
 )
 
 type Order struct {
@@ -37,13 +36,3 @@ const (
 	OrderStatusCompleted
 	OrderStatusPickedUp
 )
-
-/*
-# github.com/WilliamsStudentsOnline/wso-go/models/goodrich_order
-./order.go:10:2: undefined: BaseModel
-./order.go:15:14: undefined: NewBaseModel
-./order.go:48:39: undefined: UpdateOrderParams
-./order_schema.go:8:2: undefined: BaseSchema
-./order_schema.go:11:18: undefined: MenuItem
-./order_schema.go:13:17: undefined: User
-*/

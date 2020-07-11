@@ -1,11 +1,11 @@
 package order
 
 import (
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
-	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 )
@@ -37,19 +37,38 @@ type UpdateOrderParams struct {
 // @Success 201 {object} models.MenuItem
 // @Failure 400 {object} lib.APIError
 // @Failure 500 {object} lib.APIError
-// @Failure 2151 {object} lib.APIError
-// @Failure 2152 {object}	lib.APIError
+// @Failure 2150 {object}	lib.APIError "unknown item(s) id"
+// @Failure 2151 {object} lib.APIError "missing phone number in create order params"
+// @Failure 2153 {object} lib.APIError "order could not be created in table"
 // @Security Bearer
 // @Router /goodrich/order [post]
 func (t *Controller) CreateOrder(c *gin.Context) {
 
 	userID := services.GetUserID(c)
 	createParams := CreateOrderParams{}
-	err := c.shouldBindQuery(&createParams)
+	err := c.ShouldBindQuery(&createParams)
 
 	if err != nil {
 		t.RespondError(c, err)
 		return
+	}
+
+	// check errors
+	if &createParams.PhoneNumber == nil {
+		t.RespondError(c, lib.ErrorMissingPhoneNumber)
+		return
+	}
+	// PhoneNumber cannot be blank
+	if (&createParams.PhoneNumber != nil) && (createParams.PhoneNumber == "") {
+		t.RespondError(c, lib.ErrorMissingPhoneNumber)
+		return
+	}
+	// if one nil itemID is found then return nil
+	for _, itemID := range createParams.ItemIDs {
+		if &itemID == nil {
+			t.RespondError(c, lib.ErrorUnknownItemID)
+			return
+		}
 	}
 
 	db := t.orderModel.DB
@@ -66,8 +85,8 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 		if item.Available {
 			// add MenuItem to newOrder.Items
 			newOrder = append(newOrder.Items, item)
-			// CHECK FORMATTING -- EXTRA COMMA
-			itemList = append(itemList, itemID)
+			// append itemID to itemList
+			itemList = append(itemList, strconv.FormatUint(itemID))
 			//adding the price for each available item to the total
 			totalPrice += item.Price
 		}
@@ -79,27 +98,11 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 	newOrder.Notes = createParams.Notes
 	newOrder.TotalPrice = totalPrice
 
-	// check errors
-	if createParams.PhoneNumber == nil {
-		t.RespondError(c, lib.ErrorMissingPhoneNumber)
-		return
-	}
-	// PhoneNumber cannot be blank
-	if (createData.PhoneNumber != nil) && (*createData.PhoneNumber == "") {
-		t.RespondError(c, lib.ErrorMissingPhoneNumber)
-		return
-	}
-	// if one nil itemID is found then return nil
-	for _, itemID := range createParams.ItemIDs {
-		if itemID == nil {
-			t.RespondError(c, lib.ErrorUnknownItemID)
-			return
-		}
-	}
-
-	err = t.CreateOrder(userID, newOrder)
+	// write order to DB
+	err = t.OrderModel.CreateOrder(userID, newOrder)
 	if err != nil {
-		t.RespondError(c, err)
+		// SPECIFIC ERROR TO RESPOND ?
+		t.RespondError(c, lib.ErrorCreateOrderFailed)
 		return
 	}
 
@@ -108,7 +111,7 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 
 // ListUserOrders godoc
 // @Summary Lists orders
-// @Description
+// @Description Returns a list of the user's order given a userID
 // @ID
 // @Tags goodrich
 // @Accept  json
@@ -122,10 +125,47 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 func (t *Controller) ListUserOrders(c *gin.Context) {
 	//// TODO:
 	// userID := services.GetUserID(c)
-	// somewhere here use c.shouldBind()
+	// somewhere here use c.ShouldBind(&)
 }
 
 // GetOrder godoc
+// @Summary Gets an Order
+// @Description Gets an Order using passed orderID
+// @ID
+// @Tags goodrich
+// @Accept  json
+// @Produce  json
+// @Param	orderID path uint true "Order ID"
+// @Param	userID body uint true "User ID"
+// @Success 201 {object} models.OrderModel
+// @Failure 400 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Failure 2152 {object} lib.APIError "missing order id in input"
+// @Failure 2154 {object} lib.APIError "the orderID given does not match any in our records"
+// @Security Bearer
+// @Router goodrich/orders/<order_id> [get]
+func (t *Controller) GetOrder(c *gin.Context) {
+
+	userID := services.GetUserID(c)
+	orderID, err := services.GetUIntParam(c, "orderID")
+
+	if err != nil || orderID == nil {
+		t.RespondError(c, lib.ErrorMissingOrderID)
+		return
+	}
+
+	var order *Order
+	// get the order by ID using the OrderModel's function
+	err = t.OrderModel.GetOrder(orderID, order)
+	if err != nil {
+		t.RespondError(c, lib.ErrorOrderIDNotFound)
+		return
+	}
+
+	t.RespondOK(c, order)
+}
+
+// ListOrders godoc
 // @Summary Gets an Order
 // @Description
 // @ID
@@ -138,43 +178,23 @@ func (t *Controller) ListUserOrders(c *gin.Context) {
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
 // @Router goodrich/orders/<order_id> [get]
-func (t *Controller) GetOrder(c *gin.Context) {
-	userID := services.GetUserID(c)
+func (t *Controller) ListOrders(c *gin.Context) {
 
-	orderID, err := services.GetUIntParam(c, "orderID")
-
-	if err != nil {
-		t.RespondError(c, err)
-		return
-	}
-
-	if orderID == nil {
-		t.RespondError(c, lib.ErrorUnknownItemID)
-		return
-	}
-
-	var order *Order
-	// get the order by ID using the OrderModel's function
-	err = t.OrderModel.GetOrder(orderID, order)
-	if err != nil {
-		t.RespondError(c, err)
-		return
-	}
-
-	t.RespondOK(c, order)
 }
 
-/*
-# github.com/WilliamsStudentsOnline/wso-go/services/goodrich/order
-./controller.go:13:27: undefined: models.OrderModel
-./controller.go:20:19: undefined: models.NewOrderModel
-./order_controller.go:21:16: undefined: OrderStatus
-./order_controller.go:24:18: undefined: MenuItems
-./order_controller.go:44:10: c.shouldBindQuery undefined (type *gin.Context has no field or method shouldBindQuery, but does have ShouldBindQuery)
-./order_controller.go:52:16: undefined: Order
-./order_controller.go:58:13: undefined: MenuItem
-./order_controller.go:60:20: undefined: id
-./order_controller.go:66:22: cannot use itemID (type uint) as type string in append
-./order_controller.go:72:23: undefined: strings
-./order_controller.go:72:23: too many errors
-*/
+// UpdateOrder godoc
+// @Summary Gets an Order
+// @Description
+// @ID
+// @Tags goodrich
+// @Accept  json
+// @Produce  json
+// @Param
+// @Success 201 {object} models.MenuItem
+// @Failure 400 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router goodrich/orders/<order_id> [get]
+func (t *Controller) UpdateOrder(c *gin.Context) {
+
+}

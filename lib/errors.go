@@ -146,9 +146,9 @@ var (
 	ErrorEphmatchEmptyMessagingUsername   = NewAPIError(1935, "ephmatch messaging username is empty")
 
 	// 2150-2199 are order_store errors
-	ErrorUnknownItemID = NewAPIError(2150, "unknown item(s) id")
+	ErrorUnknownItemID      = NewAPIError(2150, "unknown item(s) id")
 	ErrorMissingPhoneNumber = NewAPIError(2151, "missing phone number in create order params")
-	ErrorOrderNotFound = NewAPIError(2152, "order could not be found")
-
-
+	ErrorMissingOrderID     = NewAPIError(2152, "missing order id in input")
+	ErrorCreateOrderFailed  = NewAPIError(2153, "order could not be created in table")
+	ErrorOrderIDNotFound    = NewAPIError(2154, "the orderID given does not match any in our records")
 )

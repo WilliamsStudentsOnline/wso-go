@@ -1,4 +1,4 @@
-package goodrich_order
+package models
 
 import (
 	"github.com/jinzhu/gorm"
@@ -18,7 +18,7 @@ func NewOrderModel(db *gorm.DB, log *zap.SugaredLogger) *OrderModel {
 
 func (o *OrderModel) CreateOrder(userID uint, newOrder *Order) (err error) {
 	db := o.DB
-	newOrdder.userID = userID
+	newOrder.UserID = userID
 	err = db.Create(newOrder).Error
 	return
 }
@@ -31,9 +31,11 @@ func (o *OrderModel) GetOrder(orderID uint, order *Order) (err error) {
 	return
 }
 
-// // TODO: user function
-func ListUserOrders(userID uint, orders *[]*Order) (err error) {
-
+// admin function
+func (o *OrderModel) ListUserOrders(userID uint, orders *[]*Order) (err error) {
+	db := o.DB
+	err = db.Where("userID = ?", userID).Find(&orders).Error
+	return
 }
 
 // // admin function
@@ -44,7 +46,18 @@ func (o *OrderModel) ListOrders(orders *[]*Order) (err error) {
 	return
 }
 
-// // TODO: admin function
-func UpdateOrder(orderID uint, params UpdateOrderParams) (err error) {
-
+// admin function
+func (o *OrderModel) UpdateOrder(orderID uint, updatedOrder *Order) (err error) {
+	db := o.DB
+	// get order currently in the table by orderID and save in tempOrder
+	var tempOrder *Order
+	err = db.First(tempOrder, orderID).Error
+	if err != nil {
+		return
+	}
+	// update tempOrder to be equal to the updatedOrder
+	*tempOrder = *updatedOrder
+	// save newly updated order in DB
+	err = db.Save(tempOrder).Error
+	return
 }
