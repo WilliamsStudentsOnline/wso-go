@@ -24,8 +24,8 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	goodrichAdmin.Use(auth.RequireScopes(auth.ScopeGoodrichAdmin))
 
 	goodrichAdmin.GET("/api/v2/goodrich/menu", c.ListMenuItems)
-	goodrichAdmin.GET("/api/v2/goodrich/menu/:itemID", c.GetMenuItem)
+	goodrichAdmin.GET("/api/v2/goodrich/menu/:menuItemID", c.GetMenuItem)
 	goodrichAdmin.POST("/api/v2/goodrich/menu", c.CreateMenuItem)
-	goodrichAdmin.PATCH("/api/v2/goodrich/menu/:itemID", c.UpdateMenuItem)
+	goodrichAdmin.PATCH("/api/v2/goodrich/menu/:menuItemID", c.UpdateMenuItem)
 
 }

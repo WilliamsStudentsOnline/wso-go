@@ -1,13 +1,5 @@
 package models
 
-import (
-	"strings"
-
-	"github.com/WilliamsStudentsOnline/wso-go/lib"
-	"github.com/jinzhu/gorm"
-	"go.uber.org/zap"
-)
-
 type MenuItem struct {
 	BaseSchema
 	Title       string

@@ -144,4 +144,8 @@ var (
 	ErrorEphmatchDoesNotExist             = NewAPIError(1933, "ephmatch does not exist with user ID and passed ephmatch profile user ID")
 	ErrorEphmatchInvalidMessagingPlatform = NewAPIError(1934, "ephmatch messaging platform is invalid")
 	ErrorEphmatchEmptyMessagingUsername   = NewAPIError(1935, "ephmatch messaging username is empty")
+
+	// 2101-2149 are menu item errors
+	ErrorMissingNewMenuItemParams = NewAPIError(2101, "missing item parameters in create data: title, price or availability")
+	ErrorItemAlreadyExists        = NewAPIError(2111, "tried to add item that already exists in database")
 )

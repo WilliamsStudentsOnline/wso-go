@@ -3,6 +3,7 @@ package goodrich_menu
 import (
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
+	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"strconv"
@@ -26,7 +27,7 @@ func (t *Controller) ListMenuItems(c *gin.Context) {
 	var menuItems *[]*models.MenuItem
 	var err error
 
-	query := c.Query("includeUnavailable") // get the query?
+	query := c.Query("includeUnavailable") // get the query? whats the key here?
 	convertedQuery, err := strconv.ParseBool(query)
 	if err != nil {
 		t.RespondError(c, err)
@@ -95,6 +96,8 @@ type MenuItemCreateParams struct {
 // @Success 201 {object} models.MenuItem
 // @Failure 400 {object} lib.APIError
 // @Failure 500 {object} lib.APIError
+// @Failure 2101 {object} lib.APIError
+// @Failure 2111 {object} lib.APIError
 // @Security Bearer
 // @Router /goodrich/menu [post]
 func (t *Controller) CreateMenuItem(c *gin.Context) {
@@ -166,6 +169,45 @@ func (t *Controller) CreateMenuItem(c *gin.Context) {
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
 // @Router /goodrich/menu/{menuItemID} [patch]
-//func (t *Controller) UpdateMenuItem(c *gin.Context) {
-	// TODO
+func (t *Controller) UpdateMenuItem(c *gin.Context) {
+	// get menu item ID from URL
+	menuItemID, err := services.GetUIntParam(c, "menuItemID")
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
 
+	updateData := MenuItemCreateParams{}
+	err = c.ShouldBind(&updateData)
+	if err != nil {
+		t.RespondBadBind(c, err)
+		return
+	}
+
+	var menuItem models.MenuItem
+	err = t.menuItemModel.GetMenuItem(menuItemID, &menuItem)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	// dereference pointers
+	title := *updateData.Title
+	price := *updateData.Price
+	available := *updateData.Available
+
+	// update fields
+	menuItem.Title = title
+	menuItem.Description = strings.TrimSpace(updateData.Description)
+	menuItem.Price = price
+	menuItem.Available = available
+
+	//update db
+	err = t.menuItemModel.UpdateMenuItem(menuItemID, &menuItem)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+	t.RespondOK(c, menuItem)
+
+}
