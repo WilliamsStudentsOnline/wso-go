@@ -108,7 +108,7 @@ func (t *Controller) CreateMenuItem(c *gin.Context) {
 	}
 
 	// check if title, price and availability are empty, description is optional?
-	if createData.Title == nil && (createData.Price == nil && createData.Available == nil) {
+	if createData.Title == nil || (createData.Price == nil || createData.Available == nil) {
 		t.RespondError(c, lib.ErrorMissingNewMenuItemParams) // need to write this one into lib
 		return
 	}
@@ -126,7 +126,7 @@ func (t *Controller) CreateMenuItem(c *gin.Context) {
 		t.RespondError(c, err)
 		return
 
-	case gorm.IsRecordNotFoundError(err) == false: // if some other error, respond with it
+	default: // if some other error, respond with it (error != nil, record not found == false)
 		t.RespondError(c, err)
 		return
 	}
@@ -168,4 +168,4 @@ func (t *Controller) CreateMenuItem(c *gin.Context) {
 // @Router /goodrich/menu/{menuItemID} [patch]
 //func (t *Controller) UpdateMenuItem(c *gin.Context) {
 	// TODO
-}
+
