@@ -11,20 +11,21 @@ import (
 func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) {
 	c := NewController(db, cfg, log)
 
-	goodrich_user := r.Group("")
-	goodrich_user.User(auth.RequireScopes(auth.ScopeGoodrichUser))
+	goodrichUser := r.Group("")
+	goodrichUser.User(auth.RequireScopes(auth.ScopeGoodrichUser))
 	// User side
-	goodrich_user.POST("/api/v2/goodrich/orders", c.CreateOrder)
-	goodrich_user.GET("/api/v2/goodrich/:user/orders", c.ListUserOrders)
-	goodrich_user.GET("/api/v2/goodrich/orders/:orderID", c.GetOrder)
-
+	goodrichUser.POST("/api/v2/goodrich/orders", c.CreateOrder)
+	goodrichUser.GET("/api/v2/goodrich/:user/orders", c.ListUserOrders)
+	goodrichUser.GET("/api/v2/goodrich/orders/:orderID", c.GetOrder)
 
 	//Admin side
-	goodrich_admin := r.Group("")
-	goodrich_admin.Use(auth.RequireScopes(auth.ScopeGoodrichAdmin))
+	goodrichAdmin := r.Group("")
+	goodrichAdmin.Use(auth.RequireScopes(auth.ScopeGoodrichAdmin))
 
-	goodrich_admin.GET("/api/v2/goodrich/orders", c.ListOrders)
-	goodrich_admin.GET("/api/v2/goodrich/orders/:orderID", c.GetOrder)
-	goodrich_admin.PATCH("/api/v2/goodrich/orders/:orderID", c.UpdateOrder)
+	goodrichUser.POST("/api/v2/goodrich/orders", c.CreateOrder)
+	goodrichUser.GET("/api/v2/goodrich/:user/orders", c.ListUserOrders)
+	goodrichAdmin.GET("/api/v2/goodrich/orders", c.ListOrders)
+	goodrichAdmin.GET("/api/v2/goodrich/orders/:orderID", c.GetOrder)
+	goodrichAdmin.PATCH("/api/v2/goodrich/orders/:orderID", c.UpdateOrder)
 
 }

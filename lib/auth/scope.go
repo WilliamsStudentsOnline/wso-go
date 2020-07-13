@@ -48,6 +48,10 @@ const (
 	ScopeEphmatchMatches = "service:ephmatch:matches"
 	// Allows access to read profiles, write like/unlike. For when a user is signed up and Ephmatch is open
 	ScopeEphmatchProfiles = "service:ephmatch:profiles"
+
+	// Service Goodrich Order
+	ScopeGoodrichUser  = "service:goodrich:order"
+	ScopeGoodrichAdmin = "service:goodrich:admin"
 )
 
 // Require this endpoint to have a scope; multiple scopes mean an OR. For an AND, call this function multiple times

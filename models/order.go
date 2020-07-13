@@ -31,17 +31,17 @@ func (o *OrderModel) GetOrder(orderID uint, order *Order) (err error) {
 	return
 }
 
-// admin function
+// admin & user function
 func (o *OrderModel) ListUserOrders(userID uint, orders *[]*Order) (err error) {
 	db := o.DB
 	err = db.Where("userID = ?", userID).Find(&orders).Error
 	return
 }
 
-// // admin function
+// admin function
 func (o *OrderModel) ListOrders(orders *[]*Order) (err error) {
 	db := o.DB
-	//get all rows in Order table and save in orders
+	// get all rows in Order table and save in orders
 	err = db.Find(orders).Error
 	return
 }

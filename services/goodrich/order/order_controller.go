@@ -8,6 +8,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 )
 
 type CreateOrderParams struct {
@@ -120,12 +121,20 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 // @Success 201 {object} models.MenuItem
 // @Failure 400 {object} lib.APIError
 // @Failure 500 {object} lib.APIError
+// @Failure 2155 {object} lib.APIError "the user ID given does not match any in our records"
 // @Security Bearer
 // @Router goodrich/user/orders [get]
 func (t *Controller) ListUserOrders(c *gin.Context) {
-	//// TODO:
-	// userID := services.GetUserID(c)
-	// somewhere here use c.ShouldBind(&)
+	userID := services.GetUserID(c)
+
+	var orders *[]*Order
+
+	err := t.OrderModel.ListUserOrders(userID, orders)
+	if err != nil {
+		t.RespondError(c, lib.ErrorUserIDNotFound)
+	}
+
+	t.RespondOK(c, orders)
 }
 
 // GetOrder godoc
@@ -165,7 +174,7 @@ func (t *Controller) GetOrder(c *gin.Context) {
 	t.RespondOK(c, order)
 }
 
-// ListOrders godoc
+// ListOrders godocturn
 // @Summary Gets an Order
 // @Description
 // @ID
@@ -176,10 +185,22 @@ func (t *Controller) GetOrder(c *gin.Context) {
 // @Success 201 {object} models.MenuItem
 // @Failure 400 {object} lib.APIError
 // @Failure 500 {object} lib.APIError
+// @Failure 2155 {object} lib.APIError "the user ID given does not match any in our records"
+// @Failure 2156 {object} lib.APIError "could not list orders in the table"
 // @Security Bearer
 // @Router goodrich/orders/<order_id> [get]
 func (t *Controller) ListOrders(c *gin.Context) {
+	var orders *[]*Order
 
+	err := t.UserModel.ListOrders(orders)
+
+	if gorm.IsRecordNotFoundError(err) {
+		t.RespondError(c, lib.ErrorUserIDNotFound)
+	} else {
+		t.RespondError(c, lib.ErrorListOrdersFailed)
+	}
+
+	t.RespondOK(c, orders)
 }
 
 // UpdateOrder godoc
@@ -196,5 +217,11 @@ func (t *Controller) ListOrders(c *gin.Context) {
 // @Security Bearer
 // @Router goodrich/orders/<order_id> [get]
 func (t *Controller) UpdateOrder(c *gin.Context) {
+	// updateParams := UpdateOrderParams{}
+	// err := c.ShouldBindQuery(&updateParams)
+	// if err != nil {
+	// 	t.RespondError(c, err)
+	// 	return
+	// }
 
 }

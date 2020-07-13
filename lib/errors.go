@@ -151,4 +151,6 @@ var (
 	ErrorMissingOrderID     = NewAPIError(2152, "missing order id in input")
 	ErrorCreateOrderFailed  = NewAPIError(2153, "order could not be created in table")
 	ErrorOrderIDNotFound    = NewAPIError(2154, "the orderID given does not match any in our records")
+	ErrorUserIDNotFound     = NewAPIError(2155, "the user ID given does not match any in our records")
+	ErrorListOrdersFailed   = NewAPIError(2156, "could not list orders in the table")
 )
