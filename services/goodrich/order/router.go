@@ -8,6 +8,7 @@ import (
 	"go.uber.org/zap"
 )
 
+//SetupRouter defines routes endpoints to functions and requires appropriate scopes
 func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) {
 	c := NewController(db, cfg, log)
 
@@ -22,6 +23,7 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	goodrichAdmin := r.Group("")
 	goodrichAdmin.Use(auth.RequireScopes(auth.ScopeGoodrichAdmin))
 	goodrichAdmin.GET("/api/v2/goodrich/orders", c.ListOrders)
+	goodrichUser.GET("/api/v2/goodrich/orders/:orderID", c.GetOrderAdmin)
 	goodrichAdmin.PATCH("/api/v2/goodrich/orders/:orderID", c.UpdateOrder)
 
 }

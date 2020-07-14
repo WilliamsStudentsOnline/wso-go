@@ -1,8 +1,6 @@
 package order
 
 import (
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
@@ -12,9 +10,8 @@ import (
 )
 
 type CreateOrderParams struct {
-	ItemIDs []uint `json: "itemIDS"`
-	//User          *User
-	//UserID        uint
+	ItemIDs       []uint `json: "itemIDS"`
+	UserID        uint
 	PhoneNumber   string    `json: "phoneNumber"`
 	PreferredTime time.Time `json: "preferredTime"`
 	Notes         string    `json: "notes"`
@@ -48,11 +45,11 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 	userID := services.GetUserID(c)
 	createParams := CreateOrderParams{}
 	err := c.ShouldBindQuery(&createParams)
-
 	if err != nil {
 		t.RespondError(c, err)
 		return
 	}
+	createParams.UserID = userID
 
 	// phone number shouldn't be nil or blank
 	if &createParams.PhoneNumber == nil || createParams.PhoneNumber == "" {
@@ -60,38 +57,9 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 		return
 	}
 
-	db := t.menuModel.DB
-	var newOrder *models.Order
-	var itemList []string
-	var totalPrice float64
-
-	// iterate over ItemIDs in params
-	for _, itemID := range createParams.ItemIDs {
-		var item models.MenuItem
-		// THIS DEPENDS ON MENU SERVICE FORMATTING || WILL INFER THE MODEL
-		err := db.First(&item, itemID).Error
-		if err != nil {
-			t.RespondError(c, err)
-		}
-		// if the item is available, add it
-		if item.Available {
-			// add MenuItem to newOrder.Items
-			newOrder = append(newOrder.Items, item)
-			// append itemID to itemList
-			itemList = append(itemList, strconv.FormatUint(uint64(itemID), 10))
-			//adding the price for each available item to the total
-			totalPrice += item.Price
-		}
-	}
-	newOrder.ItemList = strings.Join(itemList, ",")
-	newOrder.GoodrichOrderStatus = models.OrderStatusPlaced
-	newOrder.PhoneNumber = createParams.PhoneNumber
-	newOrder.PreferredTime = createParams.PreferredTime
-	newOrder.Notes = createParams.Notes
-	newOrder.TotalPrice = totalPrice
-
 	// write order to DB
-	err = t.orderModel.CreateOrder(userID, newOrder)
+	var newOrder *models.Order
+	err = t.orderModel.CreateOrder(userID, createParams, newOrder)
 	if err != nil {
 		t.RespondError(c, err)
 		return
@@ -140,32 +108,60 @@ func (t *Controller) ListUserOrders(c *gin.Context) {
 // @Failure 400 {object} lib.APIError
 // @Failure 500 {object} lib.APIError
 // @Failure 2152 {object} lib.APIError "missing order id in input"
-// @Failure 2154 {object} lib.APIError "the orderID given does not match any in our records"
-// @Failure 2157 {object} lib.APIError "could not get an order that was not placed by the user"
 // @Security Bearer
 // @Router goodrich/orders/<order_id> [get]
 func (t *Controller) GetOrder(c *gin.Context) {
 
-	userIDin := services.GetUserID(c)
+	userID := services.GetUserID(c)
 	orderID, err := services.GetUIntParam(c, "orderID")
 
 	//orderID can't be nil or 0
 	if err != nil || orderID == 0 {
-		t.RespondError(c, lib.GoodrichErrorMissingOrderID)
+		t.RespondError(c, lib.ErrorGoodrichMissingOrderID)
 		return
 	}
 
 	var order *models.Order
 	// get the order by ID using the OrderModel's function
-	err = t.orderModel.GetOrder(orderID, order)
+	err = t.orderModel.GetOrder(orderID, userID, order)
 	if err != nil {
-		t.RespondError(c, err)
+		t.RespondError(c, err) //returns 404 if nothing is found
 		return
 	}
-	//Does this break if admin is trying to get an order?
-	//how to check if admin, then ignore this checker
-	if order.UserID != userIDin {
-		t.RespondError(c, lib.ErrorGoodrichUserCannotAccessOrder)
+
+	t.RespondOK(c, order)
+}
+
+// GetOrder godoc
+// @Summary Gets an Order
+// @Description Gets an Order using passed orderID
+// @ID
+// @Tags goodrich
+// @Accept  json
+// @Produce  json
+// @Param	orderID path uint true "Order ID"
+// @Param	userID body uint true "User ID"
+// @Success 201 {object} models.OrderModel
+// @Failure 400 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Failure 2152 {object} lib.APIError "missing order id in input"
+// @Security Bearer
+// @Router goodrich/orders/<order_id> [get]
+func (t *Controller) GetOrderAdmin(c *gin.Context) {
+	orderID, err := services.GetUIntParam(c, "orderID")
+
+	//orderID can't be nil or 0
+	if err != nil || orderID == 0 {
+		t.RespondError(c, lib.ErrorGoodrichMissingOrderID)
+		return
+	}
+
+	var order *models.Order
+	// get the order by ID using the OrderModel's function
+	err = t.orderModel.GetOrderAdmin(orderID, order)
+	if err != nil {
+		t.RespondError(c, err) //returns 404 if nothing is found
+		return
 	}
 
 	t.RespondOK(c, order)

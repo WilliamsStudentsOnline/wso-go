@@ -8,6 +8,7 @@ import (
 	"go.uber.org/zap"
 )
 
+//Controller is base controller and specific order model
 type Controller struct {
 	services.BaseController                    // Inherit the base controller
 	orderModel              *models.OrderModel // DB communication to get order info

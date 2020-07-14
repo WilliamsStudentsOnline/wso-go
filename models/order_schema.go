@@ -4,12 +4,13 @@ import (
 	"time"
 )
 
-// Define an enum of order statuses
+// GoodrichOrderStatus defines an enum of order statuses
 type GoodrichOrderStatus int
 
 const (
-	OrderStatusUnknown GoodrichOrderStatus = iota // Default is unknown
-	OrderStatusPlaced                             // Initial step: set when order is made
+	// OrderStatusUnknown is default
+	OrderStatusUnknown GoodrichOrderStatus = iota
+	OrderStatusPlaced                      // Initial step: set when order is made
 	OrderStatusApproved
 	OrderStatusDenied
 	OrderStatusInProgress
@@ -18,10 +19,9 @@ const (
 )
 
 type Order struct {
-	BaseSchema // contains IDs and dates and meta info (updated, created, deleted At...)
-	// You will need to make a custom format to store these in SQL, b/c a join table would be absolutely massive. I suggest doing a comma separated format like "id,id,id"
-	ItemList      string              `json:"-"`               // this means json will ignore this list. Use this for the "item_id,item_id,item_id" format that goes in the DB
-	Items         []MenuItem          `gorm:"-" json: "items"` // this means this field will be ignored in the DB. Use this to pull the menu items from ItemList into actual objects in the Model/Controller side.
+	BaseSchema
+	ItemList      string              `json:"-"`
+	Items         []MenuItem          `gorm:"-" json: "items"`
 	Status        GoodrichOrderStatus `json:"status"`
 	User          *User               `json:"user"`
 	UserID        uint                `gorm:"index:index_goodrich_orders_on_user_id;not null;"  json:"userID"`
