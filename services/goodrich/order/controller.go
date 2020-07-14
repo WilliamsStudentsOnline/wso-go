@@ -13,7 +13,7 @@ type Controller struct {
 	orderModel              *models.OrderModel // DB communication to get order info
 }
 
-// Construct a new onboarding controller
+// NewController constructs a new onboarding controller
 func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Controller {
 	return &Controller{
 		BaseController: services.BaseController{Log: log},

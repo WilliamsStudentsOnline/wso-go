@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
+	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -21,10 +22,10 @@ type CreateOrderParams struct {
 }
 
 type UpdateOrderParams struct {
-	OrderStatus   OrderStatus `json: "orderStatus"`
-	AdminNotes    string      `json: "adminNotes"`
-	EstimatedTime time.Time   `json: "estimatedTime"`
-	Items         []MenuItems `json: "items"`
+	OrderStatus   models.OrderStatus `json: "orderStatus"`
+	AdminNotes    string             `json: "adminNotes"`
+	EstimatedTime time.Time          `json: "estimatedTime"`
+	Items         []models.MenuItem  `json: "items"`
 }
 
 // CreateOrder godoc
@@ -54,60 +55,59 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 		return
 	}
 
-	// check errors
-	if &createParams.PhoneNumber == nil {
-		t.RespondError(c, lib.ErrorMissingPhoneNumber)
+	// phone number shouldn't be nil or blank
+	if &createParams.PhoneNumber == nil || createParams.PhoneNumber == "" {
+		t.RespondAPIError(c, lib.ErrorMissingPhoneNumber)
 		return
 	}
-	// PhoneNumber cannot be blank
-	if (&createParams.PhoneNumber != nil) && (createParams.PhoneNumber == "") {
-		t.RespondError(c, lib.ErrorMissingPhoneNumber)
-		return
-	}
+
 	// if one nil itemID is found then return nil
 	for _, itemID := range createParams.ItemIDs {
 		if &itemID == nil {
-			t.RespondError(c, lib.ErrorUnknownItemID)
+			t.RespondError(c, lib.ErrorMissingItemID)
 			return
 		}
 	}
 
-	db := t.orderModel.DB
-	var newOrder *Order
+	db := t.menuModel.DB
+	var newOrder *models.Order
 	var itemList []string
 	var totalPrice float64
 
 	// iterate over ItemIDs in params
 	for _, itemID := range createParams.ItemIDs {
-		var item MenuItem
+		var item models.MenuItem
 		// THIS DEPENDS ON MENU SERVICE FORMATTING || WILL INFER THE MODEL
-		db.First(&item, id)
+		err := db.First(&item, itemID).Error
+		if err != nil {
+			t.RespondAPIError(c, lib.ErrorUnknownItemID)
+		}
 		// if the item is available, add it
 		if item.Available {
 			// add MenuItem to newOrder.Items
 			newOrder = append(newOrder.Items, item)
 			// append itemID to itemList
-			itemList = append(itemList, strconv.FormatUint(itemID))
+			itemList = append(itemList, strconv.FormatUint(uint64(itemID), 10))
 			//adding the price for each available item to the total
 			totalPrice += item.Price
 		}
 	}
 	newOrder.ItemList = strings.Join(itemList, ",")
-	newOrder.Status = OrderStatusPlaced
+	newOrder.Status = models.OrderStatusPlaced
 	newOrder.PhoneNumber = createParams.PhoneNumber
 	newOrder.PreferredTime = createParams.PreferredTime
 	newOrder.Notes = createParams.Notes
 	newOrder.TotalPrice = totalPrice
 
 	// write order to DB
-	err = t.OrderModel.CreateOrder(userID, newOrder)
+	err = t.orderModel.CreateOrder(userID, newOrder)
 	if err != nil {
 		// SPECIFIC ERROR TO RESPOND ?
-		t.RespondError(c, lib.ErrorCreateOrderFailed)
+		t.RespondAPIError(c, lib.ErrorCreateOrderFailed)
 		return
 	}
 
-	t.RespondOK(c, order)
+	t.RespondOK(c, newOrder)
 }
 
 // ListUserOrders godoc
@@ -127,11 +127,11 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 func (t *Controller) ListUserOrders(c *gin.Context) {
 	userID := services.GetUserID(c)
 
-	var orders *[]*Order
+	var orders *[]*models.Order
 
-	err := t.OrderModel.ListUserOrders(userID, orders)
+	err := t.orderModel.ListUserOrders(userID, orders)
 	if err != nil {
-		t.RespondError(c, lib.ErrorUserIDNotFound)
+		t.RespondAPIError(c, lib.ErrorUserIDNotFound)
 	}
 
 	t.RespondOK(c, orders)
@@ -151,24 +151,31 @@ func (t *Controller) ListUserOrders(c *gin.Context) {
 // @Failure 500 {object} lib.APIError
 // @Failure 2152 {object} lib.APIError "missing order id in input"
 // @Failure 2154 {object} lib.APIError "the orderID given does not match any in our records"
+// @Failure 2157 {object} lib.APIError "could not get an order that was not placed by the user"
 // @Security Bearer
 // @Router goodrich/orders/<order_id> [get]
 func (t *Controller) GetOrder(c *gin.Context) {
 
-	userID := services.GetUserID(c)
+	userIDin := services.GetUserID(c)
 	orderID, err := services.GetUIntParam(c, "orderID")
 
-	if err != nil || orderID == nil {
-		t.RespondError(c, lib.ErrorMissingOrderID)
+	//orderID can't be nil or 0
+	if err != nil || &orderID == nil || orderID == 0 {
+		t.RespondAPIError(c, lib.ErrorMissingOrderID)
 		return
 	}
 
-	var order *Order
+	var order *models.Order
 	// get the order by ID using the OrderModel's function
-	err = t.OrderModel.GetOrder(orderID, order)
+	err = t.orderModel.GetOrder(orderID, order)
 	if err != nil {
-		t.RespondError(c, lib.ErrorOrderIDNotFound)
+		t.RespondAPIError(c, lib.ErrorOrderIDNotFound)
 		return
+	}
+	//Does this break if admin is trying to get an order?
+	//how to check if admin, then ignore this checker
+	if order.UserID != userIDin {
+		t.RespondAPIError(c, lib.ErrorUserCannotAccessOrder)
 	}
 
 	t.RespondOK(c, order)
@@ -190,14 +197,14 @@ func (t *Controller) GetOrder(c *gin.Context) {
 // @Security Bearer
 // @Router goodrich/orders/<order_id> [get]
 func (t *Controller) ListOrders(c *gin.Context) {
-	var orders *[]*Order
+	var orders *[]*models.Order
 
-	err := t.UserModel.ListOrders(orders)
+	err := t.orderModel.ListOrders(orders)
 
 	if gorm.IsRecordNotFoundError(err) {
-		t.RespondError(c, lib.ErrorUserIDNotFound)
+		t.RespondAPIError(c, lib.ErrorUserIDNotFound)
 	} else {
-		t.RespondError(c, lib.ErrorListOrdersFailed)
+		t.RespondAPIError(c, lib.ErrorListOrdersFailed)
 	}
 
 	t.RespondOK(c, orders)

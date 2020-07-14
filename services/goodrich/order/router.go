@@ -11,9 +11,9 @@ import (
 func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) {
 	c := NewController(db, cfg, log)
 
-	goodrichUser := r.Group("")
-	goodrichUser.User(auth.RequireScopes(auth.ScopeGoodrichUser))
 	// User side
+	goodrichUser := r.Group("")
+	goodrichUser.Use(auth.RequireScopes(auth.ScopeGoodrichUser, auth.ScopeGoodrichAdmin))
 	goodrichUser.POST("/api/v2/goodrich/orders", c.CreateOrder)
 	goodrichUser.GET("/api/v2/goodrich/:user/orders", c.ListUserOrders)
 	goodrichUser.GET("/api/v2/goodrich/orders/:orderID", c.GetOrder)
@@ -21,11 +21,7 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	//Admin side
 	goodrichAdmin := r.Group("")
 	goodrichAdmin.Use(auth.RequireScopes(auth.ScopeGoodrichAdmin))
-
-	goodrichUser.POST("/api/v2/goodrich/orders", c.CreateOrder)
-	goodrichUser.GET("/api/v2/goodrich/:user/orders", c.ListUserOrders)
 	goodrichAdmin.GET("/api/v2/goodrich/orders", c.ListOrders)
-	goodrichAdmin.GET("/api/v2/goodrich/orders/:orderID", c.GetOrder)
 	goodrichAdmin.PATCH("/api/v2/goodrich/orders/:orderID", c.UpdateOrder)
 
 }
