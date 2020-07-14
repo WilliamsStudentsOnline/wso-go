@@ -57,7 +57,7 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 
 	// phone number shouldn't be nil or blank
 	if &createParams.PhoneNumber == nil || createParams.PhoneNumber == "" {
-		t.RespondAPIError(c, lib.ErrorMissingPhoneNumber)
+		t.RespondError(c, lib.ErrorMissingPhoneNumber)
 		return
 	}
 
@@ -80,7 +80,7 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 		// THIS DEPENDS ON MENU SERVICE FORMATTING || WILL INFER THE MODEL
 		err := db.First(&item, itemID).Error
 		if err != nil {
-			t.RespondAPIError(c, lib.ErrorUnknownItemID)
+			t.RespondError(c, lib.ErrorUnknownItemID)
 		}
 		// if the item is available, add it
 		if item.Available {
@@ -103,7 +103,7 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 	err = t.orderModel.CreateOrder(userID, newOrder)
 	if err != nil {
 		// SPECIFIC ERROR TO RESPOND ?
-		t.RespondAPIError(c, lib.ErrorCreateOrderFailed)
+		t.RespondError(c, lib.ErrorCreateOrderFailed)
 		return
 	}
 
@@ -131,7 +131,7 @@ func (t *Controller) ListUserOrders(c *gin.Context) {
 
 	err := t.orderModel.ListUserOrders(userID, orders)
 	if err != nil {
-		t.RespondAPIError(c, lib.ErrorUserIDNotFound)
+		t.RespondError(c, lib.ErrorUserIDNotFound)
 	}
 
 	t.RespondOK(c, orders)
@@ -161,7 +161,7 @@ func (t *Controller) GetOrder(c *gin.Context) {
 
 	//orderID can't be nil or 0
 	if err != nil || &orderID == nil || orderID == 0 {
-		t.RespondAPIError(c, lib.ErrorMissingOrderID)
+		t.RespondError(c, lib.ErrorMissingOrderID)
 		return
 	}
 
@@ -169,13 +169,13 @@ func (t *Controller) GetOrder(c *gin.Context) {
 	// get the order by ID using the OrderModel's function
 	err = t.orderModel.GetOrder(orderID, order)
 	if err != nil {
-		t.RespondAPIError(c, lib.ErrorOrderIDNotFound)
+		t.RespondError(c, lib.ErrorOrderIDNotFound)
 		return
 	}
 	//Does this break if admin is trying to get an order?
 	//how to check if admin, then ignore this checker
 	if order.UserID != userIDin {
-		t.RespondAPIError(c, lib.ErrorUserCannotAccessOrder)
+		t.RespondError(c, lib.ErrorUserCannotAccessOrder)
 	}
 
 	t.RespondOK(c, order)
@@ -202,9 +202,9 @@ func (t *Controller) ListOrders(c *gin.Context) {
 	err := t.orderModel.ListOrders(orders)
 
 	if gorm.IsRecordNotFoundError(err) {
-		t.RespondAPIError(c, lib.ErrorUserIDNotFound)
+		t.RespondError(c, lib.ErrorUserIDNotFound)
 	} else {
-		t.RespondAPIError(c, lib.ErrorListOrdersFailed)
+		t.RespondError(c, lib.ErrorListOrdersFailed)
 	}
 
 	t.RespondOK(c, orders)

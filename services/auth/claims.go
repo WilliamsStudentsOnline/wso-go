@@ -100,8 +100,10 @@ func GenerateClaimsFactory(cfg *config.Config, db *gorm.DB) func(v *Authenticato
 				// If not admin, check if factrak admin
 				scope = append(scope, auth.ScopeFactrakAdmin)
 			} else if v.User.GoodrichAdmin != nil && *v.User.GoodrichAdmin {
-				// If not admin, check if factrak admin
+				// If not admin nor factrak admin, check if goodrich admin
 				scope = append(scope, auth.ScopeGoodrichAdmin)
+			}
+
 		}
 
 		var jwtUserID uint = 0
