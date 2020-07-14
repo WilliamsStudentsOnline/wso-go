@@ -9,7 +9,6 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 )
 
 type CreateOrderParams struct {
@@ -57,16 +56,8 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 
 	// phone number shouldn't be nil or blank
 	if &createParams.PhoneNumber == nil || createParams.PhoneNumber == "" {
-		t.RespondError(c, lib.ErrorMissingPhoneNumber)
+		t.RespondError(c, lib.ErrorGoodrichMissingPhoneNumber)
 		return
-	}
-
-	// if one nil itemID is found then return nil
-	for _, itemID := range createParams.ItemIDs {
-		if &itemID == nil {
-			t.RespondError(c, lib.ErrorMissingItemID)
-			return
-		}
 	}
 
 	db := t.menuModel.DB
@@ -80,7 +71,7 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 		// THIS DEPENDS ON MENU SERVICE FORMATTING || WILL INFER THE MODEL
 		err := db.First(&item, itemID).Error
 		if err != nil {
-			t.RespondError(c, lib.ErrorUnknownItemID)
+			t.RespondError(c, err)
 		}
 		// if the item is available, add it
 		if item.Available {
@@ -93,7 +84,7 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 		}
 	}
 	newOrder.ItemList = strings.Join(itemList, ",")
-	newOrder.Status = models.OrderStatusPlaced
+	newOrder.GoodrichOrderStatus = models.OrderStatusPlaced
 	newOrder.PhoneNumber = createParams.PhoneNumber
 	newOrder.PreferredTime = createParams.PreferredTime
 	newOrder.Notes = createParams.Notes
@@ -102,8 +93,7 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 	// write order to DB
 	err = t.orderModel.CreateOrder(userID, newOrder)
 	if err != nil {
-		// SPECIFIC ERROR TO RESPOND ?
-		t.RespondError(c, lib.ErrorCreateOrderFailed)
+		t.RespondError(c, err)
 		return
 	}
 
@@ -131,7 +121,7 @@ func (t *Controller) ListUserOrders(c *gin.Context) {
 
 	err := t.orderModel.ListUserOrders(userID, orders)
 	if err != nil {
-		t.RespondError(c, lib.ErrorUserIDNotFound)
+		t.RespondError(c, err)
 	}
 
 	t.RespondOK(c, orders)
@@ -160,8 +150,8 @@ func (t *Controller) GetOrder(c *gin.Context) {
 	orderID, err := services.GetUIntParam(c, "orderID")
 
 	//orderID can't be nil or 0
-	if err != nil || &orderID == nil || orderID == 0 {
-		t.RespondError(c, lib.ErrorMissingOrderID)
+	if err != nil || orderID == 0 {
+		t.RespondError(c, lib.GoodrichErrorMissingOrderID)
 		return
 	}
 
@@ -169,13 +159,13 @@ func (t *Controller) GetOrder(c *gin.Context) {
 	// get the order by ID using the OrderModel's function
 	err = t.orderModel.GetOrder(orderID, order)
 	if err != nil {
-		t.RespondError(c, lib.ErrorOrderIDNotFound)
+		t.RespondError(c, err)
 		return
 	}
 	//Does this break if admin is trying to get an order?
 	//how to check if admin, then ignore this checker
 	if order.UserID != userIDin {
-		t.RespondError(c, lib.ErrorUserCannotAccessOrder)
+		t.RespondError(c, lib.ErrorGoodrichUserCannotAccessOrder)
 	}
 
 	t.RespondOK(c, order)
@@ -200,11 +190,8 @@ func (t *Controller) ListOrders(c *gin.Context) {
 	var orders *[]*models.Order
 
 	err := t.orderModel.ListOrders(orders)
-
-	if gorm.IsRecordNotFoundError(err) {
-		t.RespondError(c, lib.ErrorUserIDNotFound)
-	} else {
-		t.RespondError(c, lib.ErrorListOrdersFailed)
+	if err != nil {
+		t.RespondError(c, err)
 	}
 
 	t.RespondOK(c, orders)

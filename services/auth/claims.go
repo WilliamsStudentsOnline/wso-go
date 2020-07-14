@@ -45,8 +45,8 @@ func GenerateClaimsFactory(cfg *config.Config, db *gorm.DB) func(v *Authenticato
 			// For ephcatch and factrak, user must be a student
 			if v.User.IsStudent() {
 
-				// any student or POTENTIALLY PROFESSORS/STAFF? who is on campus? can order
-				scope = append(scope, auth.ScopeGoodricdhUser)
+				// any student who is on campus? can order
+				scope = append(scope, auth.ScopeGoodrichUser)
 				// how should we check if a user is an admin ?
 
 				// If user is a senior or ephcatch eligible, add ephcatch scope
