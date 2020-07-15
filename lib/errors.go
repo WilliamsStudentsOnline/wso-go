@@ -146,6 +146,6 @@ var (
 	ErrorEphmatchEmptyMessagingUsername   = NewAPIError(1935, "ephmatch messaging username is empty")
 
 	// 2101-2149 are menu item errors
-	ErrorMissingNewMenuItemParams = NewAPIError(2101, "missing item parameters in create data: title, price or availability")
-	ErrorItemAlreadyExists        = NewAPIError(2111, "tried to add item that already exists in database")
+	ErrorGoodrichMissingNewMenuItemParams = NewAPIError(2101, "missing item parameters in create data: title, price or availability")
+	ErrorGoodrichItemAlreadyExists        = NewAPIError(2111, "tried to add item that already exists in database")
 )

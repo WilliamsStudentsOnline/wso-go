@@ -6,6 +6,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	"net/http"
 	"strconv"
 	"strings"
 )
@@ -59,15 +60,16 @@ func (t *Controller) ListMenuItems(c *gin.Context) {
 func (t *Controller) GetMenuItem(c *gin.Context) {
 	var menuItem *models.MenuItem
 	var err error
+	var id uint
 
-	id := c.Param("menuItemID") // c.Param returns string
-	convertedID64, err := strconv.ParseUint(id,10, 64) // convert to uint64
+	// get menu item id from URL
+	id, err = services.GetUIntParam(c, "menuItemID")
 	if err != nil {
-		t.RespondError(c, err)
-		return
+		t.RespondErrorCode(c, http.StatusBadRequest, err) // bad request if error
 	}
-	convertedID := uint(convertedID64) // convert uint64 to uint
-	err = t.menuItemModel.GetMenuItem(convertedID, menuItem)
+
+	// get the menu item from db
+	err = t.menuItemModel.GetMenuItem(id, menuItem)
 	if err != nil {
 		t.RespondError(c, err)
 		return
@@ -77,11 +79,12 @@ func (t *Controller) GetMenuItem(c *gin.Context) {
 
 }
 
+// struct that holds menu item create params
 type MenuItemCreateParams struct {
-	Title       *string  `json: "title"`
-	Description string   `json: "description"`
-	Price       *float64 `json: "price"`
-	Available   *bool    `json: "available"`
+	Title       *string  `json:"title"`
+	Description string   `json:"description"`
+	Price       *float64 `json:"price"`
+	Available   *bool    `json:"available"`
 	// false if item is out of stock
 }
 
@@ -112,7 +115,7 @@ func (t *Controller) CreateMenuItem(c *gin.Context) {
 
 	// check if title, price and availability are empty, description is optional?
 	if createData.Title == nil || (createData.Price == nil || createData.Available == nil) {
-		t.RespondError(c, lib.ErrorMissingNewMenuItemParams) // need to write this one into lib
+		t.RespondError(c, lib.ErrorGoodrichMissingNewMenuItemParams)
 		return
 	}
 
@@ -125,7 +128,7 @@ func (t *Controller) CreateMenuItem(c *gin.Context) {
 		// do nothing, item does not already exist
 
 	case err == nil: // if no error, then item already exists
-		err = lib.ErrorItemAlreadyExists // TODO create this custom error
+		err = lib.ErrorGoodrichItemAlreadyExists
 		t.RespondError(c, err)
 		return
 
@@ -134,25 +137,34 @@ func (t *Controller) CreateMenuItem(c *gin.Context) {
 		return
 	}
 
-	// dereference the pointers
-	title := *createData.Title
-	price := *createData.Price
-	available := *createData.Available
 
 	// construct new item
-	var newItem = models.MenuItem{
-		Title:       title,
-		Description: strings.TrimSpace(createData.Description),
-		Price:       price,
-		Available:   available,
-	}
+	var newItem models.MenuItem
 
+	// add fields to new item
+	newItem.Title = *lib.StrPtrDefaults(createData.Title, &newItem.Title)
+	// trim spaces on description
+	newItem.Description = strings.TrimSpace(createData.Description)
+	newItem.Price = *lib.FloatPtrDefaults(createData.Price, &newItem.Price)
+	newItem.Available = *lib.BoolPtrDefaults(createData.Available, &newItem.Available)
+
+
+	// create new item in db
 	err = t.menuItemModel.CreateMenuItem(&newItem)
 	if err != nil {
 		t.RespondError(c, err)
 		return
 	}
 	t.RespondCreated(c, newItem) // respond created with new item
+}
+
+// struct that holds menu item update params
+type MenuItemUpdateParams struct {
+	Title       *string  `json:"title"`
+	Description string   `json:"description"`
+	Price       *float64 `json:"price"`
+	Available   *bool    `json:"available"`
+	// false if item is out of stock
 }
 
 // UpdateMenuItem godoc
@@ -173,17 +185,18 @@ func (t *Controller) UpdateMenuItem(c *gin.Context) {
 	// get menu item ID from URL
 	menuItemID, err := services.GetUIntParam(c, "menuItemID")
 	if err != nil {
-		t.RespondError(c, err)
+		t.RespondErrorCode(c, http.StatusBadRequest, err)
 		return
 	}
 
-	updateData := MenuItemCreateParams{}
+	updateData := MenuItemUpdateParams{}
 	err = c.ShouldBind(&updateData)
 	if err != nil {
 		t.RespondBadBind(c, err)
 		return
 	}
 
+	// get item with menuItemID from db
 	var menuItem models.MenuItem
 	err = t.menuItemModel.GetMenuItem(menuItemID, &menuItem)
 	if err != nil {
@@ -191,16 +204,12 @@ func (t *Controller) UpdateMenuItem(c *gin.Context) {
 		return
 	}
 
-	// dereference pointers
-	title := *updateData.Title
-	price := *updateData.Price
-	available := *updateData.Available
-
 	// update fields
-	menuItem.Title = title
+	menuItem.Title = *lib.StrPtrDefaults(updateData.Title, &menuItem.Title)
+	// trim spaces on description
 	menuItem.Description = strings.TrimSpace(updateData.Description)
-	menuItem.Price = price
-	menuItem.Available = available
+	menuItem.Price = *lib.FloatPtrDefaults(updateData.Price, &menuItem.Price)
+	menuItem.Available = *lib.BoolPtrDefaults(updateData.Available, &menuItem.Available)
 
 	//update db
 	err = t.menuItemModel.UpdateMenuItem(menuItemID, &menuItem)
@@ -208,6 +217,7 @@ func (t *Controller) UpdateMenuItem(c *gin.Context) {
 		t.RespondError(c, err)
 		return
 	}
+	// return updated menu item
 	t.RespondOK(c, menuItem)
 
 }

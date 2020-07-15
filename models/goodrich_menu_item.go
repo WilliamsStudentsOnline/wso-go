@@ -1,12 +1,11 @@
 package models
 
 import (
-	"strings"
-
-	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
 )
+
+
 // menu item model
 type MenuItemModel struct {
 	*BaseModel
@@ -31,7 +30,7 @@ func (m *MenuItemModel) ListMenuItems(includeUnavailable bool, menu *[]*MenuItem
 
 	} else {
 		// includeUnavailable = false, return only items that are available
-		err = db.Where("menu_items.available = ?", true).Find(menu).Error
+		err = db.Where("goodrich_menu_items.available = ?", true).Find(menu).Error
 	}
 	return
 }
@@ -51,7 +50,6 @@ func (m *MenuItemModel) CreateMenuItem(item *MenuItem) (err error) {
 
 func (m *MenuItemModel) UpdateMenuItem(itemID uint, item *MenuItem) (err error) {
 	db := m.DB
-	err = db.Where("menu_items.id = ?", itemID).Updates(item).Error // is this right?
-	// will zero fields like `MenuItems.Available: false` update the row?
+	err = db.Save(item).Error
 	return
 }
