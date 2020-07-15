@@ -150,7 +150,7 @@ func (t *Controller) GetOrder(c *gin.Context) {
 func (t *Controller) GetOrderAdmin(c *gin.Context) {
 	orderID, err := services.GetUIntParam(c, "orderID")
 
-	//orderID can't be nil or 0
+	//orderID can't be or 0
 	if err != nil || orderID == 0 {
 		t.RespondError(c, lib.ErrorGoodrichMissingOrderID)
 		return
