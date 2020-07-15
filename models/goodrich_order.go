@@ -20,15 +20,26 @@ func NewOrderModel(db *gorm.DB, log *zap.SugaredLogger) *OrderModel {
 	}
 }
 
-func (o *OrderModel) CreateOrder(userID uint, createParams order.CreateOrderParams, newOrder *Order) (err error) {
+// Writes fully populated Order to db
+func (o *OrderModel) CreateOrder(newOrder *Order) (err error) {
+	db := o.DB
+	err = db.Create(newOrder).Error
+	if err != nil {
+		return
+	}
+	err = db.Find(newOrder).Error
+	return
+}
+
+// CreateOrderObject : populates an Order object, given CreateOrderParams
+func (o *OrderModel) CreateOrderObject(userID uint, createParams order.CreateOrderParams, order *Order) (err error) {
 	db := o.DB //maybe should be   db := t.menuModel.DB  ?
-	// Todo: l.26-52 should be in a separate function
 	var itemList []string
 	var totalPrice float64
 
 	// iterate over ItemIDs in params
 	for _, itemID := range createParams.ItemIDs {
-		var item models.MenuItem
+		var item MenuItem
 		// THIS DEPENDS ON MENU SERVICE FORMATTING || WILL INFER THE MODEL
 		err = db.First(&item, itemID).Error
 		if err != nil {
@@ -37,21 +48,21 @@ func (o *OrderModel) CreateOrder(userID uint, createParams order.CreateOrderPara
 		// if the item is available, add it
 		if item.Available {
 			// add MenuItem to newOrder.Items
-			newOrder = append(newOrder.Items, item)
+			order = append(order.Items, item)
 			// append itemID to itemList
 			itemList = append(itemList, strconv.FormatUint(uint64(itemID), 10))
 			//adding the price for each available item to the total
 			totalPrice += item.Price
 		}
 	}
-	newOrder.ItemList = strings.Join(itemList, ",")
-	newOrder.Status = OrderStatusPlaced
-	newOrder.PhoneNumber = createParams.PhoneNumber
-	newOrder.PreferredTime = createParams.PreferredTime
-	newOrder.Notes = createParams.Notes
-	newOrder.TotalPrice = totalPrice
+	order.ItemList = strings.Join(itemList, ",")
+	order.Status = OrderStatusPlaced
+	order.UserID = userID
+	order.PhoneNumber = createParams.PhoneNumber
+	order.PreferredTime = createParams.PreferredTime
+	order.Notes = createParams.Notes
+	order.TotalPrice = totalPrice
 
-	err = db.Create(newOrder).Error
 	return
 }
 
@@ -87,17 +98,10 @@ func (o *OrderModel) ListOrders(orders *[]*Order) (err error) {
 }
 
 // admin function
-func (o *OrderModel) UpdateOrder(orderID uint, updatedOrder *Order) (err error) {
+func (o *OrderModel) UpdateOrder(updatedOrder *Order) (err error) {
 	db := o.DB
-	// get order currently in the table by orderID and save in tempOrder
-	var tempOrder *Order
-	err = db.First(tempOrder, orderID).Error
-	if err != nil {
-		return
-	}
-	// update tempOrder to be equal to the updatedOrder
-	*tempOrder = *updatedOrder
 	// save newly updated order in DB
-	err = db.Save(tempOrder).Error
+	err = db.Save(updatedOrder).Error
 	return
 }
+c

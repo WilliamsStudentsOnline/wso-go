@@ -10,18 +10,17 @@ import (
 )
 
 type CreateOrderParams struct {
-	ItemIDs       []uint `json: "itemIDS"`
-	UserID        uint
+	ItemIDs       []uint    `json: "itemIDS"`
 	PhoneNumber   string    `json: "phoneNumber"`
 	PreferredTime time.Time `json: "preferredTime"`
 	Notes         string    `json: "notes"`
 }
 
 type UpdateOrderParams struct {
-	OrderStatus   models.OrderStatus `json: "orderStatus"`
-	AdminNotes    string             `json: "adminNotes"`
-	EstimatedTime time.Time          `json: "estimatedTime"`
-	Items         []models.MenuItem  `json: "items"`
+	OrderStatus   models.GoodrichOrderStatus `json: "orderStatus"`
+	AdminNotes    string                     `json: "adminNotes"`
+	EstimatedTime time.Time                  `json: "estimatedTime"`
+	Items         []models.MenuItem          `json: "items"`
 }
 
 // CreateOrder godoc
@@ -49,7 +48,6 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 		t.RespondError(c, err)
 		return
 	}
-	createParams.UserID = userID
 
 	// phone number shouldn't be nil or blank
 	if &createParams.PhoneNumber == nil || createParams.PhoneNumber == "" {
@@ -59,12 +57,15 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 
 	// write order to DB
 	var newOrder *models.Order
-	err = t.orderModel.CreateOrder(userID, createParams, newOrder)
+	err = t.orderModel.CreateOrderObject(userID, createParams, newOrder)
 	if err != nil {
 		t.RespondError(c, err)
 		return
 	}
-
+	err = t.orderModel.CreateOrder(newOrder)
+	if err != nil {
+		return
+	}
 	t.RespondOK(c, newOrder)
 }
 
@@ -90,6 +91,7 @@ func (t *Controller) ListUserOrders(c *gin.Context) {
 	err := t.orderModel.ListUserOrders(userID, orders)
 	if err != nil {
 		t.RespondError(c, err)
+		return
 	}
 
 	t.RespondOK(c, orders)
@@ -132,7 +134,7 @@ func (t *Controller) GetOrder(c *gin.Context) {
 	t.RespondOK(c, order)
 }
 
-// GetOrder godoc
+// GetOrderAdmin godoc
 // @Summary Gets an Order
 // @Description Gets an Order using passed orderID
 // @ID
@@ -188,6 +190,7 @@ func (t *Controller) ListOrders(c *gin.Context) {
 	err := t.orderModel.ListOrders(orders)
 	if err != nil {
 		t.RespondError(c, err)
+		return
 	}
 
 	t.RespondOK(c, orders)
@@ -207,11 +210,36 @@ func (t *Controller) ListOrders(c *gin.Context) {
 // @Security Bearer
 // @Router goodrich/orders/<order_id> [get]
 func (t *Controller) UpdateOrder(c *gin.Context) {
-	// updateParams := UpdateOrderParams{}
-	// err := c.ShouldBindQuery(&updateParams)
-	// if err != nil {
-	// 	t.RespondError(c, err)
-	// 	return
-	// }
+	//get order id to find old order in db
+	orderID, err := services.GetUIntParam(c, "orderID")
+	if err != nil {
+		t.RespondError(c, err)
+	}
+	//bind new order params to update old order
+	updateParams := UpdateOrderParams{}
+	err := c.ShouldBindQuery(&updateParams)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	//get the order currently in the db using Admin function
+	var currOrder *Order
+	t.orderModel.GetOrderAdmin(orderID, currOrder)
+
+	if updateParams.OrderStatus != nil {
+		currOrder.OrderStatus = updateParams.OrderStatus
+	}
+	currOrder.AdminNotes = *lib.StrPtrDefaults(&updateParams.AdminNotes, currOrder.AdminNotes)
+	currOrder.EstimatedTime = *lib.TimePtrDefaults(&updateParams.EstimatedTime, currOrder.EstimatedTime)
+
+	// update order in the database
+	err = t.orderModel.UpdateOrder(currOrder)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	t.RespondOK(c, updatedOrder)
 
 }
