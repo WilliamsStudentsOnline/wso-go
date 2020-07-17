@@ -207,6 +207,7 @@ type UpdateUserParams struct {
 	HasAcceptedDormtrakPolicy *bool   `json:"hasAcceptedDormtrakPolicy"`
 	Nickname                  *string `json:"nickname"`
 	OptOutEphcatch            *bool   `json:"optOutEphcatch"`
+	CampusStatus              *string `json:"campusStatus"`
 }
 
 // UpdateUser godoc
@@ -266,6 +267,13 @@ func (t *Controller) UpdateUser(c *gin.Context) {
 	user.HasAcceptedDormtrakPolicy = lib.BoolPtrDefaults(updateData.HasAcceptedDormtrakPolicy, user.HasAcceptedDormtrakPolicy)
 	user.Nickname = lib.StrPtrDefaults(updateData.Nickname, user.Nickname)
 	user.OptOutEphcatch = lib.BoolPtrDefaults(updateData.OptOutEphcatch, user.OptOutEphcatch)
+	user.CampusStatus = lib.StrPtrDefaults(updateData.CampusStatus, user.CampusStatus)
+
+	// Error if bad campus status
+	if user.CampusStatus != nil && *user.CampusStatus != "" && !models.ValidateCampusStatus(*user.CampusStatus) {
+		t.RespondError(c, lib.ErrorUserInvalidCampusStatus)
+		return
+	}
 
 	// Update the user in the db
 	err = t.userModel.UpdateUser(&user)

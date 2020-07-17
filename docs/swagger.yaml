@@ -1011,6 +1011,9 @@ definitions:
         type: boolean
       campusPhoneEXT:
         type: string
+      campusStatus:
+        description: 'Has campus status: either remote or on-campus'
+        type: string
       cellPhone:
         type: string
       classYear:
@@ -1193,6 +1196,8 @@ definitions:
       atWilliams:
         type: boolean
       campusPhoneEXT:
+        type: string
+      campusStatus:
         type: string
       cellPhone:
         type: string
@@ -1398,6 +1403,8 @@ definitions:
         type: boolean
       campusPhoneEXT:
         type: string
+      campusStatus:
+        type: string
       cellPhone:
         type: string
       classYear:
@@ -1481,6 +1488,8 @@ definitions:
     type: object
   user.UpdateUserParams:
     properties:
+      campusStatus:
+        type: string
       dormVisible:
         type: boolean
       hasAcceptedDormtrakPolicy:

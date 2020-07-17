@@ -8254,6 +8254,10 @@
                 "campusPhoneEXT": {
                     "type": "string"
                 },
+                "campusStatus": {
+                    "description": "Has campus status: either remote or on-campus",
+                    "type": "string"
+                },
                 "cellPhone": {
                     "type": "string"
                 },
@@ -8516,6 +8520,9 @@
                     "type": "boolean"
                 },
                 "campusPhoneEXT": {
+                    "type": "string"
+                },
+                "campusStatus": {
                     "type": "string"
                 },
                 "cellPhone": {
@@ -8826,6 +8833,9 @@
                 "campusPhoneEXT": {
                     "type": "string"
                 },
+                "campusStatus": {
+                    "type": "string"
+                },
                 "cellPhone": {
                     "type": "string"
                 },
@@ -8950,6 +8960,9 @@
         "user.UpdateUserParams": {
             "type": "object",
             "properties": {
+                "campusStatus": {
+                    "type": "string"
+                },
                 "dormVisible": {
                     "type": "boolean"
                 },

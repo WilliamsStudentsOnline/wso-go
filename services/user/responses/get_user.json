@@ -134,6 +134,9 @@
         "ephcatchEligibility": {
           "type": "boolean"
         },
+        "campusStatus": {
+          "type": "string"
+        },
         "tags": {
           "type": "array",
           "items": {

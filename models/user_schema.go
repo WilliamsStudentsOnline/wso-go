@@ -15,6 +15,11 @@ const (
 	UserTypeUnknown   = "unknown"
 )
 
+const (
+	CampusStatusOnCampus = "on-campus"
+	CampusStatusRemote   = "remote"
+)
+
 // User Model Schema
 type User struct {
 	BaseSchema
@@ -94,6 +99,9 @@ type User struct {
 
 	// Has one ephmatch profile
 	EphmatchProfile *EphmatchProfile `json:"ephmatchProfile,omitempty"`
+
+	// Has campus status: either remote or on-campus
+	CampusStatus *string `json:"campusStatus"`
 }
 
 func (*User) TableName() string {
@@ -148,6 +156,10 @@ func (u *User) HomeAddress() string {
 	}
 
 	return strings.Join(addressSlice, ", ")
+}
+
+func ValidateCampusStatus(str string) bool {
+	return str == CampusStatusOnCampus || str == CampusStatusRemote
 }
 
 func (u *User) GenerateSearchFields() string {

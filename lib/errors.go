@@ -96,13 +96,14 @@ var (
 	ErrorFailedIdentityAuthentication = NewAPIErrorWithHTTP(1351, http.StatusBadRequest, "failed to authenticate identity (incorrect unix id or password)")
 
 	// 14** are user service errors
-	ErrorUserMustBeStudent    = NewAPIError(1401, "user must be a student")
-	ErrorUserCannotBePrefrosh = NewAPIError(1402, "user cannot be prefrosh")
-	ErrorUserNotVisible       = NewAPIError(1403, "user not visible")
-	ErrorUserNotAtWilliams    = NewAPIError(1404, "user not at williams")
-	ErrorUserIDNoParse        = NewAPIError(1405, "user id could not be parsed")
-	ErrorInvalidUserTag       = NewAPIError(1406, "invalid user tag")
-	ErrorUnableToSavePicture  = NewAPIErrorWithHTTP(1420, http.StatusInternalServerError, "unable to save uploaded picture")
+	ErrorUserMustBeStudent       = NewAPIError(1401, "user must be a student")
+	ErrorUserCannotBePrefrosh    = NewAPIError(1402, "user cannot be prefrosh")
+	ErrorUserNotVisible          = NewAPIError(1403, "user not visible")
+	ErrorUserNotAtWilliams       = NewAPIError(1404, "user not at williams")
+	ErrorUserIDNoParse           = NewAPIError(1405, "user id could not be parsed")
+	ErrorInvalidUserTag          = NewAPIError(1406, "invalid user tag")
+	ErrorUserInvalidCampusStatus = NewAPIError(1407, "user campus status is invalid")
+	ErrorUnableToSavePicture     = NewAPIErrorWithHTTP(1420, http.StatusInternalServerError, "unable to save uploaded picture")
 
 	// 15** are factrak errors
 	// Create/Update errors
