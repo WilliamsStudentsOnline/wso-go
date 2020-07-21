@@ -237,6 +237,21 @@ func TestSearchUsersMySQL(t *testing.T) {
 			"aidan ((neighborhood: dodd) OR (class_year: 2021 AND tags: abcd) OR (department: CSCI AND (building: TCL OR building: HELLO)))",
 			[]*models.User{},
 		},
+		{
+			"type prof",
+			"type: professor",
+			[]*models.User{&u3},
+		},
+		{
+			"type student",
+			"type: student",
+			[]*models.User{&u1, &u2},
+		},
+		{
+			"type unknown",
+			"type: alum",
+			[]*models.User{},
+		},
 	}
 
 	for _, tc := range testCases {
