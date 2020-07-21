@@ -38,6 +38,7 @@ var FieldNamesStd = map[string]string{
 	"ext":          "campus_phone_ext",
 	"tag":          "tags",
 	"tags":         "tags",
+	"type":         "type",
 }
 
 type SearchUsersMySQL struct {
@@ -256,6 +257,9 @@ func (t *astTraverser) parseField(field *search.Field) (ignore bool) {
 	case "name", "class_year", "entry", "unix_id", "williams_email", "title", "major", "campus_phone_ext":
 		t.query.WriteString("lower(users." + fieldName + ") LIKE ?")
 		t.vals = append(t.vals, valueSearch)
+	case "type":
+		t.query.WriteString("users.type = ?")
+		t.vals = append(t.vals, fieldValue)
 	default:
 		ignore = true
 		t.errors = append(t.errors, lib.NewErrorUnknownSearchField(fieldName))
