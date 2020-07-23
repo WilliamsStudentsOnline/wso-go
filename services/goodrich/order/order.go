@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
+	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
@@ -125,7 +126,12 @@ func (t *Controller) GetOrder(c *gin.Context) {
 
 	var order *models.Order
 	// get the order by ID using the OrderModel's function
-	err = t.orderModel.GetOrder(orderID, userID, order)
+	if auth.HasScope(c, auth.ScopeGoodrichAdmin) {
+		err = t.orderModel.ListUserOrders(userID, orders)
+	}
+	else {
+		err = t.orderModel.GetOrder(orderID, userID, order)
+	}
 	if err != nil {
 		t.RespondError(c, err) //returns 404 if nothing is found
 		return
@@ -134,40 +140,6 @@ func (t *Controller) GetOrder(c *gin.Context) {
 	t.RespondOK(c, order)
 }
 
-// GetOrderAdmin godoc
-// @Summary Gets an Order
-// @Description Gets an Order using passed orderID
-// @ID
-// @Tags goodrich
-// @Accept  json
-// @Produce  json
-// @Param	orderID path uint true "Order ID"
-// @Param	userID body uint true "User ID"
-// @Success 201 {object} models.OrderModel
-// @Failure 400 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
-// @Failure 2152 {object} lib.APIError "missing order id in input"
-// @Security Bearer
-// @Router goodrich/orders/<order_id> [get]
-func (t *Controller) GetOrderAdmin(c *gin.Context) {
-	orderID, err := services.GetUIntParam(c, "orderID")
-
-	//orderID can't be or 0
-	if err != nil || orderID == 0 {
-		t.RespondError(c, lib.ErrorGoodrichMissingOrderID)
-		return
-	}
-
-	var order *models.Order
-	// get the order by ID using the OrderModel's function
-	err = t.orderModel.GetOrderAdmin(orderID, order)
-	if err != nil {
-		t.RespondError(c, err) //returns 404 if nothing is found
-		return
-	}
-
-	t.RespondOK(c, order)
-}
 
 // ListOrders godocturn
 // @Summary Gets an Order
@@ -240,6 +212,6 @@ func (t *Controller) UpdateOrder(c *gin.Context) {
 		return
 	}
 
-	t.RespondOK(c, updatedOrder)
+	t.RespondOK(c, currOrder)
 
 }

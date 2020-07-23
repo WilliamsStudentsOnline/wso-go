@@ -15,6 +15,7 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	// User side
 	goodrichUser := r.Group("")
 	goodrichUser.Use(auth.RequireScopes(auth.ScopeGoodrichUser, auth.ScopeGoodrichAdmin))
+
 	goodrichUser.POST("/api/v2/goodrich/orders", c.CreateOrder)
 	goodrichUser.GET("/api/v2/goodrich/:user/orders", c.ListUserOrders)
 	goodrichUser.GET("/api/v2/goodrich/orders/:orderID", c.GetOrder)
@@ -22,8 +23,8 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	//Admin side
 	goodrichAdmin := r.Group("")
 	goodrichAdmin.Use(auth.RequireScopes(auth.ScopeGoodrichAdmin))
+
 	goodrichAdmin.GET("/api/v2/goodrich/orders", c.ListOrders)
-	goodrichUser.GET("/api/v2/goodrich/orders/:orderID", c.GetOrderAdmin)
 	goodrichAdmin.PATCH("/api/v2/goodrich/orders/:orderID", c.UpdateOrder)
 
 }
