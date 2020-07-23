@@ -146,8 +146,6 @@ pipeline {
               }
             }
           }
-          post {
-          }
         }
   }
   options { buildDiscarder(logRotator(numToKeepStr: '2')) }
