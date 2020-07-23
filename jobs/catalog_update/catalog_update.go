@@ -239,6 +239,8 @@ func ParseCatalog(catalog []RawCourse, fallSemID, winterSemID, springSemID int) 
 			course.ClassType = "Tutorial"
 		case "STU":
 			course.ClassType = "Studio"
+		case "HON":
+			course.ClassType = "Honors"
 		case "IND":
 			course.ClassType = "Independent Study"
 		case "LAB":
