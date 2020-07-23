@@ -127,7 +127,7 @@ func (t *Controller) GetOrder(c *gin.Context) {
 	var order *models.Order
 	// get the order by ID using the OrderModel's function
 	if auth.HasScope(c, auth.ScopeGoodrichAdmin) {
-		err = t.orderModel.ListUserOrders(userID, orders)
+		err = t.orderModel.GetOrderAdmin(userID, orders)
 	}
 	else {
 		err = t.orderModel.GetOrder(orderID, userID, order)

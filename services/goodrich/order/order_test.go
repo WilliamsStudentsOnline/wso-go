@@ -1,9 +1,11 @@
 package order
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
@@ -22,10 +24,10 @@ func TestController_CreateOrder(t *testing.T) {
 	//TEST 1: Create valid order with invalid userID and check if it's successfully created in DB.
 	//create dummy user
 	s1 := models.User{
-		Type:   models.UserTypeStudent,
-		Name:   "Student1",
-		UnixID: "s1",
-		ClassYear: lib.IntToPtr(2023)
+		Type:      models.UserTypeStudent,
+		Name:      "Student1",
+		UnixID:    "s1",
+		ClassYear: lib.IntToPtr(2023),
 	}
 
 	m1 := models.MenuItem{
@@ -49,54 +51,66 @@ func TestController_CreateOrder(t *testing.T) {
 		Available:   false,
 	}
 
-	//dummy user creates dummy order
-	o1 := models.Order{
-		ItemList:    "banana, juice, ice-cream",
-		Items:       [...]MenuItem{m1, m2, m3}, // FILL WITH MENU ITEMS
-		User:        &s1,
-		UserID:      s1.ID,
-		PhoneNumber: "000-000-0000",
-		Notes:       "very hungry",
+	orderParams := CreateOrderParams{
+		ItemIDs:       []uint{m1.BaseSchema.ID, m2.BaseSchema.ID, m3.BaseSchema.ID},
+		PhoneNumber:   "000-000-0000",
+		PreferredTime: time.Now(),
+		Notes:         "very hungry",
 	}
 
-	//put dummy user, dummy menu-items, and dummy order into DB
+	//put dummy user, dummy menu-items into DB
 	assert.NoError(db.Create(&s1).Error)
 	assert.NoError(db.Create(&m1).Create(&m2).Create(&m3).Error)
-	assert.NoError(db.Create(&o1).Error)
 
 	//Setup router
 	router := utils.SetupRouter(auth.ScopeGoodrichUser, auth.ScopeGoodrichAdmin)
-	utils.AddUserContexts(router, s1.ID) //do we need this line
+	utils.AddUserContexts(router, s1.ID) //do we need this line ?
 	cfg := utils.SetupConfig()
 	logger := zap.S()
 	SetupRouter(router, db, cfg, logger)
 
-	//get dummy order from table
-	o, err := utils.DoHTTPReq(router, http.MethodGet, "/orders", nil) //what to put as URL (3rd) argument indestad of '/orders'?
+	//do http POST request to create order orderParams
+	orderData, err := json.Marshal(&orderParams)
+	assert.NoError(err)
+	o, err := utils.DoHTTPReq(router, http.MethodPost, "/orders", bytes.NewBuffer(orderData))
 	assert.NoError(err)
 
-	//Status should be okay
+	//should be okay if nothing went wrong
 	assert.Equal(http.StatusOK, o.Code)
 
-	//Decode response
-	respData := utils.GetHTTPDataResp(assert, o.Body.Bytes())
-	assert.Nil(respData.Error)
-	var resp []models.Order
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	//get dummy order from table
+	resp := models.Order{}
+	err = db.Where(models.Order{UserID: s1.ID}).First(&resp).Error
+	assert.NoError(err)
 
 	//Check for correctness
 	assert.Len(resp, 1)
-	assert.Equal(o1.UserID, resp[0].UserID)                 //check if same userID
-	assert.Equal(o1.ItemList, resp[0].ItemList)             //check if same string item list
-	assert.Equal(o1.PhoneNumber, resp[0].PhoneNumber)       //check if same phone number
-	assert.True(resp[0].Items[0].Available)                 //check if banana is available
-	assert.Equal(o1.Items[1].Price, resp[0].Items[1].Price) //check if juice has same price
-	assert.True(!resp[0].Items[2].Available)                //check if ice-cream is unavailable
+	assert.Equal(s1.ID, resp.UserID)                                  //check if same userID
+	assert.Equal(orderParams.ItemIDs[0], resp.Items[0].BaseSchema.ID) //check if same string item IDs
+	assert.Equal(orderParams.PhoneNumber, resp.PhoneNumber)           //check for phone number
+	assert.True(resp.Items[0].Available)                              //check if banana is available
+	assert.Equal(m1.Price, resp.Items[0].Price)                       //check if banana has same price
+	assert.True(resp.Items[1].Available)                              //check if juice is availble
+	assert.Equal(m2.Price, resp.Items[1].Price)                       //check if juice has same price
+	assert.True(!resp.Items[2].Available)                             //check if ice-cream is navailable
+	assert.Equal(m3.Price, resp.Items[2].Price)                       //check if ice-cream has same price
 
 	//TEST 2: Create corrupt (missing fields) order and make sure not in db
-	//TEST 3: Create order with unavailable MenuItems and see if correctly in db (price, availability)
+	orderParams = CreateOrderParams{
+		ItemIDs:       []uint{m1.BaseSchema.ID, m2.BaseSchema.ID, m3.BaseSchema.ID},
+		PhoneNumber:   "",
+		PreferredTime: time.Now(),
+		Notes:         "",
+	}
 
-	return nil
+	orderData, err = json.Marshal(&orderParams)
+	assert.NoError(err)
+	o, err = utils.DoHTTPReq(router, http.MethodPost, "/orders", bytes.NewBuffer(orderData))
+	assert.NoError(err) //should this be deleted?
+	apiError := lib.ErrorGoodrichMissingPhoneNumber
+	assert.Equal(apiError.HTTPCode, o.Code)
+
+	return
 }
 
 func TestController_ListUserOrders(t *testing.T) {
@@ -108,7 +122,7 @@ func TestController_ListUserOrders(t *testing.T) {
 	logger := zap.S()
 	SetupRouter(router, db, cfg, logger)
 
-	return nil
+	return
 }
 
 func TestController_ListOrders(t *testing.T) {
@@ -118,25 +132,30 @@ func TestController_ListOrders(t *testing.T) {
 	router := utils.SetupRouter(auth.ScopeGoodrichAdmin)
 	cfg := utils.SetupConfig()
 	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
-	return nil
+
+	return
 }
 
 func TestController_GetOrder(t *testing.T) {
 	// Setup
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeGoodrichUser)
+	router := utils.SetupRouter(auth.ScopeGoodrichUser, auth.ScopeGoodrichAdmin)
 	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
-	return nil
+	logger := zap.S()
+	SetupRouter(router, db, cfg, logger)
+
+	return
 }
 
 func TestController_UpdateOrder(t *testing.T) {
 	// Setup
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeGoodrichAdmin)
+	router := utils.SetupRouter(auth.ScopeGoodrichUser, auth.ScopeGoodrichAdmin)
 	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
-	return nil
+	logger := zap.S()
+	SetupRouter(router, db, cfg, logger)
+
+	return
 }
