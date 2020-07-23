@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/jinzhu/gorm"
@@ -55,6 +56,7 @@ type Course struct {
 	Department           string        `json:"department"`
 	Number               int           `json:"number"`
 	Section              string        `json:"section"`
+	SectionType          string        `json:"sectionType"`
 	PeoplesoftNumber     int           `json:"peoplesoftNumber"`
 	Consent              string        `json:"consent"`
 	GradingBasisDesc     string        `json:"gradingBasisDesc"`
@@ -191,6 +193,18 @@ func ParseCatalog(catalog []RawCourse, fallSemID, winterSemID, springSemID int) 
 		// Tutorial sections start with 'T'
 		course.Section = strings.TrimSpace(unparsed.ClassSection)
 		course.PeoplesoftNumber = unparsed.ClassNumber
+
+		// Parse if remote or hybrid or in-person
+		if len(course.Section) > 0 {
+			switch unicode.ToUpper(rune(course.Section[0])) {
+			case 'R':
+				course.SectionType = "remote"
+			case 'H':
+				course.SectionType = "hybrid"
+			default:
+				course.SectionType = "in-person"
+			}
+		}
 
 		// Options for Consent are 'N', ' ', 'D
 		course.Consent = strings.TrimSpace(unparsed.Consent)
