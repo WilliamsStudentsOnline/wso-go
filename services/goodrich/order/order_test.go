@@ -121,6 +121,22 @@ func TestController_ListUserOrders(t *testing.T) {
 	cfg := utils.SetupConfig()
 	logger := zap.S()
 	SetupRouter(router, db, cfg, logger)
+	// TEST 1: Make sure success occurs
+	// create dummy user
+
+	// create dummy orderParams for dummy user
+
+	// put dummy order and user into db
+
+	// perform GET request to "/api/v2/goodrich/:user/orders"
+
+	// make sure response yields same dummy orders
+
+	// TEST 2: Test Failure
+
+	// perform GET request to "/api/v2/goodrich/:user/orders" with invalid userID
+
+	// ensure failure
 
 	return
 }
@@ -132,6 +148,16 @@ func TestController_ListOrders(t *testing.T) {
 	router := utils.SetupRouter(auth.ScopeGoodrichAdmin)
 	cfg := utils.SetupConfig()
 	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+	// TEST: Ensure No Errors when Listing All User Orders
+	// create three dummy users
+
+	// create two dummy orderParams for each dummy user
+
+	// put dummy orders and users into db
+
+	// perform GET request to "/api/v2/goodrich/orders"
+
+	// make sure response yields same six dummy orders
 
 	return
 }
@@ -144,6 +170,25 @@ func TestController_GetOrder(t *testing.T) {
 	cfg := utils.SetupConfig()
 	logger := zap.S()
 	SetupRouter(router, db, cfg, logger)
+	// TEST 1: Ensure Correctness for Dummy User and Dummy Order
+	// make dummy user
+
+	// put dummy order and user into db
+
+	// create order based on orderParams (put into DB)
+
+	// make GET request to "/api/v2/goodrich/orders/:orderID"
+
+	// ensure correctness
+
+	// TEST 2: Ensure Proper Scope
+	// set up another router for a GoodrichUser
+
+	// create second dummy user
+
+	// try to get order of DummyUser1 using DummyUser2 auth and DummyUser1 orderID
+
+	// ensure failure
 
 	return
 }
@@ -156,6 +201,18 @@ func TestController_UpdateOrder(t *testing.T) {
 	cfg := utils.SetupConfig()
 	logger := zap.S()
 	SetupRouter(router, db, cfg, logger)
+
+	// create dummy user
+
+	// create dummy orderParams for dummy user
+
+	// put dummy order and user into db
+
+	// TEST 1: Create good update Params for order and update
+
+	// TEST 2: Create bad update Params for order and update
+
+	// TEST 3: Create good update Params for wrong order and update
 
 	return
 }
