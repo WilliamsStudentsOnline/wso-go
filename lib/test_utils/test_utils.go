@@ -62,6 +62,13 @@ func AddUserContexts(router *gin.Engine, userID uint) {
 	})
 }
 
+func AddOrderContexts(router *gin.Engine, orderID uint) {
+	router.Use(func(c *gin.Context) {
+		c.Set("orderID", orderID) //replace "orderID" with actual field but good for now
+		c.Next()
+	})
+}
+
 func DoHTTPReq(router *gin.Engine, method, url string, body io.Reader) (*httptest.ResponseRecorder, error) {
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest(method, url, body)

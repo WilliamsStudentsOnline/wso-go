@@ -23,32 +23,42 @@ func TestController_CreateOrder(t *testing.T) {
 
 	//TEST 1: Create valid order with invalid userID and check if it's successfully created in DB.
 	//create dummy user
+
 	s1 := models.User{
 		Type:      models.UserTypeStudent,
 		Name:      "Student1",
 		UnixID:    "s1",
 		ClassYear: lib.IntToPtr(2023),
 	}
-
+	
 	m1 := models.MenuItem{
 		Title:       "banana",
 		Description: "i am healthy",
 		Price:       1.75,
 		Available:   true,
 	}
-
+	
 	m2 := models.MenuItem{
 		Title:       "juice",
 		Description: "i am slurpy",
 		Price:       2.00,
 		Available:   true,
 	}
-
+	
 	m3 := models.MenuItem{
 		Title:       "ice-cream",
 		Description: "i am cold",
 		Price:       2.25,
 		Available:   false,
+	}
+	
+	o1 := models.Order {
+		ItemList: 		"banana, juice, ice-cream"
+		Items:   		[]MenuItem{m1, m2, m3} 
+		User: 			s1
+		UserID: 		s1.UnixID
+		PhoneNumber : 	"000-000-0000"
+		Notes: 			"very hungry"
 	}
 
 	orderParams := CreateOrderParams{
@@ -117,18 +127,67 @@ func TestController_ListUserOrders(t *testing.T) {
 	// Setup
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
+
+	//dummy user
+	s1 := models.User{
+		Type:      models.UserTypeStudent,
+		Name:      "Student2",
+		UnixID:    "bb",
+		ClassYear: lib.IntToPtr(2022),
+	}
+	
+	//dummy menu items
+	m1 := models.MenuItem{
+		Title:       "bagel",
+		Description: "i am round",
+		Price:       1.25,
+		Available:   true,
+	}
+	
+	m2 := models.MenuItem{
+		Title:       "orange",
+		Description: "i am my name",
+		Price:       0.75,
+		Available:   false,
+	}
+	
+	m3 := models.MenuItem{
+		Title:       "coffee",
+		Description: "i am cold or hot (exclusive-or)",
+		Price:       1.75,
+		Available:   true,
+	}
+	
+	//dummy order
+	o1 := models.Order {
+		ItemList: 		"bagel, orange, coffee"
+		Items:   		[]MenuItem{m1, m2, m3} 
+		User: 			s1
+		UserID: 		s1.UnixID
+		PhoneNumber : 	"999-999-9999"
+		Notes: 			"too much hw for tomorrow, gonna be a long night..."
+	}
+
+	// put dummy order and and dumy user into db
+	assert.NoError(db.Create(&s1).Error)
+	assert.NoError(db.Create(&o1).Error)
+	
 	router := utils.SetupRouter(auth.ScopeGoodrichUser, auth.ScopeGoodrichAdmin)
 	cfg := utils.SetupConfig()
 	logger := zap.S()
 	SetupRouter(router, db, cfg, logger)
-	// TEST 1: Make sure success occurs
-	// create dummy user
 
-	// create dummy orderParams for dummy user
-
-	// put dummy order and user into db
+	// TEST 1: Success testing
+	//add contexts
+	utils.AddUserContexts(router, s1.ID)
 
 	// perform GET request to "/api/v2/goodrich/:user/orders"
+	w, err := utils.DoHTTPReq(router, http.MethodGet, ":user/orders", nil) //is this correct like this??
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+
+	//decode response
+	resp := utils.GetHTTPDataResp(a, w.Body.Bytes())
 
 	// make sure response yields same dummy orders
 
@@ -172,6 +231,9 @@ func TestController_GetOrder(t *testing.T) {
 	SetupRouter(router, db, cfg, logger)
 	// TEST 1: Ensure Correctness for Dummy User and Dummy Order
 	// make dummy user
+
+	utils.AddOrderContexts(router, o1.ID) 	//Nathan, you might need this function to test GetOrder
+											//see lib/test_utils.go for my rough implementation for now
 
 	// put dummy order and user into db
 
