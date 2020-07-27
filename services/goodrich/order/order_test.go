@@ -160,7 +160,7 @@ func TestController_ListUserOrders(t *testing.T) {
 	
 	//dummy order
 	o1 := models.Order {
-		ItemList: 		"bagel, orange, coffee"
+		ItemList: 		"bagel, orange, coffee" 
 		Items:   		[]MenuItem{m1, m2, m3} 
 		User: 			s1
 		UserID: 		s1.UnixID
@@ -209,15 +209,177 @@ func TestController_ListOrders(t *testing.T) {
 	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 	// TEST: Ensure No Errors when Listing All User Orders
 	// create three dummy users
+	//dummy user 1
+	s1 := models.User{
+		Type:      models.UserTypeStudent,
+		Name:      "Student1",
+		UnixID:    "s1",
+		ClassYear: lib.IntToPtr(2022),
+	}
+	//dummy user 2
+	s2 := models.User{
+		Type:      models.UserTypeStudent,
+		Name:      "Student2",
+		UnixID:    "s2",
+		ClassYear: lib.IntToPtr(2022),
+	}
+	//dummy user 3
+	s3 := models.User{
+		Type:      models.UserTypeStudent,
+		Name:      "Student3",
+		UnixID:    "s3",
+		ClassYear: lib.IntToPtr(2022),
+	}
+	// create two dummy orders for each dummy user
+	//dummy menu items
+	m1 := models.MenuItem{
+		Title:       "Duke Juice",
+		Description: "best strawberry lemonade on campus",
+		Price:       3.75,
+		Available:   false,
+	}
+	
+	m2 := models.MenuItem{
+		Title:       "Happy Chick",
+		Description: "chicken is abound",
+		Price:       25.00,
+		Available:   false,
+	}
+	
+	m3 := models.MenuItem{
+		Title:       "Gummy Bears",
+		Description: "such stretchy bears indeed",
+		Price:       2.25,
+		Available:   true,
+	}
+	m4 := models.MenuItem{
+		Title:       "Apple Pie Slice",
+		Description: "best dessert ever",
+		Price:       1.50,
+		Available:   true,
+	}
+	
+	//dummy orders 1 and 2 for s1
+	o1 := models.Order {
+		ItemList: 		m3.Title
+		Items:   		[]MenuItem{m3} 
+		User: 			s1
+		UserID: 		s1.UnixID
+		PhoneNumber : 	"010-101-0101"
+		Notes: 			"gummy bears have never failed me"
+	}
+	o2 := models.Order {
+		ItemList: 		m2.Title + "," + m2.Title
+		Items:   		[]MenuItem{m3} 
+		User: 			s1
+		UserID: 		s1.UnixID
+		PhoneNumber : 	"010-101-0101"
+		Notes: 			"i've paid more for less"
+	}
 
-	// create two dummy orderParams for each dummy user
+	// dummy orders 3 and 4 for s2
+	o3 := models.Order {
+		ItemList: 		m3.Title + "," + m4.Title
+		Items:   		[]MenuItem{m3, m4} 
+		User: 			s2
+		UserID: 		s2.UnixID
+		PhoneNumber : 	"101-010-1010"
+		Notes: 			"i've paid more for less"
+	}
+	o4 := models.Order {
+		ItemList: 		m2.Title + "," + m2.Title + "," + m4.Title
+		Items:   		[]MenuItem{m2,m2,m4} 
+		User: 			s2
+		UserID: 		s2.UnixID
+		PhoneNumber : 	"101-010-1010"
+		Notes: 			"this might as well be 682..."
+	}
 
-	// put dummy orders and users into db
+	// dummy orders 5 and 6 for s3
+	o5 := models.Order {
+		ItemList: 		m2.Title + "," + m2.Title
+		Items:   		[]MenuItem{m2,m2} 
+		User: 			s3
+		UserID: 		s3.UnixID
+		PhoneNumber : 	"101-100-0100"
+		Notes: 			"dr-xr--r--"
+	}
+	o6 := models.Order {
+		ItemList: 		m1.Title + "," + m2.Title + m3.Title + "," + m4.Title
+		Items:   		[]MenuItem{m1,m2,m3,m4} 
+		User: 			s3
+		UserID: 		s3.UnixID
+		PhoneNumber : 	"101-100-0100"
+		Notes: 			"everyone else gets to look but i'm hungry"
+	}
+	// put dummy users into db
+	assert.NoError(db.Create(&s1).Error)
+	assert.NoError(db.Create(&s2).Error)
+	assert.NoError(db.Create(&s3).Error)
+	// put dummy orders into db
+	assert.NoError(db.Create(&o1).Error)
+	assert.NoError(db.Create(&o2).Error)
+	assert.NoError(db.Create(&o3).Error)
+	assert.NoError(db.Create(&o4).Error)
+	assert.NoError(db.Create(&o5).Error)
+	assert.NoError(db.Create(&o6).Error)
 
 	// perform GET request to "/api/v2/goodrich/orders"
+	w, err := utils.DoHTTPReq(router, http.MethodGet, "/orders", nil)
+	assert.NoError(err)
+	// put the bytes of data into a resp object
+	resp := utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Equal(http.StatusOK, w.Code)
+	assert.Nil(resp.Error)
+	// ensure correctness of response
+	var res []models.Order
+	err = json.Unmarshal(resp.Data, &res)
+	assert.NoError(err)
+	// make sure all fields of o1 match the response's 0th order
+	assert.Equal(o1.ItemList, res[0].ItemList)
+	assert.Equal(o1.Items, res[0].Items)
+	assert.Equal(o1.User, res[0].User)
+	assert.Equal(o1.UserID, res[0].UserID)
+	assert.Equal(o1.PhoneNumber, res[0].PhoneNumber)
+	assert.Equal(o1.Notes, res[0].Notes)
+	// make sure all fields of o2 match the response's 1st order
+	assert.Equal(o2.ItemList, res[1].ItemList)
+	assert.Equal(o2.Items, res[1].Items)
+	assert.Equal(o2.User, res[1].User)
+	assert.Equal(o2.UserID, res[1].UserID)
+	assert.Equal(o2.PhoneNumber, res[1].PhoneNumber)
+	assert.Equal(o2.Notes, res[1].Notes)
+	// make sure all fields of o3 match the response's 2nd order
+	assert.Equal(o3.ItemList, res[2].ItemList)
+	assert.Equal(o3.Items, res[2].Items)
+	assert.Equal(o3.User, res[2].User)
+	assert.Equal(o3.UserID, res[2].UserID)
+	assert.Equal(o3.PhoneNumber, res[2].PhoneNumber)
+	assert.Equal(o3.Notes, res[2].Notes)
+	// make sure all fields of o4 match the response's 3rd order
+	assert.Equal(o4.ItemList, res[3].ItemList)
+	assert.Equal(o4.Items, res[3].Items)
+	assert.Equal(o4.User, res[3].User)
+	assert.Equal(o4.UserID, res[3].UserID)
+	assert.Equal(o4.PhoneNumber, res[3].PhoneNumber)
+	assert.Equal(o4.Notes, res[3].Notes)
+	// make sure all fields of o5 match the response's 4th order
+	assert.Equal(o5.ItemList, res[4].ItemList)
+	assert.Equal(o5.Items, res[4].Items)
+	assert.Equal(o5.User, res[4].User)
+	assert.Equal(o5.UserID, res[4].UserID)
+	assert.Equal(o5.PhoneNumber, res[4].PhoneNumber)
+	assert.Equal(o5.Notes, res[4].Notes)
+	// make sure all fields of o6 match the response's 5th order
+	assert.Equal(o6.ItemList, res[5].ItemList)
+	assert.Equal(o6.Items, res[5].Items)
+	assert.Equal(o6.User, res[5].User)
+	assert.Equal(o6.UserID, res[5].UserID)
+	assert.Equal(o6.PhoneNumber, res[5].PhoneNumber)
+	assert.Equal(o6.Notes, res[5].Notes)
 
-	// make sure response yields same six dummy orders
-
+	assert.Equal(len(res), 6) // make sure res only has 6 elements
+	
 	return
 }
 
