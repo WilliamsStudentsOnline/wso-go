@@ -42,6 +42,7 @@ type User struct {
 	Entry                     *string `json:"entry"`
 	Admin                     *bool   `gorm:"DEFAULT:false;not null" json:"admin"`
 	FactrakAdmin              *bool   `gorm:"DEFAULT:false;not null" json:"factrakAdmin"`
+	GoodrichAdmin             *bool   `gorm:"DEFAULT:false;not null" json:"goodrichAdmin"`
 	HasAcceptedFactrakPolicy  *bool   `gorm:"DEFAULT:false;not null" json:"hasAcceptedFactrakPolicy"`
 	HasAcceptedDormtrakPolicy *bool   `gorm:"DEFAULT:false;not null" json:"hasAcceptedDormtrakPolicy"`
 
