@@ -42,11 +42,9 @@ require (
 	go.uber.org/zap v1.14.0
 	golang.org/x/image v0.0.0-20200119044424-58c23975cae1 // indirect
 	golang.org/x/lint v0.0.0-20200302205851-738671d3881b // indirect
-	golang.org/x/net v0.0.0-20200301022130-244492dfa37a // indirect
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45 // indirect
-	golang.org/x/sys v0.0.0-20200302150141-5c8b2ff67527 // indirect
 	golang.org/x/time v0.0.0-20190308202827-9d24e82272b4 // indirect
-	golang.org/x/tools v0.0.0-20200308013534-11ec41452d41 // indirect
+	golang.org/x/tools v0.0.0-20200725200936-102e7d357031 // indirect
 	google.golang.org/appengine v1.6.1 // indirect
 	gopkg.in/go-playground/validator.v9 v9.31.0
 	gopkg.in/gormigrate.v1 v1.6.0
