@@ -155,4 +155,5 @@ var (
 	ErrorGoodrichUserIDNotFound        = NewAPIError(2155, "the user ID given does not match any in our records")
 	ErrorGoodrichListOrdersFailed      = NewAPIError(2156, "could not list orders in the table")
 	ErrorGoodrichUserCannotAccessOrder = NewAPIErrorWithHTTP(2157, http.StatusUnauthorized, "could not get an order that was not placed by the user")
+	ErrorGoodrichOrderPriceMismatch    = NewAPIError(2160, "price mismatch between client and server")
 )

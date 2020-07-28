@@ -68,7 +68,7 @@ func BoolPtrDefaults(value, defaultVal *bool) *bool {
 	return value
 }
 
-// Either goes with string ptr if not nil or with default otherwise
+// Either goes with time ptr if not nil or with default otherwise
 func TimePtrDefaults(value, defaultVal *time.Time) *time.Time {
 	if value == nil {
 		return defaultVal

@@ -1,21 +1,6 @@
 package order
 
-import (
-	"bytes"
-	"encoding/json"
-	"net/http"
-	"testing"
-	"time"
-
-	"github.com/WilliamsStudentsOnline/wso-go/lib"
-	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
-	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
-	"github.com/WilliamsStudentsOnline/wso-go/models"
-	testify "github.com/stretchr/testify/assert"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zaptest"
-)
-
+/*
 func TestController_CreateOrder(t *testing.T) {
 	// Setup
 	assert := testify.New(t)
@@ -30,31 +15,31 @@ func TestController_CreateOrder(t *testing.T) {
 		UnixID:    "s1",
 		ClassYear: lib.IntToPtr(2023),
 	}
-	
+
 	m1 := models.MenuItem{
 		Title:       "banana",
 		Description: "i am healthy",
 		Price:       1.75,
 		Available:   true,
 	}
-	
+
 	m2 := models.MenuItem{
 		Title:       "juice",
 		Description: "i am slurpy",
 		Price:       2.00,
 		Available:   true,
 	}
-	
+
 	m3 := models.MenuItem{
 		Title:       "ice-cream",
 		Description: "i am cold",
 		Price:       2.25,
 		Available:   false,
 	}
-	
+
 	o1 := models.Order {
 		ItemList: 		"banana, juice, ice-cream"
-		Items:   		[]MenuItem{m1, m2, m3} 
+		Items:   		[]MenuItem{m1, m2, m3}
 		User: 			s1
 		UserID: 		s1.UnixID
 		PhoneNumber : 	"000-000-0000"
@@ -135,7 +120,7 @@ func TestController_ListUserOrders(t *testing.T) {
 		UnixID:    "s2",
 		ClassYear: lib.IntToPtr(2022),
 	}
-	
+
 	//dummy menu items
 	m1 := models.MenuItem{
 		Title:       "bagel",
@@ -143,21 +128,21 @@ func TestController_ListUserOrders(t *testing.T) {
 		Price:       1.25,
 		Available:   true,
 	}
-	
+
 	m2 := models.MenuItem{
 		Title:       "orange",
 		Description: "i am my name",
 		Price:       0.75,
 		Available:   false,
 	}
-	
+
 	m3 := models.MenuItem{
 		Title:       "coffee",
 		Description: "i am cold or hot (exclusive-or)",
 		Price:       1.75,
 		Available:   true,
 	}
-	
+
 	m4 := models.MenuItem{
 		Title: 		"pizza",
 		Description:"a need",
@@ -167,8 +152,8 @@ func TestController_ListUserOrders(t *testing.T) {
 
 	//dummy order 1
 	o1 := models.Order {
-		ItemList: 		"bagel, orange, coffee" 
-		Items:   		[]MenuItem{m1, m2, m3} 
+		ItemList: 		"bagel, orange, coffee"
+		Items:   		[]MenuItem{m1, m2, m3}
 		User: 			s1
 		UserID: 		s1.UnixID
 		PhoneNumber : 	"999-999-9999"
@@ -177,8 +162,8 @@ func TestController_ListUserOrders(t *testing.T) {
 
 	//dummy order 2
 	o2 := models.Order {
-		ItemList: 		"pizza" 
-		Items:   		[]MenuItem{m4} 
+		ItemList: 		"pizza"
+		Items:   		[]MenuItem{m4}
 		User: 			s1
 		UserID: 		s1.UnixID
 		PhoneNumber : 	"999-999-9999"
@@ -188,7 +173,7 @@ func TestController_ListUserOrders(t *testing.T) {
 	// put dummy order and and dumy user into db
 	assert.NoError(db.Create(&s1).Error)
 	assert.NoError(db.Create(&o1).Create(&o2).Error)
-	
+
 	router := utils.SetupRouter(auth.ScopeGoodrichUser, auth.ScopeGoodrichAdmin)
 	cfg := utils.SetupConfig()
 	logger := zap.S()
@@ -229,7 +214,7 @@ func TestController_ListUserOrders(t *testing.T) {
 		UnixID: 	"s2",
 		ClassYear: 	lib.IntToPtr(2021),
 	}
-	
+
 	//setup new user router
 	router2 := utils.SetupRouter(auth.ScopeGoodrichUser, auth.ScopeGoodrichAdmin)
 	utils.AddUserContexts(router2, s2.ID)
@@ -237,10 +222,10 @@ func TestController_ListUserOrders(t *testing.T) {
 
 	//put new user in db
 	assert.NoError(db.Create(&s2).Error)
-	
+
 	// perform GET request to "/api/v2/goodrich/:user/orders" with invalid userID
 	w, err := utils.DoHTTPReq(router2, http.MethodGet, ":user/orders", nil)
-	
+
 	// ensure failure
 	assert.NoError(err)
 	assert.Equal(http.StatusNotFound, w.Code)	//what should the http error be here?
@@ -252,7 +237,7 @@ func TestController_ListOrders(t *testing.T) {
 	// Setup
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	
+
 	// TEST: Ensure No Errors when Listing All User Orders
 	// create three dummy users
 	//dummy user 1
@@ -285,7 +270,7 @@ func TestController_ListOrders(t *testing.T) {
 		ClassYear: lib.IntToPtr(2023),
 		GoodrichAdmin: true,			//set as goodrich admin
 	}
-	
+
 	// create two dummy orders for each dummy user
 	//dummy menu items
 	m1 := models.MenuItem{
@@ -294,14 +279,14 @@ func TestController_ListOrders(t *testing.T) {
 		Price:       3.75,
 		Available:   false,
 	}
-	
+
 	m2 := models.MenuItem{
 		Title:       "Happy Chick",
 		Description: "chicken is abound",
 		Price:       25.00,
 		Available:   false,
 	}
-	
+
 	m3 := models.MenuItem{
 		Title:       "Gummy Bears",
 		Description: "such stretchy bears indeed",
@@ -314,11 +299,11 @@ func TestController_ListOrders(t *testing.T) {
 		Price:       1.50,
 		Available:   true,
 	}
-	
+
 	//dummy orders 1 and 2 for s1
 	o1 := models.Order {
 		ItemList: 		m3.Title
-		Items:   		[]MenuItem{m3} 
+		Items:   		[]MenuItem{m3}
 		User: 			s1
 		UserID: 		s1.UnixID
 		PhoneNumber : 	"010-101-0101"
@@ -327,7 +312,7 @@ func TestController_ListOrders(t *testing.T) {
 
 	o2 := models.Order {
 		ItemList: 		m2.Title + "," + m2.Title
-		Items:   		[]MenuItem{m3} 
+		Items:   		[]MenuItem{m3}
 		User: 			s1
 		UserID: 		s1.UnixID
 		PhoneNumber : 	"010-101-0101"
@@ -337,7 +322,7 @@ func TestController_ListOrders(t *testing.T) {
 	// dummy orders 3 and 4 for s2
 	o3 := models.Order {
 		ItemList: 		m3.Title + "," + m4.Title
-		Items:   		[]MenuItem{m3, m4} 
+		Items:   		[]MenuItem{m3, m4}
 		User: 			s2
 		UserID: 		s2.UnixID
 		PhoneNumber : 	"101-010-1010"
@@ -345,7 +330,7 @@ func TestController_ListOrders(t *testing.T) {
 	}
 	o4 := models.Order {
 		ItemList: 		m2.Title + "," + m2.Title + "," + m4.Title
-		Items:   		[]MenuItem{m2,m2,m4} 
+		Items:   		[]MenuItem{m2,m2,m4}
 		User: 			s2
 		UserID: 		s2.UnixID
 		PhoneNumber : 	"101-010-1010"
@@ -355,7 +340,7 @@ func TestController_ListOrders(t *testing.T) {
 	// dummy orders 5 and 6 for s3
 	o5 := models.Order {
 		ItemList: 		m2.Title + "," + m2.Title
-		Items:   		[]MenuItem{m2,m2} 
+		Items:   		[]MenuItem{m2,m2}
 		User: 			s3
 		UserID: 		s3.UnixID
 		PhoneNumber : 	"101-100-0100"
@@ -363,7 +348,7 @@ func TestController_ListOrders(t *testing.T) {
 	}
 	o6 := models.Order {
 		ItemList: 		m1.Title + "," + m2.Title + m3.Title + "," + m4.Title
-		Items:   		[]MenuItem{m1,m2,m3,m4} 
+		Items:   		[]MenuItem{m1,m2,m3,m4}
 		User: 			s3
 		UserID: 		s3.UnixID
 		PhoneNumber : 	"101-100-0100"
@@ -394,7 +379,7 @@ func TestController_ListOrders(t *testing.T) {
 	// put the bytes of data into a resp object
 	resp := utils.GetHTTPDataResp(assert, w.Body.Bytes())
 	assert.Nil(resp.Error)
-	
+
 	var res []models.Order
 	err = json.Unmarshal(resp.Data, &res)
 	assert.NoError(err)
@@ -402,17 +387,17 @@ func TestController_ListOrders(t *testing.T) {
 	/*
 	Nathan, I don't think you need lines 383-385 because of the function GetHTTPDataResp that
 	you called before. Here is its implementation in lib/utils.go
-	
+
 		func GetHTTPDataResp(assert *assert.Assertions, body []byte) APITestResp {
 			resp := APITestResp{}
 			err := json.Unmarshal(body, &resp)
 			assert.NoError(err)
 
 		return resp
-	*/
+	* /
 
 	assert.Equal(len(res), 6) // make sure res only has 6 elements
-	
+
 	// ensure correctness of response (replaced with for-loop)
 	for i,_ := range len(res) {
 		assert.Equal(o1.ItemList, res[i].ItemList)
@@ -422,7 +407,7 @@ func TestController_ListOrders(t *testing.T) {
 		assert.Equal(o1.PhoneNumber, res[i].PhoneNumber)
 		assert.Equal(o1.Notes, res[i].Notes)
 	}
-	
+
 	return
 }
 
@@ -464,7 +449,7 @@ func TestController_UpdateOrder(t *testing.T) {
 	// Setup
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	
+
 
 	// create dummy user
 	s1 := models.User{
@@ -479,7 +464,7 @@ func TestController_UpdateOrder(t *testing.T) {
 		Name:      "GoodrichAdmin1",
 		UnixID:    "a1",
 		ClassYear: lib.IntToPtr(2021),
-		GoodrichAdmin: true,			//make a1 a Goodrich Admin 
+		GoodrichAdmin: true,			//make a1 a Goodrich Admin
 	}
 
 	//create dummy menu items
@@ -499,7 +484,7 @@ func TestController_UpdateOrder(t *testing.T) {
 	//create dummy order placed by s1
 	o1 := models.Order {
 		ItemList: 		m1.Title + "," + m2.Title
-		Items:   		[]MenuItem{m1, m2} 
+		Items:   		[]MenuItem{m1, m2}
 		User: 			s1
 		UserID: 		s1.UnixID
 		PreferredTime: 	time.Now.Add(1000),
@@ -525,15 +510,15 @@ func TestController_UpdateOrder(t *testing.T) {
 	//create updateParams
 	updateParams := models.UpdateOrderParams {
 		OrderStatus:   	models.OrderStatusInProgress 	//should this be OrderStatusDenied because no pizza?
-		AdminNotes:    	"sorry, no pizza's left for you :/",                     
-		EstimatedTime 	time.Now.Add(10000),     		//check to see later if time gets updated          
-		Items         	[]models.MenuItem{m1},       
+		AdminNotes:    	"sorry, no pizza's left for you :/",
+		EstimatedTime 	time.Now.Add(10000),     		//check to see later if time gets updated
+		Items         	[]models.MenuItem{m1},
 	}
 
 	//do http PATH request with a1 as admin (in user contexts)
 	updateOrderData, err := json.Marshal(&updateParams)
 	assert.NoError(err)
-	w, err := utils.DoHTTPReq(router, http.MethodPatch, "/orders/" + o1.ID, bytes.NewBuffer(updateOrderData))		 //is this how to specify correctly orderID in URL? 
+	w, err := utils.DoHTTPReq(router, http.MethodPatch, "/orders/" + o1.ID, bytes.NewBuffer(updateOrderData))		 //is this how to specify correctly orderID in URL?
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w.Code)
 
@@ -549,17 +534,18 @@ func TestController_UpdateOrder(t *testing.T) {
 		assert.Equal(updateParams.Items[i].ID, resp.Items[i].ID)		//items have same itemID
 		assert.True(resp.Items[i].Available)							//all items are available after admin update
 		assert.Equal(updateParams.Items[i].Price, resp.Items[i].Price)	//each item has same price
-		total_price += updateParams.Items[i].Price           			         
+		total_price += updateParams.Items[i].Price
 	}
 	assert.Equal(total_price, resp.TotalPrice, )						//total price is updated for only available items
 	assert.Equal(updateParams.EstimatedTime, resp.EstimatedTime)		//estimated time is updated
 	assert.Equal(updateParams.OrderStatus, resp.OrderStatus)			//order status is updated from placed to in progress
 	assert.Equal(updateParams.AdminNotes, respAdminNotes) 				//admin notes are the same too
-	
-	
+
+
 	//TODO:
 	// TEST 2: Create bad update Params for order and update
 	// TEST 3: Create good update Params for wrong order and update
 
 	return
 }
+*/

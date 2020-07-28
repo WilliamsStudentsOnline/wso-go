@@ -1,6 +1,8 @@
 package models
 
 import (
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -9,28 +11,36 @@ type GoodrichOrderStatus int
 
 const (
 	// OrderStatusUnknown is default
-	OrderStatusUnknown GoodrichOrderStatus = iota
-	OrderStatusPlaced                      // Initial step: set when order is made
-	OrderStatusApproved
-	OrderStatusDenied
-	OrderStatusInProgress
-	OrderStatusCompleted
-	OrderStatusPickedUp
+	GoodrichOrderStatusUnknown GoodrichOrderStatus = iota
+	GoodrichOrderStatusPlaced                      // Initial step: set when order is made
+	GoodrichOrderStatusApproved
+	GoodrichOrderStatusDenied
+	GoodrichOrderStatusInProgress
+	GoodrichOrderStatusCompleted
+	GoodrichOrderStatusPickedUp
 )
 
 type Order struct {
 	BaseSchema
-	ItemList      string              `json:"-"`
-	Items         []MenuItem          `gorm:"-" json: "items"`
-	Status        GoodrichOrderStatus `json:"status"`
 	User          *User               `json:"user"`
 	UserID        uint                `gorm:"index:index_goodrich_orders_on_user_id;not null;"  json:"userID"`
+	ItemList      string              `json:"-"`
+	Items         []*MenuItem         `gorm:"-" json:"items"`
+	Status        GoodrichOrderStatus `json:"status"`
 	PhoneNumber   string              `json:"phoneNumber"`
 	PreferredTime time.Time           `json:"preferredTime"`
 	EstimatedTime *time.Time          `json:"estimatedTime"`
 	Notes         string              `json:"notes"`
 	TotalPrice    float64             `json:"totalPrice"`
 	AdminNotes    string              `json:"adminNotes"`
+}
+
+func GoodrichOrderFormatItemList(itemIDs []uint) string {
+	lsStr := make([]string, len(itemIDs))
+	for i := range itemIDs {
+		lsStr[i] = strconv.Itoa(int(itemIDs[i]))
+	}
+	return strings.Join(lsStr, ",")
 }
 
 func (*Order) TableName() string {

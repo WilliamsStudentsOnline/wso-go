@@ -1,10 +1,6 @@
 package models
 
 import (
-	"strconv"
-	"strings"
-
-	"github.com/WilliamsStudentsOnline/wso-go/services/goodrich/order"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
 )
@@ -22,86 +18,58 @@ func NewOrderModel(db *gorm.DB, log *zap.SugaredLogger) *OrderModel {
 
 // Writes fully populated Order to db
 func (o *OrderModel) CreateOrder(newOrder *Order) (err error) {
-	db := o.DB
-	err = db.Create(newOrder).Error
+	err = o.DB.Create(newOrder).Error
 	if err != nil {
 		return
 	}
-	err = db.Find(newOrder).Error
+	err = o.DB.Find(newOrder).Error
 	return
 }
 
-// CreateOrderObject : populates an Order object, given CreateOrderParams
-func (o *OrderModel) CreateOrderObject(userID uint, createParams order.CreateOrderParams, order *Order) (err error) {
-	db := o.DB //maybe should be   db := t.menuModel.DB  ?
-	var itemList []string
-	var totalPrice float64
+// Ensures menu items are all stocked and exist
+func (o *OrderModel) ValidateMenuItems(menuItemIDs []uint) error {
+	// TODO: fill this in once menu store is merged
+	o.log.Warn("Calling incomplete function! DANGEROUS!")
+	return nil
+}
 
-	// iterate over ItemIDs in params
-	for _, itemID := range createParams.ItemIDs {
-		var item MenuItem
-		// THIS DEPENDS ON MENU SERVICE FORMATTING || WILL INFER THE MODEL
-		err = db.First(&item, itemID).Error
-		if err != nil {
-			return
-		}
-		// if the item is available, add it
-		if item.Available {
-			// add MenuItem to newOrder.Items
-			order = append(order.Items, item)
-			// append itemID to itemList
-			itemList = append(itemList, strconv.FormatUint(uint64(itemID), 10))
-			//adding the price for each available item to the total
-			totalPrice += item.Price
-		}
-	}
-	order.ItemList = strings.Join(itemList, ",")
-	order.Status = OrderStatusPlaced
-	order.UserID = userID
-	order.PhoneNumber = createParams.PhoneNumber
-	order.PreferredTime = createParams.PreferredTime
-	order.Notes = createParams.Notes
-	order.TotalPrice = totalPrice
-
-	return
+// Sums up menu items to get total price
+func (o *OrderModel) GetMenuItemTotalPrice(menuItemIDs []uint) (float64, error) {
+	// TODO: fill this in once menu store is merged
+	o.log.Warn("Calling incomplete function! DANGEROUS!")
+	return 0, nil
 }
 
 // admin & user function
 func (o *OrderModel) ListUserOrders(userID uint, orders *[]*Order) (err error) {
-	db := o.DB
-	err = db.Where("userID = ?", userID).Find(&orders).Error
+	err = o.DB.Where("userID = ?", userID).Find(&orders).Error
 	return
 }
 
 // admin & user function
 func (o *OrderModel) GetOrder(orderID uint, userID uint, order *Order) (err error) {
-	db := o.DB
 	// if there is an error finding the uint ID, return the error with nil
-	err = db.Where("user_id = ?", userID).First(order, orderID).Error
+	err = o.DB.Where("user_id = ?", userID).First(order, orderID).Error
 	return
 }
 
 // admin function
 func (o *OrderModel) GetOrderAdmin(orderID uint, order *Order) (err error) {
-	db := o.DB
 	// if there is an error finding the uint ID, return the error with nil
-	err = db.First(order, orderID).Error
+	err = o.DB.First(order, orderID).Error
 	return
 }
 
 // admin function
 func (o *OrderModel) ListOrders(orders *[]*Order) (err error) {
-	db := o.DB
 	// get all rows in Order table and save in orders
-	err = db.Find(orders).Error
+	err = o.DB.Find(orders).Error
 	return
 }
 
 // admin function
 func (o *OrderModel) UpdateOrder(updatedOrder *Order) (err error) {
-	db := o.DB
 	// save newly updated order in DB
-	err = db.Save(updatedOrder).Error
+	err = o.DB.Save(updatedOrder).Error
 	return
 }
-c

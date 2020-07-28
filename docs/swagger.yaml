@@ -930,6 +930,20 @@ definitions:
       numWouldTakeAnother:
         type: integer
     type: object
+  models.MenuItem:
+    properties:
+      available:
+        description: false if item is out of stock
+        type: boolean
+      description:
+        type: string
+      id:
+        type: integer
+      price:
+        type: number
+      title:
+        type: string
+    type: object
   models.Neighborhood:
     properties:
       dorms:
@@ -963,6 +977,13 @@ definitions:
         items:
           $ref: '#/definitions/models.User'
         type: array
+    type: object
+  models.OrderModel:
+    properties:
+      db:
+        type: string
+      log:
+        type: string
     type: object
   models.Post:
     properties:
@@ -1063,6 +1084,8 @@ definitions:
         items:
           $ref: '#/definitions/models.FactrakSurvey'
         type: array
+      goodrichAdmin:
+        type: boolean
       hasAcceptedDormtrakPolicy:
         type: boolean
       hasAcceptedFactrakPolicy:
@@ -1141,6 +1164,34 @@ definitions:
         description: If true, will authenticate based on IP. Will return either off-campus
           or on-campus token
         type: boolean
+    type: object
+  order.CreateOrderParams:
+    properties:
+      itemIDs:
+        items:
+          type: integer
+        type: array
+      notes:
+        type: string
+      phoneNumber:
+        type: string
+      preferredTime:
+        type: string
+      totalPrice:
+        type: number
+    type: object
+  order.UpdateOrderParams:
+    properties:
+      adminNotes:
+        type: string
+      estimatedTime:
+        type: string
+      items:
+        items:
+          type: integer
+        type: array
+      orderStatus:
+        type: integer
     type: object
   responses.GetUserResponseDepartment:
     properties:
@@ -5586,6 +5637,51 @@ paths:
       summary: List user surveys
       tags:
       - factrak
+  /goodrich/order:
+    post:
+      consumes:
+      - application/json
+      operationId: goodrich-order-create-order
+      parameters:
+      - description: Create Order Params
+        in: body
+        name: createParams
+        required: true
+        schema:
+          $ref: '#/definitions/order.CreateOrderParams'
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.MenuItem'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "2150":
+          description: unknown item(s) id
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "2151":
+          description: missing phone number in create order params
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "2153":
+          description: order could not be created in table
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Creates an order
+      tags:
+      - goodrich
   /health-check:
     get:
       consumes:
