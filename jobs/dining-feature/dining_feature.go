@@ -19,34 +19,34 @@ const (
 
 // Holds the information relevant to the menu
 type Menu struct {
-	DiningHalls []*DiningHall
+	DiningHalls []*DiningHall `json:"dining_halls"`
 }
 
 // Holds the information relevant to a dining hall
 type DiningHall struct {
-	DiningHallName string
-	Meals          []*Meal
+	DiningHallName string `json:"dining_hall_name"`
+	Meals          []*Meal `json:"meals"`
 }
 
 // Holds the information relevant to a meal (e.g. Breakfast, Dinner)
 type Meal struct {
-	MealName string
-	Courses  []*Course
+	MealName string `json:"meal_name"`
+	Courses  []*Course `json:"courses"`
 }
 
 // Holds info relevant to a course (e.g. Appetizers or Entrees will be comprised of many Meals)
 type Course struct {
-	CourseName string
-	Foods      []*Food
+	CourseName string `json:"course_name"`
+	Foods      []*Food `json:"foods"`
 }
 
 // Holds the information relevant to food
 type Food struct {
-	FoodName    string
-	Contains    []string // allergens -- (e.g. soy, wheat, nuts) // TO IMPLEMENT
-	ServingSize float64
-	Unit        string  // (e.g. oz, cups, etc.)
-	Price       float64 // TO IMPLEMENT
+	FoodName    string `json:"food_name"`
+	Contains    []string `json:"contains"` // allergens -- (e.g. soy, wheat, nuts) // TO IMPLEMENT
+	ServingSize float64 `json:"serving_size"`
+	Unit        string  `json:"unit"`// (e.g. oz, cups, etc.)
+	Price       float64 `json:"price"`// TO IMPLEMENT
 }
 
 // RawMeal represents the unparsed course information we get from the dining-menu endpoint.
@@ -101,8 +101,11 @@ func ParseMenu(rawMeals []RawMeal) (Menu, error) {
 	var paresky *DiningHall = new(DiningHall)
 	(*paresky).DiningHallName = "Paresky"
 
+	var bakeshop *DiningHall = new(DiningHall)
+	(*bakeshop).DiningHallName = "Bakeshop"
+
 	// define the slice
-	menu.DiningHalls = []*DiningHall{driscoll, mission, paresky}
+	menu.DiningHalls = []*DiningHall{driscoll, mission, paresky, bakeshop}
 
 	// begin traversal of rawMeals
 	for _, rawMeal := range rawMeals {
@@ -110,12 +113,16 @@ func ParseMenu(rawMeals []RawMeal) (Menu, error) {
 		// reformat the formal name of the food
 		rawMeal.FormalName = reformat(rawMeal.FormalName)
 		// PARSE NAME
+		// TODO -- Reformat Unicode Chars
 		(*food).FoodName = rawMeal.FormalName
 
 		// PARSE SERVING_SIZE AND UNIT
+		// TODO -- MORE CLEVER WAYS TO DEAL WITH BAD INPUT... currently 1/2 cup is 0 cup but everything that cannot be parsed as float is recognized as invalid
 		arr := strings.Split(rawMeal.PortionSize, " ")
+
 		if len(arr) == 1 {
-			// trim "." such as oz or oz.
+			// serving size is not valid measurement here but cannot be nil (float64)
+			// trim "." such as oz. -> oz
 			(*food).Unit = strings.TrimSuffix(strings.ToLower(arr[0]), ".")
 		} else {
 			var err error
@@ -127,7 +134,7 @@ func ParseMenu(rawMeals []RawMeal) (Menu, error) {
 			if err != nil {
 				fmt.Println(err)
 			}
-			(*food).Unit = strings.TrimSuffix(strings.ToLower(arr[arr.length-1]), ".")
+			(*food).Unit = strings.TrimSuffix(strings.ToLower(arr[len(arr)-1]), ".")
 		}
 
 		// TODO : get allergens
@@ -140,8 +147,10 @@ func ParseMenu(rawMeals []RawMeal) (Menu, error) {
 			addMeal(mission, rawMeal, food)
 		case "Paresky Whitmans Market":
 			addMeal(paresky, rawMeal, food)
+		case "Bakeshop":
+				addMeal(bakeshop, rawMeal, food)
 		default:
-			fmt.Printf("\nDining Hall %s does not exist.\n", sv)
+			fmt.Printf("\nDining Hall \"%s\" does not exist.\n", sv)
 		}
 
 	} // end for loop
@@ -207,7 +216,7 @@ func reformat(name string) string {
 func findFirstDigit(str string) string {
 	for i, ch := range str {
 		if unicode.IsDigit(ch) {
-			fmt.Println("returning" + str[i:])
+			//fmt.Println("returning" + str[i:])
 			return str[i:]
 		}
 	}
@@ -217,7 +226,7 @@ func findFirstDigit(str string) string {
 
 func capitalizeFirst(str string) string {
 	if str == "" {
-		return ""
+		return str
 	}
 	return strings.ToUpper(str[:1]) + strings.ToLower(str[1:])
 }
