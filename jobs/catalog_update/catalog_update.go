@@ -11,8 +11,10 @@ import (
 	"time"
 	"unicode"
 
+	"github.com/WilliamsStudentsOnline/wso-go/lib/search/factrak"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
 const (
@@ -162,9 +164,13 @@ type exportCourses struct {
 }
 
 // ParseCatalog processes the raw byte data from the JSON endpoint to obtain Course objects
-func ParseCatalog(catalog []RawCourse, fallSemID, winterSemID, springSemID int) ([]Course, error) {
+func ParseCatalog(catalog []RawCourse, fallSemID, winterSemID, springSemID int, log *zap.SugaredLogger, searchFactrak factrak.SearchFactrak) ([]Course, error) {
 	// Initialize the slice this way in order to ensure it will never respond as a nil slice
 	courses := []Course{}
+
+	// Map names to IDs of profs we've found in this cache.
+	// This speeds up lookup times for searching for profs significantly
+	profIDCache := make(map[string]uint)
 
 	for _, unparsed := range catalog {
 		if unparsed.Offered != "Y" || unparsed.Facility1 == "Cancelled" {
@@ -299,7 +305,23 @@ func ParseCatalog(catalog []RawCourse, fallSemID, winterSemID, springSemID int) 
 
 			instructor.Name = name
 
-			// @TODO include factrak search
+			// Factrak search:
+			if searchFactrak != nil {
+				// Look up prof name in cache
+				cachedID, ok := profIDCache[instructor.Name]
+				if ok {
+					// If hit, use it
+					instructor.ID = cachedID
+				} else {
+					// If miss, search in DB via factrak search engine and then add it to the cache
+					var err error
+					instructor.ID, err = SearchProfessor(searchFactrak, fn, mn, ln)
+					if err != nil {
+						log.With("error", err).Error("Failed to find professor from factrak")
+					}
+					profIDCache[instructor.Name] = instructor.ID
+				}
+			}
 
 			course.Instructors = append(course.Instructors, &instructor)
 		}
@@ -443,6 +465,36 @@ func UpdateCrossListing(courses []Course) {
 		return (courses[i].Department < courses[j].Department) ||
 			(courses[i].Department == courses[j].Department && courses[i].Number < courses[j].Number)
 	})
+}
+
+func SearchProfessor(search factrak.SearchFactrak, fn, mn, ln string) (uint, error) {
+	completeName := fn // includes middle name
+	partialName := fn  // doesnt include middle name
+	if mn != "" {
+		completeName += " " + mn
+	}
+	completeName += " " + ln
+	partialName += " " + ln
+
+	var completeNameProfs []*models.User
+	err := search.SearchProfessors(completeName, &completeNameProfs, nil)
+	if err != nil {
+		return 0, err
+	}
+
+	var partialNameProfs []*models.User
+	err = search.SearchProfessors(partialName, &partialNameProfs, nil)
+	if err != nil {
+		return 0, err
+	}
+
+	if len(completeNameProfs) == 1 {
+		return completeNameProfs[0].ID, nil
+	} else if len(partialNameProfs) == 1 {
+		return partialNameProfs[0].ID, nil
+	} else {
+		return 0, nil
+	}
 }
 
 // GetCatalog fetches the json from the CatalogURL endpoint and parses it into an array of RawCourses.

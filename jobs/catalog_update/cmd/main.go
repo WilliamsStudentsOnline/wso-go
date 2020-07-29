@@ -6,8 +6,10 @@ import (
 	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
+	migrate "github.com/WilliamsStudentsOnline/wso-go/db"
 	catalog "github.com/WilliamsStudentsOnline/wso-go/jobs/catalog_update"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/logging"
+	"github.com/WilliamsStudentsOnline/wso-go/lib/search/factrak"
 )
 
 const (
@@ -24,6 +26,8 @@ func main() {
 	var springSemesterID int
 	var filename string
 	var draftCatalog bool
+	var disableMigrationCheck bool
+	var console bool
 
 	flag.StringVar(&configPath, "config", "", "path to config file")
 	flag.IntVar(&year, "year", 0, "the calendar year; set this to the year of fall semester")
@@ -33,6 +37,8 @@ func main() {
 	flag.IntVar(&springSemesterID, "spring", 0, "spring courses semester id")
 	flag.StringVar(&filename, "file", "courses.json", "where to save the courses JSON file")
 	flag.BoolVar(&draftCatalog, "draft", false, "get the draft catalog at catalog.draft.williams.edu")
+	flag.BoolVar(&disableMigrationCheck, "disable-migration-check", false, "don't check for outdated migrations")
+	flag.BoolVar(&console, "console", false, "print logs in console as well as in ")
 
 	flag.Parse()
 
@@ -80,6 +86,10 @@ func main() {
 		}
 	}
 
+	if console {
+		cfg.LogFormats = append(cfg.LogFormats, "console")
+	}
+
 	/* LOGGING */
 	log, err := logging.SetupLog(cfg, "catalog-update")
 	if err != nil {
@@ -87,6 +97,35 @@ func main() {
 		return
 	}
 	defer log.Sync()
+
+	var searchFactrak factrak.SearchFactrak = nil
+
+	/* LOAD DB AND FACTRAK SEARCH ENGINE IF ENABLED */
+
+	// If no config path, don't load db or do search
+	// If config path, load up the db and do the search for factrak profs
+	if configPath != "" {
+		/* DATABASE */
+		db := config.LoadDatabase(cfg, log)
+		defer config.CloseDatabase(db, log)
+
+		/* Database Migrations */
+		// NOTE: Job will not migrate anything; will fail if db is not updated on migrations
+		dbUpToDate, err := migrate.MigrationUpToDate(migrate.MigrationGormOptions, db)
+		if err != nil {
+			log.Fatal("Migration Checking Error: " + err.Error())
+		}
+
+		if !dbUpToDate {
+			if disableMigrationCheck {
+				log.Warnf("Database migrations are not up to date")
+			} else {
+				log.Fatalf("Database migrations are not up to date")
+			}
+		}
+
+		searchFactrak = factrak.NewSearchFactrak(db, cfg, log)
+	}
 
 	/* Command Code */
 
@@ -96,7 +135,7 @@ func main() {
 		return
 	}
 
-	courses, err := catalog.ParseCatalog(rawCourses, fallSemesterID, winterSemesterID, springSemesterID)
+	courses, err := catalog.ParseCatalog(rawCourses, fallSemesterID, winterSemesterID, springSemesterID, log, searchFactrak)
 	if err != nil {
 		log.Fatal(err)
 		return

@@ -6378,6 +6378,50 @@
                 }
             }
         },
+        "/onboarding/mgb4/{unixID}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Gets a user from their unix. Onboarding exercise.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "onboarding"
+                ],
+                "summary": "Gets a user",
+                "operationId": "onboarding-mgb4-get-user-by-unix",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Unix ID",
+                        "name": "unixID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
         "/users": {
             "get": {
                 "security": [
