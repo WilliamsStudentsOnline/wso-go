@@ -6,6 +6,7 @@ import (
 
 	. "github.com/WilliamsStudentsOnline/wso-go/jobs/catalog_update"
 	testify "github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
 )
 
 const (
@@ -23,7 +24,7 @@ func TestParse(t *testing.T) {
 		err := json.Unmarshal([]byte(catalog), &rawCourses)
 		assert.NoError(err)
 
-		courses, err := ParseCatalog(rawCourses, fallSemesterID, winterSemesterID, springSemesterID)
+		courses, err := ParseCatalog(rawCourses, fallSemesterID, winterSemesterID, springSemesterID, zap.S(), nil)
 		assert.NoError(err)
 		b, err := json.Marshal(courses)
 		assert.NoError(err)
