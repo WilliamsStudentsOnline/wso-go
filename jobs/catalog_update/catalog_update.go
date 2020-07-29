@@ -227,6 +227,15 @@ func ParseCatalog(catalog []RawCourse, fallSemID, winterSemID, springSemID int) 
 		case "OPP":
 			course.GradingBasisDesc = "Pass/Fail Available, Fifth Course Unavailable"
 			passFail = true
+		case "PNP":
+			course.GradingBasisDesc = "Pass/Fail Option Only"
+			passFail = true
+			fifthCourse = true
+		case "PF4":
+			course.GradingBasisDesc = "Pass/Fail Option Only"
+			passFail = true
+		case "NON":
+			course.GradingBasisDesc = "Non-Graded"
 		}
 
 		ssrComponent := strings.TrimSpace(unparsed.SSRComponent)
@@ -241,6 +250,8 @@ func ParseCatalog(catalog []RawCourse, fallSemID, winterSemID, springSemID int) 
 			course.ClassType = "Studio"
 		case "HON":
 			course.ClassType = "Honors"
+		case "CON":
+			course.ClassType = "Conference"
 		case "IND":
 			course.ClassType = "Independent Study"
 		case "LAB":
