@@ -11,20 +11,20 @@ import (
 func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) {
 	c := NewController(db, cfg, log)
 
-	//scope user
+	//scope user and admin get access to list items and get items
 	goodrichUser := r.Group("")
-	goodrichUser.Use(auth.RequireScopes(auth.ScopeGoodrichOrder))
+	goodrichUser.Use(auth.RequireScopes(auth.ScopeGoodrichOrder, auth.ScopeGoodrichAdmin))
 
 	goodrichUser.GET("/api/v2/goodrich/menu", c.ListMenuItems)
 	goodrichUser.GET("/api/v2/goodrich/menu/:itemID", c.GetMenuItem)
 
 
-	//scope goodrich admin
+	//scope admin gets additional access to create item and update item
 	goodrichAdmin := r.Group("")
 	goodrichAdmin.Use(auth.RequireScopes(auth.ScopeGoodrichAdmin))
 
-	goodrichAdmin.GET("/api/v2/goodrich/menu", c.ListMenuItems)
-	goodrichAdmin.GET("/api/v2/goodrich/menu/:menuItemID", c.GetMenuItem)
+	//goodrichAdmin.GET("/api/v2/goodrich/menu", c.ListMenuItems)
+	//goodrichAdmin.GET("/api/v2/goodrich/menu/:menuItemID", c.GetMenuItem)
 	goodrichAdmin.POST("/api/v2/goodrich/menu", c.CreateMenuItem)
 	goodrichAdmin.PATCH("/api/v2/goodrich/menu/:menuItemID", c.UpdateMenuItem)
 

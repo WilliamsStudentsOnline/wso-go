@@ -48,6 +48,12 @@ const (
 	ScopeEphmatchMatches = "service:ephmatch:matches"
 	// Allows access to read profiles, write like/unlike. For when a user is signed up and Ephmatch is open
 	ScopeEphmatchProfiles = "service:ephmatch:profiles"
+
+	// Service: Menu Store
+	// Allows access to list/get menu items
+	ScopeGoodrichOrder = "service:menu_store:order"
+	// Allows access to create and update menu items
+	ScopeGoodrichAdmin = "service:menu_store:admin"
 )
 
 // Require this endpoint to have a scope; multiple scopes mean an OR. For an AND, call this function multiple times

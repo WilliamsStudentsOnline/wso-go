@@ -72,6 +72,7 @@ func MigrateDB(db *gorm.DB) error {
 			&models.EphmatchProfile{},
 			&models.EphmatchMatch{},
 			&models.EphmatchLike{},
+			&models.MenuItem{},
 		).Error
 		if err != nil {
 			return err

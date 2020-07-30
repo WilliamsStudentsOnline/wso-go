@@ -35,6 +35,7 @@ import (
 	onboardingService "github.com/WilliamsStudentsOnline/wso-go/services/onboarding"
 	userService "github.com/WilliamsStudentsOnline/wso-go/services/user"
 	wordsService "github.com/WilliamsStudentsOnline/wso-go/services/words"
+	menuService "github.com/WilliamsStudentsOnline/wso-go/services/goodrich_menu"
 )
 
 // @title WSO API
@@ -204,6 +205,11 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 		// Onboarding Service
 		onboardingGroup := v2.Group("/onboarding")
 		onboardingService.SetupRouter(onboardingGroup, db, cfg, log.Named("onboarding"))
+
+		// Menu Store Service
+		menuItemGroup := v2.Group("/menu")
+		menuItemGroup.Use(auth.RequireScopes(auth.ScopeGoodrichOrder, auth.ScopeGoodrichAdmin))
+		menuService.SetupRouter(menuItemGroup, db, cfg, log.Named("menu"))
 	}
 
 	return r, nil

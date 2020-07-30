@@ -8,6 +8,6 @@ type MenuItem struct {
 	Available   bool    `json:"available"` // false if item is out of stock
 }
 
-func (*MenuItem) TableName() string { // maybe?
+func (*MenuItem) TableName() string {
 	return "goodrich_menu_items"
 }
