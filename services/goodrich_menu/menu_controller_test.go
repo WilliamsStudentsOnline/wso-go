@@ -44,7 +44,7 @@ func TestController_ListMenuItems(t *testing.T) {
 	assert.NoError(db.Create(&m1).Create(&m2).Error)
 
 	// Get test menu items
-	w, err := utils.DoHTTPReq(router, http.MethodGet, "/goodrich/menu"+"?includeAvailable=false", nil)
+	w, err := utils.DoHTTPReq(router, http.MethodGet, "/menu"+"?includeUnavailable=true", nil)
 	assert.NoError(err)
 
 	// Status is okay

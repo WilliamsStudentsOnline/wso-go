@@ -15,8 +15,8 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	goodrichUser := r.Group("")
 	goodrichUser.Use(auth.RequireScopes(auth.ScopeGoodrichOrder, auth.ScopeGoodrichAdmin))
 
-	goodrichUser.GET("/api/v2/goodrich/menu", c.ListMenuItems)
-	goodrichUser.GET("/api/v2/goodrich/menu/:itemID", c.GetMenuItem)
+	goodrichUser.GET("/menu", c.ListMenuItems)
+	goodrichUser.GET("/menu/:itemID", c.GetMenuItem)
 
 
 	//scope admin gets additional access to create item and update item
@@ -25,7 +25,7 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 
 	//goodrichAdmin.GET("/api/v2/goodrich/menu", c.ListMenuItems)
 	//goodrichAdmin.GET("/api/v2/goodrich/menu/:menuItemID", c.GetMenuItem)
-	goodrichAdmin.POST("/api/v2/goodrich/menu", c.CreateMenuItem)
-	goodrichAdmin.PATCH("/api/v2/goodrich/menu/:menuItemID", c.UpdateMenuItem)
+	goodrichAdmin.POST("/menu", c.CreateMenuItem)
+	goodrichAdmin.PATCH("/menu/:menuItemID", c.UpdateMenuItem)
 
 }

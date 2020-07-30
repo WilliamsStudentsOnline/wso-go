@@ -26,11 +26,11 @@ func (m *MenuItemModel) ListMenuItems(includeUnavailable bool, menu *[]*MenuItem
 	db := m.DB
 	if includeUnavailable {
 		// includeUnavailable = true, returns items available and unavailable
-		err = db.Find(menu).Error
+		err = db.Find(&menu).Error
 
 	} else {
 		// includeUnavailable = false, return only items that are available
-		err = db.Where("goodrich_menu_items.available = ?", true).Find(menu).Error
+		err = db.Where("goodrich_menu_items.available = ?", true).Find(&menu).Error
 	}
 	return
 }

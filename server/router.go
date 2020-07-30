@@ -206,8 +206,8 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 		onboardingGroup := v2.Group("/onboarding")
 		onboardingService.SetupRouter(onboardingGroup, db, cfg, log.Named("onboarding"))
 
-		// Menu Store Service
-		menuItemGroup := v2.Group("/menu")
+		// Menu Store Service ; change to goodrich service?
+		menuItemGroup := v2.Group("/goodrich")
 		menuItemGroup.Use(auth.RequireScopes(auth.ScopeGoodrichOrder, auth.ScopeGoodrichAdmin))
 		menuService.SetupRouter(menuItemGroup, db, cfg, log.Named("menu"))
 	}
