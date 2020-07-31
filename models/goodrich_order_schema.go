@@ -4,6 +4,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/WilliamsStudentsOnline/wso-go/lib"
 )
 
 // GoodrichOrderStatus defines an enum of order statuses
@@ -43,10 +45,12 @@ func GoodrichOrderFormatItemList(itemIDs []uint) string {
 	return strings.Join(lsStr, ",")
 }
 
-func GoodrichOrderValidatePreferredTime(preferredTime *Time) (err error) {
+func GoodrichOrderValidatePreferredTime(preferredTime *time.Time) (err error) {
 	now := time.Now()
-	// Ammar: this method returns a boolean, are we sure we want to return an error here?
-	// return preferredTime.After(now)
+	if !preferredTime.After(now) {
+		return lib.ErrorGoodrichInvalidPreferredTime
+	}
+	return
 }
 
 func (*Order) TableName() string {

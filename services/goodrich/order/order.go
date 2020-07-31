@@ -56,7 +56,6 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 		t.RespondError(c, err)
 		return
 	}
-	//reminder: supplement our own .lib error when item is not valids
 
 	// Check estimated total price with client's passed total price to ensure they are the same
 	estTotalPrice, err := t.orderModel.GetMenuItemTotalPrice(createParams.ItemIDs)
@@ -69,12 +68,17 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 		return
 	}
 
+	err = models.GoodrichOrderValidatePreferredTime(&createParams.PreferredTime)
+	if err != nil {
+		t.RespondError(c, err)
+	}
+
 	// Create order struct
 	order := &models.Order{
 		UserID:        userID,
 		Status:        models.GoodrichOrderStatusPlaced,
 		PhoneNumber:   createParams.PhoneNumber,
-		PreferredTime: createParams.PreferredTime, // TODO: validate time to ensure in future
+		PreferredTime: createParams.PreferredTime,
 		Notes:         createParams.Notes,
 		ItemList:      models.GoodrichOrderFormatItemList(createParams.ItemIDs),
 		TotalPrice:    estTotalPrice,

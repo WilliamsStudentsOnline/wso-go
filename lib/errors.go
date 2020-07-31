@@ -156,4 +156,5 @@ var (
 	ErrorGoodrichListOrdersFailed      = NewAPIError(2156, "could not list orders in the table")
 	ErrorGoodrichUserCannotAccessOrder = NewAPIErrorWithHTTP(2157, http.StatusUnauthorized, "could not get an order that was not placed by the user")
 	ErrorGoodrichOrderPriceMismatch    = NewAPIError(2160, "price mismatch between client and server")
+	ErrorGoodrichInvalidPreferredTime  = NewAPIError(2161, "preferred time cannot be sooner then current time")
 )
