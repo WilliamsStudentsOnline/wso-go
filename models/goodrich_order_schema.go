@@ -43,6 +43,12 @@ func GoodrichOrderFormatItemList(itemIDs []uint) string {
 	return strings.Join(lsStr, ",")
 }
 
+func GoodrichOrderValidatePreferredTime(preferredTime *Time) (err error) {
+	now := time.Now()
+	// Ammar: this method returns a boolean, are we sure we want to return an error here?
+	// return preferredTime.After(now)
+}
+
 func (*Order) TableName() string {
 	return "goodrich_orders"
 }

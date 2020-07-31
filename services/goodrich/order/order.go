@@ -56,6 +56,7 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 		t.RespondError(c, err)
 		return
 	}
+	//reminder: supplement our own .lib error when item is not valids
 
 	// Check estimated total price with client's passed total price to ensure they are the same
 	estTotalPrice, err := t.orderModel.GetMenuItemTotalPrice(createParams.ItemIDs)

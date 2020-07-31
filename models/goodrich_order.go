@@ -29,6 +29,11 @@ func (o *OrderModel) CreateOrder(newOrder *Order) (err error) {
 // Ensures menu items are all stocked and exist
 func (o *OrderModel) ValidateMenuItems(menuItemIDs []uint) error {
 	// TODO: fill this in once menu store is merged
+	// in for loop, get current menuitem
+	// CHECK IF ITEM EXISTS IN DB ?
+	// get menu object from db and make sure it is avaialbe
+	// break loop if one item isn't
+
 	o.log.Warn("Calling incomplete function! DANGEROUS!")
 	return nil
 }
@@ -36,6 +41,8 @@ func (o *OrderModel) ValidateMenuItems(menuItemIDs []uint) error {
 // Sums up menu items to get total price
 func (o *OrderModel) GetMenuItemTotalPrice(menuItemIDs []uint) (float64, error) {
 	// TODO: fill this in once menu store is merged
+	// define totalPrice
+	// get each menuItemID from db and sum total prices. return total price, nil
 	o.log.Warn("Calling incomplete function! DANGEROUS!")
 	return 0, nil
 }
