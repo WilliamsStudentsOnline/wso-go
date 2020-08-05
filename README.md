@@ -1,6 +1,8 @@
 # WSO-Go
 The new flagship back-end for WSO's services. The WSO backend rewrite proposal is found [here](https://github.com/WilliamsStudentsOnline/wso-on-rails/wiki/Proposal:-WSO-Backend-Rewrite).
 
+## Docs
+
 ## Running Locally
 
 To run the server, simply do `make run-dev` or `make && ./wso-backend --development`.
