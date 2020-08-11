@@ -11,6 +11,8 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/lib/ldap"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
+
+	ldap_lib "gopkg.in/ldap.v3"
 )
 
 // User Model
@@ -412,7 +414,7 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 	if err != nil {
 		return nil, err
 	}
-	m.log.Info("End Williams LDAP each")
+	m.log.Info("End Williams LDAP each. found: ", len(userEntries))
 
 	// Connect the AD LDAP
 	err = adLdap.ConnectWithBind(config.Secrets.ADLDAPDn, config.Secrets.ADLDAPPassword)
@@ -422,12 +424,14 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 	defer adLdap.Close()
 
 	// This is our result
-	users := []*User{}
+	var users []*User
 
 	// Go through every returned entry from LDAP
 	for _, entry := range userEntries {
 		user := &User{
-			UnixID:        entry.GetAttributeValue("uid"),
+			// We get last attribute value here due to OIT sometimes reassigning unixes and forgetting to
+			// remove the old unix.
+			UnixID:        getLDAPLastAttributeValue(entry, "uid"),
 			Name:          entry.GetAttributeValue("cn"),
 			WilliamsEmail: entry.GetAttributeValue("mail"),
 			Visible:       lib.BoolToPtr(parseBool(entry.GetAttributeValue("visible"))),
@@ -439,9 +443,13 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 		}
 
 		// Get the AD info of the user
-		adUser, err := adLdap.Get("cn", user.UnixID)
+		adUser, adldapError := adLdap.Get("cn", user.UnixID)
+		if adldapError != nil {
+			m.log.Error("adldap error getting ", user.UnixID, ": ", adldapError)
+		}
 		// If we didn't find anything in search, just continue.
 		if adUser == nil {
+			m.log.Info("user not found in LDAP: ", user.UnixID)
 			continue
 		}
 
@@ -739,4 +747,12 @@ func parseBool(str string) bool {
 	}
 
 	return b
+}
+
+func getLDAPLastAttributeValue(entry *ldap_lib.Entry, attribute string) string {
+	values := entry.GetAttributeValues(attribute)
+	if len(values) == 0 {
+		return ""
+	}
+	return values[len(values)-1]
 }
