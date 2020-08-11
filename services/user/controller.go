@@ -410,7 +410,7 @@ func (t *Controller) UploadProfilePhoto(c *gin.Context) {
 	wg.Add(1)
 	go func(wg *sync.WaitGroup) {
 		imgScaled := imaging.Fill(img, 300, 300, imaging.Center, imaging.Lanczos)
-		err = t.pictureBackend.SaveLarge(imgScaled, user.UnixID)
+		err = t.pictureBackend.SaveUserPhotoLarge(user.UnixID, imgScaled)
 		if err != nil {
 			errors <- err
 			// Put error in the context so it can be reported
@@ -423,7 +423,7 @@ func (t *Controller) UploadProfilePhoto(c *gin.Context) {
 	go func(wg *sync.WaitGroup) {
 		imgThumb := imaging.Fill(img, 50, 50, imaging.Center, imaging.Lanczos)
 
-		err = t.pictureBackend.SaveThumb(imgThumb, user.UnixID)
+		err = t.pictureBackend.SaveUserPhotoThumb(user.UnixID, imgThumb)
 		if err != nil {
 			errors <- err
 			// Put error in the context so it can be reported
@@ -437,6 +437,7 @@ func (t *Controller) UploadProfilePhoto(c *gin.Context) {
 
 	err = <-errors
 	if err != nil {
+		c.Error(err)
 		t.RespondAPIError(c, lib.ErrorUnableToSavePicture)
 		return
 	}

@@ -1,13 +1,16 @@
 package dormtrak
 
 import (
+	"image"
 	"net/http"
 	"strings"
+	"sync"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
+	"github.com/disintegration/imaging"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 )
@@ -363,6 +366,90 @@ func (t *Controller) DeleteReview(c *gin.Context) {
 
 	// We know user is owner, so don't need to delete user fields
 	t.RespondOK(c, review)
+}
+
+// UploadDormRoomPhoto godoc
+// @Summary Upload a profile photo by user id
+// @Description upload a user's profile photo by user id. You may only update yourself. You may pass "me" to get self as well.
+// @ID upload-profile-photo
+// @Tags users
+// @Accept  multipart/form-data
+// @Produce  json
+// @Param userID path uint true "User ID"
+// @Param file formData file true "Profile Photo"
+// @Success 200
+// @Failure 1405 {object} lib.APIError "user id could not be parsed"
+// @Failure 1331 {object} lib.APIError "must be self"
+// @Failure 400 {object} lib.APIError
+// @Failure 404 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /dormtrak/{dormRoomID}/photo [put]
+func (t *Controller) UploadDormRoomPhoto(c *gin.Context) {
+	dormRoomID, err := services.GetUIntParam(c, "dormRoomID")
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	formFile, err := c.FormFile("file")
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	file, err := formFile.Open()
+	if err != nil {
+		t.RespondErrorCode(c, http.StatusBadRequest, err)
+		return
+	}
+
+	defer file.Close()
+
+	img, _, err := image.Decode(file)
+	if err != nil {
+		t.RespondErrorCode(c, http.StatusBadRequest, err)
+		return
+	}
+
+	var wg sync.WaitGroup
+	errors := make(chan error)
+
+	wg.Add(1)
+	go func(wg *sync.WaitGroup) {
+		imgScaled := imaging.Fill(img, 300, 300, imaging.Center, imaging.Lanczos)
+		err = t.pictureBackend.SaveLarge(imgScaled, user.UnixID)
+		if err != nil {
+			errors <- err
+			// Put error in the context so it can be reported
+			c.Error(err)
+		}
+		wg.Done()
+	}(&wg)
+
+	wg.Add(1)
+	go func(wg *sync.WaitGroup) {
+		imgThumb := imaging.Fill(img, 50, 50, imaging.Center, imaging.Lanczos)
+
+		err = t.pictureBackend.SaveThumb(imgThumb, user.UnixID)
+		if err != nil {
+			errors <- err
+			// Put error in the context so it can be reported
+			c.Error(err)
+		}
+		wg.Done()
+	}(&wg)
+
+	wg.Wait()
+	close(errors)
+
+	err = <-errors
+	if err != nil {
+		t.RespondAPIError(c, lib.ErrorUnableToSavePicture)
+		return
+	}
+
+	t.RespondOK(c, nil)
 }
 
 func trimIfNotNil(str *string) *string {
