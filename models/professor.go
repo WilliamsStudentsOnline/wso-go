@@ -1,6 +1,9 @@
 package models
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
@@ -26,6 +29,15 @@ func (m *ProfessorModel) GetAllProfessors(u *[]*User, opts Options) (err error) 
 	return
 }
 
+func (m *ProfessorModel) GetProfessorsRanked(sort string, u *[]*User, opts Options) (err error) {
+	db := m.DB.Scopes(m.scopeDefault)
+	if opts != nil {
+		db = opts.Run(db)
+	}
+	err = db.Find(u).Error
+	return
+}
+
 type GetAllProfessorsOptions struct {
 	// Offset is ignored unless limit is supplied
 	Offset *uint `json:"offset" form:"offset"`
@@ -38,6 +50,11 @@ type GetAllProfessorsOptions struct {
 	CourseID      *uint `json:"courseID" form:"courseID"`
 	DepartmentID  *uint `json:"departmentID" form:"departmentID"`
 	AreaOfStudyID *uint `json:"areaOfStudyID" form:"areaOfStudyID"`
+
+	// Sort by: workload, stimulating, wouldtake, approachability, leadLecture,
+	// promoteDiscussion, helpfulness, gradeReceived
+	Sort		*string			`json:"sort" form:"sort"`
+	Direction	*bool			`json:"direction" form:"direction"`
 }
 
 // Preload specifically allowed parts if requested
@@ -89,6 +106,13 @@ func (o *GetAllProfessorsOptions) Run(db *gorm.DB) *gorm.DB {
 	}
 	if o.AreaOfStudyID != nil {
 		db = m.withAreaOfStudy(*o.AreaOfStudyID)(db)
+	}
+	if o.Sort != nil {
+		if o.Direction != nil {
+			db = m.withRanking(*o.Sort, *o.Direction)(db)
+		} else {
+			db = m.withRanking(*o.Sort, false)(db)
+		}
 	}
 
 	return db
@@ -192,5 +216,48 @@ func (m *ProfessorModel) withAreaOfStudy(areaID uint) func(db *gorm.DB) *gorm.DB
 				"id = ?", areaID,
 			).QueryExpr(),
 		)
+	}
+}
+
+func isMetric(metric string) bool {
+	switch metric {
+	case
+		"course_workload",
+		"course_stimulating",
+		"would_take_another",
+		"approachability",
+		"lead_lecture",
+		"promote_discussion",
+		"outside_helpfulness":
+			return true
+	}
+	return false
+}
+
+func (m *ProfessorModel) withRanking(ranking string, direction bool) func(db *gorm.DB) *gorm.DB{
+	return func(db *gorm.DB) *gorm.DB {
+		var order string
+
+		if direction {
+		  order = "ASC"
+		} else {
+		  order = "DESC"
+		}
+
+		if !isMetric(ranking) {
+			return db
+		}
+
+		o := fmt.Sprintf("avg(factrak_surveys.%s) %s", ranking, order)
+		h := fmt.Sprintf("count(factrak_surveys.%s) >= 10", ranking)
+		q := fmt.Sprintf("factrak_surveys.%s IS NOT NULL", ranking)
+
+		db = db.Joins("left join factrak_surveys on users.id = factrak_surveys.professor_id")
+		db = db.Where(q)
+		db = db.Where("factrak_surveys.created_at >= ?", time.Now().AddDate(-5, 0, 0))
+		db = db.Group("factrak_surveys.professor_id")
+		db = db.Having(h)
+		db = db.Order(o, true)
+		return db
 	}
 }

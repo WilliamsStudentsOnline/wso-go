@@ -75,6 +75,150 @@ func TestController_ListProfessors(t *testing.T) {
 	assert.Equal(p2.UnixID, resp[1].UnixID)
 }
 
+
+func TestController_ListProfessorsRanked(t *testing.T) {
+	// Setup (can copy and paste this basically)
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+
+	// Insert test user into db
+	p1 := models.User{
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 1",
+		UnixID: "p1",
+		AtWilliams: lib.BoolToPtr(true),
+	}
+	// Other prof
+	p2 := models.User{
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 2",
+		UnixID: "p2",
+		AtWilliams: lib.BoolToPtr(true),
+	}
+	// Third prof
+	p3 := models.User{
+		Type:   models.UserTypeProfessor,
+		Name:   "Professor 3",
+		UnixID: "p3",
+		AtWilliams: lib.BoolToPtr(true),
+	}
+	// Student
+	s1 := models.User{
+		Type:   models.UserTypeStudent,
+		Name:   "Student 1",
+		UnixID: "s1",
+	}
+	// Student
+	s2 := models.User{
+		Type:   models.UserTypeStudent,
+		Name:   "Student 2",
+		UnixID: "s2",
+	}
+	err := db.Create(&p1).Create(&p2).Create(&p3).Create(&s1).Create(&s2).Error
+	assert.NoError(err)
+
+	// Need this to satisfy not null
+	dept := models.Department{
+		Name: "Computer Science",
+	}
+	area := models.AreaOfStudy{
+		Name:         "Computer Science",
+		Abbreviation: "CSCI",
+		Department:   &dept,
+	}
+	assert.NoError(db.Create(&dept).Create(&area).Error)
+
+	// Insert test course into db
+	courses := make([]*models.Course, 10)
+	for i := range courses {
+		number := fmt.Sprintf("Course %d", i)
+		courses[i] = &models.Course{Number: number, AreaOfStudy: &area}
+		assert.NoError(db.Create(courses[i]).Error)
+	}
+
+	// Insert test surveys into db (need 10)
+	surveys := make([]*models.FactrakSurvey, 35)
+	for i := range courses {
+		comment := fmt.Sprintf("Survey %d", i)
+		surveys[i] = &models.FactrakSurvey{
+			User:                 &s1,
+			Professor:            &p1,
+			Course:    						courses[i],
+			Comment:              comment,
+			WouldRecommendCourse: lib.BoolToPtr(true),
+			CourseWorkload:       lib.IntToPtr(3),
+			WouldTakeAnother: lib.BoolToPtr(true),
+		}
+		surveys[i + 10] = &models.FactrakSurvey{
+			User:                 &s1,
+			Professor:            &p2,
+			Course:    						courses[i],
+			Comment:              comment,
+			CourseWorkload:       lib.IntToPtr(9),
+		}
+		surveys[i + 20] = &models.FactrakSurvey{
+			User:                 &s1,
+			Professor:            &p3,
+			Course:    						courses[i],
+			Comment:              comment,
+			CourseWorkload:       lib.IntToPtr(4),
+		}
+		assert.NoError(db.Create(surveys[i]).Create(surveys[i+10]).Create(surveys[i+20]).Error)
+	}
+	for i := 1; i < 5; i++ {
+		comment := fmt.Sprintf("Survey %d", i)
+		surveys[i + 30] = &models.FactrakSurvey{
+			User:                 &s2,
+			Professor:            &p3,
+			Course:    						courses[i],
+			Comment:              comment,
+			CourseWorkload:       lib.IntToPtr(0),
+			WouldTakeAnother: lib.BoolToPtr(false),
+		}
+		assert.NoError(db.Create(surveys[i+30]).Error)
+	}
+
+	// Get users with invalid metric (should not work)
+	w, err := utils.DoHTTPReq(router, http.MethodGet, "/professors?sort=would_recommend_course&direction=true", nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+
+	// Get users ranked by workload
+	w, err = utils.DoHTTPReq(router, http.MethodGet, "/professors?sort=course_workload&direction=true", nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+
+	// Decode response
+	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+	var resp []models.User
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+
+	// Check if correct order and amount
+	assert.Len(resp, 3)
+	assert.Equal(p3.ID, resp[0].ID)
+	assert.Equal(p1.ID, resp[1].ID)
+	assert.Equal(p2.ID, resp[2].ID)
+
+	// Get users ranked by whether students would take another of their classes
+	w, err = utils.DoHTTPReq(router, http.MethodGet, "/professors?sort=would_take_another", nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+
+	// Decode response
+	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+
+	// Check if correct order and amount
+	assert.Len(resp, 1)
+	assert.Equal(p1.ID, resp[0].ID)
+}
+
+
 func TestController_GetProfessor(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
