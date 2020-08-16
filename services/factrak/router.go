@@ -27,10 +27,14 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 			?professorID
 			?departmentID
 			?areaOfStudyID
+			?metric
+			?direction
 		ListProfessors
 			?courseID
 			?departmentID
 			?areaOfStudyID
+			?metric
+			?direction
 	*/
 
 	// Professors Endpoint
@@ -38,7 +42,6 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	// For the following requests, you may specify a "?courseID=XX" to scope your request to a specific course:
 	r.GET("/professors/:professorID", c.GetProfessor)                   // Get specific prof
 	full.GET("/professors/:professorID/ratings", c.GetProfessorRatings) // Get professor ratings
-	//r.GET("/professors/ranked", c.ListProfessorsRanked) // List professors, ordered by a ranking
 
 	// DEPRECATED:
 	full.GET("/professors/:professorID/surveys", c.ListProfessorSurveys) // Get surveys for a professor. just reuse inner methods of /surveys; include agreements

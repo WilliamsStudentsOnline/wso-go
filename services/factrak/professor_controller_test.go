@@ -182,12 +182,14 @@ func TestController_ListProfessorsRanked(t *testing.T) {
 	}
 
 	// Get users with invalid metric (should not work)
-	w, err := utils.DoHTTPReq(router, http.MethodGet, "/professors?sort=would_recommend_course&direction=true", nil)
+	apiErr := lib.ErrorInvalidRankingMetric
+	w, err := utils.DoHTTPReq(router, http.MethodGet, "/professors?metric=would_recommend_course&direction=true", nil)
 	assert.NoError(err)
-	assert.Equal(http.StatusOK, w.Code)
+	assert.Equal(apiErr.HTTPCode, w.Code)
+	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
 
 	// Get users ranked by workload
-	w, err = utils.DoHTTPReq(router, http.MethodGet, "/professors?sort=course_workload&direction=true", nil)
+	w, err = utils.DoHTTPReq(router, http.MethodGet, "/professors?metric=course_workload&direction=true", nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w.Code)
 
@@ -204,7 +206,7 @@ func TestController_ListProfessorsRanked(t *testing.T) {
 	assert.Equal(p2.ID, resp[2].ID)
 
 	// Get users ranked by whether students would take another of their classes
-	w, err = utils.DoHTTPReq(router, http.MethodGet, "/professors?sort=would_take_another", nil)
+	w, err = utils.DoHTTPReq(router, http.MethodGet, "/professors?metric=would_take_another", nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w.Code)
 

@@ -30,6 +30,10 @@ func (m *ProfessorModel) GetAllProfessors(u *[]*User, opts Options) (err error) 
 }
 
 func (m *ProfessorModel) GetProfessorsRanked(sort string, u *[]*User, opts Options) (err error) {
+	if !isMetric(sort) {
+		return lib.ErrorInvalidRankingMetric
+	}
+	
 	db := m.DB.Scopes(m.scopeDefault)
 	if opts != nil {
 		db = opts.Run(db)
@@ -53,7 +57,7 @@ type GetAllProfessorsOptions struct {
 
 	// Sort by: workload, stimulating, wouldtake, approachability, leadLecture,
 	// promoteDiscussion, helpfulness, gradeReceived
-	Sort		*string			`json:"sort" form:"sort"`
+	Metric		*string			`json:"metric" form:"metric"`
 	Direction	*bool			`json:"direction" form:"direction"`
 }
 
@@ -107,11 +111,11 @@ func (o *GetAllProfessorsOptions) Run(db *gorm.DB) *gorm.DB {
 	if o.AreaOfStudyID != nil {
 		db = m.withAreaOfStudy(*o.AreaOfStudyID)(db)
 	}
-	if o.Sort != nil {
+	if o.Metric != nil {
 		if o.Direction != nil {
-			db = m.withRanking(*o.Sort, *o.Direction)(db)
+			db = m.withRanking(*o.Metric, *o.Direction)(db)
 		} else {
-			db = m.withRanking(*o.Sort, false)(db)
+			db = m.withRanking(*o.Metric, false)(db)
 		}
 	}
 
@@ -242,10 +246,6 @@ func (m *ProfessorModel) withRanking(ranking string, direction bool) func(db *go
 		  order = "ASC"
 		} else {
 		  order = "DESC"
-		}
-
-		if !isMetric(ranking) {
-			return db
 		}
 
 		o := fmt.Sprintf("avg(factrak_surveys.%s) %s", ranking, order)

@@ -40,51 +40,10 @@ func (t *Controller) ListProfessors(c *gin.Context) {
 
 	if query, ok := c.GetQuery("q"); ok {
 		err = t.factrakSearch.SearchProfessors(query, &profs, &opts)
-	} else if sort, ok := c.GetQuery("sort"); ok {
+	} else if sort, ok := c.GetQuery("metric"); ok {
 		err = t.professorModel.GetProfessorsRanked(sort, &profs, &opts)
 	} else {
 		err = t.professorModel.GetAllProfessors(&profs, &opts)
-	}
-
-	if err != nil {
-		t.RespondError(c, err)
-		return
-	}
-
-	t.RespondOK(c, profs)
-}
-
-// Lists all professors in order of a metric. This scopes professors to AtWilliams = true.
-// ListProfessorsRanked godoc
-// @Summary Lists ranked professors
-// @Description Lists all professors at Williams ranked by a survey metric
-// @ID factrak-list-professors-ranked
-// @Tags factrak
-// @Accept json
-// @Produce json
-// @Param offset query int false "Offset Pagination"
-// @Param limit query int false "Limit Pagination"
-// @Param preload query []string false "Preload List"
-// @Param courseID query int false "Course ID"
-// @Param departmentID query int false "Department ID"
-// @Param areaOfStudyID query int false "Area Of Study ID"
-// @Param metric path string true "Ranking Metric"
-// @Param direction query bool false "Direction of Ordering"
-// @Success 200 {array} models.User
-// @Failure 500 {object} lib.APIError
-// @Security Bearer
-// @Router /factrak/professors/ranked/{metric} [get]
-func (t *Controller) ListProfessorsRanked(c *gin.Context) {
-	var profs []*models.User
-	var err error
-
-	opts := models.GetAllProfessorsOptions{}
-	if err = c.ShouldBindQuery(&opts); err != nil {
-		t.RespondBadBind(c, err)
-		return
-	}
-	if sort, ok := c.GetQuery("sort"); ok {
-		err = t.professorModel.GetProfessorsRanked(sort, &profs, &opts)
 	}
 
 	if err != nil {
