@@ -40,6 +40,8 @@ func (t *Controller) ListCourses(c *gin.Context) {
 
 	if query, ok := c.GetQuery("q"); ok {
 		err = t.factrakSearch.SearchCourses(query, &courses, &opts)
+	} else if sort, ok := c.GetQuery("metric"); ok {
+		err = t.courseModel.GetCoursesRanked(sort, &courses, &opts)
 	} else {
 		err = t.courseModel.GetAllCourses(&courses, &opts)
 	}
@@ -53,7 +55,7 @@ func (t *Controller) ListCourses(c *gin.Context) {
 }
 
 func (t *Controller) ListCoursesByRanking(c *gin.Context) {
-	
+
 }
 
 // Get one course

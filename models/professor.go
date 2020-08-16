@@ -29,17 +29,13 @@ func (m *ProfessorModel) GetAllProfessors(u *[]*User, opts Options) (err error) 
 	return
 }
 
+// Get all professors, ranked by one of the factrak surveys' fields
 func (m *ProfessorModel) GetProfessorsRanked(sort string, u *[]*User, opts Options) (err error) {
-	if !isMetric(sort) {
+	if !isProfessorMetric(sort) {
 		return lib.ErrorInvalidRankingMetric
 	}
-	
-	db := m.DB.Scopes(m.scopeDefault)
-	if opts != nil {
-		db = opts.Run(db)
-	}
-	err = db.Find(u).Error
-	return
+
+	return m.GetAllProfessors(u, opts)
 }
 
 type GetAllProfessorsOptions struct {
@@ -55,10 +51,9 @@ type GetAllProfessorsOptions struct {
 	DepartmentID  *uint `json:"departmentID" form:"departmentID"`
 	AreaOfStudyID *uint `json:"areaOfStudyID" form:"areaOfStudyID"`
 
-	// Sort by: workload, stimulating, wouldtake, approachability, leadLecture,
-	// promoteDiscussion, helpfulness, gradeReceived
-	Metric		*string			`json:"metric" form:"metric"`
-	Direction	*bool			`json:"direction" form:"direction"`
+	// Rank by a professor metric, in either sort direction
+	Metric    *string `json:"metric" form:"metric"`
+	Direction *bool   `json:"direction" form:"direction"`
 }
 
 // Preload specifically allowed parts if requested
@@ -223,7 +218,7 @@ func (m *ProfessorModel) withAreaOfStudy(areaID uint) func(db *gorm.DB) *gorm.DB
 	}
 }
 
-func isMetric(metric string) bool {
+func isProfessorMetric(metric string) bool {
 	switch metric {
 	case
 		"course_workload",
@@ -233,19 +228,19 @@ func isMetric(metric string) bool {
 		"lead_lecture",
 		"promote_discussion",
 		"outside_helpfulness":
-			return true
+		return true
 	}
 	return false
 }
 
-func (m *ProfessorModel) withRanking(ranking string, direction bool) func(db *gorm.DB) *gorm.DB{
+func (m *ProfessorModel) withRanking(ranking string, direction bool) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		var order string
 
 		if direction {
-		  order = "ASC"
+			order = "ASC"
 		} else {
-		  order = "DESC"
+			order = "DESC"
 		}
 
 		o := fmt.Sprintf("avg(factrak_surveys.%s) %s", ranking, order)

@@ -75,7 +75,6 @@ func TestController_ListProfessors(t *testing.T) {
 	assert.Equal(p2.UnixID, resp[1].UnixID)
 }
 
-
 func TestController_ListProfessorsRanked(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
@@ -84,25 +83,25 @@ func TestController_ListProfessorsRanked(t *testing.T) {
 	cfg := utils.SetupConfig()
 	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
-	// Insert test user into db
+	// Insert test professors and students into db
 	p1 := models.User{
-		Type:   models.UserTypeProfessor,
-		Name:   "Professor 1",
-		UnixID: "p1",
+		Type:       models.UserTypeProfessor,
+		Name:       "Professor 1",
+		UnixID:     "p1",
 		AtWilliams: lib.BoolToPtr(true),
 	}
 	// Other prof
 	p2 := models.User{
-		Type:   models.UserTypeProfessor,
-		Name:   "Professor 2",
-		UnixID: "p2",
+		Type:       models.UserTypeProfessor,
+		Name:       "Professor 2",
+		UnixID:     "p2",
 		AtWilliams: lib.BoolToPtr(true),
 	}
 	// Third prof
 	p3 := models.User{
-		Type:   models.UserTypeProfessor,
-		Name:   "Professor 3",
-		UnixID: "p3",
+		Type:       models.UserTypeProfessor,
+		Name:       "Professor 3",
+		UnixID:     "p3",
 		AtWilliams: lib.BoolToPtr(true),
 	}
 	// Student
@@ -131,7 +130,7 @@ func TestController_ListProfessorsRanked(t *testing.T) {
 	}
 	assert.NoError(db.Create(&dept).Create(&area).Error)
 
-	// Insert test course into db
+	// Insert test courses into db
 	courses := make([]*models.Course, 10)
 	for i := range courses {
 		number := fmt.Sprintf("Course %d", i)
@@ -146,42 +145,42 @@ func TestController_ListProfessorsRanked(t *testing.T) {
 		surveys[i] = &models.FactrakSurvey{
 			User:                 &s1,
 			Professor:            &p1,
-			Course:    						courses[i],
+			Course:               courses[i],
 			Comment:              comment,
 			WouldRecommendCourse: lib.BoolToPtr(true),
 			CourseWorkload:       lib.IntToPtr(3),
-			WouldTakeAnother: lib.BoolToPtr(true),
+			WouldTakeAnother:     lib.BoolToPtr(true),
 		}
-		surveys[i + 10] = &models.FactrakSurvey{
-			User:                 &s1,
-			Professor:            &p2,
-			Course:    						courses[i],
-			Comment:              comment,
-			CourseWorkload:       lib.IntToPtr(9),
+		surveys[i+10] = &models.FactrakSurvey{
+			User:           &s1,
+			Professor:      &p2,
+			Course:         courses[i],
+			Comment:        comment,
+			CourseWorkload: lib.IntToPtr(9),
 		}
-		surveys[i + 20] = &models.FactrakSurvey{
-			User:                 &s1,
-			Professor:            &p3,
-			Course:    						courses[i],
-			Comment:              comment,
-			CourseWorkload:       lib.IntToPtr(4),
+		surveys[i+20] = &models.FactrakSurvey{
+			User:           &s1,
+			Professor:      &p3,
+			Course:         courses[i],
+			Comment:        comment,
+			CourseWorkload: lib.IntToPtr(4),
 		}
 		assert.NoError(db.Create(surveys[i]).Create(surveys[i+10]).Create(surveys[i+20]).Error)
 	}
 	for i := 1; i < 5; i++ {
 		comment := fmt.Sprintf("Survey %d", i)
-		surveys[i + 30] = &models.FactrakSurvey{
-			User:                 &s2,
-			Professor:            &p3,
-			Course:    						courses[i],
-			Comment:              comment,
-			CourseWorkload:       lib.IntToPtr(0),
+		surveys[i+30] = &models.FactrakSurvey{
+			User:             &s2,
+			Professor:        &p3,
+			Course:           courses[i],
+			Comment:          comment,
+			CourseWorkload:   lib.IntToPtr(0),
 			WouldTakeAnother: lib.BoolToPtr(false),
 		}
 		assert.NoError(db.Create(surveys[i+30]).Error)
 	}
 
-	// Get users with invalid metric (should not work)
+	// Get professors ranked by invalid metric (should not work)
 	apiErr := lib.ErrorInvalidRankingMetric
 	w, err := utils.DoHTTPReq(router, http.MethodGet, "/professors?metric=would_recommend_course&direction=true", nil)
 	assert.NoError(err)
@@ -219,7 +218,6 @@ func TestController_ListProfessorsRanked(t *testing.T) {
 	assert.Len(resp, 1)
 	assert.Equal(p1.ID, resp[0].ID)
 }
-
 
 func TestController_GetProfessor(t *testing.T) {
 	// Setup (can copy and paste this basically)
