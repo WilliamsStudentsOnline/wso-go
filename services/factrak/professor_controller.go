@@ -24,6 +24,8 @@ import (
 // @Param departmentID query int false "Department ID"
 // @Param areaOfStudyID query int false "Area Of Study ID"
 // @Param q query string false "Search Query"
+// @Param metric query string false "Ranking Metric"
+// @Param direction query bool false "Sorting Direction"
 // @Success 200 {array} models.User
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
