@@ -119,6 +119,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/v1.JobStatus"
                         }
                     },
@@ -336,6 +337,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/identity.Credentials"
                         }
                     }
@@ -393,6 +395,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/old.LoginParams"
                         }
                     }
@@ -902,6 +905,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/bulletin.CreateBulletinParams"
                         }
                     }
@@ -1101,6 +1105,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/bulletin.UpdateBulletinParams"
                         }
                     },
@@ -1313,6 +1318,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/bulletin.CreateDiscussionParams"
                         }
                     }
@@ -1520,6 +1526,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/bulletin.CreatePostParams"
                         }
                     }
@@ -1719,6 +1726,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/bulletin.UpdatePostParams"
                         }
                     },
@@ -1870,6 +1878,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/bulletin.CreateRideParams"
                         }
                     }
@@ -2062,6 +2071,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/bulletin.UpdateRideParams"
                         }
                     },
@@ -2165,6 +2175,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/feeds.Feed"
                         }
                     },
@@ -2218,6 +2229,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/feeds.Feed"
                         }
                     },
@@ -2277,6 +2289,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/feeds.Feed"
                         }
                     },
@@ -2336,6 +2349,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/feeds.Feed"
                         }
                     },
@@ -2395,6 +2409,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/feeds.Feed"
                         }
                     },
@@ -2460,6 +2475,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/feeds.Feed"
                         }
                     },
@@ -3094,6 +3110,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/dormtrak.ReviewCreateParams"
                         }
                     }
@@ -3314,6 +3331,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/dormtrak.ReviewUpdateParams"
                         }
                     },
@@ -3857,6 +3875,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/ephmatch.ProfileCreateParams"
                         }
                     }
@@ -3973,6 +3992,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/ephmatch.ProfileUpdateParams"
                         }
                     }
@@ -4194,7 +4214,8 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/ephmatch.LikeProfileResp"
+                            "type": "object",
+                            "$ref": "#/definitions/LikeProfileResp"
                         }
                     },
                     "400": {
@@ -5782,6 +5803,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/factrak.SurveyCreateParams"
                         }
                     }
@@ -6032,6 +6054,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/factrak.SurveyUpdateParams"
                         }
                     },
@@ -6194,6 +6217,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/factrak.AgreementCreateParams"
                         }
                     }
@@ -6347,6 +6371,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/factrak.AgreementUpdateParams"
                         }
                     }
@@ -6892,6 +6917,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/user.UpdateUserParams"
                         }
                     }
@@ -7050,6 +7076,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
+                            "type": "object",
                             "$ref": "#/definitions/user.UpdateUserTagsParams"
                         }
                     }
@@ -7441,14 +7468,6 @@
                 },
                 "openIndefinitely": {
                     "description": "If Ephmatch has no closing time set",
-                    "type": "boolean"
-                }
-            }
-        },
-        "ephmatch.LikeProfileResp": {
-            "type": "object",
-            "properties": {
-                "matched": {
                     "type": "boolean"
                 }
             }

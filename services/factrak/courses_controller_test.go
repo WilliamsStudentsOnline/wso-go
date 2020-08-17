@@ -2,6 +2,7 @@ package factrak_test
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"testing"
@@ -70,6 +71,20 @@ func TestController_ListCourses(t *testing.T) {
 	assert.Equal(c3.ID, resp[2].ID)
 }
 
+// Check that a slice of functions matches an expected slice, by comparing IDs
+func EqualCourseIDs(expected, resp []models.Course) error {
+	if len(resp) != len(expected) {
+		return errors.New(fmt.Sprintf("Expected length %d, got %d", len(expected), len(resp)))
+	}
+
+	for i, v := range expected {
+		if v.ID != resp[i].ID {
+			return errors.New(fmt.Sprintf("At index %d, expected ID %d, got %d", i, v.ID, resp[i].ID))
+		}
+	}
+	return nil
+}
+
 func TestController_ListCoursesRanked(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
@@ -99,25 +114,30 @@ func TestController_ListCoursesRanked(t *testing.T) {
 	dept := models.Department{
 		Name: "Computer Science",
 	}
-	area := models.AreaOfStudy{
+	area1 := models.AreaOfStudy{
 		Name:         "Computer Science",
 		Abbreviation: "CSCI",
 		Department:   &dept,
 	}
-	assert.NoError(db.Create(&dept).Create(&area).Error)
+	area2 := models.AreaOfStudy{
+		Name:         "Human Computer Interaction",
+		Abbreviation: "HCI",
+		Department:   &dept,
+	}
+	assert.NoError(db.Create(&dept).Create(&area1).Create(&area2).Error)
 
 	// Insert test course into db
 	c1 := models.Course{
 		Number:      "Course 1",
-		AreaOfStudy: &area,
+		AreaOfStudy: &area1,
 	}
 	c2 := models.Course{
 		Number:      "Course 2",
-		AreaOfStudy: &area,
+		AreaOfStudy: &area2,
 	}
 	c3 := models.Course{
 		Number:      "Course 3",
-		AreaOfStudy: &area,
+		AreaOfStudy: &area2,
 	}
 	assert.NoError(db.Create(&c1).Create(&c2).Create(&c3).Error)
 
@@ -142,17 +162,19 @@ func TestController_ListCoursesRanked(t *testing.T) {
 			WouldRecommendCourse: lib.BoolToPtr(true),
 			CourseWorkload:       lib.IntToPtr(3),
 			WouldTakeAnother:     lib.BoolToPtr(true),
+			CourseStimulating:    lib.IntToPtr(5),
 		}
 		surveys[i+10] = &models.FactrakSurvey{
-			User:           students[i],
-			Professor:      &p1,
-			Course:         &c2,
-			Comment:        comment,
-			CourseWorkload: lib.IntToPtr(9),
+			User:              students[i],
+			Professor:         &p1,
+			Course:            &c2,
+			Comment:           comment,
+			CourseWorkload:    lib.IntToPtr(9),
+			CourseStimulating: lib.IntToPtr(8),
 		}
 		surveys[i+20] = &models.FactrakSurvey{
 			User:           students[i],
-			Professor:      &p1,
+			Professor:      &p2,
 			Course:         &c3,
 			Comment:        comment,
 			CourseWorkload: lib.IntToPtr(4),
@@ -185,31 +207,45 @@ func TestController_ListCoursesRanked(t *testing.T) {
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w.Code)
 
-	// Decode response
+	// Decode and check response
 	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
 	assert.Nil(respData.Error)
-	var resp []models.User
+	var resp []models.Course
 	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	assert.NoError(EqualCourseIDs([]models.Course{c3, c1, c2}, resp))
 
-	// Check if correct order and amount
-	assert.Len(resp, 3)
-	assert.Equal(c3.ID, resp[0].ID)
-	assert.Equal(c1.ID, resp[1].ID)
-	assert.Equal(c2.ID, resp[2].ID)
+	// Get courses ranked by workload, for one professor
+	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/courses?metric=course_workload&direction=true&professorID=%d", p1.ID), nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+
+	// Decode and check response
+	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	assert.NoError(EqualCourseIDs([]models.Course{c1, c2}, resp))
 
 	// Get courses ranked by whether students would recommend them
 	w, err = utils.DoHTTPReq(router, http.MethodGet, "/courses?metric=would_recommend_course", nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w.Code)
 
-	// Decode response
+	// Decode and check response
 	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
 	assert.Nil(respData.Error)
 	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	assert.NoError(EqualCourseIDs([]models.Course{c1}, resp))
 
-	// Check if correct order and amount
-	assert.Len(resp, 1)
-	assert.Equal(c1.ID, resp[0].ID)
+	// Get courses ranked by how stimulating they are, limited to one area of study
+	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/courses?metric=course_stimulating&areaOfStudyID=%d", area2.ID), nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+
+	// Decode and check response
+	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	assert.NoError(EqualCourseIDs([]models.Course{c2}, resp))
 }
 
 func TestController_GetCourse(t *testing.T) {

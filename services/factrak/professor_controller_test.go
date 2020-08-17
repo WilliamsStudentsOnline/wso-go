@@ -2,6 +2,7 @@ package factrak_test
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"testing"
@@ -75,6 +76,20 @@ func TestController_ListProfessors(t *testing.T) {
 	assert.Equal(p2.UnixID, resp[1].UnixID)
 }
 
+// Check that a slice of users matches an expected slice, by comparing IDs
+func EqualUserIDs(expected, resp []models.User) error {
+	if len(resp) != len(expected) {
+		return errors.New(fmt.Sprintf("Expected length %d, got %d", len(expected), len(resp)))
+	}
+
+	for i, v := range expected {
+		if v.ID != resp[i].ID {
+			return errors.New(fmt.Sprintf("At index %d, expected ID %d, got %d", i, v.ID, resp[i].ID))
+		}
+	}
+	return nil
+}
+
 func TestController_ListProfessorsRanked(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
@@ -82,6 +97,22 @@ func TestController_ListProfessorsRanked(t *testing.T) {
 	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	cfg := utils.SetupConfig()
 	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+
+	// Create department and areas of study
+	dept := models.Department{
+		Name: "Computer Science",
+	}
+	area1 := models.AreaOfStudy{
+		Name:         "Computer Science",
+		Abbreviation: "CSCI",
+		Department:   &dept,
+	}
+	area2 := models.AreaOfStudy{
+		Name:         "Human Computer Interaction",
+		Abbreviation: "HCI",
+		Department:   &dept,
+	}
+	assert.NoError(db.Create(&dept).Create(&area1).Create(&area2).Error)
 
 	// Insert test professors and students into db
 	p1 := models.User{
@@ -96,6 +127,7 @@ func TestController_ListProfessorsRanked(t *testing.T) {
 		Name:       "Professor 2",
 		UnixID:     "p2",
 		AtWilliams: lib.BoolToPtr(true),
+		Department: &dept,
 	}
 	// Third prof
 	p3 := models.User{
@@ -119,29 +151,18 @@ func TestController_ListProfessorsRanked(t *testing.T) {
 	err := db.Create(&p1).Create(&p2).Create(&p3).Create(&s1).Create(&s2).Error
 	assert.NoError(err)
 
-	// Need this to satisfy not null
-	dept := models.Department{
-		Name: "Computer Science",
-	}
-	area := models.AreaOfStudy{
-		Name:         "Computer Science",
-		Abbreviation: "CSCI",
-		Department:   &dept,
-	}
-	assert.NoError(db.Create(&dept).Create(&area).Error)
-
 	// Insert test courses into db
 	courses := make([]*models.Course, 10)
 	for i := range courses {
 		number := fmt.Sprintf("Course %d", i)
-		courses[i] = &models.Course{Number: number, AreaOfStudy: &area}
+		courses[i] = &models.Course{Number: number, AreaOfStudy: &area1}
 		assert.NoError(db.Create(courses[i]).Error)
 	}
 
-	// Insert test surveys into db (need 10)
+	// Insert test surveys into db (need 10 to count for rankings)
 	surveys := make([]*models.FactrakSurvey, 35)
 	for i := range courses {
-		comment := fmt.Sprintf("Survey %d", i)
+		comment := fmt.Sprintf("Base Survey %d", i)
 		surveys[i] = &models.FactrakSurvey{
 			User:                 &s1,
 			Professor:            &p1,
@@ -150,25 +171,28 @@ func TestController_ListProfessorsRanked(t *testing.T) {
 			WouldRecommendCourse: lib.BoolToPtr(true),
 			CourseWorkload:       lib.IntToPtr(3),
 			WouldTakeAnother:     lib.BoolToPtr(true),
+			Approachability:      lib.IntToPtr(5),
 		}
 		surveys[i+10] = &models.FactrakSurvey{
-			User:           &s1,
-			Professor:      &p2,
-			Course:         courses[i],
-			Comment:        comment,
-			CourseWorkload: lib.IntToPtr(9),
+			User:            &s1,
+			Professor:       &p2,
+			Course:          courses[i],
+			Comment:         comment,
+			CourseWorkload:  lib.IntToPtr(9),
+			Approachability: lib.IntToPtr(2),
 		}
 		surveys[i+20] = &models.FactrakSurvey{
-			User:           &s1,
-			Professor:      &p3,
-			Course:         courses[i],
-			Comment:        comment,
-			CourseWorkload: lib.IntToPtr(4),
+			User:            &s1,
+			Professor:       &p3,
+			Course:          courses[i],
+			Comment:         comment,
+			CourseWorkload:  lib.IntToPtr(4),
+			Approachability: lib.IntToPtr(9),
 		}
 		assert.NoError(db.Create(surveys[i]).Create(surveys[i+10]).Create(surveys[i+20]).Error)
 	}
 	for i := 1; i < 5; i++ {
-		comment := fmt.Sprintf("Survey %d", i)
+		comment := fmt.Sprintf("Small-set Survey %d", i)
 		surveys[i+30] = &models.FactrakSurvey{
 			User:             &s2,
 			Professor:        &p3,
@@ -192,31 +216,34 @@ func TestController_ListProfessorsRanked(t *testing.T) {
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w.Code)
 
-	// Decode response
+	// Decode and check response
 	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
 	assert.Nil(respData.Error)
 	var resp []models.User
 	assert.NoError(json.Unmarshal(respData.Data, &resp))
-
-	// Check if correct order and amount
-	assert.Len(resp, 3)
-	assert.Equal(p3.ID, resp[0].ID)
-	assert.Equal(p1.ID, resp[1].ID)
-	assert.Equal(p2.ID, resp[2].ID)
+	assert.NoError(EqualUserIDs([]models.User{p3, p1, p2}, resp))
 
 	// Get users ranked by whether students would take another of their classes
 	w, err = utils.DoHTTPReq(router, http.MethodGet, "/professors?metric=would_take_another", nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w.Code)
 
-	// Decode response
+	// Decode and check response
 	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
 	assert.Nil(respData.Error)
 	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	assert.NoError(EqualUserIDs([]models.User{p1}, resp))
 
-	// Check if correct order and amount
-	assert.Len(resp, 1)
-	assert.Equal(p1.ID, resp[0].ID)
+	// Get users ranked by approachability, limited to an area of study
+	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/professors?metric=approachability&areaOfStudyID=%d", area2.ID), nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+
+	// Decode and check response
+	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	assert.NoError(EqualUserIDs([]models.User{p2}, resp))
 }
 
 func TestController_GetProfessor(t *testing.T) {

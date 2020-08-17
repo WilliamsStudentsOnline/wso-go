@@ -264,7 +264,7 @@ func (m *CourseModel) withDepartment(departmentID uint) func(*gorm.DB) *gorm.DB 
 func (m *CourseModel) withProfessor(professorID uint) func(*gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Where(
-			"id in (?)",
+			"courses.id in (?)",
 			m.DB.Model(&FactrakSurvey{}).Select("course_id").Where(
 				"professor_id = ?", professorID,
 			).QueryExpr(),
