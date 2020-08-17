@@ -1582,10 +1582,12 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/admin.KubeJobReturn'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Updates the course catalog
@@ -1604,10 +1606,12 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/admin.KubeJobReturn'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Updates all dorms from data compiled
@@ -1636,6 +1640,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Gets status of a job
@@ -1654,10 +1659,12 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/admin.KubeJobReturn'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Updates all factrak survey deficits
@@ -1676,10 +1683,12 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/admin.KubeJobReturn'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Updates all users from LDAP
@@ -1698,18 +1707,22 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/auth.AuthResponse'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "401":
           description: Unauthorized
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Refresh API Token
@@ -1735,18 +1748,22 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/auth.AuthResponse'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "401":
           description: Unauthorized
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       summary: Authenticate API Token
       tags:
       - auth
@@ -1771,18 +1788,22 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/auth.AuthResponse'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "401":
           description: Unauthorized
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       summary: Authenticate Identity Token
       tags:
       - auth
@@ -1807,18 +1828,22 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/old.AuthResponse'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "401":
           description: Unauthorized
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       summary: Authenticate and Login
       tags:
       - auth
@@ -1835,18 +1860,22 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/old.AuthResponse'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "401":
           description: Unauthorized
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Refresh Token
@@ -1865,18 +1894,22 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/old.AuthResponse'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "401":
           description: Unauthorized
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Update Token
@@ -1911,6 +1944,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Autocomplete area of study
@@ -1945,6 +1979,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Autocomplete course
@@ -1979,6 +2014,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Autocomplete factrak professors and courses
@@ -2013,6 +2049,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Autocomplete professor
@@ -2047,6 +2084,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Autocomplete tag
@@ -2073,10 +2111,8 @@ paths:
         type: integer
       - description: Preload List
         in: query
-        items:
-          type: string
         name: preload
-        type: array
+        type: '[]string'
       - description: Bulletin Type
         in: query
         name: type
@@ -2098,6 +2134,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: List bulletins
@@ -2122,26 +2159,32 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/models.Bulletin'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1101":
           description: request data validation failed
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1830":
           description: start date cannot be after end date
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1831":
           description: invalid bulletin type
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Create bulletin
@@ -2166,22 +2209,27 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.Bulletin'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1331":
           description: must be self
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Delete bulletin
@@ -2205,18 +2253,22 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.Bulletin'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Get bulletin
@@ -2246,26 +2298,32 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.Bulletin'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1331":
           description: must be self
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1830":
           description: start date cannot be after end date
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Update bulletin
@@ -2290,18 +2348,22 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.Discussion'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Delete discussion
@@ -2328,10 +2390,8 @@ paths:
         type: integer
       - description: Preload List
         in: query
-        items:
-          type: string
         name: preload
-        type: array
+        type: '[]string'
       - description: Get Last Post (get last/latest post of the discussion)
         in: query
         name: getLastPost
@@ -2349,6 +2409,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: List discussions
@@ -2373,22 +2434,27 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/models.Discussion'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1101":
           description: request data validation failed
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1332":
           description: authenticated user not found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Create discussion
@@ -2408,10 +2474,8 @@ paths:
         type: integer
       - description: Preload List
         in: query
-        items:
-          type: string
         name: preload
-        type: array
+        type: '[]string'
       produces:
       - application/json
       responses:
@@ -2419,18 +2483,22 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.Discussion'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Get discussion
@@ -2462,10 +2530,8 @@ paths:
         type: integer
       - description: Preload List
         in: query
-        items:
-          type: string
         name: preload
-        type: array
+        type: '[]string'
       produces:
       - application/json
       responses:
@@ -2479,6 +2545,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Get discussion posts
@@ -2504,26 +2571,32 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/models.Post'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1101":
           description: request data validation failed
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1332":
           description: authenticated user not found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1850":
           description: discussion cannot be found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Create post
@@ -2548,22 +2621,27 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.Post'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1331":
           description: must be self
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Delete post
@@ -2587,18 +2665,22 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.Post'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Get post
@@ -2628,22 +2710,27 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.Post'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1331":
           description: must be self
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Update post
@@ -2670,10 +2757,8 @@ paths:
         type: integer
       - description: Preload List
         in: query
-        items:
-          type: string
         name: preload
-        type: array
+        type: '[]string'
       - description: Ride Type (request, offer)
         in: query
         name: type
@@ -2695,6 +2780,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: List rides
@@ -2719,22 +2805,27 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/models.BulletinRide'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1101":
           description: request data validation failed
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1830":
           description: date cannot be in past
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Create ride
@@ -2759,22 +2850,27 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.BulletinRide'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1331":
           description: must be self
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Delete ride
@@ -2798,18 +2894,22 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.BulletinRide'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Get ride
@@ -2839,26 +2939,32 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.BulletinRide'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1331":
           description: must be self
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1830":
           description: date cannot be in past
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Update ride
@@ -2896,6 +3002,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: List announcement bulletins RSS
@@ -2929,6 +3036,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: List discussion bulletins RSS
@@ -2966,6 +3074,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: List exchange bulletins RSS
@@ -3003,6 +3112,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: List job bulletins RSS
@@ -3040,6 +3150,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: List lost and found bulletins RSS
@@ -3081,6 +3192,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: List ride bulletins RSS
@@ -3103,14 +3215,17 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Get Chat Auth JWT token
@@ -3133,10 +3248,8 @@ paths:
         type: integer
       - description: Preload List
         in: query
-        items:
-          type: string
         name: preload
-        type: array
+        type: '[]string'
       - description: Search Query
         in: query
         name: q
@@ -3154,6 +3267,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: List dorms
@@ -3178,18 +3292,22 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.Dorm'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Get dorm
@@ -3214,18 +3332,22 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.DormFacts'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Get dorm facts
@@ -3264,14 +3386,17 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Get dorm rooms
@@ -3296,6 +3421,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: List neighborhoods
@@ -3320,18 +3446,22 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.Neighborhood'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Get neighborhood
@@ -3356,18 +3486,22 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.NeighborhoodFacts'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Get neighborhood facts
@@ -3392,6 +3526,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Get rankings
@@ -3426,10 +3561,8 @@ paths:
         type: integer
       - description: Preload List
         in: query
-        items:
-          type: string
         name: preload
-        type: array
+        type: '[]string'
       - description: Restrict to commented reviews
         in: query
         name: commented
@@ -3447,10 +3580,12 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: List reviews
@@ -3475,38 +3610,47 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/models.DormtrakReview'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1101":
           description: request data validation failed
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1633":
           description: user must be a student and could not be found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1634":
           description: user is missing dorm field
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1635":
           description: user does not own this dorm room
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1636":
           description: review already exists with passed user ID and dorm room ID
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Create review
@@ -3531,22 +3675,27 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.DormtrakReview'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1331":
           description: must be self
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Delete review
@@ -3570,18 +3719,22 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.DormtrakReview'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Get review
@@ -3611,26 +3764,32 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.DormtrakReview'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1101":
           description: request data validation failed
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1331":
           description: must be self
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Update review
@@ -3653,10 +3812,8 @@ paths:
         type: integer
       - description: Preload List
         in: query
-        items:
-          type: string
         name: preload
-        type: array
+        type: '[]string'
       - description: Search Query
         in: query
         name: q
@@ -3674,6 +3831,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: List ephcatchers
@@ -3698,18 +3856,22 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.Ephcatcher'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Get ephcatcher
@@ -3735,26 +3897,32 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1730":
           description: cannot ephcatch-like yourself
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1731":
           description: ephcatcher could not be found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1732":
           description: ephcatch already exists with user ID and passed ephcatcher ID
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Like ephcatcher
@@ -3780,14 +3948,17 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Unlike ephcatcher
@@ -3812,6 +3983,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: List matches
@@ -3828,10 +4000,12 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/ephmatch.GetAvailabilityResp'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Get availability
@@ -3846,10 +4020,8 @@ paths:
       parameters:
       - description: Preload List [tags]
         in: query
-        items:
-          type: string
         name: preload
-        type: array
+        type: '[]string'
       produces:
       - application/json
       responses:
@@ -3863,6 +4035,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: List matches
@@ -3881,10 +4054,12 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/ephmatch.CountMatchesResponse'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Count matches
@@ -3903,18 +4078,22 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.EphmatchProfile'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Delete profile
@@ -3932,18 +4111,22 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.EphmatchProfile'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Get Ephmatch profile of self
@@ -3968,22 +4151,27 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.EphmatchProfile'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1101":
           description: request data validation failed
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Update an Ephmatch profile
@@ -4008,22 +4196,27 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/models.EphmatchProfile'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1101":
           description: request data validation failed
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Create an Ephmatch profile
@@ -4050,10 +4243,8 @@ paths:
         type: integer
       - description: Preload List [tags, liked, matched]
         in: query
-        items:
-          type: string
         name: preload
-        type: array
+        type: '[]string'
       produces:
       - application/json
       responses:
@@ -4067,6 +4258,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: List Ephmatch profiles
@@ -4091,18 +4283,22 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.EphmatchProfile'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Get Ephmatch profile
@@ -4131,26 +4327,32 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1730":
           description: cannot ephmatch-like yourself
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1731":
           description: ephmatch profile could not be found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1732":
           description: ephmatch already exists with user ID and passed ephmatch profile user ID
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Like Ephmatch profile
@@ -4176,14 +4378,17 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Unlike ephmatch profile
@@ -4218,10 +4423,8 @@ paths:
         type: integer
       - description: Preload (course, professor)
         in: query
-        items:
-          type: string
         name: preload
-        type: array
+        type: '[]string'
       - description: Populate Agreement Counts
         in: query
         name: populateAgreements
@@ -4243,6 +4446,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: List flagged surveys
@@ -4270,10 +4474,12 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Unflag survey
@@ -4298,10 +4504,8 @@ paths:
         type: integer
       - description: Preload List (department, courses)
         in: query
-        items:
-          type: string
         name: preload
-        type: array
+        type: '[]string'
       - description: Sort Order (id, name; default name)
         in: query
         name: sort
@@ -4319,6 +4523,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: List areas of study
@@ -4343,18 +4548,22 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.AreaOfStudy'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Get area of study
@@ -4388,14 +4597,17 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: List area of study courses
@@ -4427,14 +4639,17 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: List area of study professors
@@ -4457,10 +4672,8 @@ paths:
         type: integer
       - description: Preload List
         in: query
-        items:
-          type: string
         name: preload
-        type: array
+        type: '[]string'
       - description: Search Query
         in: query
         name: q
@@ -4477,6 +4690,14 @@ paths:
         in: query
         name: professorID
         type: string
+      - description: Ranking Metric
+        in: query
+        name: metric
+        type: string
+      - description: Sorting Direction
+        in: query
+        name: direction
+        type: boolean
       produces:
       - application/json
       responses:
@@ -4490,6 +4711,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: List courses
@@ -4520,18 +4742,22 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.Course'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Get course
@@ -4563,14 +4789,17 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: List course professors
@@ -4599,18 +4828,22 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.FactrakSurveyAvgRatings'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Get course ratings
@@ -4643,10 +4876,8 @@ paths:
         type: integer
       - description: Preload (course, professor)
         in: query
-        items:
-          type: string
         name: preload
-        type: array
+        type: '[]string'
       - description: Populate Agreement Counts
         in: query
         name: populateAgreements
@@ -4668,14 +4899,17 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: List course surveys
@@ -4700,6 +4934,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: List departments
@@ -4724,18 +4959,22 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.Department'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Get department
@@ -4767,14 +5006,17 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: List department courses
@@ -4806,14 +5048,17 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: List department professors
@@ -4836,10 +5081,8 @@ paths:
         type: integer
       - description: Preload List
         in: query
-        items:
-          type: string
         name: preload
-        type: array
+        type: '[]string'
       - description: Course ID
         in: query
         name: courseID
@@ -4856,6 +5099,14 @@ paths:
         in: query
         name: q
         type: string
+      - description: Ranking Metric
+        in: query
+        name: metric
+        type: string
+      - description: Sorting Direction
+        in: query
+        name: direction
+        type: boolean
       produces:
       - application/json
       responses:
@@ -4869,6 +5120,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: List professors
@@ -4899,18 +5151,22 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.User'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Get professor
@@ -4942,14 +5198,17 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: List professor courses
@@ -4978,18 +5237,22 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.FactrakSurveyAvgRatings'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Get professor ratings
@@ -5022,10 +5285,8 @@ paths:
         type: integer
       - description: Preload (course, professor)
         in: query
-        items:
-          type: string
         name: preload
-        type: array
+        type: '[]string'
       - description: Populate Agreement Counts
         in: query
         name: populateAgreements
@@ -5047,14 +5308,17 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: List professor surveys
@@ -5089,10 +5353,8 @@ paths:
         type: integer
       - description: Preload (course, professor)
         in: query
-        items:
-          type: string
         name: preload
-        type: array
+        type: '[]string'
       - description: Populate Agreement Counts
         in: query
         name: populateAgreements
@@ -5114,6 +5376,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: List surveys
@@ -5138,50 +5401,62 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/models.FactrakSurvey'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1101":
           description: request data validation failed
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1531":
           description: 'missing course parameters in create data: courseID or (areaOfStudyAbbreviation and courseNumber)'
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1532":
           description: comment must be 100 characters or more
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1533":
           description: user must be a student and could not be found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1534":
           description: passed professor must be a professor and could not be found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1535":
           description: passed course could not be found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1536":
           description: passed area of study could not be found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1537":
           description: survey already exists with passed user ID, professor ID, and course ID
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Create survey
@@ -5206,22 +5481,27 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.FactrakSurvey'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1331":
           description: must be self
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Delete survey
@@ -5247,22 +5527,27 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.FactrakSurvey'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1330":
           description: no scope authorization
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Get survey
@@ -5292,30 +5577,37 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.FactrakSurvey'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1101":
           description: request data validation failed
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1331":
           description: must be self
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1532":
           description: comment must be 100 characters or more
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Update survey
@@ -5340,22 +5632,27 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.FactrakAgreement'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1551":
           description: survey agreement could not be found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Delete survey agreement
@@ -5379,22 +5676,27 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.FactrakAgreement'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1551":
           description: survey agreement could not be found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Get survey agreement by self
@@ -5424,26 +5726,32 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.FactrakAgreement'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1100":
           description: could not parse malformed request data
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1551":
           description: survey agreement could not be found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Update survey agreement
@@ -5473,30 +5781,37 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/models.FactrakAgreement'
+            type: object
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1100":
           description: could not parse malformed request data
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1552":
           description: survey agreement already exists for this user and survey
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1553":
           description: cannot create survey agreement with your own survey
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Create survey agreement
@@ -5522,14 +5837,17 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Flag survey
@@ -5566,10 +5884,8 @@ paths:
         type: integer
       - description: Preload (course, professor)
         in: query
-        items:
-          type: string
         name: preload
-        type: array
+        type: '[]string'
       - description: Populate Agreement Counts
         in: query
         name: populateAgreements
@@ -5587,18 +5903,22 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1331":
           description: must be self
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: List user surveys
@@ -5617,6 +5937,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/server.HealthCheckResponse'
+            type: object
       security:
       - Bearer: []
       summary: Health check
@@ -5639,10 +5960,12 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.User'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Gets a user
@@ -5667,10 +5990,12 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.User'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Gets a user
@@ -5695,10 +6020,12 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.User'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Gets a user
@@ -5723,10 +6050,8 @@ paths:
         type: integer
       - description: Preload List
         in: query
-        items:
-          type: string
         name: preload
-        type: array
+        type: '[]string'
       - description: Search Query
         in: query
         name: q
@@ -5744,6 +6069,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: List users
@@ -5768,26 +6094,32 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/responses.GetUserResponseUser'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1403":
           description: user not visible
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1404":
           description: user not at williams
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1405":
           description: user id could not be parsed
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Get user by user id
@@ -5817,26 +6149,32 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.User'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1100":
           description: could not parse malformed request data
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1331":
           description: must be self
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1405":
           description: user id could not be parsed
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Update user by user id
@@ -5867,22 +6205,27 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1331":
           description: must be self
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1405":
           description: user id could not be parsed
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Upload a profile photo by user id
@@ -5914,30 +6257,37 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1100":
           description: could not parse malformed request data
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1331":
           description: must be self
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1405":
           description: user id could not be parsed
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
         "1406":
           description: invalid user tag
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Update user tags by user id
@@ -5960,6 +6310,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/lib.APIError'
+            type: object
       security:
       - Bearer: []
       summary: Get words
