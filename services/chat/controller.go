@@ -51,7 +51,7 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 // @Tags chat
 // @Accept  json
 // @Produce  json
-// @Success 200 {string} token string
+// @Success 200 {string} string token
 // @Failure 400 {object} lib.APIError
 // @Failure 404 {object} lib.APIError
 // @Failure 500 {object} lib.APIError

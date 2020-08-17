@@ -115,7 +115,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/k8s.io/api/batch/v1.JobStatus"
+                            "$ref": "#/definitions/v1.JobStatus"
                         }
                     },
                     "500": {
@@ -319,7 +319,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/identity.Credentials"
                         }
                     }
@@ -373,7 +372,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/old.LoginParams"
                         }
                     }
@@ -868,7 +866,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/bulletin.CreateBulletinParams"
                         }
                     }
@@ -1053,7 +1050,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/bulletin.UpdateBulletinParams"
                         }
                     },
@@ -1258,7 +1254,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/bulletin.CreateDiscussionParams"
                         }
                     }
@@ -1462,7 +1457,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/bulletin.CreatePostParams"
                         }
                     }
@@ -1647,7 +1641,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/bulletin.UpdatePostParams"
                         }
                     },
@@ -1796,7 +1789,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/bulletin.CreateRideParams"
                         }
                     }
@@ -1975,7 +1967,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/bulletin.UpdateRideParams"
                         }
                     },
@@ -2073,7 +2064,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github.com/gorilla/feeds.Feed"
+                            "$ref": "#/definitions/feeds.Feed"
                         }
                     },
                     "500": {
@@ -2125,7 +2116,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github.com/gorilla/feeds.Feed"
+                            "$ref": "#/definitions/feeds.Feed"
                         }
                     },
                     "500": {
@@ -2183,7 +2174,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github.com/gorilla/feeds.Feed"
+                            "$ref": "#/definitions/feeds.Feed"
                         }
                     },
                     "500": {
@@ -2241,7 +2232,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github.com/gorilla/feeds.Feed"
+                            "$ref": "#/definitions/feeds.Feed"
                         }
                     },
                     "500": {
@@ -2299,7 +2290,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github.com/gorilla/feeds.Feed"
+                            "$ref": "#/definitions/feeds.Feed"
                         }
                     },
                     "500": {
@@ -2363,7 +2354,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github.com/gorilla/feeds.Feed"
+                            "$ref": "#/definitions/feeds.Feed"
                         }
                     },
                     "500": {
@@ -2975,7 +2966,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/dormtrak.ReviewCreateParams"
                         }
                     }
@@ -3178,7 +3168,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/dormtrak.ReviewUpdateParams"
                         }
                     },
@@ -3698,7 +3687,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/ephmatch.ProfileCreateParams"
                         }
                     }
@@ -3806,7 +3794,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/ephmatch.ProfileUpdateParams"
                         }
                     }
@@ -4018,7 +4005,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/LikeProfileResp"
+                            "$ref": "#/definitions/ephmatch.LikeProfileResp"
                         }
                     },
                     "400": {
@@ -5541,7 +5528,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/factrak.SurveyCreateParams"
                         }
                     }
@@ -5770,7 +5756,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/factrak.SurveyUpdateParams"
                         }
                     },
@@ -5921,7 +5906,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/factrak.AgreementCreateParams"
                         }
                     }
@@ -6063,7 +6047,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/factrak.AgreementUpdateParams"
                         }
                     }
@@ -6588,7 +6571,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/user.UpdateUserParams"
                         }
                     }
@@ -6736,7 +6718,6 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object",
                             "$ref": "#/definitions/user.UpdateUserTagsParams"
                         }
                     }
@@ -7124,6 +7105,14 @@
                 }
             }
         },
+        "ephmatch.LikeProfileResp": {
+            "type": "object",
+            "properties": {
+                "matched": {
+                    "type": "boolean"
+                }
+            }
+        },
         "ephmatch.ProfileCreateParams": {
             "type": "object",
             "properties": {
@@ -7287,6 +7276,47 @@
                 },
                 "wouldTakeAnother": {
                     "type": "boolean"
+                }
+            }
+        },
+        "feeds.Feed": {
+            "type": "object",
+            "properties": {
+                "author": {
+                    "type": "Author"
+                },
+                "copyright": {
+                    "type": "string"
+                },
+                "created": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "image": {
+                    "type": "Image"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "type": "Item"
+                    }
+                },
+                "link": {
+                    "type": "Link"
+                },
+                "subtitle": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated": {
+                    "type": "string"
                 }
             }
         },
@@ -9044,6 +9074,32 @@
                     "items": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "v1.JobStatus": {
+            "type": "object",
+            "properties": {
+                "active": {
+                    "type": "integer"
+                },
+                "completionTime": {
+                    "type": "string"
+                },
+                "conditions": {
+                    "type": "array",
+                    "items": {
+                        "type": "JobCondition"
+                    }
+                },
+                "failed": {
+                    "type": "integer"
+                },
+                "startTime": {
+                    "type": "string"
+                },
+                "succeeded": {
+                    "type": "integer"
                 }
             }
         }

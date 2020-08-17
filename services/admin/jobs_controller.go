@@ -3,6 +3,7 @@ package admin
 import (
 	"github.com/WilliamsStudentsOnline/wso-go/jobs"
 	"github.com/gin-gonic/gin"
+	_ "k8s.io/api/batch/v1"
 )
 
 // GetJobStatus godoc
@@ -13,7 +14,7 @@ import (
 // @Accept  json
 // @Produce  json
 // @Param jobID path string true "Kubernetes Job ID"
-// @Success 200 {object} k8s.io/api/batch/v1.JobStatus
+// @Success 200 {object} v1.JobStatus
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
 // @Router /admin/jobs/{jobID}/status [get]

@@ -199,6 +199,11 @@ definitions:
         description: If Ephmatch has no closing time set
         type: boolean
     type: object
+  ephmatch.LikeProfileResp:
+    properties:
+      matched:
+        type: boolean
+    type: object
   ephmatch.ProfileCreateParams:
     properties:
       LocationCountry:
@@ -310,19 +315,44 @@ definitions:
       wouldTakeAnother:
         type: boolean
     type: object
+  feeds.Feed:
+    properties:
+      author:
+        type: Author
+      copyright:
+        type: string
+      created:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      image:
+        type: Image
+      items:
+        items:
+          type: Item
+        type: array
+      link:
+        type: Link
+      subtitle:
+        type: string
+      title:
+        type: string
+      updated:
+        type: string
+    type: object
   identity.Credentials:
     properties:
       localIP:
-        description: If true, will authenticate based on IP. Fail if cannot get on-campus
-          token.
+        description: If true, will authenticate based on IP. Fail if cannot get on-campus token.
         type: boolean
       password:
         type: string
       unixID:
         type: string
       useIP:
-        description: If true, will authenticate based on IP. Will return either off-campus
-          or on-campus token
+        description: If true, will authenticate based on IP. Will return either off-campus or on-campus token
         type: boolean
     type: object
   lib.APIError:
@@ -420,8 +450,7 @@ definitions:
       number:
         type: string
       professors:
-        description: Has many professors (thru factrak surveys). Ignore this in Gorm.
-          Populate this only whenever needed.
+        description: Has many professors (thru factrak surveys). Ignore this in Gorm. Populate this only whenever needed.
         items:
           $ref: '#/definitions/models.User'
         type: array
@@ -765,8 +794,7 @@ definitions:
       id:
         type: integer
       liked:
-        description: If me (user) has an ephcatch entry where ephcatch.other_id=users.id
-          and ephcatch.user_id=myID
+        description: If me (user) has an ephcatch entry where ephcatch.other_id=users.id and ephcatch.user_id=myID
         type: boolean
       name:
         type: string
@@ -1133,16 +1161,14 @@ definitions:
   old.LoginParams:
     properties:
       localIP:
-        description: If true, will authenticate based on IP. Fail if cannot get on-campus
-          token.
+        description: If true, will authenticate based on IP. Fail if cannot get on-campus token.
         type: boolean
       password:
         type: string
       unixID:
         type: string
       useIP:
-        description: If true, will authenticate based on IP. Will return either off-campus
-          or on-campus token
+        description: If true, will authenticate based on IP. Will return either off-campus or on-campus token
         type: boolean
     type: object
   responses.GetUserResponseDepartment:
@@ -1516,13 +1542,29 @@ definitions:
           type: string
         type: array
     type: object
+  v1.JobStatus:
+    properties:
+      active:
+        type: integer
+      completionTime:
+        type: string
+      conditions:
+        items:
+          type: JobCondition
+        type: array
+      failed:
+        type: integer
+      startTime:
+        type: string
+      succeeded:
+        type: integer
+    type: object
 host: wso.williams.edu
 info:
   contact:
     email: wso-dev@wso.williams.edu
     name: WSO Dev
-  description: API for WSO services like factrak, facebook, dormtrak, course scheduler,
-    and others.
+  description: API for WSO services like factrak, facebook, dormtrak, course scheduler, and others.
   license: {}
   title: WSO API
   version: 2.0.0
@@ -1575,8 +1617,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: connects to Kubernetes to get the status of a running (or recently
-        finished) job given an id
+      description: connects to Kubernetes to get the status of a running (or recently finished) job given an id
       operationId: get-job-status
       parameters:
       - description: Kubernetes Job ID
@@ -1590,7 +1631,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/k8s.io/api/batch/v1.JobStatus'
+            $ref: '#/definitions/v1.JobStatus'
         "500":
           description: Internal Server Error
           schema:
@@ -1648,8 +1689,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: issues an API JWT by taking an existing API JWT and updating the
-        fields. This calls the db, so it will actually modify the token's payload.
+      description: issues an API JWT by taking an existing API JWT and updating the fields. This calls the db, so it will actually modify the token's payload.
       operationId: auth-api-update
       produces:
       - application/json
@@ -1724,7 +1764,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/identity.Credentials'
-          type: object
       produces:
       - application/json
       responses:
@@ -1761,7 +1800,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/old.LoginParams'
-          type: object
       produces:
       - application/json
       responses:
@@ -1788,8 +1826,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: attempts to get a JWT by taking an existing JWT and refreshing
-        it. This will not change the payload.
+      description: attempts to get a JWT by taking an existing JWT and refreshing it. This will not change the payload.
       operationId: auth-refresh
       produces:
       - application/json
@@ -1819,8 +1856,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: attempts to get a JWT by taking an existing JWT and updating the
-        fields. This calls the db, so it will actually modify the token's payload.
+      description: attempts to get a JWT by taking an existing JWT and updating the fields. This calls the db, so it will actually modify the token's payload.
       operationId: auth-update
       produces:
       - application/json
@@ -1850,8 +1886,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Given an input q, this autocompletes the area of study. Results
-        are sorted by levenshtein distance.
+      description: Given an input q, this autocompletes the area of study. Results are sorted by levenshtein distance.
       operationId: autocomplete-area-of-study
       parameters:
       - description: String to Complete
@@ -1885,8 +1920,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Given an input q, this autocompletes the course. Results are sorted
-        by levenshtein distance.
+      description: Given an input q, this autocompletes the course. Results are sorted by levenshtein distance.
       operationId: autocomplete-course
       parameters:
       - description: String to Complete
@@ -1920,8 +1954,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Given an input q, this autocompletes the professor or course. Results
-        are sorted by levenshtein distance.
+      description: Given an input q, this autocompletes the professor or course. Results are sorted by levenshtein distance.
       operationId: autocomplete-factrak
       parameters:
       - description: String to Complete
@@ -1955,8 +1988,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Given an input q, this autocompletes the professor. Results are
-        sorted by levenshtein distance.
+      description: Given an input q, this autocompletes the professor. Results are sorted by levenshtein distance.
       operationId: autocomplete-professor
       parameters:
       - description: String to Complete
@@ -1990,8 +2022,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Given an input q, this autocompletes the tag. Results are sorted
-        by levenshtein distance.
+      description: Given an input q, this autocompletes the tag. Results are sorted by levenshtein distance.
       operationId: autocomplete-tag
       parameters:
       - description: String to Complete
@@ -2084,7 +2115,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/bulletin.CreateBulletinParams'
-          type: object
       produces:
       - application/json
       responses:
@@ -2204,7 +2234,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/bulletin.UpdateBulletinParams'
-          type: object
       - description: Bulletin ID
         in: path
         name: bulletinID
@@ -2337,7 +2366,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/bulletin.CreateDiscussionParams'
-          type: object
       produces:
       - application/json
       responses:
@@ -2469,7 +2497,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/bulletin.CreatePostParams'
-          type: object
       produces:
       - application/json
       responses:
@@ -2589,7 +2616,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/bulletin.UpdatePostParams'
-          type: object
       - description: Post ID
         in: path
         name: postID
@@ -2686,7 +2712,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/bulletin.CreateRideParams'
-          type: object
       produces:
       - application/json
       responses:
@@ -2802,7 +2827,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/bulletin.UpdateRideParams'
-          type: object
       - description: Ride ID
         in: path
         name: rideID
@@ -2867,7 +2891,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github.com/gorilla/feeds.Feed'
+            $ref: '#/definitions/feeds.Feed'
         "500":
           description: Internal Server Error
           schema:
@@ -2900,7 +2924,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github.com/gorilla/feeds.Feed'
+            $ref: '#/definitions/feeds.Feed'
         "500":
           description: Internal Server Error
           schema:
@@ -2937,7 +2961,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github.com/gorilla/feeds.Feed'
+            $ref: '#/definitions/feeds.Feed'
         "500":
           description: Internal Server Error
           schema:
@@ -2974,7 +2998,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github.com/gorilla/feeds.Feed'
+            $ref: '#/definitions/feeds.Feed'
         "500":
           description: Internal Server Error
           schema:
@@ -3011,7 +3035,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github.com/gorilla/feeds.Feed'
+            $ref: '#/definitions/feeds.Feed'
         "500":
           description: Internal Server Error
           schema:
@@ -3052,7 +3076,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github.com/gorilla/feeds.Feed'
+            $ref: '#/definitions/feeds.Feed'
         "500":
           description: Internal Server Error
           schema:
@@ -3175,8 +3199,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: gets dorm facts of one dorm building. Some of these facts are in
-        GetDorm, while others are generated here.
+      description: gets dorm facts of one dorm building. Some of these facts are in GetDorm, while others are generated here.
       operationId: dormtrak-get-dorm-facts
       parameters:
       - description: Dorm ID
@@ -3445,7 +3468,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/dormtrak.ReviewCreateParams'
-          type: object
       produces:
       - application/json
       responses:
@@ -3577,7 +3599,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/dormtrak.ReviewUpdateParams'
-          type: object
       - description: review ID
         in: path
         name: reviewID
@@ -3731,8 +3752,7 @@ paths:
           schema:
             $ref: '#/definitions/lib.APIError'
         "1732":
-          description: ephcatch already exists with user ID and passed ephcatcher
-            ID
+          description: ephcatch already exists with user ID and passed ephcatcher ID
           schema:
             $ref: '#/definitions/lib.APIError'
       security:
@@ -3852,8 +3872,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: counts all Ephmatch-eligible students that user has matched with
-        by unseen and total
+      description: counts all Ephmatch-eligible students that user has matched with by unseen and total
       operationId: ephmatch-count-matches
       produces:
       - application/json
@@ -3942,7 +3961,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/ephmatch.ProfileUpdateParams'
-          type: object
       produces:
       - application/json
       responses:
@@ -3983,7 +4001,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/ephmatch.ProfileCreateParams'
-          type: object
       produces:
       - application/json
       responses:
@@ -4109,7 +4126,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/LikeProfileResp'
+            $ref: '#/definitions/ephmatch.LikeProfileResp'
         "400":
           description: Bad Request
           schema:
@@ -4131,8 +4148,7 @@ paths:
           schema:
             $ref: '#/definitions/lib.APIError'
         "1732":
-          description: ephmatch already exists with user ID and passed ephmatch profile
-            user ID
+          description: ephmatch already exists with user ID and passed ephmatch profile user ID
           schema:
             $ref: '#/definitions/lib.APIError'
       security:
@@ -5048,8 +5064,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: lists all surveys where the professor is at Williams and the survey
-        is current. Order by creation date.
+      description: lists all surveys where the professor is at Williams and the survey is current. Order by creation date.
       operationId: factrak-list-surveys
       parameters:
       - description: Offset Pagination (timestamp)
@@ -5116,7 +5131,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/factrak.SurveyCreateParams'
-          type: object
       produces:
       - application/json
       responses:
@@ -5141,8 +5155,7 @@ paths:
           schema:
             $ref: '#/definitions/lib.APIError'
         "1531":
-          description: 'missing course parameters in create data: courseID or (areaOfStudyAbbreviation
-            and courseNumber)'
+          description: 'missing course parameters in create data: courseID or (areaOfStudyAbbreviation and courseNumber)'
           schema:
             $ref: '#/definitions/lib.APIError'
         "1532":
@@ -5166,8 +5179,7 @@ paths:
           schema:
             $ref: '#/definitions/lib.APIError'
         "1537":
-          description: survey already exists with passed user ID, professor ID, and
-            course ID
+          description: survey already exists with passed user ID, professor ID, and course ID
           schema:
             $ref: '#/definitions/lib.APIError'
       security:
@@ -5268,7 +5280,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/factrak.SurveyUpdateParams'
-          type: object
       - description: Survey ID
         in: path
         name: surveyID
@@ -5406,7 +5417,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/factrak.AgreementUpdateParams'
-          type: object
       produces:
       - application/json
       responses:
@@ -5456,7 +5466,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/factrak.AgreementCreateParams'
-          type: object
       produces:
       - application/json
       responses:
@@ -5744,8 +5753,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: get a user by user id that is visible and at williams. Also loads
-        tags. Pass "me" if you want to get self
+      description: get a user by user id that is visible and at williams. Also loads tags. Pass "me" if you want to get self
       operationId: get-user
       parameters:
       - description: User ID
@@ -5788,8 +5796,7 @@ paths:
     patch:
       consumes:
       - application/json
-      description: updates a user by user id. You may only update yourself. You may
-        pass "me" to get self as well.
+      description: updates a user by user id. You may only update yourself. You may pass "me" to get self as well.
       operationId: update-user
       parameters:
       - description: User ID
@@ -5803,7 +5810,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/user.UpdateUserParams'
-          type: object
       produces:
       - application/json
       responses:
@@ -5840,8 +5846,7 @@ paths:
     put:
       consumes:
       - multipart/form-data
-      description: upload a user's profile photo by user id. You may only update yourself.
-        You may pass "me" to get self as well.
+      description: upload a user's profile photo by user id. You may only update yourself. You may pass "me" to get self as well.
       operationId: upload-profile-photo
       parameters:
       - description: User ID
@@ -5887,8 +5892,7 @@ paths:
     put:
       consumes:
       - application/json
-      description: updates a user's tags by user id. You may only update yourself.
-        You may pass "me" to get self as well.
+      description: updates a user's tags by user id. You may only update yourself. You may pass "me" to get self as well.
       operationId: update-user-tags
       parameters:
       - description: User ID
@@ -5902,7 +5906,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/user.UpdateUserTagsParams'
-          type: object
       produces:
       - application/json
       responses:
