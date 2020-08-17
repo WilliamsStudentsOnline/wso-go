@@ -204,14 +204,14 @@ func TestController_ListProfessorsRanked(t *testing.T) {
 		assert.NoError(db.Create(surveys[i+30]).Error)
 	}
 
-	// Get professors ranked by invalid metric (should not work)
+	// Test 1: Get professors ranked by invalid metric (should not work)
 	apiErr := lib.ErrorInvalidRankingMetric
 	w, err := utils.DoHTTPReq(router, http.MethodGet, "/professors?metric=would_recommend_course&direction=true", nil)
 	assert.NoError(err)
 	assert.Equal(apiErr.HTTPCode, w.Code)
 	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
 
-	// Get users ranked by workload
+	// Test 2: Get users ranked by workload
 	w, err = utils.DoHTTPReq(router, http.MethodGet, "/professors?metric=course_workload&direction=true", nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w.Code)
@@ -223,7 +223,7 @@ func TestController_ListProfessorsRanked(t *testing.T) {
 	assert.NoError(json.Unmarshal(respData.Data, &resp))
 	assert.NoError(EqualUserIDs([]models.User{p3, p1, p2}, resp))
 
-	// Get users ranked by whether students would take another of their classes
+	// Test 3: Get users ranked by whether students would take another of their classes
 	w, err = utils.DoHTTPReq(router, http.MethodGet, "/professors?metric=would_take_another", nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w.Code)
@@ -234,8 +234,30 @@ func TestController_ListProfessorsRanked(t *testing.T) {
 	assert.NoError(json.Unmarshal(respData.Data, &resp))
 	assert.NoError(EqualUserIDs([]models.User{p1}, resp))
 
-	// Get users ranked by approachability, limited to an area of study
+	// Test 4: Get users ranked by approachability, limited to an area of study
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/professors?metric=approachability&areaOfStudyID=%d", area2.ID), nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+
+	// Decode and check response
+	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	assert.NoError(EqualUserIDs([]models.User{p2}, resp))
+
+	// Test 5: Get users ranked by workload with pagination
+	w, err = utils.DoHTTPReq(router, http.MethodGet, "/professors?metric=course_workload&direction=true&limit=2", nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+
+	// Decode and check response
+	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	assert.NoError(EqualUserIDs([]models.User{p3, p1}, resp))
+
+	// Test 5, part 2 of pagination
+	w, err = utils.DoHTTPReq(router, http.MethodGet, "/professors?metric=course_workload&direction=true&limit=2&offset=2", nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w.Code)
 
