@@ -1,7 +1,9 @@
 package models
 
 import (
+	"fmt"
 	"strings"
+	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/jinzhu/gorm"
@@ -38,6 +40,15 @@ func (m *CourseModel) GetAllCourses(c *[]*Course, opts *GetAllCoursesOptions) (e
 	return
 }
 
+// Return courses, ranked by one of the factrak surveys' fields
+func (m *CourseModel) GetCoursesRanked(sort string, c *[]*Course, opts *GetAllCoursesOptions) (err error) {
+	// Check if the metric is valid
+	if !isCourseMetric(sort) {
+		return lib.ErrorInvalidRankingMetric
+	}
+	return m.GetAllCourses(c, opts)
+}
+
 type GetAllCoursesOptions struct {
 	// Offset is ignored unless limit is supplied
 	Offset *uint `json:"offset" form:"offset"`
@@ -50,6 +61,10 @@ type GetAllCoursesOptions struct {
 	AreaOfStudyID *uint `json:"areaOfStudyID" form:"areaOfStudyID"`
 	DepartmentID  *uint `json:"departmentID" form:"departmentID"`
 	ProfessorID   *uint `json:"professorID" form:"professorID"`
+
+	//Rank by a course metric, in either sort direction
+	Metric    *string `json:"metric" form:"metric"`
+	Ascending *bool   `json:"ascending" form:"ascending"`
 }
 
 // Preload specifically allowed parts if requested
@@ -106,6 +121,13 @@ func (o *GetAllCoursesOptions) Run(db *gorm.DB) *gorm.DB {
 	}
 	if o.ProfessorID != nil {
 		db = m.withProfessor(*o.ProfessorID)(db)
+	}
+	if o.Metric != nil {
+		if o.Ascending != nil {
+			db = m.withRanking(*o.Metric, *o.Ascending)(db)
+		} else {
+			db = m.withRanking(*o.Metric, false)(db)
+		}
 	}
 
 	return db
@@ -242,10 +264,45 @@ func (m *CourseModel) withDepartment(departmentID uint) func(*gorm.DB) *gorm.DB 
 func (m *CourseModel) withProfessor(professorID uint) func(*gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Where(
-			"id in (?)",
+			"courses.id in (?)",
 			m.DB.Model(&FactrakSurvey{}).Select("course_id").Where(
 				"professor_id = ?", professorID,
 			).QueryExpr(),
 		)
+	}
+}
+
+func isCourseMetric(metric string) bool {
+	switch metric {
+	case
+		"would_recommend_course",
+		"course_workload",
+		"course_stimulating":
+		return true
+	}
+	return false
+}
+
+func (m *CourseModel) withRanking(ranking string, ascending bool) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		var order string
+
+		if ascending {
+			order = "ASC"
+		} else {
+			order = "DESC"
+		}
+
+		o := fmt.Sprintf("avg(factrak_surveys.%s) %s", ranking, order)
+		h := fmt.Sprintf("count(factrak_surveys.%s) >= 10", ranking)
+		q := fmt.Sprintf("factrak_surveys.%s IS NOT NULL", ranking)
+
+		db = db.Joins("left join factrak_surveys on courses.id = factrak_surveys.course_id")
+		db = db.Where(q)
+		db = db.Where("factrak_surveys.created_at >= ?", time.Now().AddDate(-5, 0, 0))
+		db = db.Group("factrak_surveys.course_id")
+		db = db.Having(h)
+		db = db.Order(o, true)
+		return db
 	}
 }

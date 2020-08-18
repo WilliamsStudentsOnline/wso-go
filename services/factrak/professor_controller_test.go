@@ -2,6 +2,7 @@ package factrak_test
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"testing"
@@ -73,6 +74,198 @@ func TestController_ListProfessors(t *testing.T) {
 	assert.Equal(p1.UnixID, resp[0].UnixID)
 	assert.Equal(p2.ID, resp[1].ID)
 	assert.Equal(p2.UnixID, resp[1].UnixID)
+}
+
+// Check that a slice of users matches an expected slice, by comparing IDs
+func EqualUserIDs(expected, resp []models.User) error {
+	if len(resp) != len(expected) {
+		return errors.New(fmt.Sprintf("Expected length %d, got %d", len(expected), len(resp)))
+	}
+
+	for i, v := range expected {
+		if v.ID != resp[i].ID {
+			return errors.New(fmt.Sprintf("At index %d, expected ID %d, got %d", i, v.ID, resp[i].ID))
+		}
+	}
+	return nil
+}
+
+func TestController_ListProfessorsRanked(t *testing.T) {
+	// Setup (can copy and paste this basically)
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+
+	// Create department and areas of study
+	dept := models.Department{
+		Name: "Computer Science",
+	}
+	area1 := models.AreaOfStudy{
+		Name:         "Computer Science",
+		Abbreviation: "CSCI",
+		Department:   &dept,
+	}
+	area2 := models.AreaOfStudy{
+		Name:         "Human Computer Interaction",
+		Abbreviation: "HCI",
+		Department:   &dept,
+	}
+	assert.NoError(db.Create(&dept).Create(&area1).Create(&area2).Error)
+
+	// Insert test professors and students into db
+	p1 := models.User{
+		Type:       models.UserTypeProfessor,
+		Name:       "Professor 1",
+		UnixID:     "p1",
+		AtWilliams: lib.BoolToPtr(true),
+	}
+	// Other prof
+	p2 := models.User{
+		Type:       models.UserTypeProfessor,
+		Name:       "Professor 2",
+		UnixID:     "p2",
+		AtWilliams: lib.BoolToPtr(true),
+		Department: &dept,
+	}
+	// Third prof
+	p3 := models.User{
+		Type:       models.UserTypeProfessor,
+		Name:       "Professor 3",
+		UnixID:     "p3",
+		AtWilliams: lib.BoolToPtr(true),
+	}
+	// Student
+	s1 := models.User{
+		Type:   models.UserTypeStudent,
+		Name:   "Student 1",
+		UnixID: "s1",
+	}
+	// Student
+	s2 := models.User{
+		Type:   models.UserTypeStudent,
+		Name:   "Student 2",
+		UnixID: "s2",
+	}
+	err := db.Create(&p1).Create(&p2).Create(&p3).Create(&s1).Create(&s2).Error
+	assert.NoError(err)
+
+	// Insert test courses into db
+	courses := make([]*models.Course, 10)
+	for i := range courses {
+		number := fmt.Sprintf("Course %d", i)
+		courses[i] = &models.Course{Number: number, AreaOfStudy: &area1}
+		assert.NoError(db.Create(courses[i]).Error)
+	}
+
+	// Insert test surveys into db (need 10 to count for rankings)
+	surveys := make([]*models.FactrakSurvey, 35)
+	for i := range courses {
+		comment := fmt.Sprintf("Base Survey %d", i)
+		surveys[i] = &models.FactrakSurvey{
+			User:                 &s1,
+			Professor:            &p1,
+			Course:               courses[i],
+			Comment:              comment,
+			WouldRecommendCourse: lib.BoolToPtr(true),
+			CourseWorkload:       lib.IntToPtr(3),
+			WouldTakeAnother:     lib.BoolToPtr(true),
+			Approachability:      lib.IntToPtr(5),
+		}
+		surveys[i+10] = &models.FactrakSurvey{
+			User:            &s1,
+			Professor:       &p2,
+			Course:          courses[i],
+			Comment:         comment,
+			CourseWorkload:  lib.IntToPtr(9),
+			Approachability: lib.IntToPtr(2),
+		}
+		surveys[i+20] = &models.FactrakSurvey{
+			User:            &s1,
+			Professor:       &p3,
+			Course:          courses[i],
+			Comment:         comment,
+			CourseWorkload:  lib.IntToPtr(4),
+			Approachability: lib.IntToPtr(9),
+		}
+		assert.NoError(db.Create(surveys[i]).Create(surveys[i+10]).Create(surveys[i+20]).Error)
+	}
+	for i := 1; i < 5; i++ {
+		comment := fmt.Sprintf("Small-set Survey %d", i)
+		surveys[i+30] = &models.FactrakSurvey{
+			User:             &s2,
+			Professor:        &p3,
+			Course:           courses[i],
+			Comment:          comment,
+			CourseWorkload:   lib.IntToPtr(0),
+			WouldTakeAnother: lib.BoolToPtr(false),
+		}
+		assert.NoError(db.Create(surveys[i+30]).Error)
+	}
+
+	// Test 1: Get professors ranked by invalid metric (should not work)
+	apiErr := lib.ErrorInvalidRankingMetric
+	w, err := utils.DoHTTPReq(router, http.MethodGet, "/professors?metric=would_recommend_course&ascending=true", nil)
+	assert.NoError(err)
+	assert.Equal(apiErr.HTTPCode, w.Code)
+	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+
+	// Test 2: Get users ranked by workload
+	w, err = utils.DoHTTPReq(router, http.MethodGet, "/professors?metric=course_workload&ascending=true", nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+
+	// Decode and check response
+	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+	var resp []models.User
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	assert.NoError(EqualUserIDs([]models.User{p3, p1, p2}, resp))
+
+	// Test 3: Get users ranked by whether students would take another of their classes
+	w, err = utils.DoHTTPReq(router, http.MethodGet, "/professors?metric=would_take_another", nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+
+	// Decode and check response
+	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	assert.NoError(EqualUserIDs([]models.User{p1}, resp))
+
+	// Test 4: Get users ranked by approachability, limited to an area of study
+	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/professors?metric=approachability&areaOfStudyID=%d", area2.ID), nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+
+	// Decode and check response
+	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	assert.NoError(EqualUserIDs([]models.User{p2}, resp))
+
+	// Test 5: Get users ranked by workload with pagination
+	w, err = utils.DoHTTPReq(router, http.MethodGet, "/professors?metric=course_workload&ascending=true&limit=2", nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+
+	// Decode and check response
+	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	assert.NoError(EqualUserIDs([]models.User{p3, p1}, resp))
+
+	// Test 5, part 2 of pagination
+	w, err = utils.DoHTTPReq(router, http.MethodGet, "/professors?metric=course_workload&ascending=true&limit=2&offset=2", nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+
+	// Decode and check response
+	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	assert.NoError(EqualUserIDs([]models.User{p2}, resp))
 }
 
 func TestController_GetProfessor(t *testing.T) {
