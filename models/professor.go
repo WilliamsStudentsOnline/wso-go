@@ -53,7 +53,7 @@ type GetAllProfessorsOptions struct {
 
 	// Rank by a professor metric, in either sort direction
 	Metric    *string `json:"metric" form:"metric"`
-	Direction *bool   `json:"direction" form:"direction"`
+	Ascending *bool   `json:"ascending" form:"ascending"`
 }
 
 // Preload specifically allowed parts if requested
@@ -107,8 +107,8 @@ func (o *GetAllProfessorsOptions) Run(db *gorm.DB) *gorm.DB {
 		db = m.withAreaOfStudy(*o.AreaOfStudyID)(db)
 	}
 	if o.Metric != nil {
-		if o.Direction != nil {
-			db = m.withRanking(*o.Metric, *o.Direction)(db)
+		if o.Ascending != nil {
+			db = m.withRanking(*o.Metric, *o.Ascending)(db)
 		} else {
 			db = m.withRanking(*o.Metric, false)(db)
 		}
@@ -233,11 +233,11 @@ func isProfessorMetric(metric string) bool {
 	return false
 }
 
-func (m *ProfessorModel) withRanking(ranking string, direction bool) func(db *gorm.DB) *gorm.DB {
+func (m *ProfessorModel) withRanking(ranking string, ascending bool) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		var order string
 
-		if direction {
+		if ascending {
 			order = "ASC"
 		} else {
 			order = "DESC"

@@ -206,13 +206,13 @@ func TestController_ListProfessorsRanked(t *testing.T) {
 
 	// Test 1: Get professors ranked by invalid metric (should not work)
 	apiErr := lib.ErrorInvalidRankingMetric
-	w, err := utils.DoHTTPReq(router, http.MethodGet, "/professors?metric=would_recommend_course&direction=true", nil)
+	w, err := utils.DoHTTPReq(router, http.MethodGet, "/professors?metric=would_recommend_course&ascending=true", nil)
 	assert.NoError(err)
 	assert.Equal(apiErr.HTTPCode, w.Code)
 	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
 
 	// Test 2: Get users ranked by workload
-	w, err = utils.DoHTTPReq(router, http.MethodGet, "/professors?metric=course_workload&direction=true", nil)
+	w, err = utils.DoHTTPReq(router, http.MethodGet, "/professors?metric=course_workload&ascending=true", nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w.Code)
 
@@ -246,7 +246,7 @@ func TestController_ListProfessorsRanked(t *testing.T) {
 	assert.NoError(EqualUserIDs([]models.User{p2}, resp))
 
 	// Test 5: Get users ranked by workload with pagination
-	w, err = utils.DoHTTPReq(router, http.MethodGet, "/professors?metric=course_workload&direction=true&limit=2", nil)
+	w, err = utils.DoHTTPReq(router, http.MethodGet, "/professors?metric=course_workload&ascending=true&limit=2", nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w.Code)
 
@@ -257,7 +257,7 @@ func TestController_ListProfessorsRanked(t *testing.T) {
 	assert.NoError(EqualUserIDs([]models.User{p3, p1}, resp))
 
 	// Test 5, part 2 of pagination
-	w, err = utils.DoHTTPReq(router, http.MethodGet, "/professors?metric=course_workload&direction=true&limit=2&offset=2", nil)
+	w, err = utils.DoHTTPReq(router, http.MethodGet, "/professors?metric=course_workload&ascending=true&limit=2&offset=2", nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w.Code)
 

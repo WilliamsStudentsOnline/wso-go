@@ -56,10 +56,6 @@ func (t *Controller) ListCourses(c *gin.Context) {
 	t.RespondOK(c, courses)
 }
 
-func (t *Controller) ListCoursesByRanking(c *gin.Context) {
-
-}
-
 // Get one course
 // GetCourse godoc
 // @Summary Get course
