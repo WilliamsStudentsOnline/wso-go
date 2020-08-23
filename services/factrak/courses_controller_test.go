@@ -16,6 +16,20 @@ import (
 	"go.uber.org/zap/zaptest"
 )
 
+// Check that a slice of courses matches the expected slice, by comparing course IDs
+func EqualCourseIDs(expected, resp []models.Course) error {
+	if len(resp) != len(expected) {
+		return errors.New(fmt.Sprintf("Expected length %d, got %d", len(expected), len(resp)))
+	}
+
+	for i, v := range expected {
+		if v.ID != resp[i].ID {
+			return errors.New(fmt.Sprintf("At index %d, expected ID %d, got %d", i, v.ID, resp[i].ID))
+		}
+	}
+	return nil
+}
+
 func TestController_ListCourses(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
@@ -64,25 +78,8 @@ func TestController_ListCourses(t *testing.T) {
 	var resp []models.Course
 	assert.NoError(json.Unmarshal(respData.Data, &resp))
 
-	// Check if correct users
-	assert.Len(resp, 3)
-	assert.Equal(c1.ID, resp[0].ID)
-	assert.Equal(c2.ID, resp[1].ID)
-	assert.Equal(c3.ID, resp[2].ID)
-}
-
-// Check that a slice of functions matches an expected slice, by comparing IDs
-func EqualCourseIDs(expected, resp []models.Course) error {
-	if len(resp) != len(expected) {
-		return errors.New(fmt.Sprintf("Expected length %d, got %d", len(expected), len(resp)))
-	}
-
-	for i, v := range expected {
-		if v.ID != resp[i].ID {
-			return errors.New(fmt.Sprintf("At index %d, expected ID %d, got %d", i, v.ID, resp[i].ID))
-		}
-	}
-	return nil
+	// Check if correct courses
+	assert.NoError(EqualCourseIDs([]models.Course{c1, c2, c3}, resp))
 }
 
 func TestController_ListCoursesRanked(t *testing.T) {
@@ -816,8 +813,7 @@ func TestController_ListCourseProfessors(t *testing.T) {
 	assert.Len(resp, 2)
 
 	// It should be in order of created first to created last
-	assert.Equal(p1.UnixID, resp[0].UnixID)
-	assert.Equal(p2.UnixID, resp[1].UnixID)
+	assert.NoError(EqualUserIDs([]models.User{p1, p2}, resp))
 
 	/* Get bad course (expect failure) */
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/courses/%d/professors", 42), nil)

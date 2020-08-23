@@ -14,15 +14,34 @@ import (
 	. "github.com/WilliamsStudentsOnline/wso-go/services/factrak"
 	testify "github.com/stretchr/testify/assert"
 	"go.uber.org/zap/zaptest"
+	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 )
 
+// Setup for testing, configuring the router and database to work with factrak tests
+func SetupFactrakTest(t *testing.T) (*testify.Assertions, *gorm.DB, *gin.Engine) {
+	env := utils.SetupTest(t, auth.ScopeFactrakFull, auth.ScopeWriteSelf)
+	SetupRouter(env.Router, env.DB, env.Cfg, zaptest.NewLogger(t).Sugar())
+	return env.Assert, env.DB, env.Router
+}
+
+// Check that a slice of users matches an expected slice, by comparing user IDs
+func EqualUserIDs(expected, resp []models.User) error {
+	if len(resp) != len(expected) {
+		return errors.New(fmt.Sprintf("Expected length %d, got %d", len(expected), len(resp)))
+	}
+
+	for i, v := range expected {
+		if v.ID != resp[i].ID {
+			return errors.New(fmt.Sprintf("At index %d, expected ID %d, got %d", i, v.ID, resp[i].ID))
+		}
+	}
+	return nil
+}
+
 func TestController_ListProfessors(t *testing.T) {
-	// Setup (can copy and paste this basically)
-	assert := testify.New(t)
-	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+	// Set up the test environment
+	assert, db, router := SetupFactrakTest(t)
 
 	// Insert test user into db
 	p1 := models.User{
@@ -51,10 +70,6 @@ func TestController_ListProfessors(t *testing.T) {
 	err := db.Create(&p1).Create(&p2).Create(&s1).Create(&p3).Error
 	assert.NoError(err)
 
-	// Have to do this because at_williams is not a pointer. TODO: Change at_williams to a pointer
-	err = db.Model(&p3).Update("at_williams", false).Error
-	assert.NoError(err)
-
 	// Get test user
 	w, err := utils.DoHTTPReq(router, http.MethodGet, "/professors", nil)
 	assert.NoError(err)
@@ -69,34 +84,12 @@ func TestController_ListProfessors(t *testing.T) {
 	assert.NoError(json.Unmarshal(respData.Data, &resp))
 
 	// Check if correct users
-	assert.Len(resp, 2)
-	assert.Equal(p1.ID, resp[0].ID)
-	assert.Equal(p1.UnixID, resp[0].UnixID)
-	assert.Equal(p2.ID, resp[1].ID)
-	assert.Equal(p2.UnixID, resp[1].UnixID)
-}
-
-// Check that a slice of users matches an expected slice, by comparing IDs
-func EqualUserIDs(expected, resp []models.User) error {
-	if len(resp) != len(expected) {
-		return errors.New(fmt.Sprintf("Expected length %d, got %d", len(expected), len(resp)))
-	}
-
-	for i, v := range expected {
-		if v.ID != resp[i].ID {
-			return errors.New(fmt.Sprintf("At index %d, expected ID %d, got %d", i, v.ID, resp[i].ID))
-		}
-	}
-	return nil
+	assert.NoError(EqualUserIDs([]models.User{p1, p2}, resp))
 }
 
 func TestController_ListProfessorsRanked(t *testing.T) {
-	// Setup (can copy and paste this basically)
-	assert := testify.New(t)
-	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+	// Set up the test environment
+	assert, db, router := SetupFactrakTest(t)
 
 	// Create department and areas of study
 	dept := models.Department{
@@ -269,12 +262,8 @@ func TestController_ListProfessorsRanked(t *testing.T) {
 }
 
 func TestController_GetProfessor(t *testing.T) {
-	// Setup (can copy and paste this basically)
-	assert := testify.New(t)
-	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+	// Set up the test environment
+	assert, db, router := SetupFactrakTest(t)
 
 	// Insert test user into db
 	p1 := models.User{
@@ -357,12 +346,8 @@ func TestController_GetProfessor(t *testing.T) {
 }
 
 func TestController_GetProfessorWithCourse(t *testing.T) {
-	// Setup (can copy and paste this basically)
-	assert := testify.New(t)
-	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+	// Set up the test environment
+	assert, db, router := SetupFactrakTest(t)
 
 	// Insert test user into db
 	p1 := models.User{
@@ -480,12 +465,8 @@ func TestController_GetProfessorWithCourse(t *testing.T) {
 }
 
 func TestController_ListProfessorSurveys(t *testing.T) {
-	// Setup (can copy and paste this basically)
-	assert := testify.New(t)
-	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+	// Set up the test environment
+	assert, db, router := SetupFactrakTest(t)
 
 	// Insert test user into db
 	p1 := models.User{
@@ -578,12 +559,8 @@ func TestController_ListProfessorSurveys(t *testing.T) {
 }
 
 func TestController_ListProfessorSurveysWithCourse(t *testing.T) {
-	// Setup (can copy and paste this basically)
-	assert := testify.New(t)
-	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+	// Set up the test environment
+	assert, db, router := SetupFactrakTest(t)
 
 	// Insert test user into db
 	p1 := models.User{
@@ -697,12 +674,8 @@ func TestController_ListProfessorSurveysWithCourse(t *testing.T) {
 }
 
 func TestController_ListProfessorCourses(t *testing.T) {
-	// Setup (can copy and paste this basically)
-	assert := testify.New(t)
-	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+	// Set up the test environment
+	assert, db, router := SetupFactrakTest(t)
 
 	// Insert test user into db
 	p1 := models.User{
@@ -798,12 +771,8 @@ func TestController_ListProfessorCourses(t *testing.T) {
 	var resp []models.Course
 	assert.NoError(json.Unmarshal(respData.Data, &resp))
 
-	// Check if is survey 1 and 2
-	assert.Len(resp, 2)
-
-	// It should be in order of created first to created last
-	assert.Equal(c1.Number, resp[0].Number)
-	assert.Equal(c3.Number, resp[1].Number)
+	// Check if the correct courses are returned, ordered from first to last created
+	assert.NoError(EqualCourseIDs([]models.Course{c1, c3}, resp))
 
 	/* Get test student 1 (expect failure) */
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/professors/%d/courses", s1.ID), nil)
@@ -825,19 +794,13 @@ func TestController_ListProfessorCourses(t *testing.T) {
 	resp = []models.Course{}
 	assert.NoError(json.Unmarshal(respData.Data, &resp))
 
-	// Check if is survey 3
-	assert.Len(resp, 2)
-	assert.Equal(c2.Number, resp[0].Number)
-	assert.Equal(c3.Number, resp[1].Number)
+	// Check if the correct courses are returned, ordered from first to last created
+	assert.NoError(EqualCourseIDs([]models.Course{c2, c3}, resp))
 }
 
 func TestController_GetProfessorRatings(t *testing.T) {
-	// Setup (can copy and paste this basically)
-	assert := testify.New(t)
-	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+	// Set up the test environment
+	assert, db, router := SetupFactrakTest(t)
 
 	// Insert test user into db
 	p1 := models.User{
@@ -959,12 +922,8 @@ func TestController_GetProfessorRatings(t *testing.T) {
 }
 
 func TestController_GetProfessorRatingsWithCourse(t *testing.T) {
-	// Setup (can copy and paste this basically)
-	assert := testify.New(t)
-	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+	// Set up the test environment
+	assert, db, router := SetupFactrakTest(t)
 
 	// Insert test user into db
 	p1 := models.User{

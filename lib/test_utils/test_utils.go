@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"testing"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	migrate "github.com/WilliamsStudentsOnline/wso-go/db"
@@ -53,6 +54,27 @@ func SetupRouter(scopes ...string) *gin.Engine {
 	})
 
 	return router
+}
+
+type TestEnv struct {
+	Assert			*assert.Assertions
+	DB					*gorm.DB
+	Router			*gin.Engine
+	Cfg					*config.Config
+}
+
+// Setup for testing, creating environment variables that work with the given scopes
+func SetupTest(t *testing.T, scopes ...string) *TestEnv {
+	assert := assert.New(t)
+	db := SetupServiceTest(assert)
+	router := SetupRouter(scopes...)
+	cfg := SetupConfig()
+	return &TestEnv{
+		Assert:	assert,
+		DB:			db,
+		Router:	router,
+		Cfg:		cfg,
+	}
 }
 
 func AddUserContexts(router *gin.Engine, userID uint) {
