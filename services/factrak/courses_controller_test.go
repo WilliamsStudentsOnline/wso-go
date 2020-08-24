@@ -482,7 +482,7 @@ func TestController_ListCourseSurveys(t *testing.T) {
 	assert.Zero(resp[0].UserID)
 	assert.Nil(resp[0].User)
 
-	/* Get nonexistant course (expect failure) */
+	/* Get nonexistent course (expect failure) */
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/courses/%d/surveys", 42), nil)
 	assert.NoError(err)
 
@@ -585,7 +585,7 @@ func TestController_ListCourseSurveysWithProfessor(t *testing.T) {
 	assert.Zero(resp[0].UserID)
 	assert.Nil(resp[0].User)
 
-	/* Get prof 1 with a nonexistant course (expect empty) */
+	/* Get prof 1 with a nonexistent course (expect empty) */
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/professors/%d/surveys?courseID=%d", p1.ID, 42), nil)
 	assert.NoError(err)
 

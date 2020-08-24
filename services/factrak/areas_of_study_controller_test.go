@@ -2,26 +2,51 @@ package factrak_test
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
-	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
-	. "github.com/WilliamsStudentsOnline/wso-go/services/factrak"
 	testify "github.com/stretchr/testify/assert"
-	"go.uber.org/zap/zaptest"
 )
 
+// Check that a slice of areas of study matches the expected slice, by comparing course IDs
+func EqualAreaIDs(expected, resp []models.AreaOfStudy) error {
+	if len(resp) != len(expected) {
+		return errors.New(fmt.Sprintf("Expected length %d, got %d", len(expected), len(resp)))
+	}
+
+	for i, v := range expected {
+		if v.ID != resp[i].ID {
+			return errors.New(fmt.Sprintf("At index %d, expected ID %d, got %d", i, v.ID, resp[i].ID))
+		}
+	}
+	return nil
+}
+
+// Unmarshal a slice of departments from an http response
+func GetAreasFromResp(assert *testify.Assertions, w *httptest.ResponseRecorder) []models.AreaOfStudy {
+	respData := utils.GetGoodResp(assert, w)
+	var resp []models.AreaOfStudy
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	return resp
+}
+
+// Unmarshal a single department from an http response
+func GetAreaFromResp(assert *testify.Assertions, w *httptest.ResponseRecorder) models.AreaOfStudy {
+	respData := utils.GetGoodResp(assert, w)
+	var resp models.AreaOfStudy
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	return resp
+}
+
 func TestController_ListAreasOfStudy(t *testing.T) {
-	// Setup (can copy and paste this basically)
-	assert := testify.New(t)
-	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+	// Set up the test environment
+	assert, db, router := SetupFactrakTest(t)
 
 	d1 := models.Department{
 		Name: "Computer Science",
@@ -48,20 +73,12 @@ func TestController_ListAreasOfStudy(t *testing.T) {
 	}
 	assert.NoError(db.Create(&a1).Create(&a2).Create(&a3).Error)
 
-	// Get test area
+	// Get all areas of study
 	w, err := utils.DoHTTPReq(router, http.MethodGet, "/areas-of-study", nil)
 	assert.NoError(err)
 
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode response
-	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	var resp []models.AreaOfStudy
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-
-	// Check if correct area of study (sort by name)
+	// Check if response has correct areas and details (sorted by name)
+	resp := GetAreasFromResp(assert, w)
 	assert.Len(resp, 3)
 	assert.Equal(a1.Name, resp[0].Name)
 	assert.Equal(a1.Abbreviation, resp[0].Abbreviation)
@@ -72,12 +89,8 @@ func TestController_ListAreasOfStudy(t *testing.T) {
 }
 
 func TestController_GetAreaOfStudy(t *testing.T) {
-	// Setup (can copy and paste this basically)
-	assert := testify.New(t)
-	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+	// Set up the test environment
+	assert, db, router := SetupFactrakTest(t)
 
 	a1 := models.AreaOfStudy{
 		Name:         "Computer Science",
@@ -96,24 +109,16 @@ func TestController_GetAreaOfStudy(t *testing.T) {
 
 	assert.NoError(db.Create(&a1).Create(&a2).Error)
 
-	// Get test area of study
+	// Get area of study 1
 	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/areas-of-study/%d", a1.ID), nil)
 	assert.NoError(err)
 
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode response
-	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	var resp models.AreaOfStudy
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-
-	// Check if correct department
+	// Check if response is valid and contains the right area of study
+	resp := GetAreaFromResp(assert, w)
 	assert.Equal(a1.Name, resp.Name)
 	assert.Equal(a1.Department.Name, resp.Department.Name)
 
-	/* Get test bad course id (expect failure) */
+	/* Get nonexistent area of study (expect failure) */
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/areas-of-study/%d", 42), nil)
 	assert.NoError(err)
 
@@ -122,12 +127,8 @@ func TestController_GetAreaOfStudy(t *testing.T) {
 }
 
 func TestController_ListAreaOfStudyProfessors(t *testing.T) {
-	// Setup (can copy and paste this basically)
-	assert := testify.New(t)
-	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+	// Set up the test environment
+	assert, db, router := SetupFactrakTest(t)
 
 	// Insert test user into db
 	p1 := models.User{
@@ -161,9 +162,6 @@ func TestController_ListAreaOfStudyProfessors(t *testing.T) {
 	}
 	assert.NoError(db.Create(&p1).Create(&p2).Create(&p3).Create(&p4).Create(&s1).Error)
 
-	// Have to do this because at_williams is not a pointer.
-	assert.NoError(db.Model(&p3).Update("at_williams", false).Error)
-
 	d1 := models.Department{
 		Name: "Computer Science",
 		AreasOfStudy: []*models.AreaOfStudy{
@@ -193,58 +191,35 @@ func TestController_ListAreaOfStudyProfessors(t *testing.T) {
 	}
 	assert.NoError(db.Create(&d1).Create(&d2).Error)
 
-	/* Get test area 1 (expect success) */
+	/* Get professors for area 1 (expect success) */
 	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/areas-of-study/%d/professors", d1.AreasOfStudy[0].ID), nil)
 	assert.NoError(err)
 
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode response
-	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	var resp []models.User
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-
-	// Check if is profs 1 and 2
+	// Check if response has correct professors, ordered from first to last created
+	resp := GetUsersFromResp(assert, w)
 	assert.Len(resp, 2)
+	assert.NoError(EqualUserIDs([]models.User{p1, p2}, resp))
 
-	// It should be in order of created first to created last
-	assert.Equal(p1.UnixID, resp[0].UnixID)
-	assert.Equal(p2.UnixID, resp[1].UnixID)
-
-	/* Get bad course (expect failure) */
+	/* Get professors for nonexistent area (expect failure) */
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/areas-of-study/%d/professors", 42), nil)
 	assert.NoError(err)
 
 	// Status is not found
 	assert.Equal(http.StatusNotFound, w.Code)
 
-	/* Get test area 2 (expect success) */
+	/* Get professors for area 2 (expect success) */
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/areas-of-study/%d/professors", d2.AreasOfStudy[0].ID), nil)
 	assert.NoError(err)
 
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode response
-	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	resp = []models.User{}
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-
 	// Check if is survey 3
+	resp = GetUsersFromResp(assert, w)
 	assert.Len(resp, 1)
-	assert.Equal(p4.UnixID, resp[0].UnixID)
+	assert.NoError(EqualUserIDs([]models.User{p4}, resp))
 }
 
 func TestController_ListAreaOfStudyCourses(t *testing.T) {
-	// Setup (can copy and paste this basically)
-	assert := testify.New(t)
-	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+	// Set up the test environment
+	assert, db, router := SetupFactrakTest(t)
 
 	// Need this to satisfy not null
 	d1 := models.Department{
@@ -290,45 +265,26 @@ func TestController_ListAreaOfStudyCourses(t *testing.T) {
 	}
 	assert.NoError(db.Create(&c1).Create(&c2).Create(&c3).Create(&c4).Error)
 
-	/* Get test prof 1 (expect success) */
+	/* Get courses in area of study 1 (expect success) */
 	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/areas-of-study/%d/courses", a1.ID), nil)
 	assert.NoError(err)
 
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
+	// Check the response has the correct courses, ordered from first to last created
+	resp := GetCoursesFromResp(assert, w)
+	assert.NoError(EqualCourseIDs([]models.Course{c1, c2}, resp))
 
-	// Decode response
-	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	var resp []models.Course
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-
-	// Check if is courses x2
-	assert.Len(resp, 2)
-	assert.Equal(c1.Number, resp[0].Number)
-	assert.Equal(c2.Number, resp[1].Number)
-
-	/* Get test bad department (expect failure) */
+	/* Get courses for nonexistent department (expect failure) */
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/areas-of-study/%d/courses", 42), nil)
 	assert.NoError(err)
 
 	// Status is not found
 	assert.Equal(http.StatusNotFound, w.Code)
 
-	/* Get test area 2 (expect success) */
+	/* Get courses for area 3 (expect success) */
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/areas-of-study/%d/courses", a3.ID), nil)
 	assert.NoError(err)
 
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode response
-	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	resp = []models.Course{}
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-
 	// Check if is courses x1
-	assert.Len(resp, 1)
-	assert.Equal(c4.Number, resp[0].Number)
+	resp = GetCoursesFromResp(assert, w)
+	assert.NoError(EqualCourseIDs([]models.Course{c4}, resp))
 }

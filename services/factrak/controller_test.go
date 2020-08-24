@@ -1,7 +1,6 @@
 package factrak_test
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -230,12 +229,7 @@ func TestLimitedScopeAccess(t *testing.T) {
 	// Can get professor, but not with surveys
 	w, err = utils.DoHTTPReq(r, http.MethodGet, fmt.Sprintf("/professors/%d", p1.ID), nil)
 	assert.NoError(err)
-	assert.Equal(http.StatusOK, w.Code)
-	// Decode response
-	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	var profResp models.User
-	assert.NoError(json.Unmarshal(respData.Data, &profResp))
+	profResp := GetUserFromResp(assert, w)
 	assert.Nil(profResp.FactrakSurveys)
 
 	// Cannot get professor's surveys

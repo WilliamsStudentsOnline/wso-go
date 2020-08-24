@@ -20,6 +20,7 @@ import (
 	"go.uber.org/zap"
 )
 
+//
 func SetupServiceTest(assert *assert.Assertions) *gorm.DB {
 	gin.SetMode(gin.TestMode)
 	cfg := SetupConfig()
@@ -32,6 +33,7 @@ func SetupServiceTest(assert *assert.Assertions) *gorm.DB {
 	return db
 }
 
+// Return test configuration values
 func SetupConfig() *config.Config {
 	return &config.Config{
 		Env:          "test",
@@ -46,6 +48,7 @@ func SetupConfig() *config.Config {
 	}
 }
 
+// Create a router with the given scopes
 func SetupRouter(scopes ...string) *gin.Engine {
 	router := gin.Default()
 
@@ -57,6 +60,7 @@ func SetupRouter(scopes ...string) *gin.Engine {
 	return router
 }
 
+// Values needed for tests
 type TestEnv struct {
 	Assert *assert.Assertions
 	DB     *gorm.DB
@@ -78,6 +82,7 @@ func SetupTest(t *testing.T, scopes ...string) *TestEnv {
 	}
 }
 
+// Add a user context to a router
 func AddUserContexts(router *gin.Engine, userID uint) {
 	router.Use(func(c *gin.Context) {
 		c.Set("id", userID)
@@ -85,6 +90,7 @@ func AddUserContexts(router *gin.Engine, userID uint) {
 	})
 }
 
+// Perform the correct HTTP request on the given router, with the correct body and parameters
 func DoHTTPReq(router *gin.Engine, method, url string, body io.Reader) (*httptest.ResponseRecorder, error) {
 	w := httptest.NewRecorder()
 	req, err := http.NewRequest(method, url, body)
@@ -109,6 +115,7 @@ type APITestResp struct {
 	PaginationTotal int                 `json:"paginationTotal,omitempty"`
 }
 
+// Retrieve the body of an HTTP response
 func GetHTTPDataResp(assert *assert.Assertions, body []byte) APITestResp {
 	resp := APITestResp{}
 	err := json.Unmarshal(body, &resp)
@@ -117,6 +124,7 @@ func GetHTTPDataResp(assert *assert.Assertions, body []byte) APITestResp {
 	return resp
 }
 
+// Assert that an HTTP response is successful and return the response's data
 func GetGoodResp(assert *assert.Assertions, w *httptest.ResponseRecorder) APITestResp {
 	// Response status is ok
 	assert.Equal(http.StatusOK, w.Code)
@@ -128,6 +136,7 @@ func GetGoodResp(assert *assert.Assertions, w *httptest.ResponseRecorder) APITes
 	return respData
 }
 
+// Assert that a response's error codes match the expected API Error's codes
 func CheckRespError(assert *assert.Assertions, w *httptest.ResponseRecorder, apiErr *lib.APIError) {
 	// Response status matches expected error
 	assert.Equal(apiErr.HTTPCode, w.Code)
