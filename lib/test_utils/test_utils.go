@@ -11,8 +11,8 @@ import (
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	migrate "github.com/WilliamsStudentsOnline/wso-go/db"
-	"github.com/WilliamsStudentsOnline/wso-go/lib/search"
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
+	"github.com/WilliamsStudentsOnline/wso-go/lib/search"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -58,10 +58,10 @@ func SetupRouter(scopes ...string) *gin.Engine {
 }
 
 type TestEnv struct {
-	Assert			*assert.Assertions
-	DB					*gorm.DB
-	Router			*gin.Engine
-	Cfg					*config.Config
+	Assert *assert.Assertions
+	DB     *gorm.DB
+	Router *gin.Engine
+	Cfg    *config.Config
 }
 
 // Setup for testing, creating environment variables that work with the given scopes
@@ -71,10 +71,10 @@ func SetupTest(t *testing.T, scopes ...string) *TestEnv {
 	router := SetupRouter(scopes...)
 	cfg := SetupConfig()
 	return &TestEnv{
-		Assert:	assert,
-		DB:			db,
-		Router:	router,
-		Cfg:		cfg,
+		Assert: assert,
+		DB:     db,
+		Router: router,
+		Cfg:    cfg,
 	}
 }
 

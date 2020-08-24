@@ -5,15 +5,14 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
-	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	. "github.com/WilliamsStudentsOnline/wso-go/services/factrak"
 	testify "github.com/stretchr/testify/assert"
-	"go.uber.org/zap/zaptest"
 )
 
 // Check that a slice of courses matches the expected slice, by comparing course IDs
@@ -30,13 +29,25 @@ func EqualCourseIDs(expected, resp []models.Course) error {
 	return nil
 }
 
+// Unmarshal a slice of courses from an http response
+func GetCoursesFromResp(assert *testify.Assertions, w *httptest.ResponseRecorder) []models.Course {
+	respData := utils.GetGoodResp(assert, w)
+	var resp []models.Course
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	return resp
+}
+
+// Unmarshal a single course from an http response
+func GetCourseFromResp(assert *testify.Assertions, w *httptest.ResponseRecorder) models.Course {
+	respData := utils.GetGoodResp(assert, w)
+	var resp models.Course
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	return resp
+}
+
 func TestController_ListCourses(t *testing.T) {
-	// Setup (can copy and paste this basically)
-	assert := testify.New(t)
-	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+	// Set up the test environment
+	assert, db, router := SetupFactrakTest(t)
 
 	// Need this to satisfy not null
 	dept := models.Department{
@@ -65,30 +76,18 @@ func TestController_ListCourses(t *testing.T) {
 
 	assert.NoError(db.Create(&c1).Create(&c2).Create(&c3).Error)
 
-	// Get test user
+	// Get test courses
 	w, err := utils.DoHTTPReq(router, http.MethodGet, "/courses", nil)
 	assert.NoError(err)
 
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode response
-	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	var resp []models.Course
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-
-	// Check if correct courses
+	// Check if response contains the correct courses
+	resp := GetCoursesFromResp(assert, w)
 	assert.NoError(EqualCourseIDs([]models.Course{c1, c2, c3}, resp))
 }
 
 func TestController_ListCoursesRanked(t *testing.T) {
-	// Setup (can copy and paste this basically)
-	assert := testify.New(t)
-	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+	// Set up the test environment
+	assert, db, router := SetupFactrakTest(t)
 
 	// Insert test professors and students into db
 	p1 := models.User{
@@ -196,84 +195,48 @@ func TestController_ListCoursesRanked(t *testing.T) {
 	apiErr := lib.ErrorInvalidRankingMetric
 	w, err := utils.DoHTTPReq(router, http.MethodGet, "/courses?metric=would_take_another&ascending=true", nil)
 	assert.NoError(err)
-	assert.Equal(apiErr.HTTPCode, w.Code)
-	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+	utils.CheckRespError(assert, w, apiErr)
 
 	// Test 2: Get courses ranked by workload
 	w, err = utils.DoHTTPReq(router, http.MethodGet, "/courses?metric=course_workload&ascending=true", nil)
 	assert.NoError(err)
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode and check response
-	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	var resp []models.Course
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	resp := GetCoursesFromResp(assert, w)
 	assert.NoError(EqualCourseIDs([]models.Course{c3, c1, c2}, resp))
 
 	// Test 3: Get courses ranked by workload, for one professor
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/courses?metric=course_workload&ascending=true&professorID=%d", p1.ID), nil)
 	assert.NoError(err)
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode and check response
-	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	resp = GetCoursesFromResp(assert, w)
 	assert.NoError(EqualCourseIDs([]models.Course{c1, c2}, resp))
 
 	// Test 4: Get courses ranked by whether students would recommend them
 	w, err = utils.DoHTTPReq(router, http.MethodGet, "/courses?metric=would_recommend_course", nil)
 	assert.NoError(err)
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode and check response
-	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	resp = GetCoursesFromResp(assert, w)
 	assert.NoError(EqualCourseIDs([]models.Course{c1}, resp))
 
 	// Test 5: Get courses ranked by how stimulating they are, limited to one area of study
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/courses?metric=course_stimulating&areaOfStudyID=%d", area2.ID), nil)
 	assert.NoError(err)
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode and check response
-	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	resp = GetCoursesFromResp(assert, w)
 	assert.NoError(EqualCourseIDs([]models.Course{c2}, resp))
 
 	// Test 6: Get courses ranked by workload, with pagination
 	w, err = utils.DoHTTPReq(router, http.MethodGet, "/courses?metric=course_workload&ascending=true&limit=2", nil)
 	assert.NoError(err)
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode and check response
-	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	resp = GetCoursesFromResp(assert, w)
 	assert.NoError(EqualCourseIDs([]models.Course{c3, c1}, resp))
 
 	//Test 6, part 2 of pagination
 	w, err = utils.DoHTTPReq(router, http.MethodGet, "/courses?metric=course_workload&ascending=true&limit=2&offset=2", nil)
 	assert.NoError(err)
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode and check response
-	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	resp = GetCoursesFromResp(assert, w)
 	assert.NoError(EqualCourseIDs([]models.Course{c2}, resp))
 }
 
 func TestController_GetCourse(t *testing.T) {
-	// Setup (can copy and paste this basically)
-	assert := testify.New(t)
-	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+	// Set up the test environment
+	assert, db, router := SetupFactrakTest(t)
 
 	p1 := models.User{
 		Type:   models.UserTypeProfessor,
@@ -323,20 +286,12 @@ func TestController_GetCourse(t *testing.T) {
 
 	assert.NoError(db.Create(&fs1).Create(&fs2).Error)
 
-	// Get test user
+	// Get test course
 	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/courses/%d", c1.ID), nil)
 	assert.NoError(err)
 
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode response
-	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	var resp models.Course
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-
 	// Check if correct course
+	resp := GetCourseFromResp(assert, w)
 	assert.Equal(c1.Number, resp.Number)
 	assert.Len(resp.FactrakSurveys, 2)
 
@@ -357,12 +312,8 @@ func TestController_GetCourse(t *testing.T) {
 }
 
 func TestController_GetCourseWithProfessor(t *testing.T) {
-	// Setup (can copy and paste this basically)
-	assert := testify.New(t)
-	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+	// Set up the test environment
+	assert, db, router := SetupFactrakTest(t)
 
 	// Insert test user into db
 	p1 := models.User{
@@ -435,20 +386,12 @@ func TestController_GetCourseWithProfessor(t *testing.T) {
 
 	assert.NoError(db.Create(&fs1).Create(&fs2).Create(&fs3).Create(&fs4).Error)
 
-	/* Get test prof 1 (expect success) */
+	/* Get course 1 with prof 1 (expect success) */
 	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/courses/%d?professorID=%d", c1.ID, p1.ID), nil)
 	assert.NoError(err)
 
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode response
-	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	resp := models.Course{}
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-
 	// Check if correct course
+	resp := GetCourseFromResp(assert, w)
 	assert.Equal(c1.ID, resp.ID)
 	assert.Len(resp.FactrakSurveys, 2)
 
@@ -460,30 +403,19 @@ func TestController_GetCourseWithProfessor(t *testing.T) {
 	assert.Zero(resp.FactrakSurveys[0].UserID)
 	assert.Nil(resp.FactrakSurveys[0].User)
 
-	/* Get prof 1 with a random course (expect empty) */
+	/* Get course 1 with a random prof (expect empty) */
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/courses/%d?professorID=%d", c1.ID, 42), nil)
 	assert.NoError(err)
 
-	// Status is not found
-	assert.Equal(http.StatusOK, w.Code)
-
-	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	resp = models.Course{}
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-
-	// Check if correct prof
-	assert.Equal(p1.ID, resp.ID)
+	// Check if correct course
+	resp = GetCourseFromResp(assert, w)
+	assert.Equal(c1.ID, resp.ID)
 	assert.Len(resp.FactrakSurveys, 0)
 }
 
 func TestController_ListCourseSurveys(t *testing.T) {
-	// Setup (can copy and paste this basically)
-	assert := testify.New(t)
-	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+	// Set up the test environment
+	assert, db, router := SetupFactrakTest(t)
 
 	p1 := models.User{
 		Type:   models.UserTypeProfessor,
@@ -589,12 +521,8 @@ func TestController_ListCourseSurveys(t *testing.T) {
 }
 
 func TestController_ListCourseSurveysWithProfessor(t *testing.T) {
-	// Setup (can copy and paste this basically)
-	assert := testify.New(t)
-	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+	// Set up the test environment
+	assert, db, router := SetupFactrakTest(t)
 
 	// Insert test user into db
 	p1 := models.User{
@@ -708,12 +636,8 @@ func TestController_ListCourseSurveysWithProfessor(t *testing.T) {
 }
 
 func TestController_ListCourseProfessors(t *testing.T) {
-	// Setup (can copy and paste this basically)
-	assert := testify.New(t)
-	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+	// Set up the test environment
+	assert, db, router := SetupFactrakTest(t)
 
 	// Insert test user into db
 	p1 := models.User{
@@ -796,23 +720,13 @@ func TestController_ListCourseProfessors(t *testing.T) {
 
 	assert.NoError(db.Create(&fs1).Create(&fs2).Create(&fs3).Create(&fs4).Create(&fs5).Error)
 
-	/* Get test course 3 (expect success) */
+	/* Get professors for test course 3 (expect success) */
 	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/courses/%d/professors", c3.ID), nil)
 	assert.NoError(err)
 
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode response
-	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	var resp []models.User
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-
-	// Check if is profs 1 and 2
+	// Check if response contains profs 1 and 2, in order of surveys created first to last
+	resp := GetUsersFromResp(assert, w)
 	assert.Len(resp, 2)
-
-	// It should be in order of created first to created last
 	assert.NoError(EqualUserIDs([]models.User{p1, p2}, resp))
 
 	/* Get bad course (expect failure) */
@@ -822,31 +736,18 @@ func TestController_ListCourseProfessors(t *testing.T) {
 	// Status is not found
 	assert.Equal(http.StatusNotFound, w.Code)
 
-	/* Get test prof 2 (expect success) */
+	/* Get professors for test course 1 (expect success) */
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/courses/%d/professors", c1.ID), nil)
 	assert.NoError(err)
 
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode response
-	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	resp = []models.User{}
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-
-	// Check if is survey 3
-	assert.Len(resp, 1)
-	assert.Equal(p1.UnixID, resp[0].UnixID)
+	// Check if it is professor 1
+	resp = GetUsersFromResp(assert, w)
+	assert.NoError(EqualUserIDs([]models.User{p1}, resp))
 }
 
 func TestController_GetCourseRatings(t *testing.T) {
-	// Setup (can copy and paste this basically)
-	assert := testify.New(t)
-	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+	// Set up the test environment
+	assert, db, router := SetupFactrakTest(t)
 
 	p1 := models.User{
 		Type:   models.UserTypeProfessor,
@@ -954,7 +855,7 @@ func TestController_GetCourseRatings(t *testing.T) {
 
 	assert.NoError(db.Create(&fs1).Create(&fs2).Create(&fs3).Create(&fs4).Create(&fs5).Error)
 
-	/* Get test prof 1 (expect success) */
+	/* Get test course 1 (expect success) */
 	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/courses/%d/ratings", c1.ID), nil)
 	assert.NoError(err)
 
@@ -988,12 +889,8 @@ func TestController_GetCourseRatings(t *testing.T) {
 }
 
 func TestController_GetCourseRatingsWithProfessor(t *testing.T) {
-	// Setup (can copy and paste this basically)
-	assert := testify.New(t)
-	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+	// Set up the test environment
+	assert, db, router := SetupFactrakTest(t)
 
 	// Insert test user into db
 	p1 := models.User{
@@ -1074,7 +971,7 @@ func TestController_GetCourseRatingsWithProfessor(t *testing.T) {
 
 	assert.NoError(db.Create(&fs1).Create(&fs2).Create(&fs3).Create(&fs4).Error)
 
-	/* Get test prof 1 (expect success) */
+	/* Get test prof 1's ratings for course 1 (expect success) */
 	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/professors/%d/ratings?courseID=%d", p1.ID, c1.ID), nil)
 	assert.NoError(err)
 
@@ -1094,7 +991,7 @@ func TestController_GetCourseRatingsWithProfessor(t *testing.T) {
 	assert.Equal(resp.AvgCourseWorkload, 3.5)
 	assert.Equal(resp.NumCourseWorkload, 2)
 
-	/* Get prof 1 with a random course (expect empty) */
+	/* Get prof 1's ratings for a random course (expect empty) */
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/professors/%d/ratings?courseID=%d", p1.ID, 42), nil)
 	assert.NoError(err)
 

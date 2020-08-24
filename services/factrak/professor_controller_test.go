@@ -13,10 +13,10 @@ import (
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	. "github.com/WilliamsStudentsOnline/wso-go/services/factrak"
-	testify "github.com/stretchr/testify/assert"
-	"go.uber.org/zap/zaptest"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	testify "github.com/stretchr/testify/assert"
+	"go.uber.org/zap/zaptest"
 )
 
 // Setup for testing, configuring the router and database to work with factrak tests
@@ -725,16 +725,8 @@ func TestController_ListProfessorCourses(t *testing.T) {
 	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/professors/%d/courses", p1.ID), nil)
 	assert.NoError(err)
 
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode response
-	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	var resp []models.Course
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-
 	// Check if the correct courses are returned, ordered from first to last created
+	resp := GetCoursesFromResp(assert, w)
 	assert.NoError(EqualCourseIDs([]models.Course{c1, c3}, resp))
 
 	/* Get test student 1 (expect failure) */
@@ -748,16 +740,8 @@ func TestController_ListProfessorCourses(t *testing.T) {
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/professors/%d/courses", p2.ID), nil)
 	assert.NoError(err)
 
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode response
-	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	resp = []models.Course{}
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-
 	// Check if the correct courses are returned, ordered from first to last created
+	resp = GetCoursesFromResp(assert, w)
 	assert.NoError(EqualCourseIDs([]models.Course{c2, c3}, resp))
 }
 
