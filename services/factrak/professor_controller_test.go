@@ -472,53 +472,32 @@ func TestController_ListProfessorSurveys(t *testing.T) {
 
 	assert.NoError(db.Create(&fs1).Create(&fs2).Create(&fs3).Error)
 
-	/* Get test prof 1 (expect success) */
+	/* Get surveys for test prof 1 (expect success) */
 	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/professors/%d/surveys", p1.ID), nil)
 	assert.NoError(err)
 
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode response
-	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	var resp []models.FactrakSurvey
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-
-	// Check if is survey 1 and 2
-	assert.Len(resp, 2)
-
-	// It should be in order of created first to created last
-	assert.Equal(fs1.Comment, resp[1].Comment)
-	assert.Equal(fs2.Comment, resp[0].Comment)
+	// Check if response has surveys 2 and 1
+	resp := GetSurveysFromResp(assert, w)
+	assert.NoError(EqualSurveyIDs([]models.FactrakSurvey{fs2, fs1}, resp))
 
 	// Assert that userID is not returned
 	assert.Zero(resp[0].UserID)
 	assert.Nil(resp[0].User)
 
-	/* Get test student 1 (expect failure) */
+	/* Get surveys for test student 1 (expect failure) */
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/professors/%d/surveys", s1.ID), nil)
 	assert.NoError(err)
 
 	// Status is not found
 	assert.Equal(http.StatusNotFound, w.Code)
 
-	/* Get test prof 2 (expect success) */
+	/* Get surveys for test prof 2 (expect success) */
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/professors/%d/surveys", p2.ID), nil)
 	assert.NoError(err)
 
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode response
-	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	resp = []models.FactrakSurvey{}
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-
-	// Check if is survey 3
-	assert.Len(resp, 1)
-	assert.Equal(fs3.Comment, resp[0].Comment)
+	// Check if response contains survey 3
+	resp = GetSurveysFromResp(assert, w)
+	assert.NoError(EqualSurveyIDs([]models.FactrakSurvey{fs3}, resp))
 }
 
 func TestController_ListProfessorSurveysWithCourse(t *testing.T) {
@@ -596,25 +575,13 @@ func TestController_ListProfessorSurveysWithCourse(t *testing.T) {
 
 	assert.NoError(db.Create(&fs1).Create(&fs2).Create(&fs3).Create(&fs4).Error)
 
-	/* Get test prof 1 (expect success) */
+	/* Get surveys for prof 1 and course 1 (expect success) */
 	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/professors/%d/surveys?courseID=%d", p1.ID, c1.ID), nil)
 	assert.NoError(err)
 
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode response
-	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	resp := []models.FactrakSurvey{}
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-
-	// Check if correct length
-	assert.Len(resp, 2)
-
-	// Check if we got surveys (only courses) (in reverse order)
-	assert.Equal(resp[0].Comment, fs4.Comment)
-	assert.Equal(resp[1].Comment, fs1.Comment)
+	// Check if we got the correct surveys, in reverse chronological order
+	resp := GetSurveysFromResp(assert, w)
+	assert.NoError(EqualSurveyIDs([]models.FactrakSurvey{fs4, fs1}, resp))
 
 	// Check if we removed sensitive user data
 	assert.Zero(resp[0].UserID)
@@ -624,15 +591,8 @@ func TestController_ListProfessorSurveysWithCourse(t *testing.T) {
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/professors/%d/surveys?courseID=%d", p1.ID, 42), nil)
 	assert.NoError(err)
 
-	// Status is not found
-	assert.Equal(http.StatusOK, w.Code)
-
-	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	resp = []models.FactrakSurvey{}
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-
 	// Check if correct prof
+	resp = GetSurveysFromResp(assert, w)
 	assert.Len(resp, 0)
 }
 

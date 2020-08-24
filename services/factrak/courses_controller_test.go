@@ -11,7 +11,6 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
-	. "github.com/WilliamsStudentsOnline/wso-go/services/factrak"
 	testify "github.com/stretchr/testify/assert"
 )
 
@@ -471,53 +470,32 @@ func TestController_ListCourseSurveys(t *testing.T) {
 
 	assert.NoError(db.Create(&fs1).Create(&fs2).Create(&fs3).Error)
 
-	/* Get test prof 1 (expect success) */
+	/* Get surveys for course 1 (expect success) */
 	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/courses/%d/surveys", c1.ID), nil)
 	assert.NoError(err)
 
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode response
-	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	var resp []models.FactrakSurvey
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-
-	// Check if is survey 1 and 2
-	assert.Len(resp, 2)
-
-	// It should be in order of created first to created last
-	assert.Equal(fs1.Comment, resp[1].Comment)
-	assert.Equal(fs3.Comment, resp[0].Comment)
+	// Check if response has correct surveys in reverse chronological order
+	resp := GetSurveysFromResp(assert, w)
+	assert.NoError(EqualSurveyIDs([]models.FactrakSurvey{fs3, fs1}, resp))
 
 	// Assert that userID is not returned
 	assert.Zero(resp[0].UserID)
 	assert.Nil(resp[0].User)
 
-	/* Get random course (expect failure) */
+	/* Get nonexistant course (expect failure) */
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/courses/%d/surveys", 42), nil)
 	assert.NoError(err)
 
 	// Status is not found
 	assert.Equal(http.StatusNotFound, w.Code)
 
-	/* Get test course 2 (expect success) */
+	/* Get surveys for course 2 (expect success) */
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/courses/%d/surveys", c2.ID), nil)
 	assert.NoError(err)
 
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode response
-	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	resp = []models.FactrakSurvey{}
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-
-	// Check if is survey 3
-	assert.Len(resp, 1)
-	assert.Equal(fs2.Comment, resp[0].Comment)
+	// Check if response has survey 2
+	resp = GetSurveysFromResp(assert, w)
+	assert.NoError(EqualSurveyIDs([]models.FactrakSurvey{fs2}, resp))
 }
 
 func TestController_ListCourseSurveysWithProfessor(t *testing.T) {
@@ -595,43 +573,24 @@ func TestController_ListCourseSurveysWithProfessor(t *testing.T) {
 
 	assert.NoError(db.Create(&fs1).Create(&fs2).Create(&fs3).Create(&fs4).Error)
 
-	/* Get test prof 1 (expect success) */
+	/* Get surveys for prof 1 and course 1 (expect success) */
 	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/professors/%d/surveys?courseID=%d", p1.ID, c1.ID), nil)
 	assert.NoError(err)
 
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode response
-	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	resp := []models.FactrakSurvey{}
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-
-	// Check if correct length
-	assert.Len(resp, 2)
-
-	// Check if we got surveys (only courses) (in reverse order)
-	assert.Equal(resp[0].Comment, fs4.Comment)
-	assert.Equal(resp[1].Comment, fs1.Comment)
+	// Check if response is valid and has surveys, in reverse chronological order
+	resp := GetSurveysFromResp(assert, w)
+	assert.NoError(EqualSurveyIDs([]models.FactrakSurvey{fs4, fs1}, resp))
 
 	// Check if we removed sensitive user data
 	assert.Zero(resp[0].UserID)
 	assert.Nil(resp[0].User)
 
-	/* Get prof 1 with a random course (expect empty) */
+	/* Get prof 1 with a nonexistant course (expect empty) */
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/professors/%d/surveys?courseID=%d", p1.ID, 42), nil)
 	assert.NoError(err)
 
-	// Status is not found
-	assert.Equal(http.StatusOK, w.Code)
-
-	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	resp = []models.FactrakSurvey{}
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-
-	// Check if correct prof
+	// Check that the response is valid but has no surveys
+	resp = GetSurveysFromResp(assert, w)
 	assert.Len(resp, 0)
 }
 
