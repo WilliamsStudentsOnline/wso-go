@@ -12,6 +12,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	migrate "github.com/WilliamsStudentsOnline/wso-go/db"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/search"
+	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -114,4 +115,21 @@ func GetHTTPDataResp(assert *assert.Assertions, body []byte) APITestResp {
 	assert.NoError(err)
 
 	return resp
+}
+
+func GetGoodResp(assert *assert.Assertions, w *httptest.ResponseRecorder) APITestResp {
+	// Response status is ok
+	assert.Equal(http.StatusOK, w.Code)
+
+	// Decode response
+	respData := GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+
+	return respData
+}
+
+func CheckRespError(assert *assert.Assertions, w *httptest.ResponseRecorder, apiErr *lib.APIError) {
+	// Response status matches expected error
+	assert.Equal(apiErr.HTTPCode, w.Code)
+	assert.Equal(apiErr.Code, GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
 }

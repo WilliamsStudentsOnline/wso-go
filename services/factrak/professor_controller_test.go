@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
@@ -20,8 +21,11 @@ import (
 
 // Setup for testing, configuring the router and database to work with factrak tests
 func SetupFactrakTest(t *testing.T) (*testify.Assertions, *gorm.DB, *gin.Engine) {
+	// Create test environment using factrak scopes
 	env := utils.SetupTest(t, auth.ScopeFactrakFull, auth.ScopeWriteSelf)
+	// Set up the factrak router
 	SetupRouter(env.Router, env.DB, env.Cfg, zaptest.NewLogger(t).Sugar())
+
 	return env.Assert, env.DB, env.Router
 }
 
@@ -37,6 +41,22 @@ func EqualUserIDs(expected, resp []models.User) error {
 		}
 	}
 	return nil
+}
+
+// Unmarshal a slice of users from an http response
+func GetUsersFromResp(assert *testify.Assertions, w *httptest.ResponseRecorder) []models.User {
+	respData := utils.GetGoodResp(assert, w)
+	var resp []models.User
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	return resp
+}
+
+// Unmarshal a single user from an http response
+func GetUserFromResp(assert *testify.Assertions, w *httptest.ResponseRecorder) models.User {
+	respData := utils.GetGoodResp(assert, w)
+	var resp models.User
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	return resp
 }
 
 func TestController_ListProfessors(t *testing.T) {
@@ -74,16 +94,8 @@ func TestController_ListProfessors(t *testing.T) {
 	w, err := utils.DoHTTPReq(router, http.MethodGet, "/professors", nil)
 	assert.NoError(err)
 
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode response
-	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	var resp []models.User
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-
-	// Check if correct users
+	// Check if response is valid and contains the correct users
+	resp := GetUsersFromResp(assert, w)
 	assert.NoError(EqualUserIDs([]models.User{p1, p2}, resp))
 }
 
@@ -201,63 +213,36 @@ func TestController_ListProfessorsRanked(t *testing.T) {
 	apiErr := lib.ErrorInvalidRankingMetric
 	w, err := utils.DoHTTPReq(router, http.MethodGet, "/professors?metric=would_recommend_course&ascending=true", nil)
 	assert.NoError(err)
-	assert.Equal(apiErr.HTTPCode, w.Code)
-	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+	utils.CheckRespError(assert, w, apiErr)
 
 	// Test 2: Get users ranked by workload
 	w, err = utils.DoHTTPReq(router, http.MethodGet, "/professors?metric=course_workload&ascending=true", nil)
 	assert.NoError(err)
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode and check response
-	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	var resp []models.User
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	resp := GetUsersFromResp(assert, w)
 	assert.NoError(EqualUserIDs([]models.User{p3, p1, p2}, resp))
 
 	// Test 3: Get users ranked by whether students would take another of their classes
 	w, err = utils.DoHTTPReq(router, http.MethodGet, "/professors?metric=would_take_another", nil)
 	assert.NoError(err)
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode and check response
-	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	resp = GetUsersFromResp(assert, w)
 	assert.NoError(EqualUserIDs([]models.User{p1}, resp))
 
 	// Test 4: Get users ranked by approachability, limited to an area of study
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/professors?metric=approachability&areaOfStudyID=%d", area2.ID), nil)
 	assert.NoError(err)
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode and check response
-	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	resp = GetUsersFromResp(assert, w)
 	assert.NoError(EqualUserIDs([]models.User{p2}, resp))
 
 	// Test 5: Get users ranked by workload with pagination
 	w, err = utils.DoHTTPReq(router, http.MethodGet, "/professors?metric=course_workload&ascending=true&limit=2", nil)
 	assert.NoError(err)
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode and check response
-	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	resp = GetUsersFromResp(assert, w)
 	assert.NoError(EqualUserIDs([]models.User{p3, p1}, resp))
 
 	// Test 5, part 2 of pagination
 	w, err = utils.DoHTTPReq(router, http.MethodGet, "/professors?metric=course_workload&ascending=true&limit=2&offset=2", nil)
 	assert.NoError(err)
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode and check response
-	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	resp = GetUsersFromResp(assert, w)
 	assert.NoError(EqualUserIDs([]models.User{p2}, resp))
 }
 
@@ -307,17 +292,10 @@ func TestController_GetProfessor(t *testing.T) {
 	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/professors/%d", p1.ID), nil)
 	assert.NoError(err)
 
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode response
-	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	resp := models.User{}
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-
-	// Check if correct prof
+	// Check if response contains the correct prof
+	resp := GetUserFromResp(assert, w)
 	assert.Equal(p1.ID, resp.ID)
+
 	assert.Len(resp.FactrakSurveys, 2)
 	// Assert that we don't include ProfessorFactrakSurveys
 	assert.Nil(resp.ProfessorFactrakSurveys)
@@ -424,16 +402,8 @@ func TestController_GetProfessorWithCourse(t *testing.T) {
 	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/professors/%d?courseID=%d", p1.ID, c1.ID), nil)
 	assert.NoError(err)
 
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode response
-	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	resp := models.User{}
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-
-	// Check if correct prof
+	// Check if response is valid and contains the correct prof
+	resp := GetUserFromResp(assert, w)
 	assert.Equal(p1.ID, resp.ID)
 	assert.Len(resp.FactrakSurveys, 2)
 	// Assert that we don't include ProfessorFactrakSurveys
@@ -451,15 +421,8 @@ func TestController_GetProfessorWithCourse(t *testing.T) {
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/professors/%d?courseID=%d", p1.ID, 42), nil)
 	assert.NoError(err)
 
-	// Status is not found
-	assert.Equal(http.StatusOK, w.Code)
-
-	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	resp = models.User{}
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-
-	// Check if correct prof
+	// Check if response is valid and contains the correct prof
+	resp = GetUserFromResp(assert, w)
 	assert.Equal(p1.ID, resp.ID)
 	assert.Len(resp.FactrakSurveys, 0)
 }
