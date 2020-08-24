@@ -9,25 +9,10 @@ import (
 	"testing"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
-	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
-	. "github.com/WilliamsStudentsOnline/wso-go/services/factrak"
-	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 	testify "github.com/stretchr/testify/assert"
-	"go.uber.org/zap/zaptest"
 )
-
-// Setup for testing, configuring the router and database to work with factrak tests
-func SetupFactrakTest(t *testing.T) (*testify.Assertions, *gorm.DB, *gin.Engine) {
-	// Create test environment using factrak scopes
-	env := utils.SetupTest(t, auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	// Set up the factrak router
-	SetupRouter(env.Router, env.DB, env.Cfg, zaptest.NewLogger(t).Sugar())
-
-	return env.Assert, env.DB, env.Router
-}
 
 // Check that a slice of users matches an expected slice, by comparing user IDs
 func EqualUserIDs(expected, resp []models.User) error {

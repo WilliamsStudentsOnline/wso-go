@@ -20,7 +20,7 @@ import (
 	"go.uber.org/zap"
 )
 
-//
+// Set up database for testing
 func SetupServiceTest(assert *assert.Assertions) *gorm.DB {
 	gin.SetMode(gin.TestMode)
 	cfg := SetupConfig()
@@ -107,6 +107,7 @@ func DoHTTPReq(router *gin.Engine, method, url string, body io.Reader) (*httptes
 	return w, nil
 }
 
+// Data from an HTTP response
 type APITestResp struct {
 	Status          int                 `json:"status"`
 	Data            json.RawMessage     `json:"data,omitempty"`
