@@ -1,7 +1,6 @@
 package factrak_test
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -12,9 +11,20 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	. "github.com/WilliamsStudentsOnline/wso-go/services/factrak"
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 	testify "github.com/stretchr/testify/assert"
 	"go.uber.org/zap/zaptest"
 )
+
+// Quick setup for factrak tests, configuring the router and database
+func SetupFactrakTest(t *testing.T) (*testify.Assertions, *gorm.DB, *gin.Engine) {
+	// Create test environment using factrak scopes
+	env := utils.SetupTest(t, auth.ScopeFactrakFull, auth.ScopeWriteSelf)
+	// Set up the factrak router
+	SetupRouter(env.Router, env.DB, env.Cfg, zaptest.NewLogger(t).Sugar())
+
+	return env.Assert, env.DB, env.Router
+}
 
 func TestRemoveUserIDFromSurveys(t *testing.T) {
 	assert := testify.New(t)
@@ -230,12 +240,7 @@ func TestLimitedScopeAccess(t *testing.T) {
 	// Can get professor, but not with surveys
 	w, err = utils.DoHTTPReq(r, http.MethodGet, fmt.Sprintf("/professors/%d", p1.ID), nil)
 	assert.NoError(err)
-	assert.Equal(http.StatusOK, w.Code)
-	// Decode response
-	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	var profResp models.User
-	assert.NoError(json.Unmarshal(respData.Data, &profResp))
+	profResp := GetUserFromResp(assert, w)
 	assert.Nil(profResp.FactrakSurveys)
 
 	// Cannot get professor's surveys

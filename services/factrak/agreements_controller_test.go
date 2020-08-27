@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
@@ -16,8 +17,16 @@ import (
 	"go.uber.org/zap/zaptest"
 )
 
+// Unmarshal a single agreement from an http response
+func GetAgreementFromResp(assert *testify.Assertions, w *httptest.ResponseRecorder) models.FactrakAgreement {
+	respData := utils.GetGoodResp(assert, w)
+	var resp models.FactrakAgreement
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	return resp
+}
+
 func TestController_GetAgreement(t *testing.T) {
-	// Setup (can copy and paste this basically)
+	// Setup
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 
@@ -67,35 +76,27 @@ func TestController_GetAgreement(t *testing.T) {
 	// First, we run tests on validations
 
 	// Test 1: error on bad survey
-	apiErr := lib.ErrorRecordNotFound
 	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/surveys/%d/agreement", 42), nil)
 	assert.NoError(err)
-	assert.Equal(apiErr.HTTPCode, w.Code)
-	// Assert correct error
-	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+	// Shouldn't find a survey
+	apiErr := lib.ErrorRecordNotFound
+	utils.CheckRespError(assert, w, apiErr)
 
 	// Test 2: error on missing agreement (via other user)
-	apiErr = lib.ErrorSurveyAgreementNotFound
 	r1 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(r1, s2.ID)
 	SetupRouter(r1, db, cfg, zaptest.NewLogger(t).Sugar())
 	w, err = utils.DoHTTPReq(r1, http.MethodGet, fmt.Sprintf("/surveys/%d/agreement", survey.ID), nil)
 	assert.NoError(err)
-	assert.Equal(apiErr.HTTPCode, w.Code)
-	// Assert correct error
-	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+	// Shouldn't find the agreement
+	apiErr = lib.ErrorSurveyAgreementNotFound
+	utils.CheckRespError(assert, w, apiErr)
 
 	// Test 3: actually get agreement
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/surveys/%d/agreement", survey.ID), nil)
 	assert.NoError(err)
-	assert.Equal(http.StatusOK, w.Code)
-	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-
-	// Check to make sure we got the right thing
-	var resp models.FactrakAgreement
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-	// Assertions
+	// Check response contains correct agreement
+	resp := GetAgreementFromResp(assert, w)
 	assert.Equal(agreement.ID, resp.ID)
 	assert.Equal(agreement.FactrakSurveyID, resp.FactrakSurveyID)
 	assert.Equal(agreement.UserID, resp.UserID)
@@ -103,7 +104,7 @@ func TestController_GetAgreement(t *testing.T) {
 }
 
 func TestController_CreateAgreement(t *testing.T) {
-	// Setup (can copy and paste this basically)
+	// Setup
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 
@@ -158,46 +159,42 @@ func TestController_CreateAgreement(t *testing.T) {
 	// First, we run tests on validations
 
 	// Test 1: error on missing data
-	apiErr := lib.ErrorMalformedRequestData
 	w, err := utils.DoHTTPReq(router, http.MethodPost, fmt.Sprintf("/surveys/%d/agreement", survey.ID),
 		bytes.NewBufferString(`{}`))
 	assert.NoError(err)
-	assert.Equal(apiErr.HTTPCode, w.Code)
 	// Assert correct error
-	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+	apiErr := lib.ErrorMalformedRequestData
+	utils.CheckRespError(assert, w, apiErr)
 
 	// Test 2: error on bad survey
-	apiErr = lib.ErrorRecordNotFound
 	params := AgreementCreateParams{Agree: lib.BoolToPtr(false)}
 	paramsData, err := json.Marshal(params)
 	assert.NoError(err)
 	w, err = utils.DoHTTPReq(router, http.MethodPost, fmt.Sprintf("/surveys/%d/agreement", 42), bytes.NewBuffer(paramsData))
 	assert.NoError(err)
-	assert.Equal(apiErr.HTTPCode, w.Code)
 	// Assert correct error
-	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+	apiErr = lib.ErrorRecordNotFound
+	utils.CheckRespError(assert, w, apiErr)
 
 	// Test 3: error on existing agreement (via other user)
-	apiErr = lib.ErrorSurveyAgreementAlreadyExists
 	r1 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(r1, s3.ID)
 	SetupRouter(r1, db, cfg, zaptest.NewLogger(t).Sugar())
 	w, err = utils.DoHTTPReq(r1, http.MethodPost, fmt.Sprintf("/surveys/%d/agreement", survey.ID), bytes.NewBuffer(paramsData))
 	assert.NoError(err)
-	assert.Equal(apiErr.HTTPCode, w.Code)
 	// Assert correct error
-	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+	apiErr = lib.ErrorSurveyAgreementAlreadyExists
+	utils.CheckRespError(assert, w, apiErr)
 
 	// Test 3.5: error on self survey
-	apiErr = lib.ErrorSurveyAgreementNoSelf
 	r2 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(r2, s1.ID)
 	SetupRouter(r2, db, cfg, zaptest.NewLogger(t).Sugar())
 	w, err = utils.DoHTTPReq(r2, http.MethodPost, fmt.Sprintf("/surveys/%d/agreement", survey.ID), bytes.NewBuffer(paramsData))
 	assert.NoError(err)
-	assert.Equal(apiErr.HTTPCode, w.Code)
 	// Assert correct error
-	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+	apiErr = lib.ErrorSurveyAgreementNoSelf
+	utils.CheckRespError(assert, w, apiErr)
 
 	// Test 4: actually create agreement
 	w, err = utils.DoHTTPReq(router, http.MethodPost, fmt.Sprintf("/surveys/%d/agreement", survey.ID), bytes.NewBuffer(paramsData))
@@ -223,7 +220,7 @@ func TestController_CreateAgreement(t *testing.T) {
 }
 
 func TestController_UpdateAgreement(t *testing.T) {
-	// Setup (can copy and paste this basically)
+	// Setup
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 
@@ -273,48 +270,38 @@ func TestController_UpdateAgreement(t *testing.T) {
 	// First, we run tests on validations
 
 	// Test 1: error on missing data
-	apiErr := lib.ErrorMalformedRequestData
 	w, err := utils.DoHTTPReq(router, http.MethodPatch, fmt.Sprintf("/surveys/%d/agreement", survey.ID),
 		bytes.NewBufferString(`{}`))
 	assert.NoError(err)
-	assert.Equal(apiErr.HTTPCode, w.Code)
 	// Assert correct error
-	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+	apiErr := lib.ErrorMalformedRequestData
+	utils.CheckRespError(assert, w, apiErr)
 
 	// Test 2: error on bad survey
-	apiErr = lib.ErrorRecordNotFound
-
 	params := AgreementUpdateParams{Agree: lib.BoolToPtr(false)}
 	paramsData, err := json.Marshal(params)
 	assert.NoError(err)
 	w, err = utils.DoHTTPReq(router, http.MethodPatch, fmt.Sprintf("/surveys/%d/agreement", 42), bytes.NewBuffer(paramsData))
 	assert.NoError(err)
-	assert.Equal(apiErr.HTTPCode, w.Code)
 	// Assert correct error
-	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+	apiErr = lib.ErrorRecordNotFound
+	utils.CheckRespError(assert, w, apiErr)
 
 	// Test 3: error on non-existent agreement (via other user)
-	apiErr = lib.ErrorSurveyAgreementNotFound
 	r1 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(r1, s2.ID)
 	SetupRouter(r1, db, cfg, zaptest.NewLogger(t).Sugar())
 	w, err = utils.DoHTTPReq(r1, http.MethodPatch, fmt.Sprintf("/surveys/%d/agreement", survey.ID), bytes.NewBuffer(paramsData))
 	assert.NoError(err)
-	assert.Equal(apiErr.HTTPCode, w.Code)
 	// Assert correct error
-	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+	apiErr = lib.ErrorSurveyAgreementNotFound
+	utils.CheckRespError(assert, w, apiErr)
 
 	// Test 4: actually update agreement
 	w, err = utils.DoHTTPReq(router, http.MethodPatch, fmt.Sprintf("/surveys/%d/agreement", survey.ID), bytes.NewBuffer(paramsData))
 	assert.NoError(err)
-	assert.Equal(http.StatusOK, w.Code)
-	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-
-	// Check to make sure we got the right thing
-	var resp models.FactrakAgreement
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-	// Assertions
+	// Check response has updated survey
+	resp := GetAgreementFromResp(assert, w)
 	assert.Equal(survey.ID, resp.FactrakSurveyID)
 	assert.Equal(s1.ID, resp.UserID)
 	assert.Equal(false, resp.Agrees)
@@ -328,7 +315,7 @@ func TestController_UpdateAgreement(t *testing.T) {
 }
 
 func TestController_DeleteAgreement(t *testing.T) {
-	// Setup (can copy and paste this basically)
+	// Setup
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 
@@ -378,35 +365,27 @@ func TestController_DeleteAgreement(t *testing.T) {
 	// First, we run tests on validations
 
 	// Test 1: error on bad survey
-	apiErr := lib.ErrorRecordNotFound
 	w, err := utils.DoHTTPReq(router, http.MethodDelete, fmt.Sprintf("/surveys/%d/agreement", 42), nil)
 	assert.NoError(err)
-	assert.Equal(apiErr.HTTPCode, w.Code)
 	// Assert correct error
-	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+	apiErr := lib.ErrorRecordNotFound
+	utils.CheckRespError(assert, w, apiErr)
 
-	// Test 3: error on non-existent agreement (via other user)
-	apiErr = lib.ErrorSurveyAgreementNotFound
+	// Test 2: error on non-existent agreement (via other user)
 	r1 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(r1, s2.ID)
 	SetupRouter(r1, db, cfg, zaptest.NewLogger(t).Sugar())
 	w, err = utils.DoHTTPReq(r1, http.MethodDelete, fmt.Sprintf("/surveys/%d/agreement", survey.ID), nil)
 	assert.NoError(err)
-	assert.Equal(apiErr.HTTPCode, w.Code)
 	// Assert correct error
-	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+	apiErr = lib.ErrorSurveyAgreementNotFound
+	utils.CheckRespError(assert, w, apiErr)
 
-	// Test 4: actually delete agreement
+	// Test 3: actually delete agreement
 	w, err = utils.DoHTTPReq(router, http.MethodDelete, fmt.Sprintf("/surveys/%d/agreement", survey.ID), nil)
 	assert.NoError(err)
-	assert.Equal(http.StatusOK, w.Code)
-	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-
-	// Check to make sure we got the right thing
-	var resp models.FactrakAgreement
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-	// Assertions
+	// Check the response contains the deleted agreement
+	resp := GetAgreementFromResp(assert, w)
 	assert.Equal(survey.ID, resp.FactrakSurveyID)
 	assert.Equal(s1.ID, resp.UserID)
 	assert.Equal(true, resp.Agrees)
