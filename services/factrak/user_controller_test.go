@@ -1,7 +1,6 @@
 package factrak_test
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"testing"
@@ -16,7 +15,7 @@ import (
 )
 
 func TestController_ListUserSurveys(t *testing.T) {
-	// Setup (can copy and paste this basically)
+	// Setup
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 
@@ -66,30 +65,18 @@ func TestController_ListUserSurveys(t *testing.T) {
 	cfg := utils.SetupConfig()
 	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
-	/* Get test student 1 (expect success) */
+	/* Get test student 1's surveys when authorized (expect success) */
 	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/users/%d/surveys", s1.ID), nil)
 	assert.NoError(err)
 
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode response
-	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	var resp []models.FactrakSurvey
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-
-	// Check if is survey 3 and 1
-	assert.Len(resp, 2)
-
-	// It should be in order of created first to created last
-	assert.Equal(fs3.Comment, resp[0].Comment)
-	assert.Equal(fs1.Comment, resp[1].Comment)
+	// Check if response has user's surveys, in reverse chronological order
+	resp := GetSurveysFromResp(assert, w)
+	assert.NoError(EqualSurveyIDs([]models.FactrakSurvey{fs3, fs1}, resp))
 
 	// Assert that userID is returned (as we are the owner)
 	assert.NotZero(resp[0].UserID)
 
-	/* Get test prof 1 (expect empty success) */
+	/* Get surveys by prof 1 when authorized (expect empty success) */
 	r2 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	utils.AddUserContexts(r2, p1.ID)
 	SetupRouter(r2, db, cfg, zaptest.NewLogger(t).Sugar())
@@ -97,26 +84,18 @@ func TestController_ListUserSurveys(t *testing.T) {
 	w, err = utils.DoHTTPReq(r2, http.MethodGet, fmt.Sprintf("/users/%d/surveys", p1.ID), nil)
 	assert.NoError(err)
 
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode response
-	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	resp = []models.FactrakSurvey{}
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-
-	// Check if is empty
+	// Check if response is valid but contains no surveys
+	resp = GetSurveysFromResp(assert, w)
 	assert.Len(resp, 0)
 
-	/* Get random fake user (expect failure) */
+	/* Get surveys for random fake user (expect failure) */
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/users/%d/surveys", 42), nil)
 	assert.NoError(err)
 
 	// Status is not found
 	assert.Equal(http.StatusNotFound, w.Code)
 
-	/* Get test student 2 (expect forbidden) */
+	/* Get test student 2 when not authorized (expect forbidden) */
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/users/%d/surveys", s2.ID), nil)
 	assert.NoError(err)
 

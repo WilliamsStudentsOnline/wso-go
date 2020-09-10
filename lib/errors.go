@@ -118,6 +118,8 @@ var (
 	ErrorSurveyAgreementNotFound      = NewAPIErrorWithHTTP(1551, http.StatusNotFound, "survey agreement could not be found")
 	ErrorSurveyAgreementAlreadyExists = NewAPIError(1552, "survey agreement already exists for this user and survey")
 	ErrorSurveyAgreementNoSelf        = NewAPIError(1553, "cannot create survey agreement with your own survey")
+	// Ranking errors
+	ErrorInvalidRankingMetric = NewAPIErrorWithHTTP(1570, http.StatusBadRequest, "cannot rank by this metric")
 
 	// 16** are dormtrak errors
 	// Create/Update errors

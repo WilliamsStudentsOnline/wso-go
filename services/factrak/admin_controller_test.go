@@ -1,7 +1,6 @@
 package factrak_test
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"testing"
@@ -69,34 +68,24 @@ func TestController_ListFlaggedSurveys(t *testing.T) {
 
 	assert.NoError(db.Create(&fs1).Create(&fs2).Create(&fs3).Error)
 
-	// Fail on no admin
+	// Test 1: Get flagged surveys, when unauthorized (should fail)
 	noAdminR := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	SetupRouter(noAdminR, db, cfg, zaptest.NewLogger(t).Sugar())
 	w, err := utils.DoHTTPReq(noAdminR, http.MethodGet, "/admin/surveys", nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusForbidden, w.Code)
 
-	// Get test surveys
+	// Test 2: Get flagged surveys, when authorized (should succeed)
 	w, err = utils.DoHTTPReq(router, http.MethodGet, "/admin/surveys", nil)
 	assert.NoError(err)
 
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode response
-	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	var resp []models.FactrakSurvey
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-
-	// Check if correct surveys (ordered by date)
-	assert.Len(resp, 2)
-	assert.Equal(fs3.Comment, resp[0].Comment)
-	assert.Equal(fs1.Comment, resp[1].Comment)
+	// Check if correct surveys (reverse chronological order)
+	resp := GetSurveysFromResp(assert, w)
+	assert.NoError(EqualSurveyIDs([]models.FactrakSurvey{fs3, fs1}, resp))
 }
 
 func TestController_UnflagSurvey(t *testing.T) {
-	// Setup (can copy and paste this basically)
+	// Setup
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 
@@ -136,7 +125,7 @@ func TestController_UnflagSurvey(t *testing.T) {
 
 	// First, we run tests on validations
 
-	// Test 0: Fail on no admin
+	// Test 1: Fail on no admin
 	noAdminR := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
 	SetupRouter(noAdminR, db, cfg, zaptest.NewLogger(t).Sugar())
 	w, err := utils.DoHTTPReq(noAdminR, http.MethodDelete,
@@ -144,15 +133,14 @@ func TestController_UnflagSurvey(t *testing.T) {
 	assert.NoError(err)
 	assert.Equal(http.StatusForbidden, w.Code)
 
-	// Test 1: error on bad survey
-	apiErr := lib.ErrorRecordNotFound
+	// Test 2: error on bad survey
 	w, err = utils.DoHTTPReq(router, http.MethodDelete, fmt.Sprintf("/admin/surveys/%d/flag", 42), nil)
 	assert.NoError(err)
-	assert.Equal(apiErr.HTTPCode, w.Code)
 	// Assert correct error
-	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+	apiErr := lib.ErrorRecordNotFound
+	utils.CheckRespError(assert, w, apiErr)
 
-	// Test 2: actually remove flag
+	// Test 3: actually remove flag
 	w, err = utils.DoHTTPReq(router, http.MethodDelete, fmt.Sprintf("/admin/surveys/%d/flag", survey.ID), nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w.Code)

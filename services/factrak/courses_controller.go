@@ -24,6 +24,8 @@ import (
 // @Param areaOfStudyID query string false "Area of Study ID"
 // @Param departmentID query string false "Department ID"
 // @Param professorID query string false "Professor ID"
+// @Param metric query string false "Ranking Metric"
+// @Param direction query bool false "Sorting Direction"
 // @Success 200 {array} models.Course
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
@@ -40,6 +42,8 @@ func (t *Controller) ListCourses(c *gin.Context) {
 
 	if query, ok := c.GetQuery("q"); ok {
 		err = t.factrakSearch.SearchCourses(query, &courses, &opts)
+	} else if sort, ok := c.GetQuery("metric"); ok {
+		err = t.courseModel.GetCoursesRanked(sort, &courses, &opts)
 	} else {
 		err = t.courseModel.GetAllCourses(&courses, &opts)
 	}
