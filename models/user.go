@@ -645,6 +645,11 @@ func (m *UserModel) UpdateAllFromLDAP(cfg *config.Config) error {
 			return query.Error
 		}
 
+		// Intercept people from Taiwan and ensure they are ROC not PRC
+		if toUser.HomeCountry != nil && *toUser.HomeCountry == "Taiwan, Province of China" {
+			toUser.HomeCountry = lib.StrToPtr("Taiwan")
+		}
+
 		// Either update or create the LDAP user
 		if !query.RecordNotFound() {
 			// If the user exists
