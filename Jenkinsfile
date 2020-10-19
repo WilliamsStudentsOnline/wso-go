@@ -69,6 +69,10 @@ pipeline {
             sshPut remote: remote_dev, from: 'job-dorms-update_linux', into: '/home/wsodev/wso-go/job-dorms-update'
             sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/job-dorms-update'
 
+            sshRemove remote: remote_dev, path: '/home/wsodev/wso-go/job-frosh-photos'
+            sshPut remote: remote_dev, from: 'job-frosh-photos_linux', into: '/home/wsodev/wso-go/job-frosh-photos'
+            sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/job-frosh-photos'
+
             // Restart WSO-Go
             sshCommand remote: remote_dev, command: '/bin/systemctl restart WSO-Go', sudo: true
           }
@@ -131,6 +135,10 @@ pipeline {
                 sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/job-dorms-update'
                 sshPut remote: remote_dev, from: 'job-dorms-update_linux', into: '/home/wso/wso/wso-backend/jobs/dorms-update'
                 sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/dorms-update'
+
+                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/job-frosh-photos'
+                sshPut remote: remote_dev, from: 'job-frosh-photos_linux', into: '/home/wso/wso/wso-backend/jobs/frosh-photos'
+                sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/frosh-photos'
 
                 // Restart WSO-Go
                 sshCommand remote: remote_dev, command: '/bin/systemctl restart WSO-Go', sudo: true

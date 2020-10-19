@@ -62,6 +62,10 @@ job-update-all-users-from-ldap:
 job-dorms-update:
 	go build -tags=jsoniter -o job-dorms-update ./jobs/dorms_update/cmd
 
+.PHONY: job-frosh-photos
+job-frosh-photos:
+        go build -tags=jsoniter -o job-frosh-photos ./jobs/frosh_photos/cmd
+
 .PHONY: build-prod-linux
 build-prod-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o $(BINARY_NAME)_linux ./server/cmd
@@ -72,6 +76,7 @@ build-jobs-prod-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-update-all-factrak-survey-deficits_linux ./jobs/update_all_factrak_survey_deficits/cmd
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-update-all-users-from-ldap_linux ./jobs/update_all_users_from_ldap/cmd
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-dorms-update_linux ./jobs/dorms_update/cmd
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-frosh-photos_linux ./jobs/frosh_photos/cmd
 
 .PHONY: go-gen
 go-gen:
