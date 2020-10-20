@@ -64,7 +64,7 @@ job-dorms-update:
 
 .PHONY: job-frosh-photos
 job-frosh-photos:
-        go build -tags=jsoniter -o job-frosh-photos ./jobs/frosh_photos/cmd
+	go build -tags=jsoniter -o job-frosh-photos ./jobs/frosh_photos/cmd
 
 .PHONY: build-prod-linux
 build-prod-linux:
