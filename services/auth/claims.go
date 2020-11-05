@@ -28,7 +28,8 @@ func GenerateClaimsFactory(cfg *config.Config, db *gorm.DB) func(v *Authenticato
 		}
 
 		// If on-campus, can access user info
-		if v.TokenLevel >= TokenLevelOnCampus {
+		// TODO: THIS WAS REMOVED TO USER TO ALLOW DATA PRIVLEDGING REQUIREMENTS TO PASS WITH EDUROAM BEING ENABLED. FIGURE THIS OUT LATER
+		if v.TokenLevel >= TokenLevelUser /*TokenLevelOnCampus*/ {
 			scope = append(scope, auth.ScopeUsers)
 		}
 
