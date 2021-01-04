@@ -95,7 +95,7 @@ func (m *EphmatchMatchesModel) GetMatches(userID uint, opts *GetMatchesOptions, 
 	}).
 		// Join on users to ensure student type and visibility type
 		Joins("INNER JOIN users u ON u.id = ephmatch_matches.user_b_id").
-		Where("u.type = ?", UserTypeStudent).
+		Where("u.type = ? AND u.at_williams = ?", UserTypeStudent, true).
 		// Join on profiles for other user to ensure each
 		Joins("INNER JOIN ephmatch_profiles p ON p.user_id = ephmatch_matches.user_b_id").
 		Where("p.deleted_at IS NULL").
@@ -114,7 +114,7 @@ func (m *EphmatchMatchesModel) GetMatches(userID uint, opts *GetMatchesOptions, 
 	}).
 		// Join on users to ensure student type and visibility type
 		Joins("INNER JOIN users u ON u.id = ephmatch_matches.user_a_id").
-		Where("u.type = ?", UserTypeStudent).
+		Where("u.type = ? AND u.at_williams = ?", UserTypeStudent, true).
 		// Join on profiles for other user to ensure each
 		Joins("INNER JOIN ephmatch_profiles p ON p.user_id = ephmatch_matches.user_a_id").
 		Where("p.deleted_at IS NULL").
@@ -191,7 +191,7 @@ func (m *EphmatchMatchesModel) CountMatchesAndUnseen(userID uint) (unseen int, t
 	}).
 		// Join on users to ensure student type and visibility type
 		Joins("INNER JOIN users u ON u.id = ephmatch_matches.user_b_id").
-		Where("u.type = ?", UserTypeStudent).
+		Where("u.type = ? AND u.at_williams = ?", UserTypeStudent, true).
 		// Join on profiles for other user to ensure each
 		Joins("INNER JOIN ephmatch_profiles p ON p.user_id = ephmatch_matches.user_b_id").
 		Where("p.deleted_at IS NULL").
@@ -205,7 +205,7 @@ func (m *EphmatchMatchesModel) CountMatchesAndUnseen(userID uint) (unseen int, t
 	}).
 		// Join on users to ensure student type and visibility type
 		Joins("INNER JOIN users u ON u.id = ephmatch_matches.user_a_id").
-		Where("u.type = ?", UserTypeStudent).
+		Where("u.type = ? AND u.at_williams = ?", UserTypeStudent, true).
 		// Join on profiles for other user to ensure each
 		Joins("INNER JOIN ephmatch_profiles p ON p.user_id = ephmatch_matches.user_a_id").
 		Where("p.deleted_at IS NULL").
@@ -220,7 +220,7 @@ func (m *EphmatchMatchesModel) CountMatchesAndUnseen(userID uint) (unseen int, t
 	}).
 		// Join on users to ensure student type and visibility type
 		Joins("INNER JOIN users u ON u.id = ephmatch_matches.user_b_id").
-		Where("u.type = ?", UserTypeStudent).
+		Where("u.type = ? AND u.at_williams = ?", UserTypeStudent, true).
 		// Join on profiles for other user to ensure each
 		Joins("INNER JOIN ephmatch_profiles p ON p.user_id = ephmatch_matches.user_b_id").
 		Where("p.deleted_at IS NULL").
@@ -235,7 +235,7 @@ func (m *EphmatchMatchesModel) CountMatchesAndUnseen(userID uint) (unseen int, t
 	}).
 		// Join on users to ensure student type and visibility type
 		Joins("INNER JOIN users u ON u.id = ephmatch_matches.user_a_id").
-		Where("u.type = ?", UserTypeStudent).
+		Where("u.type = ? AND u.at_williams = ?", UserTypeStudent, true).
 		// Join on profiles for other user to ensure each
 		Joins("INNER JOIN ephmatch_profiles p ON p.user_id = ephmatch_matches.user_a_id").
 		Where("p.deleted_at IS NULL").
