@@ -1530,8 +1530,6 @@ definitions:
         type: boolean
       optOutEphcatch:
         type: boolean
-      pronoun:
-        type: string
       visible:
         type: boolean
     type: object

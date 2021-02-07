@@ -201,7 +201,6 @@ type UpdateUserParams struct {
 	Visible                   *bool   `json:"visible"`
 	DormVisible               *bool   `json:"dormVisible"`
 	HomeVisible               *bool   `json:"homeVisible"`
-	Pronoun                   *string `json:"pronoun"`
 	OffCycle                  *bool   `json:"offCycle"`
 	HasAcceptedFactrakPolicy  *bool   `json:"hasAcceptedFactrakPolicy"`
 	HasAcceptedDormtrakPolicy *bool   `json:"hasAcceptedDormtrakPolicy"`
@@ -261,7 +260,6 @@ func (t *Controller) UpdateUser(c *gin.Context) {
 	user.Visible = lib.BoolPtrDefaults(updateData.Visible, user.Visible)
 	user.DormVisible = lib.BoolPtrDefaults(updateData.DormVisible, user.DormVisible)
 	user.HomeVisible = lib.BoolPtrDefaults(updateData.HomeVisible, user.HomeVisible)
-	user.Pronoun = lib.StrPtrDefaults(updateData.Pronoun, user.Pronoun)
 	user.OffCycle = lib.BoolPtrDefaults(updateData.OffCycle, user.OffCycle)
 	user.HasAcceptedFactrakPolicy = lib.BoolPtrDefaults(updateData.HasAcceptedFactrakPolicy, user.HasAcceptedFactrakPolicy)
 	user.HasAcceptedDormtrakPolicy = lib.BoolPtrDefaults(updateData.HasAcceptedDormtrakPolicy, user.HasAcceptedDormtrakPolicy)

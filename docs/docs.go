@@ -9097,9 +9097,6 @@ var doc = `{
                 "optOutEphcatch": {
                     "type": "boolean"
                 },
-                "pronoun": {
-                    "type": "string"
-                },
                 "visible": {
                     "type": "boolean"
                 }

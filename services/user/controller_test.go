@@ -353,7 +353,7 @@ func TestController_UpdateUser(t *testing.T) {
 		"dormVisible": false,
 		"homeVisible": true,
 		"offCycle":    true,
-		"pronoun":     "foobar",
+		"nickname":    "foobar",
 		"name":        "baz",
 	})
 	assert.NoError(err)
@@ -374,7 +374,7 @@ func TestController_UpdateUser(t *testing.T) {
 	assert.False(*res.DormVisible)
 	assert.True(*res.HomeVisible)
 	assert.True(*res.OffCycle)
-	assert.Equal("foobar", *res.Pronoun)
+	assert.Equal("foobar", *res.Nickname)
 	// Assert that name did not change
 	assert.Equal(u1.Name, res.Name)
 
