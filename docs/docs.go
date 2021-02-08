@@ -7244,6 +7244,10 @@ var doc = `{
                     "description": "Params:",
                     "type": "string"
                 },
+                "courseFormat": {
+                    "description": "Remote, Hybrid, In-Person",
+                    "type": "string"
+                },
                 "courseID": {
                     "description": "Must include either this:",
                     "type": "integer"
@@ -7274,6 +7278,13 @@ var doc = `{
                 "promoteDiscussion": {
                     "type": "integer"
                 },
+                "semesterSeason": {
+                    "description": "Fall, Winter Study, Spring",
+                    "type": "string"
+                },
+                "semesterYear": {
+                    "type": "integer"
+                },
                 "wouldRecommendCourse": {
                     "type": "boolean"
                 },
@@ -7292,6 +7303,10 @@ var doc = `{
                     "description": "Params:",
                     "type": "string"
                 },
+                "courseFormat": {
+                    "description": "Remote, Hybrid, In-Person",
+                    "type": "string"
+                },
                 "courseStimulating": {
                     "type": "integer"
                 },
@@ -7308,6 +7323,13 @@ var doc = `{
                     "type": "integer"
                 },
                 "promoteDiscussion": {
+                    "type": "integer"
+                },
+                "semesterSeason": {
+                    "description": "Fall, Winter Study, Spring",
+                    "type": "string"
+                },
+                "semesterYear": {
                     "type": "integer"
                 },
                 "wouldRecommendCourse": {
@@ -8135,6 +8157,10 @@ var doc = `{
                     "type": "object",
                     "$ref": "#/definitions/models.Course"
                 },
+                "courseFormat": {
+                    "description": "Remote, Hybrid, In-Person",
+                    "type": "string"
+                },
                 "courseID": {
                     "description": "Belongs to course",
                     "type": "integer"
@@ -8173,6 +8199,13 @@ var doc = `{
                     "type": "integer"
                 },
                 "promoteDiscussion": {
+                    "type": "integer"
+                },
+                "semesterSeason": {
+                    "description": "Course info data",
+                    "type": "string"
+                },
+                "semesterYear": {
                     "type": "integer"
                 },
                 "totalAgree": {

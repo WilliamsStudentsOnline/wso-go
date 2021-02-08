@@ -3,6 +3,7 @@ package factrak
 import (
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
@@ -155,6 +156,10 @@ type SurveyCreateParams struct {
 	PromoteDiscussion    *int    `json:"promoteDiscussion" binding:"omitempty,gte=0,lte=7"`
 	OutsideHelpfulness   *int    `json:"outsideHelpfulness" binding:"omitempty,gte=0,lte=7"`
 	GradeReceived        *string `json:"gradeReceived"`
+
+	SemesterSeason *string `json:"semesterSeason"` // Fall, Winter Study, Spring
+	SemesterYear   *int    `json:"semesterYear"`
+	CourseFormat   *string `json:"courseFormat"` // Remote, Hybrid, In-Person
 }
 
 // @Summary Create survey
@@ -204,6 +209,44 @@ func (t *Controller) CreateSurvey(c *gin.Context) {
 
 	if len(createData.Comment) < 100 {
 		t.RespondError(c, lib.ErrorSurveyCommentTooSmall)
+		return
+	}
+
+	// Either no semester data or both semester and year must be filled out
+	if (createData.SemesterYear != nil && createData.SemesterSeason == nil) || (createData.SemesterYear == nil && createData.SemesterSeason != nil) {
+		t.RespondError(c, lib.ErrorSurveyCourseSemesterBad)
+		return
+	}
+
+	// If semester season isn't one of (fall, winter-study, spring)
+	if createData.SemesterSeason != nil &&
+		*createData.SemesterSeason != models.FactrakSurveySemesterSeasonFall &&
+		*createData.SemesterSeason != models.FactrakSurveySemesterSeasonWinterStudy &&
+		*createData.SemesterSeason != models.FactrakSurveySemesterSeasonSpring {
+
+		t.RespondError(c, lib.ErrorSurveyCourseSemesterBad)
+		return
+	}
+
+	// If semester year is before 2000, error out.
+	if createData.SemesterYear != nil && *createData.SemesterYear < 2000 {
+		t.RespondError(c, lib.ErrorSurveyCourseSemesterBad)
+		return
+	}
+
+	// If semester year is in future, error
+	if createData.SemesterYear != nil && *createData.SemesterYear > time.Now().Year() {
+		t.RespondError(c, lib.ErrorSurveyCourseYearFuture)
+		return
+	}
+
+	// If course format isn't one of (in-person, hybrid, remote)
+	if createData.CourseFormat != nil &&
+		*createData.CourseFormat != models.FactrakSurveyCourseFormatInPerson &&
+		*createData.CourseFormat != models.FactrakSurveyCourseFormatHybrid &&
+		*createData.CourseFormat != models.FactrakSurveyCourseFormatRemote {
+
+		t.RespondError(c, lib.ErrorSurveyCourseFormatBad)
 		return
 	}
 
@@ -307,6 +350,10 @@ func (t *Controller) CreateSurvey(c *gin.Context) {
 		OutsideHelpfulness:   createData.OutsideHelpfulness,
 		GradeReceived:        createData.GradeReceived,
 
+		SemesterSeason: createData.SemesterSeason,
+		SemesterYear:   createData.SemesterYear,
+		CourseFormat:   createData.CourseFormat,
+
 		// Defaults
 		TotalAgree:    0,
 		TotalDisagree: 0,
@@ -348,6 +395,10 @@ type SurveyUpdateParams struct {
 	PromoteDiscussion    *int    `json:"promoteDiscussion" binding:"omitempty,gte=0,lte=7"`
 	OutsideHelpfulness   *int    `json:"outsideHelpfulness" binding:"omitempty,gte=0,lte=7"`
 	GradeReceived        *string `json:"gradeReceived"`
+
+	SemesterSeason *string `json:"semesterSeason"` // Fall, Winter Study, Spring
+	SemesterYear   *int    `json:"semesterYear"`
+	CourseFormat   *string `json:"courseFormat"` // Remote, Hybrid, In-Person
 }
 
 // Update survey data
@@ -405,6 +456,44 @@ func (t *Controller) UpdateSurvey(c *gin.Context) {
 		return
 	}
 
+	// Either no semester data or both semester and year must be filled out
+	if (updateData.SemesterYear != nil && updateData.SemesterSeason == nil) || (updateData.SemesterYear == nil && updateData.SemesterSeason != nil) {
+		t.RespondError(c, lib.ErrorSurveyCourseSemesterBad)
+		return
+	}
+
+	// If semester season isn't one of (fall, winter-study, spring)
+	if updateData.SemesterSeason != nil &&
+		*updateData.SemesterSeason != models.FactrakSurveySemesterSeasonFall &&
+		*updateData.SemesterSeason != models.FactrakSurveySemesterSeasonWinterStudy &&
+		*updateData.SemesterSeason != models.FactrakSurveySemesterSeasonSpring {
+
+		t.RespondError(c, lib.ErrorSurveyCourseSemesterBad)
+		return
+	}
+
+	// If semester year is before 2000, error out.
+	if updateData.SemesterYear != nil && *updateData.SemesterYear < 2000 {
+		t.RespondError(c, lib.ErrorSurveyCourseSemesterBad)
+		return
+	}
+
+	// If semester year is in future, error
+	if updateData.SemesterYear != nil && *updateData.SemesterYear > time.Now().Year() {
+		t.RespondError(c, lib.ErrorSurveyCourseYearFuture)
+		return
+	}
+
+	// If course format isn't one of (in-person, hybrid, remote)
+	if updateData.CourseFormat != nil &&
+		*updateData.CourseFormat != models.FactrakSurveyCourseFormatInPerson &&
+		*updateData.CourseFormat != models.FactrakSurveyCourseFormatHybrid &&
+		*updateData.CourseFormat != models.FactrakSurveyCourseFormatRemote {
+
+		t.RespondError(c, lib.ErrorSurveyCourseFormatBad)
+		return
+	}
+
 	// Update fields: this is a bit long and verbose, but I don't want to mess with reflect
 
 	// Trim comment of leading/trailing whitespaces
@@ -418,6 +507,9 @@ func (t *Controller) UpdateSurvey(c *gin.Context) {
 	survey.PromoteDiscussion = lib.IntPtrDefaults(updateData.PromoteDiscussion, survey.PromoteDiscussion)
 	survey.OutsideHelpfulness = lib.IntPtrDefaults(updateData.OutsideHelpfulness, survey.OutsideHelpfulness)
 	survey.GradeReceived = lib.StrPtrDefaults(updateData.GradeReceived, survey.GradeReceived)
+	survey.SemesterSeason = lib.StrPtrDefaults(updateData.SemesterSeason, survey.SemesterSeason)
+	survey.SemesterYear = lib.IntPtrDefaults(updateData.SemesterYear, survey.SemesterYear)
+	survey.CourseFormat = lib.StrPtrDefaults(updateData.CourseFormat, survey.CourseFormat)
 
 	// Do db update
 	err = t.surveyModel.UpdateSurvey(&survey)
