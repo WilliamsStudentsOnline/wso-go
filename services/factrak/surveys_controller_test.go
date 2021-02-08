@@ -559,11 +559,44 @@ func TestController_CreateSurvey(t *testing.T) {
 	}
 	createSurveyExpectError(assert, router, params, lib.ErrorSurveyAreaOfStudyNotFound)
 
-	// Test 9: create survey via courseID
+	// Test 9: error for having only one of semester info
+	params = SurveyCreateParams{ProfessorID: &p1.ID, Comment: generateSurveyTestComment(),
+		CourseID:     &c1.ID,
+		SemesterYear: lib.IntToPtr(2020),
+	}
+	createSurveyExpectError(assert, router, params, lib.ErrorSurveyCourseSemesterBad)
+
+	// Test 10: error for having bad semester season
+	params = SurveyCreateParams{ProfessorID: &p1.ID, Comment: generateSurveyTestComment(),
+		CourseID:       &c1.ID,
+		SemesterSeason: lib.StrToPtr("foo"),
+		SemesterYear:   lib.IntToPtr(2020),
+	}
+	createSurveyExpectError(assert, router, params, lib.ErrorSurveyCourseSemesterBad)
+
+	// Test 10: error for having future course semester year
+	params = SurveyCreateParams{ProfessorID: &p1.ID, Comment: generateSurveyTestComment(),
+		CourseID:       &c1.ID,
+		SemesterSeason: lib.StrToPtr("spring"),
+		SemesterYear:   lib.IntToPtr(time.Now().Year() + 4),
+	}
+	createSurveyExpectError(assert, router, params, lib.ErrorSurveyCourseYearFuture)
+
+	// Test 11: error for bad course format
+	params = SurveyCreateParams{ProfessorID: &p1.ID, Comment: generateSurveyTestComment(),
+		CourseID:     &c1.ID,
+		CourseFormat: lib.StrToPtr("ofpow"),
+	}
+	createSurveyExpectError(assert, router, params, lib.ErrorSurveyCourseFormatBad)
+
+	// Test 12: create survey via courseID
 	params = SurveyCreateParams{ProfessorID: &p1.ID, Comment: generateSurveyTestComment(),
 		CourseID:         &c1.ID,
 		WouldTakeAnother: lib.BoolToPtr(false),
 		CourseWorkload:   lib.IntToPtr(4),
+		CourseFormat:     lib.StrToPtr("in-person"),
+		SemesterSeason:   lib.StrToPtr("spring"),
+		SemesterYear:     lib.IntToPtr(2020),
 	}
 	resSurvey := createSurveyExpectSuccess(assert, router, params)
 
@@ -572,6 +605,9 @@ func TestController_CreateSurvey(t *testing.T) {
 	assert.Equal(*params.ProfessorID, resSurvey.ProfessorID)
 	assert.Equal(*params.CourseID, resSurvey.CourseID)
 	assert.Equal(s1.ID, resSurvey.UserID)
+	assert.Equal(*params.CourseFormat, *resSurvey.CourseFormat)
+	assert.Equal(*params.SemesterSeason, *resSurvey.SemesterSeason)
+	assert.Equal(*params.SemesterYear, *resSurvey.SemesterYear)
 	assert.False(*resSurvey.WouldTakeAnother)
 	assert.Equal(*params.CourseWorkload, *resSurvey.CourseWorkload)
 	assert.Nil(resSurvey.WouldRecommendCourse)
@@ -600,13 +636,13 @@ func TestController_CreateSurvey(t *testing.T) {
 	assert.Zero(surveyInDB.TotalDisagree)
 	assert.False(surveyInDB.Flagged)
 
-	// Test 10: error on unique survey requirement
+	// Test 13: error on unique survey requirement
 	params = SurveyCreateParams{ProfessorID: &p1.ID, Comment: generateSurveyTestComment(),
 		CourseID: &c1.ID,
 	}
 	createSurveyExpectError(assert, router, params, lib.ErrorSurveyAlreadyExists)
 
-	// Test 11: create survey via existing course number
+	// Test 14: create survey via existing course number
 	params = SurveyCreateParams{ProfessorID: &p1.ID, Comment: generateSurveyTestComment(),
 		CourseNumber:            &c2.Number,
 		AreaOfStudyAbbreviation: &c2.AreaOfStudy.Abbreviation,
@@ -626,7 +662,7 @@ func TestController_CreateSurvey(t *testing.T) {
 	assert.True(*resSurvey.WouldRecommendCourse)
 	assert.Equal(*params.Approachability, *resSurvey.Approachability)
 
-	// Test 12: create survey via new course number
+	// Test 15: create survey via new course number
 	params = SurveyCreateParams{ProfessorID: &p1.ID, Comment: generateSurveyTestComment(),
 		CourseNumber:            lib.StrToPtr("c3"),
 		AreaOfStudyAbbreviation: &a1.Abbreviation,

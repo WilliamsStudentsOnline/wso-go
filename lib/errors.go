@@ -114,6 +114,9 @@ var (
 	ErrorSurveyCourseNotFound      = NewAPIError(1535, "passed course could not be found")
 	ErrorSurveyAreaOfStudyNotFound = NewAPIError(1536, "passed area of study could not be found")
 	ErrorSurveyAlreadyExists       = NewAPIError(1537, "survey already exists with passed user ID, professor ID, and course ID")
+	ErrorSurveyCourseSemesterBad   = NewAPIError(1538, "survey course semester has an incorrect year or season")
+	ErrorSurveyCourseFormatBad     = NewAPIError(1539, "survey course format is invalid")
+	ErrorSurveyCourseYearFuture    = NewAPIError(1540, "survey course year is in the future")
 	// Agreement errors
 	ErrorSurveyAgreementNotFound      = NewAPIErrorWithHTTP(1551, http.StatusNotFound, "survey agreement could not be found")
 	ErrorSurveyAgreementAlreadyExists = NewAPIError(1552, "survey agreement already exists for this user and survey")

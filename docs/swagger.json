@@ -7229,6 +7229,10 @@
                     "description": "Params:",
                     "type": "string"
                 },
+                "courseFormat": {
+                    "description": "Remote, Hybrid, In-Person",
+                    "type": "string"
+                },
                 "courseID": {
                     "description": "Must include either this:",
                     "type": "integer"
@@ -7259,6 +7263,13 @@
                 "promoteDiscussion": {
                     "type": "integer"
                 },
+                "semesterSeason": {
+                    "description": "Fall, Winter Study, Spring",
+                    "type": "string"
+                },
+                "semesterYear": {
+                    "type": "integer"
+                },
                 "wouldRecommendCourse": {
                     "type": "boolean"
                 },
@@ -7277,6 +7288,10 @@
                     "description": "Params:",
                     "type": "string"
                 },
+                "courseFormat": {
+                    "description": "Remote, Hybrid, In-Person",
+                    "type": "string"
+                },
                 "courseStimulating": {
                     "type": "integer"
                 },
@@ -7293,6 +7308,13 @@
                     "type": "integer"
                 },
                 "promoteDiscussion": {
+                    "type": "integer"
+                },
+                "semesterSeason": {
+                    "description": "Fall, Winter Study, Spring",
+                    "type": "string"
+                },
+                "semesterYear": {
                     "type": "integer"
                 },
                 "wouldRecommendCourse": {
@@ -8120,6 +8142,10 @@
                     "type": "object",
                     "$ref": "#/definitions/models.Course"
                 },
+                "courseFormat": {
+                    "description": "Remote, Hybrid, In-Person",
+                    "type": "string"
+                },
                 "courseID": {
                     "description": "Belongs to course",
                     "type": "integer"
@@ -8158,6 +8184,13 @@
                     "type": "integer"
                 },
                 "promoteDiscussion": {
+                    "type": "integer"
+                },
+                "semesterSeason": {
+                    "description": "Course info data",
+                    "type": "string"
+                },
+                "semesterYear": {
                     "type": "integer"
                 },
                 "totalAgree": {

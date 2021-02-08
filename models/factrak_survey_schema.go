@@ -2,6 +2,18 @@ package models
 
 import "time"
 
+const (
+	FactrakSurveyCourseFormatInPerson = "in-person"
+	FactrakSurveyCourseFormatHybrid   = "hybrid"
+	FactrakSurveyCourseFormatRemote   = "remote"
+)
+
+const (
+	FactrakSurveySemesterSeasonFall        = "fall"
+	FactrakSurveySemesterSeasonWinterStudy = "winter-study"
+	FactrakSurveySemesterSeasonSpring      = "spring"
+)
+
 // FactrakSurvey Schema
 type FactrakSurvey struct {
 	BaseSchema
@@ -29,6 +41,11 @@ type FactrakSurvey struct {
 	Comment              string  `gorm:"size:65535" json:"comment"`
 	Flagged              bool    `json:"flagged"`
 	GradeReceived        *string `json:"gradeReceived"`
+
+	// Course info data
+	SemesterSeason *string `json:"semesterSeason"` // Fall, Winter Study, Spring
+	SemesterYear   *int    `json:"semesterYear"`
+	CourseFormat   *string `json:"courseFormat"` // Remote, Hybrid, In-Person
 
 	// Has many agreements
 	Agreements []*FactrakAgreement `json:"agreements,omitempty"`
