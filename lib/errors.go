@@ -150,4 +150,5 @@ var (
 	ErrorEphmatchDoesNotExist             = NewAPIError(1933, "ephmatch does not exist with user ID and passed ephmatch profile user ID")
 	ErrorEphmatchInvalidMessagingPlatform = NewAPIError(1934, "ephmatch messaging platform is invalid")
 	ErrorEphmatchEmptyMessagingUsername   = NewAPIError(1935, "ephmatch messaging username is empty")
+	ErrorEphmatchDescriptionTooLong       = NewAPIError(1936, "ephmatch description is too long")
 )

@@ -1,6 +1,8 @@
 package ephmatch
 
 import (
+	"unicode/utf8"
+
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/sanitize"
@@ -94,6 +96,11 @@ func (t *Controller) CreateProfile(c *gin.Context) {
 			t.RespondError(c, lib.ErrorEphmatchEmptyMessagingUsername)
 			return
 		}
+	}
+
+	if createData.Description != nil && utf8.RuneCountInString(*createData.Description) >= 255 {
+		t.RespondError(c, lib.ErrorEphmatchDescriptionTooLong)
+		return
 	}
 
 	newProfile := models.EphmatchProfile{
@@ -197,6 +204,11 @@ func (t *Controller) UpdateProfile(c *gin.Context) {
 			t.RespondError(c, lib.ErrorEphmatchEmptyMessagingUsername)
 			return
 		}
+	}
+
+	if updateData.Description != nil && utf8.RuneCountInString(*updateData.Description) >= 255 {
+		t.RespondError(c, lib.ErrorEphmatchDescriptionTooLong)
+		return
 	}
 
 	err = t.profileModel.UpdateProfile(&profile)
