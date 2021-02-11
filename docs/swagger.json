@@ -3219,6 +3219,194 @@
                 }
             }
         },
+        "/dormtrak/reviews/{reviewID}/photo": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "upload a dorm room review's photo. You may only upload rooms you have reviewed.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dormtrak"
+                ],
+                "summary": "Upload a dorm room photo by review and dorm room",
+                "operationId": "upload-dorm-room-photo",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Review ID",
+                        "name": "reviewID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Dorm Room Photo",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "1160": {
+                        "description": "unable to save picture",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1331": {
+                        "description": "must be self",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "200": {},
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/dormtrak/reviews/{reviewID}/photos": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "gets file names to all photos uploaded to a dorm room by review",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dormtrak"
+                ],
+                "summary": "Get dorm room photos by review",
+                "operationId": "dormtrak-get-review-photos",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Review ID",
+                        "name": "reviewID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dormtrak.DormRoomPhotoInfo"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/dormtrak/rooms/{roomID}/photos": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "gets file names to all photos uploaded to a dorm room",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dormtrak"
+                ],
+                "summary": "Get dorm room photos",
+                "operationId": "dormtrak-get-room-photos",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Dorm Room ID",
+                        "name": "roomID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dormtrak.DormRoomPhotoInfo"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
         "/ephcatch/ephcatchers": {
             "get": {
                 "security": [
@@ -3811,6 +3999,94 @@
                             "$ref": "#/definitions/models.EphmatchProfile"
                         }
                     },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/ephmatch/profile/photo": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "upload an ephmatch user's ephmatch profile photo by user id.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Upload an ephmatch profile photo by user id",
+                "operationId": "upload-ephmatch-profile-photo",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Profile Photo",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {},
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "delete an ephmatch user's ephmatch profile photo by user id.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Delete an ephmatch profile photo by user id",
+                "operationId": "delete-ephmatch-profile-photo",
+                "responses": {
+                    "200": {},
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -6986,6 +7262,23 @@
                 },
                 "offer": {
                     "type": "boolean"
+                }
+            }
+        },
+        "dormtrak.DormRoomPhotoInfo": {
+            "type": "object",
+            "properties": {
+                "dormRoomId": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "number": {
+                    "type": "integer"
+                },
+                "reviewId": {
+                    "type": "integer"
                 }
             }
         },
