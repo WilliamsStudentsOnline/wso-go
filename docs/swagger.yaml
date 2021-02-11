@@ -105,6 +105,17 @@ definitions:
       offer:
         type: boolean
     type: object
+  dormtrak.DormRoomPhotoInfo:
+    properties:
+      dormRoomId:
+        type: integer
+      name:
+        type: string
+      number:
+        type: integer
+      reviewId:
+        type: integer
+    type: object
   dormtrak.ReviewCreateParams:
     properties:
       bathroomDesc:
@@ -3658,6 +3669,128 @@ paths:
       summary: Update review
       tags:
       - dormtrak
+  /dormtrak/reviews/{reviewID}/photo:
+    put:
+      consumes:
+      - multipart/form-data
+      description: upload a dorm room review's photo. You may only upload rooms you have reviewed.
+      operationId: upload-dorm-room-photo
+      parameters:
+      - description: Review ID
+        in: path
+        name: reviewID
+        required: true
+        type: integer
+      - description: Dorm Room Photo
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200": {}
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1160":
+          description: unable to save picture
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1331":
+          description: must be self
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Upload a dorm room photo by review and dorm room
+      tags:
+      - dormtrak
+  /dormtrak/reviews/{reviewID}/photos:
+    get:
+      consumes:
+      - application/json
+      description: gets file names to all photos uploaded to a dorm room by review
+      operationId: dormtrak-get-review-photos
+      parameters:
+      - description: Review ID
+        in: path
+        name: reviewID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dormtrak.DormRoomPhotoInfo'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get dorm room photos by review
+      tags:
+      - dormtrak
+  /dormtrak/rooms/{roomID}/photos:
+    get:
+      consumes:
+      - application/json
+      description: gets file names to all photos uploaded to a dorm room
+      operationId: dormtrak-get-room-photos
+      parameters:
+      - description: Dorm Room ID
+        in: path
+        name: roomID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dormtrak.DormRoomPhotoInfo'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get dorm room photos
+      tags:
+      - dormtrak
   /ephcatch/ephcatchers:
     get:
       consumes:
@@ -4051,6 +4184,63 @@ paths:
       summary: Create an Ephmatch profile
       tags:
       - ephmatch
+  /ephmatch/profile/photo:
+    delete:
+      description: delete an ephmatch user's ephmatch profile photo by user id.
+      operationId: delete-ephmatch-profile-photo
+      produces:
+      - application/json
+      responses:
+        "200": {}
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Delete an ephmatch profile photo by user id
+      tags:
+      - users
+    put:
+      consumes:
+      - multipart/form-data
+      description: upload an ephmatch user's ephmatch profile photo by user id.
+      operationId: upload-ephmatch-profile-photo
+      parameters:
+      - description: Profile Photo
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200": {}
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Upload an ephmatch profile photo by user id
+      tags:
+      - users
   /ephmatch/profiles:
     get:
       consumes:

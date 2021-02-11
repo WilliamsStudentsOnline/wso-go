@@ -25,6 +25,10 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	selfGroup.PATCH("/profile", c.UpdateProfile)
 	// Delete profile
 	selfGroup.DELETE("/profile", c.DeleteProfile)
+	// Upload profile photo
+	selfGroup.PUT("/profile/photo", c.UploadEphmatchProfilePhoto)
+	// Delete profile photo
+	selfGroup.DELETE("/profile/photo", c.DeleteEphmatchProfilePhoto)
 
 	// Only get matches with scope
 	matchesGroup := selfGroup.Group("", auth.RequireScopes(auth.ScopeEphmatchMatches, auth.ScopeAdminAll))

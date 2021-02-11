@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
+	"github.com/WilliamsStudentsOnline/wso-go/lib/pictures"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
@@ -14,15 +15,23 @@ import (
 type Controller struct {
 	services.BaseController
 	// Put a model here, like:
-	ephmatchModel *models.EphmatchModel
-	profileModel  *models.EphmatchProfileModel
-	likeModel     *models.EphmatchLikeModel
-	matchModel    *models.EphmatchMatchesModel
-	cfg           *config.Config
+	ephmatchModel  *models.EphmatchModel
+	profileModel   *models.EphmatchProfileModel
+	likeModel      *models.EphmatchLikeModel
+	matchModel     *models.EphmatchMatchesModel
+	cfg            *config.Config
+	pictureBackend pictures.PictureBackend
 }
 
 // Construct a new dormtrak controller
 func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Controller {
+	pb, err := pictures.NewPictureBackend(cfg, log)
+	if err != nil {
+		log.Error(err)
+		log.Warn("Using picture backend none")
+		pb = pictures.NewPictureBackendDummy()
+	}
+
 	return &Controller{
 		BaseController: services.BaseController{Log: log},
 		ephmatchModel:  models.NewEphmatchModel(db, log),
@@ -30,6 +39,7 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 		likeModel:      models.NewEphmatchLikeModel(db, log),
 		matchModel:     models.NewEphmatchMatchesModel(db, log),
 		cfg:            cfg,
+		pictureBackend: pb,
 	}
 }
 

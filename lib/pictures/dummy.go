@@ -8,14 +8,26 @@ func NewPictureBackendDummy() PictureBackend {
 
 type pictureBackendDummy struct{}
 
-func (*pictureBackendDummy) SaveThumb(img image.Image, unixID string) error {
+func (*pictureBackendDummy) SaveUserPhotoThumb(unixID string, img image.Image) error {
 	return nil
 }
 
-func (*pictureBackendDummy) SaveLarge(img image.Image, unixID string) error {
+func (*pictureBackendDummy) SaveUserPhotoLarge(unixID string, img image.Image) error {
 	return nil
 }
 
-func (*pictureBackendDummy) Save(img image.Image, unixID string, category string) error {
+func (*pictureBackendDummy) SaveEphmatchPhoto(unixID string, img image.Image) error {
 	return nil
+}
+
+func (*pictureBackendDummy) DeleteEphmatchPhoto(unixID string) error {
+	return nil
+}
+
+func (*pictureBackendDummy) SaveDormRoom(dormRoomID uint, reviewID uint, img image.Image) error {
+	return nil
+}
+
+func (*pictureBackendDummy) ListDormRoom(dormRoomID uint) ([]string, error) {
+	return []string{}, nil
 }

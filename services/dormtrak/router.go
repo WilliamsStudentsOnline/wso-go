@@ -22,6 +22,9 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	r.GET("/dorms/:dormID/rooms", c.GetDormRooms)
 	r.GET("/dorms/:dormID/facts", c.GetDormFacts)
 
+	// Rooms endpoint
+	r.GET("/rooms/:roomID/photos", c.GetRoomPhotos)
+
 	// Get rankings overall
 	r.GET("/rankings", c.GetRankings)
 
@@ -29,6 +32,7 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	// Get reviews by dormID, dormRoomID, userID, pagination
 	r.GET("/reviews", c.ListReviews)
 	r.GET("/reviews/:reviewID", c.GetReview)
+	r.GET("/reviews/:reviewID/photos", c.GetReviewPhotos)
 
 	// ScopeDormtrakWrite ensures that the person is a student and in the upperclasses
 	writer := r.Group("")
@@ -37,4 +41,5 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	writer.POST("/reviews", c.CreateReview)
 	writer.PATCH("/reviews/:reviewID", c.UpdateReview)
 	writer.DELETE("/reviews/:reviewID", c.DeleteReview)
+	writer.PUT("/reviews/:reviewID/photo", c.UploadDormRoomPhoto)
 }

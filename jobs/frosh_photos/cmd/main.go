@@ -90,7 +90,7 @@ func savePhoto(dir string, unix string, pb pictures.PictureBackend) error {
 	wg.Add(1)
 	go func(wg *sync.WaitGroup) {
 		imgScaled := imaging.Fill(img, 300, 300, imaging.Center, imaging.Lanczos)
-		err = pb.SaveLarge(imgScaled, unix)
+		err = pb.SaveUserPhotoLarge(unix, imgScaled)
 		fmt.Println("saving", unix, err)
 		if err != nil {
 			errors <- err
@@ -102,7 +102,7 @@ func savePhoto(dir string, unix string, pb pictures.PictureBackend) error {
 	go func(wg *sync.WaitGroup) {
 		imgThumb := imaging.Fill(img, 50, 50, imaging.Center, imaging.Lanczos)
 
-		err = pb.SaveThumb(imgThumb, unix)
+		err = pb.SaveUserPhotoThumb(unix, imgThumb)
 		if err != nil {
 			errors <- err
 		}

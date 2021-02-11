@@ -87,6 +87,8 @@ var (
 	ErrorInvalidSearchToken          = NewAPIErrorWithHTTP(1150, http.StatusBadRequest, "invalid search token")
 	ErrorInvalidSearchQuery          = NewAPIErrorWithHTTP(1151, http.StatusBadRequest, "invalid search query")
 	ErrorUnknownSearchField          = NewAPIErrorWithHTTP(1152, http.StatusBadRequest, "unknown search field")
+	ErrorUnableToSavePicture         = NewAPIErrorWithHTTP(1160, http.StatusInternalServerError, "unable to save uploaded picture")
+	ErrorUnableToDeletePicture       = NewAPIErrorWithHTTP(1161, http.StatusInternalServerError, "unable to delete uploaded picture")
 
 	// 13** are authorization errors
 	ErrorNoScopeAuthorization         = NewAPIErrorWithHTTP(1330, http.StatusForbidden, "no scope authorization")
@@ -103,7 +105,6 @@ var (
 	ErrorUserIDNoParse           = NewAPIError(1405, "user id could not be parsed")
 	ErrorInvalidUserTag          = NewAPIError(1406, "invalid user tag")
 	ErrorUserInvalidCampusStatus = NewAPIError(1407, "user campus status is invalid")
-	ErrorUnableToSavePicture     = NewAPIErrorWithHTTP(1420, http.StatusInternalServerError, "unable to save uploaded picture")
 
 	// 15** are factrak errors
 	// Create/Update errors
@@ -130,6 +131,7 @@ var (
 	ErrorReviewMissingDorm     = NewAPIError(1634, "user is missing dorm field")
 	ErrorReviewDormNotOwner    = NewAPIError(1635, "user does not own this dorm room")
 	ErrorReviewAlreadyExists   = NewAPIError(1536, "review already exists with passed user ID and dorm room ID")
+	ErrorDormtrakTooManyPhotos = NewAPIErrorWithHTTP(1640, http.StatusBadRequest, "too many photos already uploaded to this review")
 
 	// 17** are ephcatch errors
 	ErrorEphcatchLikeNoSelf    = NewAPIError(1730, "cannot ephcatch-like yourself")

@@ -1,12 +1,17 @@
 package ephmatch
 
 import (
+	"image"
+	"net/http"
+	"os"
+
 	"unicode/utf8"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/sanitize"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
+	"github.com/disintegration/imaging"
 	"github.com/gin-gonic/gin"
 )
 
@@ -261,4 +266,96 @@ func (t *Controller) DeleteProfile(c *gin.Context) {
 	t.SetUpdateToken(c)
 
 	t.RespondOK(c, profile)
+}
+
+// UploadEphmatchProfilePhoto godoc
+// @Summary Upload an ephmatch profile photo by user id
+// @Description upload an ephmatch user's ephmatch profile photo by user id.
+// @ID upload-ephmatch-profile-photo
+// @Tags users
+// @Accept  multipart/form-data
+// @Produce  json
+// @Param file formData file true "Profile Photo"
+// @Success 200
+// @Failure 400 {object} lib.APIError
+// @Failure 404 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /ephmatch/profile/photo [put]
+func (t *Controller) UploadEphmatchProfilePhoto(c *gin.Context) {
+	userID := services.GetUserID(c)
+
+	// Do database query
+	var profile models.EphmatchProfile
+	err := t.profileModel.GetSelfProfileByIDScopedNoDefault(userID, &profile)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	formFile, err := c.FormFile("file")
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	file, err := formFile.Open()
+	if err != nil {
+		t.RespondErrorCode(c, http.StatusBadRequest, err)
+		return
+	}
+
+	defer file.Close()
+
+	img, _, err := image.Decode(file)
+	if err != nil {
+		t.RespondErrorCode(c, http.StatusBadRequest, err)
+		return
+	}
+
+	imgScaled := imaging.Fill(img, 300, 300, imaging.Center, imaging.Lanczos)
+	err = t.pictureBackend.SaveEphmatchPhoto(profile.User.UnixID, imgScaled)
+	if err != nil {
+		c.Error(err)
+		t.RespondError(c, lib.ErrorUnableToSavePicture)
+		return
+	}
+
+	t.RespondOK(c, nil)
+}
+
+// DeleteEphmatchProfilePhoto godoc
+// @Summary Delete an ephmatch profile photo by user id
+// @Description delete an ephmatch user's ephmatch profile photo by user id.
+// @ID delete-ephmatch-profile-photo
+// @Tags users
+// @Produce  json
+// @Success 200
+// @Failure 400 {object} lib.APIError
+// @Failure 404 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /ephmatch/profile/photo [delete]
+func (t *Controller) DeleteEphmatchProfilePhoto(c *gin.Context) {
+	userID := services.GetUserID(c)
+
+	// Do database query
+	var profile models.EphmatchProfile
+	err := t.profileModel.GetSelfProfileByIDScopedNoDefault(userID, &profile)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	err = t.pictureBackend.DeleteEphmatchPhoto(profile.User.UnixID)
+	if err != nil && os.IsNotExist(err) {
+		t.RespondError(c, lib.ErrorRecordNotFound)
+		return
+	} else if err != nil {
+		c.Error(err)
+		t.RespondError(c, lib.ErrorUnableToDeletePicture)
+		return
+	}
+
+	t.RespondOK(c, nil)
 }
