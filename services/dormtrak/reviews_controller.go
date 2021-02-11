@@ -1,10 +1,11 @@
 package dormtrak
 
 import (
+	"fmt"
 	"image"
 	"net/http"
+	"os"
 	"strings"
-	"sync"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
@@ -369,26 +370,42 @@ func (t *Controller) DeleteReview(c *gin.Context) {
 }
 
 // UploadDormRoomPhoto godoc
-// @Summary Upload a profile photo by user id
-// @Description upload a user's profile photo by user id. You may only update yourself. You may pass "me" to get self as well.
-// @ID upload-profile-photo
-// @Tags users
+// @Summary Upload a dorm room photo by review and dorm room
+// @Description upload a dorm room review's photo. You may only upload rooms you have reviewed.
+// @ID upload-dorm-room-photo
+// @Tags dormtrak
 // @Accept  multipart/form-data
 // @Produce  json
-// @Param userID path uint true "User ID"
-// @Param file formData file true "Profile Photo"
+// @Param reviewID path uint true "Review ID"
+// @Param file formData file true "Dorm Room Photo"
 // @Success 200
-// @Failure 1405 {object} lib.APIError "user id could not be parsed"
+// @Failure 1160 {object} lib.APIError "unable to save picture"
 // @Failure 1331 {object} lib.APIError "must be self"
 // @Failure 400 {object} lib.APIError
 // @Failure 404 {object} lib.APIError
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
-// @Router /dormtrak/{dormRoomID}/photo [put]
+// @Router /dormtrak/reviews/{reviewID}/photo [put]
 func (t *Controller) UploadDormRoomPhoto(c *gin.Context) {
-	dormRoomID, err := services.GetUIntParam(c, "dormRoomID")
+	userID := services.GetUserID(c)
+
+	reviewID, err := services.GetUIntParam(c, "reviewID")
 	if err != nil {
 		t.RespondError(c, err)
+		return
+	}
+
+	// Do database query
+	var review models.DormtrakReview
+	err = t.reviewModel.GetReviewByID(reviewID, &review)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	// Survey must be owned by user id
+	if review.UserID != userID {
+		t.RespondError(c, lib.ErrorMustBeSelf)
 		return
 	}
 
@@ -412,44 +429,78 @@ func (t *Controller) UploadDormRoomPhoto(c *gin.Context) {
 		return
 	}
 
-	var wg sync.WaitGroup
-	errors := make(chan error)
-
-	wg.Add(1)
-	go func(wg *sync.WaitGroup) {
-		imgScaled := imaging.Fill(img, 300, 300, imaging.Center, imaging.Lanczos)
-		err = t.pictureBackend.SaveLarge(imgScaled, user.UnixID)
-		if err != nil {
-			errors <- err
-			// Put error in the context so it can be reported
-			c.Error(err)
-		}
-		wg.Done()
-	}(&wg)
-
-	wg.Add(1)
-	go func(wg *sync.WaitGroup) {
-		imgThumb := imaging.Fill(img, 50, 50, imaging.Center, imaging.Lanczos)
-
-		err = t.pictureBackend.SaveThumb(imgThumb, user.UnixID)
-		if err != nil {
-			errors <- err
-			// Put error in the context so it can be reported
-			c.Error(err)
-		}
-		wg.Done()
-	}(&wg)
-
-	wg.Wait()
-	close(errors)
-
-	err = <-errors
+	imgScaled := imaging.Fit(img, 600, 600, imaging.Lanczos)
+	err = t.pictureBackend.SaveDormRoom(review.DormRoomID, review.ID, imgScaled)
 	if err != nil {
-		t.RespondAPIError(c, lib.ErrorUnableToSavePicture)
+		c.Error(err)
+		t.RespondError(c, lib.ErrorUnableToSavePicture)
 		return
 	}
 
 	t.RespondOK(c, nil)
+}
+
+// GetReviewPhotos godoc
+// @Summary Get dorm room photos by review
+// @Description gets file names to all photos uploaded to a dorm room by review
+// @ID dormtrak-get-review-photos
+// @Tags dormtrak
+// @Accept  json
+// @Produce  json
+// @Param reviewID path uint true "Review ID"
+// @Success 200 {array} DormRoomPhotoInfo
+// @Failure 400 {object} lib.APIError
+// @Failure 404 {object} lib.APIError
+// @Failure 500 {object} lib.APIError
+// @Security Bearer
+// @Router /dormtrak/reviews/{reviewID}/photos [get]
+func (t *Controller) GetReviewPhotos(c *gin.Context) {
+	reviewID, err := services.GetUIntParam(c, "reviewID")
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	// Do database query
+	var review models.DormtrakReview
+	err = t.reviewModel.GetReviewByID(reviewID, &review)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	photoPaths, err := t.pictureBackend.ListDormRoom(review.DormRoomID)
+	if err != nil {
+		if os.IsNotExist(err) {
+			t.RespondAPIError(c, lib.ErrorRecordNotFound)
+			return
+		}
+		t.RespondError(c, err)
+		return
+	}
+
+	// Assume photos are in format `{reviewID}_{n}.jpg`
+	var photoInfos []DormRoomPhotoInfo
+	for _, photoPath := range photoPaths {
+		var fileN, parsedReviewID uint
+		_, err := fmt.Sscanf(photoPath, "%d_%d.jpg", &parsedReviewID, &fileN)
+		if err != nil {
+			continue
+		}
+
+		if parsedReviewID != review.ID {
+			continue
+		}
+
+		photoInfos = append(photoInfos, DormRoomPhotoInfo{
+			FileName:   photoPath,
+			DormRoomID: review.DormRoomID,
+			ReviewID:   review.ID,
+			Number:     fileN,
+		})
+	}
+
+	t.RespondOK(c, photoInfos)
 }
 
 func trimIfNotNil(str *string) *string {

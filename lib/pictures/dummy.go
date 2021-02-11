@@ -24,6 +24,10 @@ func (*pictureBackendDummy) DeleteEphmatchPhoto(unixID string) error {
 	return nil
 }
 
-func (*pictureBackendDummy) SaveDormRoom(dormRoomID uint, img image.Image) error {
+func (*pictureBackendDummy) SaveDormRoom(dormRoomID uint, reviewID uint, img image.Image) error {
 	return nil
+}
+
+func (*pictureBackendDummy) ListDormRoom(dormRoomID uint) ([]string, error) {
+	return []string{}, nil
 }

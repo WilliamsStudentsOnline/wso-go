@@ -3,6 +3,7 @@ package dormtrak
 import (
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
+	"github.com/WilliamsStudentsOnline/wso-go/lib/pictures"
 	search "github.com/WilliamsStudentsOnline/wso-go/lib/search/dormtrak"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
@@ -20,10 +21,18 @@ type Controller struct {
 	reviewModel       *models.DormtrakReviewModel
 	userModel         *models.UserModel
 	dormtrakSearch    search.SearchDormtrak
+	pictureBackend    pictures.PictureBackend
 }
 
 // Construct a new dormtrak controller
 func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Controller {
+	pb, err := pictures.NewPictureBackend(cfg, log)
+	if err != nil {
+		log.Error(err)
+		log.Warn("Using picture backend none")
+		pb = pictures.NewPictureBackendDummy()
+	}
+
 	return &Controller{
 		BaseController:    services.BaseController{Log: log},
 		neighborhoodModel: models.NewNeighborhoodModel(db, log),
@@ -32,6 +41,7 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 		reviewModel:       models.NewDormtrakReviewModel(db, log),
 		userModel:         models.NewUserModel(db, log),
 		dormtrakSearch:    search.NewSearchDormtrak(db, cfg, log),
+		pictureBackend:    pb,
 	}
 }
 

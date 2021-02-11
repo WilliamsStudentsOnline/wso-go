@@ -64,11 +64,13 @@ func NewBackend(path string, log *zap.SugaredLogger) (*Backend, error) {
 }
 
 // Simply replace user profile thumb here
+// All file names should be in the format `user/thumb/{userID}.jpg`
 func (b *Backend) SaveUserPhotoThumb(unixID string, img image.Image) error {
 	return b.saveUserProfile(img, unixID, dirUserThumb)
 }
 
 // Simply replace user profile large here
+// All file names should be in the format `user/large/{userID}.jpg`
 func (b *Backend) SaveUserPhotoLarge(unixID string, img image.Image) error {
 	return b.saveUserProfile(img, unixID, dirUserLarge)
 }
@@ -86,7 +88,8 @@ func (b *Backend) saveUserProfile(img image.Image, unixID string, category strin
 	return err
 }
 
-func (b *Backend) SaveDormRoom(dormRoomID uint, img image.Image) error {
+// All file names should be in the format `dormtrak/dormroom/{dormRoomID}/{reviewID}_{n}.jpg`
+func (b *Backend) SaveDormRoom(dormRoomID uint, reviewID uint, img image.Image) error {
 	dirPath := filepath.Join(b.path, dirDormtrakDormroom, strconv.Itoa(int(dormRoomID)))
 
 	if _, statErr := os.Stat(dirPath); os.IsNotExist(statErr) {
@@ -101,13 +104,17 @@ func (b *Backend) SaveDormRoom(dormRoomID uint, img image.Image) error {
 		return err
 	}
 
-	// All file names should be in the format `dormRoomID/n.jpg`
+	// All file names should be in the format `dormRoomID/reviewID_n.jpg`
 	// We parse find n+1
 	maxN := -1
 	for _, file := range files {
-		var fileN int
-		_, err := fmt.Sscanf(file.Name(), "%d.jpg", &fileN)
+		var fileN, parsedReviewID int
+		_, err := fmt.Sscanf(file.Name(), "%d_%d.jpg", &parsedReviewID, &fileN)
 		if err != nil {
+			continue
+		}
+
+		if uint(parsedReviewID) != reviewID {
 			continue
 		}
 
@@ -116,7 +123,7 @@ func (b *Backend) SaveDormRoom(dormRoomID uint, img image.Image) error {
 		}
 	}
 
-	path := filepath.Join(dirPath, fmt.Sprintf("%d.jpg", maxN+1))
+	path := filepath.Join(dirPath, fmt.Sprintf("%d_%d.jpg", reviewID, maxN+1))
 
 	file, err := os.Create(path)
 	if err != nil {
@@ -128,6 +135,28 @@ func (b *Backend) SaveDormRoom(dormRoomID uint, img image.Image) error {
 	return err
 }
 
+func (b *Backend) ListDormRoom(dormRoomID uint) ([]string, error) {
+	dirPath := filepath.Join(b.path, dirDormtrakDormroom, strconv.Itoa(int(dormRoomID)))
+
+	if _, statErr := os.Stat(dirPath); os.IsNotExist(statErr) {
+		return nil, statErr
+	}
+
+	files, err := ioutil.ReadDir(dirPath)
+	if err != nil {
+		return nil, err
+	}
+
+	pics := make([]string, len(files))
+
+	for i := range files {
+		pics[i] = files[i].Name()
+	}
+
+	return pics, nil
+}
+
+// All file names should be in the format `ephmatch/{userID}.jpg`
 func (b *Backend) SaveEphmatchPhoto(unixID string, img image.Image) error {
 	return b.saveUserProfile(img, unixID, dirEphmatch)
 }

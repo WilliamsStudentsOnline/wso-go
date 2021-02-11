@@ -19,7 +19,8 @@ type PictureBackend interface {
 	SaveUserPhotoThumb(unixID string, img image.Image) error
 	SaveEphmatchPhoto(unixID string, img image.Image) error
 	DeleteEphmatchPhoto(unixID string) error
-	SaveDormRoom(dormRoomID uint, img image.Image) error
+	SaveDormRoom(dormRoomID uint, reviewID uint, img image.Image) error
+	ListDormRoom(dormRoomID uint) ([]string, error)
 }
 
 func NewPictureBackend(cfg *config.Config, log *zap.SugaredLogger) (PictureBackend, error) {
