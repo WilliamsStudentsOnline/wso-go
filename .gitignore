@@ -122,3 +122,4 @@ config/secrets.yaml
 k8s/**/*secrets.yaml
 pics/
 /job-*
+local/

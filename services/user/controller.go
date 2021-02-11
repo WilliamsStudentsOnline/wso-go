@@ -78,7 +78,7 @@ func (t *Controller) ListUsers(c *gin.Context) {
 	}
 
 	if query, ok := c.GetQuery("q"); ok {
-		users, totalResults, err = t.userSearch.Search(query, &search.SearchUsersOptionsMysql{&opts})
+		users, totalResults, err = t.userSearch.Search(query, &search.SearchUsersOptionsMysql{GetAllUsersOptions: &opts})
 
 		if err != nil {
 			if searchLib.IsInvalidTokenError(err) {

@@ -26,10 +26,14 @@ type PictureBackend interface {
 func NewPictureBackend(cfg *config.Config, log *zap.SugaredLogger) (PictureBackend, error) {
 	switch cfg.PictureBackend {
 	case PictureBackendLocal:
-		return local.NewBackend(cfg.PictureLocalPath, log)
+		return local.NewBackend(cfg.PictureLocalPath, log.Named("pictures_backend"))
 	case PictureBackendNone:
 		return &pictureBackendDummy{}, nil
 	default:
 		return nil, errors.New("unknown picture backend specified")
 	}
+}
+
+func IsErrorMaxDormtrakPhotos(err error) bool {
+	return err.Error() == local.ErrorMaxDormtrakPhotos.Error()
 }

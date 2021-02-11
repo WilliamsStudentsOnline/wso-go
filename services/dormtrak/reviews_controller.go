@@ -9,6 +9,7 @@ import (
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
+	"github.com/WilliamsStudentsOnline/wso-go/lib/pictures"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/disintegration/imaging"
@@ -432,6 +433,12 @@ func (t *Controller) UploadDormRoomPhoto(c *gin.Context) {
 	imgScaled := imaging.Fit(img, 600, 600, imaging.Lanczos)
 	err = t.pictureBackend.SaveDormRoom(review.DormRoomID, review.ID, imgScaled)
 	if err != nil {
+		if pictures.IsErrorMaxDormtrakPhotos(err) {
+			c.Error(err)
+			t.RespondError(c, lib.ErrorDormtrakTooManyPhotos)
+			return
+		}
+
 		c.Error(err)
 		t.RespondError(c, lib.ErrorUnableToSavePicture)
 		return

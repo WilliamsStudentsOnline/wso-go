@@ -21,7 +21,6 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	r.GET("/dorms/:dormID", c.GetDorm)
 	r.GET("/dorms/:dormID/rooms", c.GetDormRooms)
 	r.GET("/dorms/:dormID/facts", c.GetDormFacts)
-	r.GET("/dorms/:dormID/facts", c.GetDormFacts)
 
 	// Rooms endpoint
 	r.GET("/rooms/:roomID/photos", c.GetRoomPhotos)

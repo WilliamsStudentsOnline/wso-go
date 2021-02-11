@@ -131,6 +131,7 @@ var (
 	ErrorReviewMissingDorm     = NewAPIError(1634, "user is missing dorm field")
 	ErrorReviewDormNotOwner    = NewAPIError(1635, "user does not own this dorm room")
 	ErrorReviewAlreadyExists   = NewAPIError(1536, "review already exists with passed user ID and dorm room ID")
+	ErrorDormtrakTooManyPhotos = NewAPIErrorWithHTTP(1640, http.StatusBadRequest, "too many photos already uploaded to this review")
 
 	// 17** are ephcatch errors
 	ErrorEphcatchLikeNoSelf    = NewAPIError(1730, "cannot ephcatch-like yourself")

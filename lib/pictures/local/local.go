@@ -1,6 +1,7 @@
 package local
 
 import (
+	"errors"
 	"fmt"
 	"image"
 	"image/jpeg"
@@ -17,7 +18,10 @@ const (
 	dirUserLarge        = "user/large"
 	dirEphmatch         = "ephmatch"
 	dirDormtrakDormroom = "dormtrak/dormroom"
+	maxDormtrakPhotos   = 10
 )
+
+var ErrorMaxDormtrakPhotos = errors.New("max dormtrak photos")
 
 // Pictures backend for local filesystem images
 /*
@@ -30,6 +34,7 @@ Telos Structure:
 
 type Backend struct {
 	path string
+	log  *zap.SugaredLogger
 }
 
 func NewBackend(path string, log *zap.SugaredLogger) (*Backend, error) {
@@ -60,7 +65,7 @@ func NewBackend(path string, log *zap.SugaredLogger) (*Backend, error) {
 		}
 	}
 
-	return &Backend{path: absPath}, nil
+	return &Backend{path: absPath, log: log}, nil
 }
 
 // Simply replace user profile thumb here
@@ -82,10 +87,13 @@ func (b *Backend) saveUserProfile(img image.Image, unixID string, category strin
 	if err != nil {
 		return err
 	}
-	defer file.Close()
 
 	err = jpeg.Encode(file, img, &jpeg.Options{Quality: 80})
-	return err
+	if err != nil {
+		return err
+	}
+
+	return file.Close()
 }
 
 // All file names should be in the format `dormtrak/dormroom/{dormRoomID}/{reviewID}_{n}.jpg`
@@ -119,8 +127,12 @@ func (b *Backend) SaveDormRoom(dormRoomID uint, reviewID uint, img image.Image) 
 		}
 
 		if fileN > maxN {
-			fileN = maxN
+			maxN = fileN
 		}
+	}
+
+	if maxN > maxDormtrakPhotos {
+		return ErrorMaxDormtrakPhotos
 	}
 
 	path := filepath.Join(dirPath, fmt.Sprintf("%d_%d.jpg", reviewID, maxN+1))
@@ -129,10 +141,13 @@ func (b *Backend) SaveDormRoom(dormRoomID uint, reviewID uint, img image.Image) 
 	if err != nil {
 		return err
 	}
-	defer file.Close()
 
 	err = jpeg.Encode(file, img, &jpeg.Options{Quality: 80})
-	return err
+	if err != nil {
+		return err
+	}
+
+	return file.Close()
 }
 
 func (b *Backend) ListDormRoom(dormRoomID uint) ([]string, error) {
@@ -162,7 +177,7 @@ func (b *Backend) SaveEphmatchPhoto(unixID string, img image.Image) error {
 }
 
 func (b *Backend) DeleteEphmatchPhoto(unixID string) error {
-	fPath := filepath.Join(b.path, dirDormtrakDormroom, unixID+".jpg")
+	fPath := filepath.Join(b.path, dirEphmatch, unixID+".jpg")
 
 	if _, statErr := os.Stat(fPath); os.IsNotExist(statErr) {
 		return statErr
