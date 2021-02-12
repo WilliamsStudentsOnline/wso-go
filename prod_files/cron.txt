@@ -14,4 +14,8 @@ SHELL="/bin/bash"
 
 # Pronouns update
 SHELL="/bin/bash"
-0 2 * * * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/user-pronouns -console -config /home/wso/wso/wso-backend/config.yaml -file /var/sftp/oit/pronouns.csv >> /home/wso/wso/wso-backend/logs/user-pronouns-cron.log 2>&1'
+0 4 * * * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/user-pronouns -console -config /home/wso/wso/wso-backend/config.yaml -file /var/sftp/oit/pronouns.csv >> /home/wso/wso/wso-backend/logs/user-pronouns-cron.log 2>&1'
+
+# Dining update
+SHELL="/bin/bash"
+0 3 * * * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/dining-update -out /home/wso/wso/static/dining.json -vi /home/wso/wso/wso-backend/vendor_info.yaml >> /home/wso/wso/wso-backend/logs/dining-update-cron.log 2>&1'

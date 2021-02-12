@@ -3,6 +3,7 @@ module github.com/WilliamsStudentsOnline/wso-go
 go 1.14
 
 require (
+	github.com/PuerkitoBio/goquery v1.6.1
 	github.com/WilliamsStudentsOnline/gin-jwt/v2 v2.6.5
 	github.com/agext/levenshtein v1.2.2 // indirect
 	github.com/agnivade/levenshtein v1.0.2 // indirect
@@ -26,23 +27,18 @@ require (
 	github.com/jinzhu/inflection v1.0.0
 	github.com/json-iterator/go v1.1.9 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/kr/pty v1.1.5 // indirect
 	github.com/leodido/go-urn v1.2.0 // indirect
 	github.com/lib/pq v1.2.0 // indirect
 	github.com/m1ome/leven v0.0.0-20170305195354-a3732db01c54
 	github.com/mailru/easyjson v0.7.3 // indirect
 	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/nlopes/slack v0.6.0
-	github.com/satori/go.uuid v1.2.0 // indirect
-	github.com/stretchr/objx v0.2.0 // indirect
 	github.com/stretchr/testify v1.5.1
-	github.com/swaggo/cli v1.22.2 // indirect
 	github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14
 	github.com/swaggo/gin-swagger v1.2.0
 	github.com/swaggo/swag v1.6.7
 	github.com/thoas/go-funk v0.5.0
 	github.com/urfave/cli v1.22.4
-	github.com/urfave/cli/v2 v2.2.0 // indirect
 	go.uber.org/multierr v1.5.0 // indirect
 	go.uber.org/zap v1.14.0
 	golang.org/x/image v0.0.0-20200119044424-58c23975cae1 // indirect

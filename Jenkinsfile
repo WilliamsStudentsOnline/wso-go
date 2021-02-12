@@ -77,6 +77,10 @@ pipeline {
             sshPut remote: remote_dev, from: 'job-user-pronouns_linux', into: '/home/wsodev/wso-go/job-user-pronouns'
             sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/job-user-pronouns'
 
+            sshRemove remote: remote_dev, path: '/home/wsodev/wso-go/dining-update'
+            sshPut remote: remote_dev, from: 'job-dining-update_linux', into: '/home/wsodev/wso-go/job-dining-update'
+            sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/job-dining-update'
+
             // Restart WSO-Go
             sshCommand remote: remote_dev, command: '/bin/systemctl restart WSO-Go', sudo: true
           }
@@ -147,6 +151,10 @@ pipeline {
                 sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/job-user-pronouns'
                 sshPut remote: remote_dev, from: 'job-user-pronouns_linux', into: '/home/wso/wso/wso-backend/jobs/user-pronouns'
                 sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/user-pronouns'
+
+                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/job-dining-update'
+                sshPut remote: remote_dev, from: 'job-dining-update_linux', into: '/home/wso/wso/wso-backend/jobs/dining-update'
+                sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/dining-update'
 
                 // Restart WSO-Go
                 sshCommand remote: remote_dev, command: '/bin/systemctl restart WSO-Go', sudo: true
