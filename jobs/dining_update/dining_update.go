@@ -92,12 +92,17 @@ func loadDining(vendorInfoPath string, date time.Time) (exportDining, error) {
 	}
 	ed.Vendors = append(ed.Vendors, *whitmans)
 
-	for _, vi := range vendorsInfo {
+	for viID, vi := range vendorsInfo {
 		nv := Vendor{
 			Name:        vi.Name,
 			Meals:       make(map[string]*Meal),
 			OnlineOrder: vi.OnlineOrder,
 			Operating:   vi.Operating,
+		}
+
+		// Ignore doing this again if drisc or whitmans
+		if viID == "driscoll" || viID == "whitmans" {
+			continue
 		}
 
 		mealsToHours, ok := vi.Hours[strings.ToLower(date.Weekday().String())]
