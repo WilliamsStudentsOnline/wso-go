@@ -13,8 +13,8 @@ import (
 )
 
 type exportDining struct {
-	Vendors    []Vendor `json:"vendors"`
-	UpdateTime string   `json:"updateTime"`
+	Vendors    map[string]Vendor `json:"vendors"`
+	UpdateTime string            `json:"updateTime"`
 }
 
 type Vendor struct {
@@ -84,13 +84,13 @@ func loadDining(vendorInfoPath string, date time.Time) (exportDining, error) {
 	if err != nil {
 		return exportDining{}, err
 	}
-	ed.Vendors = append(ed.Vendors, *drisc)
+	ed.Vendors["driscoll"] = *drisc
 
 	whitmans, err := loadWhitmans(date, venues["Paresky Student Center"], vendorsInfo["whitmans"])
 	if err != nil {
 		return exportDining{}, err
 	}
-	ed.Vendors = append(ed.Vendors, *whitmans)
+	ed.Vendors["whitmans"] = *whitmans
 
 	for viID, vi := range vendorsInfo {
 		nv := Vendor{
@@ -118,7 +118,7 @@ func loadDining(vendorInfoPath string, date time.Time) (exportDining, error) {
 			}
 		}
 
-		ed.Vendors = append(ed.Vendors, nv)
+		ed.Vendors[viID] = nv
 	}
 
 	ed.UpdateTime = time.Now().Format(time.RFC850)
