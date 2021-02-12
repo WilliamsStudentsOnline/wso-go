@@ -78,7 +78,9 @@ func loadDining(vendorInfoPath string, date time.Time) (exportDining, error) {
 		return exportDining{}, err
 	}
 
-	ed := exportDining{}
+	ed := exportDining{
+		Vendors: make(map[string]Vendor),
+	}
 
 	drisc, err := loadDriscoll(date, venues["Driscoll"], vendorsInfo["driscoll"])
 	if err != nil {
