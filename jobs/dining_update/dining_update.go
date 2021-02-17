@@ -213,15 +213,12 @@ func parseDailyMenu(date time.Time, dailyMenu search.MetaMenu, vendorInfo *Vendo
 				}
 				if strings.HasSuffix(itemName, "VGT") {
 					foodItem.Vegetarian = true
-					foodItem.Name = strings.TrimSpace(strings.TrimSuffix(itemName, "VGT"))
 				}
 				if strings.HasSuffix(itemName, "V") {
 					foodItem.Vegan = true
-					foodItem.Name = strings.TrimSpace(strings.TrimSuffix(itemName, "V"))
 				}
 				if strings.HasSuffix(itemName, "GF") {
 					foodItem.GlutenFree = true
-					foodItem.Name = strings.TrimSpace(strings.TrimSuffix(itemName, "GF"))
 				}
 
 				course.Items = append(course.Items, &foodItem)
