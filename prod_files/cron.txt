@@ -2,7 +2,7 @@
 
 # Factrak survey deficits
 SHELL="/bin/bash"
-0 0 1 9,3 * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/update-all-factrak-survey-deficits -console -config /home/wso/wso/wso-backend/config.yaml >> /home/wso/wso/wso-backend/logs/update-all-factrak-survey-deficits-cron.log 2>&1'
+0 0 1 9,2 * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/update-all-factrak-survey-deficits -console -config /home/wso/wso/wso-backend/config.yaml >> /home/wso/wso/wso-backend/logs/update-all-factrak-survey-deficits-cron.log 2>&1'
 
 # User update
 SHELL="/bin/bash"
