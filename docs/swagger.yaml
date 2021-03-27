@@ -1016,6 +1016,37 @@ definitions:
       sophomoreCount:
         type: integer
     type: object
+  models.NotificationSettings:
+    properties:
+      enableNotifications:
+        description: 'Settings:'
+        type: boolean
+      id:
+        type: integer
+      salmonNotify:
+        type: boolean
+      user:
+        $ref: '#/definitions/models.User'
+        type: object
+      userID:
+        description: Belongs to user
+        type: integer
+    type: object
+  models.NotificationToken:
+    properties:
+      id:
+        type: integer
+      token:
+        type: string
+      type:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+        type: object
+      userID:
+        description: Belongs to user
+        type: integer
+    type: object
   models.Office:
     properties:
       id:
@@ -1153,6 +1184,15 @@ definitions:
         type: string
       nickname:
         type: string
+      notificationSettings:
+        $ref: '#/definitions/models.NotificationSettings'
+        description: Has one notification settings
+        type: object
+      notificationTokens:
+        description: Has many notification tokens
+        items:
+          $ref: '#/definitions/models.NotificationToken'
+        type: array
       offCampus:
         description: If user is Off-Campus and thus doesn't have a dorm
         type: boolean
@@ -1184,6 +1224,20 @@ definitions:
       visible:
         type: boolean
       williamsEmail:
+        type: string
+    type: object
+  notification.SettingsUpdateParams:
+    properties:
+      enableNotifications:
+        type: boolean
+      salmonNotify:
+        type: boolean
+    type: object
+  notification.TokenCreateParams:
+    properties:
+      token:
+        type: string
+      type:
         type: string
     type: object
   old.AuthResponse:
@@ -5848,6 +5902,117 @@ paths:
       security:
       - Bearer: []
       summary: Health check
+  /notification/app/token:
+    post:
+      consumes:
+      - application/json
+      description: creates self's notification token
+      operationId: notification-create-token
+      parameters:
+      - description: Create Token Params
+        in: body
+        name: updateParams
+        required: true
+        schema:
+          $ref: '#/definitions/notification.TokenCreateParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.NotificationToken'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1101":
+          description: request data validation failed
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Create notification token
+      tags:
+      - notification
+  /notification/settings:
+    get:
+      consumes:
+      - application/json
+      description: gets self's notification settings
+      operationId: notification-get-settings
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.NotificationSettings'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get notification settings
+      tags:
+      - notification
+    patch:
+      consumes:
+      - application/json
+      description: updates (or creates if it does not exist) self's notification settings
+      operationId: notification-update-settings
+      parameters:
+      - description: Update Settings Params
+        in: body
+        name: updateParams
+        required: true
+        schema:
+          $ref: '#/definitions/notification.SettingsUpdateParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.NotificationSettings'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1101":
+          description: request data validation failed
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Update notification settings
+      tags:
+      - notification
   /onboarding/canonical/{unixID}:
     get:
       consumes:

@@ -100,6 +100,11 @@ type User struct {
 	// Has one ephmatch profile
 	EphmatchProfile *EphmatchProfile `json:"ephmatchProfile,omitempty"`
 
+	// Has one notification settings
+	NotificationSettings *NotificationSettings `json:"notificationSettings,omitempty"`
+	// Has many notification tokens
+	NotificationTokens []*NotificationToken `gorm:"foreignkey:UserID" json:"notificationTokens,omitempty"`
+
 	// Has campus status: either remote or on-campus
 	CampusStatus *string `json:"campusStatus"`
 }
