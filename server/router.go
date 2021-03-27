@@ -32,6 +32,7 @@ import (
 	ephcatchService "github.com/WilliamsStudentsOnline/wso-go/services/ephcatch"
 	ephmatchService "github.com/WilliamsStudentsOnline/wso-go/services/ephmatch"
 	factrakService "github.com/WilliamsStudentsOnline/wso-go/services/factrak"
+	notificationService "github.com/WilliamsStudentsOnline/wso-go/services/notification"
 	onboardingService "github.com/WilliamsStudentsOnline/wso-go/services/onboarding"
 	userService "github.com/WilliamsStudentsOnline/wso-go/services/user"
 	wordsService "github.com/WilliamsStudentsOnline/wso-go/services/words"
@@ -204,6 +205,11 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 		// Onboarding Service
 		onboardingGroup := v2.Group("/onboarding")
 		onboardingService.SetupRouter(onboardingGroup, db, cfg, log.Named("onboarding"))
+
+		// Notifications Service
+		notifGroup := v2.Group("/notification")
+		notifGroup.Use(auth.RequireScopes(auth.ScopeUsers))
+		notificationService.SetupRouter(notifGroup, db, cfg, log.Named("notification"))
 	}
 
 	return r, nil

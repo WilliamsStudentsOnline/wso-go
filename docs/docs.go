@@ -6588,6 +6588,179 @@ var doc = `{
                 }
             }
         },
+        "/notification/app/token": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "creates self's notification token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notification"
+                ],
+                "summary": "Create notification token",
+                "operationId": "notification-create-token",
+                "parameters": [
+                    {
+                        "description": "Create Token Params",
+                        "name": "updateParams",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/notification.TokenCreateParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "1101": {
+                        "description": "request data validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.NotificationToken"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/notification/settings": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "gets self's notification settings",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notification"
+                ],
+                "summary": "Get notification settings",
+                "operationId": "notification-get-settings",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.NotificationSettings"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "updates (or creates if it does not exist) self's notification settings",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notification"
+                ],
+                "summary": "Update notification settings",
+                "operationId": "notification-update-settings",
+                "parameters": [
+                    {
+                        "description": "Update Settings Params",
+                        "name": "updateParams",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/notification.SettingsUpdateParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "1101": {
+                        "description": "request data validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.NotificationSettings"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
         "/onboarding/canonical/{unixID}": {
             "get": {
                 "security": [
@@ -8612,6 +8785,51 @@ var doc = `{
                 }
             }
         },
+        "models.NotificationSettings": {
+            "type": "object",
+            "properties": {
+                "enableNotifications": {
+                    "description": "Settings:",
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "salmonNotify": {
+                    "type": "boolean"
+                },
+                "user": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.User"
+                },
+                "userID": {
+                    "description": "Belongs to user",
+                    "type": "integer"
+                }
+            }
+        },
+        "models.NotificationToken": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "user": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.User"
+                },
+                "userID": {
+                    "description": "Belongs to user",
+                    "type": "integer"
+                }
+            }
+        },
         "models.Office": {
             "type": "object",
             "properties": {
@@ -8803,6 +9021,18 @@ var doc = `{
                 "nickname": {
                     "type": "string"
                 },
+                "notificationSettings": {
+                    "description": "Has one notification settings",
+                    "type": "object",
+                    "$ref": "#/definitions/models.NotificationSettings"
+                },
+                "notificationTokens": {
+                    "description": "Has many notification tokens",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.NotificationToken"
+                    }
+                },
                 "offCampus": {
                     "description": "If user is Off-Campus and thus doesn't have a dorm",
                     "type": "boolean"
@@ -8847,6 +9077,28 @@ var doc = `{
                     "type": "boolean"
                 },
                 "williamsEmail": {
+                    "type": "string"
+                }
+            }
+        },
+        "notification.SettingsUpdateParams": {
+            "type": "object",
+            "properties": {
+                "enableNotifications": {
+                    "type": "boolean"
+                },
+                "salmonNotify": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "notification.TokenCreateParams": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                },
+                "type": {
                     "type": "string"
                 }
             }

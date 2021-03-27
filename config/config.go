@@ -94,6 +94,17 @@ type Config struct {
 	/* Chat */
 	// The name of ejabberd service, like wso.williams.edu
 	ChatEjabberdName string `yaml:"chat_ejabberd_name" envconfig:"chat_ejabberd_name"`
+
+	/* Notifications */
+	/* APNS */
+	APNSAuthKey    string `yaml:"apns_auth_key" envconfig:"apns_auth_key"`
+	APNSKeyID      string `yaml:"apns_key_id" envconfig:"apns_key_id"`
+	APNSTeamID     string `yaml:"apns_team_id" envconfig:"apns_team_id"`
+	APNSTopic      string `yaml:"apns_topic" envconfig:"apns_topic"`
+	APNSProduction bool   `yaml:"apns_production" envconfig:"apns_production"`
+
+	/* Dining (for read, not write) */
+	DiningFile string `yaml:"dining_file" envconfig:"dining_file"`
 }
 
 type EphmatchEra struct {

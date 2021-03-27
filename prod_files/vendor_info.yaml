@@ -88,7 +88,7 @@ whitmans:
         close: 2:00pm
       dinner:
         open: 5:00pm
-        close: 10:00pm
+        close: 8:00pm
     tuesday:
       breakfast:
         open: 7:30am
@@ -98,7 +98,7 @@ whitmans:
         close: 2:00pm
       dinner:
         open: 5:00pm
-        close: 10:00pm
+        close: 8:00pm
     wednesday:
       breakfast:
         open: 7:30am
@@ -108,7 +108,7 @@ whitmans:
         close: 2:00pm
       dinner:
         open: 5:00pm
-        close: 10:00pm
+        close: 8:00pm
     thursday:
       breakfast:
         open: 7:30am
@@ -118,7 +118,7 @@ whitmans:
         close: 2:00pm
       dinner:
         open: 5:00pm
-        close: 10:00pm
+        close: 8:00pm
     friday:
       breakfast:
         open: 7:30am
@@ -128,21 +128,21 @@ whitmans:
         close: 2:00pm
       dinner:
         open: 5:00pm
-        close: 10:00pm
+        close: 8:00pm
     saturday:
       brunch:
         open: 11:30am
         close: 2:00pm
       dinner:
         open: 5:00pm
-        close: 10:00pm
+        close: 8:00pm
     sunday:
       brunch:
         open: 11:30am
         close: 2:00pm
       dinner:
         open: 5:00pm
-        close: 10:00pm
+        close: 8:00pm
 lees-snack-bar:
   name: Lee's Snack Bar
   operating: true

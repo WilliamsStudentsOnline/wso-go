@@ -12,7 +12,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/jobs/dining_update/net_nutrition/search"
 )
 
-type exportDining struct {
+type ExportDining struct {
 	Vendors    map[string]Vendor `json:"vendors"`
 	UpdateTime string            `json:"updateTime"`
 }
@@ -62,35 +62,35 @@ func UpdateDining(outPath string, vendorInfoPath string) error {
 	return json.NewEncoder(f).Encode(ed)
 }
 
-func loadDining(vendorInfoPath string, date time.Time) (exportDining, error) {
+func loadDining(vendorInfoPath string, date time.Time) (ExportDining, error) {
 	vendorsInfo, err := ReadVendorInfo(vendorInfoPath)
 	if err != nil {
-		return exportDining{}, err
+		return ExportDining{}, err
 	}
 
 	d, err := api.CreateWilliamsDiningAPI()
 	if err != nil {
-		return exportDining{}, err
+		return ExportDining{}, err
 	}
 
 	venues, err := parse.Populate(d)
 	if err != nil {
-		return exportDining{}, err
+		return ExportDining{}, err
 	}
 
-	ed := exportDining{
+	ed := ExportDining{
 		Vendors: make(map[string]Vendor),
 	}
 
 	drisc, err := loadDriscoll(date, venues["Driscoll"], vendorsInfo["driscoll"])
 	if err != nil {
-		return exportDining{}, err
+		return ExportDining{}, err
 	}
 	ed.Vendors["driscoll"] = *drisc
 
 	whitmans, err := loadWhitmans(date, venues["Paresky Student Center"], vendorsInfo["whitmans"])
 	if err != nil {
-		return exportDining{}, err
+		return ExportDining{}, err
 	}
 	ed.Vendors["whitmans"] = *whitmans
 
