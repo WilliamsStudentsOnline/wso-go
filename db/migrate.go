@@ -39,6 +39,8 @@ var Migrations = []*gormigrate.Migration{
 	migrations.EphmatchMatchSeenColumns20200526221419,
 	migrations.CampusStatusColumn20200713222414,
 	migrations.FactrakSurveysCourseInfoColumns20210207234139,
+	migrations.CreateNotificationSettings20210326205124,
+	migrations.CreateNotificationTokens20210326205140,
 }
 
 var MigrationGormOptions = gormigrate.DefaultOptions

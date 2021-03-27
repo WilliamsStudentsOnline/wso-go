@@ -153,4 +153,8 @@ var (
 	ErrorEphmatchInvalidMessagingPlatform = NewAPIError(1934, "ephmatch messaging platform is invalid")
 	ErrorEphmatchEmptyMessagingUsername   = NewAPIError(1935, "ephmatch messaging username is empty")
 	ErrorEphmatchDescriptionTooLong       = NewAPIError(1936, "ephmatch description is too long")
+
+	// 20** are notification errors
+	ErrorNotificationInvalidTokenType = NewAPIError(2030, "notification token type is invalid")
+	ErrorNotificationEmptyToken       = NewAPIError(2031, "notification token is empty")
 )
