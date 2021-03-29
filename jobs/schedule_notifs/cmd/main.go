@@ -70,7 +70,7 @@ func main() {
 		log.Fatal("unknown scheduled notification job")
 	}
 	if notifErr != nil {
-		log.Fatal("Notification Error: "+err.Error(), err)
+		log.Fatal("Notification Error: "+notifErr.Error(), notifErr)
 	}
 
 	log.Info("successfully ran scheduled notification")

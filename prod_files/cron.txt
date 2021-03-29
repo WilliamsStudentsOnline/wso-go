@@ -23,4 +23,3 @@ SHELL="/bin/bash"
 # Salmon scheduled notif
 SHELL="/bin/bash"
 0 9 * * * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/schedule-notifs -notif salmon -console -config /home/wso/wso/wso-backend/config.yaml >> /home/wso/wso/wso-backend/logs/schedule-notifs-cron.log 2>&1'
-#/home/wso/wso/static/dining.json
