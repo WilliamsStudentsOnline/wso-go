@@ -87,7 +87,7 @@ func generateNotif(diningFile string) (*notification.Notification, error) {
 	}
 
 	// If updated file is not the same day as today,
-	if !diningFileTime.Truncate(24 * time.Hour).Equal(time.Now().Truncate(24 * time.Hour)) {
+	if time.Now().After(diningFileTime.Add(time.Hour * 24)) {
 		return nil, errors.New("dining file is out of date")
 	}
 
