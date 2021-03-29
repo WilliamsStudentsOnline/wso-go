@@ -25,7 +25,8 @@ func (m *NotificationTokenModel) GetTokens(userID uint, t *[]*NotificationToken)
 }
 
 func (m *NotificationTokenModel) CreateToken(t *NotificationToken) (err error) {
-	err = m.DB.Create(t).Error
+	err = m.DB.Where(NotificationToken{UserID: t.UserID, Type: t.Type, Token: t.Token}).
+		FirstOrCreate(t).Error
 	if err != nil {
 		return err
 	}
