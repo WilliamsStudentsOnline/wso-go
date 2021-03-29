@@ -81,6 +81,10 @@ pipeline {
             sshPut remote: remote_dev, from: 'job-dining-update_linux', into: '/home/wsodev/wso-go/job-dining-update'
             sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/job-dining-update'
 
+            sshRemove remote: remote_dev, path: '/home/wsodev/wso-go/schedule-notifs'
+            sshPut remote: remote_dev, from: 'job-schedule-notifs_linux', into: '/home/wsodev/wso-go/job-schedule-notifs'
+            sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/job-schedule-notifs'
+
             // Restart WSO-Go
             sshCommand remote: remote_dev, command: '/bin/systemctl restart WSO-Go', sudo: true
           }
@@ -155,6 +159,10 @@ pipeline {
                 sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/job-dining-update'
                 sshPut remote: remote_dev, from: 'job-dining-update_linux', into: '/home/wso/wso/wso-backend/jobs/dining-update'
                 sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/dining-update'
+
+                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/job-schedule-notifs'
+                sshPut remote: remote_dev, from: 'job-schedule-notifs_linux', into: '/home/wso/wso/wso-backend/jobs/schedule-notifs'
+                sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/schedule-notifs'
 
                 // Restart WSO-Go
                 sshCommand remote: remote_dev, command: '/bin/systemctl restart WSO-Go', sudo: true

@@ -74,6 +74,10 @@ job-user-pronouns:
 job-dining-update:
 	go build -tags=jsoniter -o job-dining-update ./jobs/dining_update/cmd
 
+PHONY: job-schedule-notifs
+job-schedule-notifs:
+	go build -tags=jsoniter -o job-schedule-notifs ./jobs/schedule_notifs/cmd
+
 .PHONY: build-prod-linux
 build-prod-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o $(BINARY_NAME)_linux ./server/cmd
@@ -87,6 +91,7 @@ build-jobs-prod-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-frosh-photos_linux ./jobs/frosh_photos/cmd
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-user-pronouns_linux ./jobs/user_pronouns/cmd
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-dining-update_linux ./jobs/dining_update/cmd
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-schedule-notifs_linux ./jobs/schedule_notifs/cmd
 
 .PHONY: go-gen
 go-gen:
