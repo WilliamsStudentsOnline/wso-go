@@ -77,5 +77,5 @@ func OnCampusIP(ipString string) bool {
 		return false
 	}
 
-	return schoolSubnet.Contains(ip) || localSubnet.Contains(ip)
+	return schoolSubnet.Contains(ip) || localSubnet.Contains(ip) || ip.IsLoopback()
 }
