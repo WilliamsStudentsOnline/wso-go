@@ -102,6 +102,25 @@ func (m *StudentModel) UpdateAllFactrakSurveyDeficits() (err error) {
 	return
 }
 
+// Increase OnCampusSemesters for students registered this semester
+func (m *StudentModel) UpdateOnCampusSemesters() (err error) {
+	var students []User
+
+	err = m.GetAtWilliamsUsersByType(&students, UserTypeStudent)
+	if err != nil {
+		return
+	}
+
+	for _, student := range students {
+		err = m.DB.Model(&student).Update("on_campus_semesters", *student.OnCampusSemesters+1).Error
+		if err != nil {
+			return
+		}
+	}
+
+	return
+}
+
 type Student struct {
 	*User
 }
