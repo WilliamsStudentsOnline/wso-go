@@ -66,6 +66,7 @@ type User struct {
 	AtWilliams           *bool   `gorm:"DEFAULT:true;not null" json:"atWilliams"`
 	OffCycle             *bool   `gorm:"DEFAULT:false;not null" json:"offCycle"`
 	FactrakSurveyDeficit *int    `json:"factrakSurveyDeficit"`
+	OnCampusSemesters    *int    `gorm:"DEFAULT:0;not null" json:"onCampusSemester"` // used to calculate number of factrack surveys needed
 
 	OptOutEphcatch      *bool `gorm:"DEFAULT:false;not null" json:"optOutEphcatch"`
 	EphcatchEligibility *bool `gorm:"DEFAULT:false;not null" json:"ephcatchEligibility"`
