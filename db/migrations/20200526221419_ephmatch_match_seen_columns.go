@@ -28,6 +28,11 @@ var EphmatchMatchSeenColumns20200526221419 = &gormigrate.Migration{
 		return tx.AutoMigrate(&EphmatchMatch{}).Error
 	},
 	Rollback: func(tx *gorm.DB) error {
-		return tx.DropTable("ephmatch_matches").Error
+		err := tx.Table("ephmatch_matches").DropColumn("user_a_seen").Error
+		if err != nil {
+			return err
+		}
+		err = tx.Table("ephmatch_matches").DropColumn("user_b_seen").Error
+		return err
 	},
 }

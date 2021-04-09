@@ -26,6 +26,6 @@ var CampusStatusColumn20200713222414 = &gormigrate.Migration{
 		return tx.AutoMigrate(&User{}).Error
 	},
 	Rollback: func(tx *gorm.DB) error {
-		return tx.DropTable("users").Error
+		return tx.Table("users").DropColumn("campus_status").Error
 	},
 }

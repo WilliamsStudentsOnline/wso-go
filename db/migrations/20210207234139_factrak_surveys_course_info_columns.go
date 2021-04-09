@@ -30,6 +30,15 @@ var FactrakSurveysCourseInfoColumns20210207234139 = &gormigrate.Migration{
 		return tx.AutoMigrate(&FactrakSurvey{}).Error
 	},
 	Rollback: func(tx *gorm.DB) error {
-		return tx.DropTable("facktrak_surveys").Error
+		err := tx.Table("factrak_surveys").DropColumn("semester_season").Error
+		if err != nil {
+			return err
+		}
+		err = tx.Table("factrak_surveys").DropColumn("semester_year").Error
+		if err != nil {
+			return err
+		}
+		err = tx.Table("factrak_surveys").DropColumn("course_format").Error
+		return err
 	},
 }

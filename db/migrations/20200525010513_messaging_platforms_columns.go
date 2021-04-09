@@ -29,6 +29,11 @@ var MessagingPlatformsColumns20200525010513 = &gormigrate.Migration{
 		return tx.AutoMigrate(&EphmatchProfile{}).Error
 	},
 	Rollback: func(tx *gorm.DB) error {
-		return tx.DropTable("ephmatch_profiles").Error
+		err := tx.Table("ephmatch_profiles").DropColumn("messaging_platform").Error
+		if err != nil {
+			return err
+		}
+		err = tx.Table("ephmatch_profiles").DropColumn("messaging_username").Error
+		return err
 	},
 }

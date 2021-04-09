@@ -26,6 +26,6 @@ var AddNicknameToUsers20190826115256 = &gormigrate.Migration{
 		return tx.AutoMigrate(&User{}).Error
 	},
 	Rollback: func(tx *gorm.DB) error {
-		return tx.DropTable("users").Error
+		return tx.Table("users").DropColumn("nickname").Error
 	},
 }
