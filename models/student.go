@@ -43,7 +43,7 @@ func (m *StudentModel) UpdateFactrakSurveyDeficit(user *User) (err error) {
 
 	var deficit int
 
-	if surveyCount >= user.Student().surveyThreshold(m.Clock.Now()) {
+	if surveyCount >= user.Student().surveyThreshold() {
 		deficit = 0
 	} else {
 		surveysThisSem, err := fsM.CountSurveysThisSemesterByUser(user.ID, m.Clock.Now())
@@ -159,43 +159,13 @@ func (s *Student) IsUpperClass() bool {
 
 // The Factrak survey requirement count
 // To be excluded from the 2 surveys requirement this sem, you must have submitted
-// at least N - 2 reviews, where N is the number of classes you've taken.
-// N is not linear with class year because people might be abroad all jr year.
-// it allows 2 non-reviews per semester to account for people taking fewer than 4 courses
-// per semester -- we don't want to force them to review more classes than they've had
-func (s *Student) surveyThreshold(now time.Time) int {
-	// Check semester
-	if now.Month() >= StudentCutoffMonth {
-		// Fall Semester
-		switch s.YearNumber() {
-		case StudentYearPrefrosh:
-			return 0
-		case StudentYearFrosh:
-			return 0
-		case StudentYearSophomore:
-			return 6
-		case StudentYearJunior:
-			return 14
-		case StudentYearSenior:
-			return 14
-		default:
-			return 0
-		}
+// at least 2N reviews, where N is the number of semesters you have stayed on campus.
+func (s *Student) surveyThreshold() int {
+	if *s.OnCampusSemesters < 1 {
+		// Pre-Frosh
+		return 0
 	} else {
-		// Spring Semester
-		switch s.YearNumber() {
-		case StudentYearPrefrosh:
-			return 0
-		case StudentYearFrosh:
-			return 2
-		case StudentYearSophomore:
-			return 10
-		case StudentYearJunior:
-			return 14
-		case StudentYearSenior:
-			return 18
-		default:
-			return 0
-		}
+		// Note that OnCampusSemesters signals the current semester, and user only need to write about past semesters
+		return (*s.OnCampusSemesters - 1) * 2
 	}
 }
