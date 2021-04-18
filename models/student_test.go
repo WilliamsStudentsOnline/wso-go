@@ -126,13 +126,13 @@ func TestStudentModel_UpdateFactrakSurveyDeficit(t *testing.T) {
 
 		// Test user
 		student := User{
-			Type:      UserTypeStudent,
-			Name:      "Student",
-			UnixID:    "s1",
+			Type:   UserTypeStudent,
+			Name:   "Student",
+			UnixID: "s1",
 			BaseSchema: BaseSchema{
 				// So we can properly Initialize OnCampusSemesters
 				CreatedAt: time.Date(
-					m.SeniorYear() - 1,
+					m.SeniorYear()-1,
 					time.September,
 					1,
 					1,
@@ -178,13 +178,13 @@ func TestStudentModel_UpdateFactrakSurveyDeficit(t *testing.T) {
 
 		// Test user
 		student := User{
-			Type:      UserTypeStudent,
-			Name:      "Student",
-			UnixID:    "s1",
+			Type:   UserTypeStudent,
+			Name:   "Student",
+			UnixID: "s1",
 			BaseSchema: BaseSchema{
 				// So we can properly Initialize OnCampusSemesters
 				CreatedAt: time.Date(
-					m.SeniorYear() - 1,
+					m.SeniorYear()-1,
 					time.September,
 					1,
 					1,
@@ -240,7 +240,7 @@ func TestStudentModel_UpdateFactrakSurveyDeficit(t *testing.T) {
 			BaseSchema: BaseSchema{
 				// So we can properly Initialize OnCampusSemesters
 				CreatedAt: time.Date(
-					m.SeniorYear() - 2,
+					m.SeniorYear()-2,
 					time.September,
 					1,
 					1,
@@ -310,7 +310,7 @@ func TestStudentModel_UpdateFactrakSurveyDeficit(t *testing.T) {
 			BaseSchema: BaseSchema{
 				// So we can properly Initialize OnCampusSemesters
 				CreatedAt: time.Date(
-					m.SeniorYear() - 2,
+					m.SeniorYear()-2,
 					time.September,
 					1,
 					1,

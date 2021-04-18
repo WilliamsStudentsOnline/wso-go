@@ -1,11 +1,12 @@
 package parse
 
 import (
+	"strconv"
+	"strings"
+
 	"github.com/PuerkitoBio/goquery"
 	"github.com/WilliamsStudentsOnline/wso-go/jobs/dining_update/net_nutrition/api"
 	"github.com/WilliamsStudentsOnline/wso-go/jobs/dining_update/net_nutrition/search"
-	"strconv"
-	"strings"
 )
 
 func parseChildUnitsToNameId(data string) (map[string]int, error) {

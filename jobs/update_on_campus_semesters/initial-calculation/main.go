@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+
 	"go.uber.org/zap"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
@@ -91,4 +92,3 @@ func InitializeOnCampusSemesters(m *models.StudentModel, log *zap.SugaredLogger)
 
 	return
 }
-
