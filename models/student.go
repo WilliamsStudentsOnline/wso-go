@@ -113,7 +113,7 @@ func (m *StudentModel) UpdateOnCampusSemesters() (err error) {
 	}
 
 	for _, student := range students {
-		err = m.DB.Model(&student).Update("on_campus_semesters", *student.OnCampusSemesters+1).Error
+		err = m.DB.Model(&student).Update("on_campus_semesters", student.OnCampusSemesters+1).Error
 		if err != nil {
 			return
 		}
@@ -206,11 +206,11 @@ func (s *Student) IsUpperClass() bool {
 // To be excluded from the 2 surveys requirement this sem, you must have submitted
 // at least 2N reviews, where N is the number of semesters you have stayed on campus.
 func (s *Student) surveyThreshold() int {
-	if *s.OnCampusSemesters < 1 {
+	if s.OnCampusSemesters < 1 {
 		// Pre-Frosh
 		return 0
 	} else {
 		// Note that OnCampusSemesters signals the current semester, and user only need to write about past semesters
-		return (*s.OnCampusSemesters - 1) * 2
+		return (s.OnCampusSemesters - 1) * 2
 	}
 }

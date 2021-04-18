@@ -21,7 +21,7 @@ var UserAddOnCampusSemestersColumn20210406005136 = &gormigrate.Migration{
 		// with those fields.
 		type User struct {
 			models.BaseSchema
-			OnCampusSemesters *int `gorm:"DEFAULT:0;not null" json:"onCampusSemester"`
+			OnCampusSemesters int `gorm:"DEFAULT:0;not null" json:"onCampusSemester"`
 		}
 		return tx.AutoMigrate(&User{}).Error
 	},
