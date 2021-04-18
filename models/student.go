@@ -64,6 +64,7 @@ func (m *StudentModel) UpdateFactrakSurveyDeficit(user *User) (err error) {
 }
 
 func (m *StudentModel) SeniorYear() int {
+	// TODO: changing time.Now() below to m.Clock will break Student.YearNumber(), which creates an empty StudentModel{} without specifying Clock (a workaround would be use localClock, but it is best if we can keep it consistent with m.Clock)
 	locTime := time.Now().Local()
 	if locTime.Month() >= StudentCutoffMonth {
 		return locTime.Year() + 1
@@ -119,6 +120,50 @@ func (m *StudentModel) UpdateOnCampusSemesters() (err error) {
 	}
 
 	return
+}
+
+func (m *StudentModel) InitializeOnCampusSemesters(u *User) error {
+	return m.DB.Model(u).Update("on_campus_semesters", m.CalculateOnCampusSemesters(u)).Error
+}
+
+// CalculateOnCampusSemesters calculates a student's number of semesters on-campus according to
+// their class year, created_at time and whether they are off cycle.
+func (m *StudentModel) CalculateOnCampusSemesters(u *User) int {
+	var OnCampusSemesters int
+	s := u.Student()
+
+	yearNumber := s.YearNumber()
+	if *s.ClassYear-4 < s.CreatedAt.Year() {
+		// possibly transfer student
+		yearNumber += *s.ClassYear - 4 - s.CreatedAt.Year()
+
+		// Log if we mark someone as transfer
+		m.log.Debugf("[transfer student] %v (%v) '%v: On-Campus Year changed from %v to %v. Student created_at %v which should be %v \n",
+			s.Name, s.UnixID, *s.ClassYear, s.YearNumber(), yearNumber, s.CreatedAt.Format("2006-Jan-2"), *s.ClassYear-4)
+	} else if *s.ClassYear-4 > s.CreatedAt.Year() {
+		// possibly student who took a gap year; do nothing and use current yearNumber
+	}
+
+	locTime := m.Clock.Now().Local()
+	if locTime.Month() >= StudentCutoffMonth {
+		// Fall Semester
+		OnCampusSemesters = yearNumber*2 - 1
+	} else {
+		// Spring Semester
+		OnCampusSemesters = yearNumber * 2
+	}
+
+	if *s.AtWilliams && s.Junior() {
+		// Possibly on a junior year study-away program
+		return (yearNumber - 1) * 2
+	}
+
+	if *s.OffCycle {
+		// For those taking one semester off
+		OnCampusSemesters--
+	}
+
+	return OnCampusSemesters
 }
 
 type Student struct {

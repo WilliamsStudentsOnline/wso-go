@@ -2,8 +2,6 @@ package main
 
 import (
 	"flag"
-	"time"
-
 	"go.uber.org/zap"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
@@ -85,7 +83,7 @@ func InitializeOnCampusSemesters(m *models.StudentModel, log *zap.SugaredLogger)
 	}
 
 	for _, student := range students {
-		err = m.DB.Model(&student).Update("on_campus_semesters", CalculateOnCampusSemesters(&student, log)).Error
+		err = m.InitializeOnCampusSemesters(&student)
 		if err != nil {
 			return
 		}
@@ -94,42 +92,3 @@ func InitializeOnCampusSemesters(m *models.StudentModel, log *zap.SugaredLogger)
 	return
 }
 
-// CalculateOnCampusSemesters calculates a student's number of semesters on-campus according to
-// their class year, created_at time and whether they are off cycle.
-func CalculateOnCampusSemesters(u *models.User, log *zap.SugaredLogger) int {
-	var OnCampusSemesters int
-	s := u.Student()
-
-	yearNumber := s.YearNumber()
-	if *s.ClassYear-4 < s.CreatedAt.Year() {
-		// possibly transfer student
-		yearNumber += *s.ClassYear - 4 - s.CreatedAt.Year()
-
-		// Log if we mark someone as transfer
-		log.Debugf("[transfer student] %v (%v) '%v: On-Campus Year changed from %v to %v. Student created_at %v which should be %v \n",
-			s.Name, s.UnixID, *s.ClassYear, s.YearNumber(), yearNumber, s.CreatedAt.Format("2006-Jan-2"), *s.ClassYear-4)
-	} else if *s.ClassYear-4 > s.CreatedAt.Year() {
-		// possibly student who took a gap year; do nothing and use current yearNumber
-	}
-
-	locTime := time.Now().Local()
-	if locTime.Month() >= models.StudentCutoffMonth {
-		// Fall Semester
-		OnCampusSemesters = yearNumber*2 - 1
-	} else {
-		// Spring Semester
-		OnCampusSemesters = yearNumber * 2
-	}
-
-	if *s.AtWilliams && s.Junior() {
-		// Possibly on a junior year study-away program
-		return (yearNumber - 1) * 2
-	}
-
-	if *s.OffCycle {
-		// For those taking one semester off
-		OnCampusSemesters--
-	}
-
-	return OnCampusSemesters
-}
