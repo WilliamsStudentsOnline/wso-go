@@ -23,3 +23,7 @@ SHELL="/bin/bash"
 # Salmon scheduled notif
 SHELL="/bin/bash"
 0 9 * * * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/schedule-notifs -notif salmon -console -config /home/wso/wso/wso-backend/config.yaml >> /home/wso/wso/wso-backend/logs/schedule-notifs-cron.log 2>&1'
+
+# Increment students' on campus semester (for those with at_williams = true)
+# This is run at the beginning of each semester (Feb & Sep)
+0 0 1 2,9 * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/job-update-on-campus-semesters -console -config /home/wso/wso/wso-backend/config.yaml >> /home/wso/wso/wso-backend/logs/update-on-campus-semesters-cron.log 2>&1'

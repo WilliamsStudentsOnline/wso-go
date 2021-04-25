@@ -85,6 +85,15 @@ pipeline {
             sshPut remote: remote_dev, from: 'job-schedule-notifs_linux', into: '/home/wsodev/wso-go/job-schedule-notifs'
             sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/job-schedule-notifs'
 
+            sshRemove remote: remote_dev, path: '/home/wsodev/wso-go/job-update-on-campus-semesters'
+            sshPut remote: remote_dev, from: 'job-update-on-campus-semesters', into: '/home/wsodev/wso-go/job-update-on-campus-semesters'
+            sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/job-update-on-campus-semesters'
+
+            sshRemove remote: remote_dev, path: '/home/wsodev/wso-go/job-initialize-on-campus-semesters'
+            sshPut remote: remote_dev, from: 'job-initialize-on-campus-semesters', into: '/home/wsodev/wso-go/job-initialize-on-campus-semesters'
+            sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/job-initialize-on-campus-semesters'
+
+
             // Restart WSO-Go
             sshCommand remote: remote_dev, command: '/bin/systemctl restart WSO-Go', sudo: true
           }
@@ -163,6 +172,14 @@ pipeline {
                 sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/job-schedule-notifs'
                 sshPut remote: remote_dev, from: 'job-schedule-notifs_linux', into: '/home/wso/wso/wso-backend/jobs/schedule-notifs'
                 sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/schedule-notifs'
+
+                sshRemove remote: remote_dev, path: '/home/wsodev/wso-go/job-update-on-campus-semesters'
+                sshPut remote: remote_dev, from: 'job-update-on-campus-semesters', into: '/home/wsodev/wso-go/job-update-on-campus-semesters'
+                sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/job-update-on-campus-semesters'
+
+                sshRemove remote: remote_dev, path: '/home/wsodev/wso-go/job-initialize-on-campus-semesters'
+                sshPut remote: remote_dev, from: 'job-initialize-on-campus-semesters', into: '/home/wsodev/wso-go/job-initialize-on-campus-semesters'
+                sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/job-initialize-on-campus-semesters'
 
                 // Restart WSO-Go
                 sshCommand remote: remote_dev, command: '/bin/systemctl restart WSO-Go', sudo: true
