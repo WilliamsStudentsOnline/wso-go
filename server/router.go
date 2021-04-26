@@ -32,6 +32,7 @@ import (
 	ephcatchService "github.com/WilliamsStudentsOnline/wso-go/services/ephcatch"
 	ephmatchService "github.com/WilliamsStudentsOnline/wso-go/services/ephmatch"
 	factrakService "github.com/WilliamsStudentsOnline/wso-go/services/factrak"
+	goodrichService "github.com/WilliamsStudentsOnline/wso-go/services/goodrich"
 	notificationService "github.com/WilliamsStudentsOnline/wso-go/services/notification"
 	onboardingService "github.com/WilliamsStudentsOnline/wso-go/services/onboarding"
 	userService "github.com/WilliamsStudentsOnline/wso-go/services/user"
@@ -210,6 +211,11 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 		notifGroup := v2.Group("/notification")
 		notifGroup.Use(auth.RequireScopes(auth.ScopeUsers))
 		notificationService.SetupRouter(notifGroup, db, cfg, log.Named("notification"))
+
+		// Goodrich Service
+		goodrichGroup := v2.Group("/goodrich")
+		goodrichGroup.Use(auth.RequireScopes(auth.ScopeGoodrich))
+		goodrichService.SetupRouter(goodrichGroup, db, cfg, log.Named("goodrich"))
 	}
 
 	return r, nil

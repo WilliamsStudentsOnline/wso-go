@@ -75,3 +75,11 @@ func TimePtrDefaults(value, defaultVal *time.Time) *time.Time {
 	}
 	return value
 }
+
+// Either goes with float64 ptr if not nil or with default otherwise
+func Float64PtrDefaults(value, defaultVal *float64) *float64 {
+	if value == nil {
+		return defaultVal
+	}
+	return value
+}

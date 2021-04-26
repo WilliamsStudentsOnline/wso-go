@@ -39,6 +39,9 @@ func User(user *models.User, ctx *gin.Context) {
 		user.HomeTown = nil
 		user.HomeZip = nil
 	}
+
+	// Williams ID
+	user.WilliamsID = ""
 }
 
 // Sanitize multiple users using the gin context.

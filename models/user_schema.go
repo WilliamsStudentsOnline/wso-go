@@ -107,6 +107,9 @@ type User struct {
 
 	// Has campus status: either remote or on-campus
 	CampusStatus *string `json:"campusStatus"`
+
+	// Williams W# ID
+	WilliamsID string `json:"williamsId"`
 }
 
 func (*User) TableName() string {
