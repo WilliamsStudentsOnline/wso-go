@@ -8298,6 +8298,9 @@ var doc = `{
         },
         "goodrich.CreateMenuItemParams": {
             "type": "object",
+            "required": [
+                "title"
+            ],
             "properties": {
                 "available": {
                     "type": "boolean"

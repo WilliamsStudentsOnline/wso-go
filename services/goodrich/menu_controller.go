@@ -44,7 +44,7 @@ func (t *Controller) ListMenu(c *gin.Context) {
 
 // CreateMenuItemParams is a struct to hold the parameters used to create a menu item.
 type CreateMenuItemParams struct {
-	Title       string  `json:"title"`
+	Title       string  `json:"title" binding:"required"`
 	Description string  `json:"description"`
 	Price       float64 `json:"price"`
 	Available   bool    `json:"available"`

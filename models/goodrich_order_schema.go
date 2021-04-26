@@ -89,8 +89,7 @@ func ValidateGoodrichPaymentMethod(m GoodrichPaymentMethod) bool {
 
 func ValidateGoodrichOrderStatus(m GoodrichOrderStatus) bool {
 	switch m {
-	case GoodrichOrderStatusUnknown,
-		GoodrichOrderStatusPlaced,
+	case GoodrichOrderStatusPlaced,
 		GoodrichOrderStatusAccepted,
 		GoodrichOrderStatusRejected,
 		GoodrichOrderStatusInProgress,
