@@ -105,6 +105,9 @@ type Config struct {
 
 	/* Dining (for read, not write) */
 	DiningFile string `yaml:"dining_file" envconfig:"dining_file"`
+
+	/* Goodrich */
+	GoodrichManagerUnixes []string `yaml:"goodrich_manager_unixes" envconfig:"goodrich_manager_unixes"`
 }
 
 type EphmatchEra struct {

@@ -95,7 +95,7 @@ func (m *GoodrichOrderModel) GetAllGoodrichOrders(o *[]*GoodrichOrder, opts Opti
 func (m *GoodrichOrderModel) GetGoodrichUserOrders(o *[]*GoodrichOrder, userID uint) (err error) {
 	db := m.DB.Model(&GoodrichOrder{})
 
-	return db.Find(o).Where("user_id = ?", userID).Error
+	return db.Where("user_id = ?", userID).Find(o).Error
 }
 
 // Get Goodrich order
@@ -106,7 +106,7 @@ func (m *GoodrichOrderModel) GetGoodrichOrder(o *GoodrichOrder, id uint, preload
 		db.Preload("User")
 	}
 
-	return db.First(o).Where("id = ?", id).Error
+	return db.Where("id = ?", id).First(o).Error
 }
 
 // CreateOrder creates a menu item

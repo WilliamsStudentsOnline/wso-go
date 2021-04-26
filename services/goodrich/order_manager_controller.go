@@ -23,7 +23,7 @@ import (
 // @Produce  json
 // @Param offset query int false "Offset Pagination"
 // @Param limit query int false "Limit Pagination"
-// @Param type query sort false "Sort"
+// @Param type query string false "Sort"
 // @Param type query uint false "User ID"
 // @Param statuses query []string false "Allowed Status list"
 // @Success 200 {array} models.GoodrichOrder

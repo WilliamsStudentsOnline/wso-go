@@ -28,7 +28,7 @@ func (p *GetAllGoodrichMenuItemsOptions) Order(db *gorm.DB) *gorm.DB {
 
 func (p *GetAllGoodrichMenuItemsOptions) Filter(db *gorm.DB) *gorm.DB {
 	if !p.All {
-		return db.Where("goodrich_menu_items.available", true)
+		return db.Where("goodrich_menu_items.available = ?", true)
 	}
 	return db
 }
@@ -62,7 +62,7 @@ func (m *GoodrichMenuItemModel) CreateMenuItem(g *GoodrichMenuItem) (err error) 
 
 // GetMenuItemByID retrieves a menu item by ID
 func (m *GoodrichMenuItemModel) GetMenuItemByID(id uint, g *GoodrichMenuItem) (err error) {
-	err = m.DB.First(g).Where("id = ?", id).Error
+	err = m.DB.Where("id = ?", id).First(g).Error
 	return
 }
 

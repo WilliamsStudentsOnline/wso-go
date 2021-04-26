@@ -48,7 +48,7 @@ type GoodrichOrder struct {
 	// You will need to make a custom format to store these in SQL, b/c a join table would be absolutely massive. I suggest doing a comma separated format like "id,id,id"
 	ItemList string `json:"-"`
 	// this means this field will be ignored in the DB. Use this to pull the menu items from ItemList into actual objects in the Model/Controller side.
-	Items []*GoodrichMenuItem `gorm:"-"`
+	Items []*GoodrichMenuItem `json:"items" gorm:"-"`
 
 	// Belongs to user
 	UserID uint  `json:"userID"`
