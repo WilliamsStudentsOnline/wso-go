@@ -23,7 +23,7 @@ type GetAllGoodrichMenuItemsOptions struct {
 }
 
 func (p *GetAllGoodrichMenuItemsOptions) Order(db *gorm.DB) *gorm.DB {
-	return db.Order("goodrich_menu_items.title ASC", true)
+	return db.Order("goodrich_menu_items.title ASC, goodrich_menu_items.type ASC", true)
 }
 
 func (p *GetAllGoodrichMenuItemsOptions) Filter(db *gorm.DB) *gorm.DB {

@@ -2,7 +2,6 @@ package models
 
 import (
 	"strings"
-	"time"
 
 	"github.com/jinzhu/gorm"
 )
@@ -11,12 +10,9 @@ type GoodrichOrderStatus int
 
 const (
 	GoodrichOrderStatusUnknown GoodrichOrderStatus = iota // Default is unknown
-	GoodrichOrderStatusPlaced                             // Initial step: set when order is made
-	GoodrichOrderStatusAccepted
-	GoodrichOrderStatusRejected
-	GoodrichOrderStatusInProgress
-	GoodrichOrderStatusCompleted
-	GoodrichOrderStatusPickedUp
+	GoodrichOrderStatusPlaced
+	GoodrichOrderStatusReady
+	GoodrichOrderStatusPaid
 )
 
 type GoodrichPaymentMethod int
@@ -33,14 +29,14 @@ const (
 type GoodrichOrder struct {
 	BaseSchema
 
-	Status        GoodrichOrderStatus `json:"status"`
-	PhoneNumber   string              `json:"phoneNumber"`
-	PreferredTime time.Time           `json:"preferredTime"`
-	PickupTime    *time.Time          `json:"pickupTime"`
-	Notes         string              `json:"notes"`
-	TotalPrice    float64             `json:"totalPrice"`
-	ComboDeal     *bool               `gorm:"DEFAULT:false;not null" json:"comboDeal"`
-	AdminNotes    string              `json:"adminNotes"`
+	Status      GoodrichOrderStatus `json:"status"`
+	PhoneNumber string              `json:"phoneNumber"`
+	Date        string              `json:"date"`     // Format: 2006-01-02
+	TimeSlot    string              `json:"timeSlot"` // Format: 15:04
+	Notes       string              `json:"notes"`
+	TotalPrice  float64             `json:"totalPrice"`
+	ComboDeal   *bool               `gorm:"DEFAULT:false;not null" json:"comboDeal"`
+	AdminNotes  string              `json:"adminNotes"`
 
 	PaymentMethod GoodrichPaymentMethod `json:"paymentMethod"`
 	IDNumber      *string               `json:"idNumber"`
@@ -63,11 +59,16 @@ func (o *GoodrichOrder) AfterFind(tx *gorm.DB) (err error) {
 	if o.ItemList != "" {
 		itemIdStrs := strings.Split(o.ItemList, ",")
 
-		var items []*GoodrichMenuItem
-		newTx := tx.New().Model(&GoodrichMenuItem{})
-		for _, id := range itemIdStrs {
-			newTx.Or("id = ?", id)
+		var questionFmt []string
+		var itemIDs []interface{}
+		for _, itemID := range itemIdStrs {
+			questionFmt = append(questionFmt, "?")
+			itemIDs = append(itemIDs, itemID)
 		}
+
+		var items []*GoodrichMenuItem
+		newTx := tx.New().Model(&GoodrichMenuItem{}).
+			Where("id IN ("+strings.Join(questionFmt, ",")+")", itemIDs...)
 
 		err = newTx.Find(&items).Error
 		if err != nil {
@@ -90,11 +91,8 @@ func ValidateGoodrichPaymentMethod(m GoodrichPaymentMethod) bool {
 func ValidateGoodrichOrderStatus(m GoodrichOrderStatus) bool {
 	switch m {
 	case GoodrichOrderStatusPlaced,
-		GoodrichOrderStatusAccepted,
-		GoodrichOrderStatusRejected,
-		GoodrichOrderStatusInProgress,
-		GoodrichOrderStatusCompleted,
-		GoodrichOrderStatusPickedUp:
+		GoodrichOrderStatusReady,
+		GoodrichOrderStatusPaid:
 		return true
 	}
 	return false

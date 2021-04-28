@@ -11,11 +11,13 @@ require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/arbovm/levenshtein v0.0.0-20160628152529-48b4e1c0c4d0 // indirect
 	github.com/brianvoe/gofakeit v3.18.0+incompatible
+	github.com/cenkalti/backoff/v4 v4.1.0
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/disintegration/imaging v1.6.2
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-gonic/gin v1.5.0
+	github.com/go-mail/mail v2.3.1+incompatible
 	github.com/go-openapi/spec v0.19.9 // indirect
 	github.com/go-openapi/swag v0.19.9 // indirect
 	github.com/go-playground/universal-translator v0.17.0 // indirect

@@ -6,6 +6,8 @@ type GoodrichMenuItem struct {
 	Title       string  `json:"title"`
 	Description string  `json:"description"`
 	Price       float64 `json:"price"`
+	Type        string  `json:"type"`
+	Category    string  `json:"category"`
 	// false if item is out of stock
 	Available bool `json:"available"`
 }

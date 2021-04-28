@@ -369,23 +369,12 @@ definitions:
       updated:
         type: string
     type: object
-  goodrich.CreateMenuItemParams:
-    properties:
-      available:
-        type: boolean
-      description:
-        type: string
-      price:
-        type: number
-      title:
-        type: string
-    required:
-    - title
-    type: object
   goodrich.CreateOrderParams:
     properties:
       comboDeal:
         type: boolean
+      date:
+        type: string
       idNumber:
         type: string
       itemIDs:
@@ -398,27 +387,26 @@ definitions:
         type: integer
       phoneNumber:
         type: string
-      preferredTime:
+      timeSlot:
+        description: 'Format: 11:10 am'
         type: string
     type: object
-  goodrich.UpdateMenuItemParams:
+  goodrich.TimeSlot:
     properties:
-      available:
-        type: boolean
-      description:
+      closedSpots:
+        type: integer
+      formatted:
         type: string
-      price:
-        type: number
+      hour:
+        type: integer
+      minute:
+        type: integer
+      openSpots:
+        type: integer
     type: object
   goodrich.UpdateOrderParams:
     properties:
       adminNotes:
-        type: string
-      itemIDs:
-        items:
-          type: integer
-        type: array
-      pickupTime:
         type: string
       status:
         type: integer
@@ -1052,6 +1040,8 @@ definitions:
       available:
         description: false if item is out of stock
         type: boolean
+      category:
+        type: string
       description:
         type: string
       id:
@@ -1060,6 +1050,8 @@ definitions:
         type: number
       title:
         type: string
+      type:
+        type: string
     type: object
   models.GoodrichOrder:
     properties:
@@ -1067,6 +1059,9 @@ definitions:
         type: string
       comboDeal:
         type: boolean
+      date:
+        description: 'Format: 2006-01-02'
+        type: string
       id:
         type: integer
       idNumber:
@@ -1082,12 +1077,11 @@ definitions:
         type: integer
       phoneNumber:
         type: string
-      pickupTime:
-        type: string
-      preferredTime:
-        type: string
       status:
         type: integer
+      timeSlot:
+        description: 'Format: 15:04'
+        type: string
       totalPrice:
         type: number
       user:
@@ -1329,7 +1323,7 @@ definitions:
         type: boolean
       williamsEmail:
         type: string
-      williamsId:
+      williamsID:
         description: Williams W# ID
         type: string
     type: object
@@ -1495,6 +1489,8 @@ definitions:
       visible:
         type: boolean
       williamsEmail:
+        type: string
+      williamsID:
         type: string
     type: object
   responses.ListMatchesResponseEphmatchMatch:
@@ -1701,6 +1697,8 @@ definitions:
       visible:
         type: boolean
       williamsEmail:
+        type: string
+      williamsID:
         type: string
     type: object
   server.HealthCheckResponse:
@@ -6022,76 +6020,6 @@ paths:
       summary: List menu
       tags:
       - goodrich
-    post:
-      consumes:
-      - application/json
-      description: creates a menu item
-      operationId: goodrich-create-menu-item
-      parameters:
-      - description: Create Menu Item Params
-        in: body
-        name: createParams
-        required: true
-        schema:
-          $ref: '#/definitions/goodrich.CreateMenuItemParams'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/models.GoodrichMenuItem'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/lib.APIError'
-      security:
-      - Bearer: []
-      summary: Create menu item
-      tags:
-      - goodrich
-  /goodrich/menu/{itemID}:
-    patch:
-      consumes:
-      - application/json
-      description: updates a menu item
-      operationId: goodrich-update-menu-item
-      parameters:
-      - description: Update Menu Item Params
-        in: body
-        name: updateParams
-        required: true
-        schema:
-          $ref: '#/definitions/goodrich.UpdateMenuItemParams'
-      - description: Item ID
-        in: path
-        name: itemID
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.GoodrichMenuItem'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/lib.APIError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/lib.APIError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/lib.APIError'
-      security:
-      - Bearer: []
-      summary: Update menu item
-      tags:
-      - goodrich
   /goodrich/orders:
     get:
       consumes:
@@ -6113,7 +6041,7 @@ paths:
         type: string
       - description: User ID
         in: query
-        name: type
+        name: userID
         type: integer
       - description: Allowed Status list
         in: query
@@ -6226,6 +6154,30 @@ paths:
       security:
       - Bearer: []
       summary: Update order
+      tags:
+      - goodrich
+  /goodrich/timeslots:
+    get:
+      consumes:
+      - application/json
+      description: lists all time slots today
+      operationId: goodrich-list-time-slots
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/goodrich.TimeSlot'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List time slots
       tags:
       - goodrich
   /goodrich/user/orders:

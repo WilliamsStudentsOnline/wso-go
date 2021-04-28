@@ -108,6 +108,10 @@ type Config struct {
 
 	/* Goodrich */
 	GoodrichManagerUnixes []string `yaml:"goodrich_manager_unixes" envconfig:"goodrich_manager_unixes"`
+	// Use format: 2006-01-02
+	GoodrichOpenDays  []string `yaml:"goodrich_open_days" envconfig:"goodrich_open_days"`
+	GoodrichOpenTime  string   `yaml:"goodrich_open_time" envconfig:"goodrich_open_time"`
+	GoodrichCloseTime string   `yaml:"goodrich_close_time" envconfig:"goodrich_close_time"`
 }
 
 type EphmatchEra struct {

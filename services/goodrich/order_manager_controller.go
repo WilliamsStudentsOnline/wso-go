@@ -2,16 +2,12 @@ package goodrich
 
 import (
 	"net/http"
-	"strconv"
-	"strings"
-	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/sanitize"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 )
 
 // ListOrders godoc
@@ -24,7 +20,7 @@ import (
 // @Param offset query int false "Offset Pagination"
 // @Param limit query int false "Limit Pagination"
 // @Param type query string false "Sort"
-// @Param type query uint false "User ID"
+// @Param userID query uint false "User ID"
 // @Param statuses query []string false "Allowed Status list"
 // @Success 200 {array} models.GoodrichOrder
 // @Failure 500 {object} lib.APIError
@@ -84,10 +80,8 @@ func (t *Controller) GetOrder(c *gin.Context) {
 
 // UpdateOrderParams is a struct to hold the parameters used to update an order.
 type UpdateOrderParams struct {
-	PickupTime *time.Time                  `json:"pickupTime"`
 	Status     *models.GoodrichOrderStatus `json:"status"`
 	AdminNotes *string                     `json:"adminNotes"`
-	ItemIDs    *[]uint                     `json:"itemIDs"`
 }
 
 // UpdateOrder godoc
@@ -119,12 +113,6 @@ func (t *Controller) UpdateOrder(c *gin.Context) {
 		return
 	}
 
-	// have this above to support changing order status with old pickup times
-	if updateData.PickupTime.Before(time.Now()) {
-		t.RespondAPIError(c, lib.ErrorGoodrichPickupTimeTooEarly)
-		return
-	}
-
 	// Do database query to get bulletin
 	var order models.GoodrichOrder
 	err = t.orderModel.GetGoodrichOrder(&order, orderID, true)
@@ -134,7 +122,6 @@ func (t *Controller) UpdateOrder(c *gin.Context) {
 	}
 
 	// Update fields: this is a bit long and verbose, but I don't want to mess with reflect
-	order.PickupTime = lib.TimePtrDefaults(updateData.PickupTime, order.PickupTime)
 	if updateData.Status != nil {
 		order.Status = *updateData.Status
 	}
@@ -150,37 +137,6 @@ func (t *Controller) UpdateOrder(c *gin.Context) {
 	// TODO[high]: validate combo
 
 	// TODO[high]: validate for too expensive on a swipe
-
-	// If we changed items, do shit:
-	// Calculate price
-	if updateData.ItemIDs != nil {
-		var itemIDsStr []string
-		var totalPrice float64 = 0
-		for _, itemID := range *updateData.ItemIDs {
-			menuItem := &models.GoodrichMenuItem{}
-			err = t.menuModel.GetMenuItemByID(itemID, menuItem)
-			if err != nil {
-				if gorm.IsRecordNotFoundError(err) {
-					t.RespondAPIError(c, lib.ErrorGoodrichUnknownMenuItem)
-					return
-				}
-				t.RespondError(c, err)
-				return
-			}
-
-			if !menuItem.Available {
-				t.RespondAPIError(c, lib.ErrorGoodrichUnavailableMenuItem)
-				return
-			}
-
-			totalPrice += menuItem.Price
-			itemIDsStr = append(itemIDsStr, strconv.Itoa(int(itemID)))
-		}
-
-		itemIDList := strings.Join(itemIDsStr, ",")
-		order.ItemList = itemIDList
-		order.TotalPrice = totalPrice
-	}
 
 	// Update the menu item in the db
 	err = t.orderModel.UpdateOrder(&order)

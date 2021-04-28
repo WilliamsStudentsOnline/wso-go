@@ -6606,115 +6606,6 @@ var doc = `{
                         }
                     }
                 }
-            },
-            "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "creates a menu item",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "goodrich"
-                ],
-                "summary": "Create menu item",
-                "operationId": "goodrich-create-menu-item",
-                "parameters": [
-                    {
-                        "description": "Create Menu Item Params",
-                        "name": "createParams",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/goodrich.CreateMenuItemParams"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/models.GoodrichMenuItem"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/lib.APIError"
-                        }
-                    }
-                }
-            }
-        },
-        "/goodrich/menu/{itemID}": {
-            "patch": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "updates a menu item",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "goodrich"
-                ],
-                "summary": "Update menu item",
-                "operationId": "goodrich-update-menu-item",
-                "parameters": [
-                    {
-                        "description": "Update Menu Item Params",
-                        "name": "updateParams",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/goodrich.UpdateMenuItemParams"
-                        }
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Item ID",
-                        "name": "itemID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.GoodrichMenuItem"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/lib.APIError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/lib.APIError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/lib.APIError"
-                        }
-                    }
-                }
             }
         },
         "/goodrich/orders": {
@@ -6758,7 +6649,7 @@ var doc = `{
                     {
                         "type": "integer",
                         "description": "User ID",
-                        "name": "type",
+                        "name": "userID",
                         "in": "query"
                     },
                     {
@@ -6918,6 +6809,44 @@ var doc = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.GoodrichOrder"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/goodrich/timeslots": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "lists all time slots today",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "goodrich"
+                ],
+                "summary": "List time slots",
+                "operationId": "goodrich-list-time-slots",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/goodrich.TimeSlot"
+                            }
                         }
                     },
                     "500": {
@@ -8296,31 +8225,14 @@ var doc = `{
                 }
             }
         },
-        "goodrich.CreateMenuItemParams": {
-            "type": "object",
-            "required": [
-                "title"
-            ],
-            "properties": {
-                "available": {
-                    "type": "boolean"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "price": {
-                    "type": "number"
-                },
-                "title": {
-                    "type": "string"
-                }
-            }
-        },
         "goodrich.CreateOrderParams": {
             "type": "object",
             "properties": {
                 "comboDeal": {
                     "type": "boolean"
+                },
+                "date": {
+                    "type": "string"
                 },
                 "idNumber": {
                     "type": "string"
@@ -8340,22 +8252,29 @@ var doc = `{
                 "phoneNumber": {
                     "type": "string"
                 },
-                "preferredTime": {
+                "timeSlot": {
+                    "description": "Format: 11:10 am",
                     "type": "string"
                 }
             }
         },
-        "goodrich.UpdateMenuItemParams": {
+        "goodrich.TimeSlot": {
             "type": "object",
             "properties": {
-                "available": {
-                    "type": "boolean"
+                "closedSpots": {
+                    "type": "integer"
                 },
-                "description": {
+                "formatted": {
                     "type": "string"
                 },
-                "price": {
-                    "type": "number"
+                "hour": {
+                    "type": "integer"
+                },
+                "minute": {
+                    "type": "integer"
+                },
+                "openSpots": {
+                    "type": "integer"
                 }
             }
         },
@@ -8363,15 +8282,6 @@ var doc = `{
             "type": "object",
             "properties": {
                 "adminNotes": {
-                    "type": "string"
-                },
-                "itemIDs": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "pickupTime": {
                     "type": "string"
                 },
                 "status": {
@@ -9289,6 +9199,9 @@ var doc = `{
                     "description": "false if item is out of stock",
                     "type": "boolean"
                 },
+                "category": {
+                    "type": "string"
+                },
                 "description": {
                     "type": "string"
                 },
@@ -9299,6 +9212,9 @@ var doc = `{
                     "type": "number"
                 },
                 "title": {
+                    "type": "string"
+                },
+                "type": {
                     "type": "string"
                 }
             }
@@ -9311,6 +9227,10 @@ var doc = `{
                 },
                 "comboDeal": {
                     "type": "boolean"
+                },
+                "date": {
+                    "description": "Format: 2006-01-02",
+                    "type": "string"
                 },
                 "id": {
                     "type": "integer"
@@ -9334,14 +9254,12 @@ var doc = `{
                 "phoneNumber": {
                     "type": "string"
                 },
-                "pickupTime": {
-                    "type": "string"
-                },
-                "preferredTime": {
-                    "type": "string"
-                },
                 "status": {
                     "type": "integer"
+                },
+                "timeSlot": {
+                    "description": "Format: 15:04",
+                    "type": "string"
                 },
                 "totalPrice": {
                     "type": "number"
@@ -9685,7 +9603,7 @@ var doc = `{
                 "williamsEmail": {
                     "type": "string"
                 },
-                "williamsId": {
+                "williamsID": {
                     "description": "Williams W# ID",
                     "type": "string"
                 }
@@ -9935,6 +9853,9 @@ var doc = `{
                     "type": "boolean"
                 },
                 "williamsEmail": {
+                    "type": "string"
+                },
+                "williamsID": {
                     "type": "string"
                 }
             }
@@ -10246,6 +10167,9 @@ var doc = `{
                     "type": "boolean"
                 },
                 "williamsEmail": {
+                    "type": "string"
+                },
+                "williamsID": {
                     "type": "string"
                 }
             }

@@ -1,11 +1,7 @@
 package goodrich
 
 import (
-	"net/http"
-
-	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
-	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 )
 
@@ -40,7 +36,8 @@ func (t *Controller) ListMenu(c *gin.Context) {
 	t.RespondOK(c, menu)
 }
 
-// TODO[low]: get menu item
+/*
+TODO[medium]: make this functional
 
 // CreateMenuItemParams is a struct to hold the parameters used to create a menu item.
 type CreateMenuItemParams struct {
@@ -49,6 +46,7 @@ type CreateMenuItemParams struct {
 	Price       float64 `json:"price"`
 	Available   bool    `json:"available"`
 }
+
 
 // CreateMenuItem godoc
 // @Summary Create menu item
@@ -153,3 +151,4 @@ func (t *Controller) UpdateMenuItem(c *gin.Context) {
 	// Return update menu item
 	t.RespondOK(c, menuItem)
 }
+*/

@@ -25,6 +25,8 @@ var CreateGoodrichMenuItems20210426013057 = &gormigrate.Migration{
 			Description string  `json:"description"`
 			Price       float64 `json:"price"`
 			Available   bool    `json:"available"`
+			Type        string  `json:"type"`
+			Category    string  `json:"category"`
 		}
 		return tx.AutoMigrate(&GoodrichMenuItem{}).Error
 	},

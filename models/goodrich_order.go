@@ -35,9 +35,9 @@ func (o *GetAllGoodrichOrdersOptions) Order(db *gorm.DB) *gorm.DB {
 		case "created_at":
 			return db.Order("goodrich_orders.created_at desc", true)
 		case "preferred_time":
-			return db.Order("goodrich_orders.preferred_time desc", true)
+			return db.Order("goodrich_orders.preferred_time asc", true)
 		case "estimated_time":
-			return db.Order("goodrich_orders.estimated_time desc", true)
+			return db.Order("goodrich_orders.estimated_time asc", true)
 		}
 	}
 	return db.Order("goodrich_orders.created_at desc", true)
@@ -88,6 +88,12 @@ func (m *GoodrichOrderModel) GetAllGoodrichOrders(o *[]*GoodrichOrder, opts Opti
 		db = opts.Run(db)
 	}
 	err = db.Find(o).Error
+	return
+}
+
+func (m *GoodrichOrderModel) GetOrdersByDate(o *[]*GoodrichOrder, date string) (err error) {
+	db := m.DB
+	err = db.Where("date = ?", date).Find(o).Error
 	return
 }
 

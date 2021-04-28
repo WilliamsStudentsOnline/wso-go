@@ -109,7 +109,7 @@ type User struct {
 	CampusStatus *string `json:"campusStatus"`
 
 	// Williams W# ID
-	WilliamsID string `json:"williamsId"`
+	WilliamsID string `json:"williamsID"`
 }
 
 func (*User) TableName() string {

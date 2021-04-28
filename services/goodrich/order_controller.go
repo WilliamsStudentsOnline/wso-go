@@ -78,7 +78,8 @@ func (t *Controller) GetUserOrder(c *gin.Context) {
 // CreateOrderParams is a struct to hold the parameters used to create an order.
 type CreateOrderParams struct {
 	PhoneNumber   string                       `json:"phoneNumber"`
-	PreferredTime time.Time                    `json:"preferredTime"`
+	Date          string                       `json:"date"`
+	TimeSlot      string                       `json:"timeSlot"` // Format: 11:10 am
 	Notes         string                       `json:"notes"`
 	ComboDeal     *bool                        `json:"comboDeal"`
 	PaymentMethod models.GoodrichPaymentMethod `json:"paymentMethod"`
@@ -114,8 +115,50 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 		return
 	}
 
-	if createData.PreferredTime.Before(time.Now()) {
-		t.RespondAPIError(c, lib.ErrorGoodrichPreferredTimeTooEarly)
+	// validate for date exists
+	if createData.Date != time.Now().Format(DateFormat) {
+		t.RespondAPIError(c, lib.ErrorGoodrichTimeBadDay)
+		return
+	}
+
+	// validate for date open
+	foundValidDate := false
+	for _, date := range t.cfg.GoodrichOpenDays {
+		if createData.Date == date {
+			foundValidDate = true
+			break
+		}
+	}
+	if !foundValidDate {
+		t.RespondAPIError(c, lib.ErrorGoodrichDateClosed)
+		return
+	}
+
+	// validate for timeslot exists
+	foundValidTimeSlot := false
+	validTimeSlots := generateTimeSlotsAfter(time.Now())
+	for _, slot := range validTimeSlots {
+		if createData.TimeSlot == slot.String() {
+			foundValidTimeSlot = true
+			break
+		}
+	}
+
+	if !foundValidTimeSlot {
+		t.RespondAPIError(c, lib.ErrorGoodrichTimeSlotInvalid)
+		return
+	}
+
+	// validate for timeslot open
+	tsAvailabilityMap, err := t.generateSlotAvailabilityMap(createData.Date)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	tsClosedSpots := tsAvailabilityMap[createData.TimeSlot]
+	if goodrichSlotSpotSize-tsClosedSpots <= 0 {
+		t.RespondAPIError(c, lib.ErrorGoodrichTimeFilled)
 		return
 	}
 
@@ -126,17 +169,13 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 		}
 	}
 
-	// TODO[high]: validate for goodrich open hours
-
-	// TODO[high]: validate combo
-
-	// TODO[high]: validate for too expensive on a swipe
-
 	// TODO[medium]: validate phone #
 
 	// Calculate price
 	var itemIDsStr []string
 	var totalPrice float64 = 0
+	// Validate combo
+	var numBagel, numSpread, numDrink, numOther int
 	for _, itemID := range createData.ItemIDs {
 		menuItem := &models.GoodrichMenuItem{}
 		err = t.menuModel.GetMenuItemByID(itemID, menuItem)
@@ -154,17 +193,45 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 			return
 		}
 
+		switch menuItem.Category {
+		case "Bagel":
+			numBagel++
+		case "Spread":
+			numSpread++
+		case "Drink":
+			numDrink++
+		default:
+			numOther++
+		}
+
 		totalPrice += menuItem.Price
 		itemIDsStr = append(itemIDsStr, strconv.Itoa(int(itemID)))
 	}
 
+	if createData.ComboDeal != nil && *createData.ComboDeal {
+		if numBagel != 1 || numSpread != 1 || numDrink != 1 || numOther != 0 {
+			t.RespondAPIError(c, lib.ErrorGoodrichComboDealInvalid)
+			return
+		}
+
+		// if it is a valid combo deal, set total price to 5
+		totalPrice = 5.0
+	}
+
 	itemIDList := strings.Join(itemIDsStr, ",")
+
+	// validate overswiping money
+	if createData.PaymentMethod == models.GoodrichPaymentMethodSwipe && totalPrice > 5.0 {
+		t.RespondAPIError(c, lib.ErrorGoodrichSwipeMaxedOut)
+		return
+	}
 
 	// Construct new bulletin
 	order := models.GoodrichOrder{
 		Status:        models.GoodrichOrderStatusPlaced,
 		PhoneNumber:   createData.PhoneNumber,
-		PreferredTime: createData.PreferredTime,
+		TimeSlot:      createData.TimeSlot,
+		Date:          createData.Date,
 		Notes:         createData.Notes,
 		TotalPrice:    totalPrice,
 		ComboDeal:     createData.ComboDeal,
@@ -181,7 +248,13 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 		return
 	}
 
-	// TODO[medium]: add notifications here
+	// Notifications
+	go func() {
+		err := t.generateNotifEmail(order, userID)
+		if err != nil {
+			t.Log.Error("generate email error", err)
+		}
+	}()
 
 	t.RespondCreated(c, order)
 }
