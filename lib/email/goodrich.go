@@ -17,7 +17,7 @@ func NewGoodrichMailer(cfg *config.Config, log *zap.SugaredLogger) *GoodrichMail
 	ch := make(chan *mail.Message)
 
 	go func() {
-		d := mail.NewDialer("wso.williams.edu", 465, "goodrich@wso.williams.edu", cfg.Secrets.GoodrichEmailPassword)
+		d := mail.NewDialer(cfg.EmailSMTPHost, cfg.EmailSMTPPort, "goodrich@wso.williams.edu", cfg.Secrets.GoodrichEmailPassword)
 		d.StartTLSPolicy = mail.MandatoryStartTLS
 
 		var s mail.SendCloser

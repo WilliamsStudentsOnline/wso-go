@@ -16,11 +16,6 @@ import (
 	"go.uber.org/zap"
 )
 
-//TODO[low]: get rid of constants
-const (
-	goodrichSlotSpotSize = 10
-)
-
 const DateFormat = "2006-01-02"
 const TimeSlotFormat = "%02d:%02d"
 
@@ -125,6 +120,10 @@ func NewTimeSlot(hour, minute uint) *TimeSlot {
 	}
 }
 
+func NewTimeSlotInt(hour, minute int) *TimeSlot {
+	return NewTimeSlot(uint(hour), uint(minute))
+}
+
 func (g TimeSlot) Clone() *TimeSlot {
 	return NewTimeSlot(g.Hour, g.Minute)
 }
@@ -150,9 +149,9 @@ func (g *TimeSlot) String() string {
 }
 
 func (t *Controller) generateAllDailyTimeSlots() (slots []*TimeSlot) {
-	end := NewTimeSlot(t.cfg.GoodrichCloseHour, t.cfg.GoodrichCloseMinute)
+	end := NewTimeSlotInt(t.cfg.GoodrichMustParseTime(t.cfg.GoodrichClose))
 
-	idx := NewTimeSlot(t.cfg.GoodrichOpenHour, t.cfg.GoodrichOpenMinute)
+	idx := NewTimeSlotInt(t.cfg.GoodrichMustParseTime(t.cfg.GoodrichOpen))
 
 	for !idx.Equal(end) && !idx.After(end) {
 		slots = append(slots, idx.Clone())
@@ -163,9 +162,9 @@ func (t *Controller) generateAllDailyTimeSlots() (slots []*TimeSlot) {
 }
 
 func (t *Controller) generateTimeSlotsAfter(tm time.Time) (slots []*TimeSlot) {
-	end := NewTimeSlot(t.cfg.GoodrichCloseHour, t.cfg.GoodrichCloseMinute)
-	tSlot := NewTimeSlot(uint(tm.Hour()), uint(tm.Minute()))
-	idx := NewTimeSlot(t.cfg.GoodrichOpenHour, t.cfg.GoodrichOpenMinute)
+	end := NewTimeSlotInt(t.cfg.GoodrichMustParseTime(t.cfg.GoodrichClose))
+	tSlot := NewTimeSlotInt(tm.Hour(), tm.Minute())
+	idx := NewTimeSlotInt(t.cfg.GoodrichMustParseTime(t.cfg.GoodrichOpen))
 
 	for !idx.Equal(end) && !idx.After(end) {
 		if idx.After(tSlot) {

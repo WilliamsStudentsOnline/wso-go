@@ -6,6 +6,8 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib/search"
@@ -109,12 +111,16 @@ type Config struct {
 	/* Goodrich */
 	GoodrichManagerUnixes []string `yaml:"goodrich_manager_unixes" envconfig:"goodrich_manager_unixes"`
 	// Use format: 2006-01-02
-	GoodrichOpenDays     []string `yaml:"goodrich_open_days" envconfig:"goodrich_open_days"`
-	GoodrichOpenHour     uint     `yaml:"goodrich_open_hour" envconfig:"goodrich_open_hour"`
-	GoodrichOpenMinute   uint     `yaml:"goodrich_open_minute" envconfig:"goodrich_open_minute"`
-	GoodrichCloseHour    uint     `yaml:"goodrich_close_hour" envconfig:"goodrich_close_hour"`
-	GoodrichCloseMinute  uint     `yaml:"goodrich_close_minute" envconfig:"goodrich_close_minute"`
-	GoodrichSlotSpotSize int      `yaml:"goodrich_slot_spot_size" envconfig:"goodrich_slot_spot_size"`
+	GoodrichOpenDays []string `yaml:"goodrich_open_days" envconfig:"goodrich_open_days"`
+	// Format: 15:04
+	GoodrichOpen         string `yaml:"goodrich_open" envconfig:"goodrich_open"`
+	GoodrichClose        string `yaml:"goodrich_close" envconfig:"goodrich_close"`
+	GoodrichSlotSpotSize int    `yaml:"goodrich_slot_spot_size" envconfig:"goodrich_slot_spot_size"`
+	GoodrichEmail        string `yaml:"goodrich_email" envconfig:"goodrich_email"`
+
+	/* Email */
+	EmailSMTPHost string `yaml:"email_smtp_host" envconfig:"email_smtp_host"`
+	EmailSMTPPort int    `yaml:"email_smtp_port" envconfig:"email_smtp_port"`
 }
 
 type EphmatchEra struct {
@@ -139,8 +145,42 @@ func (c *Config) IsProduction() bool {
 	return c.IsEnv("production")
 }
 
+func (c *Config) GoodrichMustParseTime(t string) (hour, minute int) {
+	hour, minute, err := c.goodrichParseTime(t)
+	if err != nil {
+		panic(err)
+	}
+	return
+}
+
+func (c *Config) goodrichParseTime(t string) (hour, minute int, err error) {
+	spl := strings.Split(t, ":")
+	if len(spl) != 2 {
+		return 0, 0, errors.New("could not parse time")
+	}
+
+	hour, err = strconv.Atoi(spl[0])
+	if err != nil {
+		return 0, 0, err
+	}
+	minute, err = strconv.Atoi(spl[1])
+	if err != nil {
+		return 0, 0, err
+	}
+
+	return
+}
+
 func (c *Config) MissingGoodrich() bool {
-	return c.GoodrichOpenHour == 0 || c.GoodrichCloseHour == 0 || c.GoodrichSlotSpotSize == 0
+	return c.GoodrichOpen == "" ||
+		c.GoodrichClose == "" ||
+		c.GoodrichSlotSpotSize == 0 ||
+		c.GoodrichEmail == ""
+}
+
+func (c *Config) MissingEmail() bool {
+	return c.EmailSMTPHost == "" ||
+		c.EmailSMTPPort == 0
 }
 
 func (c *Config) GenerateURL() *url.URL {
@@ -327,6 +367,21 @@ func SetupConfig(c *Config) error {
 
 	if c.ChatEjabberdName == "" {
 		c.ChatEjabberdName = "wso.williams.edu"
+	}
+
+	if !c.MissingGoodrich() {
+		if _, _, err := c.goodrichParseTime(c.GoodrichOpen); err != nil {
+			return errors.New("bad goodrich open time")
+		}
+		if _, _, err := c.goodrichParseTime(c.GoodrichClose); err != nil {
+			return errors.New("bad goodrich close time")
+		}
+		if c.Secrets.GoodrichEmailPassword == "" {
+			return errors.New("goodrich email password missing")
+		}
+		if c.MissingEmail() {
+			return errors.New("email SMTP settings missing")
+		}
 	}
 
 	return nil
