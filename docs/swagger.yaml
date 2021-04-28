@@ -6037,7 +6037,11 @@ paths:
         type: integer
       - description: Sort
         in: query
-        name: type
+        name: sort
+        type: string
+      - description: Date
+        in: query
+        name: date
         type: string
       - description: User ID
         in: query

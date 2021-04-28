@@ -6643,7 +6643,13 @@ var doc = `{
                     {
                         "type": "string",
                         "description": "Sort",
-                        "name": "type",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Date",
+                        "name": "date",
                         "in": "query"
                     },
                     {

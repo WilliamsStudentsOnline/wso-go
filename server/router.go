@@ -213,9 +213,13 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 		notificationService.SetupRouter(notifGroup, db, cfg, log.Named("notification"))
 
 		// Goodrich Service
-		goodrichGroup := v2.Group("/goodrich")
-		goodrichGroup.Use(auth.RequireScopes(auth.ScopeGoodrich))
-		goodrichService.SetupRouter(goodrichGroup, db, cfg, log.Named("goodrich"))
+		if !cfg.MissingGoodrich() {
+			goodrichGroup := v2.Group("/goodrich")
+			goodrichGroup.Use(auth.RequireScopes(auth.ScopeGoodrich))
+			goodrichService.SetupRouter(goodrichGroup, db, cfg, log.Named("goodrich"))
+		} else {
+			log.Warn("Goodrich Config is not set up. Will not route Goodrich Service. ")
+		}
 	}
 
 	return r, nil

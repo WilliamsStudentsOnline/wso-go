@@ -54,9 +54,10 @@ func TestController_ListUserOrders(t *testing.T) {
 	assert.NoError(db.Create(&u1).Create(&u2).Error)
 
 	o1 := models.GoodrichOrder{
-		Status:        models.GoodrichOrderStatusAccepted,
+		Status:        models.GoodrichOrderStatusPlaced,
 		PhoneNumber:   "4131112222",
-		PreferredTime: time.Now().Add(time.Minute * 20),
+		TimeSlot:      "08:40",
+		Date:          time.Now().Format(DateFormat),
 		Notes:         "hi",
 		TotalPrice:    5.1,
 		ComboDeal:     lib.BoolToPtr(false),
@@ -67,9 +68,10 @@ func TestController_ListUserOrders(t *testing.T) {
 		User:          &u1,
 	}
 	o2 := models.GoodrichOrder{
-		Status:        models.GoodrichOrderStatusCompleted,
+		Status:        models.GoodrichOrderStatusReady,
 		PhoneNumber:   "4131112222",
-		PreferredTime: time.Now().Add(-time.Hour * 24 * 3),
+		TimeSlot:      "08:30",
+		Date:          time.Now().Format(DateFormat),
 		Notes:         "old order",
 		TotalPrice:    5,
 		ComboDeal:     lib.BoolToPtr(true),
@@ -80,9 +82,10 @@ func TestController_ListUserOrders(t *testing.T) {
 		User:          &u1,
 	}
 	o3 := models.GoodrichOrder{
-		Status:        models.GoodrichOrderStatusRejected,
+		Status:        models.GoodrichOrderStatusPaid,
 		PhoneNumber:   "4135556666",
-		PreferredTime: time.Now().Add(time.Minute * 10),
+		TimeSlot:      "11:20",
+		Date:          time.Now().Format(DateFormat),
 		Notes:         "other order",
 		TotalPrice:    7.7,
 		ComboDeal:     lib.BoolToPtr(false),

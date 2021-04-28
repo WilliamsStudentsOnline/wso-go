@@ -136,7 +136,7 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 
 	// validate for timeslot exists
 	foundValidTimeSlot := false
-	validTimeSlots := generateTimeSlotsAfter(time.Now())
+	validTimeSlots := t.generateTimeSlotsAfter(time.Now())
 	for _, slot := range validTimeSlots {
 		if createData.TimeSlot == slot.String() {
 			foundValidTimeSlot = true
@@ -157,7 +157,7 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 	}
 
 	tsClosedSpots := tsAvailabilityMap[createData.TimeSlot]
-	if goodrichSlotSpotSize-tsClosedSpots <= 0 {
+	if t.cfg.GoodrichSlotSpotSize-tsClosedSpots <= 0 {
 		t.RespondAPIError(c, lib.ErrorGoodrichTimeFilled)
 		return
 	}

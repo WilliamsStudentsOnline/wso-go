@@ -18,10 +18,6 @@ import (
 
 //TODO[low]: get rid of constants
 const (
-	goodrichOpenHour     = 8
-	goodrichOpenMinute   = 30
-	goodrichCloseHour    = 23 //TODO[high] undo = 11
-	goodrichCloseMinute  = 30
 	goodrichSlotSpotSize = 10
 )
 
@@ -83,10 +79,10 @@ func (t *Controller) ListTimeSlots(c *gin.Context) {
 		return
 	}
 
-	slots := generateTimeSlotsAfter(time.Now())
+	slots := t.generateTimeSlotsAfter(time.Now())
 	for _, slot := range slots {
 		slot.ClosedSpots = uint(tsMap[slot.String()])
-		slot.OpenSpots = goodrichSlotSpotSize - slot.ClosedSpots
+		slot.OpenSpots = uint(t.cfg.GoodrichSlotSpotSize) - slot.ClosedSpots
 		slot.Formatted = slot.String()
 	}
 
@@ -153,10 +149,10 @@ func (g *TimeSlot) String() string {
 	return fmt.Sprintf(TimeSlotFormat, g.Hour, g.Minute)
 }
 
-func generateAllDailyTimeSlots() (slots []*TimeSlot) {
-	end := NewTimeSlot(goodrichCloseHour, goodrichCloseMinute)
+func (t *Controller) generateAllDailyTimeSlots() (slots []*TimeSlot) {
+	end := NewTimeSlot(t.cfg.GoodrichCloseHour, t.cfg.GoodrichCloseMinute)
 
-	idx := NewTimeSlot(goodrichOpenHour, goodrichOpenMinute)
+	idx := NewTimeSlot(t.cfg.GoodrichOpenHour, t.cfg.GoodrichOpenMinute)
 
 	for !idx.Equal(end) && !idx.After(end) {
 		slots = append(slots, idx.Clone())
@@ -166,10 +162,10 @@ func generateAllDailyTimeSlots() (slots []*TimeSlot) {
 	return
 }
 
-func generateTimeSlotsAfter(t time.Time) (slots []*TimeSlot) {
-	end := NewTimeSlot(goodrichCloseHour, goodrichCloseMinute)
-	tSlot := NewTimeSlot(uint(t.Hour()), uint(t.Minute()))
-	idx := NewTimeSlot(goodrichOpenHour, goodrichOpenMinute)
+func (t *Controller) generateTimeSlotsAfter(tm time.Time) (slots []*TimeSlot) {
+	end := NewTimeSlot(t.cfg.GoodrichCloseHour, t.cfg.GoodrichCloseMinute)
+	tSlot := NewTimeSlot(uint(tm.Hour()), uint(tm.Minute()))
+	idx := NewTimeSlot(t.cfg.GoodrichOpenHour, t.cfg.GoodrichOpenMinute)
 
 	for !idx.Equal(end) && !idx.After(end) {
 		if idx.After(tSlot) {

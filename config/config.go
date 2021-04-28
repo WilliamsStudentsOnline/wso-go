@@ -109,9 +109,12 @@ type Config struct {
 	/* Goodrich */
 	GoodrichManagerUnixes []string `yaml:"goodrich_manager_unixes" envconfig:"goodrich_manager_unixes"`
 	// Use format: 2006-01-02
-	GoodrichOpenDays  []string `yaml:"goodrich_open_days" envconfig:"goodrich_open_days"`
-	GoodrichOpenTime  string   `yaml:"goodrich_open_time" envconfig:"goodrich_open_time"`
-	GoodrichCloseTime string   `yaml:"goodrich_close_time" envconfig:"goodrich_close_time"`
+	GoodrichOpenDays     []string `yaml:"goodrich_open_days" envconfig:"goodrich_open_days"`
+	GoodrichOpenHour     uint     `yaml:"goodrich_open_hour" envconfig:"goodrich_open_hour"`
+	GoodrichOpenMinute   uint     `yaml:"goodrich_open_minute" envconfig:"goodrich_open_minute"`
+	GoodrichCloseHour    uint     `yaml:"goodrich_close_hour" envconfig:"goodrich_close_hour"`
+	GoodrichCloseMinute  uint     `yaml:"goodrich_close_minute" envconfig:"goodrich_close_minute"`
+	GoodrichSlotSpotSize int      `yaml:"goodrich_slot_spot_size" envconfig:"goodrich_slot_spot_size"`
 }
 
 type EphmatchEra struct {
@@ -134,6 +137,10 @@ func (c *Config) IsTest() bool {
 
 func (c *Config) IsProduction() bool {
 	return c.IsEnv("production")
+}
+
+func (c *Config) MissingGoodrich() bool {
+	return c.GoodrichOpenHour == 0 || c.GoodrichCloseHour == 0 || c.GoodrichSlotSpotSize == 0
 }
 
 func (c *Config) GenerateURL() *url.URL {
