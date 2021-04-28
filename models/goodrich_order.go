@@ -1,6 +1,8 @@
 package models
 
 import (
+	"strings"
+
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
 )
@@ -22,6 +24,8 @@ type GetAllGoodrichOrdersOptions struct {
 	UserID *uint `json:"userID" form:"userID"`
 
 	Sort *string `json:"sort" form:"sort"`
+
+	Date *string `json:"date" form:"date"`
 
 	// Pagination:
 	// Offset is ignored unless limit is supplied
@@ -62,9 +66,18 @@ func (o *GetAllGoodrichOrdersOptions) Preloader(db *gorm.DB) *gorm.DB {
 
 func (o *GetAllGoodrichOrdersOptions) Filter(db *gorm.DB) *gorm.DB {
 	if o.Statuses != nil {
-		for _, s := range *o.Statuses {
-			db = db.Or("goodrich_orders.status = ?", s)
+		var questionFmt []string
+		var statuses []interface{}
+		for _, stat := range *o.Statuses {
+			questionFmt = append(questionFmt, "?")
+			statuses = append(statuses, stat)
 		}
+
+		db = db.Where("goodrich_orders.status IN ("+strings.Join(questionFmt, ",")+")", statuses...)
+	}
+
+	if o.Date != nil {
+		db = db.Where("goodrich_orders.date = ?", *o.Date)
 	}
 
 	if o.UserID != nil {

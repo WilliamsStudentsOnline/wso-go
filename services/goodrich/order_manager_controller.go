@@ -19,7 +19,8 @@ import (
 // @Produce  json
 // @Param offset query int false "Offset Pagination"
 // @Param limit query int false "Limit Pagination"
-// @Param type query string false "Sort"
+// @Param sort query string false "Sort"
+// @Param date query string false "Date"
 // @Param userID query uint false "User ID"
 // @Param statuses query []string false "Allowed Status list"
 // @Success 200 {array} models.GoodrichOrder
@@ -132,12 +133,6 @@ func (t *Controller) UpdateOrder(c *gin.Context) {
 		return
 	}
 
-	// TODO[high]: validate for goodrich open hours
-
-	// TODO[high]: validate combo
-
-	// TODO[high]: validate for too expensive on a swipe
-
 	// Update the menu item in the db
 	err = t.orderModel.UpdateOrder(&order)
 	if err != nil {
@@ -145,7 +140,7 @@ func (t *Controller) UpdateOrder(c *gin.Context) {
 		return
 	}
 
-	// TODO[high]: add notifications here
+	// TODO[medium]: add notifications here
 
 	// Return update menu item
 	t.RespondOK(c, order)
