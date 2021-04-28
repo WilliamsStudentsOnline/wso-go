@@ -6547,6 +6547,390 @@
                 }
             }
         },
+        "/goodrich/menu": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "lists all menu items",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "goodrich"
+                ],
+                "summary": "List menu",
+                "operationId": "goodrich-list-menu",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "Get all menu items (including unavailable)",
+                        "name": "all",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.GoodrichMenuItem"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/goodrich/orders": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "lists all orders",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "goodrich"
+                ],
+                "summary": "List orders",
+                "operationId": "goodrich-list-orders",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Offset Pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Date",
+                        "name": "date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "userID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Allowed Status list",
+                        "name": "statuses",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.GoodrichOrder"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "creates an order",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "goodrich"
+                ],
+                "summary": "Create order",
+                "operationId": "goodrich-create-order",
+                "parameters": [
+                    {
+                        "description": "Create Order Params",
+                        "name": "createParams",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/goodrich.CreateOrderParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.GoodrichOrder"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/goodrich/orders/{orderID}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "gets an order",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "goodrich"
+                ],
+                "summary": "Get order",
+                "operationId": "goodrich-get-order",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Order ID",
+                        "name": "orderID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.GoodrichOrder"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "updates an order",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "goodrich"
+                ],
+                "summary": "Update order",
+                "operationId": "goodrich-update-order",
+                "parameters": [
+                    {
+                        "description": "Update Order Params",
+                        "name": "updateParams",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/goodrich.UpdateOrderParams"
+                        }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Order ID",
+                        "name": "orderID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.GoodrichOrder"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/goodrich/timeslots": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "lists all time slots today",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "goodrich"
+                ],
+                "summary": "List time slots",
+                "operationId": "goodrich-list-time-slots",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/goodrich.TimeSlot"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/goodrich/user/orders": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "lists all user orders",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "goodrich"
+                ],
+                "summary": "List user orders",
+                "operationId": "goodrich-list-user-orders",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.GoodrichOrder"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
+        "/goodrich/user/orders/{orderID}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "gets a user order",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "goodrich"
+                ],
+                "summary": "Get user order",
+                "operationId": "goodrich-get-user-order",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Order ID",
+                        "name": "orderID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.GoodrichOrder"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
         "/health-check": {
             "get": {
                 "security": [
@@ -7832,6 +8216,70 @@
                 }
             }
         },
+        "goodrich.CreateOrderParams": {
+            "type": "object",
+            "properties": {
+                "comboDeal": {
+                    "type": "boolean"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "idNumber": {
+                    "type": "string"
+                },
+                "itemIDs": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "paymentMethod": {
+                    "type": "integer"
+                },
+                "phoneNumber": {
+                    "type": "string"
+                },
+                "timeSlot": {
+                    "description": "Format: 11:10 am",
+                    "type": "string"
+                }
+            }
+        },
+        "goodrich.TimeSlot": {
+            "type": "object",
+            "properties": {
+                "closedSpots": {
+                    "type": "integer"
+                },
+                "formatted": {
+                    "type": "string"
+                },
+                "hour": {
+                    "type": "integer"
+                },
+                "minute": {
+                    "type": "integer"
+                },
+                "openSpots": {
+                    "type": "integer"
+                }
+            }
+        },
+        "goodrich.UpdateOrderParams": {
+            "type": "object",
+            "properties": {
+                "adminNotes": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                }
+            }
+        },
         "identity.Credentials": {
             "type": "object",
             "properties": {
@@ -8735,6 +9183,88 @@
                 }
             }
         },
+        "models.GoodrichMenuItem": {
+            "type": "object",
+            "properties": {
+                "available": {
+                    "description": "false if item is out of stock",
+                    "type": "boolean"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.GoodrichOrder": {
+            "type": "object",
+            "properties": {
+                "adminNotes": {
+                    "type": "string"
+                },
+                "comboDeal": {
+                    "type": "boolean"
+                },
+                "date": {
+                    "description": "Format: 2006-01-02",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "idNumber": {
+                    "type": "string"
+                },
+                "items": {
+                    "description": "this means this field will be ignored in the DB. Use this to pull the menu items from ItemList into actual objects in the Model/Controller side.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.GoodrichMenuItem"
+                    }
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "paymentMethod": {
+                    "type": "integer"
+                },
+                "phoneNumber": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "timeSlot": {
+                    "description": "Format: 15:04",
+                    "type": "string"
+                },
+                "totalPrice": {
+                    "type": "number"
+                },
+                "user": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.User"
+                },
+                "userID": {
+                    "description": "Belongs to user",
+                    "type": "integer"
+                }
+            }
+        },
         "models.Neighborhood": {
             "type": "object",
             "properties": {
@@ -9063,6 +9593,10 @@
                 },
                 "williamsEmail": {
                     "type": "string"
+                },
+                "williamsID": {
+                    "description": "Williams W# ID",
+                    "type": "string"
                 }
             }
         },
@@ -9310,6 +9844,9 @@
                     "type": "boolean"
                 },
                 "williamsEmail": {
+                    "type": "string"
+                },
+                "williamsID": {
                     "type": "string"
                 }
             }
@@ -9621,6 +10158,9 @@
                     "type": "boolean"
                 },
                 "williamsEmail": {
+                    "type": "string"
+                },
+                "williamsID": {
                     "type": "string"
                 }
             }

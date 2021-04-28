@@ -313,6 +313,7 @@ func (m *UserModel) updateUserUnsafe(dbUser *User, toUser *User) (err error) {
 	dbUser.DormRoomID = toUser.DormRoomID
 	dbUser.DormRoom = toUser.DormRoom
 	dbUser.AtWilliams = toUser.AtWilliams
+	dbUser.WilliamsID = toUser.WilliamsID
 
 	// Don't remove entry, but can update it
 	if toUser.Entry != nil {
@@ -456,6 +457,11 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 		memberGroups := adUser.GetAttributeValues("memberOf")
 		ua := lib.NewUserAssociation(memberGroups)
 		adUserDN := strings.ToLower(adUser.DN)
+
+		// Add Williams ID Number
+		if adUser.GetAttributeValue("employeeID") != "" {
+			user.WilliamsID = adUser.GetAttributeValue("employeeID")
+		}
 
 		/*
 			Order of types:

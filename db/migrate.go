@@ -41,6 +41,9 @@ var Migrations = []*gormigrate.Migration{
 	migrations.FactrakSurveysCourseInfoColumns20210207234139,
 	migrations.CreateNotificationSettings20210326205124,
 	migrations.CreateNotificationTokens20210326205140,
+	migrations.WilliamsIdColumn20210425233453,
+	migrations.CreateGoodrichMenuItems20210426013057,
+	migrations.CreateGoodrichOrders20210426013116,
 }
 
 var MigrationGormOptions = gormigrate.DefaultOptions
@@ -78,6 +81,8 @@ func MigrateDB(db *gorm.DB) error {
 			&models.EphmatchLike{},
 			&models.NotificationSettings{},
 			&models.NotificationToken{},
+			&models.GoodrichMenuItem{},
+			&models.GoodrichOrder{},
 		).Error
 		if err != nil {
 			return err

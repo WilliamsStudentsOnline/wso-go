@@ -41,7 +41,7 @@ func GenerateClaimsFactory(cfg *config.Config, db *gorm.DB) func(v *Authenticato
 		// If user exists that we signed in with
 		if v.TokenLevel >= TokenLevelUser && v.User != nil {
 			// Allow writing
-			scope = append(scope, auth.ScopeWriteSelf, auth.ScopeChat)
+			scope = append(scope, auth.ScopeWriteSelf, auth.ScopeChat, auth.ScopeGoodrich)
 
 			// For ephcatch and factrak, user must be a student
 			if v.User.IsStudent() {
@@ -95,6 +95,13 @@ func GenerateClaimsFactory(cfg *config.Config, db *gorm.DB) func(v *Authenticato
 			} else if v.User.FactrakAdmin != nil && *v.User.FactrakAdmin {
 				// If not admin, check if factrak admin
 				scope = append(scope, auth.ScopeFactrakAdmin)
+			}
+
+			// Add goodrich manager scope
+			for _, gmUnix := range cfg.GoodrichManagerUnixes {
+				if v.User.UnixID == gmUnix {
+					scope = append(scope, auth.ScopeGoodrichManager)
+				}
 			}
 		}
 

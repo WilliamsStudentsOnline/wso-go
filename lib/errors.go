@@ -157,4 +157,18 @@ var (
 	// 20** are notification errors
 	ErrorNotificationInvalidTokenType = NewAPIError(2030, "notification token type is invalid")
 	ErrorNotificationEmptyToken       = NewAPIError(2031, "notification token is empty")
+
+	// 21** are Goodrich errors
+	ErrorGoodrichInvalidPaymentMethod = NewAPIError(2130, "goodrich payment method is invalid")
+	ErrorGoodrichTimeSlotInvalid      = NewAPIError(2131, "goodrich time slot is not valid")
+	ErrorGoodrichMissingWilliamsID    = NewAPIError(2132, "missing williams id number for payment swipe or points")
+	ErrorGoodrichUnknownMenuItem      = NewAPIError(2133, "unknown menu item in order")
+	ErrorGoodrichUnavailableMenuItem  = NewAPIError(2133, "unavailable menu item in order")
+	ErrorGoodrichTimeBadDay           = NewAPIError(2134, "goodrich time is on wrong day")
+	ErrorGoodrichTimeFilled           = NewAPIError(2135, "goodrich time is filled")
+	ErrorGoodrichComboDealInvalid     = NewAPIError(2136, "cannot get combo pricing with this selection of items")
+	ErrorGoodrichSwipeMaxedOut        = NewAPIError(2137, "cannot use a swipe on more than $5")
+	ErrorGoodrichDateClosed           = NewAPIError(2139, "goodrich closed on this date")
+	ErrorGoodrichInvalidOrderStatus   = NewAPIError(2150, "goodrich order status is invalid")
+	ErrorGoodrichPickupTimeTooEarly   = NewAPIError(2151, "goodrich pickup time is too early")
 )

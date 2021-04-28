@@ -140,6 +140,9 @@
         "campusStatus": {
           "type": "string"
         },
+        "williamsID": {
+          "type": "string"
+        },
         "tags": {
           "type": "array",
           "items": {
@@ -155,7 +158,8 @@
         "williamsEmail",
         "visible",
         "atWilliams",
-        "admin"
+        "admin",
+        "williamsID"
       ],
       "title": "User",
       "goOtherName": "User",

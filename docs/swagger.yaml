@@ -369,6 +369,48 @@ definitions:
       updated:
         type: string
     type: object
+  goodrich.CreateOrderParams:
+    properties:
+      comboDeal:
+        type: boolean
+      date:
+        type: string
+      idNumber:
+        type: string
+      itemIDs:
+        items:
+          type: integer
+        type: array
+      notes:
+        type: string
+      paymentMethod:
+        type: integer
+      phoneNumber:
+        type: string
+      timeSlot:
+        description: 'Format: 11:10 am'
+        type: string
+    type: object
+  goodrich.TimeSlot:
+    properties:
+      closedSpots:
+        type: integer
+      formatted:
+        type: string
+      hour:
+        type: integer
+      minute:
+        type: integer
+      openSpots:
+        type: integer
+    type: object
+  goodrich.UpdateOrderParams:
+    properties:
+      adminNotes:
+        type: string
+      status:
+        type: integer
+    type: object
   identity.Credentials:
     properties:
       localIP:
@@ -993,6 +1035,62 @@ definitions:
       numWouldTakeAnother:
         type: integer
     type: object
+  models.GoodrichMenuItem:
+    properties:
+      available:
+        description: false if item is out of stock
+        type: boolean
+      category:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      price:
+        type: number
+      title:
+        type: string
+      type:
+        type: string
+    type: object
+  models.GoodrichOrder:
+    properties:
+      adminNotes:
+        type: string
+      comboDeal:
+        type: boolean
+      date:
+        description: 'Format: 2006-01-02'
+        type: string
+      id:
+        type: integer
+      idNumber:
+        type: string
+      items:
+        description: this means this field will be ignored in the DB. Use this to pull the menu items from ItemList into actual objects in the Model/Controller side.
+        items:
+          $ref: '#/definitions/models.GoodrichMenuItem'
+        type: array
+      notes:
+        type: string
+      paymentMethod:
+        type: integer
+      phoneNumber:
+        type: string
+      status:
+        type: integer
+      timeSlot:
+        description: 'Format: 15:04'
+        type: string
+      totalPrice:
+        type: number
+      user:
+        $ref: '#/definitions/models.User'
+        type: object
+      userID:
+        description: Belongs to user
+        type: integer
+    type: object
   models.Neighborhood:
     properties:
       dorms:
@@ -1225,6 +1323,9 @@ definitions:
         type: boolean
       williamsEmail:
         type: string
+      williamsID:
+        description: Williams W# ID
+        type: string
     type: object
   notification.SettingsUpdateParams:
     properties:
@@ -1388,6 +1489,8 @@ definitions:
       visible:
         type: boolean
       williamsEmail:
+        type: string
+      williamsID:
         type: string
     type: object
   responses.ListMatchesResponseEphmatchMatch:
@@ -1594,6 +1697,8 @@ definitions:
       visible:
         type: boolean
       williamsEmail:
+        type: string
+      williamsID:
         type: string
     type: object
   server.HealthCheckResponse:
@@ -5886,6 +5991,251 @@ paths:
       summary: List user surveys
       tags:
       - factrak
+  /goodrich/menu:
+    get:
+      consumes:
+      - application/json
+      description: lists all menu items
+      operationId: goodrich-list-menu
+      parameters:
+      - description: Get all menu items (including unavailable)
+        in: query
+        name: all
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.GoodrichMenuItem'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List menu
+      tags:
+      - goodrich
+  /goodrich/orders:
+    get:
+      consumes:
+      - application/json
+      description: lists all orders
+      operationId: goodrich-list-orders
+      parameters:
+      - description: Offset Pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      - description: Sort
+        in: query
+        name: sort
+        type: string
+      - description: Date
+        in: query
+        name: date
+        type: string
+      - description: User ID
+        in: query
+        name: userID
+        type: integer
+      - description: Allowed Status list
+        in: query
+        items:
+          type: string
+        name: statuses
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.GoodrichOrder'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List orders
+      tags:
+      - goodrich
+    post:
+      consumes:
+      - application/json
+      description: creates an order
+      operationId: goodrich-create-order
+      parameters:
+      - description: Create Order Params
+        in: body
+        name: createParams
+        required: true
+        schema:
+          $ref: '#/definitions/goodrich.CreateOrderParams'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.GoodrichOrder'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Create order
+      tags:
+      - goodrich
+  /goodrich/orders/{orderID}:
+    get:
+      consumes:
+      - application/json
+      description: gets an order
+      operationId: goodrich-get-order
+      parameters:
+      - description: Order ID
+        in: path
+        name: orderID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GoodrichOrder'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get order
+      tags:
+      - goodrich
+    patch:
+      consumes:
+      - application/json
+      description: updates an order
+      operationId: goodrich-update-order
+      parameters:
+      - description: Update Order Params
+        in: body
+        name: updateParams
+        required: true
+        schema:
+          $ref: '#/definitions/goodrich.UpdateOrderParams'
+      - description: Order ID
+        in: path
+        name: orderID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GoodrichOrder'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Update order
+      tags:
+      - goodrich
+  /goodrich/timeslots:
+    get:
+      consumes:
+      - application/json
+      description: lists all time slots today
+      operationId: goodrich-list-time-slots
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/goodrich.TimeSlot'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List time slots
+      tags:
+      - goodrich
+  /goodrich/user/orders:
+    get:
+      consumes:
+      - application/json
+      description: lists all user orders
+      operationId: goodrich-list-user-orders
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.GoodrichOrder'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: List user orders
+      tags:
+      - goodrich
+  /goodrich/user/orders/{orderID}:
+    get:
+      consumes:
+      - application/json
+      description: gets a user order
+      operationId: goodrich-get-user-order
+      parameters:
+      - description: Order ID
+        in: path
+        name: orderID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GoodrichOrder'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get user order
+      tags:
+      - goodrich
   /health-check:
     get:
       consumes:

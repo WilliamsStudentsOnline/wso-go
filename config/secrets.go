@@ -23,6 +23,9 @@ type Secrets struct {
 
 	// MySQL
 	MySQLPassword string `yaml:"mysql_password" envconfig:"mysql_password"`
+
+	// WSO Email
+	GoodrichEmailPassword string `yaml:"goodrich_email_password" envconfig:"goodrich_email_password"`
 }
 
 func (s *Secrets) RequireLDAPAuth() error {
