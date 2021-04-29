@@ -115,6 +115,12 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 		return
 	}
 
+	// Make sure order has items
+	if len(createData.ItemIDs) == 0 {
+		t.RespondAPIError(c, lib.ErrorGoodrichOrderNoItems)
+		return
+	}
+
 	// validate for date exists
 	if createData.Date != time.Now().Format(DateFormat) {
 		t.RespondAPIError(c, lib.ErrorGoodrichTimeBadDay)

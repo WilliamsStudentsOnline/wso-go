@@ -168,6 +168,7 @@ var (
 	ErrorGoodrichTimeFilled           = NewAPIError(2135, "goodrich time is filled")
 	ErrorGoodrichComboDealInvalid     = NewAPIError(2136, "cannot get combo pricing with this selection of items")
 	ErrorGoodrichSwipeMaxedOut        = NewAPIError(2137, "cannot use a swipe on more than $5")
+	ErrorGoodrichOrderNoItems         = NewAPIError(2139, "order has no items")
 	ErrorGoodrichDateClosed           = NewAPIError(2139, "goodrich closed on this date")
 	ErrorGoodrichInvalidOrderStatus   = NewAPIError(2150, "goodrich order status is invalid")
 	ErrorGoodrichPickupTimeTooEarly   = NewAPIError(2151, "goodrich pickup time is too early")
