@@ -82,7 +82,7 @@ func (o *GoodrichOrder) AfterFind(tx *gorm.DB) (err error) {
 
 func ValidateGoodrichPaymentMethod(m GoodrichPaymentMethod) bool {
 	switch m {
-	case GoodrichPaymentMethodSwipe, GoodrichPaymentMethodPoints, GoodrichPaymentMethodCreditCard, GoodrichPaymentMethodCash:
+	case GoodrichPaymentMethodSwipe, GoodrichPaymentMethodCreditCard, GoodrichPaymentMethodCash:
 		return true
 	}
 	return false
