@@ -23,6 +23,8 @@ const (
 	GoodrichPaymentMethodPoints
 	GoodrichPaymentMethodCreditCard
 	GoodrichPaymentMethodCash
+	GoodrichPaymentMethodSwipePlusCash
+	GoodrichPaymentMethodSwipePlusCreditCard
 )
 
 // GoodrichOrder Schema
@@ -90,7 +92,11 @@ func (o *GoodrichOrder) AfterFind(tx *gorm.DB) (err error) {
 
 func ValidateGoodrichPaymentMethod(m GoodrichPaymentMethod) bool {
 	switch m {
-	case GoodrichPaymentMethodSwipe, GoodrichPaymentMethodCreditCard, GoodrichPaymentMethodCash:
+	case GoodrichPaymentMethodSwipe,
+		GoodrichPaymentMethodCreditCard,
+		GoodrichPaymentMethodCash,
+		GoodrichPaymentMethodSwipePlusCash,
+		GoodrichPaymentMethodSwipePlusCreditCard:
 		return true
 	}
 	return false

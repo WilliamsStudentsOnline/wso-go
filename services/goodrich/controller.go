@@ -152,8 +152,9 @@ func (t *Controller) generateAllDailyTimeSlots() (slots []*TimeSlot) {
 	end := NewTimeSlotInt(t.cfg.GoodrichMustParseTime(t.cfg.GoodrichClose))
 
 	idx := NewTimeSlotInt(t.cfg.GoodrichMustParseTime(t.cfg.GoodrichOpen))
+	idx.increment()
 
-	for !idx.Equal(end) && !idx.After(end) {
+	for !idx.After(end) {
 		slots = append(slots, idx.Clone())
 		idx.increment()
 	}
@@ -164,10 +165,12 @@ func (t *Controller) generateAllDailyTimeSlots() (slots []*TimeSlot) {
 func (t *Controller) generateTimeSlotsAfter(tm time.Time) (slots []*TimeSlot) {
 	end := NewTimeSlotInt(t.cfg.GoodrichMustParseTime(t.cfg.GoodrichClose))
 	tSlot := NewTimeSlotInt(tm.Hour(), tm.Minute())
+	tSlot.increment() // Make sure to not allow 10 min after rn for a slot
 	idx := NewTimeSlotInt(t.cfg.GoodrichMustParseTime(t.cfg.GoodrichOpen))
+	idx.increment() // Make sure the opening slot is closed
 
-	for !idx.Equal(end) && !idx.After(end) {
-		if idx.After(tSlot) {
+	for !idx.After(end) {
+		if idx.After(tSlot) || idx.Equal(tSlot) {
 			slots = append(slots, idx.Clone())
 		}
 		idx.increment()
@@ -702,7 +705,7 @@ const notifEmailTemplate = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transit
                         <h1 style="margin-top: 0; color: #333333; font-size: 22px; font-weight: bold; text-align: left;" align="left">Hi {{.User.Name}},</h1>
                         <p style="font-size: 16px; line-height: 1.625; color: #333; margin: .4em 0 1.1875em;">Thank you for ordering from Goodrich through the WSO service. This email is the receipt for your order.</p>
                         <p style="font-size: 16px; line-height: 1.625; color: #333; margin: .4em 0 1.1875em;">Your order will be ready at <b>{{.OrderTime}} on {{.OrderDate}}</b>.</p>
-                        <p style="font-size: 16px; line-height: 1.625; color: #333; margin: .4em 0 1.1875em;">If you chose to pay with cash or credit card, you will need to pay up-front at Goodrich. Otherwise, if you chose to pay with a meal swipe or Eph Points, your payment has already been processed. Your order can be picked up in the front area of Goodrich Hall.</p>
+                        <p style="font-size: 16px; line-height: 1.625; color: #333; margin: .4em 0 1.1875em;">If you chose to pay with cash or credit card, you will need to pay up-front at Goodrich. Otherwise, if you chose to pay with a meal swipe, your payment has already been processed. Your order can be picked up in the front area of Goodrich Hall.</p>
                         <table class="purchase" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="width: 100%; -premailer-width: 100%; -premailer-cellpadding: 0; -premailer-cellspacing: 0; margin: 0; padding: 35px 0;">
                           <tr>
                             <td style="word-break: break-word; font-family: &quot;Nunito Sans&quot;, Helvetica, Arial, sans-serif; font-size: 16px;">
