@@ -6608,6 +6608,71 @@ var doc = `{
                 }
             }
         },
+        "/goodrich/menu/{itemID}": {
+            "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "updates a menu item",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "goodrich"
+                ],
+                "summary": "Update menu item",
+                "operationId": "goodrich-update-menu-item",
+                "parameters": [
+                    {
+                        "description": "Update Menu Item Params",
+                        "name": "updateParams",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/goodrich.UpdateMenuItemParams"
+                        }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Item ID",
+                        "name": "itemID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.GoodrichMenuItem"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
         "/goodrich/orders": {
             "get": {
                 "security": [
@@ -8281,6 +8346,14 @@ var doc = `{
                 },
                 "openSpots": {
                     "type": "integer"
+                }
+            }
+        },
+        "goodrich.UpdateMenuItemParams": {
+            "type": "object",
+            "properties": {
+                "available": {
+                    "type": "boolean"
                 }
             }
         },

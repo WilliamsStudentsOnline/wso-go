@@ -1,7 +1,11 @@
 package goodrich
 
 import (
+	"net/http"
+
+	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
+	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 )
 
@@ -87,12 +91,11 @@ func (t *Controller) CreateMenuItem(c *gin.Context) {
 
 	t.RespondCreated(c, menuitem)
 }
+*/
 
 // UpdateMenuItemParams is a struct to hold the parameters used to update a menu item.
 type UpdateMenuItemParams struct {
-	Description *string  `json:"description"`
-	Price       *float64 `json:"price"`
-	Available   *bool    `json:"available"`
+	Available *bool `json:"available"`
 }
 
 // UpdateMenuItem godoc
@@ -135,11 +138,7 @@ func (t *Controller) UpdateMenuItem(c *gin.Context) {
 	}
 
 	// Update fields: this is a bit long and verbose, but I don't want to mess with reflect
-	menuItem.Description = *lib.StrPtrDefaults(updateData.Description, &menuItem.Description)
-	menuItem.Price = *lib.Float64PtrDefaults(updateData.Price, &menuItem.Price)
 	menuItem.Available = *lib.BoolPtrDefaults(updateData.Available, &menuItem.Available)
-
-	// TODO[high]: validate data
 
 	// Update the menu item in the db
 	err = t.menuModel.UpdateMenuItem(&menuItem)
@@ -151,4 +150,3 @@ func (t *Controller) UpdateMenuItem(c *gin.Context) {
 	// Return update menu item
 	t.RespondOK(c, menuItem)
 }
-*/

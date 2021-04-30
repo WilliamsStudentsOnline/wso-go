@@ -404,6 +404,11 @@ definitions:
       openSpots:
         type: integer
     type: object
+  goodrich.UpdateMenuItemParams:
+    properties:
+      available:
+        type: boolean
+    type: object
   goodrich.UpdateOrderParams:
     properties:
       adminNotes:
@@ -6018,6 +6023,48 @@ paths:
       security:
       - Bearer: []
       summary: List menu
+      tags:
+      - goodrich
+  /goodrich/menu/{itemID}:
+    patch:
+      consumes:
+      - application/json
+      description: updates a menu item
+      operationId: goodrich-update-menu-item
+      parameters:
+      - description: Update Menu Item Params
+        in: body
+        name: updateParams
+        required: true
+        schema:
+          $ref: '#/definitions/goodrich.UpdateMenuItemParams'
+      - description: Item ID
+        in: path
+        name: itemID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GoodrichMenuItem'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Update menu item
       tags:
       - goodrich
   /goodrich/orders:

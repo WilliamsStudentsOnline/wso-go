@@ -22,7 +22,7 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 
 	// Manager Menu Service
 	//manager.POST("/menu", c.CreateMenuItem)
-	//manager.PATCH("/menu/:itemID", c.UpdateMenuItem)
+	manager.PATCH("/menu/:itemID", c.UpdateMenuItem)
 
 	// Order Service
 	r.GET("/user/orders", c.ListUserOrders)
