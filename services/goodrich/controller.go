@@ -723,7 +723,7 @@ const notifEmailTemplate = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transit
                                 </tr>
                                 {{range .Order.Items}}
                                 <tr>
-                                  <td width="80%" class="purchase_item" style="word-break: break-word; font-family: &quot;Nunito Sans&quot;, Helvetica, Arial, sans-serif; font-size: 15px; color: #51545E; line-height: 18px; padding: 10px 0;"><span class="f-fallback">{{.Item.Title}} {{if .Item.Type}}({{.Type}}{{if .Note}}, {{.Note}}{{end}}){{end}}</span></td>
+                                  <td width="80%" class="purchase_item" style="word-break: break-word; font-family: &quot;Nunito Sans&quot;, Helvetica, Arial, sans-serif; font-size: 15px; color: #51545E; line-height: 18px; padding: 10px 0;"><span class="f-fallback">{{.Item.Title}} {{if .Item.Type}}({{.Item.Type}}{{if .Note}}, {{.Note}}{{end}}){{end}}</span></td>
                                   <td class="align-right" width="20%" style="word-break: break-word; font-family: &quot;Nunito Sans&quot;, Helvetica, Arial, sans-serif; font-size: 16px; text-align: right;" align="right"><span class="f-fallback">${{printf "%.2f" .Item.Price}}</span></td>
                                 </tr>
                                 {{end}}
