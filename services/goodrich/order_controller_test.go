@@ -63,7 +63,7 @@ func TestController_ListUserOrders(t *testing.T) {
 		ComboDeal:     lib.BoolToPtr(false),
 		PaymentMethod: models.GoodrichPaymentMethodPoints,
 		IDNumber:      lib.StrToPtr("5552223"),
-		ItemList:      "1,2",
+		ItemList:      `[{"id": 1},{"id": 2}]`,
 		UserID:        u1.ID,
 		User:          &u1,
 	}
@@ -77,7 +77,7 @@ func TestController_ListUserOrders(t *testing.T) {
 		ComboDeal:     lib.BoolToPtr(true),
 		PaymentMethod: models.GoodrichPaymentMethodSwipe,
 		IDNumber:      lib.StrToPtr("5552223"),
-		ItemList:      "1,3",
+		ItemList:      `[{"id": 1},{"id": 3}]`,
 		UserID:        u1.ID,
 		User:          &u1,
 	}
@@ -90,7 +90,7 @@ func TestController_ListUserOrders(t *testing.T) {
 		TotalPrice:    7.7,
 		ComboDeal:     lib.BoolToPtr(false),
 		PaymentMethod: models.GoodrichPaymentMethodCreditCard,
-		ItemList:      "2,3",
+		ItemList:      `[{"id": 2},{"id": 3}]`,
 		UserID:        u2.ID,
 		User:          &u2,
 	}
