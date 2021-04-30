@@ -377,9 +377,9 @@ definitions:
         type: string
       idNumber:
         type: string
-      itemIDs:
+      items:
         items:
-          type: integer
+          $ref: '#/definitions/models.GoodrichOrderItem'
         type: array
       notes:
         type: string
@@ -1074,7 +1074,7 @@ definitions:
       items:
         description: this means this field will be ignored in the DB. Use this to pull the menu items from ItemList into actual objects in the Model/Controller side.
         items:
-          $ref: '#/definitions/models.GoodrichMenuItem'
+          $ref: '#/definitions/models.GoodrichOrderItem'
         type: array
       notes:
         type: string
@@ -1095,6 +1095,16 @@ definitions:
       userID:
         description: Belongs to user
         type: integer
+    type: object
+  models.GoodrichOrderItem:
+    properties:
+      id:
+        type: integer
+      item:
+        $ref: '#/definitions/models.GoodrichMenuItem'
+        type: object
+      note:
+        type: string
     type: object
   models.Neighborhood:
     properties:

@@ -1,7 +1,7 @@
 package models
 
 import (
-	"strings"
+	"encoding/json"
 
 	"github.com/jinzhu/gorm"
 )
@@ -41,10 +41,11 @@ type GoodrichOrder struct {
 	PaymentMethod GoodrichPaymentMethod `json:"paymentMethod"`
 	IDNumber      *string               `json:"idNumber"`
 
-	// You will need to make a custom format to store these in SQL, b/c a join table would be absolutely massive. I suggest doing a comma separated format like "id,id,id"
+	// You will need to make a custom format to store these in SQL, b/c a join table would be absolutely massive.
+	// This is a JSON formatted array of GoodrichOrderItem.
 	ItemList string `json:"-"`
 	// this means this field will be ignored in the DB. Use this to pull the menu items from ItemList into actual objects in the Model/Controller side.
-	Items []*GoodrichMenuItem `json:"items" gorm:"-"`
+	Items []*GoodrichOrderItem `json:"items" gorm:"-"`
 
 	// Belongs to user
 	UserID uint  `json:"userID"`
@@ -55,27 +56,34 @@ func (*GoodrichOrder) TableName() string {
 	return "goodrich_orders"
 }
 
+type GoodrichOrderItem struct {
+	ID   uint              `json:"id"`
+	Note string            `json:"note"`
+	Item *GoodrichMenuItem `json:"item,omitempty"`
+}
+
 func (o *GoodrichOrder) AfterFind(tx *gorm.DB) (err error) {
 	if o.ItemList != "" {
-		itemIdStrs := strings.Split(o.ItemList, ",")
-
-		var questionFmt []string
-		var itemIDs []interface{}
-		for _, itemID := range itemIdStrs {
-			questionFmt = append(questionFmt, "?")
-			itemIDs = append(itemIDs, itemID)
-		}
-
-		var items []*GoodrichMenuItem
-		newTx := tx.New().Model(&GoodrichMenuItem{}).
-			Where("id IN ("+strings.Join(questionFmt, ",")+")", itemIDs...)
-
-		err = newTx.Find(&items).Error
+		var orderItems []*GoodrichOrderItem
+		err := json.Unmarshal([]byte(o.ItemList), &orderItems)
 		if err != nil {
 			return err
 		}
 
-		o.Items = items
+		for i := range orderItems {
+			foundItem := GoodrichMenuItem{}
+			err := tx.New().
+				Model(&GoodrichMenuItem{}).
+				Where("id = ?", orderItems[i].ID).
+				First(&foundItem).Error
+			if err != nil {
+				return err
+			}
+
+			orderItems[i].Item = &foundItem
+		}
+
+		o.Items = orderItems
 	}
 	return
 }

@@ -8308,10 +8308,10 @@ var doc = `{
                 "idNumber": {
                     "type": "string"
                 },
-                "itemIDs": {
+                "items": {
                     "type": "array",
                     "items": {
-                        "type": "integer"
+                        "$ref": "#/definitions/models.GoodrichOrderItem"
                     }
                 },
                 "notes": {
@@ -9321,7 +9321,7 @@ var doc = `{
                     "description": "this means this field will be ignored in the DB. Use this to pull the menu items from ItemList into actual objects in the Model/Controller side.",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.GoodrichMenuItem"
+                        "$ref": "#/definitions/models.GoodrichOrderItem"
                     }
                 },
                 "notes": {
@@ -9350,6 +9350,21 @@ var doc = `{
                 "userID": {
                     "description": "Belongs to user",
                     "type": "integer"
+                }
+            }
+        },
+        "models.GoodrichOrderItem": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "item": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.GoodrichMenuItem"
+                },
+                "note": {
+                    "type": "string"
                 }
             }
         },

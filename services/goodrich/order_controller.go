@@ -1,9 +1,8 @@
 package goodrich
 
 import (
+	"encoding/json"
 	"net/http"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
@@ -84,7 +83,7 @@ type CreateOrderParams struct {
 	ComboDeal     *bool                        `json:"comboDeal"`
 	PaymentMethod models.GoodrichPaymentMethod `json:"paymentMethod"`
 	IDNumber      *string                      `json:"idNumber"`
-	ItemIDs       []uint                       `json:"itemIDs"`
+	Items         []*models.GoodrichOrderItem  `json:"items"`
 }
 
 // CreateOrder godoc
@@ -116,7 +115,7 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 	}
 
 	// Make sure order has items
-	if len(createData.ItemIDs) == 0 {
+	if len(createData.Items) == 0 {
 		t.RespondAPIError(c, lib.ErrorGoodrichOrderNoItems)
 		return
 	}
@@ -178,13 +177,12 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 	// TODO[medium]: validate phone #
 
 	// Calculate price
-	var itemIDsStr []string
 	var totalPrice float64 = 0
 	// Validate combo
 	var numBagel, numSpread, numDrink, numOther int
-	for _, itemID := range createData.ItemIDs {
+	for i := range createData.Items {
 		menuItem := &models.GoodrichMenuItem{}
-		err = t.menuModel.GetMenuItemByID(itemID, menuItem)
+		err = t.menuModel.GetMenuItemByID(createData.Items[i].ID, menuItem)
 		if err != nil {
 			if gorm.IsRecordNotFoundError(err) {
 				t.RespondAPIError(c, lib.ErrorGoodrichUnknownMenuItem)
@@ -211,7 +209,7 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 		}
 
 		totalPrice += menuItem.Price
-		itemIDsStr = append(itemIDsStr, strconv.Itoa(int(itemID)))
+		createData.Items[i].Item = nil
 	}
 
 	if createData.ComboDeal != nil && *createData.ComboDeal {
@@ -224,7 +222,11 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 		totalPrice = 5.0
 	}
 
-	itemIDList := strings.Join(itemIDsStr, ",")
+	itemListStr, err := json.Marshal(createData.Items)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
 
 	// validate overswiping money
 	if createData.PaymentMethod == models.GoodrichPaymentMethodSwipe && totalPrice > 5.0 {
@@ -243,7 +245,7 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 		ComboDeal:     createData.ComboDeal,
 		PaymentMethod: createData.PaymentMethod,
 		IDNumber:      createData.IDNumber,
-		ItemList:      itemIDList,
+		ItemList:      string(itemListStr),
 
 		UserID: userID,
 	}
