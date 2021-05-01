@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
+	"math"
 	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
@@ -212,18 +213,44 @@ func (t *Controller) generateNotifEmail(order models.GoodrichOrder, userID uint)
 		return err
 	}
 
+	swipeOrder := order.PaymentMethod == models.GoodrichPaymentMethodSwipe || order.PaymentMethod == models.GoodrichPaymentMethodSwipePlusCreditCard || order.PaymentMethod == models.GoodrichPaymentMethodSwipePlusCash
+	totalPriceAdj := order.TotalPrice
+	if swipeOrder {
+		totalPriceAdj = math.Max(0, order.TotalPrice-5)
+	}
+
+	paymentStr := "Unknown"
+	switch order.PaymentMethod {
+	case models.GoodrichPaymentMethodSwipe:
+		paymentStr = "Swipe"
+	case models.GoodrichPaymentMethodCreditCard:
+		paymentStr = "Credit Card"
+	case models.GoodrichPaymentMethodCash:
+		paymentStr = "Cash"
+	case models.GoodrichPaymentMethodSwipePlusCash:
+		paymentStr = "Swipe + Cash"
+	case models.GoodrichPaymentMethodSwipePlusCreditCard:
+		paymentStr = "Swipe + Credit Card"
+	}
+
 	data := struct {
-		User      models.User
-		Order     models.GoodrichOrder
-		OrderDate string
-		OrderTime string
-		TimeNow   string
+		User               models.User
+		Order              models.GoodrichOrder
+		OrderDate          string
+		OrderTime          string
+		TimeNow            string
+		SwipeOrder         bool
+		TotalPriceAdjusted float64
+		PaymentString      string
 	}{
-		User:      user,
-		Order:     order,
-		OrderDate: orderDate.Format("Monday, 1/2/2006"),
-		OrderTime: orderTime.Format("3:04PM"),
-		TimeNow:   time.Now().Format("Jan _2 3:04 pm"),
+		User:               user,
+		Order:              order,
+		OrderDate:          orderDate.Format("Monday, 1/2/2006"),
+		OrderTime:          orderTime.Format("3:04PM"),
+		TimeNow:            time.Now().Format("Jan _2 3:04 pm"),
+		SwipeOrder:         swipeOrder,
+		TotalPriceAdjusted: totalPriceAdj,
+		PaymentString:      paymentStr,
 	}
 
 	var tmplBuf bytes.Buffer
@@ -705,13 +732,19 @@ const notifEmailTemplate = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transit
                         <h1 style="margin-top: 0; color: #333333; font-size: 22px; font-weight: bold; text-align: left;" align="left">Hi {{.User.Name}},</h1>
                         <p style="font-size: 16px; line-height: 1.625; color: #333; margin: .4em 0 1.1875em;">Thank you for ordering from Goodrich through the WSO service. This email is the receipt for your order.</p>
                         <p style="font-size: 16px; line-height: 1.625; color: #333; margin: .4em 0 1.1875em;">Your order will be ready at <b>{{.OrderTime}} on {{.OrderDate}}</b>.</p>
-                        <p style="font-size: 16px; line-height: 1.625; color: #333; margin: .4em 0 1.1875em;">If you chose to pay with cash or credit card, you will need to pay up-front at Goodrich. Otherwise, if you chose to pay with a meal swipe, your payment has already been processed. Your order can be picked up in the front area of Goodrich Hall.</p>
+                        <p style="font-size: 16px; line-height: 1.625; color: #333; margin: .4em 0 1.1875em;">If you chose to pay with cash or credit card (or swipe + cash/card), you will need to pay up-front at Goodrich. Otherwise, if you chose to pay with only a meal swipe, your payment has already been processed. Your order can be picked up in the front area of Goodrich Hall.</p>
                         <table class="purchase" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="width: 100%; -premailer-width: 100%; -premailer-cellpadding: 0; -premailer-cellspacing: 0; margin: 0; padding: 35px 0;">
                           <tr>
                             <td style="word-break: break-word; font-family: &quot;Nunito Sans&quot;, Helvetica, Arial, sans-serif; font-size: 16px;">
                               <h3 style="margin-top: 0; color: #333333; font-size: 14px; font-weight: bold; text-align: left;" align="left">Order #{{.Order.ID}}</h3></td>
                             <td style="word-break: break-word; font-family: &quot;Nunito Sans&quot;, Helvetica, Arial, sans-serif; font-size: 16px;">
                               <h3 class="align-right" style="margin-top: 0; color: #333333; font-size: 14px; font-weight: bold; text-align: right;" align="right">{{.TimeNow}}</h3></td>
+                          </tr>
+                          <tr>
+                            <td style="word-break: break-word; font-family: &quot;Nunito Sans&quot;, Helvetica, Arial, sans-serif; font-size: 16px;">
+                              <h3 style="margin-top: 0; color: #333333; font-size: 14px; font-weight: bold; text-align: left;" align="left">Payment:</h3></td>
+                            <td style="word-break: break-word; font-family: &quot;Nunito Sans&quot;, Helvetica, Arial, sans-serif; font-size: 16px;">
+                              <h3 class="align-right" style="margin-top: 0; color: #333333; font-size: 14px; font-weight: bold; text-align: right;" align="right">{{.PaymentString}}</h3></td>
                           </tr>
                           <tr>
                             <td colspan="2" style="word-break: break-word; font-family: &quot;Nunito Sans&quot;, Helvetica, Arial, sans-serif; font-size: 16px;">
@@ -730,12 +763,26 @@ const notifEmailTemplate = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transit
                                   <td class="align-right" width="20%" style="word-break: break-word; font-family: &quot;Nunito Sans&quot;, Helvetica, Arial, sans-serif; font-size: 16px; text-align: right;" align="right"><span class="f-fallback">${{printf "%.2f" .Item.Price}}</span></td>
                                 </tr>
                                 {{end}}
+								{{if .SwipeOrder}}
                                 <tr>
                                   <td width="80%" class="purchase_footer" valign="middle" style="word-break: break-word; font-family: &quot;Nunito Sans&quot;, Helvetica, Arial, sans-serif; font-size: 16px; padding-top: 15px; border-top-width: 1px; border-top-color: #EAEAEC; border-top-style: solid;">
-                                    <p class="f-fallback purchase_total purchase_total--label" style="font-size: 16px; line-height: 1.625; text-align: right; font-weight: bold; color: #333333; margin: 0; padding: 0 15px 0 0;" align="right">Total</p>
+                                    <p class="f-fallback purchase_total purchase_total--label" style="font-size: 16px; line-height: 1.625; text-align: right; font-weight: bold; color: #333333; margin: 0; padding: 0 15px 0 0;" align="right">Subtotal</p>
                                   </td>
                                   <td width="20%" class="purchase_footer" valign="middle" style="word-break: break-word; font-family: &quot;Nunito Sans&quot;, Helvetica, Arial, sans-serif; font-size: 16px; padding-top: 15px; border-top-width: 1px; border-top-color: #EAEAEC; border-top-style: solid;">
                                     <p class="f-fallback purchase_total" style="font-size: 16px; line-height: 1.625; text-align: right; font-weight: bold; color: #333333; margin: 0;" align="right">${{printf "%.2f" .Order.TotalPrice}}</p>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <td width="80%" class="purchase_item" style="word-break: break-word; font-family: &quot;Nunito Sans&quot;, Helvetica, Arial, sans-serif; font-size: 15px; color: #51545E; line-height: 18px; padding: 10px 0;"><span class="f-fallback">Meal Swipe</span></td>
+                                  <td class="align-right" width="20%" style="word-break: break-word; font-family: &quot;Nunito Sans&quot;, Helvetica, Arial, sans-serif; font-size: 16px; text-align: right;" align="right"><span class="f-fallback">($5.00)</span></td>
+                                </tr>
+								{{end}}
+                                <tr>
+                                  <td width="80%" class="purchase_footer" valign="middle" style="word-break: break-word; font-family: &quot;Nunito Sans&quot;, Helvetica, Arial, sans-serif; font-size: 16px; padding-top: 15px; border-top-width: 1px; border-top-color: #EAEAEC; border-top-style: solid;">
+                                    <p class="f-fallback purchase_total purchase_total--label" style="font-size: 16px; line-height: 1.625; text-align: right; font-weight: bold; color: #333333; margin: 0; padding: 0 15px 0 0;" align="right">Total Owed</p>
+                                  </td>
+                                  <td width="20%" class="purchase_footer" valign="middle" style="word-break: break-word; font-family: &quot;Nunito Sans&quot;, Helvetica, Arial, sans-serif; font-size: 16px; padding-top: 15px; border-top-width: 1px; border-top-color: #EAEAEC; border-top-style: solid;">
+                                    <p class="f-fallback purchase_total" style="font-size: 16px; line-height: 1.625; text-align: right; font-weight: bold; color: #333333; margin: 0;" align="right">${{printf "%.2f" .TotalPriceAdjusted}}</p>
                                   </td>
                                 </tr>
                               </table>

@@ -176,10 +176,8 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 
 	// TODO[medium]: validate phone #
 
-	// Calculate price
-	var totalPrice float64 = 0
-	// Validate combo
-	var numBagel, numSpread, numDrink, numOther int
+	// Get menu items in an array
+	var menuItems []*models.GoodrichMenuItem
 	for i := range createData.Items {
 		menuItem := &models.GoodrichMenuItem{}
 		err = t.menuModel.GetMenuItemByID(createData.Items[i].ID, menuItem)
@@ -197,29 +195,70 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 			return
 		}
 
-		switch menuItem.Category {
+		// Add to slice of memu items
+		menuItems = append(menuItems, menuItem)
+
+		// Sanitize create data items
+		createData.Items[i].Item = nil
+	}
+
+	// Validate combo
+	var numBagel, numSpread, numDrink int
+	for _, item := range menuItems {
+		switch item.Category {
 		case "Bagel":
 			numBagel++
 		case "Spread":
 			numSpread++
 		case "Drink":
 			numDrink++
-		default:
-			numOther++
 		}
-
-		totalPrice += menuItem.Price
-		createData.Items[i].Item = nil
+	}
+	// Combo must have at least 1 drink, bagel, spread
+	if createData.ComboDeal != nil && *createData.ComboDeal {
+		if numBagel < 1 || numSpread < 1 || numDrink < 1 {
+			t.RespondAPIError(c, lib.ErrorGoodrichComboDealInvalid)
+			return
+		}
 	}
 
+	// Calculate price
+	var totalPrice float64 = 0
+
+	// If in a combo deal, calculate price by finding the maximum price drink,
+	// bagel, and spread in the order and set those total to $5.
 	if createData.ComboDeal != nil && *createData.ComboDeal {
-		if numBagel != 1 || numSpread != 1 || numDrink != 1 || numOther != 0 {
+
+		// Get rid of max price combo item in each category
+		menuItemsLessCombo := removeMaxItemFromSlice(menuItems, "Drink")
+		if menuItemsLessCombo == nil {
+			t.RespondAPIError(c, lib.ErrorGoodrichComboDealInvalid)
+			return
+		}
+		menuItemsLessCombo = removeMaxItemFromSlice(menuItemsLessCombo, "Bagel")
+		if menuItemsLessCombo == nil {
+			t.RespondAPIError(c, lib.ErrorGoodrichComboDealInvalid)
+			return
+		}
+		menuItemsLessCombo = removeMaxItemFromSlice(menuItemsLessCombo, "Spread")
+		if menuItemsLessCombo == nil {
 			t.RespondAPIError(c, lib.ErrorGoodrichComboDealInvalid)
 			return
 		}
 
-		// if it is a valid combo deal, set total price to 5
-		totalPrice = 5.0
+		var priceLessCombo float64 = 0
+		for _, item := range menuItemsLessCombo {
+			priceLessCombo += item.Price
+		}
+
+		// Total price is combo price plus the prices of items not in combo
+		totalPrice = 5.00 + priceLessCombo
+	} else {
+		// If not in a combo deal, calculate price by summing up the prices of
+		// each item
+		for _, item := range menuItems {
+			totalPrice += item.Price
+		}
 	}
 
 	itemListStr, err := json.Marshal(createData.Items)
@@ -265,4 +304,21 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 	}()
 
 	t.RespondCreated(c, order)
+}
+
+func removeMaxItemFromSlice(menuItems []*models.GoodrichMenuItem, category string) []*models.GoodrichMenuItem {
+	var maxIdx = -1
+	for i, item := range menuItems {
+		if item.Category == category {
+			if maxIdx == -1 || item.Price > menuItems[maxIdx].Price {
+				maxIdx = i
+			}
+		}
+	}
+
+	if maxIdx == -1 {
+		return nil
+	}
+
+	return append(menuItems[:maxIdx], menuItems[maxIdx+1:]...)
 }
