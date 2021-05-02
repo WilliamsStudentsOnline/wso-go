@@ -20,6 +20,8 @@ import (
 const DateFormat = "2006-01-02"
 const TimeSlotFormat = "%02d:%02d"
 
+var BannedTimeSlot = NewTimeSlotInt(10, 10)
+
 type Controller struct {
 	services.BaseController
 	// Put a model here, like:
@@ -156,6 +158,9 @@ func (t *Controller) generateAllDailyTimeSlots() (slots []*TimeSlot) {
 	idx.increment()
 
 	for !idx.After(end) {
+		if idx.Equal(BannedTimeSlot) {
+			continue
+		}
 		slots = append(slots, idx.Clone())
 		idx.increment()
 	}
@@ -171,6 +176,9 @@ func (t *Controller) generateTimeSlotsAfter(tm time.Time) (slots []*TimeSlot) {
 	idx.increment() // Make sure the opening slot is closed
 
 	for !idx.After(end) {
+		if idx.Equal(BannedTimeSlot) {
+			continue
+		}
 		if idx.After(tSlot) || idx.Equal(tSlot) {
 			slots = append(slots, idx.Clone())
 		}
