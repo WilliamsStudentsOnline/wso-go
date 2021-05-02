@@ -177,6 +177,7 @@ func (t *Controller) generateTimeSlotsAfter(tm time.Time) (slots []*TimeSlot) {
 
 	for !idx.After(end) {
 		if idx.Equal(BannedTimeSlot) {
+			idx.increment()
 			continue
 		}
 		if idx.After(tSlot) || idx.Equal(tSlot) {
