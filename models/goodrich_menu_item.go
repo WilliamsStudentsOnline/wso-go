@@ -28,7 +28,8 @@ func (p *GetAllGoodrichMenuItemsOptions) Order(db *gorm.DB) *gorm.DB {
 
 func (p *GetAllGoodrichMenuItemsOptions) Filter(db *gorm.DB) *gorm.DB {
 	if !p.All {
-		return db.Where("goodrich_menu_items.available = ?", true)
+		return db.Where("goodrich_menu_items.available = ? AND "+
+			"(goodrich_menu_items.quantity_limit = ? OR goodrich_menu_items.quantity > ?)", true, false, 0)
 	}
 	return db
 }
@@ -69,5 +70,12 @@ func (m *GoodrichMenuItemModel) GetMenuItemByID(id uint, g *GoodrichMenuItem) (e
 // UpdateMenuItem Updates the menu item
 func (m *GoodrichMenuItemModel) UpdateMenuItem(b *GoodrichMenuItem) (err error) {
 	err = m.DB.Save(b).Error
+	return
+}
+
+// DecrementMenuItems decrements the quantity of menu items
+func (m *GoodrichMenuItemModel) DecrementMenuItems(ids []uint) (err error) {
+	err = m.DB.Exec("UPDATE goodrich_menu_items SET quantity = quantity - 1 "+
+		"WHERE quantity_limit = ? AND id IN (?)", true, ids).Error
 	return
 }

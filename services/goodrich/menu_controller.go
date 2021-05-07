@@ -95,7 +95,9 @@ func (t *Controller) CreateMenuItem(c *gin.Context) {
 
 // UpdateMenuItemParams is a struct to hold the parameters used to update a menu item.
 type UpdateMenuItemParams struct {
-	Available *bool `json:"available"`
+	Available     *bool `json:"available"`
+	Quantity      *int  `json:"quantity"`
+	QuantityLimit *bool `json:"quantityLimit"`
 }
 
 // UpdateMenuItem godoc
@@ -139,6 +141,8 @@ func (t *Controller) UpdateMenuItem(c *gin.Context) {
 
 	// Update fields: this is a bit long and verbose, but I don't want to mess with reflect
 	menuItem.Available = *lib.BoolPtrDefaults(updateData.Available, &menuItem.Available)
+	menuItem.Quantity = lib.IntPtrDefaults(updateData.Quantity, menuItem.Quantity)
+	menuItem.QuantityLimit = *lib.BoolPtrDefaults(updateData.QuantityLimit, &menuItem.QuantityLimit)
 
 	// Update the menu item in the db
 	err = t.menuModel.UpdateMenuItem(&menuItem)

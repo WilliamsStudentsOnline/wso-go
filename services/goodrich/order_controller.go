@@ -9,6 +9,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 )
 
@@ -84,6 +85,7 @@ type CreateOrderParams struct {
 	PaymentMethod models.GoodrichPaymentMethod `json:"paymentMethod"`
 	IDNumber      *string                      `json:"idNumber"`
 	Items         []*models.GoodrichOrderItem  `json:"items"`
+	LeaseID       string                       `json:"leaseID"`
 }
 
 // CreateOrder godoc
@@ -106,6 +108,11 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 	err := c.ShouldBind(&createData)
 	if err != nil {
 		t.RespondBadBind(c, err)
+		return
+	}
+
+	if createData.LeaseID == "" {
+		t.RespondAPIError(c, lib.ErrorGoodrichLeaseMissing)
 		return
 	}
 
@@ -195,7 +202,12 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 			return
 		}
 
-		// Add to slice of memu items
+		if menuItem.QuantityLimit && menuItem.Quantity != nil && *menuItem.Quantity <= 0 {
+			t.RespondAPIError(c, lib.ErrorGoodrichOutOfMenuItem)
+			return
+		}
+
+		// Add to slice of menu items
 		menuItems = append(menuItems, menuItem)
 
 		// Sanitize create data items
@@ -273,6 +285,18 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 		return
 	}
 
+	leaseID, err := uuid.Parse(createData.LeaseID)
+	if err != nil {
+		t.RespondAPIError(c, lib.ErrorGoodrichLeaseMissing)
+		return
+	}
+
+	// Ensure that we have a lease to order
+	if !t.orderLessor.HasLease(leaseID) {
+		t.RespondAPIError(c, lib.ErrorGoodrichLeaseExpired)
+		return
+	}
+
 	// Construct new bulletin
 	order := models.GoodrichOrder{
 		Status:        models.GoodrichOrderStatusPlaced,
@@ -294,6 +318,25 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 		t.RespondError(c, err)
 		return
 	}
+
+	// Reduce items with quantity limit
+	var decItemIDs []uint
+	for _, item := range menuItems {
+		if item.QuantityLimit {
+			decItemIDs = append(decItemIDs, item.ID)
+		}
+	}
+	if len(decItemIDs) > 0 {
+		// On error, record but continue because we have already created the order
+		err = t.menuModel.DecrementMenuItems(decItemIDs)
+		if err != nil {
+			t.Log.With(err).Error("Decrement Menu Items error!")
+			err = nil
+		}
+	}
+
+	// End the lease
+	t.orderLessor.EndLease(leaseID)
 
 	// Notifications
 	go func() {

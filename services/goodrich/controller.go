@@ -11,6 +11,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/lib/email"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
+	"github.com/WilliamsStudentsOnline/wso-go/services/goodrich/lease"
 	"github.com/gin-gonic/gin"
 	"github.com/go-mail/mail"
 	"github.com/jinzhu/gorm"
@@ -25,11 +26,12 @@ var BannedTimeSlot = NewTimeSlotInt(10, 10)
 type Controller struct {
 	services.BaseController
 	// Put a model here, like:
-	orderModel *models.GoodrichOrderModel
-	menuModel  *models.GoodrichMenuItemModel
-	userModel  *models.UserModel
-	cfg        *config.Config
-	email      *email.GoodrichMailer
+	orderModel  *models.GoodrichOrderModel
+	menuModel   *models.GoodrichMenuItemModel
+	userModel   *models.UserModel
+	cfg         *config.Config
+	email       *email.GoodrichMailer
+	orderLessor *lease.Lessor
 }
 
 // Construct a new user controller
@@ -41,6 +43,7 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 		userModel:      models.NewUserModel(db, log),
 		cfg:            cfg,
 		email:          email.NewGoodrichMailer(cfg, log.Named("email")),
+		orderLessor:    lease.NewLessor(cfg.GoodrichMaxLeases, cfg.GoodrichLeaseTermDuration),
 	}
 }
 

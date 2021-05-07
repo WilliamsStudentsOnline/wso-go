@@ -44,6 +44,7 @@ var Migrations = []*gormigrate.Migration{
 	migrations.WilliamsIdColumn20210425233453,
 	migrations.CreateGoodrichMenuItems20210426013057,
 	migrations.CreateGoodrichOrders20210426013116,
+	migrations.QuantityColumn20210507173142,
 }
 
 var MigrationGormOptions = gormigrate.DefaultOptions

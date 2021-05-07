@@ -6673,6 +6673,41 @@ var doc = `{
                 }
             }
         },
+        "/goodrich/order-lease": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "gets a lease to be able to order",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "goodrich"
+                ],
+                "summary": "Get order lease",
+                "operationId": "goodrich-get-order-lease",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/goodrich.OrderLease"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
         "/goodrich/orders": {
             "get": {
                 "security": [
@@ -8314,6 +8349,9 @@ var doc = `{
                         "$ref": "#/definitions/models.GoodrichOrderItem"
                     }
                 },
+                "leaseID": {
+                    "type": "string"
+                },
                 "notes": {
                     "type": "string"
                 },
@@ -8325,6 +8363,17 @@ var doc = `{
                 },
                 "timeSlot": {
                     "description": "Format: 11:10 am",
+                    "type": "string"
+                }
+            }
+        },
+        "goodrich.OrderLease": {
+            "type": "object",
+            "properties": {
+                "expiry": {
+                    "type": "string"
+                },
+                "id": {
                     "type": "string"
                 }
             }
@@ -8353,6 +8402,12 @@ var doc = `{
             "type": "object",
             "properties": {
                 "available": {
+                    "type": "boolean"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "quantityLimit": {
                     "type": "boolean"
                 }
             }
@@ -9289,6 +9344,13 @@ var doc = `{
                 },
                 "price": {
                     "type": "number"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "quantityLimit": {
+                    "description": "Number of this menu item left; goes down with every order\nquantity limit describe if there is a limit on quantity",
+                    "type": "boolean"
                 },
                 "title": {
                     "type": "string"

@@ -381,6 +381,8 @@ definitions:
         items:
           $ref: '#/definitions/models.GoodrichOrderItem'
         type: array
+      leaseID:
+        type: string
       notes:
         type: string
       paymentMethod:
@@ -389,6 +391,13 @@ definitions:
         type: string
       timeSlot:
         description: 'Format: 11:10 am'
+        type: string
+    type: object
+  goodrich.OrderLease:
+    properties:
+      expiry:
+        type: string
+      id:
         type: string
     type: object
   goodrich.TimeSlot:
@@ -407,6 +416,10 @@ definitions:
   goodrich.UpdateMenuItemParams:
     properties:
       available:
+        type: boolean
+      quantity:
+        type: integer
+      quantityLimit:
         type: boolean
     type: object
   goodrich.UpdateOrderParams:
@@ -1053,6 +1066,13 @@ definitions:
         type: integer
       price:
         type: number
+      quantity:
+        type: integer
+      quantityLimit:
+        description: |-
+          Number of this menu item left; goes down with every order
+          quantity limit describe if there is a limit on quantity
+        type: boolean
       title:
         type: string
       type:
@@ -6075,6 +6095,28 @@ paths:
       security:
       - Bearer: []
       summary: Update menu item
+      tags:
+      - goodrich
+  /goodrich/order-lease:
+    get:
+      consumes:
+      - application/json
+      description: gets a lease to be able to order
+      operationId: goodrich-get-order-lease
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/goodrich.OrderLease'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Get order lease
       tags:
       - goodrich
   /goodrich/orders:

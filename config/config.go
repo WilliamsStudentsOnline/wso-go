@@ -113,10 +113,13 @@ type Config struct {
 	// Use format: 2006-01-02
 	GoodrichOpenDays []string `yaml:"goodrich_open_days" envconfig:"goodrich_open_days"`
 	// Format: 15:04
-	GoodrichOpen         string `yaml:"goodrich_open" envconfig:"goodrich_open"`
-	GoodrichClose        string `yaml:"goodrich_close" envconfig:"goodrich_close"`
-	GoodrichSlotSpotSize int    `yaml:"goodrich_slot_spot_size" envconfig:"goodrich_slot_spot_size"`
-	GoodrichEmail        string `yaml:"goodrich_email" envconfig:"goodrich_email"`
+	GoodrichOpen              string `yaml:"goodrich_open" envconfig:"goodrich_open"`
+	GoodrichClose             string `yaml:"goodrich_close" envconfig:"goodrich_close"`
+	GoodrichSlotSpotSize      int    `yaml:"goodrich_slot_spot_size" envconfig:"goodrich_slot_spot_size"`
+	GoodrichEmail             string `yaml:"goodrich_email" envconfig:"goodrich_email"`
+	GoodrichMaxLeases         int    `yaml:"goodrich_max_leases" envconfig:"goodrich_max_leases"`
+	GoodrichLeaseTerm         string `yaml:"goodrich_lease_term" envconfig:"goodrich_lease_term"`
+	GoodrichLeaseTermDuration time.Duration
 
 	/* Email */
 	EmailSMTPHost string `yaml:"email_smtp_host" envconfig:"email_smtp_host"`
@@ -175,7 +178,9 @@ func (c *Config) MissingGoodrich() bool {
 	return c.GoodrichOpen == "" ||
 		c.GoodrichClose == "" ||
 		c.GoodrichSlotSpotSize == 0 ||
-		c.GoodrichEmail == ""
+		c.GoodrichEmail == "" ||
+		c.GoodrichLeaseTerm == "" ||
+		c.GoodrichMaxLeases == 0
 }
 
 func (c *Config) MissingEmail() bool {
@@ -382,6 +387,12 @@ func SetupConfig(c *Config) error {
 		if c.MissingEmail() {
 			return errors.New("email SMTP settings missing")
 		}
+
+		dur, err := time.ParseDuration(c.GoodrichLeaseTerm)
+		if err != nil {
+			return errors.New("goodirch lease term invalid")
+		}
+		c.GoodrichLeaseTermDuration = dur
 	}
 
 	return nil

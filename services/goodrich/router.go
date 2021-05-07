@@ -25,6 +25,7 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	manager.PATCH("/menu/:itemID", c.UpdateMenuItem)
 
 	// Order Service
+	r.GET("/order-lease", c.GetOrderLease)
 	r.GET("/user/orders", c.ListUserOrders)
 	r.GET("/user/orders/:orderID", c.GetUserOrder)
 	r.POST("/orders", c.CreateOrder)
