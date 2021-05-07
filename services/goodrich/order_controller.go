@@ -365,3 +365,239 @@ func removeMaxItemFromSlice(menuItems []*models.GoodrichMenuItem, category strin
 
 	return append(menuItems[:maxIdx], menuItems[maxIdx+1:]...)
 }
+
+// ADMIN BACKDOOR
+// AdminCreateOrderParams is a struct to hold the parameters used to create an order.
+type AdminCreateOrderParams struct {
+	Date          string                       `json:"date"`
+	TimeSlot      string                       `json:"timeSlot"` // Format: 11:10 am
+	Notes         string                       `json:"notes"`
+	ComboDeal     *bool                        `json:"comboDeal"`
+	PaymentMethod models.GoodrichPaymentMethod `json:"paymentMethod"`
+	Items         []*models.GoodrichOrderItem  `json:"items"`
+	UserID        uint                         `json:"userID" binding:"required"`
+}
+
+func (t *Controller) AdminCreateOrder(c *gin.Context) {
+	// Bind update params
+	createData := AdminCreateOrderParams{}
+	err := c.ShouldBind(&createData)
+	if err != nil {
+		t.RespondBadBind(c, err)
+		return
+	}
+
+	if !models.ValidateGoodrichPaymentMethod(createData.PaymentMethod) {
+		t.RespondAPIError(c, lib.ErrorGoodrichInvalidPaymentMethod)
+		return
+	}
+
+	// Make sure order has items
+	if len(createData.Items) == 0 {
+		t.RespondAPIError(c, lib.ErrorGoodrichOrderNoItems)
+		return
+	}
+
+	// validate for date open
+	foundValidDate := false
+	for _, date := range t.cfg.GoodrichOpenDays {
+		if createData.Date == date {
+			foundValidDate = true
+			break
+		}
+	}
+	if !foundValidDate {
+		t.RespondAPIError(c, lib.ErrorGoodrichDateClosed)
+		return
+	}
+
+	// validate for timeslot exists
+	foundValidTimeSlot := false
+	validTimeSlots := t.generateTimeSlotsAfter(time.Now())
+	for _, slot := range validTimeSlots {
+		if createData.TimeSlot == slot.String() {
+			foundValidTimeSlot = true
+			break
+		}
+	}
+
+	if !foundValidTimeSlot {
+		t.RespondAPIError(c, lib.ErrorGoodrichTimeSlotInvalid)
+		return
+	}
+
+	// validate for timeslot open
+	tsAvailabilityMap, err := t.generateSlotAvailabilityMap(createData.Date)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	tsClosedSpots := tsAvailabilityMap[createData.TimeSlot]
+	if t.cfg.GoodrichSlotSpotSize-tsClosedSpots <= 0 {
+		t.RespondAPIError(c, lib.ErrorGoodrichTimeFilled)
+		return
+	}
+
+	// Get menu items in an array
+	var menuItems []*models.GoodrichMenuItem
+	for i := range createData.Items {
+		menuItem := &models.GoodrichMenuItem{}
+		err = t.menuModel.GetMenuItemByID(createData.Items[i].ID, menuItem)
+		if err != nil {
+			if gorm.IsRecordNotFoundError(err) {
+				t.RespondAPIError(c, lib.ErrorGoodrichUnknownMenuItem)
+				return
+			}
+			t.RespondError(c, err)
+			return
+		}
+
+		if !menuItem.Available {
+			t.RespondAPIError(c, lib.ErrorGoodrichUnavailableMenuItem)
+			return
+		}
+
+		if menuItem.QuantityLimit && menuItem.Quantity != nil && *menuItem.Quantity <= 0 {
+			t.RespondAPIError(c, lib.ErrorGoodrichOutOfMenuItem)
+			return
+		}
+
+		// Add to slice of menu items
+		menuItems = append(menuItems, menuItem)
+
+		// Sanitize create data items
+		createData.Items[i].Item = nil
+	}
+
+	// Validate combo
+	var numBagel, numSpread, numDrink int
+	for _, item := range menuItems {
+		switch item.Category {
+		case "Bagel":
+			numBagel++
+		case "Spread":
+			numSpread++
+		case "Drink":
+			numDrink++
+		}
+	}
+	// Combo must have at least 1 drink, bagel, spread
+	if createData.ComboDeal != nil && *createData.ComboDeal {
+		if numBagel < 1 || numSpread < 1 || numDrink < 1 {
+			t.RespondAPIError(c, lib.ErrorGoodrichComboDealInvalid)
+			return
+		}
+	}
+
+	// Calculate price
+	var totalPrice float64 = 0
+
+	// If in a combo deal, calculate price by finding the maximum price drink,
+	// bagel, and spread in the order and set those total to $5.
+	if createData.ComboDeal != nil && *createData.ComboDeal {
+
+		// Get rid of max price combo item in each category
+		menuItemsLessCombo := removeMaxItemFromSlice(menuItems, "Drink")
+		if menuItemsLessCombo == nil {
+			t.RespondAPIError(c, lib.ErrorGoodrichComboDealInvalid)
+			return
+		}
+		menuItemsLessCombo = removeMaxItemFromSlice(menuItemsLessCombo, "Bagel")
+		if menuItemsLessCombo == nil {
+			t.RespondAPIError(c, lib.ErrorGoodrichComboDealInvalid)
+			return
+		}
+		menuItemsLessCombo = removeMaxItemFromSlice(menuItemsLessCombo, "Spread")
+		if menuItemsLessCombo == nil {
+			t.RespondAPIError(c, lib.ErrorGoodrichComboDealInvalid)
+			return
+		}
+
+		var priceLessCombo float64 = 0
+		for _, item := range menuItemsLessCombo {
+			priceLessCombo += item.Price
+		}
+
+		// Total price is combo price plus the prices of items not in combo
+		totalPrice = 5.00 + priceLessCombo
+	} else {
+		// If not in a combo deal, calculate price by summing up the prices of
+		// each item
+		for _, item := range menuItems {
+			totalPrice += item.Price
+		}
+	}
+
+	itemListStr, err := json.Marshal(createData.Items)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	// validate overswiping money
+	if createData.PaymentMethod == models.GoodrichPaymentMethodSwipe && totalPrice > 5.0 {
+		t.RespondAPIError(c, lib.ErrorGoodrichSwipeMaxedOut)
+		return
+	}
+
+	user := models.User{}
+	err = t.userModel.GetUserByID(createData.UserID, &user)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	pn := ""
+	if user.CellPhone != nil {
+		pn = *user.CellPhone
+	}
+
+	// Construct new bulletin
+	order := models.GoodrichOrder{
+		Status:        models.GoodrichOrderStatusPlaced,
+		PhoneNumber:   pn,
+		TimeSlot:      createData.TimeSlot,
+		Date:          createData.Date,
+		Notes:         createData.Notes,
+		TotalPrice:    totalPrice,
+		ComboDeal:     createData.ComboDeal,
+		PaymentMethod: createData.PaymentMethod,
+		IDNumber:      &user.WilliamsID,
+		ItemList:      string(itemListStr),
+
+		UserID: createData.UserID,
+	}
+
+	err = t.orderModel.CreateOrder(&order)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	// Reduce items with quantity limit
+	var decItemIDs []uint
+	for _, item := range menuItems {
+		if item.QuantityLimit {
+			decItemIDs = append(decItemIDs, item.ID)
+		}
+	}
+	if len(decItemIDs) > 0 {
+		// On error, record but continue because we have already created the order
+		err = t.menuModel.DecrementMenuItems(decItemIDs)
+		if err != nil {
+			t.Log.With(err).Error("Decrement Menu Items error!")
+			err = nil
+		}
+	}
+
+	// Notifications
+	go func() {
+		err := t.generateNotifEmail(order, createData.UserID)
+		if err != nil {
+			t.Log.Error("generate email error", err)
+		}
+	}()
+
+	t.RespondCreated(c, order)
+}

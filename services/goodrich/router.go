@@ -14,6 +14,9 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	manager := r.Group("")
 	manager.Use(auth.RequireScopes(auth.ScopeGoodrichManager))
 
+	admin := r.Group("")
+	admin.Use(auth.RequireScopes(auth.ScopeAdminAll))
+
 	r.GET("/timeslots", c.ListTimeSlots)
 
 	// Menu Service
@@ -29,6 +32,8 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	r.GET("/user/orders", c.ListUserOrders)
 	r.GET("/user/orders/:orderID", c.GetUserOrder)
 	r.POST("/orders", c.CreateOrder)
+	// Admin backdoor
+	admin.POST("/admin-order", c.AdminCreateOrder)
 
 	// Manager Order Service
 	manager.GET("/orders", c.ListOrders)
