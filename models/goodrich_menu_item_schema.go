@@ -9,7 +9,7 @@ type GoodrichMenuItem struct {
 	Type        string  `json:"type"`
 	Category    string  `json:"category"`
 	// false if item is out of stock
-	Available bool `gorm:"DEFAULT:true;not null" json:"available"`
+	Available bool `json:"available"`
 	// Number of this menu item left; goes down with every order
 	// quantity limit describe if there is a limit on quantity
 	QuantityLimit bool `gorm:"DEFAULT:false;not null" json:"quantityLimit"`

@@ -21,22 +21,25 @@ func TestController_ListMenu(t *testing.T) {
 	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	m1 := models.GoodrichMenuItem{
-		Title:       "Bagel",
-		Description: "It's a bagel",
-		Price:       1.69,
-		Available:   true,
+		Title:         "Bagel",
+		Description:   "It's a bagel",
+		Price:         1.69,
+		Available:     true,
+		QuantityLimit: false,
 	}
 	m2 := models.GoodrichMenuItem{
-		Title:       "Coffee",
-		Description: "you drink it",
-		Price:       3.41,
-		Available:   true,
+		Title:         "Coffee",
+		Description:   "you drink it",
+		Price:         3.41,
+		Available:     true,
+		QuantityLimit: false,
 	}
 	m3 := models.GoodrichMenuItem{
-		Title:       "Avocado",
-		Description: "a rare specialty",
-		Price:       4.29,
-		Available:   false,
+		Title:         "Avocado",
+		Description:   "a rare specialty",
+		Price:         4.29,
+		Available:     false,
+		QuantityLimit: false,
 	}
 	assert.NoError(db.Create(&m1).Create(&m2).Create(&m3).Error)
 
