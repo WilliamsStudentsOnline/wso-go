@@ -413,7 +413,7 @@ func (t *Controller) AdminCreateOrder(c *gin.Context) {
 
 	// validate for timeslot exists
 	foundValidTimeSlot := false
-	validTimeSlots := t.generateTimeSlotsAfter(time.Now())
+	validTimeSlots := t.generateAllDailyTimeSlots()
 	for _, slot := range validTimeSlots {
 		if createData.TimeSlot == slot.String() {
 			foundValidTimeSlot = true
