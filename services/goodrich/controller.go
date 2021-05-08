@@ -162,6 +162,7 @@ func (t *Controller) generateAllDailyTimeSlots() (slots []*TimeSlot) {
 
 	for !idx.After(end) {
 		if idx.Equal(BannedTimeSlot) {
+			idx.increment()
 			continue
 		}
 		slots = append(slots, idx.Clone())
