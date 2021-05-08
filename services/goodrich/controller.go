@@ -22,6 +22,10 @@ const DateFormat = "2006-01-02"
 const TimeSlotFormat = "%02d:%02d"
 
 var BannedTimeSlot = NewTimeSlotInt(10, 10)
+var BannedTimeSlots = []*TimeSlot{
+	NewTimeSlotInt(10, 00),
+	NewTimeSlotInt(10, 10),
+}
 
 type Controller struct {
 	services.BaseController
@@ -154,6 +158,15 @@ func (g *TimeSlot) String() string {
 	return fmt.Sprintf(TimeSlotFormat, g.Hour, g.Minute)
 }
 
+func isBannedTimeSlot(ts *TimeSlot) bool {
+	for _, bts := range BannedTimeSlots {
+		if ts.Equal(bts) {
+			return true
+		}
+	}
+	return false
+}
+
 func (t *Controller) generateAllDailyTimeSlots() (slots []*TimeSlot) {
 	end := NewTimeSlotInt(t.cfg.GoodrichMustParseTime(t.cfg.GoodrichClose))
 
@@ -161,7 +174,7 @@ func (t *Controller) generateAllDailyTimeSlots() (slots []*TimeSlot) {
 	idx.increment()
 
 	for !idx.After(end) {
-		if idx.Equal(BannedTimeSlot) {
+		if isBannedTimeSlot(idx) {
 			idx.increment()
 			continue
 		}
@@ -180,7 +193,7 @@ func (t *Controller) generateTimeSlotsAfter(tm time.Time) (slots []*TimeSlot) {
 	idx.increment() // Make sure the opening slot is closed
 
 	for !idx.After(end) {
-		if idx.Equal(BannedTimeSlot) {
+		if isBannedTimeSlot(idx) {
 			idx.increment()
 			continue
 		}
