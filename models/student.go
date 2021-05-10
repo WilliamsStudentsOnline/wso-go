@@ -113,6 +113,11 @@ func (m *StudentModel) UpdateOnCampusSemesters() (err error) {
 	}
 
 	for _, student := range students {
+		if student.ClassYear == nil {
+			// Mostly Language TAs and Grad students
+			continue
+		}
+
 		err = m.DB.Model(&student).Update("on_campus_semesters", student.OnCampusSemesters+1).Error
 		if err != nil {
 			return
@@ -132,13 +137,20 @@ func (m *StudentModel) CalculateOnCampusSemesters(u *User) int {
 	var OnCampusSemesters int
 	s := u.Student()
 
+	if s.ClassYear == nil {
+		// Mostly Language TAs and Grad students; also some weird entries in DB
+		m.log.Infof("[Null ClassYear] %v (%v, created_at %v): Set OnCampusSemester to 0.",
+			s.Name, s.UnixID, s.CreatedAt.Format("2006-Jan-2"))
+		return 0
+	}
+
 	yearNumber := s.YearNumber()
 	if *s.ClassYear-4 < s.CreatedAt.Year() {
 		// possibly transfer student
 		yearNumber += *s.ClassYear - 4 - s.CreatedAt.Year()
 
 		// Log if we mark someone as transfer
-		m.log.Debugf("[transfer student] %v (%v) '%v: On-Campus Year changed from %v to %v. Student created_at %v which should be %v \n",
+		m.log.Infof("[Transfer Student] %v (%v) '%v: On-Campus Year changed from %v to %v. Student created_at %v which should be %v.",
 			s.Name, s.UnixID, *s.ClassYear, s.YearNumber(), yearNumber, s.CreatedAt.Format("2006-Jan-2"), *s.ClassYear-4)
 	} else if *s.ClassYear-4 > s.CreatedAt.Year() {
 		// possibly student who took a gap year; do nothing and use current yearNumber
@@ -153,8 +165,10 @@ func (m *StudentModel) CalculateOnCampusSemesters(u *User) int {
 		OnCampusSemesters = yearNumber * 2
 	}
 
-	if *s.AtWilliams && s.Junior() {
+	if !*s.AtWilliams && s.Junior() {
 		// Possibly on a junior year study-away program
+		m.log.Infof("[Study-Away Junior] %v (%v) '%v: On-Campus Semester set to %v (is Junior and AtWilliams flag is false.)",
+			s.Name, s.UnixID, *s.ClassYear, (yearNumber-1)*2)
 		return (yearNumber - 1) * 2
 	}
 
@@ -206,7 +220,10 @@ func (s *Student) IsUpperClass() bool {
 // To be excluded from the 2 surveys requirement this sem, you must have submitted
 // at least 2N reviews, where N is the number of semesters you have stayed on campus.
 func (s *Student) surveyThreshold() int {
-	if s.OnCampusSemesters < 1 {
+	if s.ClassYear == nil {
+		// Mostly Language TAs and Grad students; return a flat 3 requirement
+		return 3
+	} else if s.OnCampusSemesters < 1 {
 		// Pre-Frosh
 		return 0
 	} else {
