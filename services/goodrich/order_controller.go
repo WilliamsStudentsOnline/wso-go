@@ -375,7 +375,8 @@ type AdminCreateOrderParams struct {
 	ComboDeal     *bool                        `json:"comboDeal"`
 	PaymentMethod models.GoodrichPaymentMethod `json:"paymentMethod"`
 	Items         []*models.GoodrichOrderItem  `json:"items"`
-	UserID        uint                         `json:"userID" binding:"required"`
+	//	UserID        uint                         `json:"userID" binding:"required"`
+	UnixID string `json:"unixID" binding:"required"`
 }
 
 func (t *Controller) AdminCreateOrder(c *gin.Context) {
@@ -542,7 +543,7 @@ func (t *Controller) AdminCreateOrder(c *gin.Context) {
 	}
 
 	user := models.User{}
-	err = t.userModel.GetUserByID(createData.UserID, &user)
+	err = t.userModel.GetUserByUnixID(createData.UnixID, &user)
 	if err != nil {
 		t.RespondError(c, err)
 		return
@@ -566,7 +567,7 @@ func (t *Controller) AdminCreateOrder(c *gin.Context) {
 		IDNumber:      &user.WilliamsID,
 		ItemList:      string(itemListStr),
 
-		UserID: createData.UserID,
+		UserID: user.ID,
 	}
 
 	err = t.orderModel.CreateOrder(&order)
@@ -593,7 +594,7 @@ func (t *Controller) AdminCreateOrder(c *gin.Context) {
 
 	// Notifications
 	go func() {
-		err := t.generateNotifEmail(order, createData.UserID)
+		err := t.generateNotifEmail(order, user.ID)
 		if err != nil {
 			t.Log.Error("generate email error", err)
 		}
