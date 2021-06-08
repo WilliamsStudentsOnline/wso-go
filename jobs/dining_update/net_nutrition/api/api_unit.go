@@ -4,20 +4,20 @@ import "fmt"
 
 type SideBarUnit struct {
 	Success bool `json:"success"`
-	Panels []struct {
-		ID string `json:"id"`
+	Panels  []struct {
+		ID   string `json:"id"`
 		Html string `json:"html"`
 	} `json:"panels"`
 }
 
 type DiningAPIUnit struct {
-	Success bool
-	ItemPanel string
-	StaticPanel3 string
-	UnitsPanel string
+	Success         bool
+	ItemPanel       string
+	StaticPanel3    string
+	UnitsPanel      string
 	ChildUnitsPanel string
-	MenuPanel string
-	CoursesPanel string
+	MenuPanel       string
+	CoursesPanel    string
 	DisclaimerPanel string
 }
 

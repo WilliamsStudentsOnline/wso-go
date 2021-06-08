@@ -126,9 +126,22 @@ func TestStudentModel_UpdateFactrakSurveyDeficit(t *testing.T) {
 
 		// Test user
 		student := User{
-			Type:      UserTypeStudent,
-			Name:      "Student",
-			UnixID:    "s1",
+			Type:   UserTypeStudent,
+			Name:   "Student",
+			UnixID: "s1",
+			BaseSchema: BaseSchema{
+				// So we can properly Initialize OnCampusSemesters
+				CreatedAt: time.Date(
+					m.SeniorYear()-1,
+					time.September,
+					1,
+					1,
+					1,
+					1,
+					1,
+					time.Now().Location(),
+				),
+			},
 			ClassYear: lib.IntToPtr(3 + m.SeniorYear()),
 		}
 
@@ -146,6 +159,7 @@ func TestStudentModel_UpdateFactrakSurveyDeficit(t *testing.T) {
 
 		// Create, update deficit, and get student
 		assert.NoError(db.Create(&student).Error)
+		assert.NoError(m.InitializeOnCampusSemesters(&student))
 		assert.NoError(m.UpdateFactrakSurveyDeficit(&student))
 		assert.NoError(db.First(&student).Error)
 
@@ -164,9 +178,22 @@ func TestStudentModel_UpdateFactrakSurveyDeficit(t *testing.T) {
 
 		// Test user
 		student := User{
-			Type:      UserTypeStudent,
-			Name:      "Student",
-			UnixID:    "s1",
+			Type:   UserTypeStudent,
+			Name:   "Student",
+			UnixID: "s1",
+			BaseSchema: BaseSchema{
+				// So we can properly Initialize OnCampusSemesters
+				CreatedAt: time.Date(
+					m.SeniorYear()-1,
+					time.September,
+					1,
+					1,
+					1,
+					1,
+					1,
+					time.Now().Location(),
+				),
+			},
 			ClassYear: lib.IntToPtr(3 + m.SeniorYear()),
 		}
 
@@ -183,6 +210,7 @@ func TestStudentModel_UpdateFactrakSurveyDeficit(t *testing.T) {
 
 		// Create, update deficit, and get student
 		assert.NoError(db.Create(&student).Error)
+		assert.NoError(m.InitializeOnCampusSemesters(&student))
 		assert.NoError(m.UpdateFactrakSurveyDeficit(&student))
 		assert.NoError(db.First(&student).Error)
 
@@ -209,6 +237,19 @@ func TestStudentModel_UpdateFactrakSurveyDeficit(t *testing.T) {
 			Name:   "Student",
 			UnixID: "s1",
 			// Sophomore year
+			BaseSchema: BaseSchema{
+				// So we can properly Initialize OnCampusSemesters
+				CreatedAt: time.Date(
+					m.SeniorYear()-2,
+					time.September,
+					1,
+					1,
+					1,
+					1,
+					1,
+					time.Now().Location(),
+				),
+			},
 			ClassYear: lib.IntToPtr(2 + m.SeniorYear()),
 		}
 
@@ -225,6 +266,7 @@ func TestStudentModel_UpdateFactrakSurveyDeficit(t *testing.T) {
 
 		// Create, update deficit, and get student
 		assert.NoError(db.Create(&student).Error)
+		assert.NoError(m.InitializeOnCampusSemesters(&student))
 		assert.NoError(m.UpdateFactrakSurveyDeficit(&student))
 		assert.NoError(db.First(&student).Error)
 
@@ -265,6 +307,19 @@ func TestStudentModel_UpdateFactrakSurveyDeficit(t *testing.T) {
 			Name:   "Student",
 			UnixID: "s1",
 			// Sophomore year
+			BaseSchema: BaseSchema{
+				// So we can properly Initialize OnCampusSemesters
+				CreatedAt: time.Date(
+					m.SeniorYear()-2,
+					time.September,
+					1,
+					1,
+					1,
+					1,
+					1,
+					time.Now().Location(),
+				),
+			},
 			ClassYear: lib.IntToPtr(2 + m.SeniorYear()),
 		}
 
@@ -287,7 +342,7 @@ func TestStudentModel_UpdateFactrakSurveyDeficit(t *testing.T) {
 			UserID: student.ID,
 		}
 		assert.NoError(m.DB.Create(&fs1).Error)
-
+		assert.NoError(m.InitializeOnCampusSemesters(&student))
 		assert.NoError(m.UpdateFactrakSurveyDeficit(&student))
 		assert.NoError(db.First(&student).Error)
 

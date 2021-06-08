@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/PuerkitoBio/goquery"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
+
+	"github.com/PuerkitoBio/goquery"
 )
 
 func (d *WilliamsDiningAPI) doUnitRequest(r *http.Request) (*DiningAPIUnit, error) {
@@ -40,7 +41,7 @@ func (d *WilliamsDiningAPI) doUnitRequest(r *http.Request) (*DiningAPIUnit, erro
 }
 
 func (d *WilliamsDiningAPI) SelectMenu(menuId int) (*DiningAPIUnit, error) {
-	req, err := http.NewRequest(http.MethodPost, d.baseUrl + "/Menu/SelectMenu", bytes.NewBufferString(url.Values{
+	req, err := http.NewRequest(http.MethodPost, d.baseUrl+"/Menu/SelectMenu", bytes.NewBufferString(url.Values{
 		"menuOid": []string{strconv.Itoa(menuId)},
 	}.Encode()))
 	if err != nil {
@@ -51,7 +52,7 @@ func (d *WilliamsDiningAPI) SelectMenu(menuId int) (*DiningAPIUnit, error) {
 }
 
 func (d *WilliamsDiningAPI) SelectUnitFromSideBar(unitId int) (*DiningAPIUnit, error) {
-	req, err := http.NewRequest(http.MethodPost, d.baseUrl + "/Unit/SelectUnitFromSideBar", bytes.NewBufferString(url.Values{
+	req, err := http.NewRequest(http.MethodPost, d.baseUrl+"/Unit/SelectUnitFromSideBar", bytes.NewBufferString(url.Values{
 		"unitOid": []string{strconv.Itoa(unitId)},
 	}.Encode()))
 	if err != nil {
@@ -62,7 +63,7 @@ func (d *WilliamsDiningAPI) SelectUnitFromSideBar(unitId int) (*DiningAPIUnit, e
 }
 
 func (d *WilliamsDiningAPI) SelectUnitFromChildUnitsList(unitId int) (*DiningAPIUnit, error) {
-	req, err := http.NewRequest(http.MethodPost, d.baseUrl + "/Unit/SelectUnitFromChildUnitsList", bytes.NewBufferString(url.Values{
+	req, err := http.NewRequest(http.MethodPost, d.baseUrl+"/Unit/SelectUnitFromChildUnitsList", bytes.NewBufferString(url.Values{
 		"unitOid": []string{strconv.Itoa(unitId)},
 	}.Encode()))
 	if err != nil {

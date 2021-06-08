@@ -105,6 +105,12 @@ func (m *UserModel) GetAllUsersByType(u *[]User, userType string) (err error) {
 	return
 }
 
+// Returns only users currently at williams (excluding those taking gap year / study away / ...)
+func (m *UserModel) GetAtWilliamsUsersByType(u *[]User, userType string) (err error) {
+	err = m.DB.Where("users.type = ?", userType).Where("users.at_williams = true").Find(u).Error
+	return
+}
+
 func (m *UserModel) GetUserByID(id uint, u *User) (err error) {
 	err = m.DB.Where(NewUserWithID(id)).
 		Preload("DormRoom").Preload("DormRoom.Dorm").

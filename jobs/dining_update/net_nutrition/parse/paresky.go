@@ -2,6 +2,7 @@ package parse
 
 import (
 	"fmt"
+
 	"github.com/WilliamsStudentsOnline/wso-go/jobs/dining_update/net_nutrition/api"
 	"github.com/WilliamsStudentsOnline/wso-go/jobs/dining_update/net_nutrition/search"
 )

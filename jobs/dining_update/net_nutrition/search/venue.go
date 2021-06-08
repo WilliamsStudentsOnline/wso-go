@@ -5,7 +5,7 @@ import (
 )
 
 type Venue struct {
-	Name string `json:"name"`
+	Name        string        `json:"name"`
 	DiningHalls []*DiningHall `json:"dining_halls"`
 }
 
@@ -22,7 +22,7 @@ func (v *Venue) StringBuilder(builder *strings.Builder) {
 func (v *Venue) StringBuilderWithIdent(builder *strings.Builder, ident string) {
 	builder.WriteString(ident + v.Name + ":\n")
 	for _, dh := range v.DiningHalls {
-		dh.StringBuilderWithIdent(builder, ident + "  ")
+		dh.StringBuilderWithIdent(builder, ident+"  ")
 	}
 }
 
