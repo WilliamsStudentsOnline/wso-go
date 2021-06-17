@@ -72,42 +72,51 @@ func TestController_ListMatches(t *testing.T) {
 		assert.NoError(db.Create(val).Error)
 	}
 
-	assert.NoError(db.Create(&models.EphmatchLike{
-		UserID:  s[0].ID,
-		LikedID: s[1].ID,
+	assert.NoError(db.Create(&models.EphmatchRelation{
+		UserID:   s[0].ID,
+		OtherID:  s[1].ID,
+		Relation: "like",
 	}).Error)
-	assert.NoError(db.Create(&models.EphmatchLike{
-		UserID:  s[0].ID,
-		LikedID: s[3].ID,
+	assert.NoError(db.Create(&models.EphmatchRelation{
+		UserID:   s[0].ID,
+		OtherID:  s[3].ID,
+		Relation: "like",
 	}).Error)
-	assert.NoError(db.Create(&models.EphmatchLike{
-		UserID:  s[0].ID,
-		LikedID: s[4].ID,
+	assert.NoError(db.Create(&models.EphmatchRelation{
+		UserID:   s[0].ID,
+		OtherID:  s[4].ID,
+		Relation: "like",
 	}).Error)
-	assert.NoError(db.Create(&models.EphmatchLike{
-		UserID:  s[4].ID,
-		LikedID: s[0].ID,
+	assert.NoError(db.Create(&models.EphmatchRelation{
+		UserID:   s[4].ID,
+		OtherID:  s[0].ID,
+		Relation: "like",
 	}).Error)
-	assert.NoError(db.Create(&models.EphmatchLike{
-		UserID:  s[1].ID,
-		LikedID: s[0].ID,
+	assert.NoError(db.Create(&models.EphmatchRelation{
+		UserID:   s[1].ID,
+		OtherID:  s[0].ID,
+		Relation: "like",
 	}).Error)
-	assert.NoError(db.Create(&models.EphmatchLike{
-		UserID:  s[3].ID,
-		LikedID: s[4].ID,
+	assert.NoError(db.Create(&models.EphmatchRelation{
+		UserID:   s[3].ID,
+		OtherID:  s[4].ID,
+		Relation: "like",
 	}).Error)
-	assert.NoError(db.Create(&models.EphmatchLike{
-		UserID:  s[4].ID,
-		LikedID: s[3].ID,
+	assert.NoError(db.Create(&models.EphmatchRelation{
+		UserID:   s[4].ID,
+		OtherID:  s[3].ID,
+		Relation: "like",
 	}).Error)
 	// Match user 6 and 0 but delete user 6's profile and expect it not to be returned
-	assert.NoError(db.Create(&models.EphmatchLike{
-		UserID:  s[0].ID,
-		LikedID: s[5].ID,
+	assert.NoError(db.Create(&models.EphmatchRelation{
+		UserID:   s[0].ID,
+		OtherID:  s[5].ID,
+		Relation: "like",
 	}).Error)
-	assert.NoError(db.Create(&models.EphmatchLike{
-		UserID:  s[5].ID,
-		LikedID: s[0].ID,
+	assert.NoError(db.Create(&models.EphmatchRelation{
+		UserID:   s[5].ID,
+		OtherID:  s[0].ID,
+		Relation: "like",
 	}).Error)
 
 	// Matches (0,4) (0,1) (0,5) (3,4)
@@ -215,25 +224,30 @@ func TestController_ListMatches_Seen(t *testing.T) {
 		assert.NoError(db.Create(val).Error)
 	}
 
-	assert.NoError(db.Create(&models.EphmatchLike{
-		UserID:  s[0].ID,
-		LikedID: s[1].ID,
+	assert.NoError(db.Create(&models.EphmatchRelation{
+		UserID:   s[0].ID,
+		OtherID:  s[1].ID,
+		Relation: "like",
 	}).Error)
-	assert.NoError(db.Create(&models.EphmatchLike{
-		UserID:  s[0].ID,
-		LikedID: s[2].ID,
+	assert.NoError(db.Create(&models.EphmatchRelation{
+		UserID:   s[0].ID,
+		OtherID:  s[2].ID,
+		Relation: "like",
 	}).Error)
-	assert.NoError(db.Create(&models.EphmatchLike{
-		UserID:  s[0].ID,
-		LikedID: s[3].ID,
+	assert.NoError(db.Create(&models.EphmatchRelation{
+		UserID:   s[0].ID,
+		OtherID:  s[3].ID,
+		Relation: "like",
 	}).Error)
-	assert.NoError(db.Create(&models.EphmatchLike{
-		UserID:  s[1].ID,
-		LikedID: s[0].ID,
+	assert.NoError(db.Create(&models.EphmatchRelation{
+		UserID:   s[1].ID,
+		OtherID:  s[0].ID,
+		Relation: "like",
 	}).Error)
-	assert.NoError(db.Create(&models.EphmatchLike{
-		UserID:  s[2].ID,
-		LikedID: s[0].ID,
+	assert.NoError(db.Create(&models.EphmatchRelation{
+		UserID:   s[2].ID,
+		OtherID:  s[0].ID,
+		Relation: "like",
 	}).Error)
 
 	// Matches (0,1) (0,2)
@@ -276,9 +290,10 @@ func TestController_ListMatches_Seen(t *testing.T) {
 	assert.False(*resp[0].SeenBySelf)
 
 	// match next and get seen
-	assert.NoError(db.Create(&models.EphmatchLike{
-		UserID:  s[3].ID,
-		LikedID: s[0].ID,
+	assert.NoError(db.Create(&models.EphmatchRelation{
+		UserID:   s[3].ID,
+		OtherID:  s[0].ID,
+		Relation: "like",
 	}).Error)
 	assert.NoError(db.Create(&models.EphmatchMatch{
 		UserAID: s[0].ID,
@@ -352,25 +367,30 @@ func TestController_CountMatches(t *testing.T) {
 		assert.NoError(db.Create(val).Error)
 	}
 
-	assert.NoError(db.Create(&models.EphmatchLike{
-		UserID:  s[0].ID,
-		LikedID: s[1].ID,
+	assert.NoError(db.Create(&models.EphmatchRelation{
+		UserID:   s[0].ID,
+		OtherID:  s[1].ID,
+		Relation: "like",
 	}).Error)
-	assert.NoError(db.Create(&models.EphmatchLike{
-		UserID:  s[0].ID,
-		LikedID: s[2].ID,
+	assert.NoError(db.Create(&models.EphmatchRelation{
+		UserID:   s[0].ID,
+		OtherID:  s[2].ID,
+		Relation: "like",
 	}).Error)
-	assert.NoError(db.Create(&models.EphmatchLike{
-		UserID:  s[0].ID,
-		LikedID: s[3].ID,
+	assert.NoError(db.Create(&models.EphmatchRelation{
+		UserID:   s[0].ID,
+		OtherID:  s[3].ID,
+		Relation: "like",
 	}).Error)
-	assert.NoError(db.Create(&models.EphmatchLike{
-		UserID:  s[1].ID,
-		LikedID: s[0].ID,
+	assert.NoError(db.Create(&models.EphmatchRelation{
+		UserID:   s[1].ID,
+		OtherID:  s[0].ID,
+		Relation: "like",
 	}).Error)
-	assert.NoError(db.Create(&models.EphmatchLike{
-		UserID:  s[2].ID,
-		LikedID: s[0].ID,
+	assert.NoError(db.Create(&models.EphmatchRelation{
+		UserID:   s[2].ID,
+		OtherID:  s[0].ID,
+		Relation: "like",
 	}).Error)
 
 	// Matches (0,1) (0,2)
@@ -407,9 +427,10 @@ func TestController_CountMatches(t *testing.T) {
 	assert.Equal(http.StatusOK, w.Code)
 
 	// match next and get seen
-	assert.NoError(db.Create(&models.EphmatchLike{
-		UserID:  s[3].ID,
-		LikedID: s[0].ID,
+	assert.NoError(db.Create(&models.EphmatchRelation{
+		UserID:   s[3].ID,
+		OtherID:  s[0].ID,
+		Relation: "like",
 	}).Error)
 	assert.NoError(db.Create(&models.EphmatchMatch{
 		UserAID: s[0].ID,

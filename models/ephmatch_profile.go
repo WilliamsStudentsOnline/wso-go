@@ -60,9 +60,9 @@ func (m *EphmatchProfileModel) GetAllProfilesNoSelf(p *[]*EphmatchProfile, selfI
 			}
 		}
 
-		// Populate liked field
-		if lib.StringsContains(opts.Preload, "liked") {
-			err = m.PopulateLiked(p, selfID)
+		// Populate relation field
+		if lib.StringsContains(opts.Preload, "relation") {
+			err = m.PopulateRelations(p, selfID)
 			if err != nil {
 				return
 			}
@@ -118,29 +118,27 @@ func (m *EphmatchProfileModel) SortProfilesByLiked(p *[]*EphmatchProfile, selfID
 	return nil
 }
 
-// Populate liked field on set of profiles
-func (m *EphmatchProfileModel) PopulateLiked(p *[]*EphmatchProfile, selfID uint) (err error) {
+// Populate relations field on set of profiles
+func (m *EphmatchProfileModel) PopulateRelations(p *[]*EphmatchProfile, selfID uint) (err error) {
 	// Get ephmatch likes made by user self (selfID) to populate "liked" field. This is significantly faster
 	// than a SQL query by several magnitudes.
-	var likes []*EphmatchLike
-	lm := NewEphmatchLikeModel(m.DB, m.log)
-	err = lm.GetUserLikes(selfID, &likes)
+	var rels []*EphmatchRelation
+	relModel := NewEphmatchRelationModel(m.DB, m.log)
+	err = relModel.GetUserOutRelations(selfID, &rels)
 	if err != nil {
 		return
 	}
 
 	// Create a map of users we liked.
-	likedUserMap := make(map[uint]bool)
-	for _, like := range likes {
-		likedUserMap[like.LikedID] = true
+	relUserMap := make(map[uint]string)
+	for _, rel := range rels {
+		relUserMap[rel.OtherID] = rel.Relation
 	}
 
 	// If a profile is in the likedUserMap, set it to liked
 	for _, profile := range *p {
-		if _, ok := likedUserMap[profile.UserID]; ok {
-			profile.Liked = lib.TruePtr()
-		} else {
-			profile.Liked = lib.FalsePtr()
+		if rel, ok := relUserMap[profile.UserID]; ok {
+			profile.Relation = &rel
 		}
 	}
 
@@ -184,7 +182,7 @@ type GetAllProfilesOptions struct {
 	Offset *uint `json:"offset" form:"offset"`
 	Limit  *uint `json:"limit" form:"limit"`
 
-	// You can preload: tags, liked, matched
+	// You can preload: tags, relation, liked, matched
 	Preload []string `json:"preload" form:"preload[]"`
 	// Note: [liked, matched] preloads are done not in the preload step
 }
@@ -404,9 +402,9 @@ func (m *EphmatchProfileModel) SuggestUsers(userID uint) ([]uint, error) {
 	*/
 
 	// Get who user liked
-	rows, err := m.DB.Table("ephmatch_likes").
-		Select("liked_id").
-		Where("user_id = ?", userID).
+	rows, err := m.DB.Table("ephmatch_relations").
+		Select("other_id").
+		Where("user_id = ? AND relation = ?", userID, EphmatchRelationLike).
 		Rows()
 	if err != nil {
 		return nil, err
@@ -435,9 +433,9 @@ func (m *EphmatchProfileModel) SuggestUsers(userID uint) ([]uint, error) {
 	}
 
 	// Get users with similar like preferences (admirers of people user has liked)
-	rows, err = m.DB.Table("ephmatch_likes").
+	rows, err = m.DB.Table("ephmatch_relations").
 		Select("user_id").
-		Where("liked_id IN (" + strings.Join(likedUsersStr, ",") + ")").
+		Where("relation = ? AND other_id IN ("+strings.Join(likedUsersStr, ",")+")", EphmatchRelationLike).
 		Rows()
 	if err != nil {
 		return nil, err
@@ -465,10 +463,10 @@ func (m *EphmatchProfileModel) SuggestUsers(userID uint) ([]uint, error) {
 
 	// Get other users that admirers liked
 
-	rows, err = m.DB.Table("ephmatch_likes").
-		Select("liked_id, count(*)").
-		Where("user_id IN (" + strings.Join(admirersStr, ",") + ")").
-		Group("liked_id").Rows()
+	rows, err = m.DB.Table("ephmatch_relations").
+		Select("other_id, count(*)").
+		Where("relation = ? AND user_id IN ("+strings.Join(admirersStr, ",")+")", EphmatchRelationLike).
+		Group("other_id").Rows()
 	if err != nil {
 		return nil, err
 	}

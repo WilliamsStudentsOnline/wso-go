@@ -26,8 +26,8 @@ type EphmatchProfile struct {
 	Description  *string `json:"description"`
 	MatchMessage *string `json:"matchMessage"`
 
-	Liked   *bool `gorm:"-" json:"liked,omitempty"`   // If self has liked this profile (user)
-	Matched *bool `gorm:"-" json:"matched,omitempty"` // If user and self are matched
+	Relation *string `gorm:"-" json:"relation,omitempty"` // If self has an out-relation with this profile (user)
+	Matched  *bool   `gorm:"-" json:"matched,omitempty"`  // If user and self are matched
 
 	// Current location columns
 	LocationVisible *bool   `gorm:"DEFAULT:true;not null" json:"locationVisible"`

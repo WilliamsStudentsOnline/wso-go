@@ -148,11 +148,12 @@ var (
 	// 19** are ephmatch errors
 	ErrorEphmatchLikeNoSelf               = NewAPIError(1930, "cannot ephmatch-like yourself")
 	ErrorEphmatchProfileNotFound          = NewAPIError(1931, "ephmatch profile could not be found")
-	ErrorEphmatchAlreadyExists            = NewAPIError(1932, "ephmatch already exists with user ID and passed ephmatch profile user ID")
+	ErrorEphmatchRelationAlreadyExists    = NewAPIError(1932, "ephmatch relation already exists with user ID and passed ephmatch profile user ID")
 	ErrorEphmatchDoesNotExist             = NewAPIError(1933, "ephmatch does not exist with user ID and passed ephmatch profile user ID")
 	ErrorEphmatchInvalidMessagingPlatform = NewAPIError(1934, "ephmatch messaging platform is invalid")
 	ErrorEphmatchEmptyMessagingUsername   = NewAPIError(1935, "ephmatch messaging username is empty")
 	ErrorEphmatchDescriptionTooLong       = NewAPIError(1936, "ephmatch description is too long")
+	ErrorEphmatchInvalidRelation          = NewAPIError(1936, "ephmatch relation is invalid")
 
 	// 20** are notification errors
 	ErrorNotificationInvalidTokenType = NewAPIError(2030, "notification token type is invalid")

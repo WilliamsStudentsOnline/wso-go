@@ -24,3 +24,9 @@ SET
     ephmatch_profiles.location_state = users.home_state,
     ephmatch_profiles.location_country = users.home_country
 WHERE ephmatch_profiles.user_id = users.id;
+
+# Convert likes into relations
+INSERT INTO ephmatch_relations
+(id, created_at, updated_at, user_id, other_id, relation)
+SELECT id, created_at, updated_at, user_id, liked_id, 'like'
+FROM ephmatch_likes;
