@@ -141,45 +141,45 @@ pipeline {
                 sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/wso-backend'
 
                 // Jobs:
-                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/job-catalog-update'
+                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/catalog-update'
                 sshPut remote: remote_dev, from: 'job-catalog-update_linux', into: '/home/wso/wso/wso-backend/jobs/catalog-update'
                 sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/catalog-update'
 
-                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/job-update-all-factrak-survey-deficits'
+                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/update-all-factrak-survey-deficits'
                 sshPut remote: remote_dev, from: 'job-update-all-factrak-survey-deficits_linux', into: '/home/wso/wso/wso-backend/jobs/update-all-factrak-survey-deficits'
                 sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/update-all-factrak-survey-deficits'
 
-                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/job-update-all-users-from-ldap'
+                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/update-all-users-from-ldap'
                 sshPut remote: remote_dev, from: 'job-update-all-users-from-ldap_linux', into: '/home/wso/wso/wso-backend/jobs/update-all-users-from-ldap'
                 sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/update-all-users-from-ldap'
 
-                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/job-dorms-update'
+                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/dorms-update'
                 sshPut remote: remote_dev, from: 'job-dorms-update_linux', into: '/home/wso/wso/wso-backend/jobs/dorms-update'
                 sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/dorms-update'
 
-                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/job-frosh-photos'
+                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/frosh-photos'
                 sshPut remote: remote_dev, from: 'job-frosh-photos_linux', into: '/home/wso/wso/wso-backend/jobs/frosh-photos'
                 sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/frosh-photos'
 
-                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/job-user-pronouns'
+                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/user-pronouns'
                 sshPut remote: remote_dev, from: 'job-user-pronouns_linux', into: '/home/wso/wso/wso-backend/jobs/user-pronouns'
                 sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/user-pronouns'
 
-                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/job-dining-update'
+                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/dining-update'
                 sshPut remote: remote_dev, from: 'job-dining-update_linux', into: '/home/wso/wso/wso-backend/jobs/dining-update'
                 sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/dining-update'
 
-                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/job-schedule-notifs'
+                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/schedule-notifs'
                 sshPut remote: remote_dev, from: 'job-schedule-notifs_linux', into: '/home/wso/wso/wso-backend/jobs/schedule-notifs'
                 sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/schedule-notifs'
 
-                sshRemove remote: remote_dev, path: '/home/wsodev/wso-go/job-update-on-campus-semesters'
-                sshPut remote: remote_dev, from: 'job-update-on-campus-semesters', into: '/home/wsodev/wso-go/job-update-on-campus-semesters'
-                sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/job-update-on-campus-semesters'
+                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/update-on-campus-semesters'
+                sshPut remote: remote_dev, from: 'job-update-on-campus-semesters', into: '/home/wso/wso/wso-backend/jobs/update-on-campus-semesters'
+                sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/update-on-campus-semesters'
 
-                sshRemove remote: remote_dev, path: '/home/wsodev/wso-go/job-initialize-on-campus-semesters'
-                sshPut remote: remote_dev, from: 'job-initialize-on-campus-semesters', into: '/home/wsodev/wso-go/job-initialize-on-campus-semesters'
-                sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/job-initialize-on-campus-semesters'
+                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/initialize-on-campus-semesters'
+                sshPut remote: remote_dev, from: 'job-initialize-on-campus-semesters', into: '/home/wso/wso/wso-backend/jobs/initialize-on-campus-semesters'
+                sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/initialize-on-campus-semesters'
 
                 // Restart WSO-Go
                 sshCommand remote: remote_dev, command: '/bin/systemctl restart WSO-Go', sudo: true
