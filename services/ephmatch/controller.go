@@ -17,7 +17,7 @@ type Controller struct {
 	// Put a model here, like:
 	ephmatchModel  *models.EphmatchModel
 	profileModel   *models.EphmatchProfileModel
-	likeModel      *models.EphmatchLikeModel
+	relationModel  *models.EphmatchRelationModel
 	matchModel     *models.EphmatchMatchesModel
 	cfg            *config.Config
 	pictureBackend pictures.PictureBackend
@@ -36,7 +36,7 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 		BaseController: services.BaseController{Log: log},
 		ephmatchModel:  models.NewEphmatchModel(db, log),
 		profileModel:   models.NewEphmatchProfileModel(db, log),
-		likeModel:      models.NewEphmatchLikeModel(db, log),
+		relationModel:  models.NewEphmatchRelationModel(db, log),
 		matchModel:     models.NewEphmatchMatchesModel(db, log),
 		cfg:            cfg,
 		pictureBackend: pb,

@@ -20,7 +20,7 @@ import (
 // @Param sort query string false "Sort (new, updated, alphabetical)"
 // @Param offset query int false "Offset Pagination"
 // @Param limit query int false "Limit Pagination"
-// @Param preload query []string false "Preload List [tags, liked, matched]"
+// @Param preload query []string false "Preload List [tags, relation, matched]"
 // @Success 200 {array} models.EphmatchProfile
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
@@ -94,7 +94,8 @@ func (t *Controller) GetProfile(c *gin.Context) {
 	}
 
 	var profile models.EphmatchProfile
-	likeExists := false
+	relExists := false
+	relVal := ""
 	matchExists := false
 
 	// If get self, get it regardless. Otherwise, user must be valid
@@ -114,7 +115,7 @@ func (t *Controller) GetProfile(c *gin.Context) {
 		}
 
 		// This is liked, not matching
-		likeExists, err = t.likeModel.DoesLikeExist(userID, profileUserID)
+		relExists, relVal, err = t.relationModel.GetOutRelation(userID, profileUserID)
 		if err != nil {
 			t.RespondError(c, err)
 			return
@@ -128,7 +129,9 @@ func (t *Controller) GetProfile(c *gin.Context) {
 		}
 	}
 
-	profile.Liked = &likeExists
+	if relExists {
+		profile.Relation = &relVal
+	}
 	profile.Matched = &matchExists
 
 	// Remove match message if not matched
@@ -145,29 +148,51 @@ func (t *Controller) GetProfile(c *gin.Context) {
 	t.RespondOK(c, profile)
 }
 
-type LikeProfileResp struct {
-	Matched bool `json:"matched"`
+type SetProfileRelationResp struct {
+	Matched *bool `json:"matched,omitempty"`
 }
 
-// LikeProfile godoc
-// @Summary Like Ephmatch profile
-// @Description Likes one ephmatch-eligible user profile
-// @ID ephmatch-like-profile
+type SetProfileRelationParams struct {
+	Relation string `json:"relation"`
+}
+
+const (
+	ProfileRelationNone = "none"
+)
+
+// SetProfileRelation godoc
+// @Summary Set Ephmatch profile relation
+// @Description Sets the relation (like, dislike, nothing) between self and one ephmatch-eligible user profile
+// @ID ephmatch-set-profile-relation
 // @Tags ephmatch
 // @Accept  json
 // @Produce  json
 // @Param profileUserID path uint true "Profile User ID"
-// @Success 201 {object} LikeProfileResp
-// @Failure 1730 {object} lib.APIError "cannot ephmatch-like yourself"
+// @Param relationParams body ephmatch.SetProfileRelationParams true "Set Profile Relation Params"
+// @Success 201 {object} SetProfileRelationResp
+// @Failure 1730 {object} lib.APIError "cannot ephmatch-relate yourself"
 // @Failure 1731 {object} lib.APIError "ephmatch profile could not be found"
-// @Failure 1732 {object} lib.APIError "ephmatch already exists with user ID and passed ephmatch profile user ID"
+// @Failure 1732 {object} lib.APIError "ephmatch relation already exists with user ID and passed ephmatch profile user ID"
 // @Failure 400 {object} lib.APIError
 // @Failure 404 {object} lib.APIError
 // @Failure 500 {object} lib.APIError
 // @Security Bearer
-// @Router /ephmatch/profiles/{profileUserID}/like [post]
-func (t *Controller) LikeProfile(c *gin.Context) {
+// @Router /ephmatch/profiles/{profileUserID}/relation [put]
+func (t *Controller) SetProfileRelation(c *gin.Context) {
 	userID := services.GetUserID(c)
+
+	// Bind create params
+	relParams := SetProfileRelationParams{}
+	err := c.ShouldBind(&relParams)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	if !models.ValidateEphmatchRelation(relParams.Relation) && relParams.Relation != ProfileRelationNone {
+		t.RespondError(c, lib.ErrorEphmatchInvalidRelation)
+		return
+	}
 
 	// Decode profileUserID.
 	profileUserID, err := services.GetUIntParam(c, "profileUserID")
@@ -191,78 +216,27 @@ func (t *Controller) LikeProfile(c *gin.Context) {
 		return
 	}
 
-	dupe, err := t.likeModel.DoesLikeExist(userID, profileUserID)
-	if err != nil {
-		t.RespondError(c, err)
-		return
+	if relParams.Relation == ProfileRelationNone {
+		err = t.ephmatchModel.DeleteRelationWithMatchHooks(userID, profileUserID)
+		if err != nil {
+			t.RespondError(c, err)
+			return
+		}
+		t.RespondOK(c, SetProfileRelationResp{})
+	} else {
+		// Do database query
+		matched, err := t.ephmatchModel.SetRelationWithMatchHooks(userID, profileUserID, relParams.Relation)
+		if err != nil {
+			if err == models.EphmatchModelErrorRelationAlreadyExists {
+				t.RespondError(c, lib.ErrorEphmatchRelationAlreadyExists)
+				return
+			} else {
+				t.RespondError(c, err)
+				return
+			}
+		}
+		t.RespondOK(c, SetProfileRelationResp{
+			Matched: &matched,
+		})
 	}
-	if dupe {
-		t.RespondError(c, lib.ErrorEphmatchAlreadyExists)
-		return
-	}
-
-	// Do database query
-	matched, err := t.ephmatchModel.CreateLikeAndMatch(userID, profileUserID)
-	if err != nil {
-		t.RespondError(c, err)
-		return
-	}
-
-	t.RespondCreated(c, LikeProfileResp{
-		Matched: matched,
-	})
-}
-
-// UnlikeProfile godoc
-// @Summary Unlike ephmatch profile
-// @Description Removes a like from one ephmatch-eligible user profile
-// @ID ephmatch-unlike-profile
-// @Tags ephmatch
-// @Accept  json
-// @Produce  json
-// @Param profileUserID path uint true "Profile User ID"
-// @Success 201
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
-// @Security Bearer
-// @Router /ephmatch/profiles/{profileUserID}/unlike [post]
-func (t *Controller) UnlikeProfile(c *gin.Context) {
-	userID := services.GetUserID(c)
-
-	// Decode profileUserID.
-	profileUserID, err := services.GetUIntParam(c, "profileUserID")
-	if err != nil {
-		t.RespondErrorCode(c, http.StatusBadRequest, err)
-		return
-	}
-
-	exists, err := t.profileModel.DoesProfileExist(profileUserID)
-	if err != nil {
-		t.RespondError(c, err)
-		return
-	}
-	if !exists {
-		t.RespondError(c, lib.ErrorEphmatchProfileNotFound)
-		return
-	}
-
-	dupe, err := t.likeModel.DoesLikeExist(userID, profileUserID)
-	if err != nil {
-		t.RespondError(c, err)
-		return
-	}
-	if !dupe {
-		t.RespondError(c, lib.ErrorEphmatchDoesNotExist)
-		return
-	}
-
-	// Do database query (delete like, match if exists)
-	err = t.ephmatchModel.DeleteLikeAndMatch(userID, profileUserID)
-	if err != nil {
-		t.RespondError(c, err)
-		return
-	}
-
-	t.RespondOK(c, nil)
 }

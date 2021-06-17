@@ -35,7 +35,7 @@ func Ephmatches(n int, db *gorm.DB) (err error) {
 			continue
 		}
 
-		_, err = ephmModel.CreateLikeAndMatch(u1.UserID, u2.UserID)
+		_, err = ephmModel.SetRelationWithMatchHooks(u1.UserID, u2.UserID, "like")
 		if err != nil {
 			return err
 		}
