@@ -84,9 +84,12 @@ func (t *Controller) GetAvailability(c *gin.Context) {
 		// If era is after now and before current closest era, it is out nextEraStart
 		if era.Start.After(now) {
 			if nextEraStart == nil {
-				nextEraStart = &era.Start
+				// We need to copy era.Start to a new object, instead of pointing to it (which changes during iteration)
+				startLocal := era.Start
+				// Note that dangling pointer problems do not exist in golang
+				nextEraStart = &startLocal
 			} else if era.Start.Before(*nextEraStart) {
-				nextEraStart = &era.Start
+				*nextEraStart = era.Start
 			}
 		}
 	}
