@@ -143,6 +143,81 @@ whitmans:
       dinner:
         open: 5:00pm
         close: 8:00pm
+mission:
+  name: Mission
+  operating: false
+  online_order: false
+  hours:
+    monday:
+      breakfast:
+        open: 7:30am
+        close: 10:30am
+      lunch:
+        open: 11:30am
+        close: 2:00pm
+      dinner:
+        open: 5:00pm
+        close: 8:00pm
+    tuesday:
+      breakfast:
+        open: 7:30am
+        close: 10:30am
+      lunch:
+        open: 11:30am
+        close: 2:00pm
+      dinner:
+        open: 5:00pm
+        close: 8:00pm
+    wednesday:
+      breakfast:
+        open: 7:30am
+        close: 10:30am
+      lunch:
+        open: 11:30am
+        close: 2:00pm
+      dinner:
+        open: 5:00pm
+        close: 8:00pm
+    thursday:
+      breakfast:
+        open: 7:30am
+        close: 10:30am
+      lunch:
+        open: 11:30am
+        close: 2:00pm
+      dinner:
+        open: 5:00pm
+        close: 8:00pm
+    friday:
+      breakfast:
+        open: 7:30am
+        close: 10:30am
+      lunch:
+        open: 11:30am
+        close: 2:00pm
+      dinner:
+        open: 5:00pm
+        close: 8:00pm
+    saturday:
+      breakfast:
+        open: 8:00am
+        close: 10:00am
+      lunch:
+        open: 11:30am
+        close: 2:00pm
+      dinner:
+        open: 5:00pm
+        close: 8:00pm
+    sunday:
+      breakfast:
+        open: 8:00am
+        close: 10:00am
+      lunch:
+        open: 11:30am
+        close: 2:00pm
+      dinner:
+        open: 5:00pm
+        close: 8:00pm
 lees-snack-bar:
   name: Lee's Snack Bar
   operating: true

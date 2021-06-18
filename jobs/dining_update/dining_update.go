@@ -12,6 +12,10 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/jobs/dining_update/net_nutrition/search"
 )
 
+var (
+	ErrorMissingMenu = errors.New("missing menu for date")
+)
+
 type ExportDining struct {
 	Vendors    map[string]Vendor `json:"vendors"`
 	UpdateTime string            `json:"updateTime"`
@@ -83,16 +87,28 @@ func loadDining(vendorInfoPath string, date time.Time) (ExportDining, error) {
 	}
 
 	drisc, err := loadDriscoll(date, venues["Driscoll"], vendorsInfo["driscoll"])
-	if err != nil {
+	if err != nil && err != ErrorMissingMenu {
 		return ExportDining{}, err
 	}
-	ed.Vendors["driscoll"] = *drisc
+	if err == nil {
+		ed.Vendors["driscoll"] = *drisc
+	}
 
 	whitmans, err := loadWhitmans(date, venues["Paresky Student Center"], vendorsInfo["whitmans"])
-	if err != nil {
+	if err != nil && err != ErrorMissingMenu {
 		return ExportDining{}, err
 	}
-	ed.Vendors["whitmans"] = *whitmans
+	if err == nil {
+		ed.Vendors["whitmans"] = *whitmans
+	}
+
+	mission, err := loadMission(date, venues["Mission"], vendorsInfo["mission"])
+	if err != nil && err != ErrorMissingMenu {
+		return ExportDining{}, err
+	}
+	if err == nil {
+		ed.Vendors["mission"] = *mission
+	}
 
 	for viID, vi := range vendorsInfo {
 		nv := Vendor{
@@ -102,8 +118,8 @@ func loadDining(vendorInfoPath string, date time.Time) (ExportDining, error) {
 			Operating:   vi.Operating,
 		}
 
-		// Ignore doing this again if drisc or whitmans
-		if viID == "driscoll" || viID == "whitmans" {
+		// Ignore doing this again if drisc or whitmans or mission
+		if viID == "driscoll" || viID == "whitmans" || viID == "mission" {
 			continue
 		}
 
@@ -160,6 +176,22 @@ func loadWhitmans(date time.Time, venue *search.Venue, vendorInfo VendorInfo) (*
 	return &vendor, nil
 }
 
+func loadMission(date time.Time, venue *search.Venue, vendorInfo VendorInfo) (*Vendor, error) {
+	meals, err := parseDailyMenu(date, venue.DiningHalls[0].Menus["Mission Daily Menu"], &vendorInfo)
+	if err != nil {
+		return nil, err
+	}
+
+	vendor := Vendor{
+		Name:        vendorInfo.Name,
+		Meals:       meals,
+		OnlineOrder: vendorInfo.OnlineOrder,
+		Operating:   vendorInfo.Operating,
+	}
+
+	return &vendor, nil
+}
+
 func parseDailyMenu(date time.Time, dailyMenu search.MetaMenu, vendorInfo *VendorInfo) (map[string]*Meal, error) {
 	menuDays, ok := dailyMenu.(*search.DailyMenu)
 	if !ok {
@@ -173,7 +205,7 @@ func parseDailyMenu(date time.Time, dailyMenu search.MetaMenu, vendorInfo *Vendo
 
 	dayMenu, ok := menuDays.Days[date.Format("Monday, January 2, 2006")]
 	if !ok {
-		return nil, errors.New("missing menu for date")
+		return nil, ErrorMissingMenu
 	}
 
 	parsedMeals := make(map[string]*Meal)
