@@ -9728,6 +9728,10 @@ var doc = `{
                     "description": "Belongs to Office iff staff/professor",
                     "type": "integer"
                 },
+                "onCampusSemester": {
+                    "description": "used to calculate number of factrack surveys needed",
+                    "type": "integer"
+                },
                 "optOutEphcatch": {
                     "type": "boolean"
                 },
