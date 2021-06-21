@@ -545,15 +545,7 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 		if user.IsStudent() || user.IsAlum() {
 			dormName := entry.GetAttributeValue("wmsDormAddr1")
 
-			// If dormName is off-campus, treat it as such
-			if !skipDorm && dormName == "Off-Campus" {
-				user.OffCampus = lib.TruePtr()
-				user.DormRoom = nil
-				user.DormRoomID = nil
-			} else if dormName != "" && !skipDorm {
-				// Otherwise, off-campus should be false.
-				user.OffCampus = lib.FalsePtr()
-
+			if !skipDorm && dormName != "" {
 				var dorm Dorm
 				err = m.DB.Where(&Dorm{
 					Name: dormName,
@@ -561,27 +553,42 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 
 				if err != nil {
 					if gorm.IsRecordNotFoundError(err) {
-						// If user is an off-campus senior, just give us an info. Otherwise warn.
-						m.log.With("unixID", user.UnixID).Warnf("Encountered unknown dorm: %s", dormName)
-
-						user.DormRoomID = nil
-						user.DormRoom = nil
+						// If user is off-campus at an unknown location, create/use that dorm
+						m.log.With("unixID", user.UnixID).Warnf("Encountered unknown dorm: %s. Creating it to resolve", dormName)
+						err = m.DB.Where(&Dorm{
+							Name: dormName,
+						}).FirstOrCreate(&dorm).Error
+						if err != nil {
+							return nil, err
+						}
 					} else if err != nil {
 						return nil, err
 					}
-				} else {
-					var dormRoom DormRoom
+				}
+
+				roomNum := entry.GetAttributeValue("wmsDormAddr2")
+				var dormRoom DormRoom
+				// If no room num (likely off campus, ARTH Grad, CDE), assign them to room 0.
+				if roomNum == "" {
 					err = m.DB.Where(&DormRoom{
 						DormID: dorm.ID,
-						Number: entry.GetAttributeValue("wmsDormAddr2"),
+						Number: "0",
 					}).FirstOrCreate(&dormRoom).Error
 					if err != nil {
 						return nil, err
 					}
-
-					user.DormRoomID = &dormRoom.ID
-					user.DormRoom = &dormRoom
+				} else {
+					err = m.DB.Where(&DormRoom{
+						DormID: dorm.ID,
+						Number: roomNum,
+					}).FirstOrCreate(&dormRoom).Error
+					if err != nil {
+						return nil, err
+					}
 				}
+
+				user.DormRoomID = &dormRoom.ID
+				user.DormRoom = &dormRoom
 
 				// Get entry
 				student := user.Student()
