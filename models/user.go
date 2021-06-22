@@ -111,6 +111,13 @@ func (m *UserModel) GetAtWilliamsUsersByType(u *[]User, userType string) (err er
 	return
 }
 
+// Finds students who are on leave. They are marked as type `alum` in our database
+func (m *UserModel) GetStudentsOnLeave(u *[]User) (err error) {
+	seniorYear := (&StudentModel{}).SeniorYear()
+	err = m.DB.Where("users.type = 'alum'").Where("users.class_year >= ?", seniorYear).Find(u).Error
+	return
+}
+
 func (m *UserModel) GetUserByID(id uint, u *User) (err error) {
 	err = m.DB.Where(NewUserWithID(id)).
 		Preload("DormRoom").Preload("DormRoom.Dorm").
