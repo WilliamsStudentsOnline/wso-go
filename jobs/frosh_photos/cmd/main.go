@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"image"
 	_ "image/gif"
 	_ "image/jpeg"
@@ -62,17 +61,38 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// run for every photo
+	var photosWg sync.WaitGroup
+	errors := make(chan struct {
+		err  error
+		file string
+	})
+
 	for _, file := range files {
-		unix := strings.TrimSuffix(file.Name(), ".jpg")
-		err := savePhoto(filepath.Join(in, file.Name()), unix, pb)
-		if err != nil {
-			log.Fatal(file.Name(), " ", err)
-		}
+		photosWg.Add(1)
+		go func(wg *sync.WaitGroup, file os.FileInfo) {
+			unix := strings.TrimSuffix(file.Name(), ".jpg")
+			log.Info("saving %s", unix)
+			saveErr := savePhoto(filepath.Join(in, file.Name()), unix, pb)
+			if err != nil {
+				errors <- struct {
+					err  error
+					file string
+				}{err: saveErr, file: file.Name()}
+			}
+			wg.Done()
+		}(&photosWg, file)
+	}
+
+	photosWg.Wait()
+	close(errors)
+	for pErr := range errors {
+		log.Warnf("%s has an error: %v", pErr.file, pErr.err)
 	}
 }
 
-func savePhoto(dir string, unix string, pb pictures.PictureBackend) error {
-	file, err := os.Open(dir)
+func savePhoto(path string, unix string, pb pictures.PictureBackend) error {
+	file, err := os.Open(path)
 	if err != nil {
 		return err
 	}
@@ -84,21 +104,20 @@ func savePhoto(dir string, unix string, pb pictures.PictureBackend) error {
 		return err
 	}
 
-	var wg sync.WaitGroup
+	var dualSaveWg sync.WaitGroup
 	errors := make(chan error)
 
-	wg.Add(1)
+	dualSaveWg.Add(1)
 	go func(wg *sync.WaitGroup) {
 		imgScaled := imaging.Fill(img, 300, 300, imaging.Center, imaging.Lanczos)
 		err = pb.SaveUserPhotoLarge(unix, imgScaled)
-		fmt.Println("saving", unix, err)
 		if err != nil {
 			errors <- err
 		}
 		wg.Done()
-	}(&wg)
+	}(&dualSaveWg)
 
-	wg.Add(1)
+	dualSaveWg.Add(1)
 	go func(wg *sync.WaitGroup) {
 		imgThumb := imaging.Fill(img, 50, 50, imaging.Center, imaging.Lanczos)
 
@@ -107,9 +126,9 @@ func savePhoto(dir string, unix string, pb pictures.PictureBackend) error {
 			errors <- err
 		}
 		wg.Done()
-	}(&wg)
+	}(&dualSaveWg)
 
-	wg.Wait()
+	dualSaveWg.Wait()
 	close(errors)
 
 	err = <-errors
