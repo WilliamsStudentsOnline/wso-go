@@ -90,5 +90,16 @@ func InitializeOnCampusSemesters(m *models.StudentModel, log *zap.SugaredLogger)
 		}
 	}
 
+	// Handle the students who are currently on leave
+	students = nil
+	err = m.GetStudentsOnLeave(&students)
+
+	for _, student := range students {
+		err = m.InitializeOnCampusSemesters(&student)
+		if err != nil {
+			return
+		}
+	}
+
 	return
 }
