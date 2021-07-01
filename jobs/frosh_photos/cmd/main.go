@@ -72,7 +72,7 @@ func main() {
 		photosWg.Add(1)
 		go func(wg *sync.WaitGroup, file os.FileInfo) {
 			unix := strings.TrimSuffix(file.Name(), ".jpg")
-			log.Info("saving %s", unix)
+			log.Infof("saving %s", unix)
 			saveErr := savePhoto(filepath.Join(in, file.Name()), unix, pb)
 			if err != nil {
 				errors <- struct {

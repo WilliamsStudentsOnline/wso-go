@@ -39,6 +39,8 @@ var FieldNamesStd = map[string]string{
 	"tag":          "tags",
 	"tags":         "tags",
 	"type":         "type",
+	"pronoun":      "pronoun",
+	"pronouns":     "pronoun",
 }
 
 type SearchUsersMySQL struct {
@@ -259,6 +261,9 @@ func (t *astTraverser) parseField(field *search.Field) (ignore bool) {
 		t.vals = append(t.vals, valueSearch)
 	case "type":
 		t.query.WriteString("users.type = ?")
+		t.vals = append(t.vals, fieldValue)
+	case "pronoun":
+		t.query.WriteString("users.pronoun = ?")
 		t.vals = append(t.vals, fieldValue)
 	default:
 		ignore = true
