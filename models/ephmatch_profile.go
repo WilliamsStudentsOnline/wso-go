@@ -39,6 +39,8 @@ func (m *EphmatchProfileModel) GetAllProfilesNoSelf(p *[]*EphmatchProfile, selfI
 	// Get profiles
 	db := m.DB.Model(&EphmatchProfile{}).Preload("User")
 
+	opts.selfUserID = selfID
+
 	db = m.scopeDefault(db)
 	if opts != nil {
 		db = opts.Run(db)
@@ -185,15 +187,19 @@ type GetAllProfilesOptions struct {
 	// You can preload: tags, relation, liked, matched
 	Preload []string `json:"preload" form:"preload[]"`
 	// Note: [liked, matched] preloads are done not in the preload step
+
+	// Get profiles where the user has no previous relations
+	NoRelations bool `json:"noRelations" form:"noRelations"`
+	selfUserID  uint
 }
 
-func (p *GetAllProfilesOptions) Order(db *gorm.DB) *gorm.DB {
-	if p.Sort != nil {
-		if *p.Sort == "new" {
+func (o *GetAllProfilesOptions) Order(db *gorm.DB) *gorm.DB {
+	if o.Sort != nil {
+		if *o.Sort == "new" {
 			return db.Order("ephmatch_profiles.created_at DESC", true)
-		} else if *p.Sort == "updated" {
+		} else if *o.Sort == "updated" {
 			return db.Order("ephmatch_profiles.updated_at DESC", true)
-		} else if *p.Sort == "recommended" {
+		} else if *o.Sort == "recommended" {
 			return db
 		}
 	}
@@ -201,17 +207,17 @@ func (p *GetAllProfilesOptions) Order(db *gorm.DB) *gorm.DB {
 	return db.Order("users.name ASC", true)
 }
 
-func (p *GetAllProfilesOptions) Paginate(db *gorm.DB) *gorm.DB {
+func (o *GetAllProfilesOptions) Paginate(db *gorm.DB) *gorm.DB {
 	// Do server-side limit/offset if recommended due to complex sorting algorithm
-	if p.Sort != nil && *p.Sort == "recommended" {
+	if o.Sort != nil && *o.Sort == "recommended" {
 		return db
 	}
 
-	db = p.Order(db)
-	if p.Limit != nil {
-		db = db.Limit(*p.Limit)
-		if p.Offset != nil {
-			db = db.Offset(*p.Offset)
+	db = o.Order(db)
+	if o.Limit != nil {
+		db = db.Limit(*o.Limit)
+		if o.Offset != nil {
+			db = db.Offset(*o.Offset)
 		}
 	}
 
@@ -231,8 +237,15 @@ func (o *GetAllProfilesOptions) Preloader(db *gorm.DB) *gorm.DB {
 	return db
 }
 
-func (p *GetAllProfilesOptions) Run(db *gorm.DB) *gorm.DB {
-	return p.Paginate(p.Preloader(db))
+func (o *GetAllProfilesOptions) Filter(db *gorm.DB) *gorm.DB {
+	if o.NoRelations {
+		db = db.Joins("LEFT OUTER JOIN ephmatch_relations r ON r.other_id = ephmatch_profiles.user_id AND r.user_id = ?", o.selfUserID).Where("r.other_id IS NULL")
+	}
+	return db
+}
+
+func (o *GetAllProfilesOptions) Run(db *gorm.DB) *gorm.DB {
+	return o.Paginate(o.Preloader(o.Filter(db)))
 }
 
 func (m *EphmatchProfileModel) CountProfiles() (count int, err error) {

@@ -20,6 +20,7 @@ import (
 // @Param sort query string false "Sort (new, updated, alphabetical)"
 // @Param offset query int false "Offset Pagination"
 // @Param limit query int false "Limit Pagination"
+// @Param noRelations query bool false "Get profiles with no previous relations"
 // @Param preload query []string false "Preload List [tags, relation, matched]"
 // @Success 200 {array} models.EphmatchProfile
 // @Failure 500 {object} lib.APIError
