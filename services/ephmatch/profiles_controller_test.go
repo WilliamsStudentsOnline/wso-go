@@ -104,6 +104,12 @@ func TestController_ListProfiles(t *testing.T) {
 		UserAID: s[2].ID,
 		UserBID: s[0].ID,
 	}).Error)
+	// 1 likes 0(self)
+	assert.NoError(db.Create(&models.EphmatchRelation{
+		UserID:   s[1].ID,
+		OtherID:  s[0].ID,
+		Relation: models.EphmatchRelationLike,
+	}).Error)
 
 	assert.NoError(db.Delete(s[5].EphmatchProfile).Error)
 
@@ -165,6 +171,28 @@ func TestController_ListProfiles(t *testing.T) {
 	// Check if correct users. should not return self (s[0])
 	assert.Len(resp, 3)
 	for i, exp := range []*models.User{s[4], s[2], s[1]} {
+		assert.Equal(exp.EphmatchProfile.ID, resp[i].ID)
+		assert.Equal(exp.EphmatchProfile.Description, resp[i].Description)
+		assert.Equal(exp.ID, resp[i].User.ID)
+		assert.Nil(resp[i].MatchMessage) // All should be null, as not getting matched flag
+	}
+
+	// Get test user (sorted)
+	w, err = utils.DoHTTPReq(router, http.MethodGet, "/profiles?noRelations=true", nil)
+	assert.NoError(err)
+
+	// Status is okay
+	assert.Equal(http.StatusOK, w.Code)
+
+	// Decode response
+	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(respData.Error)
+	resp = []models.EphmatchProfile{}
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+
+	// Check if correct users. should not return self (s[0])
+	assert.Len(resp, 2)
+	for i, exp := range []*models.User{s[1], s[4]} {
 		assert.Equal(exp.EphmatchProfile.ID, resp[i].ID)
 		assert.Equal(exp.EphmatchProfile.Description, resp[i].Description)
 		assert.Equal(exp.ID, resp[i].User.ID)
