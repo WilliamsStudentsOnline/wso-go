@@ -38,6 +38,11 @@ func (t *Controller) ListProfiles(c *gin.Context) {
 		return
 	}
 
+	// If era is senior only, exclusively get seniors
+	if t.isSeniorOnly() {
+		opts.SeniorsPlusOnly = true
+	}
+
 	// We could implement search here as well...
 	err = t.profileModel.GetAllProfilesNoSelf(&profiles, userID, &opts)
 
@@ -47,8 +52,8 @@ func (t *Controller) ListProfiles(c *gin.Context) {
 	}
 
 	/* Get total count */
-
-	count, err := t.profileModel.CountProfiles()
+	// Pass in the opts and selfID to let Count() filter necessary profiles
+	count, err := t.profileModel.CountProfiles(userID, &opts)
 	if err != nil {
 		t.RespondError(c, err)
 		return

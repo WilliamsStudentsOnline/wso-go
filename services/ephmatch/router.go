@@ -35,6 +35,7 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	// TODO: set seen:true?
 	matchesGroup.GET("/matches", c.ListMatches)
 	matchesGroup.GET("/matches-count", c.CountMatches)
+	matchesGroup.DELETE("/matches/:matchUserID", c.Unmatch)
 
 	// Only get profiles with scope
 	profilesGroup := matchesGroup.Group("", auth.RequireScopes(auth.ScopeEphmatchProfiles, auth.ScopeAdminAll))

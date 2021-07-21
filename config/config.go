@@ -127,8 +127,9 @@ type Config struct {
 }
 
 type EphmatchEra struct {
-	Start time.Time `yaml:"start"`
-	End   time.Time `yaml:"end"`
+	Start      time.Time `yaml:"start"`
+	End        time.Time `yaml:"end"`
+	SeniorOnly bool      `yaml:"senior_only"`
 }
 
 // Check what environment our config is in

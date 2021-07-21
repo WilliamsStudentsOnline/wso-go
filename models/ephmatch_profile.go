@@ -191,6 +191,9 @@ type GetAllProfilesOptions struct {
 	// Get profiles where the user has no previous relations
 	NoRelations bool `json:"noRelations" form:"noRelations"`
 	selfUserID  uint
+
+	// Filters only to look at seniors and off-cycle juniors
+	SeniorsPlusOnly bool
 }
 
 func (o *GetAllProfilesOptions) Order(db *gorm.DB) *gorm.DB {
@@ -241,6 +244,11 @@ func (o *GetAllProfilesOptions) Filter(db *gorm.DB) *gorm.DB {
 	if o.NoRelations {
 		db = db.Joins("LEFT OUTER JOIN ephmatch_relations r ON r.other_id = ephmatch_profiles.user_id AND r.user_id = ?", o.selfUserID).Where("r.other_id IS NULL")
 	}
+	if o.SeniorsPlusOnly {
+		seniorYear := (&StudentModel{}).SeniorYear()
+		db = db.Where("users.class_year = ? OR (users.class_year = ? AND users.off_cycle = ?)",
+			seniorYear, seniorYear-1, true)
+	}
 	return db
 }
 
@@ -248,8 +256,19 @@ func (o *GetAllProfilesOptions) Run(db *gorm.DB) *gorm.DB {
 	return o.Paginate(o.Preloader(o.Filter(db)))
 }
 
-func (m *EphmatchProfileModel) CountProfiles() (count int, err error) {
-	db := m.scopeDefault(m.DB.Model(&EphmatchProfile{}))
+func (m *EphmatchProfileModel) CountProfiles(selfID uint, opts *GetAllProfilesOptions) (count int, err error) {
+	// Get profiles
+	db := m.DB.Model(&EphmatchProfile{})
+
+	opts.selfUserID = selfID
+
+	db = m.scopeDefault(db)
+	if opts != nil {
+		db = opts.Filter(db)
+	}
+
+	db = db.Not(EphmatchProfile{UserID: selfID})
+
 	err = db.Count(&count).Error
 	return
 }

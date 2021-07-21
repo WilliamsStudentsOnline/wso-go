@@ -452,3 +452,185 @@ func TestController_CountMatches(t *testing.T) {
 	assert.Equal(3, resp.Total)
 	assert.Equal(1, resp.Unseen)
 }
+
+func TestController_Unmatch(t *testing.T) {
+	// Setup (can copy and paste this basically)
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+	router := utils.SetupRouter(auth.ScopeEphmatch, auth.ScopeEphmatchMatches)
+	cfg := utils.SetupConfig()
+
+	srYear := (&models.StudentModel{}).SeniorYear()
+
+	s := []*models.User{
+		{
+			EphmatchProfile: &models.EphmatchProfile{
+				Description: lib.StrToPtr("description1"),
+			},
+		},
+		{
+			EphmatchProfile: &models.EphmatchProfile{
+				Description:  lib.StrToPtr("description2"),
+				MatchMessage: lib.StrToPtr("matched!"),
+				LocationTown: lib.StrToPtr("Portola Valley"),
+			},
+			Tags: []*models.Tag{
+				{Name: "WOC"},
+			},
+		},
+		{
+			EphmatchProfile: &models.EphmatchProfile{
+				Description: lib.StrToPtr("description3"),
+			},
+		},
+		{
+			EphmatchProfile: &models.EphmatchProfile{
+				Description: lib.StrToPtr("description4"),
+			},
+		},
+		{
+			EphmatchProfile: &models.EphmatchProfile{
+				Description:     lib.StrToPtr("description5"),
+				LocationTown:    lib.StrToPtr("Williamstown"),
+				LocationVisible: lib.FalsePtr(),
+			},
+		},
+		{
+			EphmatchProfile: &models.EphmatchProfile{
+				Description: lib.StrToPtr("description6"),
+			},
+		},
+	}
+	for i, val := range s {
+		val.Name = fmt.Sprintf("Student %d", i)
+		val.UnixID = fmt.Sprintf("s%d", i)
+		val.Type = models.UserTypeStudent
+		val.ClassYear = &srYear
+		assert.NoError(db.Create(val).Error)
+	}
+
+	assert.NoError(db.Create(&models.EphmatchRelation{
+		UserID:   s[0].ID,
+		OtherID:  s[1].ID,
+		Relation: "like",
+	}).Error)
+	assert.NoError(db.Create(&models.EphmatchRelation{
+		UserID:   s[0].ID,
+		OtherID:  s[3].ID,
+		Relation: "like",
+	}).Error)
+	assert.NoError(db.Create(&models.EphmatchRelation{
+		UserID:   s[0].ID,
+		OtherID:  s[4].ID,
+		Relation: "like",
+	}).Error)
+	assert.NoError(db.Create(&models.EphmatchRelation{
+		UserID:   s[4].ID,
+		OtherID:  s[0].ID,
+		Relation: "like",
+	}).Error)
+	assert.NoError(db.Create(&models.EphmatchRelation{
+		UserID:   s[1].ID,
+		OtherID:  s[0].ID,
+		Relation: "like",
+	}).Error)
+	assert.NoError(db.Create(&models.EphmatchRelation{
+		UserID:   s[3].ID,
+		OtherID:  s[4].ID,
+		Relation: "like",
+	}).Error)
+	assert.NoError(db.Create(&models.EphmatchRelation{
+		UserID:   s[4].ID,
+		OtherID:  s[3].ID,
+		Relation: "like",
+	}).Error)
+	// Match user 6 and 0 but delete user 6's profile and expect it not to be returned
+	assert.NoError(db.Create(&models.EphmatchRelation{
+		UserID:   s[0].ID,
+		OtherID:  s[5].ID,
+		Relation: "like",
+	}).Error)
+	assert.NoError(db.Create(&models.EphmatchRelation{
+		UserID:   s[5].ID,
+		OtherID:  s[0].ID,
+		Relation: "like",
+	}).Error)
+
+	// Matches (0,4) (0,1) (0,5) (3,4)
+	assert.NoError(db.Create(&models.EphmatchMatch{
+		UserAID: s[0].ID,
+		UserBID: s[4].ID,
+		BaseSchema: models.BaseSchema{
+			CreatedAt: time.Now().Add(-4 * time.Hour),
+		},
+	}).Error)
+	assert.NoError(db.Create(&models.EphmatchMatch{
+		UserAID: s[0].ID,
+		UserBID: s[1].ID,
+		BaseSchema: models.BaseSchema{
+			CreatedAt: time.Now().Add(-3 * time.Hour),
+		},
+	}).Error)
+	assert.NoError(db.Create(&models.EphmatchMatch{
+		UserAID: s[0].ID,
+		UserBID: s[5].ID,
+		BaseSchema: models.BaseSchema{
+			CreatedAt: time.Now().Add(-2 * time.Hour),
+		},
+	}).Error)
+	assert.NoError(db.Create(&models.EphmatchMatch{
+		UserAID: s[3].ID,
+		UserBID: s[4].ID,
+		BaseSchema: models.BaseSchema{
+			CreatedAt: time.Now().Add(-1 * time.Hour),
+		},
+	}).Error)
+
+	// Delete user 6 and expect it not to be a response
+	assert.NoError(db.Delete(s[5].EphmatchProfile).Error)
+
+	utils.AddUserContexts(router, s[0].ID)
+	SetupRouter(router, db, cfg, zap.S())
+
+	/* ERROR: Unmatch with nonexistent match */
+	apiErr := lib.ErrorEphmatchDoesNotExist
+	w, err := utils.DoHTTPReq(router, http.MethodDelete, fmt.Sprintf("/matches/%d", s[2].ID), nil)
+	assert.NoError(err)
+	assert.Equal(apiErr.HTTPCode, w.Code)
+	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+
+	/* ERROR: Unmatch with self */
+	apiErr = lib.ErrorEphmatchLikeNoSelf
+	w, err = utils.DoHTTPReq(router, http.MethodDelete, fmt.Sprintf("/matches/%d", s[0].ID), nil)
+	assert.NoError(err)
+	assert.Equal(apiErr.HTTPCode, w.Code)
+	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+
+	/* SUCCESS: Unmatch with 1 */
+	w, err = utils.DoHTTPReq(router, http.MethodDelete, fmt.Sprintf("/matches/%d", s[1].ID), nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+
+	// Assert not in matches
+	matchCount := -1
+	assert.NoError(db.Model(&models.EphmatchMatch{}).Where(&models.EphmatchMatch{
+		UserAID: s[0].ID,
+		UserBID: s[1].ID,
+	}).Count(&matchCount).Error)
+	assert.Equal(matchCount, 0)
+
+	relCount := -1
+	assert.NoError(db.Model(&models.EphmatchRelation{}).Where(&models.EphmatchRelation{
+		UserID:  s[0].ID,
+		OtherID: s[1].ID,
+	}).Count(&relCount).Error)
+	assert.Equal(relCount, 0)
+
+	otherRelCount := -1
+	assert.NoError(db.Model(&models.EphmatchRelation{}).Where(&models.EphmatchRelation{
+		UserID:   s[1].ID,
+		OtherID:  s[0].ID,
+		Relation: models.EphmatchRelationLike,
+	}).Count(&otherRelCount).Error)
+	assert.Equal(otherRelCount, 1)
+}
