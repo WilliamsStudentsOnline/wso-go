@@ -48,6 +48,7 @@ type GetAvailabilityResp struct {
 	OpenIndefinitely bool       `json:"openIndefinitely"` // If Ephmatch has no closing time set
 	ClosingTime      *time.Time `json:"closingTime"`      // Closing time for current Ephmatch era/period
 	NextOpenTime     *time.Time `json:"nextOpenTime"`     // Next time Ephmatch will be open
+	SeniorOnly       bool       `json:"senior_only"`      // Senior only ephmatch right now
 }
 
 // GetAvailability godoc
@@ -78,6 +79,8 @@ func (t *Controller) GetAvailability(c *gin.Context) {
 		}
 	}
 
+	resp.SeniorOnly = t.isSeniorOnly()
+
 	// Fill in next open time
 	var nextEraStart *time.Time
 	for _, era := range t.cfg.EphmatchEras {
@@ -93,4 +96,18 @@ func (t *Controller) GetAvailability(c *gin.Context) {
 	resp.NextOpenTime = nextEraStart
 
 	t.RespondOK(c, resp)
+}
+
+func (t *Controller) isSeniorOnly() bool {
+	now := time.Now()
+
+	if !t.cfg.EphmatchEnableNow {
+		for _, era := range t.cfg.EphmatchEras {
+			if era.Start.Before(now) && era.End.After(now) {
+				return true
+			}
+		}
+	}
+
+	return false
 }

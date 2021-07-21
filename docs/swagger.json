@@ -3804,6 +3804,69 @@
                 }
             }
         },
+        "/ephmatch/matches/{matchUserID}": {
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Removes the match (and sets the to-relation to none) of a specific matched pair",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ephmatch"
+                ],
+                "summary": "Unmatches Ephmatch matched users",
+                "operationId": "ephmatch-unmatch",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Match User ID",
+                        "name": "matchUserID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "1730": {
+                        "description": "cannot ephmatch-relate yourself",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1733": {
+                        "description": "ephmatch match could not be found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "200": {},
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
         "/ephmatch/profile": {
             "get": {
                 "security": [
@@ -8039,6 +8102,10 @@
                 },
                 "openIndefinitely": {
                     "description": "If Ephmatch has no closing time set",
+                    "type": "boolean"
+                },
+                "senior_only": {
+                    "description": "Senior only ephmatch right now",
                     "type": "boolean"
                 }
             }

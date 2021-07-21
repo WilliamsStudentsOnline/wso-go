@@ -134,6 +134,19 @@ func (s *Student) Senior() bool {
 	return s.YearNumber() == StudentYearSenior
 }
 
+// SeniorPlus Returns true if senior or off-cycle junior (former senior, walking at the same time)
+func (s *Student) SeniorPlus() bool {
+	if s.YearNumber() == StudentYearSenior {
+		return true
+	} else if s.YearNumber() == StudentYearJunior {
+		if s.OffCycle != nil && *s.OffCycle {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (s *Student) IsUpperClass() bool {
 	return s.YearNumber() >= StudentYearSophomore
 }
