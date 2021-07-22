@@ -46,6 +46,7 @@ var Migrations = []*gormigrate.Migration{
 	migrations.CreateGoodrichOrders20210426013116,
 	migrations.QuantityColumn20210507173142,
 	migrations.UserAddOnCampusSemestersColumn20210406005136,
+	migrations.CreateEphmatchRelations20210607211439,
 }
 
 var MigrationGormOptions = gormigrate.DefaultOptions
@@ -85,6 +86,7 @@ func MigrateDB(db *gorm.DB) error {
 			&models.NotificationToken{},
 			&models.GoodrichMenuItem{},
 			&models.GoodrichOrder{},
+			&models.EphmatchRelation{},
 		).Error
 		if err != nil {
 			return err

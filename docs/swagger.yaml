@@ -209,10 +209,8 @@ definitions:
       openIndefinitely:
         description: If Ephmatch has no closing time set
         type: boolean
-    type: object
-  ephmatch.LikeProfileResp:
-    properties:
-      matched:
+      senior_only:
+        description: Senior only ephmatch right now
         type: boolean
     type: object
   ephmatch.ProfileCreateParams:
@@ -252,6 +250,16 @@ definitions:
         type: string
       messagingUsername:
         type: string
+    type: object
+  ephmatch.SetProfileRelationParams:
+    properties:
+      relation:
+        type: string
+    type: object
+  ephmatch.SetProfileRelationResp:
+    properties:
+      matched:
+        type: boolean
     type: object
   factrak.AgreementCreateParams:
     properties:
@@ -898,9 +906,6 @@ definitions:
         type: string
       id:
         type: integer
-      liked:
-        description: If self has liked this profile (user)
-        type: boolean
       locationCountry:
         type: string
       locationState:
@@ -919,6 +924,9 @@ definitions:
         description: Messaging platform columns
         type: string
       messagingUsername:
+        type: string
+      relation:
+        description: If self has an out-relation with this profile (user)
         type: string
       user:
         $ref: '#/definitions/models.User'
@@ -4242,6 +4250,47 @@ paths:
       summary: Count matches
       tags:
       - ephmatch
+  /ephmatch/matches/{matchUserID}:
+    delete:
+      consumes:
+      - application/json
+      description: Removes the match (and sets the to-relation to none) of a specific matched pair
+      operationId: ephmatch-unmatch
+      parameters:
+      - description: Match User ID
+        in: path
+        name: matchUserID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200": {}
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1730":
+          description: cannot ephmatch-relate yourself
+          schema:
+            $ref: '#/definitions/lib.APIError'
+        "1733":
+          description: ephmatch match could not be found
+          schema:
+            $ref: '#/definitions/lib.APIError'
+      security:
+      - Bearer: []
+      summary: Unmatches Ephmatch matched users
+      tags:
+      - ephmatch
   /ephmatch/profile:
     delete:
       consumes:
@@ -4457,7 +4506,11 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List [tags, liked, matched]
+      - description: Get profiles with no previous relations
+        in: query
+        name: noRelations
+        type: boolean
+      - description: Preload List [tags, relation, matched]
         in: query
         items:
           type: string
@@ -4517,25 +4570,31 @@ paths:
       summary: Get Ephmatch profile
       tags:
       - ephmatch
-  /ephmatch/profiles/{profileUserID}/like:
-    post:
+  /ephmatch/profiles/{profileUserID}/relation:
+    put:
       consumes:
       - application/json
-      description: Likes one ephmatch-eligible user profile
-      operationId: ephmatch-like-profile
+      description: Sets the relation (like, dislike, nothing) between self and one ephmatch-eligible user profile
+      operationId: ephmatch-set-profile-relation
       parameters:
       - description: Profile User ID
         in: path
         name: profileUserID
         required: true
         type: integer
+      - description: Set Profile Relation Params
+        in: body
+        name: relationParams
+        required: true
+        schema:
+          $ref: '#/definitions/ephmatch.SetProfileRelationParams'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/ephmatch.LikeProfileResp'
+            $ref: '#/definitions/ephmatch.SetProfileRelationResp'
         "400":
           description: Bad Request
           schema:
@@ -4549,7 +4608,7 @@ paths:
           schema:
             $ref: '#/definitions/lib.APIError'
         "1730":
-          description: cannot ephmatch-like yourself
+          description: cannot ephmatch-relate yourself
           schema:
             $ref: '#/definitions/lib.APIError'
         "1731":
@@ -4557,45 +4616,12 @@ paths:
           schema:
             $ref: '#/definitions/lib.APIError'
         "1732":
-          description: ephmatch already exists with user ID and passed ephmatch profile user ID
+          description: ephmatch relation already exists with user ID and passed ephmatch profile user ID
           schema:
             $ref: '#/definitions/lib.APIError'
       security:
       - Bearer: []
-      summary: Like Ephmatch profile
-      tags:
-      - ephmatch
-  /ephmatch/profiles/{profileUserID}/unlike:
-    post:
-      consumes:
-      - application/json
-      description: Removes a like from one ephmatch-eligible user profile
-      operationId: ephmatch-unlike-profile
-      parameters:
-      - description: Profile User ID
-        in: path
-        name: profileUserID
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "201": {}
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/lib.APIError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/lib.APIError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/lib.APIError'
-      security:
-      - Bearer: []
-      summary: Unlike ephmatch profile
+      summary: Set Ephmatch profile relation
       tags:
       - ephmatch
   /factrak/admin/surveys:

@@ -3819,6 +3819,69 @@ var doc = `{
                 }
             }
         },
+        "/ephmatch/matches/{matchUserID}": {
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Removes the match (and sets the to-relation to none) of a specific matched pair",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ephmatch"
+                ],
+                "summary": "Unmatches Ephmatch matched users",
+                "operationId": "ephmatch-unmatch",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Match User ID",
+                        "name": "matchUserID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "1730": {
+                        "description": "cannot ephmatch-relate yourself",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "1733": {
+                        "description": "ephmatch match could not be found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "200": {},
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/lib.APIError"
+                        }
+                    }
+                }
+            }
+        },
         "/ephmatch/profile": {
             "get": {
                 "security": [
@@ -4162,11 +4225,17 @@ var doc = `{
                         "in": "query"
                     },
                     {
+                        "type": "boolean",
+                        "description": "Get profiles with no previous relations",
+                        "name": "noRelations",
+                        "in": "query"
+                    },
+                    {
                         "type": "array",
                         "items": {
                             "type": "string"
                         },
-                        "description": "Preload List [tags, liked, matched]",
+                        "description": "Preload List [tags, relation, matched]",
                         "name": "preload",
                         "in": "query"
                     }
@@ -4246,14 +4315,14 @@ var doc = `{
                 }
             }
         },
-        "/ephmatch/profiles/{profileUserID}/like": {
-            "post": {
+        "/ephmatch/profiles/{profileUserID}/relation": {
+            "put": {
                 "security": [
                     {
                         "Bearer": []
                     }
                 ],
-                "description": "Likes one ephmatch-eligible user profile",
+                "description": "Sets the relation (like, dislike, nothing) between self and one ephmatch-eligible user profile",
                 "consumes": [
                     "application/json"
                 ],
@@ -4263,8 +4332,8 @@ var doc = `{
                 "tags": [
                     "ephmatch"
                 ],
-                "summary": "Like Ephmatch profile",
-                "operationId": "ephmatch-like-profile",
+                "summary": "Set Ephmatch profile relation",
+                "operationId": "ephmatch-set-profile-relation",
                 "parameters": [
                     {
                         "type": "integer",
@@ -4272,11 +4341,20 @@ var doc = `{
                         "name": "profileUserID",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "Set Profile Relation Params",
+                        "name": "relationParams",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ephmatch.SetProfileRelationParams"
+                        }
                     }
                 ],
                 "responses": {
                     "1730": {
-                        "description": "cannot ephmatch-like yourself",
+                        "description": "cannot ephmatch-relate yourself",
                         "schema": {
                             "$ref": "#/definitions/lib.APIError"
                         }
@@ -4288,7 +4366,7 @@ var doc = `{
                         }
                     },
                     "1732": {
-                        "description": "ephmatch already exists with user ID and passed ephmatch profile user ID",
+                        "description": "ephmatch relation already exists with user ID and passed ephmatch profile user ID",
                         "schema": {
                             "$ref": "#/definitions/lib.APIError"
                         }
@@ -4296,60 +4374,9 @@ var doc = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/ephmatch.LikeProfileResp"
+                            "$ref": "#/definitions/ephmatch.SetProfileRelationResp"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/lib.APIError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/lib.APIError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/lib.APIError"
-                        }
-                    }
-                }
-            }
-        },
-        "/ephmatch/profiles/{profileUserID}/unlike": {
-            "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Removes a like from one ephmatch-eligible user profile",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "ephmatch"
-                ],
-                "summary": "Unlike ephmatch profile",
-                "operationId": "ephmatch-unlike-profile",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Profile User ID",
-                        "name": "profileUserID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "201": {},
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -8091,13 +8118,9 @@ var doc = `{
                 "openIndefinitely": {
                     "description": "If Ephmatch has no closing time set",
                     "type": "boolean"
-                }
-            }
-        },
-        "ephmatch.LikeProfileResp": {
-            "type": "object",
-            "properties": {
-                "matched": {
+                },
+                "senior_only": {
+                    "description": "Senior only ephmatch right now",
                     "type": "boolean"
                 }
             }
@@ -8157,6 +8180,22 @@ var doc = `{
                 },
                 "messagingUsername": {
                     "type": "string"
+                }
+            }
+        },
+        "ephmatch.SetProfileRelationParams": {
+            "type": "object",
+            "properties": {
+                "relation": {
+                    "type": "string"
+                }
+            }
+        },
+        "ephmatch.SetProfileRelationResp": {
+            "type": "object",
+            "properties": {
+                "matched": {
+                    "type": "boolean"
                 }
             }
         },
@@ -9107,10 +9146,6 @@ var doc = `{
                 "id": {
                     "type": "integer"
                 },
-                "liked": {
-                    "description": "If self has liked this profile (user)",
-                    "type": "boolean"
-                },
                 "locationCountry": {
                     "type": "string"
                 },
@@ -9136,6 +9171,10 @@ var doc = `{
                     "type": "string"
                 },
                 "messagingUsername": {
+                    "type": "string"
+                },
+                "relation": {
+                    "description": "If self has an out-relation with this profile (user)",
                     "type": "string"
                 },
                 "user": {

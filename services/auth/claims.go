@@ -61,7 +61,15 @@ func GenerateClaimsFactory(cfg *config.Config, db *gorm.DB) func(v *Authenticato
 					scope = append(scope, auth.ScopeEphmatchMatches)
 					// If ephmatch is open, give access to like/unlike, other profiles
 					if enableEphmatch(cfg) {
-						scope = append(scope, auth.ScopeEphmatchProfiles)
+						// If ephmatch is senior only, only grant scope to seniors
+						// Otherwise, grant scope to everyone
+						if ephmatchSeniorOnly(cfg) {
+							if v.User.Student().SeniorPlus() {
+								scope = append(scope, auth.ScopeEphmatchProfiles)
+							}
+						} else {
+							scope = append(scope, auth.ScopeEphmatchProfiles)
+						}
 					}
 				}
 
@@ -137,19 +145,29 @@ func isSeniorWeek() bool {
 	return now.After(seniorWeek) && now.Before(seniorWeekEnd)
 }
 
-func enableEphmatch(cfg *config.Config) bool {
+func getCurrentEphmatchEra(cfg *config.Config) (enabled bool, era *config.EphmatchEra) {
 	if cfg.EphmatchEnableNow {
-		return true
+		return true, nil
 	}
 
 	now := time.Now()
 	for _, era := range cfg.EphmatchEras {
 		if era.Start.Before(now) && era.End.After(now) {
-			return true
+			return true, &era
 		}
 	}
 
-	return false
+	return false, nil
+}
+
+func enableEphmatch(cfg *config.Config) bool {
+	enabled, _ := getCurrentEphmatchEra(cfg)
+	return enabled
+}
+
+func ephmatchSeniorOnly(cfg *config.Config) bool {
+	_, era := getCurrentEphmatchEra(cfg)
+	return era != nil && era.SeniorOnly
 }
 
 func isWinterStudy() bool {
