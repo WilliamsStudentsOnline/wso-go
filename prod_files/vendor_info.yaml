@@ -56,8 +56,8 @@ driscoll:
         close: 8:00pm
     saturday:
       breakfast:
-        open: 8:00am
-        close: 10:00am
+        open: 7:30am
+        close: 10:30am
       lunch:
         open: 11:30am
         close: 2:00pm
@@ -66,8 +66,8 @@ driscoll:
         close: 8:00pm
     sunday:
       breakfast:
-        open: 8:00am
-        close: 10:00am
+        open: 7:30am
+        close: 10:30am
       lunch:
         open: 11:30am
         close: 2:00pm
@@ -89,6 +89,9 @@ whitmans:
       dinner:
         open: 5:00pm
         close: 8:00pm
+      late-night:
+        open: 9:00pm
+        close: 1:00am
     tuesday:
       breakfast:
         open: 7:30am
@@ -99,6 +102,9 @@ whitmans:
       dinner:
         open: 5:00pm
         close: 8:00pm
+      late-night:
+        open: 9:00pm
+        close: 1:00am
     wednesday:
       breakfast:
         open: 7:30am
@@ -109,6 +115,9 @@ whitmans:
       dinner:
         open: 5:00pm
         close: 8:00pm
+      late-night:
+        open: 9:00pm
+        close: 1:00am
     thursday:
       breakfast:
         open: 7:30am
@@ -119,6 +128,9 @@ whitmans:
       dinner:
         open: 5:00pm
         close: 8:00pm
+      late-night:
+        open: 9:00pm
+        close: 1:00am
     friday:
       breakfast:
         open: 7:30am
@@ -129,92 +141,47 @@ whitmans:
       dinner:
         open: 5:00pm
         close: 8:00pm
+      late-night:
+        open: 9:00pm
+        close: 1:00am
     saturday:
       brunch:
-        open: 11:30am
+        open: 11:00am
         close: 2:00pm
       dinner:
         open: 5:00pm
         close: 8:00pm
+      late-night:
+        open: 9:00pm
+        close: 1:00am
     sunday:
       brunch:
-        open: 11:30am
+        open: 11:00am
         close: 2:00pm
       dinner:
         open: 5:00pm
         close: 8:00pm
+      late-night:
+        open: 9:00pm
+        close: 1:00am
 mission:
   name: Mission
-  operating: false
+  operating: true
   online_order: false
   hours:
     monday:
-      breakfast:
-        open: 7:30am
-        close: 10:30am
-      lunch:
-        open: 11:30am
-        close: 2:00pm
       dinner:
         open: 5:00pm
         close: 8:00pm
     tuesday:
-      breakfast:
-        open: 7:30am
-        close: 10:30am
-      lunch:
-        open: 11:30am
-        close: 2:00pm
       dinner:
         open: 5:00pm
         close: 8:00pm
     wednesday:
-      breakfast:
-        open: 7:30am
-        close: 10:30am
-      lunch:
-        open: 11:30am
-        close: 2:00pm
       dinner:
         open: 5:00pm
         close: 8:00pm
     thursday:
-      breakfast:
-        open: 7:30am
-        close: 10:30am
-      lunch:
-        open: 11:30am
-        close: 2:00pm
-      dinner:
-        open: 5:00pm
-        close: 8:00pm
-    friday:
-      breakfast:
-        open: 7:30am
-        close: 10:30am
-      lunch:
-        open: 11:30am
-        close: 2:00pm
-      dinner:
-        open: 5:00pm
-        close: 8:00pm
-    saturday:
-      breakfast:
-        open: 8:00am
-        close: 10:00am
-      lunch:
-        open: 11:30am
-        close: 2:00pm
-      dinner:
-        open: 5:00pm
-        close: 8:00pm
-    sunday:
-      breakfast:
-        open: 8:00am
-        close: 10:00am
-      lunch:
-        open: 11:30am
-        close: 2:00pm
       dinner:
         open: 5:00pm
         close: 8:00pm
@@ -224,54 +191,55 @@ lees-snack-bar:
   online_order: true
   hours:
     monday:
+      breakfast:
+        open: 8:00am
+        close: 10:00am
       lunch:
-        open: 11:30am
+        open: 1:00pm
+        close: 2:00pm
+      midday:
+        open: 2:00pm
         close: 5:00pm
-      dinner:
-        open: 5:00pm
-        close: 9:00pm
     tuesday:
+      breakfast:
+        open: 8:00am
+        close: 10:00am
       lunch:
-        open: 11:30am
+        open: 1:00pm
+        close: 2:00pm
+      midday:
+        open: 2:00pm
         close: 5:00pm
-      dinner:
-        open: 5:00pm
-        close: 9:00pm
     wednesday:
+      breakfast:
+        open: 8:00am
+        close: 10:00am
       lunch:
-        open: 11:30am
+        open: 1:00pm
+        close: 2:00pm
+      midday:
+        open: 2:00pm
         close: 5:00pm
-      dinner:
-        open: 5:00pm
-        close: 9:00pm
     thursday:
+      breakfast:
+        open: 8:00am
+        close: 10:00am
       lunch:
-        open: 11:30am
+        open: 1:00pm
+        close: 2:00pm
+      midday:
+        open: 2:00pm
         close: 5:00pm
-      dinner:
-        open: 5:00pm
-        close: 9:00pm
     friday:
+      breakfast:
+        open: 8:00am
+        close: 10:00am
       lunch:
-        open: 11:30am
+        open: 1:00pm
+        close: 2:00pm
+      midday:
+        open: 2:00pm
         close: 5:00pm
-      dinner:
-        open: 5:00pm
-        close: 9:00pm
-    saturday:
-      lunch:
-        open: 12:00pm
-        close: 3:00pm
-      dinner:
-        open: 5:00pm
-        close: 8:00pm
-    sunday:
-      lunch:
-        open: 12:00pm
-        close: 3:00pm
-      dinner:
-        open: 5:00pm
-        close: 8:00pm
 82-grill:
   name: 82 Grill
   operating: true
@@ -279,46 +247,38 @@ lees-snack-bar:
   hours:
     monday:
       lunch:
-        open: 11:30am
-        close: 2:30pm
+        open: 11:00am
+        close: 2:00pm
       dinner:
         open: 4:00pm
         close: 9:00pm
     tuesday:
       lunch:
-        open: 11:30am
-        close: 2:30pm
+        open: 11:00am
+        close: 2:00pm
       dinner:
         open: 4:00pm
         close: 9:00pm
     wednesday:
       lunch:
-        open: 11:30am
-        close: 2:30pm
+        open: 11:00am
+        close: 2:00pm
       dinner:
         open: 4:00pm
         close: 9:00pm
     thursday:
       lunch:
-        open: 11:30am
-        close: 2:30pm
+        open: 11:00am
+        close: 2:00pm
       dinner:
         open: 4:00pm
         close: 9:00pm
     friday:
       lunch:
-        open: 11:30am
-        close: 2:30pm
+        open: 11:00am
+        close: 2:00pm
       dinner:
         open: 4:00pm
-        close: 9:00pm
-    saturday:
-      dinner:
-        open: 3:00pm
-        close: 9:00pm
-    sunday:
-      dinner:
-        open: 3:00pm
         close: 9:00pm
 fresh-n-go:
   name: Fresh-N-Go
@@ -327,44 +287,21 @@ fresh-n-go:
   hours:
     monday:
       lunch:
-        open: 11:30am
-        close: 2:30pm
-      dinner:
-        open: 5:00pm
-        close: 8:00pm
+        open: 11:00am
+        close: 2:00pm
     tuesday:
       lunch:
-        open: 11:30am
-        close: 2:30pm
-      dinner:
-        open: 5:00pm
-        close: 8:00pm
+        open: 11:00am
+        close: 2:00pm
     wednesday:
       lunch:
-        open: 11:30am
-        close: 2:30pm
-      dinner:
-        open: 5:00pm
-        close: 8:00pm
+        open: 11:00am
+        close: 2:00pm
     thursday:
       lunch:
-        open: 11:30am
-        close: 2:30pm
-      dinner:
-        open: 5:00pm
-        close: 8:00pm
+        open: 11:00am
+        close: 2:00pm
     friday:
       lunch:
-        open: 11:30am
-        close: 2:30pm
-      dinner:
-        open: 5:00pm
-        close: 8:00pm
-    saturday:
-      dinner:
-        open: 5:00pm
-        close: 8:00pm
-    sunday:
-      dinner:
-        open: 5:00pm
-        close: 8:00pm
+        open: 11:00am
+        close: 2:00pm
