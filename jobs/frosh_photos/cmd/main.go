@@ -74,7 +74,7 @@ func main() {
 			unix := strings.TrimSuffix(file.Name(), ".jpg")
 			log.Infof("saving %s", unix)
 			saveErr := savePhoto(filepath.Join(in, file.Name()), unix, pb)
-			if err != nil {
+			if saveErr != nil {
 				errors <- struct {
 					err  error
 					file string
