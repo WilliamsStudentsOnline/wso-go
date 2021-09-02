@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"image"
 	_ "image/gif"
 	_ "image/jpeg"
@@ -19,6 +20,7 @@ import (
 )
 
 func main() {
+	fmt.Println("HHJHIAWfbneriuyvnjkwrb")
 	var inDir string
 	var configPath string
 	var console bool
@@ -62,7 +64,7 @@ func main() {
 	}
 
 	// run for every photo
-	/*var photosWg sync.WaitGroup
+	var photosWg sync.WaitGroup
 	errors := make(chan struct {
 		err  error
 		file string
@@ -88,15 +90,6 @@ func main() {
 	close(errors)
 	for pErr := range errors {
 		log.Warnf("%s has an error: %v", pErr.file, pErr.err)
-	}*/
-
-	for _, file := range files {
-		unix := strings.TrimSuffix(file.Name(), ".jpg")
-		log.Infof("saving %s", unix)
-		saveErr := savePhoto(filepath.Join(in, file.Name()), unix, pb)
-		if saveErr != nil {
-			log.Warnf("%s has an error: %v", unix, saveErr)
-		}
 	}
 }
 
