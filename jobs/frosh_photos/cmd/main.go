@@ -64,32 +64,43 @@ func main() {
 	}
 
 	// run for every photo
-	var photosWg sync.WaitGroup
-	errors := make(chan struct {
-		err  error
-		file string
-	})
+	/*
+		var photosWg sync.WaitGroup
+		errors := make(chan struct {
+			err  error
+			file string
+		})
+
+		for _, file := range files {
+			photosWg.Add(1)
+			go func(wg *sync.WaitGroup, file os.FileInfo) {
+				unix := strings.TrimSuffix(file.Name(), ".jpg")
+				log.Infof("saving %s", unix)
+				saveErr := savePhoto(filepath.Join(in, file.Name()), unix, pb)
+				if saveErr != nil {
+					errors <- struct {
+						err  error
+						file string
+					}{err: saveErr, file: file.Name()}
+				}
+				wg.Done()
+			}(&photosWg, file)
+		}
+
+		photosWg.Wait()
+		close(errors)
+		for pErr := range errors {
+			log.Warnf("%s has an error: %v", pErr.file, pErr.err)
+		}
+	*/
 
 	for _, file := range files {
-		photosWg.Add(1)
-		go func(wg *sync.WaitGroup, file os.FileInfo) {
-			unix := strings.TrimSuffix(file.Name(), ".jpg")
-			log.Infof("saving %s", unix)
-			saveErr := savePhoto(filepath.Join(in, file.Name()), unix, pb)
-			if saveErr != nil {
-				errors <- struct {
-					err  error
-					file string
-				}{err: saveErr, file: file.Name()}
-			}
-			wg.Done()
-		}(&photosWg, file)
-	}
-
-	photosWg.Wait()
-	close(errors)
-	for pErr := range errors {
-		log.Warnf("%s has an error: %v", pErr.file, pErr.err)
+		unix := strings.TrimSuffix(file.Name(), ".jpg")
+		log.Infof("saving %s", unix)
+		saveErr := savePhoto(filepath.Join(in, file.Name()), unix, pb)
+		if saveErr != nil {
+			log.Warnf("%s has an error: %v", unix, saveErr)
+		}
 	}
 }
 

@@ -13,14 +13,14 @@ import (
 )
 
 var (
-	ErrorMissingMenu = errors.New("missing menu for date")
+	ErrorMissingMenu      = errors.New("missing menu for date")
+	ErrorMissingMenuHours = errors.New("failed to get meal hours")
 )
 
 type ExportDining struct {
 	Vendors    map[string]Vendor `json:"vendors"`
 	UpdateTime string            `json:"updateTime"`
 }
-
 type Vendor struct {
 	Name        string           `json:"name"`
 	Meals       map[string]*Meal `json:"meals"`
@@ -87,7 +87,7 @@ func loadDining(vendorInfoPath string, date time.Time) (ExportDining, error) {
 	}
 
 	drisc, err := loadDriscoll(date, venues["Driscoll"], vendorsInfo["driscoll"])
-	if err != nil && err != ErrorMissingMenu {
+	if err != nil && (err != ErrorMissingMenu && err != ErrorMissingMenuHours) {
 		return ExportDining{}, err
 	}
 	if err == nil {
@@ -95,7 +95,7 @@ func loadDining(vendorInfoPath string, date time.Time) (ExportDining, error) {
 	}
 
 	whitmans, err := loadWhitmans(date, venues["Paresky Student Center"], vendorsInfo["whitmans"])
-	if err != nil && err != ErrorMissingMenu {
+	if err != nil && (err != ErrorMissingMenu && err != ErrorMissingMenuHours) {
 		return ExportDining{}, err
 	}
 	if err == nil {
@@ -103,7 +103,7 @@ func loadDining(vendorInfoPath string, date time.Time) (ExportDining, error) {
 	}
 
 	mission, err := loadMission(date, venues["Mission"], vendorsInfo["mission"])
-	if err != nil && err != ErrorMissingMenu {
+	if err != nil && (err != ErrorMissingMenu && err != ErrorMissingMenuHours) {
 		return ExportDining{}, err
 	}
 	if err == nil {
@@ -200,7 +200,7 @@ func parseDailyMenu(date time.Time, dailyMenu search.MetaMenu, vendorInfo *Vendo
 
 	hours, ok := vendorInfo.Hours[strings.ToLower(date.Weekday().String())]
 	if !ok {
-		return nil, errors.New("failed to get meal hours")
+		return nil, ErrorMissingMenuHours
 	}
 
 	dayMenu, ok := menuDays.Days[date.Format("Monday, January 2, 2006")]
