@@ -1,6 +1,7 @@
 ---
 driscoll:
   name: Driscoll
+  eats_4_ephs_unit_id: "27"
   operating: true
   online_order: false
   hours:
@@ -76,6 +77,7 @@ driscoll:
         close: 8:00pm
 whitmans:
   name: Whitman's
+  eats_4_ephs_unit_id: "208"
   operating: true
   online_order: false
   hours:
@@ -166,6 +168,7 @@ whitmans:
         close: 1:00am
 mission:
   name: Mission
+  eats_4_ephs_unit_id: "100"
   operating: true
   online_order: false
   hours:

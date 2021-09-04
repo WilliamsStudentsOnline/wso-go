@@ -7,9 +7,10 @@ import (
 )
 
 type VendorInfo struct {
-	Name        string `json:"name" yaml:"name"`
-	Operating   bool   `json:"operating" yaml:"operating"`
-	OnlineOrder bool   `json:"onlineOrder" yaml:"online_order"`
+	Name            string `json:"name" yaml:"name"`
+	Eats4EphsUnitID string `json:"eats4EphsUnitID" yaml:"eats_4_ephs_unit_id"`
+	Operating       bool   `json:"operating" yaml:"operating"`
+	OnlineOrder     bool   `json:"onlineOrder" yaml:"online_order"`
 	// key is day of week, value is list of meals to hours
 	Hours map[string]VendorInfoHoursWeek `json:"hours" yaml:"hours"`
 }

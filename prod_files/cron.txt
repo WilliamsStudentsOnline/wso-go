@@ -18,7 +18,7 @@ SHELL="/bin/bash"
 
 # Dining update
 SHELL="/bin/bash"
-0 1 * * * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/dining-update -out /home/wso/wso/static/dining.json -vi /home/wso/wso/wso-backend/vendor_info.yaml >> /home/wso/wso/wso-backend/logs/dining-update-cron.log 2>&1'
+0 1 * * * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/dining-update -out /home/wso/wso/static/dining.json -vi /home/wso/wso/wso-backend/vendor_info.yaml -eats4Ephs >> /home/wso/wso/wso-backend/logs/dining-update-cron.log 2>&1'
 
 # Salmon scheduled notif
 SHELL="/bin/bash"
