@@ -172,6 +172,10 @@ mission:
   operating: true
   online_order: false
   hours:
+    sunday:
+      dinner:
+        open: 5:00pm
+        close: 8:00pm
     monday:
       dinner:
         open: 5:00pm
