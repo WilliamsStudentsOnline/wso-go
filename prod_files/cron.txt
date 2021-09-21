@@ -12,9 +12,9 @@ SHELL="/bin/bash"
 SHELL="/bin/bash"
 0 3 * * * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/catalog-update -file /home/wso/wso/static/courses.json >> /home/wso/wso/wso-backend/logs/catalog-update-cron.log 2>&1'
 
-# Pronouns update
+# User CSV Data update
 SHELL="/bin/bash"
-0 4 * * * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/user-pronouns -console -config /home/wso/wso/wso-backend/config.yaml -file /var/sftp/oit/pronouns.csv >> /home/wso/wso/wso-backend/logs/user-pronouns-cron.log 2>&1'
+0 4 * * * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/user-csv-data -console -config /home/wso/wso/wso-backend/config.yaml -file /var/sftp/oit/wso_student_data.csv >> /home/wso/wso/wso-backend/logs/user-csv-data-cron.log 2>&1'
 
 # Dining update
 SHELL="/bin/bash"
