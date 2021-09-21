@@ -96,7 +96,7 @@ func main() {
 			continue
 		}
 
-		err = db.Model(&models.User{}).Where("unix_id = ?", record[0]).Update("pronoun", record[1], "off_cycle", record[2] == "T").Error
+		err = db.Model(&models.User{}).Where("unix_id = ?", record[0]).Updates(map[string]interface{}{"pronoun": record[1], "off_cycle": record[2] == "T"}).Error
 		if err != nil {
 			log.Fatal("User Database Error: " + err.Error())
 			break
