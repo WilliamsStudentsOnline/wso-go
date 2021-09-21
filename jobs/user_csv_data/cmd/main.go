@@ -17,14 +17,14 @@ func main() {
 	var configPath string
 	var disableMigrationCheck bool
 	var console bool
-	var pronounsFile string
+	var csvFilePath string
 
 	// Command-line flags
 	// Note: these can be overridden by env vars
 	flag.StringVar(&configPath, "config", "", "path to config file")
 	flag.BoolVar(&disableMigrationCheck, "disable-migration-check", false, "don't check for outdated migrations")
 	flag.BoolVar(&console, "console", false, "print logs in console as well as in ")
-	flag.StringVar(&pronounsFile, "file", "", "path to pronoun info csv file")
+	flag.StringVar(&csvFilePath, "file", "", "path to user data csv file")
 
 	flag.Parse()
 
@@ -39,7 +39,7 @@ func main() {
 	}
 
 	/* LOGGING */
-	log, err := logging.SetupLog(cfg, "user-pronouns")
+	log, err := logging.SetupLog(cfg, "user-csv-data")
 	if err != nil {
 		panic("Log Setup Error: " + err.Error())
 		return
@@ -65,22 +65,22 @@ func main() {
 		}
 	}
 
-	if pronounsFile == "" {
-		log.Fatal("Pronouns file required")
+	if csvFilePath == "" {
+		log.Fatal("CSV file path required")
 		return
 	}
 
 	// Do the actual stuff
 
-	// Load pronouns file
-	pnounsFile, err := os.Open(pronounsFile)
+	// Load CSV file
+	csvFile, err := os.Open(csvFilePath)
 	if err != nil {
-		log.Fatal("Pronouns File Error: " + err.Error())
+		log.Fatal("CSV File Error: " + err.Error())
 		return
 	}
 
 	// CSV
-	r := csv.NewReader(pnounsFile)
+	r := csv.NewReader(csvFile)
 
 	for {
 		record, err := r.Read()
@@ -88,20 +88,20 @@ func main() {
 			break
 		}
 		if err != nil {
-			log.Fatal("Pronouns Parse Error: " + err.Error())
+			log.Fatal("CSV Parse Error: " + err.Error())
 			break
 		}
-		if len(record) != 2 {
-			log.Warn("Pronouns Parse Warning: too many parsed elements in line")
+		if len(record) != 3 {
+			log.Warn("CSV Parse Warning: too many parsed elements in line")
 			continue
 		}
 
-		err = db.Model(&models.User{}).Where("unix_id = ?", record[0]).Update("pronoun", record[1]).Error
+		err = db.Model(&models.User{}).Where("unix_id = ?", record[0]).Update("pronoun", record[1], "off_cycle", record[2] == "T").Error
 		if err != nil {
 			log.Fatal("User Database Error: " + err.Error())
 			break
 		}
 	}
 
-	log.Info("successfully updated all user pronouns")
+	log.Info("successfully updated all user data from CSV")
 }

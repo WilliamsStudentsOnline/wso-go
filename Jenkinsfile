@@ -73,9 +73,9 @@ pipeline {
             sshPut remote: remote_dev, from: 'job-frosh-photos_linux', into: '/home/wsodev/wso-go/job-frosh-photos'
             sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/job-frosh-photos'
 
-            sshRemove remote: remote_dev, path: '/home/wsodev/wso-go/user-pronouns'
-            sshPut remote: remote_dev, from: 'job-user-pronouns_linux', into: '/home/wsodev/wso-go/job-user-pronouns'
-            sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/job-user-pronouns'
+            sshRemove remote: remote_dev, path: '/home/wsodev/wso-go/user-csv-data'
+            sshPut remote: remote_dev, from: 'job-user-csv-data_linux', into: '/home/wsodev/wso-go/job-user-csv-data'
+            sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/job-user-csv-data'
 
             sshRemove remote: remote_dev, path: '/home/wsodev/wso-go/dining-update'
             sshPut remote: remote_dev, from: 'job-dining-update_linux', into: '/home/wsodev/wso-go/job-dining-update'
@@ -161,9 +161,9 @@ pipeline {
                 sshPut remote: remote_dev, from: 'job-frosh-photos_linux', into: '/home/wso/wso/wso-backend/jobs/frosh-photos'
                 sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/frosh-photos'
 
-                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/user-pronouns'
-                sshPut remote: remote_dev, from: 'job-user-pronouns_linux', into: '/home/wso/wso/wso-backend/jobs/user-pronouns'
-                sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/user-pronouns'
+                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/user-csv-data'
+                sshPut remote: remote_dev, from: 'job-user-csv-data_linux', into: '/home/wso/wso/wso-backend/jobs/user-csv-data'
+                sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/user-csv-data'
 
                 sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/dining-update'
                 sshPut remote: remote_dev, from: 'job-dining-update_linux', into: '/home/wso/wso/wso-backend/jobs/dining-update'
