@@ -45,6 +45,11 @@ func (t *Controller) ListRides(c *gin.Context) {
 		return
 	}
 
+	// QUICKFIX: make it just the upload date for now
+	for _, ride := range rides {
+		ride.Date = ride.CreatedAt
+	}
+
 	count, err := t.rideModel.CountAllRides(&params)
 	if err != nil {
 		t.RespondError(c, err)
