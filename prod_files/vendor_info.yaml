@@ -76,7 +76,7 @@ driscoll:
         open: 5:00pm
         close: 8:00pm
 whitmans:
-  name: Whitman's
+  name: "Whitman's"
   eats_4_ephs_unit_id: "208"
   operating: true
   online_order: false
@@ -173,9 +173,12 @@ mission:
   online_order: false
   hours:
     sunday:
+      brunch:
+        open: 11:30am
+        close: 1:30pm
       dinner:
-        open: 5:00pm
-        close: 8:00pm
+        open: 4:30pm
+        close: 6:30pm
     monday:
       dinner:
         open: 5:00pm
@@ -193,7 +196,7 @@ mission:
         open: 5:00pm
         close: 8:00pm
 lees-snack-bar:
-  name: Lee's Snack Bar
+  name: "Lee's Snack Bar"
   operating: true
   online_order: true
   hours:
@@ -312,3 +315,41 @@ fresh-n-go:
       lunch:
         open: 11:00am
         close: 2:00pm
+goodrich:
+  name: Goodrich
+  operating: true
+  online_order: false
+  hours:
+    monday:
+      morning:
+        open: 7:30am
+        close: 11:30am
+      night:
+        open: 8:00pm
+        close: 10:45pm
+    tuesday:
+      morning:
+        open: 7:30am
+        close: 11:30am
+      night:
+        open: 8:00pm
+        close: 10:45pm
+    wednesday:
+      morning:
+        open: 7:30am
+        close: 11:30am
+      night:
+        open: 8:00pm
+        close: 10:45pm
+    thursday:
+      morning:
+        open: 7:30am
+        close: 11:30am
+    friday:
+      morning:
+        open: 7:30am
+        close: 11:30am
+    sunday:
+      morning:
+        open: 7:30am
+        close: 11:30am
