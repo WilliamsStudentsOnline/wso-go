@@ -298,6 +298,8 @@ definitions:
         type: string
       leadLecture:
         type: integer
+      mentalHealthSupport:
+        type: integer
       outsideHelpfulness:
         type: integer
       professorID:
@@ -335,6 +337,8 @@ definitions:
       gradeReceived:
         type: string
       leadLecture:
+        type: integer
+      mentalHealthSupport:
         type: integer
       outsideHelpfulness:
         type: integer
@@ -994,6 +998,8 @@ definitions:
       id:
         type: integer
       leadLecture:
+        type: integer
+      mentalHealthSupport:
         type: integer
       outsideHelpfulness:
         type: integer

@@ -155,6 +155,7 @@ type SurveyCreateParams struct {
 	LeadLecture          *int    `json:"leadLecture" binding:"omitempty,gte=0,lte=7"`
 	PromoteDiscussion    *int    `json:"promoteDiscussion" binding:"omitempty,gte=0,lte=7"`
 	OutsideHelpfulness   *int    `json:"outsideHelpfulness" binding:"omitempty,gte=0,lte=7"`
+	MentalHealthSupport  *int    `json:"mentalHealthSupport" binding:"omitempty,gte=0,lte=7"`
 	GradeReceived        *string `json:"gradeReceived"`
 
 	SemesterSeason *string `json:"semesterSeason"` // Fall, Winter Study, Spring
@@ -348,6 +349,7 @@ func (t *Controller) CreateSurvey(c *gin.Context) {
 		LeadLecture:          createData.LeadLecture,
 		PromoteDiscussion:    createData.PromoteDiscussion,
 		OutsideHelpfulness:   createData.OutsideHelpfulness,
+		MentalHealthSupport:  createData.MentalHealthSupport,
 		GradeReceived:        createData.GradeReceived,
 
 		SemesterSeason: createData.SemesterSeason,
@@ -394,6 +396,7 @@ type SurveyUpdateParams struct {
 	LeadLecture          *int    `json:"leadLecture" binding:"omitempty,gte=0,lte=7"`
 	PromoteDiscussion    *int    `json:"promoteDiscussion" binding:"omitempty,gte=0,lte=7"`
 	OutsideHelpfulness   *int    `json:"outsideHelpfulness" binding:"omitempty,gte=0,lte=7"`
+	MentalHealthSupport  *int    `json:"mentalHealthSupport" binding:"omitempty,gte=0,lte=7"`
 	GradeReceived        *string `json:"gradeReceived"`
 
 	SemesterSeason *string `json:"semesterSeason"` // Fall, Winter Study, Spring
@@ -506,6 +509,7 @@ func (t *Controller) UpdateSurvey(c *gin.Context) {
 	survey.LeadLecture = lib.IntPtrDefaults(updateData.LeadLecture, survey.LeadLecture)
 	survey.PromoteDiscussion = lib.IntPtrDefaults(updateData.PromoteDiscussion, survey.PromoteDiscussion)
 	survey.OutsideHelpfulness = lib.IntPtrDefaults(updateData.OutsideHelpfulness, survey.OutsideHelpfulness)
+	survey.MentalHealthSupport = lib.IntPtrDefaults(updateData.MentalHealthSupport, survey.MentalHealthSupport)
 	survey.GradeReceived = lib.StrPtrDefaults(updateData.GradeReceived, survey.GradeReceived)
 	survey.SemesterSeason = lib.StrPtrDefaults(updateData.SemesterSeason, survey.SemesterSeason)
 	survey.SemesterYear = lib.IntPtrDefaults(updateData.SemesterYear, survey.SemesterYear)

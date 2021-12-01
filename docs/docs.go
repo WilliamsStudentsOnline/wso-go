@@ -8257,6 +8257,9 @@ var doc = `{
                 "leadLecture": {
                     "type": "integer"
                 },
+                "mentalHealthSupport": {
+                    "type": "integer"
+                },
                 "outsideHelpfulness": {
                     "type": "integer"
                 },
@@ -8306,6 +8309,9 @@ var doc = `{
                     "type": "string"
                 },
                 "leadLecture": {
+                    "type": "integer"
+                },
+                "mentalHealthSupport": {
                     "type": "integer"
                 },
                 "outsideHelpfulness": {
@@ -9266,6 +9272,9 @@ var doc = `{
                     "type": "integer"
                 },
                 "leadLecture": {
+                    "type": "integer"
+                },
+                "mentalHealthSupport": {
                     "type": "integer"
                 },
                 "outsideHelpfulness": {
