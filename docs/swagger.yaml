@@ -1042,6 +1042,8 @@ definitions:
         type: number
       avgLeadLecture:
         type: number
+      avgMentalHealthSupport:
+        type: number
       avgOutsideHelpfulness:
         type: number
       avgPromoteDiscussion:
@@ -1057,6 +1059,8 @@ definitions:
       numCourseWorkload:
         type: integer
       numLeadLecture:
+        type: integer
+      numMentalHealthSupport:
         type: integer
       numOutsideHelpfulness:
         type: integer

@@ -9321,6 +9321,9 @@
                 "avgLeadLecture": {
                     "type": "number"
                 },
+                "avgMentalHealthSupport": {
+                    "type": "number"
+                },
                 "avgOutsideHelpfulness": {
                     "type": "number"
                 },
@@ -9343,6 +9346,9 @@
                     "type": "integer"
                 },
                 "numLeadLecture": {
+                    "type": "integer"
+                },
+                "numMentalHealthSupport": {
                     "type": "integer"
                 },
                 "numOutsideHelpfulness": {
