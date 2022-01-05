@@ -107,7 +107,7 @@ func (t *Controller) isSeniorOnly() bool {
 	if !t.cfg.EphmatchEnableNow {
 		for _, era := range t.cfg.EphmatchEras {
 			if era.Start.Before(now) && era.End.After(now) {
-				return true
+				return era.SeniorOnly
 			}
 		}
 	}
