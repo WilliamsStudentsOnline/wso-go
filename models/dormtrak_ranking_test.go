@@ -15,12 +15,18 @@ func TestDormModel_GetDormtrakRankings(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 
+	log := zaptest.NewLogger(t).Sugar()
+
 	m := NewDormModel(db, zaptest.NewLogger(t).Sugar())
 
 	// Test 0: Missing dorm ranking
 	res := NewDormtrakRanking()
 	assert.NoError(m.GetDormtrakRankings(3, res))
 
+	assert.Empty(res.BestWifi)
+	assert.Empty(res.BestLocation)
+	assert.Empty(res.LeastLoudness)
+	assert.Empty(res.BestSatisfaction)
 	assert.Empty(res.MaxMeanSingleSize)
 	assert.Empty(res.MinMeanSingleSize)
 	assert.Empty(res.BiggestSingles)
@@ -34,13 +40,22 @@ func TestDormModel_GetDormtrakRankings(t *testing.T) {
 	assert.Empty(res.MostBathrooms)
 	assert.Empty(res.FewestBathrooms)
 
+	srYear := NewStudentModel(db, log).SeniorYear()
+
 	neighborhood := &Neighborhood{
 		Name: "Currier",
 	}
-	assert.NoError(db.Create(neighborhood).Error)
+	// User
+	u1 := User{
+		Name:   "User 1",
+		UnixID: "u1",
+	}
+	assert.NoError(db.Create(neighborhood).Create(&u1).Error)
 
 	dorms := []*Dorm{
 		// Max mean single size
+		// Best wifi
+		// Best location
 		{
 			Neighborhood:    neighborhood,
 			NumberBathrooms: lib.IntToPtr(2),
@@ -48,6 +63,15 @@ func TestDormModel_GetDormtrakRankings(t *testing.T) {
 				{
 					RoomType: DormRoomTypeSingle,
 					Area:     lib.IntToPtr(300),
+					DormtrakReviews: []*DormtrakReview{
+						{
+							User:         &u1,
+							Wifi:         lib.IntToPtr(10),
+							Location:     lib.IntToPtr(7),
+							Loudness:     lib.IntToPtr(5),
+							Satisfaction: lib.IntToPtr(7),
+						},
+					},
 				},
 				{
 					RoomType: DormRoomTypeSingle,
@@ -56,6 +80,7 @@ func TestDormModel_GetDormtrakRankings(t *testing.T) {
 			},
 		},
 		// Min mean single size
+		// Least loudness
 		{
 			Neighborhood:    neighborhood,
 			NumberBathrooms: lib.IntToPtr(2),
@@ -63,10 +88,36 @@ func TestDormModel_GetDormtrakRankings(t *testing.T) {
 				{
 					RoomType: DormRoomTypeSingle,
 					Area:     lib.IntToPtr(30),
+					DormtrakReviews: []*DormtrakReview{
+						{
+							User:         &u1,
+							Wifi:         lib.IntToPtr(5),
+							Location:     lib.IntToPtr(10),
+							Loudness:     lib.IntToPtr(2),
+							Satisfaction: lib.IntToPtr(6),
+						},
+					},
+					Users: []*User{
+						{
+							UnixID:    "a_u1",
+							Name:      "a User 1",
+							Type:      UserTypeStudent,
+							ClassYear: lib.IntToPtr(srYear + 2), // Sophomore
+						},
+					},
 				},
 				{
 					RoomType: DormRoomTypeSingle,
 					Area:     lib.IntToPtr(50),
+					DormtrakReviews: []*DormtrakReview{
+						{
+							User:         &u1,
+							Wifi:         lib.IntToPtr(5),
+							Location:     lib.IntToPtr(4),
+							Loudness:     lib.IntToPtr(2),
+							Satisfaction: lib.IntToPtr(10),
+						},
+					},
 				},
 			},
 		},
@@ -82,6 +133,7 @@ func TestDormModel_GetDormtrakRankings(t *testing.T) {
 			},
 		},
 		// Min mean dbl size
+		// Most satisfaction
 		{
 			Neighborhood:    neighborhood,
 			NumberBathrooms: lib.IntToPtr(2),
@@ -89,6 +141,15 @@ func TestDormModel_GetDormtrakRankings(t *testing.T) {
 				{
 					RoomType: DormRoomTypeDouble,
 					Area:     lib.IntToPtr(150),
+					DormtrakReviews: []*DormtrakReview{
+						{
+							User:         &u1,
+							Wifi:         lib.IntToPtr(2),
+							Location:     lib.IntToPtr(2),
+							Loudness:     lib.IntToPtr(5),
+							Satisfaction: lib.IntToPtr(9),
+						},
+					},
 				},
 			},
 		},
@@ -171,6 +232,8 @@ func TestDormModel_GetDormtrakRankings(t *testing.T) {
 	assert.NoError(m.GetDormtrakRankings(3, res))
 
 	// Check length
+	assert.Len(res.BestWifi, 3)
+	assert.Len(res.BestLocation, 3)
 	assert.Len(res.MaxMeanSingleSize, 3)
 	assert.Len(res.MinMeanSingleSize, 3)
 	assert.Len(res.BiggestSingles, 3)
@@ -185,6 +248,10 @@ func TestDormModel_GetDormtrakRankings(t *testing.T) {
 	assert.Len(res.FewestBathrooms, 3)
 
 	// Test by ID
+	assert.Equal(dorms[0].ID, res.BestWifi[0].ID)
+	assert.Equal(dorms[0].ID, res.BestLocation[0].ID)
+	assert.Equal(dorms[1].ID, res.LeastLoudness[0].ID)
+	assert.Equal(dorms[3].ID, res.BestSatisfaction[0].ID)
 	assert.Equal(dorms[0].ID, res.MaxMeanSingleSize[0].ID)
 	assert.Equal(dorms[1].ID, res.MinMeanSingleSize[0].ID)
 	assert.Equal(dorms[0].DormRooms[0].ID, res.BiggestSingles[0].ID)

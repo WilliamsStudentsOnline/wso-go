@@ -3,6 +3,11 @@ package models
 import "github.com/jinzhu/gorm"
 
 type DormtrakRanking struct {
+	BestWifi         []*Dorm `json:"bestWifi"`
+	BestLocation     []*Dorm `json:"bestLocation"`
+	LeastLoudness    []*Dorm `json:"leastLoudness"`
+	BestSatisfaction []*Dorm `json:"bestSatisfaction"`
+
 	MaxMeanSingleSize []*Dorm     `json:"maxMeanSingleSize"`
 	MinMeanSingleSize []*Dorm     `json:"minMeanSingleSize"`
 	BiggestSingles    []*DormRoom `json:"biggestSingles"`
@@ -22,6 +27,10 @@ type DormtrakRanking struct {
 
 func NewDormtrakRanking() *DormtrakRanking {
 	return &DormtrakRanking{
+		BestWifi:          []*Dorm{},
+		BestLocation:      []*Dorm{},
+		LeastLoudness:     []*Dorm{},
+		BestSatisfaction:  []*Dorm{},
 		MaxMeanSingleSize: []*Dorm{},
 		MinMeanSingleSize: []*Dorm{},
 		BiggestSingles:    []*DormRoom{},
@@ -41,6 +50,14 @@ func (m *DormModel) GetDormtrakRankings(max int, p *DormtrakRanking) (err error)
 	drM := NewDormRoomModel(m.DB, m.log)
 
 	queries := []*gorm.DB{
+		m.DB.Model(&Dorm{}).Limit(max).Scopes(m.ScopeTrakked).Where("dorms.wifi IS NOT NULL").
+			Order("dorms.wifi DESC").Find(&p.BestWifi),
+		m.DB.Model(&Dorm{}).Limit(max).Scopes(m.ScopeTrakked).Where("dorms.location IS NOT NULL").
+			Order("dorms.location DESC").Find(&p.BestLocation),
+		m.DB.Model(&Dorm{}).Limit(max).Scopes(m.ScopeTrakked).Where("dorms.loudness IS NOT NULL").
+			Order("dorms.loudness ASC").Find(&p.LeastLoudness),
+		m.DB.Model(&Dorm{}).Limit(max).Scopes(m.ScopeTrakked).Where("dorms.satisfaction IS NOT NULL").
+			Order("dorms.satisfaction DESC").Find(&p.BestSatisfaction),
 		m.DB.Model(&Dorm{}).Limit(max).Scopes(m.ScopeTrakked).Where("dorms.average_single_area IS NOT NULL").
 			Order("dorms.average_single_area DESC").Find(&p.MaxMeanSingleSize),
 		m.DB.Model(&Dorm{}).Limit(max).Scopes(m.ScopeTrakked).Where("dorms.average_single_area IS NOT NULL").
