@@ -38,6 +38,7 @@ type FactrakSurvey struct {
 	LeadLecture          *int    `json:"leadLecture"`
 	PromoteDiscussion    *int    `json:"promoteDiscussion"`
 	OutsideHelpfulness   *int    `json:"outsideHelpfulness"`
+	MentalHealthSupport  *int    `json:"mentalHealthSupport"`
 	Comment              string  `gorm:"size:65535" json:"comment"`
 	Flagged              bool    `json:"flagged"`
 	GradeReceived        *string `json:"gradeReceived"`

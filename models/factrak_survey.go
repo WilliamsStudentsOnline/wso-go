@@ -246,6 +246,7 @@ var surveyFields = []string{
 	"lead_lecture",
 	"promote_discussion",
 	"outside_helpfulness",
+	"mental_health_support",
 }
 
 // Gets average survey ratings by professor id, course id, or both.
@@ -481,4 +482,6 @@ type FactrakSurveyAvgRatings struct {
 	NumPromoteDiscussion    int     `json:"numPromoteDiscussion"`
 	AvgOutsideHelpfulness   float64 `json:"avgOutsideHelpfulness"`
 	NumOutsideHelpfulness   int     `json:"numOutsideHelpfulness"`
+	AvgMentalHealthSupport  float64 `json:"avgMentalHealthSupport"`
+	NumMentalHealthSupport  int     `json:"numMentalHealthSupport"`
 }

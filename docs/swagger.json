@@ -8242,6 +8242,9 @@
                 "leadLecture": {
                     "type": "integer"
                 },
+                "mentalHealthSupport": {
+                    "type": "integer"
+                },
                 "outsideHelpfulness": {
                     "type": "integer"
                 },
@@ -8291,6 +8294,9 @@
                     "type": "string"
                 },
                 "leadLecture": {
+                    "type": "integer"
+                },
+                "mentalHealthSupport": {
                     "type": "integer"
                 },
                 "outsideHelpfulness": {
@@ -9253,6 +9259,9 @@
                 "leadLecture": {
                     "type": "integer"
                 },
+                "mentalHealthSupport": {
+                    "type": "integer"
+                },
                 "outsideHelpfulness": {
                     "type": "integer"
                 },
@@ -9312,6 +9321,9 @@
                 "avgLeadLecture": {
                     "type": "number"
                 },
+                "avgMentalHealthSupport": {
+                    "type": "number"
+                },
                 "avgOutsideHelpfulness": {
                     "type": "number"
                 },
@@ -9334,6 +9346,9 @@
                     "type": "integer"
                 },
                 "numLeadLecture": {
+                    "type": "integer"
+                },
+                "numMentalHealthSupport": {
                     "type": "integer"
                 },
                 "numOutsideHelpfulness": {
