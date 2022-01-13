@@ -8,6 +8,11 @@ type DormtrakRanking struct {
 	LeastLoudness    []*Dorm `json:"leastLoudness"`
 	BestSatisfaction []*Dorm `json:"bestSatisfaction"`
 
+	WorstWifi         []*Dorm `json:"worstWifi"`
+	WorstLocation     []*Dorm `json:"worstLocation"`
+	MostLoudness      []*Dorm `json:"mostLoudness"`
+	WorstSatisfaction []*Dorm `json:"worstSatisfaction"`
+
 	MaxMeanSingleSize []*Dorm     `json:"maxMeanSingleSize"`
 	MinMeanSingleSize []*Dorm     `json:"minMeanSingleSize"`
 	BiggestSingles    []*DormRoom `json:"biggestSingles"`
@@ -31,6 +36,10 @@ func NewDormtrakRanking() *DormtrakRanking {
 		BestLocation:      []*Dorm{},
 		LeastLoudness:     []*Dorm{},
 		BestSatisfaction:  []*Dorm{},
+		WorstWifi:         []*Dorm{},
+		WorstLocation:     []*Dorm{},
+		MostLoudness:      []*Dorm{},
+		WorstSatisfaction: []*Dorm{},
 		MaxMeanSingleSize: []*Dorm{},
 		MinMeanSingleSize: []*Dorm{},
 		BiggestSingles:    []*DormRoom{},
@@ -50,14 +59,22 @@ func (m *DormModel) GetDormtrakRankings(max int, p *DormtrakRanking) (err error)
 	drM := NewDormRoomModel(m.DB, m.log)
 
 	queries := []*gorm.DB{
-		m.DB.Model(&Dorm{}).Limit(max).Scopes(m.ScopeTrakked).Where("dorms.wifi IS NOT NULL").
+		m.DB.Model(&Dorm{}).Limit(max).Scopes(m.ScopeTrakked).Where("dorms.wifi > 0").
 			Order("dorms.wifi DESC").Find(&p.BestWifi),
-		m.DB.Model(&Dorm{}).Limit(max).Scopes(m.ScopeTrakked).Where("dorms.location IS NOT NULL").
+		m.DB.Model(&Dorm{}).Limit(max).Scopes(m.ScopeTrakked).Where("dorms.location > 0").
 			Order("dorms.location DESC").Find(&p.BestLocation),
-		m.DB.Model(&Dorm{}).Limit(max).Scopes(m.ScopeTrakked).Where("dorms.loudness IS NOT NULL").
+		m.DB.Model(&Dorm{}).Limit(max).Scopes(m.ScopeTrakked).Where("dorms.loudness > 0").
 			Order("dorms.loudness ASC").Find(&p.LeastLoudness),
-		m.DB.Model(&Dorm{}).Limit(max).Scopes(m.ScopeTrakked).Where("dorms.satisfaction IS NOT NULL").
+		m.DB.Model(&Dorm{}).Limit(max).Scopes(m.ScopeTrakked).Where("dorms.satisfaction > 0").
 			Order("dorms.satisfaction DESC").Find(&p.BestSatisfaction),
+		m.DB.Model(&Dorm{}).Limit(max).Scopes(m.ScopeTrakked).Where("dorms.wifi > 0").
+			Order("dorms.wifi ASC").Find(&p.WorstWifi),
+		m.DB.Model(&Dorm{}).Limit(max).Scopes(m.ScopeTrakked).Where("dorms.location > 0").
+			Order("dorms.location ASC").Find(&p.WorstLocation),
+		m.DB.Model(&Dorm{}).Limit(max).Scopes(m.ScopeTrakked).Where("dorms.loudness > 0").
+			Order("dorms.loudness DESC").Find(&p.MostLoudness),
+		m.DB.Model(&Dorm{}).Limit(max).Scopes(m.ScopeTrakked).Where("dorms.satisfaction > 0").
+			Order("dorms.satisfaction ASC").Find(&p.WorstSatisfaction),
 		m.DB.Model(&Dorm{}).Limit(max).Scopes(m.ScopeTrakked).Where("dorms.average_single_area IS NOT NULL").
 			Order("dorms.average_single_area DESC").Find(&p.MaxMeanSingleSize),
 		m.DB.Model(&Dorm{}).Limit(max).Scopes(m.ScopeTrakked).Where("dorms.average_single_area IS NOT NULL").
