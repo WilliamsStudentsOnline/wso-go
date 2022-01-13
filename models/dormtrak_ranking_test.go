@@ -54,8 +54,9 @@ func TestDormModel_GetDormtrakRankings(t *testing.T) {
 
 	dorms := []*Dorm{
 		// Max mean single size
-		// Best wifi
 		// Best location
+		// Worst satisfaction
+		// Most loudness
 		{
 			Neighborhood:    neighborhood,
 			NumberBathrooms: lib.IntToPtr(2),
@@ -66,10 +67,10 @@ func TestDormModel_GetDormtrakRankings(t *testing.T) {
 					DormtrakReviews: []*DormtrakReview{
 						{
 							User:         &u1,
-							Wifi:         lib.IntToPtr(10),
-							Location:     lib.IntToPtr(7),
-							Loudness:     lib.IntToPtr(5),
-							Satisfaction: lib.IntToPtr(7),
+							Wifi:         lib.IntToPtr(4),
+							Location:     lib.IntToPtr(5),
+							Loudness:     lib.IntToPtr(4),
+							Satisfaction: lib.IntToPtr(1),
 						},
 					},
 				},
@@ -81,6 +82,7 @@ func TestDormModel_GetDormtrakRankings(t *testing.T) {
 		},
 		// Min mean single size
 		// Least loudness
+		// Best wifi
 		{
 			Neighborhood:    neighborhood,
 			NumberBathrooms: lib.IntToPtr(2),
@@ -91,10 +93,10 @@ func TestDormModel_GetDormtrakRankings(t *testing.T) {
 					DormtrakReviews: []*DormtrakReview{
 						{
 							User:         &u1,
-							Wifi:         lib.IntToPtr(5),
-							Location:     lib.IntToPtr(10),
-							Loudness:     lib.IntToPtr(2),
-							Satisfaction: lib.IntToPtr(6),
+							Wifi:         lib.IntToPtr(4),
+							Location:     lib.IntToPtr(1),
+							Loudness:     lib.IntToPtr(3),
+							Satisfaction: lib.IntToPtr(5),
 						},
 					},
 					Users: []*User{
@@ -113,9 +115,9 @@ func TestDormModel_GetDormtrakRankings(t *testing.T) {
 						{
 							User:         &u1,
 							Wifi:         lib.IntToPtr(5),
-							Location:     lib.IntToPtr(4),
-							Loudness:     lib.IntToPtr(2),
-							Satisfaction: lib.IntToPtr(10),
+							Location:     lib.IntToPtr(5),
+							Loudness:     lib.IntToPtr(1),
+							Satisfaction: lib.IntToPtr(3),
 						},
 					},
 				},
@@ -133,7 +135,9 @@ func TestDormModel_GetDormtrakRankings(t *testing.T) {
 			},
 		},
 		// Min mean dbl size
-		// Most satisfaction
+		// Best satisfaction
+		// Worst location
+		// Worst wifi
 		{
 			Neighborhood:    neighborhood,
 			NumberBathrooms: lib.IntToPtr(2),
@@ -146,8 +150,8 @@ func TestDormModel_GetDormtrakRankings(t *testing.T) {
 							User:         &u1,
 							Wifi:         lib.IntToPtr(2),
 							Location:     lib.IntToPtr(2),
-							Loudness:     lib.IntToPtr(5),
-							Satisfaction: lib.IntToPtr(9),
+							Loudness:     lib.IntToPtr(3),
+							Satisfaction: lib.IntToPtr(5),
 						},
 					},
 				},
@@ -248,10 +252,14 @@ func TestDormModel_GetDormtrakRankings(t *testing.T) {
 	assert.Len(res.FewestBathrooms, 3)
 
 	// Test by ID
-	assert.Equal(dorms[0].ID, res.BestWifi[0].ID)
+	assert.Equal(dorms[1].ID, res.BestWifi[0].ID)
 	assert.Equal(dorms[0].ID, res.BestLocation[0].ID)
 	assert.Equal(dorms[1].ID, res.LeastLoudness[0].ID)
 	assert.Equal(dorms[3].ID, res.BestSatisfaction[0].ID)
+	assert.Equal(dorms[3].ID, res.WorstWifi[0].ID)
+	assert.Equal(dorms[3].ID, res.WorstLocation[0].ID)
+	assert.Equal(dorms[0].ID, res.MostLoudness[0].ID)
+	assert.Equal(dorms[0].ID, res.WorstSatisfaction[0].ID)
 	assert.Equal(dorms[0].ID, res.MaxMeanSingleSize[0].ID)
 	assert.Equal(dorms[1].ID, res.MinMeanSingleSize[0].ID)
 	assert.Equal(dorms[0].DormRooms[0].ID, res.BiggestSingles[0].ID)
