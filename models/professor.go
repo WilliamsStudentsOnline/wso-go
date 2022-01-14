@@ -244,7 +244,7 @@ func (m *ProfessorModel) withRanking(ranking string, ascending bool) func(db *go
 		}
 
 		o := fmt.Sprintf("avg(factrak_surveys.%s) %s", ranking, order)
-		h := fmt.Sprintf("count(factrak_surveys.%s) >= 10", ranking)
+		h := fmt.Sprintf("count(factrak_surveys.%s) >= 5", ranking)
 		q := fmt.Sprintf("factrak_surveys.%s IS NOT NULL", ranking)
 
 		db = db.Joins("left join factrak_surveys on users.id = factrak_surveys.professor_id")
