@@ -88,6 +88,12 @@ func (o *GetAllCoursesOptions) Preloader(db *gorm.DB) *gorm.DB {
 		db = db.Preload("FactrakSurveys", fsm.scopeCurrent).Preload("FactrakSurveys.Professor", pm.scopeAtWilliams)
 	}
 
+	if lib.StringsContains(o.Preload, "professorWithAreaOfStudy") {
+		fsm := NewFactrakSurveyModel(nil, nil)
+		pm := NewProfessorModel(nil, nil)
+		db = db.Preload("FactrakSurveys", fsm.scopeCurrent).Preload("FactrakSurveys.Professor", pm.scopeAtWilliams).Preload("FactrakSurveys.Professor.AreasOfStudy")
+	}
+
 	return db
 }
 
@@ -134,7 +140,7 @@ func (o *GetAllCoursesOptions) Run(db *gorm.DB) *gorm.DB {
 }
 
 func (o *GetAllCoursesOptions) Post(courses []*Course) {
-	if lib.StringsContains(o.Preload, "professors") {
+	if lib.StringsContains(o.Preload, "professors") || lib.StringsContains(o.Preload, "professorWithAreaOfStudy") {
 		// Go through all preloaded survey professors and make a unique list of profs
 		for _, course := range courses {
 			// Unique set of professors of all surveys in this course

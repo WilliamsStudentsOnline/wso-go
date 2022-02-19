@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -27,6 +28,34 @@ func (m *ProfessorModel) GetAllProfessors(u *[]*User, opts Options) (err error) 
 	}
 	err = db.Find(u).Error
 	return
+}
+
+func (m *ProfessorModel) UpdateAreasOfStudyFromCourses() error {
+
+	courseModel := NewCourseModel(m.DB, m.log)
+
+	var courses []*Course
+
+	err := courseModel.GetAllCourses(&courses, &GetAllCoursesOptions{
+		Preload: []string{"areaOfStudy", "professorWithAreaOfStudy"},
+	})
+	if err != nil {
+		return err
+	}
+	if courses == nil {
+		// TODO: error
+		return errors.New("Courses are empty.")
+	}
+
+	for _, course := range courses {
+		areaOfStudy := course.AreaOfStudy
+		for _, professor := range course.Professors {
+			professor.AreasOfStudy = append(professor.AreasOfStudy, areaOfStudy)
+			m.DB.Save(&professor)
+		}
+	}
+
+	return nil
 }
 
 // Get all professors, ranked by one of the factrak surveys' fields
