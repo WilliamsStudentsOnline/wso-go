@@ -3282,7 +3282,9 @@ var doc = `{
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
-                    "200": {},
+                    "200": {
+                        "description": ""
+                    },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -3592,7 +3594,9 @@ var doc = `{
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
-                    "201": {},
+                    "201": {
+                        "description": ""
+                    },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -3643,7 +3647,9 @@ var doc = `{
                     }
                 ],
                 "responses": {
-                    "201": {},
+                    "201": {
+                        "description": ""
+                    },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -3860,7 +3866,9 @@ var doc = `{
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
-                    "200": {},
+                    "200": {
+                        "description": ""
+                    },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -4127,7 +4135,9 @@ var doc = `{
                     }
                 ],
                 "responses": {
-                    "200": {},
+                    "200": {
+                        "description": ""
+                    },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -4164,7 +4174,9 @@ var doc = `{
                 "summary": "Delete an ephmatch profile photo by user id",
                 "operationId": "delete-ephmatch-profile-photo",
                 "responses": {
-                    "200": {},
+                    "200": {
+                        "description": ""
+                    },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -4522,7 +4534,9 @@ var doc = `{
                     }
                 ],
                 "responses": {
-                    "200": {},
+                    "200": {
+                        "description": ""
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -6462,7 +6476,9 @@ var doc = `{
                     }
                 ],
                 "responses": {
-                    "200": {},
+                    "200": {
+                        "description": ""
+                    },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -7662,7 +7678,9 @@ var doc = `{
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
-                    "200": {},
+                    "200": {
+                        "description": ""
+                    },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -7746,7 +7764,9 @@ var doc = `{
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
-                    "200": {},
+                    "200": {
+                        "description": ""
+                    },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -8533,6 +8553,13 @@ var doc = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "professors": {
+                    "description": "Many2Many professors  (computed periodically from courses)",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.User"
+                    }
                 }
             }
         },
@@ -8942,6 +8969,24 @@ var doc = `{
         "models.DormtrakRanking": {
             "type": "object",
             "properties": {
+                "bestLocation": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Dorm"
+                    }
+                },
+                "bestSatisfaction": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Dorm"
+                    }
+                },
+                "bestWifi": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Dorm"
+                    }
+                },
                 "biggestDoubles": {
                     "type": "array",
                     "items": {
@@ -8955,6 +9000,12 @@ var doc = `{
                     }
                 },
                 "fewestBathrooms": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Dorm"
+                    }
+                },
+                "leastLoudness": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.Dorm"
@@ -8996,6 +9047,12 @@ var doc = `{
                         "$ref": "#/definitions/models.Dorm"
                     }
                 },
+                "mostLoudness": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Dorm"
+                    }
+                },
                 "mostSingles": {
                     "type": "array",
                     "items": {
@@ -9012,6 +9069,24 @@ var doc = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.DormRoom"
+                    }
+                },
+                "worstLocation": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Dorm"
+                    }
+                },
+                "worstSatisfaction": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Dorm"
+                    }
+                },
+                "worstWifi": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Dorm"
                     }
                 }
             }
@@ -9639,6 +9714,13 @@ var doc = `{
                 "admin": {
                     "type": "boolean"
                 },
+                "areasOfStudy": {
+                    "description": "Many2Many Area of Studies iff professor (computed periodically from courses)",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.AreaOfStudy"
+                    }
+                },
                 "atWilliams": {
                     "type": "boolean"
                 },
@@ -9660,7 +9742,7 @@ var doc = `{
                     "$ref": "#/definitions/models.Department"
                 },
                 "departmentID": {
-                    "description": "Belongs to Department iff professor",
+                    "description": "Belongs to Department iff professor (fetched from Williams LDAP)",
                     "type": "integer"
                 },
                 "dormRoom": {

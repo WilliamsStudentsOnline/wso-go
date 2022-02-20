@@ -11,7 +11,6 @@ require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/arbovm/levenshtein v0.0.0-20160628152529-48b4e1c0c4d0 // indirect
 	github.com/brianvoe/gofakeit v3.18.0+incompatible
-	github.com/cenkalti/backoff/v4 v4.1.0
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/dcadenas/pagerank v0.0.0-20171013173705-af922e3ceea8
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
@@ -54,9 +53,11 @@ require (
 	golang.org/x/time v0.0.0-20190308202827-9d24e82272b4 // indirect
 	golang.org/x/tools v0.0.0-20200817023811-d00afeaade8f // indirect
 	google.golang.org/appengine v1.6.1 // indirect
+	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/go-playground/validator.v9 v9.31.0
 	gopkg.in/gormigrate.v1 v1.6.0
 	gopkg.in/ldap.v3 v3.1.0
+	gopkg.in/mail.v2 v2.3.1 // indirect
 	gopkg.in/yaml.v2 v2.3.0
 	honnef.co/go/tools v0.0.1-2020.1.3 // indirect
 	k8s.io/api v0.17.3

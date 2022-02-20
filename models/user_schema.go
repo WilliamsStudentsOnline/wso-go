@@ -50,9 +50,12 @@ type User struct {
 	HasAcceptedFactrakPolicy  *bool   `gorm:"DEFAULT:false;not null" json:"hasAcceptedFactrakPolicy"`
 	HasAcceptedDormtrakPolicy *bool   `gorm:"DEFAULT:false;not null" json:"hasAcceptedDormtrakPolicy"`
 
-	// Belongs to Department iff professor
+	// Belongs to Department iff professor (fetched from Williams LDAP)
 	DepartmentID *uint       `json:"departmentID"`
 	Department   *Department `json:"department,omitempty"`
+
+	// Many2Many Area of Studies iff professor (computed periodically from courses)
+	AreasOfStudy []*AreaOfStudy `gorm:"many2many:user_areaOfStudy;" json:"areasOfStudy"`
 
 	// Belongs to Office iff staff/professor
 	OfficeID *uint   `json:"officeID"`
