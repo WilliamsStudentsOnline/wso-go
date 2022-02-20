@@ -17,11 +17,10 @@ require (
 	github.com/disintegration/imaging v1.6.2
 	github.com/emicklei/dot v0.16.0
 	github.com/gin-contrib/cors v1.3.1
-	github.com/gin-gonic/gin v1.5.0
+	github.com/gin-gonic/gin v1.7.0
 	github.com/go-mail/mail v2.3.1+incompatible
 	github.com/go-openapi/spec v0.19.9 // indirect
 	github.com/go-openapi/swag v0.19.9 // indirect
-	github.com/go-playground/universal-translator v0.17.0 // indirect
 	github.com/golang/protobuf v1.3.4 // indirect
 	github.com/google/uuid v1.1.1
 	github.com/gorilla/feeds v1.1.1
@@ -29,13 +28,10 @@ require (
 	github.com/imdario/mergo v0.3.8
 	github.com/jinzhu/gorm v1.9.12
 	github.com/jinzhu/inflection v1.0.0
-	github.com/json-iterator/go v1.1.9 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/leodido/go-urn v1.2.0 // indirect
 	github.com/lib/pq v1.2.0 // indirect
 	github.com/m1ome/leven v0.0.0-20170305195354-a3732db01c54
 	github.com/mailru/easyjson v0.7.3 // indirect
-	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/nlopes/slack v0.6.0
 	github.com/sideshow/apns2 v0.20.0
 	github.com/stretchr/testify v1.5.1
