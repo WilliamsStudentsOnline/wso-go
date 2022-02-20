@@ -12,6 +12,9 @@ type AreaOfStudy struct {
 
 	// Has many courses
 	Courses []*Course `json:"courses,omitempty"`
+
+	// Many2Many professors  (computed periodically from courses)
+	Professors []*User `gorm:"many2many:user_areaOfStudy;" json:"professors"`
 }
 
 func (*AreaOfStudy) TableName() string {

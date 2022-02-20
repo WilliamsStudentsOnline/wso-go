@@ -48,6 +48,7 @@ var Migrations = []*gormigrate.Migration{
 	migrations.UserAddOnCampusSemestersColumn20210406005136,
 	migrations.CreateEphmatchRelations20210607211439,
 	migrations.AddMhFactrakSurveyQ20211201012742,
+	migrations.UserAddAreasOfStudy20220219171916,
 }
 
 var MigrationGormOptions = gormigrate.DefaultOptions
