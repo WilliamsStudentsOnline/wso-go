@@ -93,9 +93,9 @@ pipeline {
             sshPut remote: remote_dev, from: 'job-initialize-on-campus-semesters', into: '/home/wsodev/wso-go/job-initialize-on-campus-semesters'
             sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/job-initialize-on-campus-semesters'
 
-            sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/job-update_profs_areas_of_study'
-            sshPut remote: remote_dev, from: 'job-update_profs_areas_of_study', into: '/home/wso/wso/wso-backend/jobs/job-update_profs_areas_of_study'
-            sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/job-update_profs_areas_of_study'
+            sshRemove remote: remote_dev, path: '/home/wsodev/wso-go/job-update_profs_areas_of_study'
+            sshPut remote: remote_dev, from: 'job-update_profs_areas_of_study', into: '/home/wsodev/wso-go/job-update_profs_areas_of_study'
+            sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/job-update_profs_areas_of_study'
 
             // Restart WSO-Go
             sshCommand remote: remote_dev, command: '/bin/systemctl restart WSO-Go', sudo: true
