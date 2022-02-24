@@ -134,6 +134,7 @@ func (o *GetAllProfessorsOptions) Run(db *gorm.DB) *gorm.DB {
 	}
 	if o.AreaOfStudyID != nil {
 		db = m.withAreaOfStudy(*o.AreaOfStudyID)(db)
+		db = db.Preload("AreasOfStudy")
 	}
 	if o.Metric != nil {
 		if o.Ascending != nil {
@@ -239,9 +240,9 @@ func (m *ProfessorModel) withDepartment(deptID uint) func(db *gorm.DB) *gorm.DB 
 func (m *ProfessorModel) withAreaOfStudy(areaID uint) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Where(
-			"users.department_id in (?)",
-			m.DB.Model(&AreaOfStudy{}).Select("department_id").Where(
-				"id = ?", areaID,
+			"users.id in (?)",
+			m.DB.Table("user_areaOfStudy").Select("user_id").Where(
+				"area_of_study_id = ?", areaID,
 			).QueryExpr(),
 		)
 	}
