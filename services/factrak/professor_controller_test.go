@@ -113,11 +113,12 @@ func TestController_ListProfessorsRanked(t *testing.T) {
 	}
 	// Other prof
 	p2 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 2",
-		UnixID:     "p2",
-		AtWilliams: lib.BoolToPtr(true),
-		Department: &dept,
+		Type:         models.UserTypeProfessor,
+		Name:         "Professor 2",
+		UnixID:       "p2",
+		AtWilliams:   lib.BoolToPtr(true),
+		Department:   &dept,
+		AreasOfStudy: []*models.AreaOfStudy{&area2},
 	}
 	// Third prof
 	p3 := models.User{
@@ -217,6 +218,13 @@ func TestController_ListProfessorsRanked(t *testing.T) {
 	assert.NoError(err)
 	resp = GetUsersFromResp(assert, w)
 	assert.NoError(EqualUserIDs([]models.User{p2}, resp))
+
+	// Test 4b: Get users ranked by approachability, limited to an area of study
+	// Added by Ye Shu: the query should return 0 profs (&p2 is in a different area of study under same department)
+	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/professors?metric=approachability&areaOfStudyID=%d", area1.ID), nil)
+	assert.NoError(err)
+	resp = GetUsersFromResp(assert, w)
+	assert.NoError(EqualUserIDs([]models.User{}, resp))
 
 	// Test 5: Get users ranked by workload with pagination
 	w, err = utils.DoHTTPReq(router, http.MethodGet, "/professors?metric=course_workload&ascending=true&limit=2", nil)
