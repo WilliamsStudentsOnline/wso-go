@@ -168,6 +168,12 @@ func TestController_ListAreaOfStudyProfessors(t *testing.T) {
 			{
 				Name:         "Computer Science",
 				Abbreviation: "CSCI",
+				Professors: []*models.User{
+					&p1,
+					&p2,
+					&p3,
+					&s1,
+				},
 			},
 		},
 		Users: []*models.User{
@@ -183,6 +189,9 @@ func TestController_ListAreaOfStudyProfessors(t *testing.T) {
 			{
 				Name:         "Economics",
 				Abbreviation: "ECON",
+				Professors: []*models.User{
+					&p4,
+				},
 			},
 		},
 		Users: []*models.User{

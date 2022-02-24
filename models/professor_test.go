@@ -79,6 +79,12 @@ func TestProfessorModel_GetProfessorsByAreaOfStudy(t *testing.T) {
 			{
 				Name:         "Computer Science",
 				Abbreviation: "CSCI",
+				Professors: []*User{
+					&p1,
+					&p2,
+					&p3,
+					&s1,
+				},
 			},
 		},
 		Users: []*User{
@@ -94,6 +100,9 @@ func TestProfessorModel_GetProfessorsByAreaOfStudy(t *testing.T) {
 			{
 				Name:         "Economics",
 				Abbreviation: "ECON",
+				Professors: []*User{
+					&p4,
+				},
 			},
 		},
 		Users: []*User{
