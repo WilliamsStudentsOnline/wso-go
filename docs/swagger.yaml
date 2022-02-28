@@ -444,16 +444,14 @@ definitions:
   identity.Credentials:
     properties:
       localIP:
-        description: If true, will authenticate based on IP. Fail if cannot get on-campus
-          token.
+        description: If true, will authenticate based on IP. Fail if cannot get on-campus token.
         type: boolean
       password:
         type: string
       unixID:
         type: string
       useIP:
-        description: If true, will authenticate based on IP. Will return either off-campus
-          or on-campus token
+        description: If true, will authenticate based on IP. Will return either off-campus or on-campus token
         type: boolean
     type: object
   lib.APIError:
@@ -493,6 +491,33 @@ definitions:
         items:
           $ref: '#/definitions/models.User'
         type: array
+    type: object
+  models.BannedUser:
+    properties:
+      bulletinRead:
+        type: boolean
+      bulletinWrite:
+        type: boolean
+      dormtrak:
+        type: boolean
+      ephcatch:
+        type: boolean
+      ephmatch:
+        type: boolean
+      factrak:
+        description: 'Service access: true means allowed to access if would normally get access, false means scope will not be granted'
+        type: boolean
+      id:
+        type: integer
+      reason:
+        description: Reason why user was banned
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+        description: Belongs to user
+        type: object
+      userID:
+        type: integer
     type: object
   models.Bulletin:
     properties:
@@ -556,8 +581,7 @@ definitions:
       number:
         type: string
       professors:
-        description: Has many professors (thru factrak surveys). Ignore this in Gorm.
-          Populate this only whenever needed.
+        description: Has many professors (thru factrak surveys). Ignore this in Gorm. Populate this only whenever needed.
         items:
           $ref: '#/definitions/models.User'
         type: array
@@ -933,8 +957,7 @@ definitions:
       id:
         type: integer
       liked:
-        description: If me (user) has an ephcatch entry where ephcatch.other_id=users.id
-          and ephcatch.user_id=myID
+        description: If me (user) has an ephcatch entry where ephcatch.other_id=users.id and ephcatch.user_id=myID
         type: boolean
       name:
         type: string
@@ -1151,9 +1174,7 @@ definitions:
       idNumber:
         type: string
       items:
-        description: this means this field will be ignored in the DB. Use this to
-          pull the menu items from ItemList into actual objects in the Model/Controller
-          side.
+        description: this means this field will be ignored in the DB. Use this to pull the menu items from ItemList into actual objects in the Model/Controller side.
         items:
           $ref: '#/definitions/models.GoodrichOrderItem'
         type: array
@@ -1296,13 +1317,16 @@ definitions:
       admin:
         type: boolean
       areasOfStudy:
-        description: Many2Many Area of Studies iff professor (computed periodically
-          from courses)
+        description: Many2Many Area of Studies iff professor (computed periodically from courses)
         items:
           $ref: '#/definitions/models.AreaOfStudy'
         type: array
       atWilliams:
         type: boolean
+      bannedUser:
+        $ref: '#/definitions/models.BannedUser'
+        description: Has one (or zero) banned users
+        type: object
       campusPhoneEXT:
         type: string
       campusStatus:
@@ -1456,16 +1480,14 @@ definitions:
   old.LoginParams:
     properties:
       localIP:
-        description: If true, will authenticate based on IP. Fail if cannot get on-campus
-          token.
+        description: If true, will authenticate based on IP. Fail if cannot get on-campus token.
         type: boolean
       password:
         type: string
       unixID:
         type: string
       useIP:
-        description: If true, will authenticate based on IP. Will return either off-campus
-          or on-campus token
+        description: If true, will authenticate based on IP. Will return either off-campus or on-campus token
         type: boolean
     type: object
   responses.GetUserResponseDepartment:
@@ -1863,8 +1885,7 @@ info:
   contact:
     email: wso-dev@wso.williams.edu
     name: WSO Dev
-  description: API for WSO services like factrak, facebook, dormtrak, course scheduler,
-    and others.
+  description: API for WSO services like factrak, facebook, dormtrak, course scheduler, and others.
   license: {}
   title: WSO API
   version: 2.0.0
@@ -1917,8 +1938,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: connects to Kubernetes to get the status of a running (or recently
-        finished) job given an id
+      description: connects to Kubernetes to get the status of a running (or recently finished) job given an id
       operationId: get-job-status
       parameters:
       - description: Kubernetes Job ID
@@ -1990,8 +2010,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: issues an API JWT by taking an existing API JWT and updating the
-        fields. This calls the db, so it will actually modify the token's payload.
+      description: issues an API JWT by taking an existing API JWT and updating the fields. This calls the db, so it will actually modify the token's payload.
       operationId: auth-api-update
       produces:
       - application/json
@@ -2128,8 +2147,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: attempts to get a JWT by taking an existing JWT and refreshing
-        it. This will not change the payload.
+      description: attempts to get a JWT by taking an existing JWT and refreshing it. This will not change the payload.
       operationId: auth-refresh
       produces:
       - application/json
@@ -2159,8 +2177,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: attempts to get a JWT by taking an existing JWT and updating the
-        fields. This calls the db, so it will actually modify the token's payload.
+      description: attempts to get a JWT by taking an existing JWT and updating the fields. This calls the db, so it will actually modify the token's payload.
       operationId: auth-update
       produces:
       - application/json
@@ -2190,8 +2207,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Given an input q, this autocompletes the area of study. Results
-        are sorted by levenshtein distance.
+      description: Given an input q, this autocompletes the area of study. Results are sorted by levenshtein distance.
       operationId: autocomplete-area-of-study
       parameters:
       - description: String to Complete
@@ -2225,8 +2241,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Given an input q, this autocompletes the course. Results are sorted
-        by levenshtein distance.
+      description: Given an input q, this autocompletes the course. Results are sorted by levenshtein distance.
       operationId: autocomplete-course
       parameters:
       - description: String to Complete
@@ -2260,8 +2275,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Given an input q, this autocompletes the professor or course. Results
-        are sorted by levenshtein distance.
+      description: Given an input q, this autocompletes the professor or course. Results are sorted by levenshtein distance.
       operationId: autocomplete-factrak
       parameters:
       - description: String to Complete
@@ -2295,8 +2309,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Given an input q, this autocompletes the professor. Results are
-        sorted by levenshtein distance.
+      description: Given an input q, this autocompletes the professor. Results are sorted by levenshtein distance.
       operationId: autocomplete-professor
       parameters:
       - description: String to Complete
@@ -2330,8 +2343,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Given an input q, this autocompletes the tag. Results are sorted
-        by levenshtein distance.
+      description: Given an input q, this autocompletes the tag. Results are sorted by levenshtein distance.
       operationId: autocomplete-tag
       parameters:
       - description: String to Complete
@@ -3508,8 +3520,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: gets dorm facts of one dorm building. Some of these facts are in
-        GetDorm, while others are generated here.
+      description: gets dorm facts of one dorm building. Some of these facts are in GetDorm, while others are generated here.
       operationId: dormtrak-get-dorm-facts
       parameters:
       - description: Dorm ID
@@ -3950,8 +3961,7 @@ paths:
     put:
       consumes:
       - multipart/form-data
-      description: upload a dorm room review's photo. You may only upload rooms you
-        have reviewed.
+      description: upload a dorm room review's photo. You may only upload rooms you have reviewed.
       operationId: upload-dorm-room-photo
       parameters:
       - description: Review ID
@@ -3967,8 +3977,7 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: ""
+        "200": {}
         "400":
           description: Bad Request
           schema:
@@ -4164,8 +4173,7 @@ paths:
       produces:
       - application/json
       responses:
-        "201":
-          description: ""
+        "201": {}
         "400":
           description: Bad Request
           schema:
@@ -4187,8 +4195,7 @@ paths:
           schema:
             $ref: '#/definitions/lib.APIError'
         "1732":
-          description: ephcatch already exists with user ID and passed ephcatcher
-            ID
+          description: ephcatch already exists with user ID and passed ephcatcher ID
           schema:
             $ref: '#/definitions/lib.APIError'
       security:
@@ -4211,8 +4218,7 @@ paths:
       produces:
       - application/json
       responses:
-        "201":
-          description: ""
+        "201": {}
         "400":
           description: Bad Request
           schema:
@@ -4309,8 +4315,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: counts all Ephmatch-eligible students that user has matched with
-        by unseen and total
+      description: counts all Ephmatch-eligible students that user has matched with by unseen and total
       operationId: ephmatch-count-matches
       produces:
       - application/json
@@ -4332,8 +4337,7 @@ paths:
     delete:
       consumes:
       - application/json
-      description: Removes the match (and sets the to-relation to none) of a specific
-        matched pair
+      description: Removes the match (and sets the to-relation to none) of a specific matched pair
       operationId: ephmatch-unmatch
       parameters:
       - description: Match User ID
@@ -4344,8 +4348,7 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: ""
+        "200": {}
         "400":
           description: Bad Request
           schema:
@@ -4517,8 +4520,7 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: ""
+        "200": {}
         "400":
           description: Bad Request
           schema:
@@ -4550,8 +4552,7 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: ""
+        "200": {}
         "400":
           description: Bad Request
           schema:
@@ -4656,8 +4657,7 @@ paths:
     put:
       consumes:
       - application/json
-      description: Sets the relation (like, dislike, nothing) between self and one
-        ephmatch-eligible user profile
+      description: Sets the relation (like, dislike, nothing) between self and one ephmatch-eligible user profile
       operationId: ephmatch-set-profile-relation
       parameters:
       - description: Profile User ID
@@ -4699,8 +4699,7 @@ paths:
           schema:
             $ref: '#/definitions/lib.APIError'
         "1732":
-          description: ephmatch relation already exists with user ID and passed ephmatch
-            profile user ID
+          description: ephmatch relation already exists with user ID and passed ephmatch profile user ID
           schema:
             $ref: '#/definitions/lib.APIError'
       security:
@@ -4784,8 +4783,7 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: ""
+        "200": {}
         "404":
           description: Not Found
           schema:
@@ -5600,8 +5598,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: lists all surveys where the professor is at Williams and the survey
-        is current. Order by creation date.
+      description: lists all surveys where the professor is at Williams and the survey is current. Order by creation date.
       operationId: factrak-list-surveys
       parameters:
       - description: Offset Pagination (timestamp)
@@ -5692,8 +5689,7 @@ paths:
           schema:
             $ref: '#/definitions/lib.APIError'
         "1531":
-          description: 'missing course parameters in create data: courseID or (areaOfStudyAbbreviation
-            and courseNumber)'
+          description: 'missing course parameters in create data: courseID or (areaOfStudyAbbreviation and courseNumber)'
           schema:
             $ref: '#/definitions/lib.APIError'
         "1532":
@@ -5717,8 +5713,7 @@ paths:
           schema:
             $ref: '#/definitions/lib.APIError'
         "1537":
-          description: survey already exists with passed user ID, professor ID, and
-            course ID
+          description: survey already exists with passed user ID, professor ID, and course ID
           schema:
             $ref: '#/definitions/lib.APIError'
       security:
@@ -6056,8 +6051,7 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: ""
+        "200": {}
         "400":
           description: Bad Request
           schema:
@@ -6713,8 +6707,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: get a user by user id that is visible and at williams. Also loads
-        tags. Pass "me" if you want to get self
+      description: get a user by user id that is visible and at williams. Also loads tags. Pass "me" if you want to get self
       operationId: get-user
       parameters:
       - description: User ID
@@ -6757,8 +6750,7 @@ paths:
     patch:
       consumes:
       - application/json
-      description: updates a user by user id. You may only update yourself. You may
-        pass "me" to get self as well.
+      description: updates a user by user id. You may only update yourself. You may pass "me" to get self as well.
       operationId: update-user
       parameters:
       - description: User ID
@@ -6808,8 +6800,7 @@ paths:
     put:
       consumes:
       - multipart/form-data
-      description: upload a user's profile photo by user id. You may only update yourself.
-        You may pass "me" to get self as well.
+      description: upload a user's profile photo by user id. You may only update yourself. You may pass "me" to get self as well.
       operationId: upload-profile-photo
       parameters:
       - description: User ID
@@ -6825,8 +6816,7 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: ""
+        "200": {}
         "400":
           description: Bad Request
           schema:
@@ -6856,8 +6846,7 @@ paths:
     put:
       consumes:
       - application/json
-      description: updates a user's tags by user id. You may only update yourself.
-        You may pass "me" to get self as well.
+      description: updates a user's tags by user id. You may only update yourself. You may pass "me" to get self as well.
       operationId: update-user-tags
       parameters:
       - description: User ID
@@ -6874,8 +6863,7 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: ""
+        "200": {}
         "400":
           description: Bad Request
           schema:

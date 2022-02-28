@@ -3282,9 +3282,7 @@ var doc = `{
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
-                    "200": {
-                        "description": ""
-                    },
+                    "200": {},
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -3594,9 +3592,7 @@ var doc = `{
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
-                    "201": {
-                        "description": ""
-                    },
+                    "201": {},
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -3647,9 +3643,7 @@ var doc = `{
                     }
                 ],
                 "responses": {
-                    "201": {
-                        "description": ""
-                    },
+                    "201": {},
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -3866,9 +3860,7 @@ var doc = `{
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
-                    "200": {
-                        "description": ""
-                    },
+                    "200": {},
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -4135,9 +4127,7 @@ var doc = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": ""
-                    },
+                    "200": {},
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -4174,9 +4164,7 @@ var doc = `{
                 "summary": "Delete an ephmatch profile photo by user id",
                 "operationId": "delete-ephmatch-profile-photo",
                 "responses": {
-                    "200": {
-                        "description": ""
-                    },
+                    "200": {},
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -4534,9 +4522,7 @@ var doc = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": ""
-                    },
+                    "200": {},
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -6476,9 +6462,7 @@ var doc = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": ""
-                    },
+                    "200": {},
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -7678,9 +7662,7 @@ var doc = `{
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
-                    "200": {
-                        "description": ""
-                    },
+                    "200": {},
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -7764,9 +7746,7 @@ var doc = `{
                             "$ref": "#/definitions/lib.APIError"
                         }
                     },
-                    "200": {
-                        "description": ""
-                    },
+                    "200": {},
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -8560,6 +8540,45 @@ var doc = `{
                     "items": {
                         "$ref": "#/definitions/models.User"
                     }
+                }
+            }
+        },
+        "models.BannedUser": {
+            "type": "object",
+            "properties": {
+                "bulletinRead": {
+                    "type": "boolean"
+                },
+                "bulletinWrite": {
+                    "type": "boolean"
+                },
+                "dormtrak": {
+                    "type": "boolean"
+                },
+                "ephcatch": {
+                    "type": "boolean"
+                },
+                "ephmatch": {
+                    "type": "boolean"
+                },
+                "factrak": {
+                    "description": "Service access: true means allowed to access if would normally get access, false means scope will not be granted",
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "reason": {
+                    "description": "Reason why user was banned",
+                    "type": "string"
+                },
+                "user": {
+                    "description": "Belongs to user",
+                    "type": "object",
+                    "$ref": "#/definitions/models.User"
+                },
+                "userID": {
+                    "type": "integer"
                 }
             }
         },
@@ -9723,6 +9742,11 @@ var doc = `{
                 },
                 "atWilliams": {
                     "type": "boolean"
+                },
+                "bannedUser": {
+                    "description": "Has one (or zero) banned users",
+                    "type": "object",
+                    "$ref": "#/definitions/models.BannedUser"
                 },
                 "campusPhoneEXT": {
                     "type": "string"

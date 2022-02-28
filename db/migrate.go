@@ -49,6 +49,7 @@ var Migrations = []*gormigrate.Migration{
 	migrations.CreateEphmatchRelations20210607211439,
 	migrations.AddMhFactrakSurveyQ20211201012742,
 	migrations.UserAddAreasOfStudy20220219171916,
+	migrations.AddBannedUsersTable20220228163053,
 }
 
 var MigrationGormOptions = gormigrate.DefaultOptions
@@ -89,6 +90,7 @@ func MigrateDB(db *gorm.DB) error {
 			&models.GoodrichMenuItem{},
 			&models.GoodrichOrder{},
 			&models.EphmatchRelation{},
+			&models.BannedUser{},
 		).Error
 		if err != nil {
 			return err
