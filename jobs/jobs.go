@@ -1,6 +1,7 @@
 package jobs
 
 import (
+	"context"
 	"math/rand"
 	"time"
 	"unsafe"
@@ -49,7 +50,7 @@ func RunJob(cfg *config.Config, name string, command string, args []string) (*ba
 	}
 
 	deploymentClient := clientset.AppsV1().Deployments(cfg.KubeNamespace)
-	dply, err := deploymentClient.Get("backend", metav1.GetOptions{})
+	dply, err := deploymentClient.Get(context.Background(), "backend", metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +92,7 @@ func RunJob(cfg *config.Config, name string, command string, args []string) (*ba
 		},
 	}
 
-	job, err := jobsClient.Create(jobSpec)
+	job, err := jobsClient.Create(context.Background(), jobSpec, metav1.CreateOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +113,7 @@ func GetJob(cfg *config.Config, jobName string) (*batchv1.Job, error) {
 
 	jobsClient := clientset.BatchV1().Jobs(cfg.KubeNamespace)
 
-	return jobsClient.Get(jobName, metav1.GetOptions{})
+	return jobsClient.Get(context.Background(), jobName, metav1.GetOptions{})
 }
 
 // Generates a random string of n length efficiently.
