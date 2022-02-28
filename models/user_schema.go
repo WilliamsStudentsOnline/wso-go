@@ -114,6 +114,9 @@ type User struct {
 
 	// Williams W# ID
 	WilliamsID string `json:"williamsID"`
+
+	// Has one (or zero) banned users
+	BannedUser *BannedUser `json:"bannedUser,omitempty"`
 }
 
 func (*User) TableName() string {

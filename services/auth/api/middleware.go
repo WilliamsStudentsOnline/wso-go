@@ -16,7 +16,7 @@ import (
 
 func LoadMiddleware(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (authMiddleware *jwt.GinJWTMiddleware, err error) {
 
-	genClaimsFunc := auth.GenerateClaimsFactory(cfg, db)
+	genClaimsFunc := auth.GenerateClaimsFactory(cfg, db, log)
 
 	// The JWT middleware
 	authMiddleware, err = jwt.New(&jwt.GinJWTMiddleware{

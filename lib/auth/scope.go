@@ -31,8 +31,9 @@ const (
 	// Ability to create reviews, etc. (must be upperclass)
 	ScopeDormtrakWrite = "service:dormtrak:write"
 
-	ScopeEphcatch = "service:ephcatch"
-	ScopeBulletin = "service:bulletin"
+	ScopeEphcatch      = "service:ephcatch"
+	ScopeBulletin      = "service:bulletin"
+	ScopeBulletinWrite = "service:bulletin:write"
 	// This is for facebook & users
 	ScopeUsers = "service:users"
 	// Allows you to access other services not mentioned above
