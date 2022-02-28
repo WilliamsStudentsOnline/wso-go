@@ -8,6 +8,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
 type TokenType string
@@ -18,7 +19,7 @@ var (
 	TokenTypeAPI      TokenType = "api"
 )
 
-func GenerateClaimsFactory(cfg *config.Config, db *gorm.DB) func(v *AuthenticatorPayload, tokenType TokenType) jwt.MapClaims {
+func GenerateClaimsFactory(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) func(v *AuthenticatorPayload, tokenType TokenType) jwt.MapClaims {
 	return func(v *AuthenticatorPayload, tokenType TokenType) jwt.MapClaims {
 		var scope []string
 
@@ -41,7 +42,7 @@ func GenerateClaimsFactory(cfg *config.Config, db *gorm.DB) func(v *Authenticato
 		// If user exists that we signed in with
 		if v.TokenLevel >= TokenLevelUser && v.User != nil {
 			// Allow writing
-			scope = append(scope, auth.ScopeWriteSelf, auth.ScopeChat, auth.ScopeGoodrich)
+			scope = append(scope, auth.ScopeWriteSelf, auth.ScopeChat, auth.ScopeGoodrich, auth.ScopeBulletinWrite)
 
 			// For ephcatch and factrak, user must be a student
 			if v.User.IsStudent() {
@@ -111,6 +112,14 @@ func GenerateClaimsFactory(cfg *config.Config, db *gorm.DB) func(v *Authenticato
 					scope = append(scope, auth.ScopeGoodrichManager)
 				}
 			}
+
+			// Look up to see if user is banned
+			banInfo := models.BannedUser{}
+			if isBanned(db, log, v.User.ID, &banInfo) {
+				// Remove any scopes that user may be banned from
+				removeBannedScope(&scope, &banInfo)
+			}
+
 		}
 
 		var jwtUserID uint = 0
@@ -126,6 +135,55 @@ func GenerateClaimsFactory(cfg *config.Config, db *gorm.DB) func(v *Authenticato
 			"type":       tokenType,
 		}
 	}
+}
+
+// isBanned searches DB if a user is banned and returns true if banned. A pointer can be passed that will
+// populate with the banning info if user is banned. On error, will log but not propogate up; assume not banned.
+func isBanned(db *gorm.DB, log *zap.SugaredLogger, userID uint, banInfo *models.BannedUser) bool {
+	bum := models.NewBannedUserModel(db, log)
+	banned, err := bum.GetBannedUserByID(userID, banInfo)
+	if err != nil {
+		log.Error("error when getting banned user info", err)
+		return false
+	}
+	return banned
+}
+
+func removeBannedScope(scope *[]string, banInfo *models.BannedUser) {
+	var newScope []string
+	for _, s := range *scope {
+		switch s {
+		case auth.ScopeFactrakLimited, auth.ScopeFactrakFull, auth.ScopeFactrakAdmin:
+			if !banInfo.Factrak {
+				continue
+			}
+		case auth.ScopeDormtrak, auth.ScopeDormtrakWrite:
+			if !banInfo.Dormtrak {
+				continue
+			}
+		case auth.ScopeEphcatch:
+			if !banInfo.Ephcatch {
+				continue
+			}
+		case auth.ScopeBulletin:
+			if !banInfo.BulletinRead {
+				continue
+			}
+		case auth.ScopeBulletinWrite:
+			if !banInfo.BulletinWrite {
+				continue
+			}
+		case auth.ScopeEphmatch, auth.ScopeEphmatchMatches, auth.ScopeEphmatchProfiles:
+			if !banInfo.Ephmatch {
+				continue
+			}
+		}
+
+		newScope = append(newScope, s)
+	}
+
+	// Reassign the scope pointer to the new scope
+	*scope = newScope
 }
 
 func hasEphmatchProfile(db *gorm.DB, userID uint) bool {
