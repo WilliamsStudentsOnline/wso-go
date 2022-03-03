@@ -28,12 +28,12 @@ var AddBannedUsersTable20220228163053 = &gormigrate.Migration{
 			Reason string `json:"reason"`
 
 			// Service access: true means allowed to access if would normally get access, false means scope will not be granted
-			Factrak       bool `gorm:"default:true" json:"factrak"`
-			Dormtrak      bool `gorm:"default:true" json:"dormtrak"`
-			Ephcatch      bool `gorm:"default:true" json:"ephcatch"`
-			BulletinRead  bool `gorm:"default:true" json:"bulletinRead"`
-			BulletinWrite bool `gorm:"default:true" json:"bulletinWrite"`
-			Ephmatch      bool `gorm:"default:true" json:"ephmatch"`
+			Factrak       bool `gorm:"default:false" json:"factrak"`
+			Dormtrak      bool `gorm:"default:false" json:"dormtrak"`
+			Ephcatch      bool `gorm:"default:false" json:"ephcatch"`
+			BulletinRead  bool `gorm:"default:false" json:"bulletinRead"`
+			BulletinWrite bool `gorm:"default:false" json:"bulletinWrite"`
+			Ephmatch      bool `gorm:"default:false" json:"ephmatch"`
 		}
 		return tx.AutoMigrate(&BannedUser{}).Error
 	},

@@ -155,27 +155,27 @@ func removeBannedScope(scope *[]string, banInfo *models.BannedUser) {
 	for _, s := range *scope {
 		switch s {
 		case auth.ScopeFactrakLimited, auth.ScopeFactrakFull, auth.ScopeFactrakAdmin:
-			if !banInfo.Factrak {
+			if banInfo.Factrak {
 				continue
 			}
 		case auth.ScopeDormtrak, auth.ScopeDormtrakWrite:
-			if !banInfo.Dormtrak {
+			if banInfo.Dormtrak {
 				continue
 			}
 		case auth.ScopeEphcatch:
-			if !banInfo.Ephcatch {
+			if banInfo.Ephcatch {
 				continue
 			}
 		case auth.ScopeBulletin:
-			if !banInfo.BulletinRead {
+			if banInfo.BulletinRead {
 				continue
 			}
 		case auth.ScopeBulletinWrite:
-			if !banInfo.BulletinWrite {
+			if banInfo.BulletinWrite {
 				continue
 			}
 		case auth.ScopeEphmatch, auth.ScopeEphmatchMatches, auth.ScopeEphmatchProfiles:
-			if !banInfo.Ephmatch {
+			if banInfo.Ephmatch {
 				continue
 			}
 		}
