@@ -118,6 +118,7 @@ func GenerateClaimsFactory(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogg
 			if isBanned(db, log, v.User.ID, &banInfo) {
 				// Remove any scopes that user may be banned from
 				removeBannedScope(&scope, &banInfo)
+				log.Info("removing scopes from banned user: ", v.User.ID)
 			}
 
 		}
@@ -141,12 +142,12 @@ func GenerateClaimsFactory(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogg
 // populate with the banning info if user is banned. On error, will log but not propogate up; assume not banned.
 func isBanned(db *gorm.DB, log *zap.SugaredLogger, userID uint, banInfo *models.BannedUser) bool {
 	bum := models.NewBannedUserModel(db, log)
-	banned, err := bum.GetBannedUserByID(userID, banInfo)
+	missing, err := bum.GetBannedUserByID(userID, banInfo)
 	if err != nil {
 		log.Error("error when getting banned user info", err)
 		return false
 	}
-	return banned
+	return !missing
 }
 
 func removeBannedScope(scope *[]string, banInfo *models.BannedUser) {
@@ -154,27 +155,27 @@ func removeBannedScope(scope *[]string, banInfo *models.BannedUser) {
 	for _, s := range *scope {
 		switch s {
 		case auth.ScopeFactrakLimited, auth.ScopeFactrakFull, auth.ScopeFactrakAdmin:
-			if !banInfo.Factrak {
+			if banInfo.Factrak {
 				continue
 			}
 		case auth.ScopeDormtrak, auth.ScopeDormtrakWrite:
-			if !banInfo.Dormtrak {
+			if banInfo.Dormtrak {
 				continue
 			}
 		case auth.ScopeEphcatch:
-			if !banInfo.Ephcatch {
+			if banInfo.Ephcatch {
 				continue
 			}
 		case auth.ScopeBulletin:
-			if !banInfo.BulletinRead {
+			if banInfo.BulletinRead {
 				continue
 			}
 		case auth.ScopeBulletinWrite:
-			if !banInfo.BulletinWrite {
+			if banInfo.BulletinWrite {
 				continue
 			}
 		case auth.ScopeEphmatch, auth.ScopeEphmatchMatches, auth.ScopeEphmatchProfiles:
-			if !banInfo.Ephmatch {
+			if banInfo.Ephmatch {
 				continue
 			}
 		}

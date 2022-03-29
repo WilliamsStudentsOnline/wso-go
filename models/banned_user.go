@@ -16,8 +16,8 @@ func NewBannedUserModel(db *gorm.DB, log *zap.SugaredLogger) *BannedUserModel {
 }
 
 // GetBannedUserByID Gets banned user by the userid.
-func (m *BannedUserModel) GetBannedUserByID(id uint, u *BannedUser) (missing bool, err error) {
-	err = m.DB.First(u, id).Error
+func (m *BannedUserModel) GetBannedUserByID(userid uint, u *BannedUser) (missing bool, err error) {
+	err = m.DB.Where(&BannedUser{UserID: userid}).First(u).Error
 	if gorm.IsRecordNotFoundError(err) {
 		return true, nil
 	}

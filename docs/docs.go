@@ -8562,7 +8562,7 @@ var doc = `{
                     "type": "boolean"
                 },
                 "factrak": {
-                    "description": "Service access: true means allowed to access if would normally get access, false means scope will not be granted",
+                    "description": "If banned from this service. True means user is banned; false means user is not banned",
                     "type": "boolean"
                 },
                 "id": {
@@ -10551,6 +10551,9 @@ var doc = `{
                 "active": {
                     "type": "integer"
                 },
+                "completedIndexes": {
+                    "type": "string"
+                },
                 "completionTime": {
                     "type": "string"
                 },
@@ -10563,11 +10566,17 @@ var doc = `{
                 "failed": {
                     "type": "integer"
                 },
+                "ready": {
+                    "type": "integer"
+                },
                 "startTime": {
                     "type": "string"
                 },
                 "succeeded": {
                     "type": "integer"
+                },
+                "uncountedTerminatedPods": {
+                    "type": "UncountedTerminatedPods"
                 }
             }
         }
