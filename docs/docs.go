@@ -5621,6 +5621,12 @@ var doc = `{
                         "in": "query"
                     },
                     {
+                        "type": "string",
+                        "description": "Metric",
+                        "name": "metric",
+                        "in": "query"
+                    },
+                    {
                         "type": "integer",
                         "description": "Professor ID",
                         "name": "professorID",

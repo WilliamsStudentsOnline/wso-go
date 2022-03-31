@@ -60,7 +60,7 @@ func (m *ProfessorModel) UpdateAreasOfStudyFromCourses() error {
 
 // Get all professors, ranked by one of the factrak surveys' fields
 func (m *ProfessorModel) GetProfessorsRanked(sort string, u *[]*User, opts Options) (err error) {
-	if !isProfessorMetric(sort) {
+	if !m.IsProfessorMetric(sort) {
 		return lib.ErrorInvalidRankingMetric
 	}
 
@@ -248,7 +248,7 @@ func (m *ProfessorModel) withAreaOfStudy(areaID uint) func(db *gorm.DB) *gorm.DB
 	}
 }
 
-func isProfessorMetric(metric string) bool {
+func (m *ProfessorModel) IsProfessorMetric(metric string) bool {
 	switch metric {
 	case
 		"course_workload",

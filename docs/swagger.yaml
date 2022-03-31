@@ -5506,6 +5506,10 @@ paths:
         in: query
         name: courseID
         type: integer
+      - description: Metric
+        in: query
+        name: metric
+        type: string
       - description: Professor ID
         in: path
         name: professorID

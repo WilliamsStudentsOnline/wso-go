@@ -229,6 +229,7 @@ func (t *Controller) ListProfessorCourses(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param courseID query uint false "Course ID"
+// @Param metric query string false "Metric"
 // @Param professorID path uint true "Professor ID"
 // @Success 200 {object} models.FactrakSurveyAvgRatings
 // @Failure 400 {object} lib.APIError
@@ -260,10 +261,18 @@ func (t *Controller) GetProfessorRatings(c *gin.Context) {
 		return
 	}
 
+	metric := c.Query("metric")
+	if c.IsAborted() {
+		return
+	}
+	validMetric := t.professorModel.IsProfessorMetric(metric)
+	if !validMetric {
+		metric = ""
+	}
 	// Do database query
 	var ratings models.FactrakSurveyAvgRatings
 
-	err = t.surveyModel.GetSurveyRatingsByProfessorOrCourse(&profID, courseID, &ratings)
+	err = t.surveyModel.GetSurveyRatingsByProfessorOrCourse(&profID, courseID, &metric, &ratings)
 	if err != nil {
 		t.RespondError(c, err)
 		return
