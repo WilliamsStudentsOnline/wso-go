@@ -5622,7 +5622,7 @@ var doc = `{
                     },
                     {
                         "type": "string",
-                        "description": "Metric",
+                        "description": "Metrics: course_workload, course_stimulating, would_take_another, approachability, lead_lecture, promote_discussion, outside_helpfulness",
                         "name": "metric",
                         "in": "query"
                     },

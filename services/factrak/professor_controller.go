@@ -221,7 +221,7 @@ func (t *Controller) ListProfessorCourses(c *gin.Context) {
 }
 
 // Gets average ratings for a professor. May pass an optional "?courseID=XX" parameter to limit scope to a
-// professor and a course.
+// professor and a course and "?metric=XX" to return only one metric.
 // @Summary Get professor ratings
 // @Description get one professor's ratings
 // @ID factrak-get-professor-ratings
@@ -229,7 +229,7 @@ func (t *Controller) ListProfessorCourses(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param courseID query uint false "Course ID"
-// @Param metric query string false "Metric"
+// @Param metric query string false "Metrics: course_workload, course_stimulating, would_take_another, approachability, lead_lecture, promote_discussion, outside_helpfulness"
 // @Param professorID path uint true "Professor ID"
 // @Success 200 {object} models.FactrakSurveyAvgRatings
 // @Failure 400 {object} lib.APIError
