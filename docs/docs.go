@@ -8125,7 +8125,7 @@ var doc = `{
                     "description": "If Ephmatch has no closing time set",
                     "type": "boolean"
                 },
-                "senior_only": {
+                "seniorOnly": {
                     "description": "Senior only ephmatch right now",
                     "type": "boolean"
                 }

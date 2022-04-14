@@ -48,7 +48,7 @@ type GetAvailabilityResp struct {
 	OpenIndefinitely bool       `json:"openIndefinitely"` // If Ephmatch has no closing time set
 	ClosingTime      *time.Time `json:"closingTime"`      // Closing time for current Ephmatch era/period
 	NextOpenTime     *time.Time `json:"nextOpenTime"`     // Next time Ephmatch will be open
-	SeniorOnly       bool       `json:"seniorOnly"`      // Senior only ephmatch right now
+	SeniorOnly       bool       `json:"seniorOnly"`       // Senior only ephmatch right now
 }
 
 // GetAvailability godoc
@@ -69,20 +69,21 @@ func (t *Controller) GetAvailability(c *gin.Context) {
 	if t.cfg.EphmatchEnableNow {
 		resp.Available = true
 		resp.OpenIndefinitely = true
+		resp.SeniorOnly = false
 	} else {
 		for _, era := range t.cfg.EphmatchEras {
 			if era.Start.Before(now) && era.End.After(now) {
 				resp.Available = true
 				resp.ClosingTime = &era.End
+				resp.SeniorOnly = era.SeniorOnly
 				break
 			}
 		}
 	}
 
-	resp.SeniorOnly = t.isSeniorOnly()
-
 	// Fill in next open time
 	var nextEraStart *time.Time
+	nextEraSeniorOnly := false
 	for _, era := range t.cfg.EphmatchEras {
 		// If era is after now and before current closest era, it is out nextEraStart
 		if era.Start.After(now) {
@@ -91,12 +92,18 @@ func (t *Controller) GetAvailability(c *gin.Context) {
 				startLocal := era.Start
 				// Note that dangling pointer problems do not exist in golang
 				nextEraStart = &startLocal
+				nextEraSeniorOnly = era.SeniorOnly
 			} else if era.Start.Before(*nextEraStart) {
 				*nextEraStart = era.Start
+				nextEraSeniorOnly = era.SeniorOnly
 			}
 		}
 	}
 	resp.NextOpenTime = nextEraStart
+
+	if !resp.Available {
+		resp.SeniorOnly = nextEraSeniorOnly
+	}
 
 	t.RespondOK(c, resp)
 }
