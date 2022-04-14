@@ -48,7 +48,7 @@ type GetAvailabilityResp struct {
 	OpenIndefinitely bool       `json:"openIndefinitely"` // If Ephmatch has no closing time set
 	ClosingTime      *time.Time `json:"closingTime"`      // Closing time for current Ephmatch era/period
 	NextOpenTime     *time.Time `json:"nextOpenTime"`     // Next time Ephmatch will be open
-	SeniorOnly       bool       `json:"senior_only"`      // Senior only ephmatch right now
+	SeniorOnly       bool       `json:"seniorOnly"`      // Senior only ephmatch right now
 }
 
 // GetAvailability godoc
