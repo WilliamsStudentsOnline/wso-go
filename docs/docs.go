@@ -5621,6 +5621,12 @@ var doc = `{
                         "in": "query"
                     },
                     {
+                        "type": "string",
+                        "description": "Metrics: course_workload, course_stimulating, would_take_another, approachability, lead_lecture, promote_discussion, outside_helpfulness",
+                        "name": "metric",
+                        "in": "query"
+                    },
+                    {
                         "type": "integer",
                         "description": "Professor ID",
                         "name": "professorID",

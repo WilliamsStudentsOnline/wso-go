@@ -88,7 +88,7 @@ func TestFactrakSurveyModel_GetSurveyRatingsByProfessorOrCourse(t *testing.T) {
 	}
 
 	var res FactrakSurveyAvgRatings
-	assert.NoError(m.GetSurveyRatingsByProfessorOrCourse(&prof.ID, nil, &res))
+	assert.NoError(m.GetSurveyRatingsByProfessorOrCourse(&prof.ID, nil, nil, &res))
 
 	assert.Equal(float64(2)/float64(3), res.AvgWouldRecommendCourse)
 	assert.Equal(float64(5+5+4)/float64(3), res.AvgCourseWorkload)

@@ -5506,6 +5506,11 @@ paths:
         in: query
         name: courseID
         type: integer
+      - description: 'Metrics: course_workload, course_stimulating, would_take_another,
+          approachability, lead_lecture, promote_discussion, outside_helpfulness'
+        in: query
+        name: metric
+        type: string
       - description: Professor ID
         in: path
         name: professorID
