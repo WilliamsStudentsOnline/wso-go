@@ -3,6 +3,8 @@ package factrak
 import (
 	"net/http"
 
+	"github.com/WilliamsStudentsOnline/wso-go/lib"
+
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	search "github.com/WilliamsStudentsOnline/wso-go/lib/search/factrak"
@@ -43,8 +45,10 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 	}
 }
 
-// Remove sensitive data, like userID from surveys. Unless scope admin or the survey is your own
+// RemoveUserIDFromSurveys removes userID information for surveys not created by the user and sets editable flag.
+// No change will be made if scope admin
 func RemoveUserIDFromSurveys(c *gin.Context, s []*models.FactrakSurvey) {
+	// note that if admin, editable flag will not be set (it should not be relevant anyway)
 	if auth.HasScope(c, auth.ScopeAdminAll, auth.ScopeFactrakAdmin) {
 		return
 	}
@@ -53,10 +57,12 @@ func RemoveUserIDFromSurveys(c *gin.Context, s []*models.FactrakSurvey) {
 
 	for _, survey := range s {
 		if survey.UserID == userID {
+			survey.Editable = lib.TruePtr()
 			continue
 		}
 		survey.UserID = 0
 		survey.User = nil
+		survey.Editable = lib.FalsePtr()
 	}
 }
 
