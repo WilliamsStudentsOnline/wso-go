@@ -63,7 +63,7 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 // @Param preload query []string false "Preload List"
 // @Param q query string false "Search Query"
 // @Success 200 {array} responses.ListUsersResponseUser
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /users [get]
 func (t *Controller) ListUsers(c *gin.Context) {
@@ -140,11 +140,11 @@ func (t *Controller) ListUsers(c *gin.Context) {
 // @Produce  json
 // @Param userID path uint true "User ID"
 // @Success 200 {object} responses.GetUserResponseUser
-// @Failure 1403 {object} lib.APIError "user not visible"
-// @Failure 1404 {object} lib.APIError "user not at williams"
-// @Failure 1405 {object} lib.APIError "user id could not be parsed"
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1403 {object} services.BaseErrorResponse "user not visible"
+// @Failure 1404 {object} services.BaseErrorResponse "user not at williams"
+// @Failure 1405 {object} services.BaseErrorResponse "user id could not be parsed"
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /users/{userID} [get]
 func (t *Controller) GetUser(c *gin.Context) {
@@ -219,11 +219,11 @@ type UpdateUserParams struct {
 // @Param userID path uint true "User ID"
 // @Param updateParams body user.UpdateUserParams true "Update User Parameters"
 // @Success 200 {object} models.User
-// @Failure 1405 {object} lib.APIError "user id could not be parsed"
-// @Failure 1331 {object} lib.APIError "must be self"
-// @Failure 1100 {object} lib.APIError "could not parse malformed request data"
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1405 {object} services.BaseErrorResponse "user id could not be parsed"
+// @Failure 1331 {object} services.BaseErrorResponse "must be self"
+// @Failure 1100 {object} services.BaseErrorResponse "could not parse malformed request data"
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /users/{userID} [patch]
 func (t *Controller) UpdateUser(c *gin.Context) {
@@ -303,13 +303,13 @@ type UpdateUserTagsParams struct {
 // @Param userID path uint true "User ID"
 // @Param updateTagsParams body user.UpdateUserTagsParams true "Update Tags Params"
 // @Success 200
-// @Failure 1405 {object} lib.APIError "user id could not be parsed"
-// @Failure 1331 {object} lib.APIError "must be self"
-// @Failure 1100 {object} lib.APIError "could not parse malformed request data"
-// @Failure 1406 {object} lib.APIError "invalid user tag"
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1405 {object} services.BaseErrorResponse "user id could not be parsed"
+// @Failure 1331 {object} services.BaseErrorResponse "must be self"
+// @Failure 1100 {object} services.BaseErrorResponse "could not parse malformed request data"
+// @Failure 1406 {object} services.BaseErrorResponse "invalid user tag"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /users/{userID}/tags [put]
 func (t *Controller) UpdateUserTags(c *gin.Context) {
@@ -355,11 +355,11 @@ func (t *Controller) UpdateUserTags(c *gin.Context) {
 // @Param userID path uint true "User ID"
 // @Param file formData file true "Profile Photo"
 // @Success 200
-// @Failure 1405 {object} lib.APIError "user id could not be parsed"
-// @Failure 1331 {object} lib.APIError "must be self"
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1405 {object} services.BaseErrorResponse "user id could not be parsed"
+// @Failure 1331 {object} services.BaseErrorResponse "must be self"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /users/{userID}/photo [put]
 func (t *Controller) UploadProfilePhoto(c *gin.Context) {

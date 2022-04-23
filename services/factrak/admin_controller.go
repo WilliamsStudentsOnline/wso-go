@@ -23,7 +23,7 @@ import (
 // @Param populateAgreements query bool false "Populate Agreement Counts"
 // @Param populateClientAgreement query bool false "Populate Client's Agreement"
 // @Success 200 {array} models.FactrakSurvey
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/admin/surveys [get]
 func (t *Controller) ListFlaggedSurveys(c *gin.Context) {
@@ -63,8 +63,8 @@ func (t *Controller) ListFlaggedSurveys(c *gin.Context) {
 // @Produce  json
 // @Param surveyID path uint true "Survey ID"
 // @Success 200
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/admin/surveys/{surveyID}/flag [delete]
 func (t *Controller) UnflagSurvey(c *gin.Context) {

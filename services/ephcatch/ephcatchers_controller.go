@@ -21,7 +21,7 @@ import (
 // @Param preload query []string false "Preload List"
 // @Param q query string false "Search Query"
 // @Success 200 {array} models.Ephcatcher
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /ephcatch/ephcatchers [get]
 func (t *Controller) ListEphcatchers(c *gin.Context) {
@@ -63,9 +63,9 @@ func (t *Controller) ListEphcatchers(c *gin.Context) {
 // @Produce  json
 // @Param ephcatcherID path uint true "Ephcatcher ID"
 // @Success 200 {object} models.Ephcatcher
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /ephcatch/ephcatchers/{ephcatcherID} [get]
 func (t *Controller) GetEphcatcher(c *gin.Context) {
@@ -98,12 +98,12 @@ func (t *Controller) GetEphcatcher(c *gin.Context) {
 // @Produce  json
 // @Param ephcatcherID path uint true "Ephcatcher ID"
 // @Success 201
-// @Failure 1730 {object} lib.APIError "cannot ephcatch-like yourself"
-// @Failure 1731 {object} lib.APIError "ephcatcher could not be found"
-// @Failure 1732 {object} lib.APIError "ephcatch already exists with user ID and passed ephcatcher ID"
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1730 {object} services.BaseErrorResponse "cannot ephcatch-like yourself"
+// @Failure 1731 {object} services.BaseErrorResponse "ephcatcher could not be found"
+// @Failure 1732 {object} services.BaseErrorResponse "ephcatch already exists with user ID and passed ephcatcher ID"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /ephcatch/ephcatchers/{ephcatcherID}/like [post]
 func (t *Controller) LikeEphcatcher(c *gin.Context) {
@@ -160,9 +160,9 @@ func (t *Controller) LikeEphcatcher(c *gin.Context) {
 // @Produce  json
 // @Param ephcatcherID path uint true "Ephcatcher ID"
 // @Success 201
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /ephcatch/ephcatchers/{ephcatcherID}/unlike [post]
 func (t *Controller) UnlikeEphcatcher(c *gin.Context) {

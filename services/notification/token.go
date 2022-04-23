@@ -21,10 +21,10 @@ type TokenCreateParams struct {
 // @Produce  json
 // @Param updateParams body notification.TokenCreateParams true "Create Token Params"
 // @Success 200 {object} models.NotificationToken
-// @Failure 1101 {object} lib.APIError "request data validation failed"
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1101 {object} services.BaseErrorResponse "request data validation failed"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /notification/app/token [post]
 func (t *Controller) CreateToken(c *gin.Context) {

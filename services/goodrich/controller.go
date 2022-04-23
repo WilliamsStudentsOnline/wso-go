@@ -59,7 +59,7 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 // @Accept  json
 // @Produce  json
 // @Success 200 {array} goodrich.TimeSlot
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /goodrich/timeslots [get]
 func (t *Controller) ListTimeSlots(c *gin.Context) {

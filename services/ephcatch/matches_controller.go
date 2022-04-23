@@ -15,7 +15,7 @@ import (
 // @Accept  json
 // @Produce  json
 // @Success 200 {array} models.User
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /ephcatch/matches [get]
 func (t *Controller) ListMatches(c *gin.Context) {

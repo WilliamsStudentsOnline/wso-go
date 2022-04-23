@@ -29,7 +29,7 @@ import (
 // @Param populateAgreements query bool false "Populate Agreement Counts"
 // @Param populateClientAgreement query bool false "Populate Client's Agreement"
 // @Success 200 {array} models.FactrakSurvey
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/surveys [get]
 func (t *Controller) ListSurveys(c *gin.Context) {
@@ -83,10 +83,10 @@ func (t *Controller) ListSurveys(c *gin.Context) {
 // @Produce  json
 // @Param surveyID path uint true "Survey ID"
 // @Success 200 {object} models.FactrakSurvey
-// @Failure 1330 {object} lib.APIError "no scope authorization"
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1330 {object} services.BaseErrorResponse "no scope authorization"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/surveys/{surveyID} [get]
 func (t *Controller) GetSurvey(c *gin.Context) {
@@ -171,17 +171,17 @@ type SurveyCreateParams struct {
 // @Produce  json
 // @Param createParams body factrak.SurveyCreateParams true "Create Survey Params"
 // @Success 201 {object} models.FactrakSurvey
-// @Failure 1531 {object} lib.APIError "missing course parameters in create data: courseID or (areaOfStudyAbbreviation and courseNumber)"
-// @Failure 1532 {object} lib.APIError "comment must be 100 characters or more"
-// @Failure 1533 {object} lib.APIError "user must be a student and could not be found"
-// @Failure 1534 {object} lib.APIError "passed professor must be a professor and could not be found"
-// @Failure 1535 {object} lib.APIError "passed course could not be found"
-// @Failure 1536 {object} lib.APIError "passed area of study could not be found"
-// @Failure 1537 {object} lib.APIError "survey already exists with passed user ID, professor ID, and course ID"
-// @Failure 1101 {object} lib.APIError "request data validation failed"
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1531 {object} services.BaseErrorResponse "missing course parameters in create data: courseID or (areaOfStudyAbbreviation and courseNumber)"
+// @Failure 1532 {object} services.BaseErrorResponse "comment must be 100 characters or more"
+// @Failure 1533 {object} services.BaseErrorResponse "user must be a student and could not be found"
+// @Failure 1534 {object} services.BaseErrorResponse "passed professor must be a professor and could not be found"
+// @Failure 1535 {object} services.BaseErrorResponse "passed course could not be found"
+// @Failure 1536 {object} services.BaseErrorResponse "passed area of study could not be found"
+// @Failure 1537 {object} services.BaseErrorResponse "survey already exists with passed user ID, professor ID, and course ID"
+// @Failure 1101 {object} services.BaseErrorResponse "request data validation failed"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/surveys [post]
 func (t *Controller) CreateSurvey(c *gin.Context) {
@@ -414,12 +414,12 @@ type SurveyUpdateParams struct {
 // @Param updateParams body factrak.SurveyUpdateParams true "Update Survey Params"
 // @Param surveyID path uint true "Survey ID"
 // @Success 200 {object} models.FactrakSurvey
-// @Failure 1532 {object} lib.APIError "comment must be 100 characters or more"
-// @Failure 1101 {object} lib.APIError "request data validation failed"
-// @Failure 1331 {object} lib.APIError "must be self"
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1532 {object} services.BaseErrorResponse "comment must be 100 characters or more"
+// @Failure 1101 {object} services.BaseErrorResponse "request data validation failed"
+// @Failure 1331 {object} services.BaseErrorResponse "must be self"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/surveys/{surveyID} [patch]
 func (t *Controller) UpdateSurvey(c *gin.Context) {
@@ -542,10 +542,10 @@ func (t *Controller) UpdateSurvey(c *gin.Context) {
 // @Produce  json
 // @Param surveyID path uint true "Survey ID"
 // @Success 200 {object} models.FactrakSurvey
-// @Failure 1331 {object} lib.APIError "must be self"
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1331 {object} services.BaseErrorResponse "must be self"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/surveys/{surveyID} [delete]
 func (t *Controller) DeleteSurvey(c *gin.Context) {
@@ -615,9 +615,9 @@ func (t *Controller) DeleteSurvey(c *gin.Context) {
 // @Produce  json
 // @Param surveyID path uint true "Survey ID"
 // @Success 200
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/surveys/{surveyID}/flag [post]
 func (t *Controller) FlagSurvey(c *gin.Context) {

@@ -36,7 +36,7 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 // @Produce  json
 // @Param unixID path string true "Unix ID"
 // @Success 200 {object} models.User
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /onboarding/mgb4/{unixID} [get]
 func (t *Controller) GetUserByUnix(c *gin.Context) {

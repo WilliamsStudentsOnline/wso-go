@@ -21,7 +21,7 @@ type OrderLease struct {
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} goodrich.OrderLease
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /goodrich/order-lease [get]
 func (t *Controller) GetOrderLease(c *gin.Context) {
