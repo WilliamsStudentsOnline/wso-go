@@ -15,7 +15,7 @@ import (
 // @Produce  json
 // @Param jobID path string true "Kubernetes Job ID"
 // @Success 200 {object} v1.JobStatus
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /admin/jobs/{jobID}/status [get]
 func (t *Controller) GetJobStatus(c *gin.Context) {

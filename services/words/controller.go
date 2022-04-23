@@ -31,7 +31,7 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 // @Accept  json
 // @Produce  json
 // @Success 200 {string} string
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /words [get]
 func (t *Controller) GetWords(c *gin.Context) {

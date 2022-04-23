@@ -24,7 +24,7 @@ import (
 // @Param preload query []string false "Preload List"
 // @Param getLastPost query bool false "Get Last Post (get last/latest post of the discussion)"
 // @Success 200 {array} models.Discussion
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/discussions [get]
 func (t *Controller) ListDiscussions(c *gin.Context) {
@@ -66,9 +66,9 @@ func (t *Controller) ListDiscussions(c *gin.Context) {
 // @Param discussionID path uint true "Discussion ID"
 // @Param preload query []string false "Preload List"
 // @Success 200 {object} models.Discussion
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/discussions/{discussionID} [get]
 func (t *Controller) GetDiscussion(c *gin.Context) {
@@ -120,7 +120,7 @@ func (t *Controller) GetDiscussion(c *gin.Context) {
 // @Param limit query int false "Limit Pagination"
 // @Param preload query []string false "Preload List"
 // @Success 200 {array} models.Post
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/discussions/{discussionID}/posts [get]
 func (t *Controller) GetDiscussionPosts(c *gin.Context) {
@@ -178,10 +178,10 @@ type CreateDiscussionParams struct {
 // @Produce  json
 // @Param createParams body bulletin.CreateDiscussionParams true "Create Discussion Params"
 // @Success 201 {object} models.Discussion
-// @Failure 1101 {object} lib.APIError "request data validation failed"
-// @Failure 1332 {object} lib.APIError "authenticated user not found"
-// @Failure 400 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1101 {object} services.BaseErrorResponse "request data validation failed"
+// @Failure 1332 {object} services.BaseErrorResponse "authenticated user not found"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/discussions [post]
 func (t *Controller) CreateDiscussion(c *gin.Context) {
@@ -239,9 +239,9 @@ func (t *Controller) CreateDiscussion(c *gin.Context) {
 // @Produce  json
 // @Param discussionID path uint true "Discussion ID"
 // @Success 200 {object} models.Discussion
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/discussion/{discussionID} [delete]
 func (t *Controller) DeleteDiscussion(c *gin.Context) {

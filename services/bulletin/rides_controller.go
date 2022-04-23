@@ -26,7 +26,7 @@ import (
 // @Param type query string false "Ride Type (request, offer)"
 // @Param all query string false "Get All Rides (no restriction on date)"
 // @Success 200 {array} models.BulletinRide
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/rides [get]
 func (t *Controller) ListRides(c *gin.Context) {
@@ -72,9 +72,9 @@ func (t *Controller) ListRides(c *gin.Context) {
 // @Produce  json
 // @Param rideID path uint true "Ride ID"
 // @Success 200 {object} models.BulletinRide
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/rides/{rideID} [get]
 func (t *Controller) GetRide(c *gin.Context) {
@@ -121,10 +121,10 @@ type CreateRideParams struct {
 // @Produce  json
 // @Param createParams body bulletin.CreateRideParams true "Create Ride Params"
 // @Success 201 {object} models.BulletinRide
-// @Failure 1830 {object} lib.APIError "date cannot be in past"
-// @Failure 1101 {object} lib.APIError "request data validation failed"
-// @Failure 400 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1830 {object} services.BaseErrorResponse "date cannot be in past"
+// @Failure 1101 {object} services.BaseErrorResponse "request data validation failed"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/rides [post]
 func (t *Controller) CreateRide(c *gin.Context) {
@@ -185,11 +185,11 @@ type UpdateRideParams struct {
 // @Param updateParams body bulletin.UpdateRideParams true "Update Ride Params"
 // @Param rideID path uint true "Ride ID"
 // @Success 200 {object} models.BulletinRide
-// @Failure 1830 {object} lib.APIError "date cannot be in past"
-// @Failure 1331 {object} lib.APIError "must be self"
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1830 {object} services.BaseErrorResponse "date cannot be in past"
+// @Failure 1331 {object} services.BaseErrorResponse "must be self"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/rides/{rideID} [patch]
 func (t *Controller) UpdateRide(c *gin.Context) {
@@ -263,10 +263,10 @@ func (t *Controller) UpdateRide(c *gin.Context) {
 // @Produce  json
 // @Param rideID path uint true "Ride ID"
 // @Success 200 {object} models.BulletinRide
-// @Failure 1331 {object} lib.APIError "must be self"
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1331 {object} services.BaseErrorResponse "must be self"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/rides/{rideID} [delete]
 func (t *Controller) DeleteRide(c *gin.Context) {

@@ -21,10 +21,10 @@ import (
 // @Produce  json
 // @Param surveyID path uint true "Survey ID"
 // @Success 200 {object} models.FactrakAgreement
-// @Failure 1551 {object} lib.APIError "survey agreement could not be found"
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1551 {object} services.BaseErrorResponse "survey agreement could not be found"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/surveys/{surveyID}/agreement [get]
 func (t *Controller) GetAgreement(c *gin.Context) {
@@ -81,12 +81,12 @@ type AgreementCreateParams struct {
 // @Param surveyID path uint true "Survey ID"
 // @Param createParams body factrak.AgreementCreateParams true "Create Agreement Params"
 // @Success 201 {object} models.FactrakAgreement
-// @Failure 1553 {object} lib.APIError "cannot create survey agreement with your own survey"
-// @Failure 1552 {object} lib.APIError "survey agreement already exists for this user and survey"
-// @Failure 1100 {object} lib.APIError "could not parse malformed request data"
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1553 {object} services.BaseErrorResponse "cannot create survey agreement with your own survey"
+// @Failure 1552 {object} services.BaseErrorResponse "survey agreement already exists for this user and survey"
+// @Failure 1100 {object} services.BaseErrorResponse "could not parse malformed request data"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/surveys/{surveyID}/agreement [post]
 func (t *Controller) CreateAgreement(c *gin.Context) {
@@ -167,11 +167,11 @@ type AgreementUpdateParams struct {
 // @Param surveyID path uint true "Survey ID"
 // @Param updateParams body factrak.AgreementUpdateParams true "Update Agreement Params"
 // @Success 200 {object} models.FactrakAgreement
-// @Failure 1551 {object} lib.APIError "survey agreement could not be found"
-// @Failure 1100 {object} lib.APIError "could not parse malformed request data"
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1551 {object} services.BaseErrorResponse "survey agreement could not be found"
+// @Failure 1100 {object} services.BaseErrorResponse "could not parse malformed request data"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/surveys/{surveyID}/agreement [patch]
 func (t *Controller) UpdateAgreement(c *gin.Context) {
@@ -243,10 +243,10 @@ func (t *Controller) UpdateAgreement(c *gin.Context) {
 // @Produce  json
 // @Param surveyID path uint true "Survey ID"
 // @Success 200 {object} models.FactrakAgreement
-// @Failure 1551 {object} lib.APIError "survey agreement could not be found"
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1551 {object} services.BaseErrorResponse "survey agreement could not be found"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/surveys/{surveyID}/agreement [delete]
 func (t *Controller) DeleteAgreement(c *gin.Context) {

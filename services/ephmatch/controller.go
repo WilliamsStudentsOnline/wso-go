@@ -58,7 +58,7 @@ type GetAvailabilityResp struct {
 // @Tags ephmatch
 // @Produce  json
 // @Success 200 {object} ephmatch.GetAvailabilityResp
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /ephmatch/availability [get]
 func (t *Controller) GetAvailability(c *gin.Context) {

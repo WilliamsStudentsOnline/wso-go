@@ -444,28 +444,17 @@ definitions:
   identity.Credentials:
     properties:
       localIP:
-        description: If true, will authenticate based on IP. Fail if cannot get on-campus token.
+        description: If true, will authenticate based on IP. Fail if cannot get on-campus
+          token.
         type: boolean
       password:
         type: string
       unixID:
         type: string
       useIP:
-        description: If true, will authenticate based on IP. Will return either off-campus or on-campus token
+        description: If true, will authenticate based on IP. Will return either off-campus
+          or on-campus token
         type: boolean
-    type: object
-  lib.APIError:
-    properties:
-      code:
-        type: integer
-      errors:
-        items:
-          type: error
-        type: array
-      httpcode:
-        type: integer
-      message:
-        type: string
     type: object
   models.AreaOfStudy:
     properties:
@@ -505,7 +494,8 @@ definitions:
       ephmatch:
         type: boolean
       factrak:
-        description: If banned from this service. True means user is banned; false means user is not banned
+        description: If banned from this service. True means user is banned; false
+          means user is not banned
         type: boolean
       id:
         type: integer
@@ -581,7 +571,8 @@ definitions:
       number:
         type: string
       professors:
-        description: Has many professors (thru factrak surveys). Ignore this in Gorm. Populate this only whenever needed.
+        description: Has many professors (thru factrak surveys). Ignore this in Gorm.
+          Populate this only whenever needed.
         items:
           $ref: '#/definitions/models.User'
         type: array
@@ -957,7 +948,8 @@ definitions:
       id:
         type: integer
       liked:
-        description: If me (user) has an ephcatch entry where ephcatch.other_id=users.id and ephcatch.user_id=myID
+        description: If me (user) has an ephcatch entry where ephcatch.other_id=users.id
+          and ephcatch.user_id=myID
         type: boolean
       name:
         type: string
@@ -1174,7 +1166,9 @@ definitions:
       idNumber:
         type: string
       items:
-        description: this means this field will be ignored in the DB. Use this to pull the menu items from ItemList into actual objects in the Model/Controller side.
+        description: this means this field will be ignored in the DB. Use this to
+          pull the menu items from ItemList into actual objects in the Model/Controller
+          side.
         items:
           $ref: '#/definitions/models.GoodrichOrderItem'
         type: array
@@ -1317,7 +1311,8 @@ definitions:
       admin:
         type: boolean
       areasOfStudy:
-        description: Many2Many Area of Studies iff professor (computed periodically from courses)
+        description: Many2Many Area of Studies iff professor (computed periodically
+          from courses)
         items:
           $ref: '#/definitions/models.AreaOfStudy'
         type: array
@@ -1480,14 +1475,16 @@ definitions:
   old.LoginParams:
     properties:
       localIP:
-        description: If true, will authenticate based on IP. Fail if cannot get on-campus token.
+        description: If true, will authenticate based on IP. Fail if cannot get on-campus
+          token.
         type: boolean
       password:
         type: string
       unixID:
         type: string
       useIP:
-        description: If true, will authenticate based on IP. Will return either off-campus or on-campus token
+        description: If true, will authenticate based on IP. Will return either off-campus
+          or on-campus token
         type: boolean
     type: object
   responses.GetUserResponseDepartment:
@@ -1835,6 +1832,27 @@ definitions:
       ok:
         type: boolean
     type: object
+  services.BaseErrorResponse:
+    properties:
+      error:
+        $ref: '#/definitions/services.RespError'
+        type: object
+      status:
+        type: integer
+      updateToken:
+        type: boolean
+    type: object
+  services.RespError:
+    properties:
+      errorCode:
+        type: integer
+      errors:
+        items:
+          type: string
+        type: array
+      message:
+        type: string
+    type: object
   user.UpdateUserParams:
     properties:
       campusStatus:
@@ -1891,7 +1909,8 @@ info:
   contact:
     email: wso-dev@wso.williams.edu
     name: WSO Dev
-  description: API for WSO services like factrak, facebook, dormtrak, course scheduler, and others.
+  description: API for WSO services like factrak, facebook, dormtrak, course scheduler,
+    and others.
   license: {}
   title: WSO API
   version: 2.0.0
@@ -1912,7 +1931,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Updates the course catalog
@@ -1934,7 +1953,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Updates all dorms from data compiled
@@ -1944,7 +1963,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: connects to Kubernetes to get the status of a running (or recently finished) job given an id
+      description: connects to Kubernetes to get the status of a running (or recently
+        finished) job given an id
       operationId: get-job-status
       parameters:
       - description: Kubernetes Job ID
@@ -1962,7 +1982,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Gets status of a job
@@ -1984,7 +2004,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Updates all factrak survey deficits
@@ -2006,7 +2026,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Updates all users from LDAP
@@ -2016,7 +2036,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: issues an API JWT by taking an existing API JWT and updating the fields. This calls the db, so it will actually modify the token's payload.
+      description: issues an API JWT by taking an existing API JWT and updating the
+        fields. This calls the db, so it will actually modify the token's payload.
       operationId: auth-api-update
       produces:
       - application/json
@@ -2028,15 +2049,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Refresh API Token
@@ -2065,15 +2086,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       summary: Authenticate API Token
       tags:
       - auth
@@ -2101,15 +2122,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       summary: Authenticate Identity Token
       tags:
       - auth
@@ -2137,15 +2158,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       summary: Authenticate and Login
       tags:
       - auth
@@ -2153,7 +2174,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: attempts to get a JWT by taking an existing JWT and refreshing it. This will not change the payload.
+      description: attempts to get a JWT by taking an existing JWT and refreshing
+        it. This will not change the payload.
       operationId: auth-refresh
       produces:
       - application/json
@@ -2165,15 +2187,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Refresh Token
@@ -2183,7 +2205,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: attempts to get a JWT by taking an existing JWT and updating the fields. This calls the db, so it will actually modify the token's payload.
+      description: attempts to get a JWT by taking an existing JWT and updating the
+        fields. This calls the db, so it will actually modify the token's payload.
       operationId: auth-update
       produces:
       - application/json
@@ -2195,15 +2218,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Update Token
@@ -2213,7 +2236,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: Given an input q, this autocompletes the area of study. Results are sorted by levenshtein distance.
+      description: Given an input q, this autocompletes the area of study. Results
+        are sorted by levenshtein distance.
       operationId: autocomplete-area-of-study
       parameters:
       - description: String to Complete
@@ -2237,7 +2261,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Autocomplete area of study
@@ -2247,7 +2271,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: Given an input q, this autocompletes the course. Results are sorted by levenshtein distance.
+      description: Given an input q, this autocompletes the course. Results are sorted
+        by levenshtein distance.
       operationId: autocomplete-course
       parameters:
       - description: String to Complete
@@ -2271,7 +2296,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Autocomplete course
@@ -2281,7 +2306,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: Given an input q, this autocompletes the professor or course. Results are sorted by levenshtein distance.
+      description: Given an input q, this autocompletes the professor or course. Results
+        are sorted by levenshtein distance.
       operationId: autocomplete-factrak
       parameters:
       - description: String to Complete
@@ -2305,7 +2331,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Autocomplete factrak professors and courses
@@ -2315,7 +2341,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: Given an input q, this autocompletes the professor. Results are sorted by levenshtein distance.
+      description: Given an input q, this autocompletes the professor. Results are
+        sorted by levenshtein distance.
       operationId: autocomplete-professor
       parameters:
       - description: String to Complete
@@ -2339,7 +2366,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Autocomplete professor
@@ -2349,7 +2376,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: Given an input q, this autocompletes the tag. Results are sorted by levenshtein distance.
+      description: Given an input q, this autocompletes the tag. Results are sorted
+        by levenshtein distance.
       operationId: autocomplete-tag
       parameters:
       - description: String to Complete
@@ -2373,7 +2401,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Autocomplete tag
@@ -2424,7 +2452,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List bulletins
@@ -2452,23 +2480,23 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1101":
           description: request data validation failed
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1830":
           description: start date cannot be after end date
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1831":
           description: invalid bulletin type
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Create bulletin
@@ -2496,19 +2524,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1331":
           description: must be self
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Delete bulletin
@@ -2535,15 +2563,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get bulletin
@@ -2576,23 +2604,23 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1331":
           description: must be self
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1830":
           description: start date cannot be after end date
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Update bulletin
@@ -2620,15 +2648,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Delete discussion
@@ -2675,7 +2703,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List discussions
@@ -2703,19 +2731,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1101":
           description: request data validation failed
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1332":
           description: authenticated user not found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Create discussion
@@ -2749,15 +2777,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get discussion
@@ -2805,7 +2833,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get discussion posts
@@ -2834,23 +2862,23 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1101":
           description: request data validation failed
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1332":
           description: authenticated user not found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1850":
           description: discussion cannot be found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Create post
@@ -2878,19 +2906,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1331":
           description: must be self
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Delete post
@@ -2917,15 +2945,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get post
@@ -2958,19 +2986,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1331":
           description: must be self
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Update post
@@ -3021,7 +3049,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List rides
@@ -3049,19 +3077,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1101":
           description: request data validation failed
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1830":
           description: date cannot be in past
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Create ride
@@ -3089,19 +3117,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1331":
           description: must be self
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Delete ride
@@ -3128,15 +3156,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get ride
@@ -3169,23 +3197,23 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1331":
           description: must be self
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1830":
           description: date cannot be in past
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Update ride
@@ -3222,7 +3250,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List announcement bulletins RSS
@@ -3255,7 +3283,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List discussion bulletins RSS
@@ -3292,7 +3320,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List exchange bulletins RSS
@@ -3329,7 +3357,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List job bulletins RSS
@@ -3366,7 +3394,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List lost and found bulletins RSS
@@ -3407,7 +3435,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List ride bulletins RSS
@@ -3429,15 +3457,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get Chat Auth JWT token
@@ -3480,7 +3508,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List dorms
@@ -3508,15 +3536,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get dorm
@@ -3526,7 +3554,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: gets dorm facts of one dorm building. Some of these facts are in GetDorm, while others are generated here.
+      description: gets dorm facts of one dorm building. Some of these facts are in
+        GetDorm, while others are generated here.
       operationId: dormtrak-get-dorm-facts
       parameters:
       - description: Dorm ID
@@ -3544,15 +3573,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get dorm facts
@@ -3590,15 +3619,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get dorm rooms
@@ -3622,7 +3651,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List neighborhoods
@@ -3650,15 +3679,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get neighborhood
@@ -3686,15 +3715,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get neighborhood facts
@@ -3718,7 +3747,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get rankings
@@ -3773,11 +3802,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List reviews
@@ -3805,35 +3834,35 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1101":
           description: request data validation failed
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1633":
           description: user must be a student and could not be found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1634":
           description: user is missing dorm field
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1635":
           description: user does not own this dorm room
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1636":
           description: review already exists with passed user ID and dorm room ID
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Create review
@@ -3861,19 +3890,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1331":
           description: must be self
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Delete review
@@ -3900,15 +3929,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get review
@@ -3941,23 +3970,23 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1101":
           description: request data validation failed
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1331":
           description: must be self
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Update review
@@ -3967,7 +3996,8 @@ paths:
     put:
       consumes:
       - multipart/form-data
-      description: upload a dorm room review's photo. You may only upload rooms you have reviewed.
+      description: upload a dorm room review's photo. You may only upload rooms you
+        have reviewed.
       operationId: upload-dorm-room-photo
       parameters:
       - description: Review ID
@@ -3987,23 +4017,23 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1160":
           description: unable to save picture
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1331":
           description: must be self
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Upload a dorm room photo by review and dorm room
@@ -4033,15 +4063,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get dorm room photos by review
@@ -4071,15 +4101,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get dorm room photos
@@ -4122,7 +4152,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List ephcatchers
@@ -4150,15 +4180,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get ephcatcher
@@ -4183,27 +4213,28 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1730":
           description: cannot ephcatch-like yourself
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1731":
           description: ephcatcher could not be found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1732":
-          description: ephcatch already exists with user ID and passed ephcatcher ID
+          description: ephcatch already exists with user ID and passed ephcatcher
+            ID
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Like ephcatcher
@@ -4228,15 +4259,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Unlike ephcatcher
@@ -4260,7 +4291,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List matches
@@ -4280,7 +4311,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get availability
@@ -4311,7 +4342,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List matches
@@ -4321,7 +4352,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: counts all Ephmatch-eligible students that user has matched with by unseen and total
+      description: counts all Ephmatch-eligible students that user has matched with
+        by unseen and total
       operationId: ephmatch-count-matches
       produces:
       - application/json
@@ -4333,7 +4365,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Count matches
@@ -4343,7 +4375,8 @@ paths:
     delete:
       consumes:
       - application/json
-      description: Removes the match (and sets the to-relation to none) of a specific matched pair
+      description: Removes the match (and sets the to-relation to none) of a specific
+        matched pair
       operationId: ephmatch-unmatch
       parameters:
       - description: Match User ID
@@ -4358,23 +4391,23 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1730":
           description: cannot ephmatch-relate yourself
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1733":
           description: ephmatch match could not be found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Unmatches Ephmatch matched users
@@ -4396,15 +4429,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Delete profile
@@ -4425,15 +4458,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get Ephmatch profile of self
@@ -4461,19 +4494,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1101":
           description: request data validation failed
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Update an Ephmatch profile
@@ -4501,19 +4534,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1101":
           description: request data validation failed
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Create an Ephmatch profile
@@ -4530,15 +4563,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Delete an ephmatch profile photo by user id
@@ -4562,15 +4595,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Upload an ephmatch profile photo by user id
@@ -4617,7 +4650,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List Ephmatch profiles
@@ -4645,15 +4678,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get Ephmatch profile
@@ -4663,7 +4696,8 @@ paths:
     put:
       consumes:
       - application/json
-      description: Sets the relation (like, dislike, nothing) between self and one ephmatch-eligible user profile
+      description: Sets the relation (like, dislike, nothing) between self and one
+        ephmatch-eligible user profile
       operationId: ephmatch-set-profile-relation
       parameters:
       - description: Profile User ID
@@ -4687,27 +4721,28 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1730":
           description: cannot ephmatch-relate yourself
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1731":
           description: ephmatch profile could not be found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1732":
-          description: ephmatch relation already exists with user ID and passed ephmatch profile user ID
+          description: ephmatch relation already exists with user ID and passed ephmatch
+            profile user ID
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Set Ephmatch profile relation
@@ -4766,7 +4801,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List flagged surveys
@@ -4793,11 +4828,11 @@ paths:
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Unflag survey
@@ -4842,7 +4877,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List areas of study
@@ -4870,15 +4905,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get area of study
@@ -4911,15 +4946,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List area of study courses
@@ -4950,15 +4985,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List area of study professors
@@ -5021,7 +5056,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List courses
@@ -5055,15 +5090,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get course
@@ -5094,15 +5129,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List course professors
@@ -5134,15 +5169,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get course ratings
@@ -5199,15 +5234,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List course surveys
@@ -5231,7 +5266,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List departments
@@ -5259,15 +5294,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get department
@@ -5298,15 +5333,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List department courses
@@ -5337,15 +5372,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List department professors
@@ -5408,7 +5443,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List professors
@@ -5442,15 +5477,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get professor
@@ -5481,15 +5516,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List professor courses
@@ -5506,7 +5541,8 @@ paths:
         in: query
         name: courseID
         type: integer
-      - description: 'Metrics: course_workload, course_stimulating, would_take_another, approachability, lead_lecture, promote_discussion, outside_helpfulness'
+      - description: 'Metrics: course_workload, course_stimulating, would_take_another,
+          approachability, lead_lecture, promote_discussion, outside_helpfulness'
         in: query
         name: metric
         type: string
@@ -5525,15 +5561,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get professor ratings
@@ -5590,15 +5626,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List professor surveys
@@ -5608,7 +5644,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: lists all surveys where the professor is at Williams and the survey is current. Order by creation date.
+      description: lists all surveys where the professor is at Williams and the survey
+        is current. Order by creation date.
       operationId: factrak-list-surveys
       parameters:
       - description: Offset Pagination (timestamp)
@@ -5657,7 +5694,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List surveys
@@ -5685,47 +5722,49 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1101":
           description: request data validation failed
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1531":
-          description: 'missing course parameters in create data: courseID or (areaOfStudyAbbreviation and courseNumber)'
+          description: 'missing course parameters in create data: courseID or (areaOfStudyAbbreviation
+            and courseNumber)'
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1532":
           description: comment must be 100 characters or more
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1533":
           description: user must be a student and could not be found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1534":
           description: passed professor must be a professor and could not be found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1535":
           description: passed course could not be found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1536":
           description: passed area of study could not be found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1537":
-          description: survey already exists with passed user ID, professor ID, and course ID
+          description: survey already exists with passed user ID, professor ID, and
+            course ID
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Create survey
@@ -5753,19 +5792,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1331":
           description: must be self
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Delete survey
@@ -5794,19 +5833,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1330":
           description: no scope authorization
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get survey
@@ -5839,27 +5878,27 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1101":
           description: request data validation failed
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1331":
           description: must be self
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1532":
           description: comment must be 100 characters or more
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Update survey
@@ -5887,19 +5926,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1551":
           description: survey agreement could not be found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Delete survey agreement
@@ -5926,19 +5965,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1551":
           description: survey agreement could not be found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get survey agreement by self
@@ -5971,23 +6010,23 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1100":
           description: could not parse malformed request data
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1551":
           description: survey agreement could not be found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Update survey agreement
@@ -6020,27 +6059,27 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1100":
           description: could not parse malformed request data
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1552":
           description: survey agreement already exists for this user and survey
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1553":
           description: cannot create survey agreement with your own survey
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Create survey agreement
@@ -6065,15 +6104,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Flag survey
@@ -6130,19 +6169,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1331":
           description: must be self
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List user surveys
@@ -6171,7 +6210,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List menu
@@ -6205,15 +6244,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Update menu item
@@ -6235,7 +6274,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get order lease
@@ -6286,7 +6325,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List orders
@@ -6314,7 +6353,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Create order
@@ -6342,7 +6381,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get order
@@ -6375,7 +6414,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Update order
@@ -6399,7 +6438,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List time slots
@@ -6423,7 +6462,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List user orders
@@ -6451,7 +6490,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get user order
@@ -6496,19 +6535,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1101":
           description: request data validation failed
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Create notification token
@@ -6530,15 +6569,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get notification settings
@@ -6566,19 +6605,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1101":
           description: request data validation failed
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Update notification settings
@@ -6606,7 +6645,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Gets a user
@@ -6634,7 +6673,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Gets a user
@@ -6662,7 +6701,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Gets a user
@@ -6707,7 +6746,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List users
@@ -6717,7 +6756,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: get a user by user id that is visible and at williams. Also loads tags. Pass "me" if you want to get self
+      description: get a user by user id that is visible and at williams. Also loads
+        tags. Pass "me" if you want to get self
       operationId: get-user
       parameters:
       - description: User ID
@@ -6735,23 +6775,23 @@ paths:
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1403":
           description: user not visible
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1404":
           description: user not at williams
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1405":
           description: user id could not be parsed
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get user by user id
@@ -6760,7 +6800,8 @@ paths:
     patch:
       consumes:
       - application/json
-      description: updates a user by user id. You may only update yourself. You may pass "me" to get self as well.
+      description: updates a user by user id. You may only update yourself. You may
+        pass "me" to get self as well.
       operationId: update-user
       parameters:
       - description: User ID
@@ -6784,23 +6825,23 @@ paths:
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1100":
           description: could not parse malformed request data
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1331":
           description: must be self
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1405":
           description: user id could not be parsed
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Update user by user id
@@ -6810,7 +6851,8 @@ paths:
     put:
       consumes:
       - multipart/form-data
-      description: upload a user's profile photo by user id. You may only update yourself. You may pass "me" to get self as well.
+      description: upload a user's profile photo by user id. You may only update yourself.
+        You may pass "me" to get self as well.
       operationId: upload-profile-photo
       parameters:
       - description: User ID
@@ -6830,23 +6872,23 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1331":
           description: must be self
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1405":
           description: user id could not be parsed
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Upload a profile photo by user id
@@ -6856,7 +6898,8 @@ paths:
     put:
       consumes:
       - application/json
-      description: updates a user's tags by user id. You may only update yourself. You may pass "me" to get self as well.
+      description: updates a user's tags by user id. You may only update yourself.
+        You may pass "me" to get self as well.
       operationId: update-user-tags
       parameters:
       - description: User ID
@@ -6877,31 +6920,31 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1100":
           description: could not parse malformed request data
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1331":
           description: must be self
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1405":
           description: user id could not be parsed
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1406":
           description: invalid user tag
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Update user tags by user id
@@ -6923,7 +6966,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get words

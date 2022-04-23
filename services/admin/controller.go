@@ -41,7 +41,7 @@ type KubeJobReturn struct {
 // @Accept  json
 // @Produce  json
 // @Success 201 {object} admin.KubeJobReturn
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /admin/catalog-update [post]
 func (t *Controller) CatalogUpdate(c *gin.Context) {
@@ -78,7 +78,7 @@ func (t *Controller) CatalogUpdate(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Success 201 {object} admin.KubeJobReturn
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /admin/update-all-users-from-ldap [post]
 func (t *Controller) UpdateAllUsersFromLDAP(c *gin.Context) {
@@ -117,7 +117,7 @@ func (t *Controller) UpdateAllUsersFromLDAP(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Success 201 {object} admin.KubeJobReturn
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /admin/update-all-factrak-survey-deficits [post]
 func (t *Controller) UpdateAllFactrakSurveyDeficits(c *gin.Context) {
@@ -156,7 +156,7 @@ func (t *Controller) UpdateAllFactrakSurveyDeficits(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Success 201 {object} admin.KubeJobReturn
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /admin/dorms-update [post]
 func (t *Controller) DormsUpdate(c *gin.Context) {
