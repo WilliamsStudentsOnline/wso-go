@@ -89,6 +89,11 @@ func (t *Controller) CreateProfile(c *gin.Context) {
 		createData.MessagingPlatform = lib.StrToPtr("")
 		createData.MessagingUsername = lib.StrToPtr("")
 	}
+	
+	// can have no looking for
+	if createData.LookingFor != nil && (*createData.LookingFor == "NONE" || *createData.LookingFor == "") {
+		createData.LookingFor = lib.StrToPtr("")
+	}
 
 	if createData.MessagingPlatform != nil && *createData.MessagingPlatform != "" {
 		// Must have valid platform or no platform (NONE)
