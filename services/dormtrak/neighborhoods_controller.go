@@ -17,7 +17,7 @@ import (
 // @Accept  json
 // @Produce  json
 // @Success 200 {array} models.Neighborhood
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /dormtrak/neighborhoods [get]
 func (t *Controller) ListNeighborhoods(c *gin.Context) {
@@ -41,9 +41,9 @@ func (t *Controller) ListNeighborhoods(c *gin.Context) {
 // @Produce  json
 // @Param neighborhoodID path uint true "Neighborhood ID"
 // @Success 200 {object} models.Neighborhood
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /dormtrak/neighborhoods/{neighborhoodID} [get]
 func (t *Controller) GetNeighborhood(c *gin.Context) {
@@ -74,9 +74,9 @@ func (t *Controller) GetNeighborhood(c *gin.Context) {
 // @Produce  json
 // @Param neighborhoodID path uint true "Neighborhood ID"
 // @Success 200 {object} models.NeighborhoodFacts
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /dormtrak/neighborhoods/{neighborhoodID}/facts [get]
 func (t *Controller) GetNeighborhoodFacts(c *gin.Context) {

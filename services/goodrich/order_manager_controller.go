@@ -24,7 +24,7 @@ import (
 // @Param userID query uint false "User ID"
 // @Param statuses query []string false "Allowed Status list"
 // @Success 200 {array} models.GoodrichOrder
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /goodrich/orders [get]
 func (t *Controller) ListOrders(c *gin.Context) {
@@ -55,7 +55,7 @@ func (t *Controller) ListOrders(c *gin.Context) {
 // @Produce  json
 // @Param orderID path uint true "Order ID"
 // @Success 200 {object} models.GoodrichOrder
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /goodrich/orders/{orderID} [get]
 func (t *Controller) GetOrder(c *gin.Context) {
@@ -95,7 +95,7 @@ type UpdateOrderParams struct {
 // @Param updateParams body goodrich.UpdateOrderParams true "Update Order Params"
 // @Param orderID path uint true "Order ID"
 // @Success 200 {object} models.GoodrichOrder
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /goodrich/orders/{orderID} [patch]
 func (t *Controller) UpdateOrder(c *gin.Context) {

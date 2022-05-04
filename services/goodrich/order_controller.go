@@ -21,7 +21,7 @@ import (
 // @Accept  json
 // @Produce  json
 // @Success 200 {array} models.GoodrichOrder
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /goodrich/user/orders [get]
 func (t *Controller) ListUserOrders(c *gin.Context) {
@@ -46,7 +46,7 @@ func (t *Controller) ListUserOrders(c *gin.Context) {
 // @Produce  json
 // @Param orderID path uint true "Order ID"
 // @Success 200 {object} models.GoodrichOrder
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /goodrich/user/orders/{orderID} [get]
 func (t *Controller) GetUserOrder(c *gin.Context) {
@@ -97,7 +97,7 @@ type CreateOrderParams struct {
 // @Produce  json
 // @Param createParams body goodrich.CreateOrderParams true "Create Order Params"
 // @Success 201 {object} models.GoodrichOrder
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /goodrich/orders [post]
 func (t *Controller) CreateOrder(c *gin.Context) {

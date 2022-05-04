@@ -26,10 +26,10 @@ import (
 // @Param preload query []string false "Preload (course, professor)"
 // @Param populateAgreements query bool false "Populate Agreement Counts"
 // @Success 200 {array} models.FactrakSurvey
-// @Failure 1331 {object} lib.APIError "must be self"
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1331 {object} services.BaseErrorResponse "must be self"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/users/{userID}/surveys [get]
 // @Deprecated

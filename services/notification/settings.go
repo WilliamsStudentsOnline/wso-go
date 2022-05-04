@@ -15,9 +15,9 @@ import (
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} models.NotificationSettings
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /notification/settings [get]
 func (t *Controller) GetSettings(c *gin.Context) {
@@ -49,10 +49,10 @@ type SettingsUpdateParams struct {
 // @Produce  json
 // @Param updateParams body notification.SettingsUpdateParams true "Update Settings Params"
 // @Success 200 {object} models.NotificationSettings
-// @Failure 1101 {object} lib.APIError "request data validation failed"
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1101 {object} services.BaseErrorResponse "request data validation failed"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /notification/settings [patch]
 func (t *Controller) UpdateSettings(c *gin.Context) {

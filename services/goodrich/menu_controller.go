@@ -18,7 +18,7 @@ import (
 // @Produce  json
 // @Param all query bool false "Get all menu items (including unavailable)"
 // @Success 200 {array} models.GoodrichMenuItem
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /goodrich/menu [get]
 func (t *Controller) ListMenu(c *gin.Context) {
@@ -61,7 +61,7 @@ type CreateMenuItemParams struct {
 // @Produce  json
 // @Param createParams body goodrich.CreateMenuItemParams true "Create Menu Item Params"
 // @Success 201 {object} models.GoodrichMenuItem
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /goodrich/menu [post]
 func (t *Controller) CreateMenuItem(c *gin.Context) {
@@ -110,9 +110,9 @@ type UpdateMenuItemParams struct {
 // @Param updateParams body goodrich.UpdateMenuItemParams true "Update Menu Item Params"
 // @Param itemID path uint true "Item ID"
 // @Success 200 {object} models.GoodrichMenuItem
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /goodrich/menu/{itemID} [patch]
 func (t *Controller) UpdateMenuItem(c *gin.Context) {
