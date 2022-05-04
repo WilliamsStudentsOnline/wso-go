@@ -8149,6 +8149,9 @@ var doc = `{
                 "locationVisible": {
                     "type": "boolean"
                 },
+                "lookingFor": {
+                    "type": "string"
+                },
                 "matchMessage": {
                     "type": "string"
                 },
@@ -8177,6 +8180,9 @@ var doc = `{
                 },
                 "locationVisible": {
                     "type": "boolean"
+                },
+                "lookingFor": {
+                    "type": "string"
                 },
                 "matchMessage": {
                     "type": "string"
@@ -9265,6 +9271,10 @@ var doc = `{
                     "description": "Current location columns",
                     "type": "boolean"
                 },
+                "lookingFor": {
+                    "description": "Looking for:",
+                    "type": "string"
+                },
                 "matchMessage": {
                     "type": "string"
                 },
@@ -10230,6 +10240,9 @@ var doc = `{
                 },
                 "locationVisible": {
                     "type": "boolean"
+                },
+                "lookingFor": {
+                    "type": "string"
                 },
                 "matchMessage": {
                     "type": "string"

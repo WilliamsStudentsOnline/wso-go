@@ -225,6 +225,8 @@ definitions:
         type: string
       locationVisible:
         type: boolean
+      lookingFor:
+        type: string
       matchMessage:
         type: string
       messagingPlatform:
@@ -244,6 +246,8 @@ definitions:
         type: string
       locationVisible:
         type: boolean
+      lookingFor:
+        type: string
       matchMessage:
         type: string
       messagingPlatform:
@@ -983,6 +987,9 @@ definitions:
       locationVisible:
         description: Current location columns
         type: boolean
+      lookingFor:
+        description: 'Looking for:'
+        type: string
       matchMessage:
         type: string
       matched:
@@ -1652,6 +1659,8 @@ definitions:
         type: string
       locationVisible:
         type: boolean
+      lookingFor:
+        type: string
       matchMessage:
         type: string
       messagingPlatform:

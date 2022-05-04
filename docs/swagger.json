@@ -8134,6 +8134,9 @@
                 "locationVisible": {
                     "type": "boolean"
                 },
+                "lookingFor": {
+                    "type": "string"
+                },
                 "matchMessage": {
                     "type": "string"
                 },
@@ -8162,6 +8165,9 @@
                 },
                 "locationVisible": {
                     "type": "boolean"
+                },
+                "lookingFor": {
+                    "type": "string"
                 },
                 "matchMessage": {
                     "type": "string"
@@ -9250,6 +9256,10 @@
                     "description": "Current location columns",
                     "type": "boolean"
                 },
+                "lookingFor": {
+                    "description": "Looking for:",
+                    "type": "string"
+                },
                 "matchMessage": {
                     "type": "string"
                 },
@@ -10215,6 +10225,9 @@
                 },
                 "locationVisible": {
                     "type": "boolean"
+                },
+                "lookingFor": {
+                    "type": "string"
                 },
                 "matchMessage": {
                     "type": "string"

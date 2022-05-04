@@ -144,6 +144,10 @@
         "messagingUsername": {
           "type": "string",
           "goPtr": true
+        },
+        "lookingFor": {
+          "type": "string",
+          "goPtr": true
         }
       },
       "required": [

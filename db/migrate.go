@@ -50,6 +50,7 @@ var Migrations = []*gormigrate.Migration{
 	migrations.AddMhFactrakSurveyQ20211201012742,
 	migrations.UserAddAreasOfStudy20220219171916,
 	migrations.AddBannedUsersTable20220228163053,
+	migrations.LookingForColumn20220504015544,
 }
 
 var MigrationGormOptions = gormigrate.DefaultOptions
