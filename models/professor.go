@@ -3,7 +3,6 @@ package models
 import (
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/jinzhu/gorm"
@@ -22,10 +21,11 @@ func NewProfessorModel(db *gorm.DB, log *zap.SugaredLogger) *ProfessorModel {
 }
 
 func (m *ProfessorModel) GetAllProfessors(u *[]*User, opts Options) (err error) {
-	db := m.DB.Scopes(m.scopeDefault)
+	db := m.DB
 	if opts != nil {
 		db = opts.Run(db)
 	}
+	db = db.Scopes(m.scopeDefault)
 	err = db.Find(u).Error
 	return
 }
@@ -109,7 +109,6 @@ func (o *GetAllProfessorsOptions) Order(db *gorm.DB) *gorm.DB {
 }
 
 func (o *GetAllProfessorsOptions) Paginate(db *gorm.DB) *gorm.DB {
-	db = o.Order(db)
 	if o.Limit != nil {
 		db = db.Limit(*o.Limit)
 		if o.Offset != nil {
@@ -122,10 +121,19 @@ func (o *GetAllProfessorsOptions) Paginate(db *gorm.DB) *gorm.DB {
 
 func (o *GetAllProfessorsOptions) Run(db *gorm.DB) *gorm.DB {
 	db = o.Preloader(db)
-	db = o.Paginate(db)
 
 	m := NewProfessorModel(db.New(), nil)
 
+	if o.Metric != nil {
+		if o.Ascending != nil {
+			db = m.withRanking(*o.Metric, *o.Ascending)(db)
+		} else {
+			db = m.withRanking(*o.Metric, false)(db)
+		}
+	} else {
+		// No reason to order twice, only order by ID if no metric is given
+		db = o.Order(db)
+	}
 	if o.CourseID != nil {
 		db = m.withCourse(*o.CourseID)(db)
 	}
@@ -136,13 +144,7 @@ func (o *GetAllProfessorsOptions) Run(db *gorm.DB) *gorm.DB {
 		db = m.withAreaOfStudy(*o.AreaOfStudyID)(db)
 		db = db.Preload("AreasOfStudy")
 	}
-	if o.Metric != nil {
-		if o.Ascending != nil {
-			db = m.withRanking(*o.Metric, *o.Ascending)(db)
-		} else {
-			db = m.withRanking(*o.Metric, false)(db)
-		}
-	}
+	db = o.Paginate(db)
 
 	return db
 }
@@ -273,16 +275,14 @@ func (m *ProfessorModel) withRanking(ranking string, ascending bool) func(db *go
 			order = "DESC"
 		}
 
-		o := fmt.Sprintf("avg(factrak_surveys.%s) %s", ranking, order)
+		o := fmt.Sprintf("avg(factrak_surveys.%s)", ranking)
 		h := fmt.Sprintf("count(factrak_surveys.%s) >= 5", ranking)
 		q := fmt.Sprintf("factrak_surveys.%s IS NOT NULL", ranking)
 
-		db = db.Joins("left join factrak_surveys on users.id = factrak_surveys.professor_id")
-		db = db.Where(q)
-		db = db.Where("factrak_surveys.created_at >= ?", time.Now().AddDate(-5, 0, 0))
-		db = db.Group("factrak_surveys.professor_id")
-		db = db.Having(h)
-		db = db.Order(o, true)
+		subQuery := db.Table("factrak_surveys").Select("professor_id, " + o + " as factrak_score").Group("factrak_surveys.professor_id").Where(q).Having(h).SubQuery()
+
+		db = db.Table("users").Select("users.*, scores.factrak_score").Joins("left join (?) as scores on users.id = scores.professor_id", subQuery).Where("factrak_score IS NOT NULL").Order("factrak_score "+order, true)
+
 		return db
 	}
 }

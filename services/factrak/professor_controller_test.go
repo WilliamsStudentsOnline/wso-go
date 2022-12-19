@@ -150,7 +150,7 @@ func TestController_ListProfessorsRanked(t *testing.T) {
 		assert.NoError(db.Create(courses[i]).Error)
 	}
 
-	// Insert test surveys into db (need 10 to count for rankings)
+	// Insert test surveys into db (need 5 to count for rankings)
 	surveys := make([]*models.FactrakSurvey, 35)
 	for i := range courses {
 		comment := fmt.Sprintf("Base Survey %d", i)
