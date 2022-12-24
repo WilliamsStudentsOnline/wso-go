@@ -25,6 +25,8 @@ import (
 	authIdentService "github.com/WilliamsStudentsOnline/wso-go/services/auth/identity"
 	authOldService "github.com/WilliamsStudentsOnline/wso-go/services/auth/old"
 	autocompleteService "github.com/WilliamsStudentsOnline/wso-go/services/autocomplete"
+
+	booktrakService "github.com/WilliamsStudentsOnline/wso-go/services/booktrak"
 	bulletinService "github.com/WilliamsStudentsOnline/wso-go/services/bulletin"
 	bulletinRSSService "github.com/WilliamsStudentsOnline/wso-go/services/bulletin/rss"
 	chatService "github.com/WilliamsStudentsOnline/wso-go/services/chat"
@@ -170,6 +172,10 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 		factrakGroup := v2.Group("/factrak")
 		factrakGroup.Use(auth.RequireScopes(auth.ScopeFactrakLimited, auth.ScopeFactrakFull))
 		factrakService.SetupRouter(factrakGroup, db, cfg, log.Named("factrak"))
+
+		booktrakGroup := v2.Group("/booktrak")
+		booktrakGroup.Use(auth.RequireScopes(auth.ScopeFactrakLimited, auth.ScopeFactrakFull))
+		booktrakService.SetupRouter(booktrakGroup, db, cfg, log.Named("booktrak"))
 
 		// Dormtrak Service
 		dormtrakGroup := v2.Group("/dormtrak")
