@@ -12,6 +12,7 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	c := NewController(db, cfg, log)
 	// Scoping
 	full := r.Group("")
+	// TODO: Change this scope to a specific booktrak scope
 	full.Use(auth.RequireScopes(auth.ScopeFactrakFull))
 
 	err := c.SetupSearch()
@@ -21,4 +22,6 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 		r.GET("/books", c.SearchBooks)
 	}
 
+	r.POST("/listings", c.CreateBookListing)
+	r.POST("/book", c.CreateOrUpdateBook)
 }

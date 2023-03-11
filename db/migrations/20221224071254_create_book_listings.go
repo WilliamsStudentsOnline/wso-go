@@ -22,40 +22,19 @@ var CreateBookListings20221224071254 = &gormigrate.Migration{
 		type BookListing struct {
 			models.BaseSchema
 
-			// Book Info
-			// Title: Book title.
-			Title *string `gorm:"not null" json:"title,omitempty"`
-			// Subtitle: Book subtitle.
-			Subtitle *string `json:"subtitle,omitempty"`
-			// Authors: The names of the authors and/or editors for this book.
-			Authors *string `json:"authors,omitempty"`
-			// Publisher: Publisher of this book.
-			Publisher *string `json:"publisher,omitempty"`
-			// ISBN_10: ISBN-10 of this book.
-			ISBN_10 string
-			// ISBN_13: ISBN-13 of this book.
-			ISBN_13 string `gorm:"not null" json:"isbn13"`
-			// InfoLink: URL to view information about this book on the Google
-			// Books site.
-			InfoLink *string `gorm:"size:65535" json:"infoLink,omitempty"`
-			// ImageLink: Image link for book cover
-			ImageLink *string `gorm:"size:65535" json:"imageLinks,omitempty"`
-
-			// Listing Info
+			// Belongs to book
+			BookID uint         `gorm:"index:index_book_listings_on_book_id;not null" json:"bookID"`
+			Book   *models.Book `json:"books"`
 
 			// Belongs to user (student)
 			UserID uint         `gorm:"index:index_book_listings_on_user_id;not null" json:"userID"`
 			User   *models.User `json:"user,omitempty"`
 
-			// Belongs to course
-			CourseID uint           `gorm:"index:index_book_listings_on_course_id;not null" json:"courseID"`
-			Course   *models.Course `json:"course,omitempty"`
-
-			Condition   *string `json:"condition"`
+			Condition   uint    `json:"condition"`
 			Description *string `gorm:"size:65535" json:"description"`
 
 			// True -> Offering to buy, False -> Offering to sell
-			Buy bool `json:"-"`
+			IsBuyListing bool `json:"-"`
 		}
 		return tx.AutoMigrate(&BookListing{}).Error
 	},

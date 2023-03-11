@@ -4,9 +4,8 @@ import (
 	"context"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
-	"github.com/WilliamsStudentsOnline/wso-go/lib"
+	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
-	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
 	"google.golang.org/api/books/v1"
@@ -16,11 +15,19 @@ import (
 type Controller struct {
 	services.BaseController
 	volumeService *books.VolumesService
+	// Put models here:
+	bookListingModel *models.BookListingModel
+	bookModel        *models.BookModel
+	courseModel      *models.CourseModel
+	// userModel        *models.UserModel
 }
 
 func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Controller {
 	return &Controller{
-		BaseController: services.BaseController{Log: log},
+		BaseController:   services.BaseController{Log: log},
+		bookModel:        models.NewBookModel(db, log),
+		bookListingModel: models.NewBookListingModel(db, log),
+		courseModel:      models.NewCourseModel(db, log),
 	}
 }
 
@@ -34,36 +41,4 @@ func (t *Controller) SetupSearch() error {
 	t.volumeService = VolumeService
 
 	return nil
-}
-
-type SearchBooksRequest struct {
-	Query string `form:"q"`
-}
-
-func (t *Controller) SearchBooks(c *gin.Context) {
-	var err error
-	request := SearchBooksRequest{}
-	if err = c.ShouldBindQuery(&request); err != nil {
-		t.RespondBadBind(c, err)
-		return
-	}
-
-	volumes, err := t.volumeService.
-		List(request.Query).
-		MaxResults(10).
-		Fields("items/volumeInfo/authors",
-			"items/volumeInfo/imageLinks",
-			"items/volumeInfo/industryIdentifiers",
-			"items/volumeInfo/infoLink",
-			"items/volumeInfo/title",
-			"items/volumeInfo/subtitle",
-			"items/volumeInfo/publisher").
-		Do()
-
-	if err != nil {
-		t.RespondAPIError(c, lib.ErrorInternalServerError)
-		return
-	}
-
-	t.RespondOK(c, volumes)
 }
