@@ -9,7 +9,7 @@ import (
 
 type CreateBookListing struct {
 	BookID       uint    `json:"bookID" binding:"required"`
-	Condition    uint    `json:"condition" binding:"required"`
+	Condition    uint    `json:"condition"`
 	Description  *string `json:"description,omitempty"`
 	IsBuyListing bool    `json:"isBuyListing" binding:"required"`
 }
@@ -41,6 +41,7 @@ func (t *Controller) CreateBookListing(c *gin.Context) {
 	}
 
 	bookListing := models.BookListing{
+		BookID:       createData.BookID,
 		UserID:       userID,
 		Condition:    createData.Condition,
 		Description:  createData.Description,
@@ -56,10 +57,27 @@ func (t *Controller) CreateBookListing(c *gin.Context) {
 	t.RespondCreated(c, bookListing)
 }
 
-type GetAllBookListings struct {
-	CourseID uint `form:"courseID"`
+type ListBookListingsParams struct {
+	models.GetAllBookListingsOptions
 }
 
-func (t *Controller) ListBookListings(c *gin.Context) {}
+func (t *Controller) ListBookListings(c *gin.Context) {
+	var bookListings []*models.BookListing
+	var err error
+
+	opts := ListBookListingsParams{}
+	err = c.ShouldBindQuery(&opts)
+	if err != nil {
+		t.RespondBadBind(c, err)
+		return
+	}
+
+	err = t.bookListingModel.GetAllBookListings(&bookListings, &opts.GetAllBookListingsOptions)
+	if err != nil {
+		t.RespondError(c, err)
+	}
+
+	t.RespondOK(c, bookListings)
+}
 
 func (t *Controller) GetBookListing(c *gin.Context) {}

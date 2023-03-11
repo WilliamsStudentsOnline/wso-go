@@ -23,9 +23,10 @@ type GetAllBookListingsOptions struct {
 	// Filters
 	CourseID     *uint   `json:"courseID" form:"courseID"`
 	UserID       *uint   `json:"userID" form:"userID"`
-	ISBN_10      *string `json:"ISBN_10" form:"ISBN_10"`
-	ISBN_13      *string `json:"ISBN_13" form:"ISBN_13"`
-	Condition    *string `json:"condition" form:"condition"`
+	ISBN_10      *string `json:"ISBN_10" form:"ISBN_10" binding:"omitempty,len=10"`
+	ISBN_13      *string `json:"ISBN_13" form:"ISBN_13" binding:"omitempty,len=13"`
+	MinCondition *uint   `json:"minCondition" form:"minCondition"`
+	MaxCondition *uint   `json:"maxCondition" form:"maxCondition"`
 	IsBuyListing *bool   `json:"isBuy" form:"isBuy"`
 }
 
@@ -75,6 +76,12 @@ func (o *GetAllBookListingsOptions) Run(db *gorm.DB) *gorm.DB {
 	if o.UserID != nil {
 		db = m.withUser(*o.UserID)(db)
 	}
+	if o.MinCondition != nil {
+		db = m.withMinCondition(*o.MinCondition)(db)
+	}
+	if o.MaxCondition != nil {
+		db = m.withMaxCondition(*o.MaxCondition)(db)
+	}
 
 	return db
 }
@@ -82,8 +89,8 @@ func (o *GetAllBookListingsOptions) Run(db *gorm.DB) *gorm.DB {
 func (m *BookListingModel) withCourse(courseID uint) func(*gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Where(
-			"book_listings.id in (?)",
-			m.DB.Table("course_bookListing").Select("book_listing_id").Where(
+			"book_listings.book_id in (?)",
+			m.DB.Table("course_book").Select("book_id").Where(
 				"course_id = ?", courseID,
 			).QueryExpr(),
 		)
@@ -98,13 +105,23 @@ func (m *BookListingModel) withUser(userID uint) func(*gorm.DB) *gorm.DB {
 
 func (m *BookListingModel) withISBN10(ISBN_10 string) func(*gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Where("isbn_10 = ?", ISBN_10)
+		return db.Where(
+			"book_listings.book_id in (?)",
+			m.DB.Table("books").Select("book_id").Where(
+				"isbn_10 = ?", ISBN_10,
+			).QueryExpr(),
+		)
 	}
 }
 
 func (m *BookListingModel) withISBN13(ISBN_13 string) func(*gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Where("isbn_13 = ?", ISBN_13)
+		return db.Where(
+			"book_listings.book_id in (?)",
+			m.DB.Table("books").Select("book_id").Where(
+				"isbn_13 = ?", ISBN_13,
+			).QueryExpr(),
+		)
 	}
 }
 
@@ -114,6 +131,17 @@ func (m *BookListingModel) withListingType(isBuyListing bool) func(*gorm.DB) *go
 	}
 }
 
+func (m *BookListingModel) withMinCondition(minCondition uint) func(*gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where("condition >= ?", minCondition)
+	}
+}
+
+func (m *BookListingModel) withMaxCondition(maxCondition uint) func(*gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where("condition <= ?", maxCondition)
+	}
+}
 func (m *BookListingModel) CreateBookListing(b *BookListing) (err error) {
 	err = m.DB.Create(b).Error
 	if err != nil {

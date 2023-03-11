@@ -44,7 +44,7 @@ var CreateBooks20221230032200 = &gormigrate.Migration{
 			// Has many Book Listings
 			BookListings []*models.BookListing `gorm:"foreignkey:BookID" json:"bookListings"`
 			// Many2Many cousres
-			Courses []*models.Course `gorm:"many2many:course_bookListing" json:"courses"`
+			Courses []*models.Course `gorm:"many2many:course_book" json:"courses"`
 		}
 		return tx.AutoMigrate(&Book{}).Error
 	},

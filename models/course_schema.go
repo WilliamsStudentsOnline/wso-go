@@ -14,6 +14,9 @@ type Course struct {
 
 	// Has many professors (thru factrak surveys). Ignore this in Gorm. Populate this only whenever needed.
 	Professors []*User `gorm:"-" json:"professors,omitempty"`
+
+	// Many2Many books
+	Books []*Book `gorm:"many2many:course_book" json:"books,omitempty"`
 }
 
 func (*Course) TableName() string {

@@ -50,7 +50,7 @@ func (t *Controller) searchVolumes(query string, limit *int) (volumes *books.Vol
 	return
 }
 
-func doesBookMatchOnline(book models.Book, onlineBook *books.VolumeVolumeInfo) bool {
+func bookMatchesOnlineData(book models.Book, onlineBook *books.VolumeVolumeInfo) bool {
 	if book.Title != onlineBook.Title {
 		return false
 	}

@@ -19,9 +19,11 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	if err != nil {
 		log.Errorf("Failed to start up booktrak search: %w", err)
 	} else {
-		r.GET("/books", c.SearchBooks)
+		r.GET("/books/search", c.SearchBooks)
 	}
 
 	r.POST("/listings", c.CreateBookListing)
-	r.POST("/book", c.CreateOrUpdateBook)
+	r.GET("/listings", c.ListBookListings)
+
+	r.POST("/books", c.CreateOrUpdateBook)
 }

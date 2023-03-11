@@ -7,13 +7,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type CreateBookParams struct {
+type CreateOrUpdateBookParams struct {
 	Title     string   `json:"title" binding:"required"`
 	Subtitle  string   `json:"subtitle"`
 	Authors   []string `json:"authors"`
 	Publisher string   `json:"publisher,omitempty"`
-	ISBN_10   string   `json:"ISBN_10" binding:"required,min=10,max=10"`
-	ISBN_13   string   `json:"ISBN_13" binding:"required,min=13,max=13"`
+	ISBN_10   string   `json:"ISBN_10" binding:"required,len=10"`
+	ISBN_13   string   `json:"ISBN_13" binding:"required,len=13"`
 	InfoLink  string   `json:"infoLink"`
 	ImageLink string   `json:"imageLink"`
 
@@ -21,7 +21,7 @@ type CreateBookParams struct {
 }
 
 func (t *Controller) CreateOrUpdateBook(c *gin.Context) {
-	createData := CreateBookParams{}
+	createData := CreateOrUpdateBookParams{}
 	err := c.ShouldBind(&createData)
 	if err != nil {
 		t.RespondBadBind(c, err)
@@ -45,7 +45,7 @@ func (t *Controller) CreateOrUpdateBook(c *gin.Context) {
 		return
 	}
 
-	if !doesBookMatchOnline(book, volumes.Items[0].VolumeInfo) {
+	if !bookMatchesOnlineData(book, volumes.Items[0].VolumeInfo) {
 		t.RespondAPIError(c, lib.ErrorBookDoesNotMatchOnlineData)
 		return
 	}
@@ -77,12 +77,27 @@ func (t *Controller) CreateOrUpdateBook(c *gin.Context) {
 	t.RespondCreated(c, book)
 }
 
-type AddCoursesToBook struct {
+type AddCoursesToBookParams struct {
 	BookID    uint   `json:"bookID" binding:"required"`
 	CourseIDs []uint `json:"coursesIDs" binding:"required,min=1"`
 }
 
-func (t *Controller) AddCourseToBook(c *gin.Context) {}
+func (t *Controller) AddCoursesToBook(c *gin.Context) {
+	params := AddCoursesToBookParams{}
+	err := c.ShouldBind(&params)
+	if err != nil {
+		t.RespondBadBind(c, err)
+		return
+	}
+
+	err = t.bookModel.AddCoursesToBook(params.BookID, &params.CourseIDs)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	t.RespondOK(c, nil)
+}
 
 func (t *Controller) ListBooks(c *gin.Context) {}
 
