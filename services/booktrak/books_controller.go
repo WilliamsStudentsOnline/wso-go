@@ -7,6 +7,29 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type ListBooksParams struct {
+	models.GetAllBooksOptions
+}
+
+func (t *Controller) ListBooks(c *gin.Context) {
+	var books []*models.Book
+	var err error
+
+	opts := ListBooksParams{}
+	err = c.ShouldBind(&opts)
+	if err != nil {
+		t.RespondBadBind(c, err)
+	}
+
+	err = t.bookModel.GetAllBooks(&books, &opts.GetAllBooksOptions)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	t.RespondOK(c, books)
+}
+
 type CreateOrUpdateBookParams struct {
 	Title     string   `json:"title" binding:"required"`
 	Subtitle  string   `json:"subtitle"`
@@ -98,7 +121,5 @@ func (t *Controller) AddCoursesToBook(c *gin.Context) {
 
 	t.RespondOK(c, nil)
 }
-
-func (t *Controller) ListBooks(c *gin.Context) {}
 
 func (t *Controller) GetBook(c *gin.Context) {}

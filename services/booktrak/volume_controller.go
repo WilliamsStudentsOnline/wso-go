@@ -8,7 +8,7 @@ import (
 )
 
 type SearchBooksRequest struct {
-	Query string `form:"q"`
+	Query string `form:"q" binding:"required"`
 	Limit *int   `form:"limit"`
 }
 

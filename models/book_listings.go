@@ -142,6 +142,7 @@ func (m *BookListingModel) withMaxCondition(maxCondition uint) func(*gorm.DB) *g
 		return db.Where("condition <= ?", maxCondition)
 	}
 }
+
 func (m *BookListingModel) CreateBookListing(b *BookListing) (err error) {
 	err = m.DB.Create(b).Error
 	if err != nil {
@@ -153,6 +154,11 @@ func (m *BookListingModel) CreateBookListing(b *BookListing) (err error) {
 
 func (m *BookListingModel) UpdateBookListing(b *BookListing) (err error) {
 	err = m.DB.Save(b).Error
+	return
+}
+
+func (m *BookListingModel) GetBookListingByID(id uint, b *BookListing) (err error) {
+	err = m.DB.First(b, id).Error
 	return
 }
 

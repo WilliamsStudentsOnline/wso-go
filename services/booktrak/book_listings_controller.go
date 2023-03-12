@@ -25,7 +25,7 @@ func (t *Controller) CreateBookListing(c *gin.Context) {
 		return
 	}
 
-	exists, err := t.bookModel.DoesBookExistByID(createData.BookID)
+	exists, err := t.bookModel.DoesBookExist(createData.BookID)
 	if err != nil {
 		t.RespondAPIError(c, lib.ErrorInternalServerError)
 		return
@@ -81,3 +81,34 @@ func (t *Controller) ListBookListings(c *gin.Context) {
 }
 
 func (t *Controller) GetBookListing(c *gin.Context) {}
+
+func (t *Controller) DeleteBookListing(c *gin.Context) {
+	userID := services.GetUserID(c)
+
+	bookListingID, err := services.GetUIntParam(c, "bookListingID")
+	if err != nil {
+		t.RespondError(c, err)
+	}
+
+	var bookListing models.BookListing
+	err = t.bookListingModel.GetBookListingByID(bookListingID, &bookListing)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	if bookListing.UserID != userID {
+		t.RespondError(c, lib.ErrorMustBeSelf)
+		return
+	}
+
+	err = t.bookListingModel.DeleteBookListing(&bookListing)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	c.Set(services.UpdateTokenKey, true)
+
+	t.RespondOK(c, bookListing)
+}

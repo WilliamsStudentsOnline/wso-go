@@ -26,9 +26,9 @@ type Book struct {
 	ImageLink string `gorm:"size:65535" json:"imageLinks,omitempty"`
 
 	// Has many Book Listings
-	BookListings []*BookListing `gorm:"foreignkey:BookID" json:"bookListings"`
+	BookListings []*BookListing `gorm:"foreignkey:BookID" json:"bookListings,omitempty"`
 	// Many2Many courses
-	Courses []*Course `gorm:"many2many:course_book" json:"courses"`
+	Courses []*Course `gorm:"many2many:course_book" json:"courses,omitempty"`
 }
 
 func (*Book) TableName() string {

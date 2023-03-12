@@ -24,7 +24,87 @@ func NewBookModel(db *gorm.DB, log *zap.SugaredLogger) *BookModel {
 	}
 }
 
-func (m *BookModel) DoesBookExistByID(id uint) (exists bool, err error) {
+type GetAllBooksOptions struct {
+	// Offset is ignored unless limit is supplied
+	Offset *uint `json:"offset" form:"offset"`
+	Limit  *uint `json:"limit" form:"limit"`
+
+	Title     *string `json:"title" form:"title"`
+	Publisher *string `json:"publisher,omitempty" form:"publisher"`
+	ISBN_10   *string `json:"ISBN_10" form:"ISBN_10" binding:"omitempty,len=10"`
+	ISBN_13   *string `json:"ISBN_13" form:"ISBN_13" binding:"omitempty,len=13"`
+}
+
+func (o *GetAllBooksOptions) Order(db *gorm.DB) *gorm.DB {
+	return db.Order("books.created_at DESC", true)
+}
+
+func (o *GetAllBooksOptions) Paginate(db *gorm.DB) *gorm.DB {
+	db = o.Order(db)
+	if o.Limit != nil {
+		db = db.Limit(*o.Limit)
+		if o.Offset != nil {
+			db = db.Offset(*o.Offset)
+		}
+	}
+	return db
+}
+
+func (m *BookModel) GetAllBooks(c *[]*Book, opts *GetAllBooksOptions) (err error) {
+	db := m.DB
+	if opts != nil {
+		db = opts.Run(db)
+	}
+
+	err = db.Find(c).Error
+	return
+}
+
+func (o *GetAllBooksOptions) Run(db *gorm.DB) *gorm.DB {
+	db = o.Paginate(db)
+
+	m := NewBookModel(db.New(), nil)
+
+	if o.Title != nil {
+		db = m.withTitle(*o.Title)(db)
+	}
+	if o.Publisher != nil {
+		db = m.withPublisher(*o.Publisher)(db)
+	}
+	if o.ISBN_10 != nil {
+		db = m.withISBN_10(*o.ISBN_10)(db)
+	}
+	if o.ISBN_13 != nil {
+		db = m.withISBN_13(*o.ISBN_13)(db)
+	}
+	return db
+}
+
+func (m *BookModel) withTitle(title string) func(*gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where("title LIKE ?", title+"%")
+	}
+}
+
+func (m *BookModel) withPublisher(publisher string) func(*gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where("publisher = ?", publisher)
+	}
+}
+
+func (m *BookModel) withISBN_10(ISBN_10 string) func(*gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where("isbn_10 = ?", ISBN_10)
+	}
+}
+
+func (m *BookModel) withISBN_13(ISBN_13 string) func(*gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where("isbn_13 = ?", ISBN_13)
+	}
+}
+
+func (m *BookModel) DoesBookExist(id uint) (exists bool, err error) {
 	var count int
 	err = m.DB.Model(&Book{}).Where("books.id = ?", id).Count(&count).Error
 	exists = count > 0
@@ -46,7 +126,7 @@ func (m *BookModel) DoesBookExistByISBN13(ISBN_13 uint) (exists bool, err error)
 }
 
 func (m *BookModel) CreateBook(b *Book) (err error) {
-	err = m.DB.FirstOrCreate(b).Error
+	err = m.DB.FirstOrCreate(b, b).Error
 	if err != nil {
 		return err
 	}

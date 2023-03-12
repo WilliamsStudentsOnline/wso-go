@@ -15,7 +15,7 @@ type BookListing struct {
 
 	// Belongs to book
 	BookID uint  `gorm:"index:index_book_listings_on_book_id;not null" json:"bookID"`
-	Book   *Book `json:"books"`
+	Book   *Book `json:"books,omitempty"`
 
 	// Belongs to user (student)
 	UserID uint  `gorm:"index:index_book_listings_on_user_id;not null" json:"userID"`
