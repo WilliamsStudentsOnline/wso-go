@@ -126,7 +126,7 @@ func (m *BookModel) DoesBookExistByISBN13(ISBN_13 uint) (exists bool, err error)
 }
 
 func (m *BookModel) CreateBook(b *Book) (err error) {
-	err = m.DB.FirstOrCreate(b, b).Error
+	err = m.DB.FirstOrCreate(b, &Book{ISBN_10: b.ISBN_10, ISBN_13: b.ISBN_13}).Error
 	if err != nil {
 		return err
 	}
@@ -135,11 +135,11 @@ func (m *BookModel) CreateBook(b *Book) (err error) {
 	return
 }
 
-func (m *BookModel) AddCoursesToBook(id uint, courseIDs *[]uint) (err error) {
+func (m *BookModel) AddCoursesToBook(id uint, courseIDs *[]uint) (b *Book, err error) {
 	book := new(Book)
 	err = m.DB.First(&book, id).Error
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	tx := m.DB.Begin()
@@ -153,15 +153,15 @@ func (m *BookModel) AddCoursesToBook(id uint, courseIDs *[]uint) (err error) {
 		if err != nil {
 			tx.Rollback()
 			if gorm.IsRecordNotFoundError(err) {
-				return lib.ErrorBookCourseNotFound
+				return nil, lib.ErrorBookCourseNotFound
 			}
-			return err
+			return nil, err
 		}
 
 		err = tx.Model(&book).Association("Courses").Append(course).Error
 		if err != nil {
 			tx.Rollback()
-			return err
+			return nil, err
 		}
 	}
 	err = tx.Commit().Error
@@ -169,7 +169,7 @@ func (m *BookModel) AddCoursesToBook(id uint, courseIDs *[]uint) (err error) {
 		tx.Rollback()
 		return
 	}
-	return
+	return book, nil
 }
 
 func (m *BookModel) DeleteBook(b *Book) (err error) {

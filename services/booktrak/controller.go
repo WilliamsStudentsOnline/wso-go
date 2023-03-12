@@ -37,8 +37,8 @@ func (t *Controller) SetupSearch() error {
 	if err != nil {
 		return err
 	}
-	VolumeService := books.NewVolumesService(booksService)
-	t.volumeService = VolumeService
+	volumeService := books.NewVolumesService(booksService)
+	t.volumeService = volumeService
 
 	return nil
 }

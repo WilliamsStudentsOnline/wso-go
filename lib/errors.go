@@ -180,12 +180,10 @@ var (
 	ErrorGoodrichLeaseExpired         = NewAPIError(2173, "goodrich order lease has expired")
 
 	// 22** are Booktrak errors
-	ErrorBookListingCourseNotFound   = NewAPIError(2230, "passed course could not be found")
-	ErrorBookListingInvalidISBNs     = NewAPIError(2231, "passed ISBNs are invalid")
 	ErrorBookListingInvalidCondition = NewAPIError(2232, "passed condition is invalid")
 
 	ErrorBookNotFound               = NewAPIError(2250, "passed book could not be found")
 	ErrorBookNotFoundByISBN         = NewAPIError(2251, "could not find by book by ISBN")
 	ErrorBookDoesNotMatchOnlineData = NewAPIError(2252, "book does not match online data")
-	ErrorBookCourseNotFound         = NewAPIError(2252, "passed courses don't all exist")
+	ErrorBookCourseNotFound         = NewAPIError(2253, "passed courses don't all exist")
 )

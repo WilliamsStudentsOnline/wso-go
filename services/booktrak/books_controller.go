@@ -4,6 +4,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	sql_types "github.com/WilliamsStudentsOnline/wso-go/lib/sql_types"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
+	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,6 +12,23 @@ type ListBooksParams struct {
 	models.GetAllBooksOptions
 }
 
+// List all books
+// @Summary List books
+// @Description lists all books . Order by creation date.
+// @ID booktrak-list-books
+// @Tags booktrak
+// @Accept  json
+// @Produce  json
+// @Param offset query int false "Offset Pagination (timestamp)"
+// @Param limit query int false "Limit Pagination"
+// @Param title query string false "Book Title"
+// @Param publisher query string false "Book Publisher"
+// @Param ISBN_10 query string false "Book ISBN-10 (must be in ISBN format)"
+// @Param ISBN_13 query string false "Book ISBN-13 (must be in ISBN format)"
+// @Success 200 {array} models.Book
+// @Failure 500 {object} services.BaseErrorResponse
+// @Security Bearer
+// @Router /booktrak/books [get]
 func (t *Controller) ListBooks(c *gin.Context) {
 	var books []*models.Book
 	var err error
@@ -35,6 +53,20 @@ type CreateOrUpdateBookParams struct {
 	CourseIDs []uint `json:"courseIDs" binding:"required,min=1"`
 }
 
+// @Summary Create or Update book
+// @Description create or update a book
+// @ID booktrak-create-or-update-book
+// @Tags booktrak
+// @Accept  json
+// @Produce  json
+// @Param createParams body booktrak.CreateOrUpdateBookParams true "Create Or Update Book Params"
+// @Success 201 {object} models.Book
+// @Failure 2251 {object} services.BaseErrorResponse "failed to find book online by isbn"
+// @Failure 2253 {object} services.BaseErrorResponse "some courses could not be found"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
+// @Security Bearer
+// @Router /booktrak/books [post]
 func (t *Controller) CreateOrUpdateBook(c *gin.Context) {
 	params := CreateOrUpdateBookParams{}
 	err := c.ShouldBind(&params)
@@ -69,7 +101,7 @@ func (t *Controller) CreateOrUpdateBook(c *gin.Context) {
 	}
 
 	volume := volumes.Items[0].VolumeInfo
-	book := models.Book{
+	book := &models.Book{
 		Title:     volume.Title,
 		Subtitle:  volume.Subtitle,
 		Authors:   sql_types.CSV(volume.Authors),
@@ -80,6 +112,7 @@ func (t *Controller) CreateOrUpdateBook(c *gin.Context) {
 		ImageLink: volume.ImageLinks.Thumbnail,
 	}
 
+	// If the courses aren't valid, we don't create a book
 	for _, course := range params.CourseIDs {
 		exists, err := t.courseModel.DoesCourseExist(course)
 		if err != nil {
@@ -92,13 +125,13 @@ func (t *Controller) CreateOrUpdateBook(c *gin.Context) {
 		}
 	}
 
-	err = t.bookModel.CreateBook(&book)
+	err = t.bookModel.CreateBook(book)
 	if err != nil {
 		t.RespondAPIError(c, lib.ErrorInternalServerError)
 		return
 	}
 
-	err = t.bookModel.AddCoursesToBook(book.ID, &params.CourseIDs)
+	book, err = t.bookModel.AddCoursesToBook(book.ID, &params.CourseIDs)
 	if err != nil {
 		t.RespondAPIError(c, lib.ErrorInternalServerError)
 		return
@@ -107,26 +140,46 @@ func (t *Controller) CreateOrUpdateBook(c *gin.Context) {
 	t.RespondCreated(c, book)
 }
 
-type AddCoursesToBookParams struct {
-	BookID    uint   `json:"bookID" binding:"required"`
-	CourseIDs []uint `json:"coursesIDs" binding:"required,min=1"`
+type UpdateBookCoursesParams struct {
+	CourseIDs []uint `json:"courseIDs" binding:"required,min=1"`
 }
 
-func (t *Controller) AddCoursesToBook(c *gin.Context) {
-	params := AddCoursesToBookParams{}
-	err := c.ShouldBind(&params)
-	if err != nil {
-		t.RespondBadBind(c, err)
-		return
-	}
-
-	err = t.bookModel.AddCoursesToBook(params.BookID, &params.CourseIDs)
+// Update book courses
+// @Summary Update book
+// @Description update a book's courses
+// @ID booktrak-update-book
+// @Tags booktrak
+// @Accept  json
+// @Produce  json
+// @Param updateParams body booktrak.UpdateBookCourses true "Update Book Params"
+// @Param bookID path uint true "Book ID"
+// @Success 200 {object} models.Book
+// @Failure 2253 {object} services.BaseErrorResponse "some courses could not be found"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
+// @Security Bearer
+// @Router /booktrak/books/{bookID} [patch]
+func (t *Controller) UpdateBookCourses(c *gin.Context) {
+	bookID, err := services.GetUIntParam(c, "bookID")
 	if err != nil {
 		t.RespondError(c, err)
 		return
 	}
 
-	t.RespondOK(c, nil)
+	params := UpdateBookCoursesParams{}
+	err = c.ShouldBind(&params)
+	if err != nil {
+		t.RespondBadBind(c, err)
+		return
+	}
+
+	book, err := t.bookModel.AddCoursesToBook(bookID, &params.CourseIDs)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	t.RespondOK(c, book)
 }
 
 func (t *Controller) GetBook(c *gin.Context) {}
