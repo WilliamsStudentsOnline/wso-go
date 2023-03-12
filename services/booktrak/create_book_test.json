@@ -1,14 +1,6 @@
 {
-    "title": "ARTIFICIAL INTELLIGENCE",
-    "subtitle" : "A Modern Approach, Global Edition",
-    "infoLink" : "http://books.google.com/books?id=B4xczgEACAAJ&dq=9781292401133&hl=&source=gbs_api",
-    "ISBN_10": "1292401133", 
-    "ISBN_13": "9781292401133",
-    "authors" : [
-        "PETER. RUSSELL NORVIG (STUART.)"
-     ],
-     "imageLink" : "http://books.google.com/books/content?id=B4xczgEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api",
-     "courseIDs" : [
+    "ISBN": "978-1-29-240113-3",
+    "courseIDs": [
         239
-     ]
+    ]
 }

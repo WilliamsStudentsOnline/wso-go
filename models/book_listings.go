@@ -23,8 +23,8 @@ type GetAllBookListingsOptions struct {
 	// Filters
 	CourseID     *uint   `json:"courseID" form:"courseID"`
 	UserID       *uint   `json:"userID" form:"userID"`
-	ISBN_10      *string `json:"ISBN_10" form:"ISBN_10" binding:"omitempty,len=10"`
-	ISBN_13      *string `json:"ISBN_13" form:"ISBN_13" binding:"omitempty,len=13"`
+	ISBN_10      *string `json:"ISBN_10" form:"ISBN_10" binding:"omitempty,isbn10"`
+	ISBN_13      *string `json:"ISBN_13" form:"ISBN_13" binding:"omitempty,isbn13"`
 	MinCondition *uint   `json:"minCondition" form:"minCondition"`
 	MaxCondition *uint   `json:"maxCondition" form:"maxCondition"`
 	IsBuyListing *bool   `json:"isBuy" form:"isBuy"`
@@ -69,9 +69,9 @@ func (o *GetAllBookListingsOptions) Run(db *gorm.DB) *gorm.DB {
 		db = m.withListingType(*o.IsBuyListing)(db)
 	}
 	if o.ISBN_13 != nil {
-		db = m.withISBN13(*o.ISBN_13)(db)
+		db = m.withISBN13(CleanISBN(*o.ISBN_13))(db)
 	} else if o.ISBN_10 != nil {
-		db = m.withISBN10(*o.ISBN_10)(db)
+		db = m.withISBN10(CleanISBN(*o.ISBN_10))(db)
 	}
 	if o.UserID != nil {
 		db = m.withUser(*o.UserID)(db)

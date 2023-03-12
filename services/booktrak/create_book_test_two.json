@@ -1,15 +1,5 @@
 {
-    "authors": [
-        "Dan Jurafsky",
-        "James H. Martin"
-    ],
-    "imageLink": "http://books.google.com/books/content?id=fZmj5UNK8AQC&printsec=frontcover&img=1&zoom=1&source=gbs_api",
-    "ISBN_13": "9780131873216",
-    "ISBN_10": "0131873210",
-    "infoLink": "http://books.google.com/books?id=fZmj5UNK8AQC&dq=9780131873216&hl=&source=gbs_api",
-    "publisher": "Prentice Hall",
-    "subtitle": "An Introduction to Natural Language Processing, Computational Linguistics, and Speech Recognition",
-    "title": "Speech and Language Processing",
+    "ISBN": "0131873210",
     "courseIDs": [
         90
     ]

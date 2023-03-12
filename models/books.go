@@ -1,7 +1,7 @@
 package models
 
 import (
-	"strconv"
+	"strings"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/jinzhu/gorm"
@@ -31,8 +31,8 @@ type GetAllBooksOptions struct {
 
 	Title     *string `json:"title" form:"title"`
 	Publisher *string `json:"publisher,omitempty" form:"publisher"`
-	ISBN_10   *string `json:"ISBN_10" form:"ISBN_10" binding:"omitempty,len=10"`
-	ISBN_13   *string `json:"ISBN_13" form:"ISBN_13" binding:"omitempty,len=13"`
+	ISBN_10   *string `json:"ISBN_10" form:"ISBN_10" binding:"omitempty,isbn10"`
+	ISBN_13   *string `json:"ISBN_13" form:"ISBN_13" binding:"omitempty,isbn13"`
 }
 
 func (o *GetAllBooksOptions) Order(db *gorm.DB) *gorm.DB {
@@ -72,10 +72,10 @@ func (o *GetAllBooksOptions) Run(db *gorm.DB) *gorm.DB {
 		db = m.withPublisher(*o.Publisher)(db)
 	}
 	if o.ISBN_10 != nil {
-		db = m.withISBN_10(*o.ISBN_10)(db)
+		db = m.withISBN_10(CleanISBN(*o.ISBN_10))(db)
 	}
 	if o.ISBN_13 != nil {
-		db = m.withISBN_13(*o.ISBN_13)(db)
+		db = m.withISBN_13(CleanISBN(*o.ISBN_13))(db)
 	}
 	return db
 }
@@ -177,12 +177,6 @@ func (m *BookModel) DeleteBook(b *Book) (err error) {
 	return
 }
 
-func checkValidISBN(ISBN string, length int) bool {
-	if len(ISBN) != length {
-		return false
-	}
-	if _, err := strconv.ParseUint(ISBN, 10, 64); err != nil {
-		return false
-	}
-	return true
+func CleanISBN(isbn string) string {
+	return strings.ReplaceAll(strings.ReplaceAll(isbn, " ", ""), "-", "")
 }

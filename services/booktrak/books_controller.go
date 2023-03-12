@@ -31,49 +31,56 @@ func (t *Controller) ListBooks(c *gin.Context) {
 }
 
 type CreateOrUpdateBookParams struct {
-	Title     string   `json:"title" binding:"required"`
-	Subtitle  string   `json:"subtitle"`
-	Authors   []string `json:"authors"`
-	Publisher string   `json:"publisher,omitempty"`
-	ISBN_10   string   `json:"ISBN_10" binding:"required,len=10"`
-	ISBN_13   string   `json:"ISBN_13" binding:"required,len=13"`
-	InfoLink  string   `json:"infoLink"`
-	ImageLink string   `json:"imageLink"`
-
+	ISBN      string `json:"ISBN" binding:"required,isbn"`
 	CourseIDs []uint `json:"courseIDs" binding:"required,min=1"`
 }
 
 func (t *Controller) CreateOrUpdateBook(c *gin.Context) {
-	createData := CreateOrUpdateBookParams{}
-	err := c.ShouldBind(&createData)
+	params := CreateOrUpdateBookParams{}
+	err := c.ShouldBind(&params)
 	if err != nil {
 		t.RespondBadBind(c, err)
 		return
 	}
 
-	book := models.Book{
-		Title:     createData.Title,
-		Subtitle:  createData.Subtitle,
-		Authors:   sql_types.CSV(createData.Authors),
-		Publisher: createData.Publisher,
-		ISBN_10:   createData.ISBN_10,
-		ISBN_13:   createData.ISBN_13,
-		InfoLink:  createData.InfoLink,
-		ImageLink: createData.ImageLink,
-	}
+	params.ISBN = models.CleanISBN(params.ISBN)
 
-	volumes, err := t.searchVolumes(book.ISBN_13, lib.IntToPtr(1))
+	volumes, err := t.searchVolumes(params.ISBN, lib.IntToPtr(1))
 	if err != nil {
+		t.RespondAPIError(c, lib.ErrorInternalServerError)
+		return
+	}
+	if len(volumes.Items) != 1 {
 		t.RespondAPIError(c, lib.ErrorBookNotFoundByISBN)
 		return
 	}
 
-	if !bookMatchesOnlineData(book, volumes.Items[0].VolumeInfo) {
-		t.RespondAPIError(c, lib.ErrorBookDoesNotMatchOnlineData)
-		return
+	isbn10, isbn13 := "", ""
+	for _, v := range volumes.Items[0].VolumeInfo.IndustryIdentifiers {
+		if v.Type == "ISBN_10" {
+			isbn10 = v.Identifier
+		}
+		if v.Type == "ISBN_13" {
+			isbn13 = v.Identifier
+		}
+	}
+	if params.ISBN != isbn10 && params.ISBN != isbn13 {
+		t.RespondAPIError(c, lib.ErrorBookNotFoundByISBN)
 	}
 
-	for _, course := range createData.CourseIDs {
+	volume := volumes.Items[0].VolumeInfo
+	book := models.Book{
+		Title:     volume.Title,
+		Subtitle:  volume.Subtitle,
+		Authors:   sql_types.CSV(volume.Authors),
+		Publisher: volume.Publisher,
+		ISBN_10:   isbn10,
+		ISBN_13:   isbn13,
+		InfoLink:  volume.InfoLink,
+		ImageLink: volume.ImageLinks.Thumbnail,
+	}
+
+	for _, course := range params.CourseIDs {
 		exists, err := t.courseModel.DoesCourseExist(course)
 		if err != nil {
 			t.RespondAPIError(c, lib.ErrorInternalServerError)
@@ -91,7 +98,7 @@ func (t *Controller) CreateOrUpdateBook(c *gin.Context) {
 		return
 	}
 
-	err = t.bookModel.AddCoursesToBook(book.ID, &createData.CourseIDs)
+	err = t.bookModel.AddCoursesToBook(book.ID, &params.CourseIDs)
 	if err != nil {
 		t.RespondAPIError(c, lib.ErrorInternalServerError)
 		return
