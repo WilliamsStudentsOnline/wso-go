@@ -37,6 +37,7 @@ func (t *Controller) ListBooks(c *gin.Context) {
 	err = c.ShouldBind(&opts)
 	if err != nil {
 		t.RespondBadBind(c, err)
+		return
 	}
 
 	err = t.bookModel.GetAllBooks(&books, &opts.GetAllBooksOptions)
@@ -98,6 +99,7 @@ func (t *Controller) CreateOrUpdateBook(c *gin.Context) {
 	}
 	if params.ISBN != isbn10 && params.ISBN != isbn13 {
 		t.RespondAPIError(c, lib.ErrorBookNotFoundByISBN)
+		return
 	}
 
 	volume := volumes.Items[0].VolumeInfo

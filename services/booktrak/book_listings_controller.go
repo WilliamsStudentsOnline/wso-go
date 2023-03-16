@@ -109,6 +109,7 @@ func (t *Controller) ListBookListings(c *gin.Context) {
 	err = t.bookListingModel.GetAllBookListings(&bookListings, &opts.GetAllBookListingsOptions)
 	if err != nil {
 		t.RespondError(c, err)
+		return
 	}
 
 	t.RespondOK(c, bookListings)
@@ -137,6 +138,7 @@ func (t *Controller) DeleteBookListing(c *gin.Context) {
 	bookListingID, err := services.GetUIntParam(c, "bookListingID")
 	if err != nil {
 		t.RespondError(c, err)
+		return
 	}
 
 	var bookListing models.BookListing
