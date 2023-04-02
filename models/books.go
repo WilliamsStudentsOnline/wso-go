@@ -31,8 +31,13 @@ type GetAllBooksOptions struct {
 
 	Title     *string `json:"title" form:"title"`
 	Publisher *string `json:"publisher,omitempty" form:"publisher"`
-	ISBN_10   *string `json:"ISBN_10" form:"ISBN_10" binding:"omitempty,isbn10"`
-	ISBN_13   *string `json:"ISBN_13" form:"ISBN_13" binding:"omitempty,isbn13"`
+	ISBN_10   *string `json:"isbn10" form:"isbn10" binding:"omitempty,isbn10"`
+	ISBN_13   *string `json:"isbn13" form:"isbn13" binding:"omitempty,isbn13"`
+}
+
+func (m *BookModel) GetBookByID(id uint, b *Book) (err error) {
+	err = m.DB.Where(id).First(b).Error
+	return
 }
 
 func (o *GetAllBooksOptions) Order(db *gorm.DB) *gorm.DB {
@@ -94,13 +99,13 @@ func (m *BookModel) withPublisher(publisher string) func(*gorm.DB) *gorm.DB {
 
 func (m *BookModel) withISBN_10(ISBN_10 string) func(*gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Where("isbn_10 = ?", ISBN_10)
+		return db.Where("isbn10 = ?", ISBN_10)
 	}
 }
 
 func (m *BookModel) withISBN_13(ISBN_13 string) func(*gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Where("isbn_13 = ?", ISBN_13)
+		return db.Where("isbn13 = ?", ISBN_13)
 	}
 }
 
@@ -113,14 +118,14 @@ func (m *BookModel) DoesBookExist(id uint) (exists bool, err error) {
 
 func (m *BookModel) DoesBookExistByISBN10(ISBN_10 uint) (exists bool, err error) {
 	var count int
-	err = m.DB.Model(&Book{}).Where("books.isbn_10 = ?", ISBN_10).Count(&count).Error
+	err = m.DB.Model(&Book{}).Where("books.isbn10 = ?", ISBN_10).Count(&count).Error
 	exists = count > 0
 	return
 }
 
 func (m *BookModel) DoesBookExistByISBN13(ISBN_13 uint) (exists bool, err error) {
 	var count int
-	err = m.DB.Model(&Book{}).Where("books.isbn_13 = ?", ISBN_13).Count(&count).Error
+	err = m.DB.Model(&Book{}).Where("books.isbn13 = ?", ISBN_13).Count(&count).Error
 	exists = count > 0
 	return
 }

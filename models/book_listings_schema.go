@@ -25,7 +25,7 @@ type BookListing struct {
 	Description *string `gorm:"size:65535" json:"description"`
 
 	// True -> Offering to buy, False -> Offering to sell
-	IsBuyListing bool `json:"-"`
+	IsBuyListing bool `json:"isBuyListing"`
 }
 
 func (*BookListing) TableName() string {

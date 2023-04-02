@@ -32,9 +32,9 @@ var CreateBooks20221230032200 = &gormigrate.Migration{
 			// Publisher: Publisher of this book.
 			Publisher string `json:"publisher,omitempty"`
 			// ISBN_10: ISBN-10 of this book.
-			ISBN_10 string `gorm:"not null" json:"ISBN_10"`
+			ISBN_10 string `gorm:"not null" json:"isbn10"`
 			// ISBN_13: ISBN-13 of this book.
-			ISBN_13 string `gorm:"not null" json:"ISBN_13"`
+			ISBN_13 string `gorm:"not null" json:"isbn13"`
 			// InfoLink: URL to view information about this book on the Google
 			// Books site.
 			InfoLink string `gorm:"size:65535" json:"infoLink,omitempty"`

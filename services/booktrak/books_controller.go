@@ -23,8 +23,8 @@ type ListBooksParams struct {
 // @Param limit query int false "Limit Pagination"
 // @Param title query string false "Book Title"
 // @Param publisher query string false "Book Publisher"
-// @Param ISBN_10 query string false "Book ISBN-10 (must be in ISBN format)"
-// @Param ISBN_13 query string false "Book ISBN-13 (must be in ISBN format)"
+// @Param isbn10 query string false "Book ISBN-10 (must be in ISBN format)"
+// @Param isbn13 query string false "Book ISBN-13 (must be in ISBN format)"
 // @Success 200 {array} models.Book
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -50,7 +50,7 @@ func (t *Controller) ListBooks(c *gin.Context) {
 }
 
 type CreateOrUpdateBookParams struct {
-	ISBN      string `json:"ISBN" binding:"required,isbn"`
+	ISBN      string `json:"isbn" binding:"required,isbn"`
 	CourseIDs []uint `json:"courseIDs" binding:"required,min=1"`
 }
 
@@ -184,4 +184,33 @@ func (t *Controller) UpdateBookCourses(c *gin.Context) {
 	t.RespondOK(c, book)
 }
 
-func (t *Controller) GetBook(c *gin.Context) {}
+// Get book by id
+// GetBook godoc
+// @Summary Get book by book id
+// @Description get a book by book id
+// @ID get-book
+// @Tags books
+// @Accept  json
+// @Produce  json
+// @Param bookID path uint true "Book ID"
+// @Success 200 {object} models.Book
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
+// @Security Bearer
+// @Router /books/{bookID} [get]
+func (t *Controller) GetBook(c *gin.Context) {
+	bookID, err := services.GetUIntParam(c, "bookID")
+	if err != nil {
+		t.RespondBadBind(c, err)
+		return
+	}
+
+	var book models.Book
+	err = t.bookModel.GetBookByID(bookID, &book)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	t.RespondOK(c, book)
+}

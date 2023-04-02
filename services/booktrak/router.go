@@ -23,6 +23,7 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	}
 	r.GET("/books", c.ListBooks)
 	r.POST("/books", c.CreateOrUpdateBook)
+	r.GET("/books/:bookID", c.GetBook)
 	r.PATCH("/books/:bookID", c.UpdateBookCourses)
 
 	r.POST("/listings", c.CreateBookListing)
