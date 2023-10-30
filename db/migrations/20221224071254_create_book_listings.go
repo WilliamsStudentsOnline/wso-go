@@ -22,19 +22,18 @@ var CreateBookListings20221224071254 = &gormigrate.Migration{
 		type BookListing struct {
 			models.BaseSchema
 
-			// Belongs to book
+			// Belongs to book (FK)
 			BookID uint         `gorm:"index:index_book_listings_on_book_id;not null" json:"bookID"`
-			Book   *models.Book `json:"books"`
+			Book   *models.Book `json:"book"`
 
-			// Belongs to user (student)
+			// Belongs to user (FK)
 			UserID uint         `gorm:"index:index_book_listings_on_user_id;not null" json:"userID"`
 			User   *models.User `json:"user,omitempty"`
 
-			Condition   uint    `json:"condition"`
-			Description *string `gorm:"size:65535" json:"description"`
+			Condition   models.Condition `json:"condition"`
+			Description *string          `gorm:"size:65535" json:"description"`
 
-			// True -> Offering to buy, False -> Offering to sell
-			IsBuyListing bool `json:"-"`
+			ListingType models.ListingType `json:"listingType"`
 		}
 		return tx.AutoMigrate(&BookListing{}).Error
 	},

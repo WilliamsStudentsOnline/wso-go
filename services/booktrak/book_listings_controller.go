@@ -8,13 +8,13 @@ import (
 )
 
 type CreateBookListingParams struct {
-	BookID       uint    `json:"bookID" binding:"required"`
-	Condition    uint    `json:"condition"`
-	Description  *string `json:"description,omitempty"`
-	IsBuyListing bool    `json:"isBuyListing" binding:"required"`
+	BookID      uint               `json:"bookID" binding:"required"`
+	Condition   models.Condition   `json:"condition"`
+	Description *string            `json:"description,omitempty"`
+	ListingType models.ListingType `json:"listingType" binding:"required"`
 }
 
-// @Summary Create book listing
+// CreateBookListing @Summary Create book listing
 // @Description create a book listing
 // @ID booktrak-create-book-listing
 // @Tags booktrak
@@ -38,7 +38,7 @@ func (t *Controller) CreateBookListing(c *gin.Context) {
 		return
 	}
 
-	exists, err := t.bookModel.DoesBookExist(createData.BookID)
+	exists, err := t.bookModel.DoesBookExist(models.BookIdentifier{Id: lib.UIntToPtr(createData.BookID)})
 	if err != nil {
 		t.RespondAPIError(c, lib.ErrorInternalServerError)
 		return
@@ -48,17 +48,17 @@ func (t *Controller) CreateBookListing(c *gin.Context) {
 		return
 	}
 
-	if !(createData.Condition < models.ConditionMAX) {
+	if createData.Condition == models.ConditionUndefined {
 		t.RespondAPIError(c, lib.ErrorBookListingInvalidCondition)
 		return
 	}
 
 	bookListing := models.BookListing{
-		BookID:       createData.BookID,
-		UserID:       userID,
-		Condition:    createData.Condition,
-		Description:  createData.Description,
-		IsBuyListing: createData.IsBuyListing,
+		BookID:      createData.BookID,
+		UserID:      userID,
+		Condition:   createData.Condition,
+		Description: createData.Description,
+		ListingType: createData.ListingType,
 	}
 
 	err = t.bookListingModel.CreateBookListing(&bookListing)
@@ -74,7 +74,7 @@ type ListBookListingsParams struct {
 	models.GetAllBookListingsOptions
 }
 
-// List all book listings.
+// ListBookListings List all book listings.
 // ListBookListings godoc
 // @Summary List book listings
 // @Description lists all book listings
@@ -86,11 +86,10 @@ type ListBookListingsParams struct {
 // @Param limit query int false "Limit Pagination"
 // @Param courseID query int false "Course ID"
 // @Param userID query int false "User ID"
-// @Param isbn10 query string false "Book ISBN-10 (must be in ISBN format"
-// @Param isbn13 query string false "Book ISBN-13 (must be in ISBN format"
-// @Param minCondition query int false "Minimum Book Condition"
-// @Param maxCondition query int false "Maximum Book Condition"
-// @Param isBuyListing query bool false "Whether the listing is a buy listing or not (a sell listing)"
+// @Param isbn query string false "Book ISBN-13"
+// @Param minCondition query models.Condition false "Minimum Book Condition"
+// @Param maxCondition query models.Condition false "Maximum Book Condition"
+// @Param listingType query models.ListingType false "Type of the listing"
 // @Success 200 {array} models.BookListing
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -115,9 +114,38 @@ func (t *Controller) ListBookListings(c *gin.Context) {
 	t.RespondOK(c, bookListings)
 }
 
-func (t *Controller) GetBookListing(c *gin.Context) {}
+// GetBookListing Get book listing by id
+// GetBookListing godoc
+// @Summary Get book listing by book listing id
+// @Description get a book listing by book listing id
+// @ID get-book-listing
+// @Tags booktrak
+// @Accept  json
+// @Produce  json
+// @Param bookListingID path uint true "Book Listing ID"
+// @Success 200 {object} models.BookListing
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
+// @Security Bearer
+// @Router /listings/{bookListingID} [get]
+func (t *Controller) GetBookListing(c *gin.Context) {
+	bookListingID, err := services.GetUIntParam(c, "bookListingID")
+	if err != nil {
+		t.RespondBadBind(c, err)
+		return
+	}
 
-// Delete book listing. Can either do this to self if a user, or to everything if admin
+	var book models.BookListing
+	err = t.bookListingModel.GetBookListingByID(bookListingID, &book)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	t.RespondOK(c, book)
+}
+
+// DeleteBookListing Delete book listing. Can either do this to self if a user, or to everything if admin
 // @Summary Delete book listing
 // @Description delete a book listing
 // @ID booktrak-delete-book-listing
@@ -160,6 +188,5 @@ func (t *Controller) DeleteBookListing(c *gin.Context) {
 	}
 
 	c.Set(services.UpdateTokenKey, true)
-
 	t.RespondOK(c, bookListing)
 }

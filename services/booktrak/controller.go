@@ -19,7 +19,6 @@ type Controller struct {
 	bookListingModel *models.BookListingModel
 	bookModel        *models.BookModel
 	courseModel      *models.CourseModel
-	// userModel        *models.UserModel
 }
 
 func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Controller {

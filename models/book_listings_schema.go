@@ -1,33 +1,75 @@
 package models
 
+import (
+	"encoding/json"
+	"errors"
+)
+
+type Condition string
+type ListingType string
+
 const (
-	ConditionNew uint = iota
-	ConditionLikeNew
-	ConditionVeryGood
-	ConditionGood
-	ConditionFair
-	ConditionPoor
-	ConditionMAX
+	ConditionUndefined Condition = ""
+	ConditionFair      Condition = "FAIR"
+	ConditionGood      Condition = "GOOD"
+	ConditionVeryGood  Condition = "VERY_GOOD"
+	ConditionLikeNew   Condition = "LIKE_NEW"
+	ConditionNew       Condition = "NEW"
+)
+
+const (
+	ListingTypeUndefined ListingType = ""
+	ListingTypeBuy       ListingType = "BUY"
+	ListingTypeSell      ListingType = "SELL"
 )
 
 type BookListing struct {
 	BaseSchema
 
-	// Belongs to book
+	// Belongs to book (FK)
 	BookID uint  `gorm:"index:index_book_listings_on_book_id;not null" json:"bookID"`
-	Book   *Book `json:"books,omitempty"`
+	Book   *Book `json:"book,omitempty"`
 
-	// Belongs to user (student)
+	// Belongs to user (FK)
 	UserID uint  `gorm:"index:index_book_listings_on_user_id;not null" json:"userID"`
 	User   *User `json:"user,omitempty"`
 
-	Condition   uint    `json:"condition"`
-	Description *string `gorm:"size:65535" json:"description"`
+	Condition   Condition `json:"condition"`
+	Description *string   `gorm:"size:65535" json:"description"`
 
-	// True -> Offering to buy, False -> Offering to sell
-	IsBuyListing bool `json:"isBuyListing"`
+	ListingType ListingType `json:"listingType"`
 }
 
 func (*BookListing) TableName() string {
 	return "book_listings"
+}
+
+func (condition *Condition) UnmarshalJSON(b []byte) error {
+	// Define a secondary type to avoid ending up with a recursive call to json.Unmarshal
+	type C Condition
+	var r = (*C)(condition)
+	err := json.Unmarshal(b, &r)
+	if err != nil {
+		panic(err)
+	}
+	switch *condition {
+	case ConditionUndefined, ConditionFair, ConditionGood, ConditionVeryGood, ConditionLikeNew, ConditionNew:
+		return nil
+	}
+	return errors.New("invalid condition")
+}
+
+func (listingType *ListingType) UnmarshalJSON(b []byte) error {
+	// Define a secondary type to avoid ending up with a recursive call to json.Unmarshal
+	type LT ListingType
+	var r = (*LT)(listingType)
+	err := json.Unmarshal(b, &r)
+	if err != nil {
+		panic(err)
+	}
+	switch *listingType {
+	case ListingTypeUndefined, ListingTypeBuy, ListingTypeSell:
+		return nil
+	}
+	return errors.New("invalid listing type")
 }

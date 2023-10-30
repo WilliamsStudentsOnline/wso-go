@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/WilliamsStudentsOnline/wso-go/lib/isbn"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
 )
@@ -21,14 +22,13 @@ type GetAllBookListingsOptions struct {
 	Limit  *uint `json:"limit" form:"limit"`
 
 	// Filters
-	BookID       *uint   `json:"bookID" form:"bookID"`
-	CourseID     *uint   `json:"courseID" form:"courseID"`
-	UserID       *uint   `json:"userID" form:"userID"`
-	ISBN_10      *string `json:"isbn10" form:"isbn10" binding:"omitempty,isbn10"`
-	ISBN_13      *string `json:"isbn13" form:"isbn13" binding:"omitempty,isbn13"`
-	MinCondition *uint   `json:"minCondition" form:"minCondition"`
-	MaxCondition *uint   `json:"maxCondition" form:"maxCondition"`
-	IsBuyListing *bool   `json:"isBuyListing" form:"isBuyListing"`
+	BookID       *uint        `json:"bookID" form:"bookID"`
+	CourseID     *uint        `json:"courseID" form:"courseID"`
+	UserID       *uint        `json:"userID" form:"userID"`
+	Isbn         *string      `json:"isbn" form:"isbn" binding:"omitempty,isbn"`
+	MinCondition *Condition   `json:"minCondition" form:"minCondition"`
+	MaxCondition *Condition   `json:"maxCondition" form:"maxCondition"`
+	ListingType  *ListingType `json:"listingType" form:"listingType"`
 }
 
 func (o *GetAllBookListingsOptions) Order(db *gorm.DB) *gorm.DB {
@@ -63,21 +63,19 @@ func (o *GetAllBookListingsOptions) Run(db *gorm.DB) *gorm.DB {
 
 	m := NewBookListingModel(db.New(), nil)
 
-	// If we filter by book ID, ISBN doesn't matter
+	// If we filter by book ID, we ignore the isbn
 	if o.BookID != nil {
 		db = m.withBookID(*o.BookID)(db)
 	} else {
-		if o.ISBN_13 != nil {
-			db = m.withISBN13(CleanISBN(*o.ISBN_13))(db)
-		} else if o.ISBN_10 != nil {
-			db = m.withISBN10(CleanISBN(*o.ISBN_10))(db)
+		if o.Isbn != nil {
+			db = m.withIsbn(isbn.CleanISBN(*o.Isbn))(db)
 		}
 	}
 	if o.CourseID != nil {
 		db = m.withCourse(*o.CourseID)(db)
 	}
-	if o.IsBuyListing != nil {
-		db = m.withListingType(*o.IsBuyListing)(db)
+	if o.ListingType != nil {
+		db = m.withListingType(*o.ListingType)(db)
 	}
 	if o.UserID != nil {
 		db = m.withUser(*o.UserID)(db)
@@ -115,41 +113,30 @@ func (m *BookListingModel) withUser(userID uint) func(*gorm.DB) *gorm.DB {
 	}
 }
 
-func (m *BookListingModel) withISBN10(ISBN_10 string) func(*gorm.DB) *gorm.DB {
+func (m *BookListingModel) withIsbn(isbn string) func(*gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Where(
 			"book_listings.book_id in (?)",
 			m.DB.Table("books").Select("book_id").Where(
-				"isbn10 = ?", ISBN_10,
+				"isbn = ?", isbn,
 			).QueryExpr(),
 		)
 	}
 }
 
-func (m *BookListingModel) withISBN13(ISBN_13 string) func(*gorm.DB) *gorm.DB {
+func (m *BookListingModel) withListingType(listingType ListingType) func(*gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Where(
-			"book_listings.book_id in (?)",
-			m.DB.Table("books").Select("book_id").Where(
-				"isbn13 = ?", ISBN_13,
-			).QueryExpr(),
-		)
+		return db.Where("listing_type = ?", listingType)
 	}
 }
 
-func (m *BookListingModel) withListingType(isBuyListing bool) func(*gorm.DB) *gorm.DB {
-	return func(db *gorm.DB) *gorm.DB {
-		return db.Where("is_buy_listing = ?", isBuyListing)
-	}
-}
-
-func (m *BookListingModel) withMinCondition(minCondition uint) func(*gorm.DB) *gorm.DB {
+func (m *BookListingModel) withMinCondition(minCondition Condition) func(*gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Where("condition >= ?", minCondition)
 	}
 }
 
-func (m *BookListingModel) withMaxCondition(maxCondition uint) func(*gorm.DB) *gorm.DB {
+func (m *BookListingModel) withMaxCondition(maxCondition Condition) func(*gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Where("condition <= ?", maxCondition)
 	}

@@ -2,6 +2,7 @@ package booktrak
 
 import (
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
+	"github.com/WilliamsStudentsOnline/wso-go/lib/isbn"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/api/books/v1"
@@ -42,17 +43,20 @@ func volumesToBooks(volumes *[]*books.Volume) *[]*models.Book {
 			}
 		}
 
+		if isbn13 == "" && isbn10 != "" {
+			isbn13 = isbn.ConvertIsbn10to13(isbn10)
+		}
+
 		book := models.Book{
 			Title:     volume.VolumeInfo.Title,
-			Subtitle:  volume.VolumeInfo.Subtitle,
+			Subtitle:  lib.StrToPtr(volume.VolumeInfo.Subtitle),
 			Authors:   volume.VolumeInfo.Authors,
-			Publisher: volume.VolumeInfo.Publisher,
-			InfoLink:  volume.VolumeInfo.InfoLink,
-			ISBN_10:   isbn10,
-			ISBN_13:   isbn13,
+			Publisher: lib.StrToPtr(volume.VolumeInfo.Publisher),
+			InfoLink:  lib.StrToPtr(volume.VolumeInfo.InfoLink),
+			Isbn:      isbn13,
 		}
 		if volume.VolumeInfo.ImageLinks != nil {
-			book.ImageLink = volume.VolumeInfo.ImageLinks.Thumbnail
+			book.ImageLink = lib.StrToPtr(volume.VolumeInfo.ImageLinks.Thumbnail)
 		}
 		books = append(books, &book)
 	}

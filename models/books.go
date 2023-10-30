@@ -1,17 +1,11 @@
 package models
 
 import (
-	"strings"
-
+	"fmt"
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
+	"github.com/WilliamsStudentsOnline/wso-go/lib/isbn"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
-)
-
-const (
-	ISBN_INVALID = -1
-	ISBN_10      = 10
-	ISBN_13      = 13
 )
 
 type BookModel struct {
@@ -31,8 +25,7 @@ type GetAllBooksOptions struct {
 
 	Title     *string `json:"title" form:"title"`
 	Publisher *string `json:"publisher,omitempty" form:"publisher"`
-	ISBN_10   *string `json:"isbn10" form:"isbn10" binding:"omitempty,isbn10"`
-	ISBN_13   *string `json:"isbn13" form:"isbn13" binding:"omitempty,isbn13"`
+	Isbn      *string `json:"isbn" form:"isbn" binding:"omitempty,isbn"`
 }
 
 func (m *BookModel) GetBookByID(id uint, b *Book) (err error) {
@@ -76,11 +69,8 @@ func (o *GetAllBooksOptions) Run(db *gorm.DB) *gorm.DB {
 	if o.Publisher != nil {
 		db = m.withPublisher(*o.Publisher)(db)
 	}
-	if o.ISBN_10 != nil {
-		db = m.withISBN_10(CleanISBN(*o.ISBN_10))(db)
-	}
-	if o.ISBN_13 != nil {
-		db = m.withISBN_13(CleanISBN(*o.ISBN_13))(db)
+	if o.Isbn != nil {
+		db = m.withIsbn(isbn.CleanISBN(*o.Isbn))(db)
 	}
 	return db
 }
@@ -97,41 +87,32 @@ func (m *BookModel) withPublisher(publisher string) func(*gorm.DB) *gorm.DB {
 	}
 }
 
-func (m *BookModel) withISBN_10(ISBN_10 string) func(*gorm.DB) *gorm.DB {
+func (m *BookModel) withIsbn(isbn string) func(*gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Where("isbn10 = ?", ISBN_10)
+		return db.Where("isbn = ?", isbn)
 	}
 }
 
-func (m *BookModel) withISBN_13(ISBN_13 string) func(*gorm.DB) *gorm.DB {
-	return func(db *gorm.DB) *gorm.DB {
-		return db.Where("isbn13 = ?", ISBN_13)
+type BookIdentifier struct {
+	Id   *uint
+	Isbn *string
+}
+
+func (m *BookModel) DoesBookExist(identifier BookIdentifier) (exists bool, err error) {
+	var count int
+	if identifier.Id != nil {
+		err = m.DB.Model(&Book{}).Where("books.id = ?", identifier.Id).Count(&count).Error
+	} else if identifier.Isbn != nil {
+		err = m.DB.Model(&Book{}).Where("books.isbn = ?", identifier.Isbn).Count(&count).Error
+	} else {
+		err = fmt.Errorf("missing valid identifier")
 	}
-}
-
-func (m *BookModel) DoesBookExist(id uint) (exists bool, err error) {
-	var count int
-	err = m.DB.Model(&Book{}).Where("books.id = ?", id).Count(&count).Error
-	exists = count > 0
-	return
-}
-
-func (m *BookModel) DoesBookExistByISBN10(ISBN_10 uint) (exists bool, err error) {
-	var count int
-	err = m.DB.Model(&Book{}).Where("books.isbn10 = ?", ISBN_10).Count(&count).Error
-	exists = count > 0
-	return
-}
-
-func (m *BookModel) DoesBookExistByISBN13(ISBN_13 uint) (exists bool, err error) {
-	var count int
-	err = m.DB.Model(&Book{}).Where("books.isbn13 = ?", ISBN_13).Count(&count).Error
 	exists = count > 0
 	return
 }
 
 func (m *BookModel) CreateBook(b *Book) (err error) {
-	err = m.DB.FirstOrCreate(b, &Book{ISBN_10: b.ISBN_10, ISBN_13: b.ISBN_13}).Error
+	err = m.DB.FirstOrCreate(b, &Book{Isbn: b.Isbn}).Error
 	if err != nil {
 		return err
 	}
@@ -154,7 +135,7 @@ func (m *BookModel) AddCoursesToBook(id uint, courseIDs *[]uint) (b *Book, err e
 
 	for _, courseID := range *courseIDs {
 		course := new(Course)
-		err = m.DB.First(course, courseID).Error
+		err = tx.First(course, courseID).Error
 		if err != nil {
 			tx.Rollback()
 			if gorm.IsRecordNotFoundError(err) {
@@ -180,8 +161,4 @@ func (m *BookModel) AddCoursesToBook(id uint, courseIDs *[]uint) (b *Book, err e
 func (m *BookModel) DeleteBook(b *Book) (err error) {
 	err = m.DB.Delete(b).Error
 	return
-}
-
-func CleanISBN(isbn string) string {
-	return strings.ReplaceAll(strings.ReplaceAll(isbn, " ", ""), "-", "")
 }
