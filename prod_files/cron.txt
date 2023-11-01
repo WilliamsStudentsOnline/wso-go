@@ -37,3 +37,6 @@ SHELL="/bin/bash"
 # Update professors' areas of study based on their course reviews
 # This is run at the beginning of April, August, November (registration periods)
 0 0 1 4,8,11 * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/update_profs_areas_of_study -console -config /home/wso/wso/wso-backend/config.yaml >> /home/wso/wso/wso-backend/logs/update-profs_areas_of_study-cron.log 2>&1'
+
+# Reset EphMatch. This is run on September 1st every year
+0 0 1 9 * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/ephmatch-reset -console -config /home/wso/wso/wso-backend/config.yaml >> /home/wso/wso/wso-backend/logs/ephmatch-reset-cron.log 2>&1'
