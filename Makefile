@@ -90,6 +90,10 @@ job-initialize-on-campus-semesters:
 job-update_profs_areas_of_study:
 	go build -tags jsoniter -o job-update_profs_areas_of_study ./jobs/update_profs_areas_of_study/cmd
 
+.PHONY: job-ephmatch-reset
+job-ephmatch-reset:
+	go build -tags jsoniter -o job-ephmatch-reset ./jobs/ephmatch_reset
+
 .PHONY: build-prod-linux
 build-prod-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o $(BINARY_NAME)_linux ./server/cmd
@@ -107,6 +111,7 @@ build-jobs-prod-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-update-on-campus-semesters ./jobs/update_on_campus_semesters/cmd
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-initialize-on-campus-semesters ./jobs/update_on_campus_semesters/initial-calculation
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-update_profs_areas_of_study ./jobs/update_profs_areas_of_study/cmd
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-ephmatch-reset ./jobs/ephmatch_reset
 
 .PHONY: go-gen
 go-gen:
