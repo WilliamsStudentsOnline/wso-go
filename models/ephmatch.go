@@ -147,13 +147,6 @@ func (m *EphmatchModel) Reset() (err error) {
 		return err
 	}
 
-	// Soft delete all likes
-	err = tx.Delete(EphmatchLike{}).Error
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-
 	// Soft delete all relations
 	err = tx.Delete(EphmatchRelation{}).Error
 	if err != nil {
