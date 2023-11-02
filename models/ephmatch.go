@@ -168,6 +168,13 @@ func (m *EphmatchModel) Reset() (err error) {
 		return err
 	}
 
+	// Soft delete all profiles
+	err = tx.Delete(EphmatchProfile{}).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
 	return tx.Commit().Error
 }
 
