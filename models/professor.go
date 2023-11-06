@@ -275,11 +275,11 @@ func (m *ProfessorModel) withRanking(ranking string, ascending bool) func(db *go
 			order = "DESC"
 		}
 
-		o := fmt.Sprintf("avg(factrak_surveys.%s)", ranking)
-		h := fmt.Sprintf("count(factrak_surveys.%s) >= 5", ranking)
-		q := fmt.Sprintf("factrak_surveys.%s IS NOT NULL", ranking)
+		avgRanking := fmt.Sprintf("avg(factrak_surveys.%s)", ranking)
+		havingCount := fmt.Sprintf("count(factrak_surveys.%s) >= 5", ranking)
+		notNull := fmt.Sprintf("factrak_surveys.%s IS NOT NULL", ranking)
 
-		subQuery := db.Table("factrak_surveys").Select("professor_id, " + o + " as factrak_score").Group("factrak_surveys.professor_id").Where(q).Having(h).SubQuery()
+		subQuery := db.Table("factrak_surveys").Select("professor_id, " + avgRanking + " as factrak_score").Group("factrak_surveys.professor_id").Where(notNull).Having(havingCount).SubQuery()
 
 		db = db.Table("users").Select("users.*, scores.factrak_score").Joins("left join (?) as scores on users.id = scores.professor_id", subQuery).Where("factrak_score IS NOT NULL").Order("factrak_score "+order, true)
 
