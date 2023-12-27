@@ -20,7 +20,7 @@ type ListBooksParams struct {
 // @Tags booktrak
 // @Accept  json
 // @Produce  json
-// @Param offset query int false "Offset Pagination (timestamp)"
+// @Param offset query int false "Offset Pagination"
 // @Param limit query int false "Limit Pagination"
 // @Param title query string false "Book Title"
 // @Param publisher query string false "Book Publisher"
