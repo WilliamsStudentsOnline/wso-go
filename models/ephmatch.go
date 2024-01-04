@@ -133,6 +133,44 @@ func (m *EphmatchModel) DeleteRelationWithMatchHooks(userID uint, otherID uint) 
 	return tx.Commit().Error
 }
 
+func (m *EphmatchModel) Reset() (err error) {
+	// Transaction setup
+	tx := m.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	// More transaction setup
+	if err = tx.Error; err != nil {
+		return err
+	}
+
+	// Soft delete all relations
+	err = tx.Delete(EphmatchRelation{}).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// Soft delete all matches
+	err = tx.Delete(EphmatchMatch{}).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// Soft delete all profiles
+	err = tx.Delete(EphmatchProfile{}).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit().Error
+}
+
 func (m *EphmatchModel) matchHookLikedRelation(tx *gorm.DB, userID uint, otherID uint) (matched bool, err error) {
 	// We know we like them. Now check they like us. (Check like other way)
 	lr := NewEphmatchRelationModel(tx, m.log)
