@@ -99,6 +99,11 @@ func (t *Controller) CreateBook(c *gin.Context) {
 		}
 	}
 
+	if correctVolume == nil {
+		t.RespondAPIError(c, lib.ErrorBookNotFoundByISBN)
+		return
+	}
+
 	if params.ISBN != isbn10 && params.ISBN != isbn13 {
 		t.RespondAPIError(c, lib.ErrorBookNotFoundByISBN)
 		return
