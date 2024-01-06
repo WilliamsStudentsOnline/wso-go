@@ -7,6 +7,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
+	"google.golang.org/api/books/v1"
 )
 
 type ListBooksParams struct {
@@ -75,23 +76,26 @@ func (t *Controller) CreateBook(c *gin.Context) {
 	}
 
 	params.ISBN = isbn.CleanISBN(params.ISBN)
-	volumes, err := t.searchVolumes(params.ISBN, lib.IntToPtr(1))
+	volumes, err := t.searchVolumes(params.ISBN, lib.IntToPtr(20))
 	if err != nil {
 		t.RespondAPIError(c, lib.ErrorInternalServerError)
 		return
 	}
-	if len(volumes.Items) != 1 {
-		t.RespondAPIError(c, lib.ErrorBookNotFoundByISBN)
-		return
-	}
 
 	isbn10, isbn13 := "", ""
-	for _, v := range volumes.Items[0].VolumeInfo.IndustryIdentifiers {
-		if v.Type == "ISBN_10" {
-			isbn10 = v.Identifier
-		}
-		if v.Type == "ISBN_13" {
-			isbn13 = v.Identifier
+	var correctVolume *books.Volume
+	for _, volume := range volumes.Items {
+		for _, v := range volume.VolumeInfo.IndustryIdentifiers {
+			if params.ISBN == v.Identifier {
+				if v.Type == "ISBN_10" {
+					isbn10 = v.Identifier
+				}
+				if v.Type == "ISBN_13" {
+					isbn13 = v.Identifier
+				}
+				correctVolume = volume
+				break
+			}
 		}
 	}
 
@@ -104,7 +108,7 @@ func (t *Controller) CreateBook(c *gin.Context) {
 		isbn13 = isbn.ConvertIsbn10to13(params.ISBN)
 	}
 
-	volume := volumes.Items[0].VolumeInfo
+	volume := correctVolume.VolumeInfo
 	book := &models.Book{
 		Title:     volume.Title,
 		Subtitle:  lib.StrToPtr(volume.Subtitle),
