@@ -14,13 +14,20 @@ type CreateBookListingParams struct {
 	ListingType models.ListingType `json:"listingType" binding:"required"`
 }
 
+type BookListingParamsBody struct {
+	BookID       uint    `json:"bookID"`
+	Condition    int     `json:"condition"` // Assuming the condition is an integer in JSON
+	Description  *string `json:"description,omitempty"`
+	IsBuyListing bool    `json:"isBuyListing"`
+}
+
 // CreateBookListing @Summary Create book listing
 // @Description create a book listing
 // @ID booktrak-create-book-listing
 // @Tags booktrak
 // @Accept  json
 // @Produce  json
-// @Param createParams body booktrak.CreateBookListingParams true "Create Book Listing Params"
+// @Param createParams body booktrak.BookListingParamsBody true "Create Book Listing Params"
 // @Success 201 {object} models.BookListing
 // @Failure 2232 {object} services.BaseErrorResponse "invalid book condition"
 // @Failure 400 {object} services.BaseErrorResponse
@@ -30,12 +37,42 @@ type CreateBookListingParams struct {
 func (t *Controller) CreateBookListing(c *gin.Context) {
 	userID := services.GetUserID(c)
 
+	reqBody := BookListingParamsBody{}
+	reqErr := c.ShouldBind(&reqBody)
+	if reqErr != nil {
+		t.RespondBadBind(c, reqErr)
+		return
+	}
+
 	// Bind create params
 	createData := CreateBookListingParams{}
-	err := c.ShouldBind(&createData)
-	if err != nil {
-		t.RespondBadBind(c, err)
-		return
+	createData.BookID = reqBody.BookID
+	createData.Description = reqBody.Description
+
+	// set condition based on condition # passed in
+	switch reqBody.Condition {
+	case 0:
+		createData.Condition = models.ConditionPoor
+	case 1:
+		createData.Condition = models.ConditionFair
+	case 2:
+		createData.Condition = models.ConditionGood
+	case 3:
+		createData.Condition = models.ConditionVeryGood
+	case 4:
+		createData.Condition = models.ConditionLikeNew
+	case 5:
+		createData.Condition = models.ConditionNew
+	default:
+		createData.Condition = models.ConditionUndefined
+		t.RespondAPIError(c, lib.ErrorMalformedRequestData)
+	}
+
+	// Set ListingType based on isBuyListing
+	if reqBody.IsBuyListing {
+		createData.ListingType = models.ListingTypeBuy
+	} else {
+		createData.ListingType = models.ListingTypeSell
 	}
 
 	exists, err := t.bookModel.DoesBookExist(models.BookIdentifier{Id: lib.UIntToPtr(createData.BookID)})
