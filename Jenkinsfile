@@ -14,10 +14,9 @@ pipeline {
   stages {
     stage('Test') {
       steps {
-        sh '''export PATH=$PATH:$(go env GOPATH)/bin'''  // somehow go-junit-report is not in the path?
-        sh '''go get -u github.com/jstemmer/go-junit-report'''
-        sh '''go get -u github.com/axw/gocov/gocov'''
-        sh '''go get -u github.com/AlekSi/gocov-xml'''
+        sh '''go install github.com/jstemmer/go-junit-report/v2@latest'''
+        sh '''go install github.com/axw/gocov/gocov@latest'''
+        sh '''go install github.com/AlekSi/gocov-xml@latest'''
         sh '''go test -v -coverprofile=c.out -race ./... 2>&1 | bash -c "tee >(go-junit-report > report.xml)"'''
       }
       post {
