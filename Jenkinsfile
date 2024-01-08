@@ -226,8 +226,11 @@ pipeline {
       slackSend (color: 'warning', message: "WSO-Go Failed tests\n Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
     }
     cleanup {
+      node {
+        cleanWs()
       // clean up docker
       sh 'docker system prune -f'
+      }
     }
   }
 }
