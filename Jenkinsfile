@@ -4,8 +4,24 @@ pipeline {
   agent none
   environment {
     CGO_ENABLED = 1
+    WSO_GO_DISCORD_WEBHOOK_URL = credentials('WSO_GO_DISCORD_WEBHOOK_URL')
   }
   stages {
+    stage('Temporary test') {
+      agent any
+      steps {
+        sh '''echo "Hello, world!"'''
+        sh '''echo "${env.WSO_GO_DISCORD_WEBHOOK_URL}"'''
+      }
+      post {
+        success {
+          discordSend (title: "WSO-Go Test Notification", description: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", link: env.BUILD_URL, result: currentBuild.currentResult, webhookURL: "${env.WSO_GO_DISCORD_WEBHOOK_URL}")
+        }
+        failure {
+          discordSend (title: "WSO-Go Test Notification", description: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", link: env.BUILD_URL, result: currentBuild.currentResult, webhookURL: "${env.WSO_GO_DISCORD_WEBHOOK_URL}")
+        }
+      }
+    }
     stage('Deploy for development') {
       when {
         beforeAgent true
@@ -102,9 +118,11 @@ pipeline {
       post {
         success {
           slackSend (color: '#00FF00', message: "WSO-Go Deployed on Development\n Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+          discordSend (title: "WSO-Go Deployed on Development", description: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", link: env.BUILD_URL, result: currentBuild.currentResult, webhookURL: "${env.WSO_GO_DISCORD_WEBHOOK_URL}")
         }
         failure {
           slackSend (color: 'danger', message: "WSO-Go Failed to Deploy on Development\n Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+          discordSend (title: "WSO-Go Fail to Deploy on Development", description: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", link: env.BUILD_URL, result: currentBuild.currentResult, webhookURL: "${env.WSO_GO_DISCORD_WEBHOOK_URL}")
         }
       }
     }
@@ -204,9 +222,11 @@ pipeline {
           post {
             success {
               slackSend (color: '#00FF00', message: "WSO-Go Deployed on Production\n Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+              discordSend (title: "WSO-Go Deployed on Production", description: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", link: env.BUILD_URL, result: currentBuild.currentResult, webhookURL: "${env.WSO_GO_DISCORD_WEBHOOK_URL}")
             }
             failure {
               slackSend (color: 'danger', message: "WSO-Go Failed to Deploy on Production\n Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+              discordSend (title: "WSO-Go Failed to Deploy on Production", description: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", link: env.BUILD_URL, result: currentBuild.currentResult, webhookURL: "${env.WSO_GO_DISCORD_WEBHOOK_URL}")
             }
             cleanup {
               // Run the cleaning-up in built-in node, only during production builds (to clean docker cache)
