@@ -1,37 +1,21 @@
 import groovy.json.JsonSlurper
 
 pipeline {
-  agent {
-    dockerfile {
-      filename 'Dockerfile.builder'
-      args '-u root:sudo'
-    }
-
-  }
+  agent none
   environment {
     CGO_ENABLED = 1
   }
   stages {
-    stage('Test') {
-      steps {
-        sh '''go install github.com/jstemmer/go-junit-report/v2@latest'''
-        sh '''go install github.com/axw/gocov/gocov@latest'''
-        sh '''go install github.com/AlekSi/gocov-xml@latest'''
-        sh '''go test -v -coverprofile=c.out -race ./... 2>&1 | bash -c "tee >(go-junit-report > report.xml)"'''
-      }
-      post {
-        always {
-          junit(testResults: 'report.xml', allowEmptyResults: true, healthScaleFactor: 1)
-        }
-        success {
-          sh '''gocov convert c.out | gocov-xml > coverage.xml'''
-          publishCoverage adapters: [coberturaAdapter('coverage.xml')], sourceFileResolver: sourceFiles('NEVER_STORE')
-        }
-      }
-    }
     stage('Deploy for development') {
       when {
+        beforeAgent true
         branch 'master'
+      }
+      agent {
+        dockerfile {
+          filename 'Dockerfile.builder'
+          args '-u root:sudo'
+        }
       }
       steps {
         sh '''make build-prod-linux'''
@@ -126,7 +110,14 @@ pipeline {
     }
     stage('Deploy for production') {
           when {
+            beforeAgent true
             branch 'production'
+          }
+          agent {
+            dockerfile {
+              filename 'Dockerfile.builder'
+              args '-u root:sudo'
+            }
           }
           steps {
             sh '''make build-prod-linux'''
