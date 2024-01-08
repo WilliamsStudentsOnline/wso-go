@@ -1,0 +1,39 @@
+name: CI/CD Build and Test
+on:
+  push:
+    branches:
+      - '**' # matches every branch
+      - '!master' # excludes master (handled by Jenkins, we should rename to main sometime)
+      - '!main' # excludes master (handled by Jenkins)
+      - '!production' # excludes production (handled by Jenkins)
+  pull_request:
+
+env:
+  GO111MODULE: on
+  CGO_ENABLED: 0
+  GOOS: linux
+  GOARCH: amd64
+
+jobs:
+  lint:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+      - name: Build Server
+        run: make build-prod-linux
+      - name: Build Jobs
+        run: make build-jobs-prod-linux
+      - name: Test and Generate Coverage
+        run: |
+          go install github.com/jstemmer/go-junit-report/v2@latest
+          go install github.com/axw/gocov/gocov@latest
+          go install github.com/AlekSi/gocov-xml@latest
+          go test -v -coverprofile=c.out -race ./... 2>&1 | go-junit-report > report.xml
+      - name: Coverage Summary Report
+        uses: irongut/CodeCoverageSummary@v1.3.0
+        with:
+          filename: report.xml
