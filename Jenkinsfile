@@ -217,6 +217,13 @@ pipeline {
             failure {
               slackSend (color: 'danger', message: "WSO-Go Failed to Deploy on Production\n Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
             }
+            cleanup {
+              // Run the cleaning-up in built-in node, only during production builds (to clean docker cache)
+              node('master || built-in') {
+                cleanWs()
+                sh 'docker system prune -f'
+              }
+            }
           }
         }
   }
@@ -224,13 +231,6 @@ pipeline {
   post {
     failure {
       slackSend (color: 'warning', message: "WSO-Go Failed tests\n Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
-    }
-    cleanup {
-      // Run the cleaning-up in built-in node
-      node('master || built-in') {
-        cleanWs()
-      sh 'docker system prune -f'
-      }
     }
   }
 }
