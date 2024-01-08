@@ -222,8 +222,5 @@ pipeline {
     failure {
       slackSend (color: 'warning', message: "WSO-Go Failed tests\n Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
     }
-    cleanup {
-      cleanWs()
-    }
   }
 }
