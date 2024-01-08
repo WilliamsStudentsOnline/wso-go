@@ -23,17 +23,32 @@ jobs:
       - uses: actions/setup-go@v4
         with:
           go-version: '1.21'
+
       - name: Build Server
         run: make build-prod-linux
       - name: Build Jobs
         run: make build-jobs-prod-linux
-      - name: Test and Generate Coverage
+
+      - name: Set up test environment
         run: |
-          go install github.com/jstemmer/go-junit-report/v2@latest
-          go install github.com/axw/gocov/gocov@latest
-          go install github.com/AlekSi/gocov-xml@latest
-          go test -v -coverprofile=c.out -race ./... 2>&1 | go-junit-report > report.xml
+          go install github.com/gotesttools/gotestfmt/v2/cmd/gotestfmt@latest
+          go install github.com/t-yuki/gocover-cobertura@latest
+      - name: Run tests
+        run: |
+          set -euo pipefail
+          go test -race -json -v -coverprofile=coverage.txt ./... 2>&1 | tee /tmp/gotest.log | gotestfmt -hide=successful-tests,empty-packages
+
+      - name: Upload test log
+        uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: test-log
+          path: /tmp/gotest.log
+          if-no-files-found: error
+
+      - name: Convert go coverage to corbetura format
+        run: gocover-cobertura < coverage.txt > coverage.xml
       - name: Coverage Summary Report
         uses: irongut/CodeCoverageSummary@v1.3.0
         with:
-          filename: report.xml
+          filename: coverage.xml
