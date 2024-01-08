@@ -14,6 +14,7 @@ pipeline {
   stages {
     stage('Test') {
       steps {
+        sh '''export PATH=$PATH:$(go env GOPATH)/bin'''  // somehow go-junit-report is not in the path?
         sh '''go get -u github.com/jstemmer/go-junit-report'''
         sh '''go get -u github.com/axw/gocov/gocov'''
         sh '''go get -u github.com/AlekSi/gocov-xml'''
@@ -220,7 +221,6 @@ pipeline {
             cleanup {
               // Run the cleaning-up in built-in node, only during production builds (to clean docker cache)
               node('master || built-in') {
-                cleanWs()
                 sh 'docker system prune -f'
               }
             }
@@ -231,6 +231,9 @@ pipeline {
   post {
     failure {
       slackSend (color: 'warning', message: "WSO-Go Failed tests\n Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+    }
+    cleanup {
+      cleanWs()
     }
   }
 }
