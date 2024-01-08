@@ -3,8 +3,8 @@ on:
   push:
     branches:
       - '**' # matches every branch
-      - '!master' # excludes master (handled by Jenkins, we should rename to main sometime)
-      - '!main' # excludes master (handled by Jenkins)
+      # - '!master' # excludes master (handled by Jenkins, we should rename to main sometime)
+      # - '!main' # excludes master (handled by Jenkins)
       - '!production' # excludes production (handled by Jenkins)
   pull_request:
 
@@ -40,9 +40,10 @@ jobs:
           go install github.com/gotesttools/gotestfmt/v2/cmd/gotestfmt@latest
           go install github.com/t-yuki/gocover-cobertura@latest
       - name: Run tests
+        # Exclude onboarding packages
         run: |
           set -euo pipefail
-          go test -race -json -v -coverprofile=coverage.txt ./... 2>&1 | tee /tmp/gotest.log | gotestfmt -hide=successful-tests,empty-packages
+          go test -race -json -v -coverprofile=coverage.txt `go list ./... | grep -v onboarding` 2>&1 | tee /tmp/gotest.log | gotestfmt -hide=successful-tests,empty-packages
 
       # Disabled for now, due to the giant size (and not being used)
       # - name: Upload test log

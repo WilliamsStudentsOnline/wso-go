@@ -23,6 +23,9 @@ RUN go mod verify
 # Copy the rest of the project into the file
 COPY . .
 
+# Copy git files (for Golang VCS stamping)
+COPY .git/ ./.git/
+
 # Set build flags
 ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
 
