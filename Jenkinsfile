@@ -19,6 +19,8 @@ pipeline {
         }
       }
       steps {
+        // to fix the error fatal: unsafe repository ('<...> is owned by someone else)
+        sh '''git config --global --add safe.directory "*"'''
         sh '''make build-prod-linux'''
         sh '''make build-jobs-prod-linux'''
         script {
@@ -123,6 +125,7 @@ pipeline {
             }
           }
           steps {
+            sh '''git config --global --add safe.directory "*"'''
             sh '''make build-prod-linux'''
             sh '''make build-jobs-prod-linux'''
             script {
