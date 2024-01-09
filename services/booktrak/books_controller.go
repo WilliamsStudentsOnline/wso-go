@@ -144,7 +144,7 @@ type UpdateBookCoursesParams struct {
 // @Tags booktrak
 // @Accept  json
 // @Produce  json
-// @Param updateParams body booktrak.UpdateBookCourses true "Update Book Params"
+// @Param updateParams body booktrak.UpdateBookCoursesParams true "Update Book Params"
 // @Param bookID path uint true "Book ID"
 // @Success 200 {object} models.Book
 // @Failure 2253 {object} services.BaseErrorResponse "some courses could not be found"

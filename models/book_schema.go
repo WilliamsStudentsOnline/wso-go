@@ -12,7 +12,7 @@ type Book struct {
 	// Book subtitle.
 	Subtitle *string `json:"subtitle,omitempty"`
 	// The names of the authors and/or editors for this book.
-	Authors sql_types.CSV `gorm:"type:varchar(255)" json:"authors,omitempty"`
+	Authors sql_types.CSV `gorm:"type:varchar(255)" json:"authors,omitempty" swaggertype:"array,string"`
 	// Publisher of this book.
 	Publisher *string `json:"publisher,omitempty"`
 	// ISBN-13 of this book (all books have this)

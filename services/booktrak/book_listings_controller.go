@@ -9,9 +9,9 @@ import (
 
 type CreateBookListingParams struct {
 	BookID      uint               `json:"bookID" binding:"required"`
-	Condition   models.Condition   `json:"condition"`
+	Condition   models.Condition   `json:"condition" enums:",POOR,FAIR,GOOD,VERY_GOOD,LIKE_NEW,NEW"`
 	Description *string            `json:"description,omitempty"`
-	ListingType models.ListingType `json:"listingType" binding:"required"`
+	ListingType models.ListingType `json:"listingType" enums:",BUY,SELL" binding:"required"`
 }
 
 // CreateBookListing @Summary Create book listing
@@ -87,9 +87,9 @@ type ListBookListingsParams struct {
 // @Param courseID query int false "Course ID"
 // @Param userID query int false "User ID"
 // @Param isbn query string false "Book ISBN-13"
-// @Param minCondition query models.Condition false "Minimum Book Condition"
-// @Param maxCondition query models.Condition false "Maximum Book Condition"
-// @Param listingType query models.ListingType false "Type of the listing"
+// @Param minCondition query string false "Minimum Book Condition" Enums(POOR,FAIR,GOOD,VERY_GOOD,LIKE_NEW,NEW)
+// @Param maxCondition query string false "Maximum Book Condition"  Enums(POOR,FAIR,GOOD,VERY_GOOD,LIKE_NEW,NEW)
+// @Param listingType query string false "Type of the listing" Enum(BUY,SELL)
 // @Success 200 {array} models.BookListing
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer

@@ -26,9 +26,9 @@ type GetAllBookListingsOptions struct {
 	CourseID     *uint        `json:"courseID" form:"courseID"`
 	UserID       *uint        `json:"userID" form:"userID"`
 	Isbn         *string      `json:"isbn" form:"isbn" binding:"omitempty,isbn"`
-	MinCondition *Condition   `json:"minCondition" form:"minCondition"`
-	MaxCondition *Condition   `json:"maxCondition" form:"maxCondition"`
-	ListingType  *ListingType `json:"listingType" form:"listingType"`
+	MinCondition *Condition   `json:"minCondition" form:"minCondition" enums:",POOR,FAIR,GOOD,VERY_GOOD,LIKE_NEW,NEW"`
+	MaxCondition *Condition   `json:"maxCondition" form:"maxCondition" enums:",POOR,FAIR,GOOD,VERY_GOOD,LIKE_NEW,NEW"`
+	ListingType  *ListingType `json:"listingType" form:"listingType" enums:",BUY,SELL"`
 }
 
 func (o *GetAllBookListingsOptions) Order(db *gorm.DB) *gorm.DB {
@@ -68,7 +68,7 @@ func (o *GetAllBookListingsOptions) Run(db *gorm.DB) *gorm.DB {
 		db = m.withBookID(*o.BookID)(db)
 	} else {
 		if o.Isbn != nil {
-			db = m.withIsbn(isbn.CleanISBN(*o.Isbn))(db)
+			db = m.withIsbn(isbn.ConvertIsbn10to13(isbn.CleanISBN(*o.Isbn)))(db)
 		}
 	}
 	if o.CourseID != nil {

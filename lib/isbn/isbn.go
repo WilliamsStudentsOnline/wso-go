@@ -7,6 +7,9 @@ func CleanISBN(isbn string) string {
 }
 
 func ConvertIsbn10to13(isbn10 string) string {
+	if len(isbn10) != 10 {
+		return isbn10
+	}
 	// add 978 and drop last digit
 	isbn10 = "978" + isbn10[:9]
 

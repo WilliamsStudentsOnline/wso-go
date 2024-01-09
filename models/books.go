@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/isbn"
 	"github.com/jinzhu/gorm"
@@ -70,7 +71,7 @@ func (o *GetAllBooksOptions) Run(db *gorm.DB) *gorm.DB {
 		db = m.withPublisher(*o.Publisher)(db)
 	}
 	if o.Isbn != nil {
-		db = m.withIsbn(isbn.CleanISBN(*o.Isbn))(db)
+		db = m.withIsbn(isbn.ConvertIsbn10to13(isbn.CleanISBN(*o.Isbn)))(db)
 	}
 	return db
 }
@@ -101,9 +102,9 @@ type BookIdentifier struct {
 func (m *BookModel) DoesBookExist(identifier BookIdentifier) (exists bool, err error) {
 	var count int
 	if identifier.Id != nil {
-		err = m.DB.Model(&Book{}).Where("books.id = ?", identifier.Id).Count(&count).Error
+		err = m.DB.Model(&Book{}).Where("books.id = ?", *identifier.Id).Count(&count).Error
 	} else if identifier.Isbn != nil {
-		err = m.DB.Model(&Book{}).Where("books.isbn = ?", identifier.Isbn).Count(&count).Error
+		err = m.DB.Model(&Book{}).Where("books.isbn = ?", isbn.ConvertIsbn10to13(isbn.CleanISBN(*identifier.Isbn))).Count(&count).Error
 	} else {
 		err = fmt.Errorf("missing valid identifier")
 	}
