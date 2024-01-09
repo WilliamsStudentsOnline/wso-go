@@ -1,18 +1,80 @@
 basePath: /api/v2
 definitions:
-  admin.KubeJobReturn:
+  feeds.Author:
     properties:
-      jobID:
+      name:
         type: string
     type: object
-  auth.AuthResponse:
+  feeds.Enclosure:
     properties:
-      expire:
-        type: string
-      token:
+      url:
         type: string
     type: object
-  autocomplete.ACEntry:
+  feeds.Feed:
+    properties:
+      author:
+        $ref: '#/definitions/feeds.Author'
+      copyright:
+        type: string
+      created:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      image:
+        $ref: '#/definitions/feeds.Image'
+      items:
+        items:
+          $ref: '#/definitions/feeds.Item'
+        type: array
+      link:
+        $ref: '#/definitions/feeds.Link'
+      subtitle:
+        type: string
+      title:
+        type: string
+      updated:
+        type: string
+    type: object
+  feeds.Image:
+    properties:
+      url:
+        type: string
+      width:
+        type: integer
+    type: object
+  feeds.Item:
+    properties:
+      author:
+        $ref: '#/definitions/feeds.Author'
+      content:
+        type: string
+      created:
+        type: string
+      description:
+        description: used as description in rss, summary in atom
+        type: string
+      enclosure:
+        $ref: '#/definitions/feeds.Enclosure'
+      id:
+        description: used as guid in rss, id in atom
+        type: string
+      link:
+        $ref: '#/definitions/feeds.Link'
+      source:
+        $ref: '#/definitions/feeds.Link'
+      title:
+        type: string
+      updated:
+        type: string
+    type: object
+  feeds.Link:
+    properties:
+      href:
+        type: string
+    type: object
+  github_com_WilliamsStudentsOnline_wso-go_lib_autocomplete.ACEntry:
     properties:
       id:
         type: integer
@@ -21,220 +83,31 @@ definitions:
       value:
         type: string
     type: object
-  bulletin.CreateBulletinParams:
+  github_com_WilliamsStudentsOnline_wso-go_services_auth.AuthResponse:
     properties:
-      body:
+      expire:
         type: string
-      endDate:
-        type: string
-      offer:
-        type: boolean
-      startDate:
-        type: string
-      title:
-        type: string
-      type:
-        type: string
-    required:
-    - body
-    - title
-    - type
-    type: object
-  bulletin.CreateDiscussionParams:
-    properties:
-      content:
-        type: string
-      title:
-        type: string
-    required:
-    - content
-    - title
-    type: object
-  bulletin.CreatePostParams:
-    properties:
-      content:
-        type: string
-      discussionID:
-        type: integer
-    required:
-    - content
-    - discussionID
-    type: object
-  bulletin.CreateRideParams:
-    properties:
-      body:
-        type: string
-      date:
-        type: string
-      destination:
-        type: string
-      offer:
-        type: boolean
-      source:
-        type: string
-    required:
-    - body
-    - date
-    - destination
-    - source
-    type: object
-  bulletin.UpdateBulletinParams:
-    properties:
-      body:
-        type: string
-      endDate:
-        type: string
-      offer:
-        type: boolean
-      startDate:
-        type: string
-      title:
+      token:
         type: string
     type: object
-  bulletin.UpdatePostParams:
+  github_com_WilliamsStudentsOnline_wso-go_services_ephmatch_responses.ListMatchesResponseEphmatchMatch:
     properties:
-      content:
+      createdAt:
+        type: string
+      id:
+        type: integer
+      matchedUser:
+        $ref: '#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_ephmatch_responses.ListMatchesResponseMatchedUser'
+      matchedUserID:
+        type: integer
+      seenByMatchedUser:
+        type: boolean
+      seenBySelf:
+        type: boolean
+      updatedAt:
         type: string
     type: object
-  bulletin.UpdateRideParams:
-    properties:
-      body:
-        type: string
-      date:
-        type: string
-      offer:
-        type: boolean
-    type: object
-  dormtrak.DormRoomPhotoInfo:
-    properties:
-      dormRoomId:
-        type: integer
-      name:
-        type: string
-      number:
-        type: integer
-      reviewId:
-        type: integer
-    type: object
-  dormtrak.ReviewCreateParams:
-    properties:
-      bathroomDesc:
-        type: string
-      bedAdjustable:
-        type: boolean
-      closet:
-        type: string
-      comment:
-        description: 'Params:'
-        type: string
-      commonRoomAccess:
-        type: boolean
-      commonRoomDesc:
-        type: string
-      dormRoomID:
-        description: 'Must include this:'
-        type: integer
-      flooring:
-        type: string
-      keyOrCard:
-        type: string
-      location:
-        type: integer
-      loudness:
-        type: integer
-      noise:
-        type: string
-      privateBathroom:
-        type: boolean
-      satisfaction:
-        type: integer
-      thermostatAccess:
-        type: boolean
-      wifi:
-        type: integer
-    required:
-    - dormRoomID
-    type: object
-  dormtrak.ReviewUpdateParams:
-    properties:
-      bathroomDesc:
-        type: string
-      bedAdjustable:
-        type: boolean
-      closet:
-        type: string
-      comment:
-        type: string
-      commonRoomAccess:
-        type: boolean
-      commonRoomDesc:
-        type: string
-      flooring:
-        type: string
-      keyOrCard:
-        type: string
-      location:
-        type: integer
-      loudness:
-        type: integer
-      noise:
-        type: string
-      privateBathroom:
-        type: boolean
-      satisfaction:
-        type: integer
-      thermostatAccess:
-        type: boolean
-      wifi:
-        type: integer
-    type: object
-  ephmatch.CountMatchesResponse:
-    properties:
-      total:
-        type: integer
-      unseen:
-        type: integer
-    type: object
-  ephmatch.GetAvailabilityResp:
-    properties:
-      available:
-        description: If Ephmatch is currently available
-        type: boolean
-      closingTime:
-        description: Closing time for current Ephmatch era/period
-        type: string
-      nextOpenTime:
-        description: Next time Ephmatch will be open
-        type: string
-      openIndefinitely:
-        description: If Ephmatch has no closing time set
-        type: boolean
-      seniorOnly:
-        description: Senior only ephmatch right now
-        type: boolean
-    type: object
-  ephmatch.ProfileCreateParams:
-    properties:
-      LocationCountry:
-        type: string
-      description:
-        type: string
-      locationState:
-        type: string
-      locationTown:
-        type: string
-      locationVisible:
-        type: boolean
-      lookingFor:
-        type: string
-      matchMessage:
-        type: string
-      messagingPlatform:
-        type: string
-      messagingUsername:
-        type: string
-    type: object
-  ephmatch.ProfileUpdateParams:
+  github_com_WilliamsStudentsOnline_wso-go_services_ephmatch_responses.ListMatchesResponseEphmatchProfile:
     properties:
       description:
         type: string
@@ -255,211 +128,310 @@ definitions:
       messagingUsername:
         type: string
     type: object
-  ephmatch.SetProfileRelationParams:
+  github_com_WilliamsStudentsOnline_wso-go_services_ephmatch_responses.ListMatchesResponseMatchedUser:
     properties:
-      relation:
+      classYear:
+        type: integer
+      entry:
         type: string
-    type: object
-  ephmatch.SetProfileRelationResp:
-    properties:
-      matched:
-        type: boolean
-    type: object
-  factrak.AgreementCreateParams:
-    properties:
-      agree:
-        type: boolean
-    type: object
-  factrak.AgreementUpdateParams:
-    properties:
-      agree:
-        type: boolean
-    type: object
-  factrak.SurveyCreateParams:
-    properties:
-      approachability:
-        type: integer
-      areaOfStudyAbbreviation:
-        description: 'Or this:'
-        type: string
-      comment:
-        description: 'Params:'
-        type: string
-      courseFormat:
-        description: Remote, Hybrid, In-Person
-        type: string
-      courseID:
-        description: 'Must include either this:'
-        type: integer
-      courseNumber:
-        description: Like "256"
-        type: string
-      courseStimulating:
-        type: integer
-      courseWorkload:
-        type: integer
-      gradeReceived:
-        type: string
-      leadLecture:
-        type: integer
-      mentalHealthSupport:
-        type: integer
-      outsideHelpfulness:
-        type: integer
-      professorID:
-        description: 'Must include this:'
-        type: integer
-      promoteDiscussion:
-        type: integer
-      semesterSeason:
-        description: Fall, Winter Study, Spring
-        type: string
-      semesterYear:
-        type: integer
-      wouldRecommendCourse:
-        type: boolean
-      wouldTakeAnother:
-        type: boolean
-    required:
-    - comment
-    - professorID
-    type: object
-  factrak.SurveyUpdateParams:
-    properties:
-      approachability:
-        type: integer
-      comment:
-        description: 'Params:'
-        type: string
-      courseFormat:
-        description: Remote, Hybrid, In-Person
-        type: string
-      courseStimulating:
-        type: integer
-      courseWorkload:
-        type: integer
-      gradeReceived:
-        type: string
-      leadLecture:
-        type: integer
-      mentalHealthSupport:
-        type: integer
-      outsideHelpfulness:
-        type: integer
-      promoteDiscussion:
-        type: integer
-      semesterSeason:
-        description: Fall, Winter Study, Spring
-        type: string
-      semesterYear:
-        type: integer
-      wouldRecommendCourse:
-        type: boolean
-      wouldTakeAnother:
-        type: boolean
-    type: object
-  feeds.Feed:
-    properties:
-      author:
-        type: Author
-      copyright:
-        type: string
-      created:
-        type: string
-      description:
-        type: string
+      ephmatchProfile:
+        $ref: '#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_ephmatch_responses.ListMatchesResponseEphmatchProfile'
       id:
+        type: integer
+      major:
         type: string
-      image:
-        type: Image
-      items:
+      name:
+        type: string
+      nickname:
+        type: string
+      offCycle:
+        type: boolean
+      pronoun:
+        type: string
+      tags:
         items:
-          type: Item
+          $ref: '#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_ephmatch_responses.ListMatchesResponseTag'
         type: array
-      link:
-        type: Link
-      subtitle:
-        type: string
       title:
-        type: string
-      updated:
-        type: string
-    type: object
-  goodrich.CreateOrderParams:
-    properties:
-      comboDeal:
-        type: boolean
-      date:
-        type: string
-      idNumber:
-        type: string
-      items:
-        items:
-          $ref: '#/definitions/models.GoodrichOrderItem'
-        type: array
-      leaseID:
-        type: string
-      notes:
-        type: string
-      paymentMethod:
-        type: integer
-      phoneNumber:
-        type: string
-      timeSlot:
-        description: 'Format: 11:10 am'
-        type: string
-    type: object
-  goodrich.OrderLease:
-    properties:
-      expiry:
-        type: string
-      id:
-        type: string
-    type: object
-  goodrich.TimeSlot:
-    properties:
-      closedSpots:
-        type: integer
-      formatted:
-        type: string
-      hour:
-        type: integer
-      minute:
-        type: integer
-      openSpots:
-        type: integer
-    type: object
-  goodrich.UpdateMenuItemParams:
-    properties:
-      available:
-        type: boolean
-      quantity:
-        type: integer
-      quantityLimit:
-        type: boolean
-    type: object
-  goodrich.UpdateOrderParams:
-    properties:
-      adminNotes:
-        type: string
-      status:
-        type: integer
-    type: object
-  identity.Credentials:
-    properties:
-      localIP:
-        description: If true, will authenticate based on IP. Fail if cannot get on-campus
-          token.
-        type: boolean
-      password:
         type: string
       unixID:
         type: string
-      useIP:
-        description: If true, will authenticate based on IP. Will return either off-campus
-          or on-campus token
-        type: boolean
+      williamsEmail:
+        type: string
     type: object
+  github_com_WilliamsStudentsOnline_wso-go_services_ephmatch_responses.ListMatchesResponseTag:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseDepartment:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseDorm:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      neighborhoodID:
+        type: integer
+    type: object
+  github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseDormRoom:
+    properties:
+      dorm:
+        $ref: '#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseDorm'
+      dormID:
+        type: integer
+      id:
+        type: integer
+      number:
+        type: string
+      roomType:
+        type: string
+    type: object
+  github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseOffice:
+    properties:
+      id:
+        type: integer
+      number:
+        type: string
+    type: object
+  github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseTag:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseUser:
+    properties:
+      admin:
+        type: boolean
+      atWilliams:
+        type: boolean
+      campusPhoneEXT:
+        type: string
+      campusStatus:
+        type: string
+      cellPhone:
+        type: string
+      classYear:
+        type: integer
+      department:
+        $ref: '#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseDepartment'
+      departmentID:
+        type: integer
+      dormRoom:
+        $ref: '#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseDormRoom'
+      dormRoomID:
+        type: integer
+      dormVisible:
+        type: boolean
+      entry:
+        type: string
+      ephcatchEligibility:
+        type: boolean
+      factrakAdmin:
+        type: boolean
+      factrakSurveyDeficit:
+        type: integer
+      hasAcceptedDormtrakPolicy:
+        type: boolean
+      hasAcceptedFactrakPolicy:
+        type: boolean
+      homeCountry:
+        type: string
+      homePhone:
+        type: string
+      homeState:
+        type: string
+      homeTown:
+        type: string
+      homeVisible:
+        type: boolean
+      homeZip:
+        type: string
+      id:
+        type: integer
+      major:
+        type: string
+      name:
+        type: string
+      offCampus:
+        type: boolean
+      offCycle:
+        type: boolean
+      office:
+        $ref: '#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseOffice'
+      officeID:
+        type: integer
+      optOutEphcatch:
+        type: boolean
+      pronoun:
+        type: string
+      suBox:
+        type: string
+      tags:
+        items:
+          $ref: '#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseTag'
+        type: array
+      title:
+        type: string
+      type:
+        type: string
+      unixID:
+        type: string
+      visible:
+        type: boolean
+      williamsEmail:
+        type: string
+      williamsID:
+        type: string
+    type: object
+  github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseDepartment:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseDorm:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      neighborhoodID:
+        type: integer
+    type: object
+  github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseDormRoom:
+    properties:
+      dorm:
+        $ref: '#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseDorm'
+      dormID:
+        type: integer
+      id:
+        type: integer
+      number:
+        type: string
+      roomType:
+        type: string
+    type: object
+  github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseOffice:
+    properties:
+      id:
+        type: integer
+      number:
+        type: string
+    type: object
+  github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseTag:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseUser:
+    properties:
+      admin:
+        type: boolean
+      atWilliams:
+        type: boolean
+      campusPhoneEXT:
+        type: string
+      campusStatus:
+        type: string
+      cellPhone:
+        type: string
+      classYear:
+        type: integer
+      department:
+        $ref: '#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseDepartment'
+      departmentID:
+        type: integer
+      dormRoom:
+        $ref: '#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseDormRoom'
+      dormRoomID:
+        type: integer
+      dormVisible:
+        type: boolean
+      entry:
+        type: string
+      ephcatchEligibility:
+        type: boolean
+      factrakAdmin:
+        type: boolean
+      factrakSurveyDeficit:
+        type: integer
+      hasAcceptedDormtrakPolicy:
+        type: boolean
+      hasAcceptedFactrakPolicy:
+        type: boolean
+      homeCountry:
+        type: string
+      homePhone:
+        type: string
+      homeState:
+        type: string
+      homeTown:
+        type: string
+      homeVisible:
+        type: boolean
+      homeZip:
+        type: string
+      id:
+        type: integer
+      major:
+        type: string
+      name:
+        type: string
+      offCampus:
+        type: boolean
+      offCycle:
+        type: boolean
+      office:
+        $ref: '#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseOffice'
+      officeID:
+        type: integer
+      optOutEphcatch:
+        type: boolean
+      pronoun:
+        type: string
+      suBox:
+        type: string
+      tags:
+        items:
+          $ref: '#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseTag'
+        type: array
+      title:
+        type: string
+      type:
+        type: string
+      unixID:
+        type: string
+      visible:
+        type: boolean
+      williamsEmail:
+        type: string
+      williamsID:
+        type: string
+    type: object
+  k8s_io_api_core_v1.ConditionStatus:
+    enum:
+    - "True"
+    - "False"
+    - Unknown
+    type: string
+    x-enum-varnames:
+    - ConditionTrue
+    - ConditionFalse
+    - ConditionUnknown
   models.AreaOfStudy:
     properties:
       abbreviation:
@@ -471,7 +443,6 @@ definitions:
         type: array
       department:
         $ref: '#/definitions/models.Department'
-        type: object
       departmentID:
         description: Belongs to department
         type: integer
@@ -507,9 +478,9 @@ definitions:
         description: Reason why user was banned
         type: string
       user:
-        $ref: '#/definitions/models.User'
+        allOf:
+        - $ref: '#/definitions/models.User'
         description: Belongs to user
-        type: object
       userID:
         type: integer
     type: object
@@ -531,7 +502,6 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Author information
         type: integer
@@ -552,7 +522,6 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user
         type: integer
@@ -561,7 +530,6 @@ definitions:
     properties:
       areaOfStudy:
         $ref: '#/definitions/models.AreaOfStudy'
-        type: object
       areaOfStudyID:
         description: Belongs to area of study
         type: integer
@@ -622,7 +590,6 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user
         type: integer
@@ -663,7 +630,6 @@ definitions:
         type: string
       neighborhood:
         $ref: '#/definitions/models.Neighborhood'
-        type: object
       neighborhoodID:
         description: Belongs to neighborhood
         type: integer
@@ -698,10 +664,8 @@ definitions:
         type: number
       biggestDouble:
         $ref: '#/definitions/models.DormRoom'
-        type: object
       biggestSingle:
         $ref: '#/definitions/models.DormRoom'
-        type: object
       capacity:
         type: integer
       commonRoomAccessRatio:
@@ -724,10 +688,8 @@ definitions:
         type: integer
       smallestDouble:
         $ref: '#/definitions/models.DormRoom'
-        type: object
       smallestSingle:
         $ref: '#/definitions/models.DormRoom'
-        type: object
       sophomoreCount:
         type: integer
       studentToBathroomRatio:
@@ -751,7 +713,6 @@ definitions:
         type: string
       dorm:
         $ref: '#/definitions/models.Dorm'
-        type: object
       dormID:
         description: Belongs to dorm
         type: integer
@@ -894,7 +855,6 @@ definitions:
         type: string
       dormRoom:
         $ref: '#/definitions/models.DormRoom'
-        type: object
       dormRoomID:
         description: Belongs to dorm room
         type: integer
@@ -918,7 +878,6 @@ definitions:
         type: boolean
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user (student)
         type: integer
@@ -933,17 +892,17 @@ definitions:
       id:
         type: integer
       other:
-        $ref: '#/definitions/models.User'
+        allOf:
+        - $ref: '#/definitions/models.User'
         description: Belongs to other
-        type: object
       otherID:
         type: integer
       seen:
         type: boolean
       user:
-        $ref: '#/definitions/models.User'
+        allOf:
+        - $ref: '#/definitions/models.User'
         description: Belongs to user
-        type: object
       userID:
         type: integer
     type: object
@@ -997,7 +956,6 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user
         type: integer
@@ -1008,7 +966,6 @@ definitions:
         type: boolean
       factrakSurvey:
         $ref: '#/definitions/models.FactrakSurvey'
-        type: object
       factrakSurveyID:
         description: Belongs to survey
         type: integer
@@ -1016,7 +973,6 @@ definitions:
         type: integer
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user
         type: integer
@@ -1040,7 +996,6 @@ definitions:
         type: string
       course:
         $ref: '#/definitions/models.Course'
-        type: object
       courseFormat:
         description: Remote, Hybrid, In-Person
         type: string
@@ -1068,7 +1023,6 @@ definitions:
         type: integer
       professor:
         $ref: '#/definitions/models.User'
-        type: object
       professorID:
         description: Belongs to professor
         type: integer
@@ -1086,7 +1040,6 @@ definitions:
         type: integer
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user (student)
         type: integer
@@ -1182,11 +1135,11 @@ definitions:
       notes:
         type: string
       paymentMethod:
-        type: integer
+        $ref: '#/definitions/models.GoodrichPaymentMethod'
       phoneNumber:
         type: string
       status:
-        type: integer
+        $ref: '#/definitions/models.GoodrichOrderStatus'
       timeSlot:
         description: 'Format: 15:04'
         type: string
@@ -1194,7 +1147,6 @@ definitions:
         type: number
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user
         type: integer
@@ -1205,10 +1157,43 @@ definitions:
         type: integer
       item:
         $ref: '#/definitions/models.GoodrichMenuItem'
-        type: object
       note:
         type: string
     type: object
+  models.GoodrichOrderStatus:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    type: integer
+    x-enum-comments:
+      GoodrichOrderStatusUnknown: Default is unknown
+    x-enum-varnames:
+    - GoodrichOrderStatusUnknown
+    - GoodrichOrderStatusPlaced
+    - GoodrichOrderStatusReady
+    - GoodrichOrderStatusPaid
+  models.GoodrichPaymentMethod:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    type: integer
+    x-enum-comments:
+      GoodrichPaymentMethodUnknown: Default is unknown
+    x-enum-varnames:
+    - GoodrichPaymentMethodUnknown
+    - GoodrichPaymentMethodSwipe
+    - GoodrichPaymentMethodPoints
+    - GoodrichPaymentMethodCreditCard
+    - GoodrichPaymentMethodCash
+    - GoodrichPaymentMethodSwipePlusCash
+    - GoodrichPaymentMethodSwipePlusCreditCard
   models.Neighborhood:
     properties:
       dorms:
@@ -1243,7 +1228,6 @@ definitions:
         type: boolean
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user
         type: integer
@@ -1258,7 +1242,6 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user
         type: integer
@@ -1283,7 +1266,6 @@ definitions:
         type: string
       discussion:
         $ref: '#/definitions/models.Discussion'
-        type: object
       discussionID:
         description: Belongs to discussion
         type: integer
@@ -1297,7 +1279,6 @@ definitions:
         type: integer
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user
         type: integer
@@ -1326,9 +1307,9 @@ definitions:
       atWilliams:
         type: boolean
       bannedUser:
-        $ref: '#/definitions/models.BannedUser'
+        allOf:
+        - $ref: '#/definitions/models.BannedUser'
         description: Has one (or zero) banned users
-        type: object
       campusPhoneEXT:
         type: string
       campusStatus:
@@ -1340,13 +1321,11 @@ definitions:
         type: integer
       department:
         $ref: '#/definitions/models.Department'
-        type: object
       departmentID:
         description: Belongs to Department iff professor (fetched from Williams LDAP)
         type: integer
       dormRoom:
         $ref: '#/definitions/models.DormRoom'
-        type: object
       dormRoomID:
         description: Belongs to Dorm Room iff student
         type: integer
@@ -1367,9 +1346,9 @@ definitions:
           $ref: '#/definitions/models.Ephcatch'
         type: array
       ephmatchProfile:
-        $ref: '#/definitions/models.EphmatchProfile'
+        allOf:
+        - $ref: '#/definitions/models.EphmatchProfile'
         description: Has one ephmatch profile
-        type: object
       factrakAdmin:
         type: boolean
       factrakAgreements:
@@ -1377,6 +1356,9 @@ definitions:
         items:
           $ref: '#/definitions/models.FactrakAgreement'
         type: array
+      factrakScore:
+        description: Only for professor retrieval with rankings
+        type: number
       factrakSurveyDeficit:
         type: integer
       factrakSurveys:
@@ -1411,9 +1393,9 @@ definitions:
       nickname:
         type: string
       notificationSettings:
-        $ref: '#/definitions/models.NotificationSettings'
+        allOf:
+        - $ref: '#/definitions/models.NotificationSettings'
         description: Has one notification settings
-        type: object
       notificationTokens:
         description: Has many notification tokens
         items:
@@ -1426,7 +1408,6 @@ definitions:
         type: boolean
       office:
         $ref: '#/definitions/models.Office'
-        type: object
       officeID:
         description: Belongs to Office iff staff/professor
         type: integer
@@ -1458,28 +1439,37 @@ definitions:
         description: Williams W# ID
         type: string
     type: object
-  notification.SettingsUpdateParams:
+  server.HealthCheckResponse:
     properties:
-      enableNotifications:
-        type: boolean
-      salmonNotify:
+      ok:
         type: boolean
     type: object
-  notification.TokenCreateParams:
+  services.BaseErrorResponse:
     properties:
-      token:
-        type: string
-      type:
+      error:
+        $ref: '#/definitions/services.RespError'
+      status:
+        type: integer
+      updateToken:
+        type: boolean
+    type: object
+  services.RespError:
+    properties:
+      errorCode:
+        type: integer
+      errors:
+        items:
+          type: string
+        type: array
+      message:
         type: string
     type: object
-  old.AuthResponse:
+  services_admin.KubeJobReturn:
     properties:
-      expire:
-        type: string
-      token:
+      jobID:
         type: string
     type: object
-  old.LoginParams:
+  services_auth_identity.Credentials:
     properties:
       localIP:
         description: If true, will authenticate based on IP. Fail if cannot get on-campus
@@ -1494,157 +1484,258 @@ definitions:
           or on-campus token
         type: boolean
     type: object
-  responses.GetUserResponseDepartment:
+  services_auth_old.AuthResponse:
     properties:
-      id:
-        type: integer
-      name:
+      expire:
+        type: string
+      token:
         type: string
     type: object
-  responses.GetUserResponseDorm:
+  services_auth_old.LoginParams:
     properties:
-      id:
-        type: integer
-      name:
+      localIP:
+        description: If true, will authenticate based on IP. Fail if cannot get on-campus
+          token.
+        type: boolean
+      password:
         type: string
-      neighborhoodID:
-        type: integer
+      unixID:
+        type: string
+      useIP:
+        description: If true, will authenticate based on IP. Will return either off-campus
+          or on-campus token
+        type: boolean
     type: object
-  responses.GetUserResponseDormRoom:
+  services_bulletin.CreateBulletinParams:
     properties:
-      dorm:
-        $ref: '#/definitions/responses.GetUserResponseDorm'
-        type: object
-      dormID:
-        type: integer
-      id:
-        type: integer
-      number:
+      body:
         type: string
-      roomType:
+      endDate:
         type: string
-    type: object
-  responses.GetUserResponseOffice:
-    properties:
-      id:
-        type: integer
-      number:
-        type: string
-    type: object
-  responses.GetUserResponseTag:
-    properties:
-      id:
-        type: integer
-      name:
-        type: string
-    type: object
-  responses.GetUserResponseUser:
-    properties:
-      admin:
+      offer:
         type: boolean
-      atWilliams:
-        type: boolean
-      campusPhoneEXT:
+      startDate:
         type: string
-      campusStatus:
-        type: string
-      cellPhone:
-        type: string
-      classYear:
-        type: integer
-      department:
-        $ref: '#/definitions/responses.GetUserResponseDepartment'
-        type: object
-      departmentID:
-        type: integer
-      dormRoom:
-        $ref: '#/definitions/responses.GetUserResponseDormRoom'
-        type: object
-      dormRoomID:
-        type: integer
-      dormVisible:
-        type: boolean
-      entry:
-        type: string
-      ephcatchEligibility:
-        type: boolean
-      factrakAdmin:
-        type: boolean
-      factrakSurveyDeficit:
-        type: integer
-      hasAcceptedDormtrakPolicy:
-        type: boolean
-      hasAcceptedFactrakPolicy:
-        type: boolean
-      homeCountry:
-        type: string
-      homePhone:
-        type: string
-      homeState:
-        type: string
-      homeTown:
-        type: string
-      homeVisible:
-        type: boolean
-      homeZip:
-        type: string
-      id:
-        type: integer
-      major:
-        type: string
-      name:
-        type: string
-      offCampus:
-        type: boolean
-      offCycle:
-        type: boolean
-      office:
-        $ref: '#/definitions/responses.GetUserResponseOffice'
-        type: object
-      officeID:
-        type: integer
-      optOutEphcatch:
-        type: boolean
-      pronoun:
-        type: string
-      suBox:
-        type: string
-      tags:
-        items:
-          $ref: '#/definitions/responses.GetUserResponseTag'
-        type: array
       title:
         type: string
       type:
         type: string
-      unixID:
-        type: string
-      visible:
-        type: boolean
-      williamsEmail:
-        type: string
-      williamsID:
-        type: string
+    required:
+    - body
+    - title
+    - type
     type: object
-  responses.ListMatchesResponseEphmatchMatch:
+  services_bulletin.CreateDiscussionParams:
     properties:
-      createdAt:
+      content:
         type: string
-      id:
+      title:
+        type: string
+    required:
+    - content
+    - title
+    type: object
+  services_bulletin.CreatePostParams:
+    properties:
+      content:
+        type: string
+      discussionID:
         type: integer
-      matchedUser:
-        $ref: '#/definitions/responses.ListMatchesResponseMatchedUser'
-        type: object
-      matchedUserID:
-        type: integer
-      seenByMatchedUser:
+    required:
+    - content
+    - discussionID
+    type: object
+  services_bulletin.CreateRideParams:
+    properties:
+      body:
+        type: string
+      date:
+        type: string
+      destination:
+        type: string
+      offer:
         type: boolean
-      seenBySelf:
+      source:
+        type: string
+    required:
+    - body
+    - date
+    - destination
+    - source
+    type: object
+  services_bulletin.UpdateBulletinParams:
+    properties:
+      body:
+        type: string
+      endDate:
+        type: string
+      offer:
         type: boolean
-      updatedAt:
+      startDate:
+        type: string
+      title:
         type: string
     type: object
-  responses.ListMatchesResponseEphmatchProfile:
+  services_bulletin.UpdatePostParams:
+    properties:
+      content:
+        type: string
+    type: object
+  services_bulletin.UpdateRideParams:
+    properties:
+      body:
+        type: string
+      date:
+        type: string
+      offer:
+        type: boolean
+    type: object
+  services_dormtrak.DormRoomPhotoInfo:
+    properties:
+      dormRoomId:
+        type: integer
+      name:
+        type: string
+      number:
+        type: integer
+      reviewId:
+        type: integer
+    type: object
+  services_dormtrak.ReviewCreateParams:
+    properties:
+      bathroomDesc:
+        type: string
+      bedAdjustable:
+        type: boolean
+      closet:
+        type: string
+      comment:
+        description: 'Params:'
+        type: string
+      commonRoomAccess:
+        type: boolean
+      commonRoomDesc:
+        type: string
+      dormRoomID:
+        description: 'Must include this:'
+        type: integer
+      flooring:
+        type: string
+      keyOrCard:
+        type: string
+      location:
+        maximum: 7
+        minimum: 0
+        type: integer
+      loudness:
+        maximum: 7
+        minimum: 0
+        type: integer
+      noise:
+        type: string
+      privateBathroom:
+        type: boolean
+      satisfaction:
+        maximum: 7
+        minimum: 0
+        type: integer
+      thermostatAccess:
+        type: boolean
+      wifi:
+        maximum: 7
+        minimum: 0
+        type: integer
+    required:
+    - dormRoomID
+    type: object
+  services_dormtrak.ReviewUpdateParams:
+    properties:
+      bathroomDesc:
+        type: string
+      bedAdjustable:
+        type: boolean
+      closet:
+        type: string
+      comment:
+        type: string
+      commonRoomAccess:
+        type: boolean
+      commonRoomDesc:
+        type: string
+      flooring:
+        type: string
+      keyOrCard:
+        type: string
+      location:
+        maximum: 7
+        minimum: 0
+        type: integer
+      loudness:
+        maximum: 7
+        minimum: 0
+        type: integer
+      noise:
+        type: string
+      privateBathroom:
+        type: boolean
+      satisfaction:
+        maximum: 7
+        minimum: 0
+        type: integer
+      thermostatAccess:
+        type: boolean
+      wifi:
+        maximum: 7
+        minimum: 0
+        type: integer
+    type: object
+  services_ephmatch.CountMatchesResponse:
+    properties:
+      total:
+        type: integer
+      unseen:
+        type: integer
+    type: object
+  services_ephmatch.GetAvailabilityResp:
+    properties:
+      available:
+        description: If Ephmatch is currently available
+        type: boolean
+      closingTime:
+        description: Closing time for current Ephmatch era/period
+        type: string
+      nextOpenTime:
+        description: Next time Ephmatch will be open
+        type: string
+      openIndefinitely:
+        description: If Ephmatch has no closing time set
+        type: boolean
+      seniorOnly:
+        description: Senior only ephmatch right now
+        type: boolean
+    type: object
+  services_ephmatch.ProfileCreateParams:
+    properties:
+      LocationCountry:
+        type: string
+      description:
+        type: string
+      locationState:
+        type: string
+      locationTown:
+        type: string
+      locationVisible:
+        type: boolean
+      lookingFor:
+        type: string
+      matchMessage:
+        type: string
+      messagingPlatform:
+        type: string
+      messagingUsername:
+        type: string
+    type: object
+  services_ephmatch.ProfileUpdateParams:
     properties:
       description:
         type: string
@@ -1665,204 +1756,212 @@ definitions:
       messagingUsername:
         type: string
     type: object
-  responses.ListMatchesResponseMatchedUser:
+  services_ephmatch.SetProfileRelationParams:
     properties:
-      classYear:
-        type: integer
-      entry:
+      relation:
         type: string
-      ephmatchProfile:
-        $ref: '#/definitions/responses.ListMatchesResponseEphmatchProfile'
-        type: object
-      id:
-        type: integer
-      major:
-        type: string
-      name:
-        type: string
-      nickname:
-        type: string
-      offCycle:
+    type: object
+  services_ephmatch.SetProfileRelationResp:
+    properties:
+      matched:
         type: boolean
-      pronoun:
+    type: object
+  services_factrak.AgreementCreateParams:
+    properties:
+      agree:
+        type: boolean
+    type: object
+  services_factrak.AgreementUpdateParams:
+    properties:
+      agree:
+        type: boolean
+    type: object
+  services_factrak.SurveyCreateParams:
+    properties:
+      approachability:
+        maximum: 7
+        minimum: 0
+        type: integer
+      areaOfStudyAbbreviation:
+        description: 'Or this:'
         type: string
-      tags:
+      comment:
+        description: 'Params:'
+        type: string
+      courseFormat:
+        description: Remote, Hybrid, In-Person
+        type: string
+      courseID:
+        description: 'Must include either this:'
+        type: integer
+      courseNumber:
+        description: Like "256"
+        type: string
+      courseStimulating:
+        maximum: 7
+        minimum: 0
+        type: integer
+      courseWorkload:
+        maximum: 7
+        minimum: 0
+        type: integer
+      gradeReceived:
+        type: string
+      leadLecture:
+        maximum: 7
+        minimum: 0
+        type: integer
+      mentalHealthSupport:
+        maximum: 7
+        minimum: 0
+        type: integer
+      outsideHelpfulness:
+        maximum: 7
+        minimum: 0
+        type: integer
+      professorID:
+        description: 'Must include this:'
+        type: integer
+      promoteDiscussion:
+        maximum: 7
+        minimum: 0
+        type: integer
+      semesterSeason:
+        description: Fall, Winter Study, Spring
+        type: string
+      semesterYear:
+        type: integer
+      wouldRecommendCourse:
+        type: boolean
+      wouldTakeAnother:
+        type: boolean
+    required:
+    - comment
+    - professorID
+    type: object
+  services_factrak.SurveyUpdateParams:
+    properties:
+      approachability:
+        maximum: 7
+        minimum: 0
+        type: integer
+      comment:
+        description: 'Params:'
+        type: string
+      courseFormat:
+        description: Remote, Hybrid, In-Person
+        type: string
+      courseStimulating:
+        maximum: 7
+        minimum: 0
+        type: integer
+      courseWorkload:
+        maximum: 7
+        minimum: 0
+        type: integer
+      gradeReceived:
+        type: string
+      leadLecture:
+        maximum: 7
+        minimum: 0
+        type: integer
+      mentalHealthSupport:
+        maximum: 7
+        minimum: 0
+        type: integer
+      outsideHelpfulness:
+        maximum: 7
+        minimum: 0
+        type: integer
+      promoteDiscussion:
+        maximum: 7
+        minimum: 0
+        type: integer
+      semesterSeason:
+        description: Fall, Winter Study, Spring
+        type: string
+      semesterYear:
+        type: integer
+      wouldRecommendCourse:
+        type: boolean
+      wouldTakeAnother:
+        type: boolean
+    type: object
+  services_goodrich.CreateOrderParams:
+    properties:
+      comboDeal:
+        type: boolean
+      date:
+        type: string
+      idNumber:
+        type: string
+      items:
         items:
-          $ref: '#/definitions/responses.ListMatchesResponseTag'
+          $ref: '#/definitions/models.GoodrichOrderItem'
         type: array
-      title:
+      leaseID:
         type: string
-      unixID:
+      notes:
         type: string
-      williamsEmail:
+      paymentMethod:
+        $ref: '#/definitions/models.GoodrichPaymentMethod'
+      phoneNumber:
         type: string
-    type: object
-  responses.ListMatchesResponseTag:
-    properties:
-      id:
-        type: integer
-      name:
+      timeSlot:
+        description: 'Format: 11:10 am'
         type: string
     type: object
-  responses.ListUsersResponseDepartment:
+  services_goodrich.OrderLease:
     properties:
+      expiry:
+        type: string
       id:
-        type: integer
-      name:
         type: string
     type: object
-  responses.ListUsersResponseDorm:
+  services_goodrich.TimeSlot:
     properties:
-      id:
+      closedSpots:
         type: integer
-      name:
+      formatted:
         type: string
-      neighborhoodID:
+      hour:
+        type: integer
+      minute:
+        type: integer
+      openSpots:
         type: integer
     type: object
-  responses.ListUsersResponseDormRoom:
+  services_goodrich.UpdateMenuItemParams:
     properties:
-      dorm:
-        $ref: '#/definitions/responses.ListUsersResponseDorm'
-        type: object
-      dormID:
+      available:
+        type: boolean
+      quantity:
         type: integer
-      id:
-        type: integer
-      number:
-        type: string
-      roomType:
-        type: string
+      quantityLimit:
+        type: boolean
     type: object
-  responses.ListUsersResponseOffice:
+  services_goodrich.UpdateOrderParams:
     properties:
-      id:
-        type: integer
-      number:
+      adminNotes:
         type: string
+      status:
+        $ref: '#/definitions/models.GoodrichOrderStatus'
     type: object
-  responses.ListUsersResponseTag:
+  services_notification.SettingsUpdateParams:
     properties:
-      id:
-        type: integer
-      name:
-        type: string
+      enableNotifications:
+        type: boolean
+      salmonNotify:
+        type: boolean
     type: object
-  responses.ListUsersResponseUser:
+  services_notification.TokenCreateParams:
     properties:
-      admin:
-        type: boolean
-      atWilliams:
-        type: boolean
-      campusPhoneEXT:
-        type: string
-      campusStatus:
-        type: string
-      cellPhone:
-        type: string
-      classYear:
-        type: integer
-      department:
-        $ref: '#/definitions/responses.ListUsersResponseDepartment'
-        type: object
-      departmentID:
-        type: integer
-      dormRoom:
-        $ref: '#/definitions/responses.ListUsersResponseDormRoom'
-        type: object
-      dormRoomID:
-        type: integer
-      dormVisible:
-        type: boolean
-      entry:
-        type: string
-      ephcatchEligibility:
-        type: boolean
-      factrakAdmin:
-        type: boolean
-      factrakSurveyDeficit:
-        type: integer
-      hasAcceptedDormtrakPolicy:
-        type: boolean
-      hasAcceptedFactrakPolicy:
-        type: boolean
-      homeCountry:
-        type: string
-      homePhone:
-        type: string
-      homeState:
-        type: string
-      homeTown:
-        type: string
-      homeVisible:
-        type: boolean
-      homeZip:
-        type: string
-      id:
-        type: integer
-      major:
-        type: string
-      name:
-        type: string
-      offCampus:
-        type: boolean
-      offCycle:
-        type: boolean
-      office:
-        $ref: '#/definitions/responses.ListUsersResponseOffice'
-        type: object
-      officeID:
-        type: integer
-      optOutEphcatch:
-        type: boolean
-      pronoun:
-        type: string
-      suBox:
-        type: string
-      tags:
-        items:
-          $ref: '#/definitions/responses.ListUsersResponseTag'
-        type: array
-      title:
+      token:
         type: string
       type:
         type: string
-      unixID:
-        type: string
-      visible:
-        type: boolean
-      williamsEmail:
-        type: string
-      williamsID:
-        type: string
     type: object
-  server.HealthCheckResponse:
-    properties:
-      ok:
-        type: boolean
-    type: object
-  services.BaseErrorResponse:
-    properties:
-      error:
-        $ref: '#/definitions/services.RespError'
-        type: object
-      status:
-        type: integer
-      updateToken:
-        type: boolean
-    type: object
-  services.RespError:
-    properties:
-      errorCode:
-        type: integer
-      errors:
-        items:
-          type: string
-        type: array
-      message:
-        type: string
-    type: object
-  user.UpdateUserParams:
+  services_user.UpdateUserParams:
     properties:
       campusStatus:
         type: string
@@ -1883,35 +1982,162 @@ definitions:
       visible:
         type: boolean
     type: object
-  user.UpdateUserTagsParams:
+  services_user.UpdateUserTagsParams:
     properties:
       tags:
         items:
           type: string
         type: array
     type: object
+  v1.JobCondition:
+    properties:
+      lastProbeTime:
+        description: |-
+          Last time the condition was checked.
+          +optional
+        type: string
+      lastTransitionTime:
+        description: |-
+          Last time the condition transit from one status to another.
+          +optional
+        type: string
+      message:
+        description: |-
+          Human readable message indicating details about last transition.
+          +optional
+        type: string
+      reason:
+        description: |-
+          (brief) reason for the condition's last transition.
+          +optional
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/k8s_io_api_core_v1.ConditionStatus'
+        description: Status of the condition, one of True, False, Unknown.
+      type:
+        allOf:
+        - $ref: '#/definitions/v1.JobConditionType'
+        description: Type of job condition, Complete or Failed.
+    type: object
+  v1.JobConditionType:
+    enum:
+    - Suspended
+    - Complete
+    - Failed
+    type: string
+    x-enum-varnames:
+    - JobSuspended
+    - JobComplete
+    - JobFailed
   v1.JobStatus:
     properties:
       active:
+        description: |-
+          The number of pending and running pods.
+          +optional
         type: integer
       completedIndexes:
+        description: |-
+          CompletedIndexes holds the completed indexes when .spec.completionMode =
+          "Indexed" in a text format. The indexes are represented as decimal integers
+          separated by commas. The numbers are listed in increasing order. Three or
+          more consecutive numbers are compressed and represented by the first and
+          last element of the series, separated by a hyphen.
+          For example, if the completed indexes are 1, 3, 4, 5 and 7, they are
+          represented as "1,3-5,7".
+          +optional
         type: string
       completionTime:
+        description: |-
+          Represents time when the job was completed. It is not guaranteed to
+          be set in happens-before order across separate operations.
+          It is represented in RFC3339 form and is in UTC.
+          The completion time is only set when the job finishes successfully.
+          +optional
         type: string
       conditions:
+        description: |-
+          The latest available observations of an object's current state. When a Job
+          fails, one of the conditions will have type "Failed" and status true. When
+          a Job is suspended, one of the conditions will have type "Suspended" and
+          status true; when the Job is resumed, the status of this condition will
+          become false. When a Job is completed, one of the conditions will have
+          type "Complete" and status true.
+          More info: https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/
+          +optional
+          +patchMergeKey=type
+          +patchStrategy=merge
+          +listType=atomic
         items:
-          type: JobCondition
+          $ref: '#/definitions/v1.JobCondition'
         type: array
       failed:
+        description: |-
+          The number of pods which reached phase Failed.
+          +optional
         type: integer
       ready:
+        description: |-
+          The number of pods which have a Ready condition.
+
+          This field is alpha-level. The job controller populates the field when
+          the feature gate JobReadyPods is enabled (disabled by default).
+          +optional
         type: integer
       startTime:
+        description: |-
+          Represents time when the job controller started processing a job. When a
+          Job is created in the suspended state, this field is not set until the
+          first time it is resumed. This field is reset every time a Job is resumed
+          from suspension. It is represented in RFC3339 form and is in UTC.
+          +optional
         type: string
       succeeded:
+        description: |-
+          The number of pods which reached phase Succeeded.
+          +optional
         type: integer
       uncountedTerminatedPods:
-        type: UncountedTerminatedPods
+        allOf:
+        - $ref: '#/definitions/v1.UncountedTerminatedPods'
+        description: |-
+          UncountedTerminatedPods holds the UIDs of Pods that have terminated but
+          the job controller hasn't yet accounted for in the status counters.
+
+          The job controller creates pods with a finalizer. When a pod terminates
+          (succeeded or failed), the controller does three steps to account for it
+          in the job status:
+          (1) Add the pod UID to the arrays in this field.
+          (2) Remove the pod finalizer.
+          (3) Remove the pod UID from the arrays while increasing the corresponding
+              counter.
+
+          This field is beta-level. The job controller only makes use of this field
+          when the feature gate JobTrackingWithFinalizers is enabled (enabled
+          by default).
+          Old jobs might not be tracked using this field, in which case the field
+          remains null.
+          +optional
+    type: object
+  v1.UncountedTerminatedPods:
+    properties:
+      failed:
+        description: |-
+          Failed holds UIDs of failed Pods.
+          +listType=set
+          +optional
+        items:
+          type: string
+        type: array
+      succeeded:
+        description: |-
+          Succeeded holds UIDs of succeeded Pods.
+          +listType=set
+          +optional
+        items:
+          type: string
+        type: array
     type: object
 host: wso.williams.edu
 info:
@@ -1920,7 +2146,6 @@ info:
     name: WSO Dev
   description: API for WSO services like factrak, facebook, dormtrak, course scheduler,
     and others.
-  license: {}
   title: WSO API
   version: 2.0.0
 paths:
@@ -1936,7 +2161,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/admin.KubeJobReturn'
+            $ref: '#/definitions/services_admin.KubeJobReturn'
         "500":
           description: Internal Server Error
           schema:
@@ -1958,7 +2183,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/admin.KubeJobReturn'
+            $ref: '#/definitions/services_admin.KubeJobReturn'
         "500":
           description: Internal Server Error
           schema:
@@ -2009,7 +2234,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/admin.KubeJobReturn'
+            $ref: '#/definitions/services_admin.KubeJobReturn'
         "500":
           description: Internal Server Error
           schema:
@@ -2031,7 +2256,7 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/admin.KubeJobReturn'
+            $ref: '#/definitions/services_admin.KubeJobReturn'
         "500":
           description: Internal Server Error
           schema:
@@ -2054,7 +2279,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/auth.AuthResponse'
+            $ref: '#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_auth.AuthResponse'
         "400":
           description: Bad Request
           schema:
@@ -2091,7 +2316,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/auth.AuthResponse'
+            $ref: '#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_auth.AuthResponse'
         "400":
           description: Bad Request
           schema:
@@ -2120,14 +2345,14 @@ paths:
         name: identityCredentials
         required: true
         schema:
-          $ref: '#/definitions/identity.Credentials'
+          $ref: '#/definitions/services_auth_identity.Credentials'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/auth.AuthResponse'
+            $ref: '#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_auth.AuthResponse'
         "400":
           description: Bad Request
           schema:
@@ -2156,14 +2381,14 @@ paths:
         name: loginParams
         required: true
         schema:
-          $ref: '#/definitions/old.LoginParams'
+          $ref: '#/definitions/services_auth_old.LoginParams'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/old.AuthResponse'
+            $ref: '#/definitions/services_auth_old.AuthResponse'
         "400":
           description: Bad Request
           schema:
@@ -2192,7 +2417,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/old.AuthResponse'
+            $ref: '#/definitions/services_auth_old.AuthResponse'
         "400":
           description: Bad Request
           schema:
@@ -2223,7 +2448,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/old.AuthResponse'
+            $ref: '#/definitions/services_auth_old.AuthResponse'
         "400":
           description: Bad Request
           schema:
@@ -2265,7 +2490,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/autocomplete.ACEntry'
+              $ref: '#/definitions/github_com_WilliamsStudentsOnline_wso-go_lib_autocomplete.ACEntry'
             type: array
         "500":
           description: Internal Server Error
@@ -2300,7 +2525,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/autocomplete.ACEntry'
+              $ref: '#/definitions/github_com_WilliamsStudentsOnline_wso-go_lib_autocomplete.ACEntry'
             type: array
         "500":
           description: Internal Server Error
@@ -2335,7 +2560,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/autocomplete.ACEntry'
+              $ref: '#/definitions/github_com_WilliamsStudentsOnline_wso-go_lib_autocomplete.ACEntry'
             type: array
         "500":
           description: Internal Server Error
@@ -2370,7 +2595,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/autocomplete.ACEntry'
+              $ref: '#/definitions/github_com_WilliamsStudentsOnline_wso-go_lib_autocomplete.ACEntry'
             type: array
         "500":
           description: Internal Server Error
@@ -2405,7 +2630,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/autocomplete.ACEntry'
+              $ref: '#/definitions/github_com_WilliamsStudentsOnline_wso-go_lib_autocomplete.ACEntry'
             type: array
         "500":
           description: Internal Server Error
@@ -2435,7 +2660,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -2478,7 +2704,7 @@ paths:
         name: createParams
         required: true
         schema:
-          $ref: '#/definitions/bulletin.CreateBulletinParams'
+          $ref: '#/definitions/services_bulletin.CreateBulletinParams'
       produces:
       - application/json
       responses:
@@ -2597,7 +2823,7 @@ paths:
         name: updateParams
         required: true
         schema:
-          $ref: '#/definitions/bulletin.UpdateBulletinParams'
+          $ref: '#/definitions/services_bulletin.UpdateBulletinParams'
       - description: Bulletin ID
         in: path
         name: bulletinID
@@ -2690,7 +2916,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -2729,7 +2956,7 @@ paths:
         name: createParams
         required: true
         schema:
-          $ref: '#/definitions/bulletin.CreateDiscussionParams'
+          $ref: '#/definitions/services_bulletin.CreateDiscussionParams'
       produces:
       - application/json
       responses:
@@ -2770,7 +2997,8 @@ paths:
         name: discussionID
         required: true
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -2824,7 +3052,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -2860,7 +3089,7 @@ paths:
         name: createParams
         required: true
         schema:
-          $ref: '#/definitions/bulletin.CreatePostParams'
+          $ref: '#/definitions/services_bulletin.CreatePostParams'
       produces:
       - application/json
       responses:
@@ -2979,7 +3208,7 @@ paths:
         name: updateParams
         required: true
         schema:
-          $ref: '#/definitions/bulletin.UpdatePostParams'
+          $ref: '#/definitions/services_bulletin.UpdatePostParams'
       - description: Post ID
         in: path
         name: postID
@@ -3032,7 +3261,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -3075,7 +3305,7 @@ paths:
         name: createParams
         required: true
         schema:
-          $ref: '#/definitions/bulletin.CreateRideParams'
+          $ref: '#/definitions/services_bulletin.CreateRideParams'
       produces:
       - application/json
       responses:
@@ -3190,7 +3420,7 @@ paths:
         name: updateParams
         required: true
         schema:
-          $ref: '#/definitions/bulletin.UpdateRideParams'
+          $ref: '#/definitions/services_bulletin.UpdateRideParams'
       - description: Ride ID
         in: path
         name: rideID
@@ -3495,7 +3725,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -3789,7 +4020,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -3832,7 +4064,7 @@ paths:
         name: createParams
         required: true
         schema:
-          $ref: '#/definitions/dormtrak.ReviewCreateParams'
+          $ref: '#/definitions/services_dormtrak.ReviewCreateParams'
       produces:
       - application/json
       responses:
@@ -3963,7 +4195,7 @@ paths:
         name: updateParams
         required: true
         schema:
-          $ref: '#/definitions/dormtrak.ReviewUpdateParams'
+          $ref: '#/definitions/services_dormtrak.ReviewUpdateParams'
       - description: review ID
         in: path
         name: reviewID
@@ -4022,7 +4254,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: OK
         "400":
           description: Bad Request
           schema:
@@ -4067,7 +4300,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/dormtrak.DormRoomPhotoInfo'
+              $ref: '#/definitions/services_dormtrak.DormRoomPhotoInfo'
             type: array
         "400":
           description: Bad Request
@@ -4105,7 +4338,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/dormtrak.DormRoomPhotoInfo'
+              $ref: '#/definitions/services_dormtrak.DormRoomPhotoInfo'
             type: array
         "400":
           description: Bad Request
@@ -4139,7 +4372,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -4218,7 +4452,8 @@ paths:
       produces:
       - application/json
       responses:
-        "201": {}
+        "201":
+          description: Created
         "400":
           description: Bad Request
           schema:
@@ -4264,7 +4499,8 @@ paths:
       produces:
       - application/json
       responses:
-        "201": {}
+        "201":
+          description: Created
         "400":
           description: Bad Request
           schema:
@@ -4316,7 +4552,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/ephmatch.GetAvailabilityResp'
+            $ref: '#/definitions/services_ephmatch.GetAvailabilityResp'
         "500":
           description: Internal Server Error
           schema:
@@ -4333,7 +4569,8 @@ paths:
       description: lists all Ephmatch-eligible students that user has matched with
       operationId: ephmatch-list-matches
       parameters:
-      - description: Preload List [tags]
+      - collectionFormat: csv
+        description: Preload List [tags]
         in: query
         items:
           type: string
@@ -4346,7 +4583,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/responses.ListMatchesResponseEphmatchMatch'
+              $ref: '#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_ephmatch_responses.ListMatchesResponseEphmatchMatch'
             type: array
         "500":
           description: Internal Server Error
@@ -4370,7 +4607,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/ephmatch.CountMatchesResponse'
+            $ref: '#/definitions/services_ephmatch.CountMatchesResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -4396,7 +4633,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: OK
         "400":
           description: Bad Request
           schema:
@@ -4492,7 +4730,7 @@ paths:
         name: updateParams
         required: true
         schema:
-          $ref: '#/definitions/ephmatch.ProfileUpdateParams'
+          $ref: '#/definitions/services_ephmatch.ProfileUpdateParams'
       produces:
       - application/json
       responses:
@@ -4532,7 +4770,7 @@ paths:
         name: createParams
         required: true
         schema:
-          $ref: '#/definitions/ephmatch.ProfileCreateParams'
+          $ref: '#/definitions/services_ephmatch.ProfileCreateParams'
       produces:
       - application/json
       responses:
@@ -4568,7 +4806,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: OK
         "400":
           description: Bad Request
           schema:
@@ -4600,7 +4839,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: OK
         "400":
           description: Bad Request
           schema:
@@ -4641,7 +4881,8 @@ paths:
         in: query
         name: noRelations
         type: boolean
-      - description: Preload List [tags, relation, matched]
+      - collectionFormat: csv
+        description: Preload List [tags, relation, matched]
         in: query
         items:
           type: string
@@ -4719,14 +4960,14 @@ paths:
         name: relationParams
         required: true
         schema:
-          $ref: '#/definitions/ephmatch.SetProfileRelationParams'
+          $ref: '#/definitions/services_ephmatch.SetProfileRelationParams'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/ephmatch.SetProfileRelationResp'
+            $ref: '#/definitions/services_ephmatch.SetProfileRelationResp'
         "400":
           description: Bad Request
           schema:
@@ -4784,7 +5025,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload (course, professor)
+      - collectionFormat: csv
+        description: Preload (course, professor)
         in: query
         items:
           type: string
@@ -4833,7 +5075,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: OK
         "404":
           description: Not Found
           schema:
@@ -4864,7 +5107,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List (department, courses)
+      - collectionFormat: csv
+        description: Preload List (department, courses)
         in: query
         items:
           type: string
@@ -5023,7 +5267,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -5217,7 +5462,8 @@ paths:
         in: query
         name: professorID
         type: integer
-      - description: Preload (course, professor)
+      - collectionFormat: csv
+        description: Preload (course, professor)
         in: query
         items:
           type: string
@@ -5410,7 +5656,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -5438,7 +5685,7 @@ paths:
         type: string
       - description: Sorting Direction
         in: query
-        name: direction
+        name: ascending
         type: boolean
       produces:
       - application/json
@@ -5609,7 +5856,8 @@ paths:
         in: query
         name: courseID
         type: integer
-      - description: Preload (course, professor)
+      - collectionFormat: csv
+        description: Preload (course, professor)
         in: query
         items:
           type: string
@@ -5677,7 +5925,8 @@ paths:
         in: query
         name: userID
         type: integer
-      - description: Preload (course, professor)
+      - collectionFormat: csv
+        description: Preload (course, professor)
         in: query
         items:
           type: string
@@ -5720,7 +5969,7 @@ paths:
         name: createParams
         required: true
         schema:
-          $ref: '#/definitions/factrak.SurveyCreateParams'
+          $ref: '#/definitions/services_factrak.SurveyCreateParams'
       produces:
       - application/json
       responses:
@@ -5871,7 +6120,7 @@ paths:
         name: updateParams
         required: true
         schema:
-          $ref: '#/definitions/factrak.SurveyUpdateParams'
+          $ref: '#/definitions/services_factrak.SurveyUpdateParams'
       - description: Survey ID
         in: path
         name: surveyID
@@ -6008,7 +6257,7 @@ paths:
         name: updateParams
         required: true
         schema:
-          $ref: '#/definitions/factrak.AgreementUpdateParams'
+          $ref: '#/definitions/services_factrak.AgreementUpdateParams'
       produces:
       - application/json
       responses:
@@ -6057,7 +6306,7 @@ paths:
         name: createParams
         required: true
         schema:
-          $ref: '#/definitions/factrak.AgreementCreateParams'
+          $ref: '#/definitions/services_factrak.AgreementCreateParams'
       produces:
       - application/json
       responses:
@@ -6109,7 +6358,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: OK
         "400":
           description: Bad Request
           schema:
@@ -6156,7 +6406,8 @@ paths:
         in: query
         name: courseID
         type: integer
-      - description: Preload (course, professor)
+      - collectionFormat: csv
+        description: Preload (course, professor)
         in: query
         items:
           type: string
@@ -6237,7 +6488,7 @@ paths:
         name: updateParams
         required: true
         schema:
-          $ref: '#/definitions/goodrich.UpdateMenuItemParams'
+          $ref: '#/definitions/services_goodrich.UpdateMenuItemParams'
       - description: Item ID
         in: path
         name: itemID
@@ -6279,7 +6530,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/goodrich.OrderLease'
+            $ref: '#/definitions/services_goodrich.OrderLease'
         "500":
           description: Internal Server Error
           schema:
@@ -6316,7 +6567,8 @@ paths:
         in: query
         name: userID
         type: integer
-      - description: Allowed Status list
+      - collectionFormat: csv
+        description: Allowed Status list
         in: query
         items:
           type: string
@@ -6351,7 +6603,7 @@ paths:
         name: createParams
         required: true
         schema:
-          $ref: '#/definitions/goodrich.CreateOrderParams'
+          $ref: '#/definitions/services_goodrich.CreateOrderParams'
       produces:
       - application/json
       responses:
@@ -6407,7 +6659,7 @@ paths:
         name: updateParams
         required: true
         schema:
-          $ref: '#/definitions/goodrich.UpdateOrderParams'
+          $ref: '#/definitions/services_goodrich.UpdateOrderParams'
       - description: Order ID
         in: path
         name: orderID
@@ -6442,7 +6694,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/goodrich.TimeSlot'
+              $ref: '#/definitions/services_goodrich.TimeSlot'
             type: array
         "500":
           description: Internal Server Error
@@ -6533,7 +6785,7 @@ paths:
         name: updateParams
         required: true
         schema:
-          $ref: '#/definitions/notification.TokenCreateParams'
+          $ref: '#/definitions/services_notification.TokenCreateParams'
       produces:
       - application/json
       responses:
@@ -6603,7 +6855,7 @@ paths:
         name: updateParams
         required: true
         schema:
-          $ref: '#/definitions/notification.SettingsUpdateParams'
+          $ref: '#/definitions/services_notification.SettingsUpdateParams'
       produces:
       - application/json
       responses:
@@ -6733,7 +6985,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -6750,7 +7003,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/responses.ListUsersResponseUser'
+              $ref: '#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseUser'
             type: array
         "500":
           description: Internal Server Error
@@ -6780,7 +7033,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/responses.GetUserResponseUser'
+            $ref: '#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseUser'
         "404":
           description: Not Found
           schema:
@@ -6823,7 +7076,7 @@ paths:
         name: updateParams
         required: true
         schema:
-          $ref: '#/definitions/user.UpdateUserParams'
+          $ref: '#/definitions/services_user.UpdateUserParams'
       produces:
       - application/json
       responses:
@@ -6877,7 +7130,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: OK
         "400":
           description: Bad Request
           schema:
@@ -6921,11 +7175,12 @@ paths:
         name: updateTagsParams
         required: true
         schema:
-          $ref: '#/definitions/user.UpdateUserTagsParams'
+          $ref: '#/definitions/services_user.UpdateUserTagsParams'
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: OK
         "400":
           description: Bad Request
           schema:

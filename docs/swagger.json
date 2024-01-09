@@ -7,7 +7,6 @@
             "name": "WSO Dev",
             "email": "wso-dev@wso.williams.edu"
         },
-        "license": {},
         "version": "2.0.0"
     },
     "host": "wso.williams.edu",
@@ -36,7 +35,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/admin.KubeJobReturn"
+                            "$ref": "#/definitions/services_admin.KubeJobReturn"
                         }
                     },
                     "500": {
@@ -71,7 +70,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/admin.KubeJobReturn"
+                            "$ref": "#/definitions/services_admin.KubeJobReturn"
                         }
                     },
                     "500": {
@@ -150,7 +149,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/admin.KubeJobReturn"
+                            "$ref": "#/definitions/services_admin.KubeJobReturn"
                         }
                     },
                     "500": {
@@ -185,7 +184,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/admin.KubeJobReturn"
+                            "$ref": "#/definitions/services_admin.KubeJobReturn"
                         }
                     },
                     "500": {
@@ -221,7 +220,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/auth.AuthResponse"
+                            "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_auth.AuthResponse"
                         }
                     },
                     "400": {
@@ -273,7 +272,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/auth.AuthResponse"
+                            "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_auth.AuthResponse"
                         }
                     },
                     "400": {
@@ -319,7 +318,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/identity.Credentials"
+                            "$ref": "#/definitions/services_auth_identity.Credentials"
                         }
                     }
                 ],
@@ -327,7 +326,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/auth.AuthResponse"
+                            "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_auth.AuthResponse"
                         }
                     },
                     "400": {
@@ -372,7 +371,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/old.LoginParams"
+                            "$ref": "#/definitions/services_auth_old.LoginParams"
                         }
                     }
                 ],
@@ -380,7 +379,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/old.AuthResponse"
+                            "$ref": "#/definitions/services_auth_old.AuthResponse"
                         }
                     },
                     "400": {
@@ -427,7 +426,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/old.AuthResponse"
+                            "$ref": "#/definitions/services_auth_old.AuthResponse"
                         }
                     },
                     "400": {
@@ -474,7 +473,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/old.AuthResponse"
+                            "$ref": "#/definitions/services_auth_old.AuthResponse"
                         }
                     },
                     "400": {
@@ -538,7 +537,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/autocomplete.ACEntry"
+                                "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_lib_autocomplete.ACEntry"
                             }
                         }
                     },
@@ -591,7 +590,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/autocomplete.ACEntry"
+                                "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_lib_autocomplete.ACEntry"
                             }
                         }
                     },
@@ -644,7 +643,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/autocomplete.ACEntry"
+                                "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_lib_autocomplete.ACEntry"
                             }
                         }
                     },
@@ -697,7 +696,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/autocomplete.ACEntry"
+                                "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_lib_autocomplete.ACEntry"
                             }
                         }
                     },
@@ -750,7 +749,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/autocomplete.ACEntry"
+                                "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_lib_autocomplete.ACEntry"
                             }
                         }
                     },
@@ -806,6 +805,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload List",
                         "name": "preload",
                         "in": "query"
@@ -866,7 +866,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/bulletin.CreateBulletinParams"
+                            "$ref": "#/definitions/services_bulletin.CreateBulletinParams"
                         }
                     }
                 ],
@@ -1050,7 +1050,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/bulletin.UpdateBulletinParams"
+                            "$ref": "#/definitions/services_bulletin.UpdateBulletinParams"
                         }
                     },
                     {
@@ -1200,6 +1200,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload List",
                         "name": "preload",
                         "in": "query"
@@ -1254,7 +1255,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/bulletin.CreateDiscussionParams"
+                            "$ref": "#/definitions/services_bulletin.CreateDiscussionParams"
                         }
                     }
                 ],
@@ -1324,6 +1325,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload List",
                         "name": "preload",
                         "in": "query"
@@ -1407,6 +1409,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload List",
                         "name": "preload",
                         "in": "query"
@@ -1457,7 +1460,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/bulletin.CreatePostParams"
+                            "$ref": "#/definitions/services_bulletin.CreatePostParams"
                         }
                     }
                 ],
@@ -1641,7 +1644,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/bulletin.UpdatePostParams"
+                            "$ref": "#/definitions/services_bulletin.UpdatePostParams"
                         }
                     },
                     {
@@ -1729,6 +1732,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload List",
                         "name": "preload",
                         "in": "query"
@@ -1789,7 +1793,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/bulletin.CreateRideParams"
+                            "$ref": "#/definitions/services_bulletin.CreateRideParams"
                         }
                     }
                 ],
@@ -1967,7 +1971,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/bulletin.UpdateRideParams"
+                            "$ref": "#/definitions/services_bulletin.UpdateRideParams"
                         }
                     },
                     {
@@ -2450,6 +2454,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload List",
                         "name": "preload",
                         "in": "query"
@@ -2906,6 +2911,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload List",
                         "name": "preload",
                         "in": "query"
@@ -2966,7 +2972,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dormtrak.ReviewCreateParams"
+                            "$ref": "#/definitions/services_dormtrak.ReviewCreateParams"
                         }
                     }
                 ],
@@ -3168,7 +3174,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dormtrak.ReviewUpdateParams"
+                            "$ref": "#/definitions/services_dormtrak.ReviewUpdateParams"
                         }
                     },
                     {
@@ -3267,7 +3273,9 @@
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "200": {},
+                    "200": {
+                        "description": "OK"
+                    },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -3323,7 +3331,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/dormtrak.DormRoomPhotoInfo"
+                                "$ref": "#/definitions/services_dormtrak.DormRoomPhotoInfo"
                             }
                         }
                     },
@@ -3382,7 +3390,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/dormtrak.DormRoomPhotoInfo"
+                                "$ref": "#/definitions/services_dormtrak.DormRoomPhotoInfo"
                             }
                         }
                     },
@@ -3444,6 +3452,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload List",
                         "name": "preload",
                         "in": "query"
@@ -3577,7 +3586,9 @@
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "201": {},
+                    "201": {
+                        "description": "Created"
+                    },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -3628,7 +3639,9 @@
                     }
                 ],
                 "responses": {
-                    "201": {},
+                    "201": {
+                        "description": "Created"
+                    },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -3708,7 +3721,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ephmatch.GetAvailabilityResp"
+                            "$ref": "#/definitions/services_ephmatch.GetAvailabilityResp"
                         }
                     },
                     "500": {
@@ -3745,6 +3758,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload List [tags]",
                         "name": "preload",
                         "in": "query"
@@ -3756,7 +3770,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/responses.ListMatchesResponseEphmatchMatch"
+                                "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_ephmatch_responses.ListMatchesResponseEphmatchMatch"
                             }
                         }
                     },
@@ -3792,7 +3806,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ephmatch.CountMatchesResponse"
+                            "$ref": "#/definitions/services_ephmatch.CountMatchesResponse"
                         }
                     },
                     "500": {
@@ -3845,7 +3859,9 @@
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "200": {},
+                    "200": {
+                        "description": "OK"
+                    },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -3938,7 +3954,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/ephmatch.ProfileCreateParams"
+                            "$ref": "#/definitions/services_ephmatch.ProfileCreateParams"
                         }
                     }
                 ],
@@ -4045,7 +4061,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/ephmatch.ProfileUpdateParams"
+                            "$ref": "#/definitions/services_ephmatch.ProfileUpdateParams"
                         }
                     }
                 ],
@@ -4112,7 +4128,9 @@
                     }
                 ],
                 "responses": {
-                    "200": {},
+                    "200": {
+                        "description": "OK"
+                    },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -4149,7 +4167,9 @@
                 "summary": "Delete an ephmatch profile photo by user id",
                 "operationId": "delete-ephmatch-profile-photo",
                 "responses": {
-                    "200": {},
+                    "200": {
+                        "description": "OK"
+                    },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -4220,6 +4240,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload List [tags, relation, matched]",
                         "name": "preload",
                         "in": "query"
@@ -4333,7 +4354,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/ephmatch.SetProfileRelationParams"
+                            "$ref": "#/definitions/services_ephmatch.SetProfileRelationParams"
                         }
                     }
                 ],
@@ -4359,7 +4380,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/ephmatch.SetProfileRelationResp"
+                            "$ref": "#/definitions/services_ephmatch.SetProfileRelationResp"
                         }
                     },
                     "400": {
@@ -4440,6 +4461,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload (course, professor)",
                         "name": "preload",
                         "in": "query"
@@ -4507,7 +4529,9 @@
                     }
                 ],
                 "responses": {
-                    "200": {},
+                    "200": {
+                        "description": "OK"
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -4560,6 +4584,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload List (department, courses)",
                         "name": "preload",
                         "in": "query"
@@ -4803,6 +4828,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload List",
                         "name": "preload",
                         "in": "query"
@@ -5098,6 +5124,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload (course, professor)",
                         "name": "preload",
                         "in": "query"
@@ -5397,6 +5424,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload List",
                         "name": "preload",
                         "in": "query"
@@ -5434,7 +5462,7 @@
                     {
                         "type": "boolean",
                         "description": "Sorting Direction",
-                        "name": "direction",
+                        "name": "ascending",
                         "in": "query"
                     }
                 ],
@@ -5698,6 +5726,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload (course, professor)",
                         "name": "preload",
                         "in": "query"
@@ -5801,6 +5830,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload (course, professor)",
                         "name": "preload",
                         "in": "query"
@@ -5861,7 +5891,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/factrak.SurveyCreateParams"
+                            "$ref": "#/definitions/services_factrak.SurveyCreateParams"
                         }
                     }
                 ],
@@ -6089,7 +6119,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/factrak.SurveyUpdateParams"
+                            "$ref": "#/definitions/services_factrak.SurveyUpdateParams"
                         }
                     },
                     {
@@ -6239,7 +6269,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/factrak.AgreementCreateParams"
+                            "$ref": "#/definitions/services_factrak.AgreementCreateParams"
                         }
                     }
                 ],
@@ -6380,7 +6410,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/factrak.AgreementUpdateParams"
+                            "$ref": "#/definitions/services_factrak.AgreementUpdateParams"
                         }
                     }
                 ],
@@ -6453,7 +6483,9 @@
                     }
                 ],
                 "responses": {
-                    "200": {},
+                    "200": {
+                        "description": "OK"
+                    },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -6532,6 +6564,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload (course, professor)",
                         "name": "preload",
                         "in": "query"
@@ -6652,7 +6685,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/goodrich.UpdateMenuItemParams"
+                            "$ref": "#/definitions/services_goodrich.UpdateMenuItemParams"
                         }
                     },
                     {
@@ -6714,7 +6747,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/goodrich.OrderLease"
+                            "$ref": "#/definitions/services_goodrich.OrderLease"
                         }
                     },
                     "500": {
@@ -6781,6 +6814,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Allowed Status list",
                         "name": "statuses",
                         "in": "query"
@@ -6829,7 +6863,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/goodrich.CreateOrderParams"
+                            "$ref": "#/definitions/services_goodrich.CreateOrderParams"
                         }
                     }
                 ],
@@ -6917,7 +6951,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/goodrich.UpdateOrderParams"
+                            "$ref": "#/definitions/services_goodrich.UpdateOrderParams"
                         }
                     },
                     {
@@ -6969,7 +7003,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/goodrich.TimeSlot"
+                                "$ref": "#/definitions/services_goodrich.TimeSlot"
                             }
                         }
                     },
@@ -7116,7 +7150,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/notification.TokenCreateParams"
+                            "$ref": "#/definitions/services_notification.TokenCreateParams"
                         }
                     }
                 ],
@@ -7225,7 +7259,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/notification.SettingsUpdateParams"
+                            "$ref": "#/definitions/services_notification.SettingsUpdateParams"
                         }
                     }
                 ],
@@ -7432,6 +7466,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload List",
                         "name": "preload",
                         "in": "query"
@@ -7449,7 +7484,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/responses.ListUsersResponseUser"
+                                "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseUser"
                             }
                         }
                     },
@@ -7512,7 +7547,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/responses.GetUserResponseUser"
+                            "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseUser"
                         }
                     },
                     "404": {
@@ -7561,7 +7596,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/user.UpdateUserParams"
+                            "$ref": "#/definitions/services_user.UpdateUserParams"
                         }
                     }
                 ],
@@ -7653,7 +7688,9 @@
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "200": {},
+                    "200": {
+                        "description": "OK"
+                    },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -7708,7 +7745,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/user.UpdateUserTagsParams"
+                            "$ref": "#/definitions/services_user.UpdateUserTagsParams"
                         }
                     }
                 ],
@@ -7737,7 +7774,9 @@
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "200": {},
+                    "200": {
+                        "description": "OK"
+                    },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -7796,26 +7835,120 @@
         }
     },
     "definitions": {
-        "admin.KubeJobReturn": {
+        "feeds.Author": {
             "type": "object",
             "properties": {
-                "jobID": {
+                "name": {
                     "type": "string"
                 }
             }
         },
-        "auth.AuthResponse": {
+        "feeds.Enclosure": {
             "type": "object",
             "properties": {
-                "expire": {
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "feeds.Feed": {
+            "type": "object",
+            "properties": {
+                "author": {
+                    "$ref": "#/definitions/feeds.Author"
+                },
+                "copyright": {
                     "type": "string"
                 },
-                "token": {
+                "created": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "image": {
+                    "$ref": "#/definitions/feeds.Image"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/feeds.Item"
+                    }
+                },
+                "link": {
+                    "$ref": "#/definitions/feeds.Link"
+                },
+                "subtitle": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated": {
                     "type": "string"
                 }
             }
         },
-        "autocomplete.ACEntry": {
+        "feeds.Image": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "type": "string"
+                },
+                "width": {
+                    "type": "integer"
+                }
+            }
+        },
+        "feeds.Item": {
+            "type": "object",
+            "properties": {
+                "author": {
+                    "$ref": "#/definitions/feeds.Author"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "created": {
+                    "type": "string"
+                },
+                "description": {
+                    "description": "used as description in rss, summary in atom",
+                    "type": "string"
+                },
+                "enclosure": {
+                    "$ref": "#/definitions/feeds.Enclosure"
+                },
+                "id": {
+                    "description": "used as guid in rss, id in atom",
+                    "type": "string"
+                },
+                "link": {
+                    "$ref": "#/definitions/feeds.Link"
+                },
+                "source": {
+                    "$ref": "#/definitions/feeds.Link"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated": {
+                    "type": "string"
+                }
+            }
+        },
+        "feeds.Link": {
+            "type": "object",
+            "properties": {
+                "href": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_WilliamsStudentsOnline_wso-go_lib_autocomplete.ACEntry": {
             "type": "object",
             "properties": {
                 "id": {
@@ -7829,326 +7962,44 @@
                 }
             }
         },
-        "bulletin.CreateBulletinParams": {
+        "github_com_WilliamsStudentsOnline_wso-go_services_auth.AuthResponse": {
             "type": "object",
-            "required": [
-                "body",
-                "title",
-                "type"
-            ],
             "properties": {
-                "body": {
+                "expire": {
                     "type": "string"
                 },
-                "endDate": {
-                    "type": "string"
-                },
-                "offer": {
-                    "type": "boolean"
-                },
-                "startDate": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "type": {
+                "token": {
                     "type": "string"
                 }
             }
         },
-        "bulletin.CreateDiscussionParams": {
+        "github_com_WilliamsStudentsOnline_wso-go_services_ephmatch_responses.ListMatchesResponseEphmatchMatch": {
             "type": "object",
-            "required": [
-                "content",
-                "title"
-            ],
             "properties": {
-                "content": {
+                "createdAt": {
                     "type": "string"
                 },
-                "title": {
+                "id": {
+                    "type": "integer"
+                },
+                "matchedUser": {
+                    "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_ephmatch_responses.ListMatchesResponseMatchedUser"
+                },
+                "matchedUserID": {
+                    "type": "integer"
+                },
+                "seenByMatchedUser": {
+                    "type": "boolean"
+                },
+                "seenBySelf": {
+                    "type": "boolean"
+                },
+                "updatedAt": {
                     "type": "string"
                 }
             }
         },
-        "bulletin.CreatePostParams": {
-            "type": "object",
-            "required": [
-                "content",
-                "discussionID"
-            ],
-            "properties": {
-                "content": {
-                    "type": "string"
-                },
-                "discussionID": {
-                    "type": "integer"
-                }
-            }
-        },
-        "bulletin.CreateRideParams": {
-            "type": "object",
-            "required": [
-                "body",
-                "date",
-                "destination",
-                "source"
-            ],
-            "properties": {
-                "body": {
-                    "type": "string"
-                },
-                "date": {
-                    "type": "string"
-                },
-                "destination": {
-                    "type": "string"
-                },
-                "offer": {
-                    "type": "boolean"
-                },
-                "source": {
-                    "type": "string"
-                }
-            }
-        },
-        "bulletin.UpdateBulletinParams": {
-            "type": "object",
-            "properties": {
-                "body": {
-                    "type": "string"
-                },
-                "endDate": {
-                    "type": "string"
-                },
-                "offer": {
-                    "type": "boolean"
-                },
-                "startDate": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                }
-            }
-        },
-        "bulletin.UpdatePostParams": {
-            "type": "object",
-            "properties": {
-                "content": {
-                    "type": "string"
-                }
-            }
-        },
-        "bulletin.UpdateRideParams": {
-            "type": "object",
-            "properties": {
-                "body": {
-                    "type": "string"
-                },
-                "date": {
-                    "type": "string"
-                },
-                "offer": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "dormtrak.DormRoomPhotoInfo": {
-            "type": "object",
-            "properties": {
-                "dormRoomId": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "number": {
-                    "type": "integer"
-                },
-                "reviewId": {
-                    "type": "integer"
-                }
-            }
-        },
-        "dormtrak.ReviewCreateParams": {
-            "type": "object",
-            "required": [
-                "dormRoomID"
-            ],
-            "properties": {
-                "bathroomDesc": {
-                    "type": "string"
-                },
-                "bedAdjustable": {
-                    "type": "boolean"
-                },
-                "closet": {
-                    "type": "string"
-                },
-                "comment": {
-                    "description": "Params:",
-                    "type": "string"
-                },
-                "commonRoomAccess": {
-                    "type": "boolean"
-                },
-                "commonRoomDesc": {
-                    "type": "string"
-                },
-                "dormRoomID": {
-                    "description": "Must include this:",
-                    "type": "integer"
-                },
-                "flooring": {
-                    "type": "string"
-                },
-                "keyOrCard": {
-                    "type": "string"
-                },
-                "location": {
-                    "type": "integer"
-                },
-                "loudness": {
-                    "type": "integer"
-                },
-                "noise": {
-                    "type": "string"
-                },
-                "privateBathroom": {
-                    "type": "boolean"
-                },
-                "satisfaction": {
-                    "type": "integer"
-                },
-                "thermostatAccess": {
-                    "type": "boolean"
-                },
-                "wifi": {
-                    "type": "integer"
-                }
-            }
-        },
-        "dormtrak.ReviewUpdateParams": {
-            "type": "object",
-            "properties": {
-                "bathroomDesc": {
-                    "type": "string"
-                },
-                "bedAdjustable": {
-                    "type": "boolean"
-                },
-                "closet": {
-                    "type": "string"
-                },
-                "comment": {
-                    "type": "string"
-                },
-                "commonRoomAccess": {
-                    "type": "boolean"
-                },
-                "commonRoomDesc": {
-                    "type": "string"
-                },
-                "flooring": {
-                    "type": "string"
-                },
-                "keyOrCard": {
-                    "type": "string"
-                },
-                "location": {
-                    "type": "integer"
-                },
-                "loudness": {
-                    "type": "integer"
-                },
-                "noise": {
-                    "type": "string"
-                },
-                "privateBathroom": {
-                    "type": "boolean"
-                },
-                "satisfaction": {
-                    "type": "integer"
-                },
-                "thermostatAccess": {
-                    "type": "boolean"
-                },
-                "wifi": {
-                    "type": "integer"
-                }
-            }
-        },
-        "ephmatch.CountMatchesResponse": {
-            "type": "object",
-            "properties": {
-                "total": {
-                    "type": "integer"
-                },
-                "unseen": {
-                    "type": "integer"
-                }
-            }
-        },
-        "ephmatch.GetAvailabilityResp": {
-            "type": "object",
-            "properties": {
-                "available": {
-                    "description": "If Ephmatch is currently available",
-                    "type": "boolean"
-                },
-                "closingTime": {
-                    "description": "Closing time for current Ephmatch era/period",
-                    "type": "string"
-                },
-                "nextOpenTime": {
-                    "description": "Next time Ephmatch will be open",
-                    "type": "string"
-                },
-                "openIndefinitely": {
-                    "description": "If Ephmatch has no closing time set",
-                    "type": "boolean"
-                },
-                "seniorOnly": {
-                    "description": "Senior only ephmatch right now",
-                    "type": "boolean"
-                }
-            }
-        },
-        "ephmatch.ProfileCreateParams": {
-            "type": "object",
-            "properties": {
-                "LocationCountry": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "locationState": {
-                    "type": "string"
-                },
-                "locationTown": {
-                    "type": "string"
-                },
-                "locationVisible": {
-                    "type": "boolean"
-                },
-                "lookingFor": {
-                    "type": "string"
-                },
-                "matchMessage": {
-                    "type": "string"
-                },
-                "messagingPlatform": {
-                    "type": "string"
-                },
-                "messagingUsername": {
-                    "type": "string"
-                }
-            }
-        },
-        "ephmatch.ProfileUpdateParams": {
+        "github_com_WilliamsStudentsOnline_wso-go_services_ephmatch_responses.ListMatchesResponseEphmatchProfile": {
             "type": "object",
             "properties": {
                 "description": {
@@ -8180,309 +8031,466 @@
                 }
             }
         },
-        "ephmatch.SetProfileRelationParams": {
+        "github_com_WilliamsStudentsOnline_wso-go_services_ephmatch_responses.ListMatchesResponseMatchedUser": {
             "type": "object",
             "properties": {
-                "relation": {
-                    "type": "string"
-                }
-            }
-        },
-        "ephmatch.SetProfileRelationResp": {
-            "type": "object",
-            "properties": {
-                "matched": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "factrak.AgreementCreateParams": {
-            "type": "object",
-            "properties": {
-                "agree": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "factrak.AgreementUpdateParams": {
-            "type": "object",
-            "properties": {
-                "agree": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "factrak.SurveyCreateParams": {
-            "type": "object",
-            "required": [
-                "comment",
-                "professorID"
-            ],
-            "properties": {
-                "approachability": {
+                "classYear": {
                     "type": "integer"
                 },
-                "areaOfStudyAbbreviation": {
-                    "description": "Or this:",
+                "entry": {
                     "type": "string"
                 },
-                "comment": {
-                    "description": "Params:",
-                    "type": "string"
-                },
-                "courseFormat": {
-                    "description": "Remote, Hybrid, In-Person",
-                    "type": "string"
-                },
-                "courseID": {
-                    "description": "Must include either this:",
-                    "type": "integer"
-                },
-                "courseNumber": {
-                    "description": "Like \"256\"",
-                    "type": "string"
-                },
-                "courseStimulating": {
-                    "type": "integer"
-                },
-                "courseWorkload": {
-                    "type": "integer"
-                },
-                "gradeReceived": {
-                    "type": "string"
-                },
-                "leadLecture": {
-                    "type": "integer"
-                },
-                "mentalHealthSupport": {
-                    "type": "integer"
-                },
-                "outsideHelpfulness": {
-                    "type": "integer"
-                },
-                "professorID": {
-                    "description": "Must include this:",
-                    "type": "integer"
-                },
-                "promoteDiscussion": {
-                    "type": "integer"
-                },
-                "semesterSeason": {
-                    "description": "Fall, Winter Study, Spring",
-                    "type": "string"
-                },
-                "semesterYear": {
-                    "type": "integer"
-                },
-                "wouldRecommendCourse": {
-                    "type": "boolean"
-                },
-                "wouldTakeAnother": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "factrak.SurveyUpdateParams": {
-            "type": "object",
-            "properties": {
-                "approachability": {
-                    "type": "integer"
-                },
-                "comment": {
-                    "description": "Params:",
-                    "type": "string"
-                },
-                "courseFormat": {
-                    "description": "Remote, Hybrid, In-Person",
-                    "type": "string"
-                },
-                "courseStimulating": {
-                    "type": "integer"
-                },
-                "courseWorkload": {
-                    "type": "integer"
-                },
-                "gradeReceived": {
-                    "type": "string"
-                },
-                "leadLecture": {
-                    "type": "integer"
-                },
-                "mentalHealthSupport": {
-                    "type": "integer"
-                },
-                "outsideHelpfulness": {
-                    "type": "integer"
-                },
-                "promoteDiscussion": {
-                    "type": "integer"
-                },
-                "semesterSeason": {
-                    "description": "Fall, Winter Study, Spring",
-                    "type": "string"
-                },
-                "semesterYear": {
-                    "type": "integer"
-                },
-                "wouldRecommendCourse": {
-                    "type": "boolean"
-                },
-                "wouldTakeAnother": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "feeds.Feed": {
-            "type": "object",
-            "properties": {
-                "author": {
-                    "type": "Author"
-                },
-                "copyright": {
-                    "type": "string"
-                },
-                "created": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
+                "ephmatchProfile": {
+                    "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_ephmatch_responses.ListMatchesResponseEphmatchProfile"
                 },
                 "id": {
+                    "type": "integer"
+                },
+                "major": {
                     "type": "string"
                 },
-                "image": {
-                    "type": "Image"
+                "name": {
+                    "type": "string"
                 },
-                "items": {
+                "nickname": {
+                    "type": "string"
+                },
+                "offCycle": {
+                    "type": "boolean"
+                },
+                "pronoun": {
+                    "type": "string"
+                },
+                "tags": {
                     "type": "array",
                     "items": {
-                        "type": "Item"
+                        "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_ephmatch_responses.ListMatchesResponseTag"
                     }
-                },
-                "link": {
-                    "type": "Link"
-                },
-                "subtitle": {
-                    "type": "string"
                 },
                 "title": {
-                    "type": "string"
-                },
-                "updated": {
-                    "type": "string"
-                }
-            }
-        },
-        "goodrich.CreateOrderParams": {
-            "type": "object",
-            "properties": {
-                "comboDeal": {
-                    "type": "boolean"
-                },
-                "date": {
-                    "type": "string"
-                },
-                "idNumber": {
-                    "type": "string"
-                },
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.GoodrichOrderItem"
-                    }
-                },
-                "leaseID": {
-                    "type": "string"
-                },
-                "notes": {
-                    "type": "string"
-                },
-                "paymentMethod": {
-                    "type": "integer"
-                },
-                "phoneNumber": {
-                    "type": "string"
-                },
-                "timeSlot": {
-                    "description": "Format: 11:10 am",
-                    "type": "string"
-                }
-            }
-        },
-        "goodrich.OrderLease": {
-            "type": "object",
-            "properties": {
-                "expiry": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                }
-            }
-        },
-        "goodrich.TimeSlot": {
-            "type": "object",
-            "properties": {
-                "closedSpots": {
-                    "type": "integer"
-                },
-                "formatted": {
-                    "type": "string"
-                },
-                "hour": {
-                    "type": "integer"
-                },
-                "minute": {
-                    "type": "integer"
-                },
-                "openSpots": {
-                    "type": "integer"
-                }
-            }
-        },
-        "goodrich.UpdateMenuItemParams": {
-            "type": "object",
-            "properties": {
-                "available": {
-                    "type": "boolean"
-                },
-                "quantity": {
-                    "type": "integer"
-                },
-                "quantityLimit": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "goodrich.UpdateOrderParams": {
-            "type": "object",
-            "properties": {
-                "adminNotes": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "integer"
-                }
-            }
-        },
-        "identity.Credentials": {
-            "type": "object",
-            "properties": {
-                "localIP": {
-                    "description": "If true, will authenticate based on IP. Fail if cannot get on-campus token.",
-                    "type": "boolean"
-                },
-                "password": {
                     "type": "string"
                 },
                 "unixID": {
                     "type": "string"
                 },
-                "useIP": {
-                    "description": "If true, will authenticate based on IP. Will return either off-campus or on-campus token",
-                    "type": "boolean"
+                "williamsEmail": {
+                    "type": "string"
                 }
             }
+        },
+        "github_com_WilliamsStudentsOnline_wso-go_services_ephmatch_responses.ListMatchesResponseTag": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseDepartment": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseDorm": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "neighborhoodID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseDormRoom": {
+            "type": "object",
+            "properties": {
+                "dorm": {
+                    "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseDorm"
+                },
+                "dormID": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "number": {
+                    "type": "string"
+                },
+                "roomType": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseOffice": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "number": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseTag": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseUser": {
+            "type": "object",
+            "properties": {
+                "admin": {
+                    "type": "boolean"
+                },
+                "atWilliams": {
+                    "type": "boolean"
+                },
+                "campusPhoneEXT": {
+                    "type": "string"
+                },
+                "campusStatus": {
+                    "type": "string"
+                },
+                "cellPhone": {
+                    "type": "string"
+                },
+                "classYear": {
+                    "type": "integer"
+                },
+                "department": {
+                    "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseDepartment"
+                },
+                "departmentID": {
+                    "type": "integer"
+                },
+                "dormRoom": {
+                    "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseDormRoom"
+                },
+                "dormRoomID": {
+                    "type": "integer"
+                },
+                "dormVisible": {
+                    "type": "boolean"
+                },
+                "entry": {
+                    "type": "string"
+                },
+                "ephcatchEligibility": {
+                    "type": "boolean"
+                },
+                "factrakAdmin": {
+                    "type": "boolean"
+                },
+                "factrakSurveyDeficit": {
+                    "type": "integer"
+                },
+                "hasAcceptedDormtrakPolicy": {
+                    "type": "boolean"
+                },
+                "hasAcceptedFactrakPolicy": {
+                    "type": "boolean"
+                },
+                "homeCountry": {
+                    "type": "string"
+                },
+                "homePhone": {
+                    "type": "string"
+                },
+                "homeState": {
+                    "type": "string"
+                },
+                "homeTown": {
+                    "type": "string"
+                },
+                "homeVisible": {
+                    "type": "boolean"
+                },
+                "homeZip": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "major": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "offCampus": {
+                    "type": "boolean"
+                },
+                "offCycle": {
+                    "type": "boolean"
+                },
+                "office": {
+                    "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseOffice"
+                },
+                "officeID": {
+                    "type": "integer"
+                },
+                "optOutEphcatch": {
+                    "type": "boolean"
+                },
+                "pronoun": {
+                    "type": "string"
+                },
+                "suBox": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseTag"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "unixID": {
+                    "type": "string"
+                },
+                "visible": {
+                    "type": "boolean"
+                },
+                "williamsEmail": {
+                    "type": "string"
+                },
+                "williamsID": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseDepartment": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseDorm": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "neighborhoodID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseDormRoom": {
+            "type": "object",
+            "properties": {
+                "dorm": {
+                    "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseDorm"
+                },
+                "dormID": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "number": {
+                    "type": "string"
+                },
+                "roomType": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseOffice": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "number": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseTag": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseUser": {
+            "type": "object",
+            "properties": {
+                "admin": {
+                    "type": "boolean"
+                },
+                "atWilliams": {
+                    "type": "boolean"
+                },
+                "campusPhoneEXT": {
+                    "type": "string"
+                },
+                "campusStatus": {
+                    "type": "string"
+                },
+                "cellPhone": {
+                    "type": "string"
+                },
+                "classYear": {
+                    "type": "integer"
+                },
+                "department": {
+                    "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseDepartment"
+                },
+                "departmentID": {
+                    "type": "integer"
+                },
+                "dormRoom": {
+                    "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseDormRoom"
+                },
+                "dormRoomID": {
+                    "type": "integer"
+                },
+                "dormVisible": {
+                    "type": "boolean"
+                },
+                "entry": {
+                    "type": "string"
+                },
+                "ephcatchEligibility": {
+                    "type": "boolean"
+                },
+                "factrakAdmin": {
+                    "type": "boolean"
+                },
+                "factrakSurveyDeficit": {
+                    "type": "integer"
+                },
+                "hasAcceptedDormtrakPolicy": {
+                    "type": "boolean"
+                },
+                "hasAcceptedFactrakPolicy": {
+                    "type": "boolean"
+                },
+                "homeCountry": {
+                    "type": "string"
+                },
+                "homePhone": {
+                    "type": "string"
+                },
+                "homeState": {
+                    "type": "string"
+                },
+                "homeTown": {
+                    "type": "string"
+                },
+                "homeVisible": {
+                    "type": "boolean"
+                },
+                "homeZip": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "major": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "offCampus": {
+                    "type": "boolean"
+                },
+                "offCycle": {
+                    "type": "boolean"
+                },
+                "office": {
+                    "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseOffice"
+                },
+                "officeID": {
+                    "type": "integer"
+                },
+                "optOutEphcatch": {
+                    "type": "boolean"
+                },
+                "pronoun": {
+                    "type": "string"
+                },
+                "suBox": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseTag"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "unixID": {
+                    "type": "string"
+                },
+                "visible": {
+                    "type": "boolean"
+                },
+                "williamsEmail": {
+                    "type": "string"
+                },
+                "williamsID": {
+                    "type": "string"
+                }
+            }
+        },
+        "k8s_io_api_core_v1.ConditionStatus": {
+            "type": "string",
+            "enum": [
+                "True",
+                "False",
+                "Unknown"
+            ],
+            "x-enum-varnames": [
+                "ConditionTrue",
+                "ConditionFalse",
+                "ConditionUnknown"
+            ]
         },
         "models.AreaOfStudy": {
             "type": "object",
@@ -8498,7 +8506,6 @@
                     }
                 },
                 "department": {
-                    "type": "object",
                     "$ref": "#/definitions/models.Department"
                 },
                 "departmentID": {
@@ -8551,8 +8558,11 @@
                 },
                 "user": {
                     "description": "Belongs to user",
-                    "type": "object",
-                    "$ref": "#/definitions/models.User"
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    ]
                 },
                 "userID": {
                     "type": "integer"
@@ -8584,7 +8594,6 @@
                     "type": "string"
                 },
                 "user": {
-                    "type": "object",
                     "$ref": "#/definitions/models.User"
                 },
                 "userID": {
@@ -8615,7 +8624,6 @@
                     "type": "string"
                 },
                 "user": {
-                    "type": "object",
                     "$ref": "#/definitions/models.User"
                 },
                 "userID": {
@@ -8628,7 +8636,6 @@
             "type": "object",
             "properties": {
                 "areaOfStudy": {
-                    "type": "object",
                     "$ref": "#/definitions/models.AreaOfStudy"
                 },
                 "areaOfStudyID": {
@@ -8710,7 +8717,6 @@
                     "type": "string"
                 },
                 "user": {
-                    "type": "object",
                     "$ref": "#/definitions/models.User"
                 },
                 "userID": {
@@ -8770,7 +8776,6 @@
                     "type": "string"
                 },
                 "neighborhood": {
-                    "type": "object",
                     "$ref": "#/definitions/models.Neighborhood"
                 },
                 "neighborhoodID": {
@@ -8822,11 +8827,9 @@
                     "type": "number"
                 },
                 "biggestDouble": {
-                    "type": "object",
                     "$ref": "#/definitions/models.DormRoom"
                 },
                 "biggestSingle": {
-                    "type": "object",
                     "$ref": "#/definitions/models.DormRoom"
                 },
                 "capacity": {
@@ -8860,11 +8863,9 @@
                     "type": "integer"
                 },
                 "smallestDouble": {
-                    "type": "object",
                     "$ref": "#/definitions/models.DormRoom"
                 },
                 "smallestSingle": {
-                    "type": "object",
                     "$ref": "#/definitions/models.DormRoom"
                 },
                 "sophomoreCount": {
@@ -8900,7 +8901,6 @@
                     "type": "string"
                 },
                 "dorm": {
-                    "type": "object",
                     "$ref": "#/definitions/models.Dorm"
                 },
                 "dormID": {
@@ -9113,7 +9113,6 @@
                     "type": "string"
                 },
                 "dormRoom": {
-                    "type": "object",
                     "$ref": "#/definitions/models.DormRoom"
                 },
                 "dormRoomID": {
@@ -9148,7 +9147,6 @@
                     "type": "boolean"
                 },
                 "user": {
-                    "type": "object",
                     "$ref": "#/definitions/models.User"
                 },
                 "userID": {
@@ -9172,8 +9170,11 @@
                 },
                 "other": {
                     "description": "Belongs to other",
-                    "type": "object",
-                    "$ref": "#/definitions/models.User"
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    ]
                 },
                 "otherID": {
                     "type": "integer"
@@ -9183,8 +9184,11 @@
                 },
                 "user": {
                     "description": "Belongs to user",
-                    "type": "object",
-                    "$ref": "#/definitions/models.User"
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    ]
                 },
                 "userID": {
                     "type": "integer"
@@ -9259,7 +9263,6 @@
                     "type": "string"
                 },
                 "user": {
-                    "type": "object",
                     "$ref": "#/definitions/models.User"
                 },
                 "userID": {
@@ -9275,7 +9278,6 @@
                     "type": "boolean"
                 },
                 "factrakSurvey": {
-                    "type": "object",
                     "$ref": "#/definitions/models.FactrakSurvey"
                 },
                 "factrakSurveyID": {
@@ -9286,7 +9288,6 @@
                     "type": "integer"
                 },
                 "user": {
-                    "type": "object",
                     "$ref": "#/definitions/models.User"
                 },
                 "userID": {
@@ -9316,7 +9317,6 @@
                     "type": "string"
                 },
                 "course": {
-                    "type": "object",
                     "$ref": "#/definitions/models.Course"
                 },
                 "courseFormat": {
@@ -9356,7 +9356,6 @@
                     "type": "integer"
                 },
                 "professor": {
-                    "type": "object",
                     "$ref": "#/definitions/models.User"
                 },
                 "professorID": {
@@ -9381,7 +9380,6 @@
                     "type": "integer"
                 },
                 "user": {
-                    "type": "object",
                     "$ref": "#/definitions/models.User"
                 },
                 "userID": {
@@ -9519,13 +9517,13 @@
                     "type": "string"
                 },
                 "paymentMethod": {
-                    "type": "integer"
+                    "$ref": "#/definitions/models.GoodrichPaymentMethod"
                 },
                 "phoneNumber": {
                     "type": "string"
                 },
                 "status": {
-                    "type": "integer"
+                    "$ref": "#/definitions/models.GoodrichOrderStatus"
                 },
                 "timeSlot": {
                     "description": "Format: 15:04",
@@ -9535,7 +9533,6 @@
                     "type": "number"
                 },
                 "user": {
-                    "type": "object",
                     "$ref": "#/definitions/models.User"
                 },
                 "userID": {
@@ -9551,13 +9548,54 @@
                     "type": "integer"
                 },
                 "item": {
-                    "type": "object",
                     "$ref": "#/definitions/models.GoodrichMenuItem"
                 },
                 "note": {
                     "type": "string"
                 }
             }
+        },
+        "models.GoodrichOrderStatus": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3
+            ],
+            "x-enum-comments": {
+                "GoodrichOrderStatusUnknown": "Default is unknown"
+            },
+            "x-enum-varnames": [
+                "GoodrichOrderStatusUnknown",
+                "GoodrichOrderStatusPlaced",
+                "GoodrichOrderStatusReady",
+                "GoodrichOrderStatusPaid"
+            ]
+        },
+        "models.GoodrichPaymentMethod": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "x-enum-comments": {
+                "GoodrichPaymentMethodUnknown": "Default is unknown"
+            },
+            "x-enum-varnames": [
+                "GoodrichPaymentMethodUnknown",
+                "GoodrichPaymentMethodSwipe",
+                "GoodrichPaymentMethodPoints",
+                "GoodrichPaymentMethodCreditCard",
+                "GoodrichPaymentMethodCash",
+                "GoodrichPaymentMethodSwipePlusCash",
+                "GoodrichPaymentMethodSwipePlusCreditCard"
+            ]
         },
         "models.Neighborhood": {
             "type": "object",
@@ -9608,7 +9646,6 @@
                     "type": "boolean"
                 },
                 "user": {
-                    "type": "object",
                     "$ref": "#/definitions/models.User"
                 },
                 "userID": {
@@ -9630,7 +9667,6 @@
                     "type": "string"
                 },
                 "user": {
-                    "type": "object",
                     "$ref": "#/definitions/models.User"
                 },
                 "userID": {
@@ -9667,7 +9703,6 @@
                     "type": "string"
                 },
                 "discussion": {
-                    "type": "object",
                     "$ref": "#/definitions/models.Discussion"
                 },
                 "discussionID": {
@@ -9682,7 +9717,6 @@
                     "type": "integer"
                 },
                 "user": {
-                    "type": "object",
                     "$ref": "#/definitions/models.User"
                 },
                 "userID": {
@@ -9726,8 +9760,11 @@
                 },
                 "bannedUser": {
                     "description": "Has one (or zero) banned users",
-                    "type": "object",
-                    "$ref": "#/definitions/models.BannedUser"
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.BannedUser"
+                        }
+                    ]
                 },
                 "campusPhoneEXT": {
                     "type": "string"
@@ -9743,7 +9780,6 @@
                     "type": "integer"
                 },
                 "department": {
-                    "type": "object",
                     "$ref": "#/definitions/models.Department"
                 },
                 "departmentID": {
@@ -9751,7 +9787,6 @@
                     "type": "integer"
                 },
                 "dormRoom": {
-                    "type": "object",
                     "$ref": "#/definitions/models.DormRoom"
                 },
                 "dormRoomID": {
@@ -9783,8 +9818,11 @@
                 },
                 "ephmatchProfile": {
                     "description": "Has one ephmatch profile",
-                    "type": "object",
-                    "$ref": "#/definitions/models.EphmatchProfile"
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.EphmatchProfile"
+                        }
+                    ]
                 },
                 "factrakAdmin": {
                     "type": "boolean"
@@ -9795,6 +9833,10 @@
                     "items": {
                         "$ref": "#/definitions/models.FactrakAgreement"
                     }
+                },
+                "factrakScore": {
+                    "description": "Only for professor retrieval with rankings",
+                    "type": "number"
                 },
                 "factrakSurveyDeficit": {
                     "type": "integer"
@@ -9844,8 +9886,11 @@
                 },
                 "notificationSettings": {
                     "description": "Has one notification settings",
-                    "type": "object",
-                    "$ref": "#/definitions/models.NotificationSettings"
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.NotificationSettings"
+                        }
+                    ]
                 },
                 "notificationTokens": {
                     "description": "Has many notification tokens",
@@ -9862,7 +9907,6 @@
                     "type": "boolean"
                 },
                 "office": {
-                    "type": "object",
                     "$ref": "#/definitions/models.Office"
                 },
                 "officeID": {
@@ -9910,40 +9954,54 @@
                 }
             }
         },
-        "notification.SettingsUpdateParams": {
+        "server.HealthCheckResponse": {
             "type": "object",
             "properties": {
-                "enableNotifications": {
-                    "type": "boolean"
-                },
-                "salmonNotify": {
+                "ok": {
                     "type": "boolean"
                 }
             }
         },
-        "notification.TokenCreateParams": {
+        "services.BaseErrorResponse": {
             "type": "object",
             "properties": {
-                "token": {
-                    "type": "string"
+                "error": {
+                    "$ref": "#/definitions/services.RespError"
                 },
-                "type": {
+                "status": {
+                    "type": "integer"
+                },
+                "updateToken": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "services.RespError": {
+            "type": "object",
+            "properties": {
+                "errorCode": {
+                    "type": "integer"
+                },
+                "errors": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "message": {
                     "type": "string"
                 }
             }
         },
-        "old.AuthResponse": {
+        "services_admin.KubeJobReturn": {
             "type": "object",
             "properties": {
-                "expire": {
-                    "type": "string"
-                },
-                "token": {
+                "jobID": {
                     "type": "string"
                 }
             }
         },
-        "old.LoginParams": {
+        "services_auth_identity.Credentials": {
             "type": "object",
             "properties": {
                 "localIP": {
@@ -9962,233 +10020,372 @@
                 }
             }
         },
-        "responses.GetUserResponseDepartment": {
+        "services_auth_old.AuthResponse": {
             "type": "object",
             "properties": {
-                "id": {
-                    "type": "integer"
+                "expire": {
+                    "type": "string"
                 },
-                "name": {
+                "token": {
                     "type": "string"
                 }
             }
         },
-        "responses.GetUserResponseDorm": {
+        "services_auth_old.LoginParams": {
             "type": "object",
             "properties": {
-                "id": {
-                    "type": "integer"
+                "localIP": {
+                    "description": "If true, will authenticate based on IP. Fail if cannot get on-campus token.",
+                    "type": "boolean"
                 },
-                "name": {
+                "password": {
                     "type": "string"
                 },
-                "neighborhoodID": {
-                    "type": "integer"
+                "unixID": {
+                    "type": "string"
+                },
+                "useIP": {
+                    "description": "If true, will authenticate based on IP. Will return either off-campus or on-campus token",
+                    "type": "boolean"
                 }
             }
         },
-        "responses.GetUserResponseDormRoom": {
+        "services_bulletin.CreateBulletinParams": {
             "type": "object",
+            "required": [
+                "body",
+                "title",
+                "type"
+            ],
             "properties": {
-                "dorm": {
-                    "type": "object",
-                    "$ref": "#/definitions/responses.GetUserResponseDorm"
-                },
-                "dormID": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "number": {
+                "body": {
                     "type": "string"
                 },
-                "roomType": {
+                "endDate": {
                     "type": "string"
-                }
-            }
-        },
-        "responses.GetUserResponseOffice": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
                 },
-                "number": {
-                    "type": "string"
-                }
-            }
-        },
-        "responses.GetUserResponseTag": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "responses.GetUserResponseUser": {
-            "type": "object",
-            "properties": {
-                "admin": {
+                "offer": {
                     "type": "boolean"
                 },
-                "atWilliams": {
-                    "type": "boolean"
-                },
-                "campusPhoneEXT": {
+                "startDate": {
                     "type": "string"
-                },
-                "campusStatus": {
-                    "type": "string"
-                },
-                "cellPhone": {
-                    "type": "string"
-                },
-                "classYear": {
-                    "type": "integer"
-                },
-                "department": {
-                    "type": "object",
-                    "$ref": "#/definitions/responses.GetUserResponseDepartment"
-                },
-                "departmentID": {
-                    "type": "integer"
-                },
-                "dormRoom": {
-                    "type": "object",
-                    "$ref": "#/definitions/responses.GetUserResponseDormRoom"
-                },
-                "dormRoomID": {
-                    "type": "integer"
-                },
-                "dormVisible": {
-                    "type": "boolean"
-                },
-                "entry": {
-                    "type": "string"
-                },
-                "ephcatchEligibility": {
-                    "type": "boolean"
-                },
-                "factrakAdmin": {
-                    "type": "boolean"
-                },
-                "factrakSurveyDeficit": {
-                    "type": "integer"
-                },
-                "hasAcceptedDormtrakPolicy": {
-                    "type": "boolean"
-                },
-                "hasAcceptedFactrakPolicy": {
-                    "type": "boolean"
-                },
-                "homeCountry": {
-                    "type": "string"
-                },
-                "homePhone": {
-                    "type": "string"
-                },
-                "homeState": {
-                    "type": "string"
-                },
-                "homeTown": {
-                    "type": "string"
-                },
-                "homeVisible": {
-                    "type": "boolean"
-                },
-                "homeZip": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "major": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "offCampus": {
-                    "type": "boolean"
-                },
-                "offCycle": {
-                    "type": "boolean"
-                },
-                "office": {
-                    "type": "object",
-                    "$ref": "#/definitions/responses.GetUserResponseOffice"
-                },
-                "officeID": {
-                    "type": "integer"
-                },
-                "optOutEphcatch": {
-                    "type": "boolean"
-                },
-                "pronoun": {
-                    "type": "string"
-                },
-                "suBox": {
-                    "type": "string"
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/responses.GetUserResponseTag"
-                    }
                 },
                 "title": {
                     "type": "string"
                 },
                 "type": {
                     "type": "string"
-                },
-                "unixID": {
+                }
+            }
+        },
+        "services_bulletin.CreateDiscussionParams": {
+            "type": "object",
+            "required": [
+                "content",
+                "title"
+            ],
+            "properties": {
+                "content": {
                     "type": "string"
                 },
-                "visible": {
-                    "type": "boolean"
-                },
-                "williamsEmail": {
-                    "type": "string"
-                },
-                "williamsID": {
+                "title": {
                     "type": "string"
                 }
             }
         },
-        "responses.ListMatchesResponseEphmatchMatch": {
+        "services_bulletin.CreatePostParams": {
+            "type": "object",
+            "required": [
+                "content",
+                "discussionID"
+            ],
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "discussionID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "services_bulletin.CreateRideParams": {
+            "type": "object",
+            "required": [
+                "body",
+                "date",
+                "destination",
+                "source"
+            ],
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "destination": {
+                    "type": "string"
+                },
+                "offer": {
+                    "type": "boolean"
+                },
+                "source": {
+                    "type": "string"
+                }
+            }
+        },
+        "services_bulletin.UpdateBulletinParams": {
             "type": "object",
             "properties": {
-                "createdAt": {
+                "body": {
                     "type": "string"
                 },
-                "id": {
-                    "type": "integer"
+                "endDate": {
+                    "type": "string"
                 },
-                "matchedUser": {
-                    "type": "object",
-                    "$ref": "#/definitions/responses.ListMatchesResponseMatchedUser"
-                },
-                "matchedUserID": {
-                    "type": "integer"
-                },
-                "seenByMatchedUser": {
+                "offer": {
                     "type": "boolean"
                 },
-                "seenBySelf": {
-                    "type": "boolean"
+                "startDate": {
+                    "type": "string"
                 },
-                "updatedAt": {
+                "title": {
                     "type": "string"
                 }
             }
         },
-        "responses.ListMatchesResponseEphmatchProfile": {
+        "services_bulletin.UpdatePostParams": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                }
+            }
+        },
+        "services_bulletin.UpdateRideParams": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "offer": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "services_dormtrak.DormRoomPhotoInfo": {
+            "type": "object",
+            "properties": {
+                "dormRoomId": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "number": {
+                    "type": "integer"
+                },
+                "reviewId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "services_dormtrak.ReviewCreateParams": {
+            "type": "object",
+            "required": [
+                "dormRoomID"
+            ],
+            "properties": {
+                "bathroomDesc": {
+                    "type": "string"
+                },
+                "bedAdjustable": {
+                    "type": "boolean"
+                },
+                "closet": {
+                    "type": "string"
+                },
+                "comment": {
+                    "description": "Params:",
+                    "type": "string"
+                },
+                "commonRoomAccess": {
+                    "type": "boolean"
+                },
+                "commonRoomDesc": {
+                    "type": "string"
+                },
+                "dormRoomID": {
+                    "description": "Must include this:",
+                    "type": "integer"
+                },
+                "flooring": {
+                    "type": "string"
+                },
+                "keyOrCard": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "loudness": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "noise": {
+                    "type": "string"
+                },
+                "privateBathroom": {
+                    "type": "boolean"
+                },
+                "satisfaction": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "thermostatAccess": {
+                    "type": "boolean"
+                },
+                "wifi": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                }
+            }
+        },
+        "services_dormtrak.ReviewUpdateParams": {
+            "type": "object",
+            "properties": {
+                "bathroomDesc": {
+                    "type": "string"
+                },
+                "bedAdjustable": {
+                    "type": "boolean"
+                },
+                "closet": {
+                    "type": "string"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "commonRoomAccess": {
+                    "type": "boolean"
+                },
+                "commonRoomDesc": {
+                    "type": "string"
+                },
+                "flooring": {
+                    "type": "string"
+                },
+                "keyOrCard": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "loudness": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "noise": {
+                    "type": "string"
+                },
+                "privateBathroom": {
+                    "type": "boolean"
+                },
+                "satisfaction": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "thermostatAccess": {
+                    "type": "boolean"
+                },
+                "wifi": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                }
+            }
+        },
+        "services_ephmatch.CountMatchesResponse": {
+            "type": "object",
+            "properties": {
+                "total": {
+                    "type": "integer"
+                },
+                "unseen": {
+                    "type": "integer"
+                }
+            }
+        },
+        "services_ephmatch.GetAvailabilityResp": {
+            "type": "object",
+            "properties": {
+                "available": {
+                    "description": "If Ephmatch is currently available",
+                    "type": "boolean"
+                },
+                "closingTime": {
+                    "description": "Closing time for current Ephmatch era/period",
+                    "type": "string"
+                },
+                "nextOpenTime": {
+                    "description": "Next time Ephmatch will be open",
+                    "type": "string"
+                },
+                "openIndefinitely": {
+                    "description": "If Ephmatch has no closing time set",
+                    "type": "boolean"
+                },
+                "seniorOnly": {
+                    "description": "Senior only ephmatch right now",
+                    "type": "boolean"
+                }
+            }
+        },
+        "services_ephmatch.ProfileCreateParams": {
+            "type": "object",
+            "properties": {
+                "LocationCountry": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "locationState": {
+                    "type": "string"
+                },
+                "locationTown": {
+                    "type": "string"
+                },
+                "locationVisible": {
+                    "type": "boolean"
+                },
+                "lookingFor": {
+                    "type": "string"
+                },
+                "matchMessage": {
+                    "type": "string"
+                },
+                "messagingPlatform": {
+                    "type": "string"
+                },
+                "messagingUsername": {
+                    "type": "string"
+                }
+            }
+        },
+        "services_ephmatch.ProfileUpdateParams": {
             "type": "object",
             "properties": {
                 "description": {
@@ -10220,305 +10417,301 @@
                 }
             }
         },
-        "responses.ListMatchesResponseMatchedUser": {
+        "services_ephmatch.SetProfileRelationParams": {
             "type": "object",
             "properties": {
-                "classYear": {
+                "relation": {
+                    "type": "string"
+                }
+            }
+        },
+        "services_ephmatch.SetProfileRelationResp": {
+            "type": "object",
+            "properties": {
+                "matched": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "services_factrak.AgreementCreateParams": {
+            "type": "object",
+            "properties": {
+                "agree": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "services_factrak.AgreementUpdateParams": {
+            "type": "object",
+            "properties": {
+                "agree": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "services_factrak.SurveyCreateParams": {
+            "type": "object",
+            "required": [
+                "comment",
+                "professorID"
+            ],
+            "properties": {
+                "approachability": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "areaOfStudyAbbreviation": {
+                    "description": "Or this:",
+                    "type": "string"
+                },
+                "comment": {
+                    "description": "Params:",
+                    "type": "string"
+                },
+                "courseFormat": {
+                    "description": "Remote, Hybrid, In-Person",
+                    "type": "string"
+                },
+                "courseID": {
+                    "description": "Must include either this:",
                     "type": "integer"
                 },
-                "entry": {
+                "courseNumber": {
+                    "description": "Like \"256\"",
                     "type": "string"
                 },
-                "ephmatchProfile": {
-                    "type": "object",
-                    "$ref": "#/definitions/responses.ListMatchesResponseEphmatchProfile"
+                "courseStimulating": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
                 },
-                "id": {
+                "courseWorkload": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "gradeReceived": {
+                    "type": "string"
+                },
+                "leadLecture": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "mentalHealthSupport": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "outsideHelpfulness": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "professorID": {
+                    "description": "Must include this:",
                     "type": "integer"
                 },
-                "major": {
+                "promoteDiscussion": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "semesterSeason": {
+                    "description": "Fall, Winter Study, Spring",
                     "type": "string"
                 },
-                "name": {
-                    "type": "string"
+                "semesterYear": {
+                    "type": "integer"
                 },
-                "nickname": {
-                    "type": "string"
-                },
-                "offCycle": {
+                "wouldRecommendCourse": {
                     "type": "boolean"
                 },
-                "pronoun": {
+                "wouldTakeAnother": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "services_factrak.SurveyUpdateParams": {
+            "type": "object",
+            "properties": {
+                "approachability": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "comment": {
+                    "description": "Params:",
                     "type": "string"
                 },
-                "tags": {
+                "courseFormat": {
+                    "description": "Remote, Hybrid, In-Person",
+                    "type": "string"
+                },
+                "courseStimulating": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "courseWorkload": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "gradeReceived": {
+                    "type": "string"
+                },
+                "leadLecture": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "mentalHealthSupport": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "outsideHelpfulness": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "promoteDiscussion": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "semesterSeason": {
+                    "description": "Fall, Winter Study, Spring",
+                    "type": "string"
+                },
+                "semesterYear": {
+                    "type": "integer"
+                },
+                "wouldRecommendCourse": {
+                    "type": "boolean"
+                },
+                "wouldTakeAnother": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "services_goodrich.CreateOrderParams": {
+            "type": "object",
+            "properties": {
+                "comboDeal": {
+                    "type": "boolean"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "idNumber": {
+                    "type": "string"
+                },
+                "items": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/responses.ListMatchesResponseTag"
+                        "$ref": "#/definitions/models.GoodrichOrderItem"
                     }
                 },
-                "title": {
+                "leaseID": {
                     "type": "string"
                 },
-                "unixID": {
+                "notes": {
                     "type": "string"
                 },
-                "williamsEmail": {
-                    "type": "string"
-                }
-            }
-        },
-        "responses.ListMatchesResponseTag": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
+                "paymentMethod": {
+                    "$ref": "#/definitions/models.GoodrichPaymentMethod"
                 },
-                "name": {
+                "phoneNumber": {
+                    "type": "string"
+                },
+                "timeSlot": {
+                    "description": "Format: 11:10 am",
                     "type": "string"
                 }
             }
         },
-        "responses.ListUsersResponseDepartment": {
+        "services_goodrich.OrderLease": {
             "type": "object",
             "properties": {
-                "id": {
-                    "type": "integer"
+                "expiry": {
+                    "type": "string"
                 },
-                "name": {
+                "id": {
                     "type": "string"
                 }
             }
         },
-        "responses.ListUsersResponseDorm": {
+        "services_goodrich.TimeSlot": {
             "type": "object",
             "properties": {
-                "id": {
+                "closedSpots": {
                     "type": "integer"
                 },
-                "name": {
+                "formatted": {
                     "type": "string"
                 },
-                "neighborhoodID": {
+                "hour": {
+                    "type": "integer"
+                },
+                "minute": {
+                    "type": "integer"
+                },
+                "openSpots": {
                     "type": "integer"
                 }
             }
         },
-        "responses.ListUsersResponseDormRoom": {
+        "services_goodrich.UpdateMenuItemParams": {
             "type": "object",
             "properties": {
-                "dorm": {
-                    "type": "object",
-                    "$ref": "#/definitions/responses.ListUsersResponseDorm"
+                "available": {
+                    "type": "boolean"
                 },
-                "dormID": {
+                "quantity": {
                     "type": "integer"
                 },
-                "id": {
-                    "type": "integer"
-                },
-                "number": {
-                    "type": "string"
-                },
-                "roomType": {
-                    "type": "string"
+                "quantityLimit": {
+                    "type": "boolean"
                 }
             }
         },
-        "responses.ListUsersResponseOffice": {
+        "services_goodrich.UpdateOrderParams": {
             "type": "object",
             "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "number": {
+                "adminNotes": {
                     "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/models.GoodrichOrderStatus"
                 }
             }
         },
-        "responses.ListUsersResponseTag": {
+        "services_notification.SettingsUpdateParams": {
             "type": "object",
             "properties": {
-                "id": {
-                    "type": "integer"
+                "enableNotifications": {
+                    "type": "boolean"
                 },
-                "name": {
-                    "type": "string"
+                "salmonNotify": {
+                    "type": "boolean"
                 }
             }
         },
-        "responses.ListUsersResponseUser": {
+        "services_notification.TokenCreateParams": {
             "type": "object",
             "properties": {
-                "admin": {
-                    "type": "boolean"
-                },
-                "atWilliams": {
-                    "type": "boolean"
-                },
-                "campusPhoneEXT": {
-                    "type": "string"
-                },
-                "campusStatus": {
-                    "type": "string"
-                },
-                "cellPhone": {
-                    "type": "string"
-                },
-                "classYear": {
-                    "type": "integer"
-                },
-                "department": {
-                    "type": "object",
-                    "$ref": "#/definitions/responses.ListUsersResponseDepartment"
-                },
-                "departmentID": {
-                    "type": "integer"
-                },
-                "dormRoom": {
-                    "type": "object",
-                    "$ref": "#/definitions/responses.ListUsersResponseDormRoom"
-                },
-                "dormRoomID": {
-                    "type": "integer"
-                },
-                "dormVisible": {
-                    "type": "boolean"
-                },
-                "entry": {
-                    "type": "string"
-                },
-                "ephcatchEligibility": {
-                    "type": "boolean"
-                },
-                "factrakAdmin": {
-                    "type": "boolean"
-                },
-                "factrakSurveyDeficit": {
-                    "type": "integer"
-                },
-                "hasAcceptedDormtrakPolicy": {
-                    "type": "boolean"
-                },
-                "hasAcceptedFactrakPolicy": {
-                    "type": "boolean"
-                },
-                "homeCountry": {
-                    "type": "string"
-                },
-                "homePhone": {
-                    "type": "string"
-                },
-                "homeState": {
-                    "type": "string"
-                },
-                "homeTown": {
-                    "type": "string"
-                },
-                "homeVisible": {
-                    "type": "boolean"
-                },
-                "homeZip": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "major": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "offCampus": {
-                    "type": "boolean"
-                },
-                "offCycle": {
-                    "type": "boolean"
-                },
-                "office": {
-                    "type": "object",
-                    "$ref": "#/definitions/responses.ListUsersResponseOffice"
-                },
-                "officeID": {
-                    "type": "integer"
-                },
-                "optOutEphcatch": {
-                    "type": "boolean"
-                },
-                "pronoun": {
-                    "type": "string"
-                },
-                "suBox": {
-                    "type": "string"
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/responses.ListUsersResponseTag"
-                    }
-                },
-                "title": {
+                "token": {
                     "type": "string"
                 },
                 "type": {
                     "type": "string"
-                },
-                "unixID": {
-                    "type": "string"
-                },
-                "visible": {
-                    "type": "boolean"
-                },
-                "williamsEmail": {
-                    "type": "string"
-                },
-                "williamsID": {
-                    "type": "string"
                 }
             }
         },
-        "server.HealthCheckResponse": {
-            "type": "object",
-            "properties": {
-                "ok": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "services.BaseErrorResponse": {
-            "type": "object",
-            "properties": {
-                "error": {
-                    "type": "object",
-                    "$ref": "#/definitions/services.RespError"
-                },
-                "status": {
-                    "type": "integer"
-                },
-                "updateToken": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "services.RespError": {
-            "type": "object",
-            "properties": {
-                "errorCode": {
-                    "type": "integer"
-                },
-                "errors": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "user.UpdateUserParams": {
+        "services_user.UpdateUserParams": {
             "type": "object",
             "properties": {
                 "campusStatus": {
@@ -10550,7 +10743,7 @@
                 }
             }
         },
-        "user.UpdateUserTagsParams": {
+        "services_user.UpdateUserTagsParams": {
             "type": "object",
             "properties": {
                 "tags": {
@@ -10560,39 +10753,121 @@
                     }
                 }
             }
+        },
+        "v1.JobCondition": {
+            "type": "object",
+            "properties": {
+                "lastProbeTime": {
+                    "description": "Last time the condition was checked.\n+optional",
+                    "type": "string"
+                },
+                "lastTransitionTime": {
+                    "description": "Last time the condition transit from one status to another.\n+optional",
+                    "type": "string"
+                },
+                "message": {
+                    "description": "Human readable message indicating details about last transition.\n+optional",
+                    "type": "string"
+                },
+                "reason": {
+                    "description": "(brief) reason for the condition's last transition.\n+optional",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "Status of the condition, one of True, False, Unknown.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/k8s_io_api_core_v1.ConditionStatus"
+                        }
+                    ]
+                },
+                "type": {
+                    "description": "Type of job condition, Complete or Failed.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/v1.JobConditionType"
+                        }
+                    ]
+                }
+            }
+        },
+        "v1.JobConditionType": {
+            "type": "string",
+            "enum": [
+                "Suspended",
+                "Complete",
+                "Failed"
+            ],
+            "x-enum-varnames": [
+                "JobSuspended",
+                "JobComplete",
+                "JobFailed"
+            ]
         },
         "v1.JobStatus": {
             "type": "object",
             "properties": {
                 "active": {
+                    "description": "The number of pending and running pods.\n+optional",
                     "type": "integer"
                 },
                 "completedIndexes": {
+                    "description": "CompletedIndexes holds the completed indexes when .spec.completionMode =\n\"Indexed\" in a text format. The indexes are represented as decimal integers\nseparated by commas. The numbers are listed in increasing order. Three or\nmore consecutive numbers are compressed and represented by the first and\nlast element of the series, separated by a hyphen.\nFor example, if the completed indexes are 1, 3, 4, 5 and 7, they are\nrepresented as \"1,3-5,7\".\n+optional",
                     "type": "string"
                 },
                 "completionTime": {
+                    "description": "Represents time when the job was completed. It is not guaranteed to\nbe set in happens-before order across separate operations.\nIt is represented in RFC3339 form and is in UTC.\nThe completion time is only set when the job finishes successfully.\n+optional",
                     "type": "string"
                 },
                 "conditions": {
+                    "description": "The latest available observations of an object's current state. When a Job\nfails, one of the conditions will have type \"Failed\" and status true. When\na Job is suspended, one of the conditions will have type \"Suspended\" and\nstatus true; when the Job is resumed, the status of this condition will\nbecome false. When a Job is completed, one of the conditions will have\ntype \"Complete\" and status true.\nMore info: https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/\n+optional\n+patchMergeKey=type\n+patchStrategy=merge\n+listType=atomic",
                     "type": "array",
                     "items": {
-                        "type": "JobCondition"
+                        "$ref": "#/definitions/v1.JobCondition"
                     }
                 },
                 "failed": {
+                    "description": "The number of pods which reached phase Failed.\n+optional",
                     "type": "integer"
                 },
                 "ready": {
+                    "description": "The number of pods which have a Ready condition.\n\nThis field is alpha-level. The job controller populates the field when\nthe feature gate JobReadyPods is enabled (disabled by default).\n+optional",
                     "type": "integer"
                 },
                 "startTime": {
+                    "description": "Represents time when the job controller started processing a job. When a\nJob is created in the suspended state, this field is not set until the\nfirst time it is resumed. This field is reset every time a Job is resumed\nfrom suspension. It is represented in RFC3339 form and is in UTC.\n+optional",
                     "type": "string"
                 },
                 "succeeded": {
+                    "description": "The number of pods which reached phase Succeeded.\n+optional",
                     "type": "integer"
                 },
                 "uncountedTerminatedPods": {
-                    "type": "UncountedTerminatedPods"
+                    "description": "UncountedTerminatedPods holds the UIDs of Pods that have terminated but\nthe job controller hasn't yet accounted for in the status counters.\n\nThe job controller creates pods with a finalizer. When a pod terminates\n(succeeded or failed), the controller does three steps to account for it\nin the job status:\n(1) Add the pod UID to the arrays in this field.\n(2) Remove the pod finalizer.\n(3) Remove the pod UID from the arrays while increasing the corresponding\n    counter.\n\nThis field is beta-level. The job controller only makes use of this field\nwhen the feature gate JobTrackingWithFinalizers is enabled (enabled\nby default).\nOld jobs might not be tracked using this field, in which case the field\nremains null.\n+optional",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/v1.UncountedTerminatedPods"
+                        }
+                    ]
+                }
+            }
+        },
+        "v1.UncountedTerminatedPods": {
+            "type": "object",
+            "properties": {
+                "failed": {
+                    "description": "Failed holds UIDs of failed Pods.\n+listType=set\n+optional",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "succeeded": {
+                    "description": "Succeeded holds UIDs of succeeded Pods.\n+listType=set\n+optional",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         }
