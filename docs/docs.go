@@ -41,7 +41,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/services_admin.KubeJobReturn"
+                            "$ref": "#/definitions/admin.KubeJobReturn"
                         }
                     },
                     "500": {
@@ -76,7 +76,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/services_admin.KubeJobReturn"
+                            "$ref": "#/definitions/admin.KubeJobReturn"
                         }
                     },
                     "500": {
@@ -118,9 +118,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Return Job Status from Kubernetes",
                         "schema": {
-                            "$ref": "#/definitions/v1.JobStatus"
+                            "$ref": "#/definitions/admin.k8sJobStatus"
                         }
                     },
                     "500": {
@@ -155,7 +155,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/services_admin.KubeJobReturn"
+                            "$ref": "#/definitions/admin.KubeJobReturn"
                         }
                     },
                     "500": {
@@ -190,7 +190,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/services_admin.KubeJobReturn"
+                            "$ref": "#/definitions/admin.KubeJobReturn"
                         }
                     },
                     "500": {
@@ -226,7 +226,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_auth.AuthResponse"
+                            "$ref": "#/definitions/auth.AuthResponse"
                         }
                     },
                     "400": {
@@ -278,7 +278,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_auth.AuthResponse"
+                            "$ref": "#/definitions/auth.AuthResponse"
                         }
                     },
                     "400": {
@@ -324,7 +324,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/services_auth_identity.Credentials"
+                            "$ref": "#/definitions/identity.Credentials"
                         }
                     }
                 ],
@@ -332,7 +332,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_auth.AuthResponse"
+                            "$ref": "#/definitions/auth.AuthResponse"
                         }
                     },
                     "400": {
@@ -377,7 +377,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/services_auth_old.LoginParams"
+                            "$ref": "#/definitions/old.LoginParams"
                         }
                     }
                 ],
@@ -385,7 +385,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/services_auth_old.AuthResponse"
+                            "$ref": "#/definitions/old.AuthResponse"
                         }
                     },
                     "400": {
@@ -432,7 +432,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/services_auth_old.AuthResponse"
+                            "$ref": "#/definitions/old.AuthResponse"
                         }
                     },
                     "400": {
@@ -479,7 +479,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/services_auth_old.AuthResponse"
+                            "$ref": "#/definitions/old.AuthResponse"
                         }
                     },
                     "400": {
@@ -543,7 +543,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_lib_autocomplete.ACEntry"
+                                "$ref": "#/definitions/autocomplete.ACEntry"
                             }
                         }
                     },
@@ -596,7 +596,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_lib_autocomplete.ACEntry"
+                                "$ref": "#/definitions/autocomplete.ACEntry"
                             }
                         }
                     },
@@ -649,7 +649,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_lib_autocomplete.ACEntry"
+                                "$ref": "#/definitions/autocomplete.ACEntry"
                             }
                         }
                     },
@@ -702,7 +702,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_lib_autocomplete.ACEntry"
+                                "$ref": "#/definitions/autocomplete.ACEntry"
                             }
                         }
                     },
@@ -755,7 +755,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_lib_autocomplete.ACEntry"
+                                "$ref": "#/definitions/autocomplete.ACEntry"
                             }
                         }
                     },
@@ -872,7 +872,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/services_bulletin.CreateBulletinParams"
+                            "$ref": "#/definitions/bulletin.CreateBulletinParams"
                         }
                     }
                 ],
@@ -1056,7 +1056,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/services_bulletin.UpdateBulletinParams"
+                            "$ref": "#/definitions/bulletin.UpdateBulletinParams"
                         }
                     },
                     {
@@ -1261,7 +1261,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/services_bulletin.CreateDiscussionParams"
+                            "$ref": "#/definitions/bulletin.CreateDiscussionParams"
                         }
                     }
                 ],
@@ -1466,7 +1466,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/services_bulletin.CreatePostParams"
+                            "$ref": "#/definitions/bulletin.CreatePostParams"
                         }
                     }
                 ],
@@ -1650,7 +1650,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/services_bulletin.UpdatePostParams"
+                            "$ref": "#/definitions/bulletin.UpdatePostParams"
                         }
                     },
                     {
@@ -1799,7 +1799,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/services_bulletin.CreateRideParams"
+                            "$ref": "#/definitions/bulletin.CreateRideParams"
                         }
                     }
                 ],
@@ -1977,7 +1977,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/services_bulletin.UpdateRideParams"
+                            "$ref": "#/definitions/bulletin.UpdateRideParams"
                         }
                     },
                     {
@@ -2072,9 +2072,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "A RSS Feed serialized as XML string",
                         "schema": {
-                            "$ref": "#/definitions/feeds.Feed"
+                            "type": "string"
                         }
                     },
                     "500": {
@@ -2124,9 +2124,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "A RSS Feed serialized as XML string",
                         "schema": {
-                            "$ref": "#/definitions/feeds.Feed"
+                            "type": "string"
                         }
                     },
                     "500": {
@@ -2182,9 +2182,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "A RSS Feed serialized as XML string",
                         "schema": {
-                            "$ref": "#/definitions/feeds.Feed"
+                            "type": "string"
                         }
                     },
                     "500": {
@@ -2240,9 +2240,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "A RSS Feed serialized as XML string",
                         "schema": {
-                            "$ref": "#/definitions/feeds.Feed"
+                            "type": "string"
                         }
                     },
                     "500": {
@@ -2298,9 +2298,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "A RSS Feed serialized as XML string",
                         "schema": {
-                            "$ref": "#/definitions/feeds.Feed"
+                            "type": "string"
                         }
                     },
                     "500": {
@@ -2362,9 +2362,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "A RSS Feed serialized as XML string",
                         "schema": {
-                            "$ref": "#/definitions/feeds.Feed"
+                            "type": "string"
                         }
                     },
                     "500": {
@@ -2978,7 +2978,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/services_dormtrak.ReviewCreateParams"
+                            "$ref": "#/definitions/dormtrak.ReviewCreateParams"
                         }
                     }
                 ],
@@ -3180,7 +3180,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/services_dormtrak.ReviewUpdateParams"
+                            "$ref": "#/definitions/dormtrak.ReviewUpdateParams"
                         }
                     },
                     {
@@ -3337,7 +3337,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/services_dormtrak.DormRoomPhotoInfo"
+                                "$ref": "#/definitions/dormtrak.DormRoomPhotoInfo"
                             }
                         }
                     },
@@ -3396,7 +3396,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/services_dormtrak.DormRoomPhotoInfo"
+                                "$ref": "#/definitions/dormtrak.DormRoomPhotoInfo"
                             }
                         }
                     },
@@ -3727,7 +3727,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/services_ephmatch.GetAvailabilityResp"
+                            "$ref": "#/definitions/ephmatch.GetAvailabilityResp"
                         }
                     },
                     "500": {
@@ -3776,7 +3776,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_ephmatch_responses.ListMatchesResponseEphmatchMatch"
+                                "$ref": "#/definitions/responses.ListMatchesResponseEphmatchMatch"
                             }
                         }
                     },
@@ -3812,7 +3812,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/services_ephmatch.CountMatchesResponse"
+                            "$ref": "#/definitions/ephmatch.CountMatchesResponse"
                         }
                     },
                     "500": {
@@ -3960,7 +3960,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/services_ephmatch.ProfileCreateParams"
+                            "$ref": "#/definitions/ephmatch.ProfileCreateParams"
                         }
                     }
                 ],
@@ -4067,7 +4067,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/services_ephmatch.ProfileUpdateParams"
+                            "$ref": "#/definitions/ephmatch.ProfileUpdateParams"
                         }
                     }
                 ],
@@ -4360,7 +4360,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/services_ephmatch.SetProfileRelationParams"
+                            "$ref": "#/definitions/ephmatch.SetProfileRelationParams"
                         }
                     }
                 ],
@@ -4386,7 +4386,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/services_ephmatch.SetProfileRelationResp"
+                            "$ref": "#/definitions/ephmatch.SetProfileRelationResp"
                         }
                     },
                     "400": {
@@ -5897,7 +5897,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/services_factrak.SurveyCreateParams"
+                            "$ref": "#/definitions/factrak.SurveyCreateParams"
                         }
                     }
                 ],
@@ -6125,7 +6125,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/services_factrak.SurveyUpdateParams"
+                            "$ref": "#/definitions/factrak.SurveyUpdateParams"
                         }
                     },
                     {
@@ -6275,7 +6275,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/services_factrak.AgreementCreateParams"
+                            "$ref": "#/definitions/factrak.AgreementCreateParams"
                         }
                     }
                 ],
@@ -6416,7 +6416,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/services_factrak.AgreementUpdateParams"
+                            "$ref": "#/definitions/factrak.AgreementUpdateParams"
                         }
                     }
                 ],
@@ -6691,7 +6691,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/services_goodrich.UpdateMenuItemParams"
+                            "$ref": "#/definitions/goodrich.UpdateMenuItemParams"
                         }
                     },
                     {
@@ -6753,7 +6753,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/services_goodrich.OrderLease"
+                            "$ref": "#/definitions/goodrich.OrderLease"
                         }
                     },
                     "500": {
@@ -6869,7 +6869,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/services_goodrich.CreateOrderParams"
+                            "$ref": "#/definitions/goodrich.CreateOrderParams"
                         }
                     }
                 ],
@@ -6957,7 +6957,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/services_goodrich.UpdateOrderParams"
+                            "$ref": "#/definitions/goodrich.UpdateOrderParams"
                         }
                     },
                     {
@@ -7009,7 +7009,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/services_goodrich.TimeSlot"
+                                "$ref": "#/definitions/goodrich.TimeSlot"
                             }
                         }
                     },
@@ -7156,7 +7156,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/services_notification.TokenCreateParams"
+                            "$ref": "#/definitions/notification.TokenCreateParams"
                         }
                     }
                 ],
@@ -7265,7 +7265,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/services_notification.SettingsUpdateParams"
+                            "$ref": "#/definitions/notification.SettingsUpdateParams"
                         }
                     }
                 ],
@@ -7490,7 +7490,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseUser"
+                                "$ref": "#/definitions/responses.ListUsersResponseUser"
                             }
                         }
                     },
@@ -7553,7 +7553,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseUser"
+                            "$ref": "#/definitions/responses.GetUserResponseUser"
                         }
                     },
                     "404": {
@@ -7602,7 +7602,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/services_user.UpdateUserParams"
+                            "$ref": "#/definitions/user.UpdateUserParams"
                         }
                     }
                 ],
@@ -7751,7 +7751,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/services_user.UpdateUserTagsParams"
+                            "$ref": "#/definitions/user.UpdateUserTagsParams"
                         }
                     }
                 ],
@@ -7841,120 +7841,146 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "feeds.Author": {
+        "admin.KubeJobReturn": {
             "type": "object",
             "properties": {
-                "name": {
+                "jobID": {
                     "type": "string"
                 }
             }
         },
-        "feeds.Enclosure": {
+        "admin.k8sJobCondition": {
             "type": "object",
             "properties": {
-                "url": {
+                "lastProbeTime": {
+                    "description": "Last time the condition was checked.\n+optional",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/admin.k8sTime"
+                        }
+                    ]
+                },
+                "lastTransitionTime": {
+                    "description": "Last time the condition transit from one status to another.\n+optional",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/admin.k8sTime"
+                        }
+                    ]
+                },
+                "message": {
+                    "description": "Human readable message indicating details about last transition.\n+optional",
+                    "type": "string"
+                },
+                "reason": {
+                    "description": "(brief) reason for the condition's last transition.\n+optional",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "Status of the condition, one of True, False, Unknown.",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "Type of job condition, Complete or Failed.",
                     "type": "string"
                 }
             }
         },
-        "feeds.Feed": {
+        "admin.k8sJobStatus": {
             "type": "object",
             "properties": {
-                "author": {
-                    "$ref": "#/definitions/feeds.Author"
+                "active": {
+                    "description": "The number of pending and running pods.\n+optional",
+                    "type": "integer"
                 },
-                "copyright": {
+                "completedIndexes": {
+                    "description": "CompletedIndexes holds the completed indexes when .spec.completionMode =\n\"Indexed\" in a text format. The indexes are represented as decimal integers\nseparated by commas. The numbers are listed in increasing order. Three or\nmore consecutive numbers are compressed and represented by the first and\nlast element of the series, separated by a hyphen.\nFor example, if the completed indexes are 1, 3, 4, 5 and 7, they are\nrepresented as \"1,3-5,7\".\n+optional",
                     "type": "string"
                 },
-                "created": {
-                    "type": "string"
+                "completionTime": {
+                    "description": "Represents time when the job was completed. It is not guaranteed to\nbe set in happens-before order across separate operations.\nIt is represented in RFC3339 form and is in UTC.\nThe completion time is only set when the job finishes successfully.\n+optional",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/admin.k8sTime"
+                        }
+                    ]
                 },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "image": {
-                    "$ref": "#/definitions/feeds.Image"
-                },
-                "items": {
+                "conditions": {
+                    "description": "The latest available observations of an object's current state. When a Job\nfails, one of the conditions will have type \"Failed\" and status true. When\na Job is suspended, one of the conditions will have type \"Suspended\" and\nstatus true; when the Job is resumed, the status of this condition will\nbecome false. When a Job is completed, one of the conditions will have\ntype \"Complete\" and status true.\nMore info: https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/\n+optional\n+patchMergeKey=type\n+patchStrategy=merge\n+listType=atomic",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/feeds.Item"
+                        "$ref": "#/definitions/admin.k8sJobCondition"
                     }
                 },
-                "link": {
-                    "$ref": "#/definitions/feeds.Link"
-                },
-                "subtitle": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "updated": {
-                    "type": "string"
-                }
-            }
-        },
-        "feeds.Image": {
-            "type": "object",
-            "properties": {
-                "url": {
-                    "type": "string"
-                },
-                "width": {
+                "failed": {
+                    "description": "The number of pods which reached phase Failed.\n+optional",
                     "type": "integer"
+                },
+                "ready": {
+                    "description": "The number of pods which have a Ready condition.\n\nThis field is alpha-level. The job controller populates the field when\nthe feature gate JobReadyPods is enabled (disabled by default).\n+optional",
+                    "type": "integer"
+                },
+                "startTime": {
+                    "description": "Represents time when the job controller started processing a job. When a\nJob is created in the suspended state, this field is not set until the\nfirst time it is resumed. This field is reset every time a Job is resumed\nfrom suspension. It is represented in RFC3339 form and is in UTC.\n+optional",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/admin.k8sTime"
+                        }
+                    ]
+                },
+                "succeeded": {
+                    "description": "The number of pods which reached phase Succeeded.\n+optional",
+                    "type": "integer"
+                },
+                "uncountedTerminatedPods": {
+                    "description": "UncountedTerminatedPods holds the UIDs of Pods that have terminated but\nthe job controller hasn't yet accounted for in the status counters.\n\nThe job controller creates pods with a finalizer. When a pod terminates\n(succeeded or failed), the controller does three steps to account for it\nin the job status:\n(1) Add the pod UID to the arrays in this field.\n(2) Remove the pod finalizer.\n(3) Remove the pod UID from the arrays while increasing the corresponding\n    counter.\n\nThis field is beta-level. The job controller only makes use of this field\nwhen the feature gate JobTrackingWithFinalizers is enabled (enabled\nby default).\nOld jobs might not be tracked using this field, in which case the field\nremains null.\n+optional",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/admin.k8sUncountedTerminatedPods"
+                        }
+                    ]
                 }
             }
         },
-        "feeds.Item": {
+        "admin.k8sTime": {
             "type": "object",
             "properties": {
-                "author": {
-                    "$ref": "#/definitions/feeds.Author"
-                },
-                "content": {
-                    "type": "string"
-                },
-                "created": {
-                    "type": "string"
-                },
-                "description": {
-                    "description": "used as description in rss, summary in atom",
-                    "type": "string"
-                },
-                "enclosure": {
-                    "$ref": "#/definitions/feeds.Enclosure"
-                },
-                "id": {
-                    "description": "used as guid in rss, id in atom",
-                    "type": "string"
-                },
-                "link": {
-                    "$ref": "#/definitions/feeds.Link"
-                },
-                "source": {
-                    "$ref": "#/definitions/feeds.Link"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "updated": {
+                "time.Time": {
                     "type": "string"
                 }
             }
         },
-        "feeds.Link": {
+        "admin.k8sUncountedTerminatedPods": {
             "type": "object",
             "properties": {
-                "href": {
+                "failed": {
+                    "description": "Failed holds UIDs of failed Pods.\n+listType=set\n+optional",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "succeeded": {
+                    "description": "Succeeded holds UIDs of succeeded Pods.\n+listType=set\n+optional",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "auth.AuthResponse": {
+            "type": "object",
+            "properties": {
+                "expire": {
+                    "type": "string"
+                },
+                "token": {
                     "type": "string"
                 }
             }
         },
-        "github_com_WilliamsStudentsOnline_wso-go_lib_autocomplete.ACEntry": {
+        "autocomplete.ACEntry": {
             "type": "object",
             "properties": {
                 "id": {
@@ -7968,44 +7994,342 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_WilliamsStudentsOnline_wso-go_services_auth.AuthResponse": {
+        "bulletin.CreateBulletinParams": {
             "type": "object",
+            "required": [
+                "body",
+                "title",
+                "type"
+            ],
             "properties": {
-                "expire": {
+                "body": {
                     "type": "string"
                 },
-                "token": {
+                "endDate": {
+                    "type": "string"
+                },
+                "offer": {
+                    "type": "boolean"
+                },
+                "startDate": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
                     "type": "string"
                 }
             }
         },
-        "github_com_WilliamsStudentsOnline_wso-go_services_ephmatch_responses.ListMatchesResponseEphmatchMatch": {
+        "bulletin.CreateDiscussionParams": {
             "type": "object",
+            "required": [
+                "content",
+                "title"
+            ],
             "properties": {
-                "createdAt": {
+                "content": {
                     "type": "string"
                 },
-                "id": {
-                    "type": "integer"
-                },
-                "matchedUser": {
-                    "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_ephmatch_responses.ListMatchesResponseMatchedUser"
-                },
-                "matchedUserID": {
-                    "type": "integer"
-                },
-                "seenByMatchedUser": {
-                    "type": "boolean"
-                },
-                "seenBySelf": {
-                    "type": "boolean"
-                },
-                "updatedAt": {
+                "title": {
                     "type": "string"
                 }
             }
         },
-        "github_com_WilliamsStudentsOnline_wso-go_services_ephmatch_responses.ListMatchesResponseEphmatchProfile": {
+        "bulletin.CreatePostParams": {
+            "type": "object",
+            "required": [
+                "content",
+                "discussionID"
+            ],
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "discussionID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "bulletin.CreateRideParams": {
+            "type": "object",
+            "required": [
+                "body",
+                "date",
+                "destination",
+                "source"
+            ],
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "destination": {
+                    "type": "string"
+                },
+                "offer": {
+                    "type": "boolean"
+                },
+                "source": {
+                    "type": "string"
+                }
+            }
+        },
+        "bulletin.UpdateBulletinParams": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "endDate": {
+                    "type": "string"
+                },
+                "offer": {
+                    "type": "boolean"
+                },
+                "startDate": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "bulletin.UpdatePostParams": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                }
+            }
+        },
+        "bulletin.UpdateRideParams": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "offer": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "dormtrak.DormRoomPhotoInfo": {
+            "type": "object",
+            "properties": {
+                "dormRoomId": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "number": {
+                    "type": "integer"
+                },
+                "reviewId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dormtrak.ReviewCreateParams": {
+            "type": "object",
+            "required": [
+                "dormRoomID"
+            ],
+            "properties": {
+                "bathroomDesc": {
+                    "type": "string"
+                },
+                "bedAdjustable": {
+                    "type": "boolean"
+                },
+                "closet": {
+                    "type": "string"
+                },
+                "comment": {
+                    "description": "Params:",
+                    "type": "string"
+                },
+                "commonRoomAccess": {
+                    "type": "boolean"
+                },
+                "commonRoomDesc": {
+                    "type": "string"
+                },
+                "dormRoomID": {
+                    "description": "Must include this:",
+                    "type": "integer"
+                },
+                "flooring": {
+                    "type": "string"
+                },
+                "keyOrCard": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "loudness": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "noise": {
+                    "type": "string"
+                },
+                "privateBathroom": {
+                    "type": "boolean"
+                },
+                "satisfaction": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "thermostatAccess": {
+                    "type": "boolean"
+                },
+                "wifi": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                }
+            }
+        },
+        "dormtrak.ReviewUpdateParams": {
+            "type": "object",
+            "properties": {
+                "bathroomDesc": {
+                    "type": "string"
+                },
+                "bedAdjustable": {
+                    "type": "boolean"
+                },
+                "closet": {
+                    "type": "string"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "commonRoomAccess": {
+                    "type": "boolean"
+                },
+                "commonRoomDesc": {
+                    "type": "string"
+                },
+                "flooring": {
+                    "type": "string"
+                },
+                "keyOrCard": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "loudness": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "noise": {
+                    "type": "string"
+                },
+                "privateBathroom": {
+                    "type": "boolean"
+                },
+                "satisfaction": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "thermostatAccess": {
+                    "type": "boolean"
+                },
+                "wifi": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                }
+            }
+        },
+        "ephmatch.CountMatchesResponse": {
+            "type": "object",
+            "properties": {
+                "total": {
+                    "type": "integer"
+                },
+                "unseen": {
+                    "type": "integer"
+                }
+            }
+        },
+        "ephmatch.GetAvailabilityResp": {
+            "type": "object",
+            "properties": {
+                "available": {
+                    "description": "If Ephmatch is currently available",
+                    "type": "boolean"
+                },
+                "closingTime": {
+                    "description": "Closing time for current Ephmatch era/period",
+                    "type": "string"
+                },
+                "nextOpenTime": {
+                    "description": "Next time Ephmatch will be open",
+                    "type": "string"
+                },
+                "openIndefinitely": {
+                    "description": "If Ephmatch has no closing time set",
+                    "type": "boolean"
+                },
+                "seniorOnly": {
+                    "description": "Senior only ephmatch right now",
+                    "type": "boolean"
+                }
+            }
+        },
+        "ephmatch.ProfileCreateParams": {
+            "type": "object",
+            "properties": {
+                "LocationCountry": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "locationState": {
+                    "type": "string"
+                },
+                "locationTown": {
+                    "type": "string"
+                },
+                "locationVisible": {
+                    "type": "boolean"
+                },
+                "lookingFor": {
+                    "type": "string"
+                },
+                "matchMessage": {
+                    "type": "string"
+                },
+                "messagingPlatform": {
+                    "type": "string"
+                },
+                "messagingUsername": {
+                    "type": "string"
+                }
+            }
+        },
+        "ephmatch.ProfileUpdateParams": {
             "type": "object",
             "properties": {
                 "description": {
@@ -8037,466 +8361,296 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_WilliamsStudentsOnline_wso-go_services_ephmatch_responses.ListMatchesResponseMatchedUser": {
+        "ephmatch.SetProfileRelationParams": {
             "type": "object",
             "properties": {
-                "classYear": {
-                    "type": "integer"
-                },
-                "entry": {
-                    "type": "string"
-                },
-                "ephmatchProfile": {
-                    "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_ephmatch_responses.ListMatchesResponseEphmatchProfile"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "major": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "nickname": {
-                    "type": "string"
-                },
-                "offCycle": {
-                    "type": "boolean"
-                },
-                "pronoun": {
-                    "type": "string"
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_ephmatch_responses.ListMatchesResponseTag"
-                    }
-                },
-                "title": {
-                    "type": "string"
-                },
-                "unixID": {
-                    "type": "string"
-                },
-                "williamsEmail": {
+                "relation": {
                     "type": "string"
                 }
             }
         },
-        "github_com_WilliamsStudentsOnline_wso-go_services_ephmatch_responses.ListMatchesResponseTag": {
+        "ephmatch.SetProfileRelationResp": {
             "type": "object",
             "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
+                "matched": {
+                    "type": "boolean"
                 }
             }
         },
-        "github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseDepartment": {
+        "factrak.AgreementCreateParams": {
             "type": "object",
             "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
+                "agree": {
+                    "type": "boolean"
                 }
             }
         },
-        "github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseDorm": {
+        "factrak.AgreementUpdateParams": {
             "type": "object",
             "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "neighborhoodID": {
-                    "type": "integer"
+                "agree": {
+                    "type": "boolean"
                 }
             }
         },
-        "github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseDormRoom": {
+        "factrak.SurveyCreateParams": {
             "type": "object",
-            "properties": {
-                "dorm": {
-                    "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseDorm"
-                },
-                "dormID": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "number": {
-                    "type": "string"
-                },
-                "roomType": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseOffice": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "number": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseTag": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseUser": {
-            "type": "object",
-            "properties": {
-                "admin": {
-                    "type": "boolean"
-                },
-                "atWilliams": {
-                    "type": "boolean"
-                },
-                "campusPhoneEXT": {
-                    "type": "string"
-                },
-                "campusStatus": {
-                    "type": "string"
-                },
-                "cellPhone": {
-                    "type": "string"
-                },
-                "classYear": {
-                    "type": "integer"
-                },
-                "department": {
-                    "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseDepartment"
-                },
-                "departmentID": {
-                    "type": "integer"
-                },
-                "dormRoom": {
-                    "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseDormRoom"
-                },
-                "dormRoomID": {
-                    "type": "integer"
-                },
-                "dormVisible": {
-                    "type": "boolean"
-                },
-                "entry": {
-                    "type": "string"
-                },
-                "ephcatchEligibility": {
-                    "type": "boolean"
-                },
-                "factrakAdmin": {
-                    "type": "boolean"
-                },
-                "factrakSurveyDeficit": {
-                    "type": "integer"
-                },
-                "hasAcceptedDormtrakPolicy": {
-                    "type": "boolean"
-                },
-                "hasAcceptedFactrakPolicy": {
-                    "type": "boolean"
-                },
-                "homeCountry": {
-                    "type": "string"
-                },
-                "homePhone": {
-                    "type": "string"
-                },
-                "homeState": {
-                    "type": "string"
-                },
-                "homeTown": {
-                    "type": "string"
-                },
-                "homeVisible": {
-                    "type": "boolean"
-                },
-                "homeZip": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "major": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "offCampus": {
-                    "type": "boolean"
-                },
-                "offCycle": {
-                    "type": "boolean"
-                },
-                "office": {
-                    "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseOffice"
-                },
-                "officeID": {
-                    "type": "integer"
-                },
-                "optOutEphcatch": {
-                    "type": "boolean"
-                },
-                "pronoun": {
-                    "type": "string"
-                },
-                "suBox": {
-                    "type": "string"
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.GetUserResponseTag"
-                    }
-                },
-                "title": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                },
-                "unixID": {
-                    "type": "string"
-                },
-                "visible": {
-                    "type": "boolean"
-                },
-                "williamsEmail": {
-                    "type": "string"
-                },
-                "williamsID": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseDepartment": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseDorm": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "neighborhoodID": {
-                    "type": "integer"
-                }
-            }
-        },
-        "github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseDormRoom": {
-            "type": "object",
-            "properties": {
-                "dorm": {
-                    "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseDorm"
-                },
-                "dormID": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "number": {
-                    "type": "string"
-                },
-                "roomType": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseOffice": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "number": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseTag": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseUser": {
-            "type": "object",
-            "properties": {
-                "admin": {
-                    "type": "boolean"
-                },
-                "atWilliams": {
-                    "type": "boolean"
-                },
-                "campusPhoneEXT": {
-                    "type": "string"
-                },
-                "campusStatus": {
-                    "type": "string"
-                },
-                "cellPhone": {
-                    "type": "string"
-                },
-                "classYear": {
-                    "type": "integer"
-                },
-                "department": {
-                    "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseDepartment"
-                },
-                "departmentID": {
-                    "type": "integer"
-                },
-                "dormRoom": {
-                    "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseDormRoom"
-                },
-                "dormRoomID": {
-                    "type": "integer"
-                },
-                "dormVisible": {
-                    "type": "boolean"
-                },
-                "entry": {
-                    "type": "string"
-                },
-                "ephcatchEligibility": {
-                    "type": "boolean"
-                },
-                "factrakAdmin": {
-                    "type": "boolean"
-                },
-                "factrakSurveyDeficit": {
-                    "type": "integer"
-                },
-                "hasAcceptedDormtrakPolicy": {
-                    "type": "boolean"
-                },
-                "hasAcceptedFactrakPolicy": {
-                    "type": "boolean"
-                },
-                "homeCountry": {
-                    "type": "string"
-                },
-                "homePhone": {
-                    "type": "string"
-                },
-                "homeState": {
-                    "type": "string"
-                },
-                "homeTown": {
-                    "type": "string"
-                },
-                "homeVisible": {
-                    "type": "boolean"
-                },
-                "homeZip": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "major": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "offCampus": {
-                    "type": "boolean"
-                },
-                "offCycle": {
-                    "type": "boolean"
-                },
-                "office": {
-                    "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseOffice"
-                },
-                "officeID": {
-                    "type": "integer"
-                },
-                "optOutEphcatch": {
-                    "type": "boolean"
-                },
-                "pronoun": {
-                    "type": "string"
-                },
-                "suBox": {
-                    "type": "string"
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/github_com_WilliamsStudentsOnline_wso-go_services_user_responses.ListUsersResponseTag"
-                    }
-                },
-                "title": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                },
-                "unixID": {
-                    "type": "string"
-                },
-                "visible": {
-                    "type": "boolean"
-                },
-                "williamsEmail": {
-                    "type": "string"
-                },
-                "williamsID": {
-                    "type": "string"
-                }
-            }
-        },
-        "k8s_io_api_core_v1.ConditionStatus": {
-            "type": "string",
-            "enum": [
-                "True",
-                "False",
-                "Unknown"
+            "required": [
+                "comment",
+                "professorID"
             ],
-            "x-enum-varnames": [
-                "ConditionTrue",
-                "ConditionFalse",
-                "ConditionUnknown"
-            ]
+            "properties": {
+                "approachability": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "areaOfStudyAbbreviation": {
+                    "description": "Or this:",
+                    "type": "string"
+                },
+                "comment": {
+                    "description": "Params:",
+                    "type": "string"
+                },
+                "courseFormat": {
+                    "description": "Remote, Hybrid, In-Person",
+                    "type": "string"
+                },
+                "courseID": {
+                    "description": "Must include either this:",
+                    "type": "integer"
+                },
+                "courseNumber": {
+                    "description": "Like \"256\"",
+                    "type": "string"
+                },
+                "courseStimulating": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "courseWorkload": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "gradeReceived": {
+                    "type": "string"
+                },
+                "leadLecture": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "mentalHealthSupport": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "outsideHelpfulness": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "professorID": {
+                    "description": "Must include this:",
+                    "type": "integer"
+                },
+                "promoteDiscussion": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "semesterSeason": {
+                    "description": "Fall, Winter Study, Spring",
+                    "type": "string"
+                },
+                "semesterYear": {
+                    "type": "integer"
+                },
+                "wouldRecommendCourse": {
+                    "type": "boolean"
+                },
+                "wouldTakeAnother": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "factrak.SurveyUpdateParams": {
+            "type": "object",
+            "properties": {
+                "approachability": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "comment": {
+                    "description": "Params:",
+                    "type": "string"
+                },
+                "courseFormat": {
+                    "description": "Remote, Hybrid, In-Person",
+                    "type": "string"
+                },
+                "courseStimulating": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "courseWorkload": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "gradeReceived": {
+                    "type": "string"
+                },
+                "leadLecture": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "mentalHealthSupport": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "outsideHelpfulness": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "promoteDiscussion": {
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
+                },
+                "semesterSeason": {
+                    "description": "Fall, Winter Study, Spring",
+                    "type": "string"
+                },
+                "semesterYear": {
+                    "type": "integer"
+                },
+                "wouldRecommendCourse": {
+                    "type": "boolean"
+                },
+                "wouldTakeAnother": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "goodrich.CreateOrderParams": {
+            "type": "object",
+            "properties": {
+                "comboDeal": {
+                    "type": "boolean"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "idNumber": {
+                    "type": "string"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.GoodrichOrderItem"
+                    }
+                },
+                "leaseID": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "paymentMethod": {
+                    "$ref": "#/definitions/models.GoodrichPaymentMethod"
+                },
+                "phoneNumber": {
+                    "type": "string"
+                },
+                "timeSlot": {
+                    "description": "Format: 11:10 am",
+                    "type": "string"
+                }
+            }
+        },
+        "goodrich.OrderLease": {
+            "type": "object",
+            "properties": {
+                "expiry": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "goodrich.TimeSlot": {
+            "type": "object",
+            "properties": {
+                "closedSpots": {
+                    "type": "integer"
+                },
+                "formatted": {
+                    "type": "string"
+                },
+                "hour": {
+                    "type": "integer"
+                },
+                "minute": {
+                    "type": "integer"
+                },
+                "openSpots": {
+                    "type": "integer"
+                }
+            }
+        },
+        "goodrich.UpdateMenuItemParams": {
+            "type": "object",
+            "properties": {
+                "available": {
+                    "type": "boolean"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "quantityLimit": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "goodrich.UpdateOrderParams": {
+            "type": "object",
+            "properties": {
+                "adminNotes": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/models.GoodrichOrderStatus"
+                }
+            }
+        },
+        "identity.Credentials": {
+            "type": "object",
+            "properties": {
+                "localIP": {
+                    "description": "If true, will authenticate based on IP. Fail if cannot get on-campus token.",
+                    "type": "boolean"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "unixID": {
+                    "type": "string"
+                },
+                "useIP": {
+                    "description": "If true, will authenticate based on IP. Will return either off-campus or on-campus token",
+                    "type": "boolean"
+                }
+            }
         },
         "models.AreaOfStudy": {
             "type": "object",
@@ -9960,6 +10114,564 @@ const docTemplate = `{
                 }
             }
         },
+        "notification.SettingsUpdateParams": {
+            "type": "object",
+            "properties": {
+                "enableNotifications": {
+                    "type": "boolean"
+                },
+                "salmonNotify": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "notification.TokenCreateParams": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "old.AuthResponse": {
+            "type": "object",
+            "properties": {
+                "expire": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "old.LoginParams": {
+            "type": "object",
+            "properties": {
+                "localIP": {
+                    "description": "If true, will authenticate based on IP. Fail if cannot get on-campus token.",
+                    "type": "boolean"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "unixID": {
+                    "type": "string"
+                },
+                "useIP": {
+                    "description": "If true, will authenticate based on IP. Will return either off-campus or on-campus token",
+                    "type": "boolean"
+                }
+            }
+        },
+        "responses.GetUserResponseDepartment": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "responses.GetUserResponseDorm": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "neighborhoodID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "responses.GetUserResponseDormRoom": {
+            "type": "object",
+            "properties": {
+                "dorm": {
+                    "$ref": "#/definitions/responses.GetUserResponseDorm"
+                },
+                "dormID": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "number": {
+                    "type": "string"
+                },
+                "roomType": {
+                    "type": "string"
+                }
+            }
+        },
+        "responses.GetUserResponseOffice": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "number": {
+                    "type": "string"
+                }
+            }
+        },
+        "responses.GetUserResponseTag": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "responses.GetUserResponseUser": {
+            "type": "object",
+            "properties": {
+                "admin": {
+                    "type": "boolean"
+                },
+                "atWilliams": {
+                    "type": "boolean"
+                },
+                "campusPhoneEXT": {
+                    "type": "string"
+                },
+                "campusStatus": {
+                    "type": "string"
+                },
+                "cellPhone": {
+                    "type": "string"
+                },
+                "classYear": {
+                    "type": "integer"
+                },
+                "department": {
+                    "$ref": "#/definitions/responses.GetUserResponseDepartment"
+                },
+                "departmentID": {
+                    "type": "integer"
+                },
+                "dormRoom": {
+                    "$ref": "#/definitions/responses.GetUserResponseDormRoom"
+                },
+                "dormRoomID": {
+                    "type": "integer"
+                },
+                "dormVisible": {
+                    "type": "boolean"
+                },
+                "entry": {
+                    "type": "string"
+                },
+                "ephcatchEligibility": {
+                    "type": "boolean"
+                },
+                "factrakAdmin": {
+                    "type": "boolean"
+                },
+                "factrakSurveyDeficit": {
+                    "type": "integer"
+                },
+                "hasAcceptedDormtrakPolicy": {
+                    "type": "boolean"
+                },
+                "hasAcceptedFactrakPolicy": {
+                    "type": "boolean"
+                },
+                "homeCountry": {
+                    "type": "string"
+                },
+                "homePhone": {
+                    "type": "string"
+                },
+                "homeState": {
+                    "type": "string"
+                },
+                "homeTown": {
+                    "type": "string"
+                },
+                "homeVisible": {
+                    "type": "boolean"
+                },
+                "homeZip": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "major": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "offCampus": {
+                    "type": "boolean"
+                },
+                "offCycle": {
+                    "type": "boolean"
+                },
+                "office": {
+                    "$ref": "#/definitions/responses.GetUserResponseOffice"
+                },
+                "officeID": {
+                    "type": "integer"
+                },
+                "optOutEphcatch": {
+                    "type": "boolean"
+                },
+                "pronoun": {
+                    "type": "string"
+                },
+                "suBox": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/responses.GetUserResponseTag"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "unixID": {
+                    "type": "string"
+                },
+                "visible": {
+                    "type": "boolean"
+                },
+                "williamsEmail": {
+                    "type": "string"
+                },
+                "williamsID": {
+                    "type": "string"
+                }
+            }
+        },
+        "responses.ListMatchesResponseEphmatchMatch": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "matchedUser": {
+                    "$ref": "#/definitions/responses.ListMatchesResponseMatchedUser"
+                },
+                "matchedUserID": {
+                    "type": "integer"
+                },
+                "seenByMatchedUser": {
+                    "type": "boolean"
+                },
+                "seenBySelf": {
+                    "type": "boolean"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "responses.ListMatchesResponseEphmatchProfile": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "locationCountry": {
+                    "type": "string"
+                },
+                "locationState": {
+                    "type": "string"
+                },
+                "locationTown": {
+                    "type": "string"
+                },
+                "locationVisible": {
+                    "type": "boolean"
+                },
+                "lookingFor": {
+                    "type": "string"
+                },
+                "matchMessage": {
+                    "type": "string"
+                },
+                "messagingPlatform": {
+                    "type": "string"
+                },
+                "messagingUsername": {
+                    "type": "string"
+                }
+            }
+        },
+        "responses.ListMatchesResponseMatchedUser": {
+            "type": "object",
+            "properties": {
+                "classYear": {
+                    "type": "integer"
+                },
+                "entry": {
+                    "type": "string"
+                },
+                "ephmatchProfile": {
+                    "$ref": "#/definitions/responses.ListMatchesResponseEphmatchProfile"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "major": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "offCycle": {
+                    "type": "boolean"
+                },
+                "pronoun": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/responses.ListMatchesResponseTag"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                },
+                "unixID": {
+                    "type": "string"
+                },
+                "williamsEmail": {
+                    "type": "string"
+                }
+            }
+        },
+        "responses.ListMatchesResponseTag": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "responses.ListUsersResponseDepartment": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "responses.ListUsersResponseDorm": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "neighborhoodID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "responses.ListUsersResponseDormRoom": {
+            "type": "object",
+            "properties": {
+                "dorm": {
+                    "$ref": "#/definitions/responses.ListUsersResponseDorm"
+                },
+                "dormID": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "number": {
+                    "type": "string"
+                },
+                "roomType": {
+                    "type": "string"
+                }
+            }
+        },
+        "responses.ListUsersResponseOffice": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "number": {
+                    "type": "string"
+                }
+            }
+        },
+        "responses.ListUsersResponseTag": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "responses.ListUsersResponseUser": {
+            "type": "object",
+            "properties": {
+                "admin": {
+                    "type": "boolean"
+                },
+                "atWilliams": {
+                    "type": "boolean"
+                },
+                "campusPhoneEXT": {
+                    "type": "string"
+                },
+                "campusStatus": {
+                    "type": "string"
+                },
+                "cellPhone": {
+                    "type": "string"
+                },
+                "classYear": {
+                    "type": "integer"
+                },
+                "department": {
+                    "$ref": "#/definitions/responses.ListUsersResponseDepartment"
+                },
+                "departmentID": {
+                    "type": "integer"
+                },
+                "dormRoom": {
+                    "$ref": "#/definitions/responses.ListUsersResponseDormRoom"
+                },
+                "dormRoomID": {
+                    "type": "integer"
+                },
+                "dormVisible": {
+                    "type": "boolean"
+                },
+                "entry": {
+                    "type": "string"
+                },
+                "ephcatchEligibility": {
+                    "type": "boolean"
+                },
+                "factrakAdmin": {
+                    "type": "boolean"
+                },
+                "factrakSurveyDeficit": {
+                    "type": "integer"
+                },
+                "hasAcceptedDormtrakPolicy": {
+                    "type": "boolean"
+                },
+                "hasAcceptedFactrakPolicy": {
+                    "type": "boolean"
+                },
+                "homeCountry": {
+                    "type": "string"
+                },
+                "homePhone": {
+                    "type": "string"
+                },
+                "homeState": {
+                    "type": "string"
+                },
+                "homeTown": {
+                    "type": "string"
+                },
+                "homeVisible": {
+                    "type": "boolean"
+                },
+                "homeZip": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "major": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "offCampus": {
+                    "type": "boolean"
+                },
+                "offCycle": {
+                    "type": "boolean"
+                },
+                "office": {
+                    "$ref": "#/definitions/responses.ListUsersResponseOffice"
+                },
+                "officeID": {
+                    "type": "integer"
+                },
+                "optOutEphcatch": {
+                    "type": "boolean"
+                },
+                "pronoun": {
+                    "type": "string"
+                },
+                "suBox": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/responses.ListUsersResponseTag"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "unixID": {
+                    "type": "string"
+                },
+                "visible": {
+                    "type": "boolean"
+                },
+                "williamsEmail": {
+                    "type": "string"
+                },
+                "williamsID": {
+                    "type": "string"
+                }
+            }
+        },
         "server.HealthCheckResponse": {
             "type": "object",
             "properties": {
@@ -9999,725 +10711,7 @@ const docTemplate = `{
                 }
             }
         },
-        "services_admin.KubeJobReturn": {
-            "type": "object",
-            "properties": {
-                "jobID": {
-                    "type": "string"
-                }
-            }
-        },
-        "services_auth_identity.Credentials": {
-            "type": "object",
-            "properties": {
-                "localIP": {
-                    "description": "If true, will authenticate based on IP. Fail if cannot get on-campus token.",
-                    "type": "boolean"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "unixID": {
-                    "type": "string"
-                },
-                "useIP": {
-                    "description": "If true, will authenticate based on IP. Will return either off-campus or on-campus token",
-                    "type": "boolean"
-                }
-            }
-        },
-        "services_auth_old.AuthResponse": {
-            "type": "object",
-            "properties": {
-                "expire": {
-                    "type": "string"
-                },
-                "token": {
-                    "type": "string"
-                }
-            }
-        },
-        "services_auth_old.LoginParams": {
-            "type": "object",
-            "properties": {
-                "localIP": {
-                    "description": "If true, will authenticate based on IP. Fail if cannot get on-campus token.",
-                    "type": "boolean"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "unixID": {
-                    "type": "string"
-                },
-                "useIP": {
-                    "description": "If true, will authenticate based on IP. Will return either off-campus or on-campus token",
-                    "type": "boolean"
-                }
-            }
-        },
-        "services_bulletin.CreateBulletinParams": {
-            "type": "object",
-            "required": [
-                "body",
-                "title",
-                "type"
-            ],
-            "properties": {
-                "body": {
-                    "type": "string"
-                },
-                "endDate": {
-                    "type": "string"
-                },
-                "offer": {
-                    "type": "boolean"
-                },
-                "startDate": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                }
-            }
-        },
-        "services_bulletin.CreateDiscussionParams": {
-            "type": "object",
-            "required": [
-                "content",
-                "title"
-            ],
-            "properties": {
-                "content": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                }
-            }
-        },
-        "services_bulletin.CreatePostParams": {
-            "type": "object",
-            "required": [
-                "content",
-                "discussionID"
-            ],
-            "properties": {
-                "content": {
-                    "type": "string"
-                },
-                "discussionID": {
-                    "type": "integer"
-                }
-            }
-        },
-        "services_bulletin.CreateRideParams": {
-            "type": "object",
-            "required": [
-                "body",
-                "date",
-                "destination",
-                "source"
-            ],
-            "properties": {
-                "body": {
-                    "type": "string"
-                },
-                "date": {
-                    "type": "string"
-                },
-                "destination": {
-                    "type": "string"
-                },
-                "offer": {
-                    "type": "boolean"
-                },
-                "source": {
-                    "type": "string"
-                }
-            }
-        },
-        "services_bulletin.UpdateBulletinParams": {
-            "type": "object",
-            "properties": {
-                "body": {
-                    "type": "string"
-                },
-                "endDate": {
-                    "type": "string"
-                },
-                "offer": {
-                    "type": "boolean"
-                },
-                "startDate": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                }
-            }
-        },
-        "services_bulletin.UpdatePostParams": {
-            "type": "object",
-            "properties": {
-                "content": {
-                    "type": "string"
-                }
-            }
-        },
-        "services_bulletin.UpdateRideParams": {
-            "type": "object",
-            "properties": {
-                "body": {
-                    "type": "string"
-                },
-                "date": {
-                    "type": "string"
-                },
-                "offer": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "services_dormtrak.DormRoomPhotoInfo": {
-            "type": "object",
-            "properties": {
-                "dormRoomId": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "number": {
-                    "type": "integer"
-                },
-                "reviewId": {
-                    "type": "integer"
-                }
-            }
-        },
-        "services_dormtrak.ReviewCreateParams": {
-            "type": "object",
-            "required": [
-                "dormRoomID"
-            ],
-            "properties": {
-                "bathroomDesc": {
-                    "type": "string"
-                },
-                "bedAdjustable": {
-                    "type": "boolean"
-                },
-                "closet": {
-                    "type": "string"
-                },
-                "comment": {
-                    "description": "Params:",
-                    "type": "string"
-                },
-                "commonRoomAccess": {
-                    "type": "boolean"
-                },
-                "commonRoomDesc": {
-                    "type": "string"
-                },
-                "dormRoomID": {
-                    "description": "Must include this:",
-                    "type": "integer"
-                },
-                "flooring": {
-                    "type": "string"
-                },
-                "keyOrCard": {
-                    "type": "string"
-                },
-                "location": {
-                    "type": "integer",
-                    "maximum": 7,
-                    "minimum": 0
-                },
-                "loudness": {
-                    "type": "integer",
-                    "maximum": 7,
-                    "minimum": 0
-                },
-                "noise": {
-                    "type": "string"
-                },
-                "privateBathroom": {
-                    "type": "boolean"
-                },
-                "satisfaction": {
-                    "type": "integer",
-                    "maximum": 7,
-                    "minimum": 0
-                },
-                "thermostatAccess": {
-                    "type": "boolean"
-                },
-                "wifi": {
-                    "type": "integer",
-                    "maximum": 7,
-                    "minimum": 0
-                }
-            }
-        },
-        "services_dormtrak.ReviewUpdateParams": {
-            "type": "object",
-            "properties": {
-                "bathroomDesc": {
-                    "type": "string"
-                },
-                "bedAdjustable": {
-                    "type": "boolean"
-                },
-                "closet": {
-                    "type": "string"
-                },
-                "comment": {
-                    "type": "string"
-                },
-                "commonRoomAccess": {
-                    "type": "boolean"
-                },
-                "commonRoomDesc": {
-                    "type": "string"
-                },
-                "flooring": {
-                    "type": "string"
-                },
-                "keyOrCard": {
-                    "type": "string"
-                },
-                "location": {
-                    "type": "integer",
-                    "maximum": 7,
-                    "minimum": 0
-                },
-                "loudness": {
-                    "type": "integer",
-                    "maximum": 7,
-                    "minimum": 0
-                },
-                "noise": {
-                    "type": "string"
-                },
-                "privateBathroom": {
-                    "type": "boolean"
-                },
-                "satisfaction": {
-                    "type": "integer",
-                    "maximum": 7,
-                    "minimum": 0
-                },
-                "thermostatAccess": {
-                    "type": "boolean"
-                },
-                "wifi": {
-                    "type": "integer",
-                    "maximum": 7,
-                    "minimum": 0
-                }
-            }
-        },
-        "services_ephmatch.CountMatchesResponse": {
-            "type": "object",
-            "properties": {
-                "total": {
-                    "type": "integer"
-                },
-                "unseen": {
-                    "type": "integer"
-                }
-            }
-        },
-        "services_ephmatch.GetAvailabilityResp": {
-            "type": "object",
-            "properties": {
-                "available": {
-                    "description": "If Ephmatch is currently available",
-                    "type": "boolean"
-                },
-                "closingTime": {
-                    "description": "Closing time for current Ephmatch era/period",
-                    "type": "string"
-                },
-                "nextOpenTime": {
-                    "description": "Next time Ephmatch will be open",
-                    "type": "string"
-                },
-                "openIndefinitely": {
-                    "description": "If Ephmatch has no closing time set",
-                    "type": "boolean"
-                },
-                "seniorOnly": {
-                    "description": "Senior only ephmatch right now",
-                    "type": "boolean"
-                }
-            }
-        },
-        "services_ephmatch.ProfileCreateParams": {
-            "type": "object",
-            "properties": {
-                "LocationCountry": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "locationState": {
-                    "type": "string"
-                },
-                "locationTown": {
-                    "type": "string"
-                },
-                "locationVisible": {
-                    "type": "boolean"
-                },
-                "lookingFor": {
-                    "type": "string"
-                },
-                "matchMessage": {
-                    "type": "string"
-                },
-                "messagingPlatform": {
-                    "type": "string"
-                },
-                "messagingUsername": {
-                    "type": "string"
-                }
-            }
-        },
-        "services_ephmatch.ProfileUpdateParams": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "locationCountry": {
-                    "type": "string"
-                },
-                "locationState": {
-                    "type": "string"
-                },
-                "locationTown": {
-                    "type": "string"
-                },
-                "locationVisible": {
-                    "type": "boolean"
-                },
-                "lookingFor": {
-                    "type": "string"
-                },
-                "matchMessage": {
-                    "type": "string"
-                },
-                "messagingPlatform": {
-                    "type": "string"
-                },
-                "messagingUsername": {
-                    "type": "string"
-                }
-            }
-        },
-        "services_ephmatch.SetProfileRelationParams": {
-            "type": "object",
-            "properties": {
-                "relation": {
-                    "type": "string"
-                }
-            }
-        },
-        "services_ephmatch.SetProfileRelationResp": {
-            "type": "object",
-            "properties": {
-                "matched": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "services_factrak.AgreementCreateParams": {
-            "type": "object",
-            "properties": {
-                "agree": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "services_factrak.AgreementUpdateParams": {
-            "type": "object",
-            "properties": {
-                "agree": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "services_factrak.SurveyCreateParams": {
-            "type": "object",
-            "required": [
-                "comment",
-                "professorID"
-            ],
-            "properties": {
-                "approachability": {
-                    "type": "integer",
-                    "maximum": 7,
-                    "minimum": 0
-                },
-                "areaOfStudyAbbreviation": {
-                    "description": "Or this:",
-                    "type": "string"
-                },
-                "comment": {
-                    "description": "Params:",
-                    "type": "string"
-                },
-                "courseFormat": {
-                    "description": "Remote, Hybrid, In-Person",
-                    "type": "string"
-                },
-                "courseID": {
-                    "description": "Must include either this:",
-                    "type": "integer"
-                },
-                "courseNumber": {
-                    "description": "Like \"256\"",
-                    "type": "string"
-                },
-                "courseStimulating": {
-                    "type": "integer",
-                    "maximum": 7,
-                    "minimum": 0
-                },
-                "courseWorkload": {
-                    "type": "integer",
-                    "maximum": 7,
-                    "minimum": 0
-                },
-                "gradeReceived": {
-                    "type": "string"
-                },
-                "leadLecture": {
-                    "type": "integer",
-                    "maximum": 7,
-                    "minimum": 0
-                },
-                "mentalHealthSupport": {
-                    "type": "integer",
-                    "maximum": 7,
-                    "minimum": 0
-                },
-                "outsideHelpfulness": {
-                    "type": "integer",
-                    "maximum": 7,
-                    "minimum": 0
-                },
-                "professorID": {
-                    "description": "Must include this:",
-                    "type": "integer"
-                },
-                "promoteDiscussion": {
-                    "type": "integer",
-                    "maximum": 7,
-                    "minimum": 0
-                },
-                "semesterSeason": {
-                    "description": "Fall, Winter Study, Spring",
-                    "type": "string"
-                },
-                "semesterYear": {
-                    "type": "integer"
-                },
-                "wouldRecommendCourse": {
-                    "type": "boolean"
-                },
-                "wouldTakeAnother": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "services_factrak.SurveyUpdateParams": {
-            "type": "object",
-            "properties": {
-                "approachability": {
-                    "type": "integer",
-                    "maximum": 7,
-                    "minimum": 0
-                },
-                "comment": {
-                    "description": "Params:",
-                    "type": "string"
-                },
-                "courseFormat": {
-                    "description": "Remote, Hybrid, In-Person",
-                    "type": "string"
-                },
-                "courseStimulating": {
-                    "type": "integer",
-                    "maximum": 7,
-                    "minimum": 0
-                },
-                "courseWorkload": {
-                    "type": "integer",
-                    "maximum": 7,
-                    "minimum": 0
-                },
-                "gradeReceived": {
-                    "type": "string"
-                },
-                "leadLecture": {
-                    "type": "integer",
-                    "maximum": 7,
-                    "minimum": 0
-                },
-                "mentalHealthSupport": {
-                    "type": "integer",
-                    "maximum": 7,
-                    "minimum": 0
-                },
-                "outsideHelpfulness": {
-                    "type": "integer",
-                    "maximum": 7,
-                    "minimum": 0
-                },
-                "promoteDiscussion": {
-                    "type": "integer",
-                    "maximum": 7,
-                    "minimum": 0
-                },
-                "semesterSeason": {
-                    "description": "Fall, Winter Study, Spring",
-                    "type": "string"
-                },
-                "semesterYear": {
-                    "type": "integer"
-                },
-                "wouldRecommendCourse": {
-                    "type": "boolean"
-                },
-                "wouldTakeAnother": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "services_goodrich.CreateOrderParams": {
-            "type": "object",
-            "properties": {
-                "comboDeal": {
-                    "type": "boolean"
-                },
-                "date": {
-                    "type": "string"
-                },
-                "idNumber": {
-                    "type": "string"
-                },
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.GoodrichOrderItem"
-                    }
-                },
-                "leaseID": {
-                    "type": "string"
-                },
-                "notes": {
-                    "type": "string"
-                },
-                "paymentMethod": {
-                    "$ref": "#/definitions/models.GoodrichPaymentMethod"
-                },
-                "phoneNumber": {
-                    "type": "string"
-                },
-                "timeSlot": {
-                    "description": "Format: 11:10 am",
-                    "type": "string"
-                }
-            }
-        },
-        "services_goodrich.OrderLease": {
-            "type": "object",
-            "properties": {
-                "expiry": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                }
-            }
-        },
-        "services_goodrich.TimeSlot": {
-            "type": "object",
-            "properties": {
-                "closedSpots": {
-                    "type": "integer"
-                },
-                "formatted": {
-                    "type": "string"
-                },
-                "hour": {
-                    "type": "integer"
-                },
-                "minute": {
-                    "type": "integer"
-                },
-                "openSpots": {
-                    "type": "integer"
-                }
-            }
-        },
-        "services_goodrich.UpdateMenuItemParams": {
-            "type": "object",
-            "properties": {
-                "available": {
-                    "type": "boolean"
-                },
-                "quantity": {
-                    "type": "integer"
-                },
-                "quantityLimit": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "services_goodrich.UpdateOrderParams": {
-            "type": "object",
-            "properties": {
-                "adminNotes": {
-                    "type": "string"
-                },
-                "status": {
-                    "$ref": "#/definitions/models.GoodrichOrderStatus"
-                }
-            }
-        },
-        "services_notification.SettingsUpdateParams": {
-            "type": "object",
-            "properties": {
-                "enableNotifications": {
-                    "type": "boolean"
-                },
-                "salmonNotify": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "services_notification.TokenCreateParams": {
-            "type": "object",
-            "properties": {
-                "token": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                }
-            }
-        },
-        "services_user.UpdateUserParams": {
+        "user.UpdateUserParams": {
             "type": "object",
             "properties": {
                 "campusStatus": {
@@ -10749,127 +10743,10 @@ const docTemplate = `{
                 }
             }
         },
-        "services_user.UpdateUserTagsParams": {
+        "user.UpdateUserTagsParams": {
             "type": "object",
             "properties": {
                 "tags": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
-        "v1.JobCondition": {
-            "type": "object",
-            "properties": {
-                "lastProbeTime": {
-                    "description": "Last time the condition was checked.\n+optional",
-                    "type": "string"
-                },
-                "lastTransitionTime": {
-                    "description": "Last time the condition transit from one status to another.\n+optional",
-                    "type": "string"
-                },
-                "message": {
-                    "description": "Human readable message indicating details about last transition.\n+optional",
-                    "type": "string"
-                },
-                "reason": {
-                    "description": "(brief) reason for the condition's last transition.\n+optional",
-                    "type": "string"
-                },
-                "status": {
-                    "description": "Status of the condition, one of True, False, Unknown.",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/k8s_io_api_core_v1.ConditionStatus"
-                        }
-                    ]
-                },
-                "type": {
-                    "description": "Type of job condition, Complete or Failed.",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/v1.JobConditionType"
-                        }
-                    ]
-                }
-            }
-        },
-        "v1.JobConditionType": {
-            "type": "string",
-            "enum": [
-                "Suspended",
-                "Complete",
-                "Failed"
-            ],
-            "x-enum-varnames": [
-                "JobSuspended",
-                "JobComplete",
-                "JobFailed"
-            ]
-        },
-        "v1.JobStatus": {
-            "type": "object",
-            "properties": {
-                "active": {
-                    "description": "The number of pending and running pods.\n+optional",
-                    "type": "integer"
-                },
-                "completedIndexes": {
-                    "description": "CompletedIndexes holds the completed indexes when .spec.completionMode =\n\"Indexed\" in a text format. The indexes are represented as decimal integers\nseparated by commas. The numbers are listed in increasing order. Three or\nmore consecutive numbers are compressed and represented by the first and\nlast element of the series, separated by a hyphen.\nFor example, if the completed indexes are 1, 3, 4, 5 and 7, they are\nrepresented as \"1,3-5,7\".\n+optional",
-                    "type": "string"
-                },
-                "completionTime": {
-                    "description": "Represents time when the job was completed. It is not guaranteed to\nbe set in happens-before order across separate operations.\nIt is represented in RFC3339 form and is in UTC.\nThe completion time is only set when the job finishes successfully.\n+optional",
-                    "type": "string"
-                },
-                "conditions": {
-                    "description": "The latest available observations of an object's current state. When a Job\nfails, one of the conditions will have type \"Failed\" and status true. When\na Job is suspended, one of the conditions will have type \"Suspended\" and\nstatus true; when the Job is resumed, the status of this condition will\nbecome false. When a Job is completed, one of the conditions will have\ntype \"Complete\" and status true.\nMore info: https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/\n+optional\n+patchMergeKey=type\n+patchStrategy=merge\n+listType=atomic",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/v1.JobCondition"
-                    }
-                },
-                "failed": {
-                    "description": "The number of pods which reached phase Failed.\n+optional",
-                    "type": "integer"
-                },
-                "ready": {
-                    "description": "The number of pods which have a Ready condition.\n\nThis field is alpha-level. The job controller populates the field when\nthe feature gate JobReadyPods is enabled (disabled by default).\n+optional",
-                    "type": "integer"
-                },
-                "startTime": {
-                    "description": "Represents time when the job controller started processing a job. When a\nJob is created in the suspended state, this field is not set until the\nfirst time it is resumed. This field is reset every time a Job is resumed\nfrom suspension. It is represented in RFC3339 form and is in UTC.\n+optional",
-                    "type": "string"
-                },
-                "succeeded": {
-                    "description": "The number of pods which reached phase Succeeded.\n+optional",
-                    "type": "integer"
-                },
-                "uncountedTerminatedPods": {
-                    "description": "UncountedTerminatedPods holds the UIDs of Pods that have terminated but\nthe job controller hasn't yet accounted for in the status counters.\n\nThe job controller creates pods with a finalizer. When a pod terminates\n(succeeded or failed), the controller does three steps to account for it\nin the job status:\n(1) Add the pod UID to the arrays in this field.\n(2) Remove the pod finalizer.\n(3) Remove the pod UID from the arrays while increasing the corresponding\n    counter.\n\nThis field is beta-level. The job controller only makes use of this field\nwhen the feature gate JobTrackingWithFinalizers is enabled (enabled\nby default).\nOld jobs might not be tracked using this field, in which case the field\nremains null.\n+optional",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/v1.UncountedTerminatedPods"
-                        }
-                    ]
-                }
-            }
-        },
-        "v1.UncountedTerminatedPods": {
-            "type": "object",
-            "properties": {
-                "failed": {
-                    "description": "Failed holds UIDs of failed Pods.\n+listType=set\n+optional",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "succeeded": {
-                    "description": "Succeeded holds UIDs of succeeded Pods.\n+listType=set\n+optional",
                     "type": "array",
                     "items": {
                         "type": "string"
