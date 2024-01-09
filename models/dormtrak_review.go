@@ -12,6 +12,20 @@ type DormtrakReviewModel struct {
 	*BaseModel
 }
 
+// New Function (from factrak_survey.go) - Brenda
+func (m *DormtrakReviewModel) CountReviewsbyUser(userID uint) (count int, err error) {
+	err = m.DB.Model(&DormtrakReview{}).Where("dormtrak_reviews.user_id = ?", userID).Count(&count).Error
+	return
+}
+
+// New Function - Brenda
+func (m *DormtrakReviewModel) CountReviewsThisSemesterbyUser(userID uint, now time.Time) (count int, err error) {
+	err = m.DB.Model(&DormtrakReview{}).
+		Scopes(m.withScopeThisSemester(now), m.withAuthorID(userID)).
+		Count(&count).Error
+	return
+}
+
 func NewDormtrakReviewModel(db *gorm.DB, log *zap.SugaredLogger) *DormtrakReviewModel {
 	return &DormtrakReviewModel{
 		BaseModel: NewBaseModel(db, log),
@@ -184,6 +198,44 @@ func (*DormtrakReviewModel) withDormRoomID(dormRoomID uint) func(db *gorm.DB) *g
 func (*DormtrakReviewModel) withUserID(userID uint) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Where(&DormtrakReview{UserID: userID})
+	}
+}
+
+// New Function - Brenda
+func (*DormtrakReviewModel) registrationStart(now time.Time) time.Time {
+	// if changed, also change scheduled update user stuff
+	springReg := time.October
+	fallReg := time.March
+
+	// Between October/X and February/X+1, want October/X
+	month := now.Month()
+
+	// TODO: Ensure time.Local is EST/EDT on server
+	if month <= time.February {
+		return time.Date(now.Year()-1, springReg, 1, 1, 0, 0, 0, time.Local)
+	} else if month >= time.October {
+		return time.Date(now.Year(), springReg, 1, 1, 0, 0, 0, time.Local)
+	} else {
+		return time.Date(now.Year(), fallReg, 1, 1, 0, 0, 0, time.Local)
+	}
+}
+
+// New Function - Brenda
+func (m *DormtrakReviewModel) withScopeThisSemester(now time.Time) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where("dormtrak_reviews.created_at >= ?", m.registrationStart(now))
+	}
+}
+
+// New Function - Brenda
+func (*DormtrakReviewModel) scopeCurrent(db *gorm.DB) *gorm.DB {
+	return db.Where("dormtrak_reviews.created_at >= ?", time.Now().AddDate(-5, 0, 0))
+}
+
+// New Function - Brenda
+func (*DormtrakReviewModel) withAuthorID(authorID uint) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where(&FactrakSurvey{UserID: authorID})
 	}
 }
 
