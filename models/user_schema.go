@@ -92,6 +92,9 @@ type User struct {
 	// We populate this field as a hook AfterFind.
 	FactrakSurveys []*FactrakSurvey `gorm:"-" json:"factrakSurveys,omitempty"`
 
+	// Only for professor retrieval with rankings
+	FactrakScore *float64 `gorm:"->;-:migration" json:"factrakScore,omitempty"`
+
 	// Has many factrak agreements
 	FactrakAgreements []*FactrakAgreement `json:"factrakAgreements,omitempty"`
 
