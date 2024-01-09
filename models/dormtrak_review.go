@@ -12,6 +12,11 @@ type DormtrakReviewModel struct {
 	*BaseModel
 }
 
+func (m *DormtrakReviewModel) CountSurveysbyUser(userID uint) (count int, err error) {
+	err = m.DB.Model(&DormtrakReview{}).Where("dormtrak_reviews.user_id = ?", userID).Count(&count).Error
+	return
+}
+
 func NewDormtrakReviewModel(db *gorm.DB, log *zap.SugaredLogger) *DormtrakReviewModel {
 	return &DormtrakReviewModel{
 		BaseModel: NewBaseModel(db, log),
