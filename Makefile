@@ -32,7 +32,7 @@ jobs/dorms_update/cmd/data.go: $(wildcard jobs/dorms_update/data/*) jobs/dorms_u
 
 docs docs/docs.go docs/swagger.json docs/swagger.yaml: $(wildcard models/*.go) $(wildcard services/**/*.go) $(wildcard services/**/**/*.go) server/router.go
 ifdef SWAGGER
-	swag init -g server/router.go --parseDependency
+	swag init -g server/router.go
 endif
 ifdef GOIMPORTS
 	goimports -w docs/docs.go
