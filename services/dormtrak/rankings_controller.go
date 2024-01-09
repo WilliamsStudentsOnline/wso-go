@@ -2,6 +2,7 @@ package dormtrak
 
 import (
 	"github.com/WilliamsStudentsOnline/wso-go/models"
+	_ "github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 )
 

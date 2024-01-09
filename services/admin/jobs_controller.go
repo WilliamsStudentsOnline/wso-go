@@ -2,6 +2,7 @@ package admin
 
 import (
 	"github.com/WilliamsStudentsOnline/wso-go/jobs"
+	_ "github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 	_ "k8s.io/api/batch/v1"
 )
