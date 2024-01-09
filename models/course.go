@@ -299,16 +299,16 @@ func (m *CourseModel) withRanking(ranking string, ascending bool) func(db *gorm.
 			order = "DESC"
 		}
 
-		o := fmt.Sprintf("avg(factrak_surveys.%s) %s", ranking, order)
-		h := fmt.Sprintf("count(factrak_surveys.%s) >= 10", ranking)
-		q := fmt.Sprintf("factrak_surveys.%s IS NOT NULL", ranking)
+		avgRanking := fmt.Sprintf("avg(factrak_surveys.%s)%s", ranking, order) //o
+		havingCount := fmt.Sprintf("count(factrak_surveys.%s) >= 10", ranking) //h
+		notNull := fmt.Sprintf("factrak_surveys.%s IS NOT NULL", ranking)      //q
 
 		db = db.Joins("left join factrak_surveys on courses.id = factrak_surveys.course_id")
-		db = db.Where(q)
+		db = db.Where(notNull)
 		db = db.Where("factrak_surveys.created_at >= ?", time.Now().AddDate(-5, 0, 0))
 		db = db.Group("factrak_surveys.course_id")
-		db = db.Having(h)
-		db = db.Order(o, true)
+		db = db.Having(havingCount)
+		db = db.Order(avgRanking, true)
 		return db
 	}
 }
