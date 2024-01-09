@@ -25,7 +25,7 @@ import (
 // @Param areaOfStudyID query int false "Area Of Study ID"
 // @Param q query string false "Search Query"
 // @Param metric query string false "Ranking Metric"
-// @Param direction query bool false "Sorting Direction"
+// @Param ascending query bool false "Sorting Direction"
 // @Success 200 {array} models.User
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
