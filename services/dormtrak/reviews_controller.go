@@ -222,6 +222,13 @@ func (t *Controller) CreateReview(c *gin.Context) {
 		return
 	}
 
+	// New- Brenda (from factrak)
+	err = t.userModel.UpdateDormtrakReviewDeficit(user)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
 	t.RespondCreated(c, review)
 }
 
@@ -361,6 +368,15 @@ func (t *Controller) DeleteReview(c *gin.Context) {
 
 	// Do db delete
 	err = t.reviewModel.DeleteReview(&review)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	//New - Brenda
+	user := new(models.User)
+	user.ID = review.UserID
+	err = t.userModel.UpdateFactrakSurveyDeficit(user)
 	if err != nil {
 		t.RespondError(c, err)
 		return
