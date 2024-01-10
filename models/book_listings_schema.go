@@ -54,7 +54,7 @@ func (condition *Condition) UnmarshalJSON(b []byte) error {
 		panic(err)
 	}
 	switch *condition {
-	case ConditionUndefined, ConditionFair, ConditionGood, ConditionVeryGood, ConditionLikeNew, ConditionNew:
+	case ConditionUndefined, ConditionPoor, ConditionFair, ConditionGood, ConditionVeryGood, ConditionLikeNew, ConditionNew:
 		return nil
 	}
 	return errors.New("invalid condition")
