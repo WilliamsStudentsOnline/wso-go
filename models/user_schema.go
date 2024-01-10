@@ -117,6 +117,9 @@ type User struct {
 
 	// Has one (or zero) banned users
 	BannedUser *BannedUser `json:"bannedUser,omitempty"`
+
+	// Has dining keywords for notifications
+	Keywords []DiningKeyword `gorm:"many2many:user_dining_keywords"`
 }
 
 func (*User) TableName() string {
