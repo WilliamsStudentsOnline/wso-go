@@ -3,7 +3,6 @@ package models
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/jinzhu/gorm"
@@ -114,10 +113,20 @@ func (o *GetAllCoursesOptions) Paginate(db *gorm.DB) *gorm.DB {
 }
 
 func (o *GetAllCoursesOptions) Run(db *gorm.DB) *gorm.DB {
-	db = o.Paginate(db)
 	db = o.Preloader(db)
 
 	m := NewCourseModel(db.New(), nil)
+
+	if o.Metric != nil {
+		if o.Ascending != nil {
+			db = m.withRanking(*o.Metric, *o.Ascending)(db)
+		} else {
+			db = m.withRanking(*o.Metric, false)(db)
+		}
+	} else {
+		// No reason to order twice, only order by ID if no metric is given
+		db = o.Order(db)
+	}
 
 	if o.AreaOfStudyID != nil {
 		db = m.withAreaOfStudy(*o.AreaOfStudyID)(db)
@@ -128,13 +137,7 @@ func (o *GetAllCoursesOptions) Run(db *gorm.DB) *gorm.DB {
 	if o.ProfessorID != nil {
 		db = m.withProfessor(*o.ProfessorID)(db)
 	}
-	if o.Metric != nil {
-		if o.Ascending != nil {
-			db = m.withRanking(*o.Metric, *o.Ascending)(db)
-		} else {
-			db = m.withRanking(*o.Metric, false)(db)
-		}
-	}
+	db = o.Paginate(db)
 
 	return db
 }
@@ -299,16 +302,20 @@ func (m *CourseModel) withRanking(ranking string, ascending bool) func(db *gorm.
 			order = "DESC"
 		}
 
-		avgRanking := fmt.Sprintf("avg(factrak_surveys.%s)%s", ranking, order) //o
-		havingCount := fmt.Sprintf("count(factrak_surveys.%s) >= 10", ranking) //h
-		notNull := fmt.Sprintf("factrak_surveys.%s IS NOT NULL", ranking)      //q
+		avgRating := fmt.Sprintf("avg(factrak_surveys.%s)", ranking)          //o
+		havingCount := fmt.Sprintf("count(factrak_surveys.%s) >= 5", ranking) //h
+		notNull := fmt.Sprintf("factrak_surveys.%s IS NOT NULL", ranking)     //q
 
-		db = db.Joins("left join factrak_surveys on courses.id = factrak_surveys.course_id")
+		subQuery := db.Table("factrak_surveys").Select("course_id, " + avgRating + " as factrak_score").Group("factrak_surveys.course_id").Where(notNull).Having(havingCount).SubQuery()
+
+		db = db.Table("courses").Select("courses.*, courses.factrak_score").Joins("left join (?) as scores on courses.id = scores.course_id", subQuery).Where("factrak_score IS NOT NULL").Order("factrak_score "+order, true)
+
+		/*db = db.Joins("left join factrak_surveys on courses.id = factrak_surveys.course_id")
 		db = db.Where(notNull)
 		db = db.Where("factrak_surveys.created_at >= ?", time.Now().AddDate(-5, 0, 0))
 		db = db.Group("factrak_surveys.course_id")
 		db = db.Having(havingCount)
-		db = db.Order(avgRanking, true)
+		db = db.Order(avgRating, true)*/
 		return db
 	}
 }

@@ -14,6 +14,8 @@ type Course struct {
 
 	// Has many professors (thru factrak surveys). Ignore this in Gorm. Populate this only whenever needed.
 	Professors []*User `gorm:"-" json:"professors,omitempty"`
+
+	FactrakScore *float64 `gorm:"->;-:migration" json:"factrakScore,omitempty"`
 }
 
 func (*Course) TableName() string {
