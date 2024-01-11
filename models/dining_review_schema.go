@@ -1,24 +1,26 @@
 package models
 
-import "time"
+import (
+	"encoding/json"
+	"errors"
+	"time"
+)
+
+type DiningHall string
 
 const (
-	DiningReviewDriscoll = "Driscoll"
-	DiningReviewMission  = "Mission"
-	DiningReviewWhitmans = "Whitman's"
+	DiningReviewDriscoll DiningHall = "Driscoll"
+	DiningReviewMission  DiningHall = "Mission"
+	DiningReviewWhitmans DiningHall = "Whitman's"
 )
 
 // Dining Review Schema
-type DiningReview struct {
+type DiningHallReview struct {
 	BaseSchema
 
 	// Belongs to user (student)
 	UserID uint  `gorm:"index:index_dining_review_on_user_id;not null" json:"userID"`
 	User   *User `json:"user,omitempty"`
-
-	// Belongs to dining hall
-	DiningID uint  `gorm:"index:index_dining_reviews_on_dining_id;not null" json:"diningID"`
-	Dining   *User `gorm:"foreignkey:DiningID" json:"dining,omitempty"`
 
 	WouldRecommendFood *bool  `json:"wouldRecommendFood"`
 	FoodQuality        *int   `json:"foodQuality"`
@@ -27,7 +29,7 @@ type DiningReview struct {
 	Flagged            bool   `json:"flagged"`
 
 	// Dining info data
-	DiningHall *string `json:"diningHall"` //Driscoll, Mission, Whitman's
+	DiningHall DiningHall `json:"diningHall" enums:"Driscoll, Mission, Whitman's"` //Driscoll, Mission, Whitman's
 
 	// Pass the created time: not looked at by GORM
 	CreatedTime time.Time `gorm:"-" json:"createdTime"`
@@ -38,14 +40,29 @@ type DiningReview struct {
 	ClientAgreement *bool `gorm:"-" json:"clientAgreement,omitempty"`
 }
 
-func (*DiningReview) TableName() string {
+func (*DiningHallReview) TableName() string {
 	return "dining_reviews"
 }
 
-func NewDiningReview(id uint) *DiningReview {
-	return &DiningReview{
+func NewDiningReview(id uint) *DiningHallReview {
+	return &DiningHallReview{
 		BaseSchema: BaseSchema{
 			ID: id,
 		},
 	}
+}
+
+func (diningHall *DiningHall) UnmarshalJSON(b []byte) error {
+	// Define a secondary type to avoid ending up with a recursive call to json.Unmarshal
+	type DH DiningHall
+	var r = (*DH)(diningHall)
+	err := json.Unmarshal(b, &r)
+	if err != nil {
+		panic(err)
+	}
+	switch *diningHall {
+	case DiningReviewDriscoll, DiningReviewMission, DiningReviewWhitmans:
+		return nil
+	}
+	return errors.New("invalid dining hall")
 }
