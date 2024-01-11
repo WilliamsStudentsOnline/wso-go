@@ -101,7 +101,7 @@ func (o *GetAllCoursesOptions) Order(db *gorm.DB) *gorm.DB {
 }
 
 func (o *GetAllCoursesOptions) Paginate(db *gorm.DB) *gorm.DB {
-	db = o.Order(db)
+	//db = o.Order(db)
 	if o.Limit != nil {
 		db = db.Limit(*o.Limit)
 		if o.Offset != nil {
@@ -113,10 +113,21 @@ func (o *GetAllCoursesOptions) Paginate(db *gorm.DB) *gorm.DB {
 }
 
 func (o *GetAllCoursesOptions) Run(db *gorm.DB) *gorm.DB {
+	db = o.Paginate(db)
 	db = o.Preloader(db)
 
 	m := NewCourseModel(db.New(), nil)
 
+	if o.AreaOfStudyID != nil {
+		db = m.withAreaOfStudy(*o.AreaOfStudyID)(db)
+		db = db.Preload("AreasOfStudy")
+	}
+	if o.DepartmentID != nil {
+		db = m.withDepartment(*o.DepartmentID)(db)
+	}
+	if o.ProfessorID != nil {
+		db = m.withProfessor(*o.ProfessorID)(db)
+	}
 	if o.Metric != nil {
 		if o.Ascending != nil {
 			db = m.withRanking(*o.Metric, *o.Ascending)(db)
@@ -127,17 +138,6 @@ func (o *GetAllCoursesOptions) Run(db *gorm.DB) *gorm.DB {
 		// No reason to order twice, only order by ID if no metric is given
 		db = o.Order(db)
 	}
-
-	if o.AreaOfStudyID != nil {
-		db = m.withAreaOfStudy(*o.AreaOfStudyID)(db)
-	}
-	if o.DepartmentID != nil {
-		db = m.withDepartment(*o.DepartmentID)(db)
-	}
-	if o.ProfessorID != nil {
-		db = m.withProfessor(*o.ProfessorID)(db)
-	}
-	db = o.Paginate(db)
 
 	return db
 }
@@ -302,13 +302,13 @@ func (m *CourseModel) withRanking(ranking string, ascending bool) func(db *gorm.
 			order = "DESC"
 		}
 
-		avgRating := fmt.Sprintf("avg(factrak_surveys.%s)", ranking)          //o
-		havingCount := fmt.Sprintf("count(factrak_surveys.%s) >= 5", ranking) //h
-		notNull := fmt.Sprintf("factrak_surveys.%s IS NOT NULL", ranking)     //q
+		avgRating := fmt.Sprintf("avg(factrak_surveys.%s)", ranking)
+		havingCount := fmt.Sprintf("count(factrak_surveys.%s) >= 5", ranking)
+		notNull := fmt.Sprintf("factrak_surveys.%s IS NOT NULL", ranking)
 
 		subQuery := db.Table("factrak_surveys").Select("course_id, " + avgRating + " as factrak_score").Group("factrak_surveys.course_id").Where(notNull).Having(havingCount).SubQuery()
 
-		db = db.Table("courses").Select("courses.*, courses.factrak_score").Joins("left join (?) as scores on courses.id = scores.course_id", subQuery).Where("factrak_score IS NOT NULL").Order("factrak_score "+order, true)
+		db = db.Table("courses").Select("courses.*, scores.factrak_score").Joins("left join (?) as scores on courses.id = scores.course_id", subQuery).Where("factrak_score IS NOT NULL").Order("factrak_score "+order, true)
 
 		/*db = db.Joins("left join factrak_surveys on courses.id = factrak_surveys.course_id")
 		db = db.Where(notNull)

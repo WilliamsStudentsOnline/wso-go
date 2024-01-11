@@ -15,6 +15,7 @@ type Course struct {
 	// Has many professors (thru factrak surveys). Ignore this in Gorm. Populate this only whenever needed.
 	Professors []*User `gorm:"-" json:"professors,omitempty"`
 
+	//for course retrival for rankings
 	FactrakScore *float64 `gorm:"->;-:migration" json:"factrakScore,omitempty"`
 }
 
