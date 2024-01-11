@@ -1,5 +1,5 @@
 FROM wso-backend/builder-cert AS builder
-FROM alpine:3.10
+FROM alpine:3.19
 RUN mkdir /wso-jobs
 COPY --from=builder /wso/jobs /wso-jobs
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
