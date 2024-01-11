@@ -130,7 +130,6 @@ func (o *GetAllCoursesOptions) Run(db *gorm.DB) *gorm.DB {
 
 	if o.AreaOfStudyID != nil {
 		db = m.withAreaOfStudy(*o.AreaOfStudyID)(db)
-		db = db.Preload("AreasOfStudy")
 	}
 	if o.DepartmentID != nil {
 		db = m.withDepartment(*o.DepartmentID)(db)
@@ -307,7 +306,8 @@ func (m *CourseModel) withRanking(ranking string, ascending bool) func(db *gorm.
 		havingCount := fmt.Sprintf("count(factrak_surveys.%s) >= 5", ranking)
 		notNull := fmt.Sprintf("factrak_surveys.%s IS NOT NULL", ranking)
 
-		subQuery := db.Table("factrak_surveys").Select("course_id, " + avgRating + " as factrak_score").Group("factrak_surveys.course_id").Where(notNull).Having(havingCount).SubQuery()
+		// Ye Shu: for subqueries, we should use a separate, untainted db (that do not have the withXXX constraints)
+		subQuery := m.DB.Table("factrak_surveys").Select("course_id, " + avgRating + " as factrak_score").Group("factrak_surveys.course_id").Where(notNull).Having(havingCount).SubQuery()
 
 		db = db.Table("courses").Select("courses.*, scores.factrak_score").Joins("left join (?) as scores on courses.id = scores.course_id", subQuery).Where("factrak_score IS NOT NULL").Order("factrak_score "+order, true)
 

@@ -222,10 +222,10 @@ func TestController_ListCoursesRanked(t *testing.T) {
 	assert.NoError(EqualCourseIDs([]models.Course{c1}, resp))
 
 	// Test 5: Get courses ranked by how stimulating they are, limited to one area of study
-	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/courses?metric=course_stimulating&areaOfStudyID=%d", area1.ID), nil)
+	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/courses?metric=course_stimulating&areaOfStudyID=%d", area2.ID), nil)
 	assert.NoError(err)
 	resp = GetCoursesFromResp(assert, w)
-	assert.NoError(EqualCourseIDs([]models.Course{}, resp))
+	assert.NoError(EqualCourseIDs([]models.Course{c2}, resp))
 
 	// Test 6: Get courses ranked by workload, with pagination
 	w, err = utils.DoHTTPReq(router, http.MethodGet, "/courses?metric=course_workload&ascending=true&limit=2", nil)
