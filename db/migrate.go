@@ -51,7 +51,7 @@ var Migrations = []*gormigrate.Migration{
 	migrations.UserAddAreasOfStudy20220219171916,
 	migrations.AddBannedUsersTable20220228163053,
 	migrations.LookingForColumn20220504015544,
-	migrations.CreateEnrollments20240111120400,
+	migrations.CreateCourseSchedulerSelections20240111204545,
 }
 
 var MigrationGormOptions = gormigrate.DefaultOptions
@@ -93,7 +93,7 @@ func MigrateDB(db *gorm.DB) error {
 			&models.GoodrichOrder{},
 			&models.EphmatchRelation{},
 			&models.BannedUser{},
-			&models.Enrollment{},
+			&models.CourseSchedulerSelection{},
 		).Error
 		if err != nil {
 			return err
