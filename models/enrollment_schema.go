@@ -6,6 +6,7 @@ type Enrollment struct {
 	Course    *Course `gorm:"not null" json:"course"`
 	StudentID *uint   `gorm:"not null" json:"studentID"`
 	CourseID  *uint   `gorm:"not null" json:"courseID"`
+	Hidden    bool    `gorm:"not null" json:"hidden"`
 
 	SemesterID   *uint  `gorm:"not null" json:"semesterID"`
 	SemesterType string `gorm:"not null" json:"semesterType"`
