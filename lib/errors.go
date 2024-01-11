@@ -140,10 +140,11 @@ var (
 	ErrorEphcatchDoesNotExist  = NewAPIError(1732, "ephcatch does not exist with user ID and passed ephcatcher ID")
 
 	// 18** are bulletin errors
-	ErrorBulletinInvalidDates   = NewAPIError(1830, "start date cannot be after end date")
-	ErrorBulletinInvalidType    = NewAPIError(1831, "invalid bulletin type")
-	ErrorBulletinRideDateInPast = NewAPIError(1841, "date cannot be in past")
-	ErrorDiscussionNotFound     = NewAPIErrorWithHTTP(1850, http.StatusNotFound, "discussion cannot be found")
+	ErrorBulletinInvalidDates       = NewAPIError(1830, "start date cannot be after end date")
+	ErrorBulletinInvalidType        = NewAPIError(1831, "invalid bulletin type")
+	ErrorBulletinRideDateInPast     = NewAPIError(1841, "date cannot be in past")
+	ErrorDiscussionNotFound         = NewAPIErrorWithHTTP(1850, http.StatusNotFound, "discussion cannot be found")
+	ErrorRideListingInvalidLocation = NewAPIError(1860, "passed location is invalid")
 
 	// 19** are ephmatch errors
 	ErrorEphmatchLikeNoSelf               = NewAPIError(1930, "cannot ephmatch-like yourself")

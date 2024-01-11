@@ -47,8 +47,8 @@ func TestController_ListRides(t *testing.T) {
 		},
 	}
 	for i, val := range rides {
-		val.Source = fmt.Sprintf("Source %d", i)
-		val.Destination = fmt.Sprintf("Destination %d", i)
+		val.Source = models.Location(fmt.Sprintf("Source %d", i))
+		val.Destination = models.Location(fmt.Sprintf("Destination %d", i))
 		val.Body = generateBulletinTestBody()
 		if val.Offer == nil {
 			val.Offer = lib.BoolToPtr(false)

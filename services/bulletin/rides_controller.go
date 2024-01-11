@@ -105,11 +105,13 @@ func (t *Controller) GetRide(c *gin.Context) {
 
 // CreateRideParams is a struct to hold the parameters used to create a ride.
 type CreateRideParams struct {
-	Body        string    `json:"body" binding:"required"`
-	Date        time.Time `json:"date" binding:"required"`
-	Offer       *bool     `json:"offer"`
-	Source      string    `json:"source" binding:"required"`
-	Destination string    `json:"destination" binding:"required"`
+	Body           string          `json:"body" binding:"required"`
+	Date           time.Time       `json:"date" binding:"required"`
+	Offer          *bool           `json:"offer"`
+	Source         models.Location `json:"source" enums:",WILLIAMS,ALBANY,NYC,BOSTON,PITTSFIELD"`
+	Destination    models.Location `json:"destination" enums:",WILLIAMS,ALBANY,NYC,BOSTON,PITTSFIELD"`
+	AvailableSeats int             `json:"availableSeats"`
+	Price          float64         `json:"price"`
 }
 
 // CreateRide godoc
@@ -123,6 +125,7 @@ type CreateRideParams struct {
 // @Success 201 {object} models.BulletinRide
 // @Failure 1830 {object} services.BaseErrorResponse "date cannot be in past"
 // @Failure 1101 {object} services.BaseErrorResponse "request data validation failed"
+// @Failure 1860 {object} services.BaseErrorResponse "passed location is invalid"
 // @Failure 400 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -149,14 +152,26 @@ func (t *Controller) CreateRide(c *gin.Context) {
 		return
 	}
 
+	if createData.Source == models.LocationUndefined {
+		t.RespondAPIError(c, lib.ErrorRideListingInvalidLocation)
+		return
+	}
+
+	if createData.Destination == models.LocationUndefined {
+		t.RespondAPIError(c, lib.ErrorRideListingInvalidLocation)
+		return
+	}
+
 	// Construct new ride
 	ride := models.BulletinRide{
-		Body:        createData.Body,
-		Date:        createData.Date,
-		Offer:       createData.Offer,
-		Source:      createData.Source,
-		Destination: createData.Destination,
-		UserID:      userID,
+		Body:           createData.Body,
+		Date:           createData.Date,
+		Offer:          createData.Offer,
+		Source:         createData.Source,
+		Destination:    createData.Destination,
+		AvailableSeats: createData.AvailableSeats,
+		Price:          createData.Price,
+		UserID:         userID,
 	}
 
 	err = t.rideModel.CreateRide(&ride)
