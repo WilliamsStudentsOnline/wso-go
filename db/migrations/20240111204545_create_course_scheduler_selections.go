@@ -22,14 +22,17 @@ var CreateCourseSchedulerSelections20240111204545 = &gormigrate.Migration{
 		type Model struct {
 			models.BaseSchema
 
-			Student   *models.User   `json:"student"`
-			Course    *models.Course `json:"course"`
-			StudentID *uint          `json:"studentID"`
-			CourseID  *uint          `json:"courseID"`
-			Hidden    bool           `json:"hidden"`
+			// Student information
+			Student   *models.User `gorm:"not null" json:"student"`
+			StudentID *uint        `gorm:"not null" json:"studentID"` // User object UUID as stored in users table
 
-			Semester models.SemesterType `json:"semesterType"`
-			Year     *uint               `json:"year"`
+			// Course information
+			Course   *models.Course `gorm:"not null" json:"course"`
+			CourseID *uint          `gorm:"not null" json:"courseID"` // Course object UUID as stored in courses table
+			Hidden   bool           `gorm:"not null" json:"hidden"`
+
+			Semester models.SemesterType `gorm:"not null" json:"semester" enums:",SPRING,FALL,WINTER"`
+			Year     *uint               `gorm:"not null" json:"year"`
 		}
 		return tx.AutoMigrate(&Model{}).Error
 	},
