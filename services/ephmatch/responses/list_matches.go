@@ -2,8 +2,9 @@
 package responses
 
 import (
-	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"time"
+
+	"github.com/WilliamsStudentsOnline/wso-go/models"
 )
 
 func ConvertListMatchesResponse(m []*models.EphmatchMatch) []*ListMatchesResponseEphmatchMatch {
