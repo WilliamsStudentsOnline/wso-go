@@ -728,7 +728,6 @@ func (m *UserModel) UpdateFactrakSurveyDeficit(user *User) error {
 	return NewStudentModel(m.DB, m.log).UpdateFactrakSurveyDeficit(user)
 }
 
-// new function - brenda
 func (m *UserModel) UpdateDormtrakReviewDeficit(user *User) error {
 	if !user.IsStudent() {
 		return errors.New("user must be student")

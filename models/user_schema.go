@@ -232,7 +232,6 @@ func (u *User) AfterCreate(scope *gorm.Scope) (err error) {
 			return
 		}
 
-		//new - Brenda
 		err = userModel.UpdateDormtrakReviewDeficit(u)
 		if err != nil {
 			return
