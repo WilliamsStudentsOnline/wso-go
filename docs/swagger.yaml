@@ -5,6 +5,153 @@ definitions:
       jobID:
         type: string
     type: object
+  admin.k8sJobCondition:
+    properties:
+      lastProbeTime:
+        allOf:
+        - $ref: '#/definitions/admin.k8sTime'
+        description: |-
+          Last time the condition was checked.
+          +optional
+      lastTransitionTime:
+        allOf:
+        - $ref: '#/definitions/admin.k8sTime'
+        description: |-
+          Last time the condition transit from one status to another.
+          +optional
+      message:
+        description: |-
+          Human readable message indicating details about last transition.
+          +optional
+        type: string
+      reason:
+        description: |-
+          (brief) reason for the condition's last transition.
+          +optional
+        type: string
+      status:
+        description: Status of the condition, one of True, False, Unknown.
+        type: string
+      type:
+        description: Type of job condition, Complete or Failed.
+        type: string
+    type: object
+  admin.k8sJobStatus:
+    properties:
+      active:
+        description: |-
+          The number of pending and running pods.
+          +optional
+        type: integer
+      completedIndexes:
+        description: |-
+          CompletedIndexes holds the completed indexes when .spec.completionMode =
+          "Indexed" in a text format. The indexes are represented as decimal integers
+          separated by commas. The numbers are listed in increasing order. Three or
+          more consecutive numbers are compressed and represented by the first and
+          last element of the series, separated by a hyphen.
+          For example, if the completed indexes are 1, 3, 4, 5 and 7, they are
+          represented as "1,3-5,7".
+          +optional
+        type: string
+      completionTime:
+        allOf:
+        - $ref: '#/definitions/admin.k8sTime'
+        description: |-
+          Represents time when the job was completed. It is not guaranteed to
+          be set in happens-before order across separate operations.
+          It is represented in RFC3339 form and is in UTC.
+          The completion time is only set when the job finishes successfully.
+          +optional
+      conditions:
+        description: |-
+          The latest available observations of an object's current state. When a Job
+          fails, one of the conditions will have type "Failed" and status true. When
+          a Job is suspended, one of the conditions will have type "Suspended" and
+          status true; when the Job is resumed, the status of this condition will
+          become false. When a Job is completed, one of the conditions will have
+          type "Complete" and status true.
+          More info: https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/
+          +optional
+          +patchMergeKey=type
+          +patchStrategy=merge
+          +listType=atomic
+        items:
+          $ref: '#/definitions/admin.k8sJobCondition'
+        type: array
+      failed:
+        description: |-
+          The number of pods which reached phase Failed.
+          +optional
+        type: integer
+      ready:
+        description: |-
+          The number of pods which have a Ready condition.
+
+          This field is alpha-level. The job controller populates the field when
+          the feature gate JobReadyPods is enabled (disabled by default).
+          +optional
+        type: integer
+      startTime:
+        allOf:
+        - $ref: '#/definitions/admin.k8sTime'
+        description: |-
+          Represents time when the job controller started processing a job. When a
+          Job is created in the suspended state, this field is not set until the
+          first time it is resumed. This field is reset every time a Job is resumed
+          from suspension. It is represented in RFC3339 form and is in UTC.
+          +optional
+      succeeded:
+        description: |-
+          The number of pods which reached phase Succeeded.
+          +optional
+        type: integer
+      uncountedTerminatedPods:
+        allOf:
+        - $ref: '#/definitions/admin.k8sUncountedTerminatedPods'
+        description: |-
+          UncountedTerminatedPods holds the UIDs of Pods that have terminated but
+          the job controller hasn't yet accounted for in the status counters.
+
+          The job controller creates pods with a finalizer. When a pod terminates
+          (succeeded or failed), the controller does three steps to account for it
+          in the job status:
+          (1) Add the pod UID to the arrays in this field.
+          (2) Remove the pod finalizer.
+          (3) Remove the pod UID from the arrays while increasing the corresponding
+              counter.
+
+          This field is beta-level. The job controller only makes use of this field
+          when the feature gate JobTrackingWithFinalizers is enabled (enabled
+          by default).
+          Old jobs might not be tracked using this field, in which case the field
+          remains null.
+          +optional
+    type: object
+  admin.k8sTime:
+    properties:
+      time.Time:
+        type: string
+    type: object
+  admin.k8sUncountedTerminatedPods:
+    properties:
+      failed:
+        description: |-
+          Failed holds UIDs of failed Pods.
+          +listType=set
+          +optional
+        items:
+          type: string
+        type: array
+      succeeded:
+        description: |-
+          Succeeded holds UIDs of succeeded Pods.
+          +listType=set
+          +optional
+        items:
+          type: string
+        type: array
+    type: object
   auth.AuthResponse:
     properties:
       expire:
@@ -139,18 +286,26 @@ definitions:
       keyOrCard:
         type: string
       location:
+        maximum: 7
+        minimum: 0
         type: integer
       loudness:
+        maximum: 7
+        minimum: 0
         type: integer
       noise:
         type: string
       privateBathroom:
         type: boolean
       satisfaction:
+        maximum: 7
+        minimum: 0
         type: integer
       thermostatAccess:
         type: boolean
       wifi:
+        maximum: 7
+        minimum: 0
         type: integer
     required:
     - dormRoomID
@@ -174,18 +329,26 @@ definitions:
       keyOrCard:
         type: string
       location:
+        maximum: 7
+        minimum: 0
         type: integer
       loudness:
+        maximum: 7
+        minimum: 0
         type: integer
       noise:
         type: string
       privateBathroom:
         type: boolean
       satisfaction:
+        maximum: 7
+        minimum: 0
         type: integer
       thermostatAccess:
         type: boolean
       wifi:
+        maximum: 7
+        minimum: 0
         type: integer
     type: object
   ephmatch.CountMatchesResponse:
@@ -278,6 +441,8 @@ definitions:
   factrak.SurveyCreateParams:
     properties:
       approachability:
+        maximum: 7
+        minimum: 0
         type: integer
       areaOfStudyAbbreviation:
         description: 'Or this:'
@@ -295,21 +460,33 @@ definitions:
         description: Like "256"
         type: string
       courseStimulating:
+        maximum: 7
+        minimum: 0
         type: integer
       courseWorkload:
+        maximum: 7
+        minimum: 0
         type: integer
       gradeReceived:
         type: string
       leadLecture:
+        maximum: 7
+        minimum: 0
         type: integer
       mentalHealthSupport:
+        maximum: 7
+        minimum: 0
         type: integer
       outsideHelpfulness:
+        maximum: 7
+        minimum: 0
         type: integer
       professorID:
         description: 'Must include this:'
         type: integer
       promoteDiscussion:
+        maximum: 7
+        minimum: 0
         type: integer
       semesterSeason:
         description: Fall, Winter Study, Spring
@@ -327,6 +504,8 @@ definitions:
   factrak.SurveyUpdateParams:
     properties:
       approachability:
+        maximum: 7
+        minimum: 0
         type: integer
       comment:
         description: 'Params:'
@@ -335,18 +514,30 @@ definitions:
         description: Remote, Hybrid, In-Person
         type: string
       courseStimulating:
+        maximum: 7
+        minimum: 0
         type: integer
       courseWorkload:
+        maximum: 7
+        minimum: 0
         type: integer
       gradeReceived:
         type: string
       leadLecture:
+        maximum: 7
+        minimum: 0
         type: integer
       mentalHealthSupport:
+        maximum: 7
+        minimum: 0
         type: integer
       outsideHelpfulness:
+        maximum: 7
+        minimum: 0
         type: integer
       promoteDiscussion:
+        maximum: 7
+        minimum: 0
         type: integer
       semesterSeason:
         description: Fall, Winter Study, Spring
@@ -357,33 +548,6 @@ definitions:
         type: boolean
       wouldTakeAnother:
         type: boolean
-    type: object
-  feeds.Feed:
-    properties:
-      author:
-        type: Author
-      copyright:
-        type: string
-      created:
-        type: string
-      description:
-        type: string
-      id:
-        type: string
-      image:
-        type: Image
-      items:
-        items:
-          type: Item
-        type: array
-      link:
-        type: Link
-      subtitle:
-        type: string
-      title:
-        type: string
-      updated:
-        type: string
     type: object
   goodrich.CreateOrderParams:
     properties:
@@ -402,7 +566,7 @@ definitions:
       notes:
         type: string
       paymentMethod:
-        type: integer
+        $ref: '#/definitions/models.GoodrichPaymentMethod'
       phoneNumber:
         type: string
       timeSlot:
@@ -443,7 +607,7 @@ definitions:
       adminNotes:
         type: string
       status:
-        type: integer
+        $ref: '#/definitions/models.GoodrichOrderStatus'
     type: object
   identity.Credentials:
     properties:
@@ -471,7 +635,6 @@ definitions:
         type: array
       department:
         $ref: '#/definitions/models.Department'
-        type: object
       departmentID:
         description: Belongs to department
         type: integer
@@ -507,9 +670,9 @@ definitions:
         description: Reason why user was banned
         type: string
       user:
-        $ref: '#/definitions/models.User'
+        allOf:
+        - $ref: '#/definitions/models.User'
         description: Belongs to user
-        type: object
       userID:
         type: integer
     type: object
@@ -531,7 +694,6 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Author information
         type: integer
@@ -552,7 +714,6 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user
         type: integer
@@ -561,7 +722,6 @@ definitions:
     properties:
       areaOfStudy:
         $ref: '#/definitions/models.AreaOfStudy'
-        type: object
       areaOfStudyID:
         description: Belongs to area of study
         type: integer
@@ -622,7 +782,6 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user
         type: integer
@@ -663,7 +822,6 @@ definitions:
         type: string
       neighborhood:
         $ref: '#/definitions/models.Neighborhood'
-        type: object
       neighborhoodID:
         description: Belongs to neighborhood
         type: integer
@@ -698,10 +856,8 @@ definitions:
         type: number
       biggestDouble:
         $ref: '#/definitions/models.DormRoom'
-        type: object
       biggestSingle:
         $ref: '#/definitions/models.DormRoom'
-        type: object
       capacity:
         type: integer
       commonRoomAccessRatio:
@@ -724,10 +880,8 @@ definitions:
         type: integer
       smallestDouble:
         $ref: '#/definitions/models.DormRoom'
-        type: object
       smallestSingle:
         $ref: '#/definitions/models.DormRoom'
-        type: object
       sophomoreCount:
         type: integer
       studentToBathroomRatio:
@@ -751,7 +905,6 @@ definitions:
         type: string
       dorm:
         $ref: '#/definitions/models.Dorm'
-        type: object
       dormID:
         description: Belongs to dorm
         type: integer
@@ -894,7 +1047,6 @@ definitions:
         type: string
       dormRoom:
         $ref: '#/definitions/models.DormRoom'
-        type: object
       dormRoomID:
         description: Belongs to dorm room
         type: integer
@@ -918,7 +1070,6 @@ definitions:
         type: boolean
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user (student)
         type: integer
@@ -933,17 +1084,17 @@ definitions:
       id:
         type: integer
       other:
-        $ref: '#/definitions/models.User'
+        allOf:
+        - $ref: '#/definitions/models.User'
         description: Belongs to other
-        type: object
       otherID:
         type: integer
       seen:
         type: boolean
       user:
-        $ref: '#/definitions/models.User'
+        allOf:
+        - $ref: '#/definitions/models.User'
         description: Belongs to user
-        type: object
       userID:
         type: integer
     type: object
@@ -997,7 +1148,6 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user
         type: integer
@@ -1008,7 +1158,6 @@ definitions:
         type: boolean
       factrakSurvey:
         $ref: '#/definitions/models.FactrakSurvey'
-        type: object
       factrakSurveyID:
         description: Belongs to survey
         type: integer
@@ -1016,7 +1165,6 @@ definitions:
         type: integer
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user
         type: integer
@@ -1040,7 +1188,6 @@ definitions:
         type: string
       course:
         $ref: '#/definitions/models.Course'
-        type: object
       courseFormat:
         description: Remote, Hybrid, In-Person
         type: string
@@ -1068,7 +1215,6 @@ definitions:
         type: integer
       professor:
         $ref: '#/definitions/models.User'
-        type: object
       professorID:
         description: Belongs to professor
         type: integer
@@ -1086,7 +1232,6 @@ definitions:
         type: integer
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user (student)
         type: integer
@@ -1182,11 +1327,11 @@ definitions:
       notes:
         type: string
       paymentMethod:
-        type: integer
+        $ref: '#/definitions/models.GoodrichPaymentMethod'
       phoneNumber:
         type: string
       status:
-        type: integer
+        $ref: '#/definitions/models.GoodrichOrderStatus'
       timeSlot:
         description: 'Format: 15:04'
         type: string
@@ -1194,7 +1339,6 @@ definitions:
         type: number
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user
         type: integer
@@ -1205,10 +1349,43 @@ definitions:
         type: integer
       item:
         $ref: '#/definitions/models.GoodrichMenuItem'
-        type: object
       note:
         type: string
     type: object
+  models.GoodrichOrderStatus:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    type: integer
+    x-enum-comments:
+      GoodrichOrderStatusUnknown: Default is unknown
+    x-enum-varnames:
+    - GoodrichOrderStatusUnknown
+    - GoodrichOrderStatusPlaced
+    - GoodrichOrderStatusReady
+    - GoodrichOrderStatusPaid
+  models.GoodrichPaymentMethod:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    type: integer
+    x-enum-comments:
+      GoodrichPaymentMethodUnknown: Default is unknown
+    x-enum-varnames:
+    - GoodrichPaymentMethodUnknown
+    - GoodrichPaymentMethodSwipe
+    - GoodrichPaymentMethodPoints
+    - GoodrichPaymentMethodCreditCard
+    - GoodrichPaymentMethodCash
+    - GoodrichPaymentMethodSwipePlusCash
+    - GoodrichPaymentMethodSwipePlusCreditCard
   models.Neighborhood:
     properties:
       dorms:
@@ -1243,7 +1420,6 @@ definitions:
         type: boolean
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user
         type: integer
@@ -1258,7 +1434,6 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user
         type: integer
@@ -1283,7 +1458,6 @@ definitions:
         type: string
       discussion:
         $ref: '#/definitions/models.Discussion'
-        type: object
       discussionID:
         description: Belongs to discussion
         type: integer
@@ -1297,7 +1471,6 @@ definitions:
         type: integer
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user
         type: integer
@@ -1326,9 +1499,9 @@ definitions:
       atWilliams:
         type: boolean
       bannedUser:
-        $ref: '#/definitions/models.BannedUser'
+        allOf:
+        - $ref: '#/definitions/models.BannedUser'
         description: Has one (or zero) banned users
-        type: object
       campusPhoneEXT:
         type: string
       campusStatus:
@@ -1340,13 +1513,11 @@ definitions:
         type: integer
       department:
         $ref: '#/definitions/models.Department'
-        type: object
       departmentID:
         description: Belongs to Department iff professor (fetched from Williams LDAP)
         type: integer
       dormRoom:
         $ref: '#/definitions/models.DormRoom'
-        type: object
       dormRoomID:
         description: Belongs to Dorm Room iff student
         type: integer
@@ -1367,9 +1538,9 @@ definitions:
           $ref: '#/definitions/models.Ephcatch'
         type: array
       ephmatchProfile:
-        $ref: '#/definitions/models.EphmatchProfile'
+        allOf:
+        - $ref: '#/definitions/models.EphmatchProfile'
         description: Has one ephmatch profile
-        type: object
       factrakAdmin:
         type: boolean
       factrakAgreements:
@@ -1377,6 +1548,9 @@ definitions:
         items:
           $ref: '#/definitions/models.FactrakAgreement'
         type: array
+      factrakScore:
+        description: Only for professor retrieval with rankings
+        type: number
       factrakSurveyDeficit:
         type: integer
       factrakSurveys:
@@ -1411,9 +1585,9 @@ definitions:
       nickname:
         type: string
       notificationSettings:
-        $ref: '#/definitions/models.NotificationSettings'
+        allOf:
+        - $ref: '#/definitions/models.NotificationSettings'
         description: Has one notification settings
-        type: object
       notificationTokens:
         description: Has many notification tokens
         items:
@@ -1426,7 +1600,6 @@ definitions:
         type: boolean
       office:
         $ref: '#/definitions/models.Office'
-        type: object
       officeID:
         description: Belongs to Office iff staff/professor
         type: integer
@@ -1514,7 +1687,6 @@ definitions:
     properties:
       dorm:
         $ref: '#/definitions/responses.GetUserResponseDorm'
-        type: object
       dormID:
         type: integer
       id:
@@ -1554,12 +1726,10 @@ definitions:
         type: integer
       department:
         $ref: '#/definitions/responses.GetUserResponseDepartment'
-        type: object
       departmentID:
         type: integer
       dormRoom:
         $ref: '#/definitions/responses.GetUserResponseDormRoom'
-        type: object
       dormRoomID:
         type: integer
       dormVisible:
@@ -1600,7 +1770,6 @@ definitions:
         type: boolean
       office:
         $ref: '#/definitions/responses.GetUserResponseOffice'
-        type: object
       officeID:
         type: integer
       optOutEphcatch:
@@ -1634,7 +1803,6 @@ definitions:
         type: integer
       matchedUser:
         $ref: '#/definitions/responses.ListMatchesResponseMatchedUser'
-        type: object
       matchedUserID:
         type: integer
       seenByMatchedUser:
@@ -1673,7 +1841,6 @@ definitions:
         type: string
       ephmatchProfile:
         $ref: '#/definitions/responses.ListMatchesResponseEphmatchProfile'
-        type: object
       id:
         type: integer
       major:
@@ -1724,7 +1891,6 @@ definitions:
     properties:
       dorm:
         $ref: '#/definitions/responses.ListUsersResponseDorm'
-        type: object
       dormID:
         type: integer
       id:
@@ -1764,12 +1930,10 @@ definitions:
         type: integer
       department:
         $ref: '#/definitions/responses.ListUsersResponseDepartment'
-        type: object
       departmentID:
         type: integer
       dormRoom:
         $ref: '#/definitions/responses.ListUsersResponseDormRoom'
-        type: object
       dormRoomID:
         type: integer
       dormVisible:
@@ -1810,7 +1974,6 @@ definitions:
         type: boolean
       office:
         $ref: '#/definitions/responses.ListUsersResponseOffice'
-        type: object
       officeID:
         type: integer
       optOutEphcatch:
@@ -1845,7 +2008,6 @@ definitions:
     properties:
       error:
         $ref: '#/definitions/services.RespError'
-        type: object
       status:
         type: integer
       updateToken:
@@ -1890,29 +2052,6 @@ definitions:
           type: string
         type: array
     type: object
-  v1.JobStatus:
-    properties:
-      active:
-        type: integer
-      completedIndexes:
-        type: string
-      completionTime:
-        type: string
-      conditions:
-        items:
-          type: JobCondition
-        type: array
-      failed:
-        type: integer
-      ready:
-        type: integer
-      startTime:
-        type: string
-      succeeded:
-        type: integer
-      uncountedTerminatedPods:
-        type: UncountedTerminatedPods
-    type: object
 host: wso.williams.edu
 info:
   contact:
@@ -1920,7 +2059,6 @@ info:
     name: WSO Dev
   description: API for WSO services like factrak, facebook, dormtrak, course scheduler,
     and others.
-  license: {}
   title: WSO API
   version: 2.0.0
 paths:
@@ -1985,9 +2123,9 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Return Job Status from Kubernetes
           schema:
-            $ref: '#/definitions/v1.JobStatus'
+            $ref: '#/definitions/admin.k8sJobStatus'
         "500":
           description: Internal Server Error
           schema:
@@ -2435,7 +2573,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -2690,7 +2829,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -2770,7 +2910,8 @@ paths:
         name: discussionID
         required: true
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -2824,7 +2965,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -3032,7 +3174,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -3253,9 +3396,9 @@ paths:
       - text/xml
       responses:
         "200":
-          description: OK
+          description: A RSS Feed serialized as XML string
           schema:
-            $ref: '#/definitions/feeds.Feed'
+            type: string
         "500":
           description: Internal Server Error
           schema:
@@ -3286,9 +3429,9 @@ paths:
       - text/xml
       responses:
         "200":
-          description: OK
+          description: A RSS Feed serialized as XML string
           schema:
-            $ref: '#/definitions/feeds.Feed'
+            type: string
         "500":
           description: Internal Server Error
           schema:
@@ -3323,9 +3466,9 @@ paths:
       - text/xml
       responses:
         "200":
-          description: OK
+          description: A RSS Feed serialized as XML string
           schema:
-            $ref: '#/definitions/feeds.Feed'
+            type: string
         "500":
           description: Internal Server Error
           schema:
@@ -3360,9 +3503,9 @@ paths:
       - text/xml
       responses:
         "200":
-          description: OK
+          description: A RSS Feed serialized as XML string
           schema:
-            $ref: '#/definitions/feeds.Feed'
+            type: string
         "500":
           description: Internal Server Error
           schema:
@@ -3397,9 +3540,9 @@ paths:
       - text/xml
       responses:
         "200":
-          description: OK
+          description: A RSS Feed serialized as XML string
           schema:
-            $ref: '#/definitions/feeds.Feed'
+            type: string
         "500":
           description: Internal Server Error
           schema:
@@ -3438,9 +3581,9 @@ paths:
       - text/xml
       responses:
         "200":
-          description: OK
+          description: A RSS Feed serialized as XML string
           schema:
-            $ref: '#/definitions/feeds.Feed'
+            type: string
         "500":
           description: Internal Server Error
           schema:
@@ -3495,7 +3638,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -3789,7 +3933,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -4022,7 +4167,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: OK
         "400":
           description: Bad Request
           schema:
@@ -4139,7 +4285,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -4218,7 +4365,8 @@ paths:
       produces:
       - application/json
       responses:
-        "201": {}
+        "201":
+          description: Created
         "400":
           description: Bad Request
           schema:
@@ -4264,7 +4412,8 @@ paths:
       produces:
       - application/json
       responses:
-        "201": {}
+        "201":
+          description: Created
         "400":
           description: Bad Request
           schema:
@@ -4333,7 +4482,8 @@ paths:
       description: lists all Ephmatch-eligible students that user has matched with
       operationId: ephmatch-list-matches
       parameters:
-      - description: Preload List [tags]
+      - collectionFormat: csv
+        description: Preload List [tags]
         in: query
         items:
           type: string
@@ -4396,7 +4546,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: OK
         "400":
           description: Bad Request
           schema:
@@ -4568,7 +4719,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: OK
         "400":
           description: Bad Request
           schema:
@@ -4600,7 +4752,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: OK
         "400":
           description: Bad Request
           schema:
@@ -4641,7 +4794,8 @@ paths:
         in: query
         name: noRelations
         type: boolean
-      - description: Preload List [tags, relation, matched]
+      - collectionFormat: csv
+        description: Preload List [tags, relation, matched]
         in: query
         items:
           type: string
@@ -4784,7 +4938,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload (course, professor)
+      - collectionFormat: csv
+        description: Preload (course, professor)
         in: query
         items:
           type: string
@@ -4833,7 +4988,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: OK
         "404":
           description: Not Found
           schema:
@@ -4864,7 +5020,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List (department, courses)
+      - collectionFormat: csv
+        description: Preload List (department, courses)
         in: query
         items:
           type: string
@@ -5023,7 +5180,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -5217,7 +5375,8 @@ paths:
         in: query
         name: professorID
         type: integer
-      - description: Preload (course, professor)
+      - collectionFormat: csv
+        description: Preload (course, professor)
         in: query
         items:
           type: string
@@ -5410,7 +5569,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -5438,7 +5598,7 @@ paths:
         type: string
       - description: Sorting Direction
         in: query
-        name: direction
+        name: ascending
         type: boolean
       produces:
       - application/json
@@ -5609,7 +5769,8 @@ paths:
         in: query
         name: courseID
         type: integer
-      - description: Preload (course, professor)
+      - collectionFormat: csv
+        description: Preload (course, professor)
         in: query
         items:
           type: string
@@ -5677,7 +5838,8 @@ paths:
         in: query
         name: userID
         type: integer
-      - description: Preload (course, professor)
+      - collectionFormat: csv
+        description: Preload (course, professor)
         in: query
         items:
           type: string
@@ -6109,7 +6271,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: OK
         "400":
           description: Bad Request
           schema:
@@ -6156,7 +6319,8 @@ paths:
         in: query
         name: courseID
         type: integer
-      - description: Preload (course, professor)
+      - collectionFormat: csv
+        description: Preload (course, professor)
         in: query
         items:
           type: string
@@ -6316,7 +6480,8 @@ paths:
         in: query
         name: userID
         type: integer
-      - description: Allowed Status list
+      - collectionFormat: csv
+        description: Allowed Status list
         in: query
         items:
           type: string
@@ -6733,7 +6898,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -6877,7 +7043,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: OK
         "400":
           description: Bad Request
           schema:
@@ -6925,7 +7092,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: OK
         "400":
           description: Bad Request
           schema:

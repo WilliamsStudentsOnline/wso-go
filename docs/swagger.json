@@ -7,7 +7,6 @@
             "name": "WSO Dev",
             "email": "wso-dev@wso.williams.edu"
         },
-        "license": {},
         "version": "2.0.0"
     },
     "host": "wso.williams.edu",
@@ -113,9 +112,9 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Return Job Status from Kubernetes",
                         "schema": {
-                            "$ref": "#/definitions/v1.JobStatus"
+                            "$ref": "#/definitions/admin.k8sJobStatus"
                         }
                     },
                     "500": {
@@ -806,6 +805,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload List",
                         "name": "preload",
                         "in": "query"
@@ -1200,6 +1200,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload List",
                         "name": "preload",
                         "in": "query"
@@ -1324,6 +1325,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload List",
                         "name": "preload",
                         "in": "query"
@@ -1407,6 +1409,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload List",
                         "name": "preload",
                         "in": "query"
@@ -1729,6 +1732,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload List",
                         "name": "preload",
                         "in": "query"
@@ -2062,9 +2066,9 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "A RSS Feed serialized as XML string",
                         "schema": {
-                            "$ref": "#/definitions/feeds.Feed"
+                            "type": "string"
                         }
                     },
                     "500": {
@@ -2114,9 +2118,9 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "A RSS Feed serialized as XML string",
                         "schema": {
-                            "$ref": "#/definitions/feeds.Feed"
+                            "type": "string"
                         }
                     },
                     "500": {
@@ -2172,9 +2176,9 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "A RSS Feed serialized as XML string",
                         "schema": {
-                            "$ref": "#/definitions/feeds.Feed"
+                            "type": "string"
                         }
                     },
                     "500": {
@@ -2230,9 +2234,9 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "A RSS Feed serialized as XML string",
                         "schema": {
-                            "$ref": "#/definitions/feeds.Feed"
+                            "type": "string"
                         }
                     },
                     "500": {
@@ -2288,9 +2292,9 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "A RSS Feed serialized as XML string",
                         "schema": {
-                            "$ref": "#/definitions/feeds.Feed"
+                            "type": "string"
                         }
                     },
                     "500": {
@@ -2352,9 +2356,9 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "A RSS Feed serialized as XML string",
                         "schema": {
-                            "$ref": "#/definitions/feeds.Feed"
+                            "type": "string"
                         }
                     },
                     "500": {
@@ -2450,6 +2454,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload List",
                         "name": "preload",
                         "in": "query"
@@ -2906,6 +2911,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload List",
                         "name": "preload",
                         "in": "query"
@@ -3267,7 +3273,9 @@
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "200": {},
+                    "200": {
+                        "description": "OK"
+                    },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -3444,6 +3452,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload List",
                         "name": "preload",
                         "in": "query"
@@ -3577,7 +3586,9 @@
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "201": {},
+                    "201": {
+                        "description": "Created"
+                    },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -3628,7 +3639,9 @@
                     }
                 ],
                 "responses": {
-                    "201": {},
+                    "201": {
+                        "description": "Created"
+                    },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -3745,6 +3758,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload List [tags]",
                         "name": "preload",
                         "in": "query"
@@ -3845,7 +3859,9 @@
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "200": {},
+                    "200": {
+                        "description": "OK"
+                    },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -4112,7 +4128,9 @@
                     }
                 ],
                 "responses": {
-                    "200": {},
+                    "200": {
+                        "description": "OK"
+                    },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -4149,7 +4167,9 @@
                 "summary": "Delete an ephmatch profile photo by user id",
                 "operationId": "delete-ephmatch-profile-photo",
                 "responses": {
-                    "200": {},
+                    "200": {
+                        "description": "OK"
+                    },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -4220,6 +4240,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload List [tags, relation, matched]",
                         "name": "preload",
                         "in": "query"
@@ -4440,6 +4461,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload (course, professor)",
                         "name": "preload",
                         "in": "query"
@@ -4507,7 +4529,9 @@
                     }
                 ],
                 "responses": {
-                    "200": {},
+                    "200": {
+                        "description": "OK"
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -4560,6 +4584,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload List (department, courses)",
                         "name": "preload",
                         "in": "query"
@@ -4803,6 +4828,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload List",
                         "name": "preload",
                         "in": "query"
@@ -5098,6 +5124,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload (course, professor)",
                         "name": "preload",
                         "in": "query"
@@ -5397,6 +5424,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload List",
                         "name": "preload",
                         "in": "query"
@@ -5434,7 +5462,7 @@
                     {
                         "type": "boolean",
                         "description": "Sorting Direction",
-                        "name": "direction",
+                        "name": "ascending",
                         "in": "query"
                     }
                 ],
@@ -5698,6 +5726,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload (course, professor)",
                         "name": "preload",
                         "in": "query"
@@ -5801,6 +5830,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload (course, professor)",
                         "name": "preload",
                         "in": "query"
@@ -6453,7 +6483,9 @@
                     }
                 ],
                 "responses": {
-                    "200": {},
+                    "200": {
+                        "description": "OK"
+                    },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -6532,6 +6564,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload (course, professor)",
                         "name": "preload",
                         "in": "query"
@@ -6781,6 +6814,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Allowed Status list",
                         "name": "statuses",
                         "in": "query"
@@ -7432,6 +7466,7 @@
                         "items": {
                             "type": "string"
                         },
+                        "collectionFormat": "csv",
                         "description": "Preload List",
                         "name": "preload",
                         "in": "query"
@@ -7653,7 +7688,9 @@
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "200": {},
+                    "200": {
+                        "description": "OK"
+                    },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -7737,7 +7774,9 @@
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "200": {},
+                    "200": {
+                        "description": "OK"
+                    },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
@@ -7801,6 +7840,126 @@
             "properties": {
                 "jobID": {
                     "type": "string"
+                }
+            }
+        },
+        "admin.k8sJobCondition": {
+            "type": "object",
+            "properties": {
+                "lastProbeTime": {
+                    "description": "Last time the condition was checked.\n+optional",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/admin.k8sTime"
+                        }
+                    ]
+                },
+                "lastTransitionTime": {
+                    "description": "Last time the condition transit from one status to another.\n+optional",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/admin.k8sTime"
+                        }
+                    ]
+                },
+                "message": {
+                    "description": "Human readable message indicating details about last transition.\n+optional",
+                    "type": "string"
+                },
+                "reason": {
+                    "description": "(brief) reason for the condition's last transition.\n+optional",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "Status of the condition, one of True, False, Unknown.",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "Type of job condition, Complete or Failed.",
+                    "type": "string"
+                }
+            }
+        },
+        "admin.k8sJobStatus": {
+            "type": "object",
+            "properties": {
+                "active": {
+                    "description": "The number of pending and running pods.\n+optional",
+                    "type": "integer"
+                },
+                "completedIndexes": {
+                    "description": "CompletedIndexes holds the completed indexes when .spec.completionMode =\n\"Indexed\" in a text format. The indexes are represented as decimal integers\nseparated by commas. The numbers are listed in increasing order. Three or\nmore consecutive numbers are compressed and represented by the first and\nlast element of the series, separated by a hyphen.\nFor example, if the completed indexes are 1, 3, 4, 5 and 7, they are\nrepresented as \"1,3-5,7\".\n+optional",
+                    "type": "string"
+                },
+                "completionTime": {
+                    "description": "Represents time when the job was completed. It is not guaranteed to\nbe set in happens-before order across separate operations.\nIt is represented in RFC3339 form and is in UTC.\nThe completion time is only set when the job finishes successfully.\n+optional",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/admin.k8sTime"
+                        }
+                    ]
+                },
+                "conditions": {
+                    "description": "The latest available observations of an object's current state. When a Job\nfails, one of the conditions will have type \"Failed\" and status true. When\na Job is suspended, one of the conditions will have type \"Suspended\" and\nstatus true; when the Job is resumed, the status of this condition will\nbecome false. When a Job is completed, one of the conditions will have\ntype \"Complete\" and status true.\nMore info: https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/\n+optional\n+patchMergeKey=type\n+patchStrategy=merge\n+listType=atomic",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/admin.k8sJobCondition"
+                    }
+                },
+                "failed": {
+                    "description": "The number of pods which reached phase Failed.\n+optional",
+                    "type": "integer"
+                },
+                "ready": {
+                    "description": "The number of pods which have a Ready condition.\n\nThis field is alpha-level. The job controller populates the field when\nthe feature gate JobReadyPods is enabled (disabled by default).\n+optional",
+                    "type": "integer"
+                },
+                "startTime": {
+                    "description": "Represents time when the job controller started processing a job. When a\nJob is created in the suspended state, this field is not set until the\nfirst time it is resumed. This field is reset every time a Job is resumed\nfrom suspension. It is represented in RFC3339 form and is in UTC.\n+optional",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/admin.k8sTime"
+                        }
+                    ]
+                },
+                "succeeded": {
+                    "description": "The number of pods which reached phase Succeeded.\n+optional",
+                    "type": "integer"
+                },
+                "uncountedTerminatedPods": {
+                    "description": "UncountedTerminatedPods holds the UIDs of Pods that have terminated but\nthe job controller hasn't yet accounted for in the status counters.\n\nThe job controller creates pods with a finalizer. When a pod terminates\n(succeeded or failed), the controller does three steps to account for it\nin the job status:\n(1) Add the pod UID to the arrays in this field.\n(2) Remove the pod finalizer.\n(3) Remove the pod UID from the arrays while increasing the corresponding\n    counter.\n\nThis field is beta-level. The job controller only makes use of this field\nwhen the feature gate JobTrackingWithFinalizers is enabled (enabled\nby default).\nOld jobs might not be tracked using this field, in which case the field\nremains null.\n+optional",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/admin.k8sUncountedTerminatedPods"
+                        }
+                    ]
+                }
+            }
+        },
+        "admin.k8sTime": {
+            "type": "object",
+            "properties": {
+                "time.Time": {
+                    "type": "string"
+                }
+            }
+        },
+        "admin.k8sUncountedTerminatedPods": {
+            "type": "object",
+            "properties": {
+                "failed": {
+                    "description": "Failed holds UIDs of failed Pods.\n+listType=set\n+optional",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "succeeded": {
+                    "description": "Succeeded holds UIDs of succeeded Pods.\n+listType=set\n+optional",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
@@ -8008,10 +8167,14 @@
                     "type": "string"
                 },
                 "location": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
                 },
                 "loudness": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
                 },
                 "noise": {
                     "type": "string"
@@ -8020,13 +8183,17 @@
                     "type": "boolean"
                 },
                 "satisfaction": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
                 },
                 "thermostatAccess": {
                     "type": "boolean"
                 },
                 "wifi": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
                 }
             }
         },
@@ -8058,10 +8225,14 @@
                     "type": "string"
                 },
                 "location": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
                 },
                 "loudness": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
                 },
                 "noise": {
                     "type": "string"
@@ -8070,13 +8241,17 @@
                     "type": "boolean"
                 },
                 "satisfaction": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
                 },
                 "thermostatAccess": {
                     "type": "boolean"
                 },
                 "wifi": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
                 }
             }
         },
@@ -8220,7 +8395,9 @@
             ],
             "properties": {
                 "approachability": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
                 },
                 "areaOfStudyAbbreviation": {
                     "description": "Or this:",
@@ -8243,29 +8420,41 @@
                     "type": "string"
                 },
                 "courseStimulating": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
                 },
                 "courseWorkload": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
                 },
                 "gradeReceived": {
                     "type": "string"
                 },
                 "leadLecture": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
                 },
                 "mentalHealthSupport": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
                 },
                 "outsideHelpfulness": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
                 },
                 "professorID": {
                     "description": "Must include this:",
                     "type": "integer"
                 },
                 "promoteDiscussion": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
                 },
                 "semesterSeason": {
                     "description": "Fall, Winter Study, Spring",
@@ -8286,7 +8475,9 @@
             "type": "object",
             "properties": {
                 "approachability": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
                 },
                 "comment": {
                     "description": "Params:",
@@ -8297,25 +8488,37 @@
                     "type": "string"
                 },
                 "courseStimulating": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
                 },
                 "courseWorkload": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
                 },
                 "gradeReceived": {
                     "type": "string"
                 },
                 "leadLecture": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
                 },
                 "mentalHealthSupport": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
                 },
                 "outsideHelpfulness": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
                 },
                 "promoteDiscussion": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 7,
+                    "minimum": 0
                 },
                 "semesterSeason": {
                     "description": "Fall, Winter Study, Spring",
@@ -8329,47 +8532,6 @@
                 },
                 "wouldTakeAnother": {
                     "type": "boolean"
-                }
-            }
-        },
-        "feeds.Feed": {
-            "type": "object",
-            "properties": {
-                "author": {
-                    "type": "Author"
-                },
-                "copyright": {
-                    "type": "string"
-                },
-                "created": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "image": {
-                    "type": "Image"
-                },
-                "items": {
-                    "type": "array",
-                    "items": {
-                        "type": "Item"
-                    }
-                },
-                "link": {
-                    "type": "Link"
-                },
-                "subtitle": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "updated": {
-                    "type": "string"
                 }
             }
         },
@@ -8398,7 +8560,7 @@
                     "type": "string"
                 },
                 "paymentMethod": {
-                    "type": "integer"
+                    "$ref": "#/definitions/models.GoodrichPaymentMethod"
                 },
                 "phoneNumber": {
                     "type": "string"
@@ -8461,7 +8623,7 @@
                     "type": "string"
                 },
                 "status": {
-                    "type": "integer"
+                    "$ref": "#/definitions/models.GoodrichOrderStatus"
                 }
             }
         },
@@ -8498,7 +8660,6 @@
                     }
                 },
                 "department": {
-                    "type": "object",
                     "$ref": "#/definitions/models.Department"
                 },
                 "departmentID": {
@@ -8551,8 +8712,11 @@
                 },
                 "user": {
                     "description": "Belongs to user",
-                    "type": "object",
-                    "$ref": "#/definitions/models.User"
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    ]
                 },
                 "userID": {
                     "type": "integer"
@@ -8584,7 +8748,6 @@
                     "type": "string"
                 },
                 "user": {
-                    "type": "object",
                     "$ref": "#/definitions/models.User"
                 },
                 "userID": {
@@ -8615,7 +8778,6 @@
                     "type": "string"
                 },
                 "user": {
-                    "type": "object",
                     "$ref": "#/definitions/models.User"
                 },
                 "userID": {
@@ -8628,7 +8790,6 @@
             "type": "object",
             "properties": {
                 "areaOfStudy": {
-                    "type": "object",
                     "$ref": "#/definitions/models.AreaOfStudy"
                 },
                 "areaOfStudyID": {
@@ -8710,7 +8871,6 @@
                     "type": "string"
                 },
                 "user": {
-                    "type": "object",
                     "$ref": "#/definitions/models.User"
                 },
                 "userID": {
@@ -8770,7 +8930,6 @@
                     "type": "string"
                 },
                 "neighborhood": {
-                    "type": "object",
                     "$ref": "#/definitions/models.Neighborhood"
                 },
                 "neighborhoodID": {
@@ -8822,11 +8981,9 @@
                     "type": "number"
                 },
                 "biggestDouble": {
-                    "type": "object",
                     "$ref": "#/definitions/models.DormRoom"
                 },
                 "biggestSingle": {
-                    "type": "object",
                     "$ref": "#/definitions/models.DormRoom"
                 },
                 "capacity": {
@@ -8860,11 +9017,9 @@
                     "type": "integer"
                 },
                 "smallestDouble": {
-                    "type": "object",
                     "$ref": "#/definitions/models.DormRoom"
                 },
                 "smallestSingle": {
-                    "type": "object",
                     "$ref": "#/definitions/models.DormRoom"
                 },
                 "sophomoreCount": {
@@ -8900,7 +9055,6 @@
                     "type": "string"
                 },
                 "dorm": {
-                    "type": "object",
                     "$ref": "#/definitions/models.Dorm"
                 },
                 "dormID": {
@@ -9113,7 +9267,6 @@
                     "type": "string"
                 },
                 "dormRoom": {
-                    "type": "object",
                     "$ref": "#/definitions/models.DormRoom"
                 },
                 "dormRoomID": {
@@ -9148,7 +9301,6 @@
                     "type": "boolean"
                 },
                 "user": {
-                    "type": "object",
                     "$ref": "#/definitions/models.User"
                 },
                 "userID": {
@@ -9172,8 +9324,11 @@
                 },
                 "other": {
                     "description": "Belongs to other",
-                    "type": "object",
-                    "$ref": "#/definitions/models.User"
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    ]
                 },
                 "otherID": {
                     "type": "integer"
@@ -9183,8 +9338,11 @@
                 },
                 "user": {
                     "description": "Belongs to user",
-                    "type": "object",
-                    "$ref": "#/definitions/models.User"
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    ]
                 },
                 "userID": {
                     "type": "integer"
@@ -9259,7 +9417,6 @@
                     "type": "string"
                 },
                 "user": {
-                    "type": "object",
                     "$ref": "#/definitions/models.User"
                 },
                 "userID": {
@@ -9275,7 +9432,6 @@
                     "type": "boolean"
                 },
                 "factrakSurvey": {
-                    "type": "object",
                     "$ref": "#/definitions/models.FactrakSurvey"
                 },
                 "factrakSurveyID": {
@@ -9286,7 +9442,6 @@
                     "type": "integer"
                 },
                 "user": {
-                    "type": "object",
                     "$ref": "#/definitions/models.User"
                 },
                 "userID": {
@@ -9316,7 +9471,6 @@
                     "type": "string"
                 },
                 "course": {
-                    "type": "object",
                     "$ref": "#/definitions/models.Course"
                 },
                 "courseFormat": {
@@ -9356,7 +9510,6 @@
                     "type": "integer"
                 },
                 "professor": {
-                    "type": "object",
                     "$ref": "#/definitions/models.User"
                 },
                 "professorID": {
@@ -9381,7 +9534,6 @@
                     "type": "integer"
                 },
                 "user": {
-                    "type": "object",
                     "$ref": "#/definitions/models.User"
                 },
                 "userID": {
@@ -9519,13 +9671,13 @@
                     "type": "string"
                 },
                 "paymentMethod": {
-                    "type": "integer"
+                    "$ref": "#/definitions/models.GoodrichPaymentMethod"
                 },
                 "phoneNumber": {
                     "type": "string"
                 },
                 "status": {
-                    "type": "integer"
+                    "$ref": "#/definitions/models.GoodrichOrderStatus"
                 },
                 "timeSlot": {
                     "description": "Format: 15:04",
@@ -9535,7 +9687,6 @@
                     "type": "number"
                 },
                 "user": {
-                    "type": "object",
                     "$ref": "#/definitions/models.User"
                 },
                 "userID": {
@@ -9551,13 +9702,54 @@
                     "type": "integer"
                 },
                 "item": {
-                    "type": "object",
                     "$ref": "#/definitions/models.GoodrichMenuItem"
                 },
                 "note": {
                     "type": "string"
                 }
             }
+        },
+        "models.GoodrichOrderStatus": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3
+            ],
+            "x-enum-comments": {
+                "GoodrichOrderStatusUnknown": "Default is unknown"
+            },
+            "x-enum-varnames": [
+                "GoodrichOrderStatusUnknown",
+                "GoodrichOrderStatusPlaced",
+                "GoodrichOrderStatusReady",
+                "GoodrichOrderStatusPaid"
+            ]
+        },
+        "models.GoodrichPaymentMethod": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "x-enum-comments": {
+                "GoodrichPaymentMethodUnknown": "Default is unknown"
+            },
+            "x-enum-varnames": [
+                "GoodrichPaymentMethodUnknown",
+                "GoodrichPaymentMethodSwipe",
+                "GoodrichPaymentMethodPoints",
+                "GoodrichPaymentMethodCreditCard",
+                "GoodrichPaymentMethodCash",
+                "GoodrichPaymentMethodSwipePlusCash",
+                "GoodrichPaymentMethodSwipePlusCreditCard"
+            ]
         },
         "models.Neighborhood": {
             "type": "object",
@@ -9608,7 +9800,6 @@
                     "type": "boolean"
                 },
                 "user": {
-                    "type": "object",
                     "$ref": "#/definitions/models.User"
                 },
                 "userID": {
@@ -9630,7 +9821,6 @@
                     "type": "string"
                 },
                 "user": {
-                    "type": "object",
                     "$ref": "#/definitions/models.User"
                 },
                 "userID": {
@@ -9667,7 +9857,6 @@
                     "type": "string"
                 },
                 "discussion": {
-                    "type": "object",
                     "$ref": "#/definitions/models.Discussion"
                 },
                 "discussionID": {
@@ -9682,7 +9871,6 @@
                     "type": "integer"
                 },
                 "user": {
-                    "type": "object",
                     "$ref": "#/definitions/models.User"
                 },
                 "userID": {
@@ -9726,8 +9914,11 @@
                 },
                 "bannedUser": {
                     "description": "Has one (or zero) banned users",
-                    "type": "object",
-                    "$ref": "#/definitions/models.BannedUser"
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.BannedUser"
+                        }
+                    ]
                 },
                 "campusPhoneEXT": {
                     "type": "string"
@@ -9743,7 +9934,6 @@
                     "type": "integer"
                 },
                 "department": {
-                    "type": "object",
                     "$ref": "#/definitions/models.Department"
                 },
                 "departmentID": {
@@ -9751,7 +9941,6 @@
                     "type": "integer"
                 },
                 "dormRoom": {
-                    "type": "object",
                     "$ref": "#/definitions/models.DormRoom"
                 },
                 "dormRoomID": {
@@ -9783,8 +9972,11 @@
                 },
                 "ephmatchProfile": {
                     "description": "Has one ephmatch profile",
-                    "type": "object",
-                    "$ref": "#/definitions/models.EphmatchProfile"
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.EphmatchProfile"
+                        }
+                    ]
                 },
                 "factrakAdmin": {
                     "type": "boolean"
@@ -9795,6 +9987,10 @@
                     "items": {
                         "$ref": "#/definitions/models.FactrakAgreement"
                     }
+                },
+                "factrakScore": {
+                    "description": "Only for professor retrieval with rankings",
+                    "type": "number"
                 },
                 "factrakSurveyDeficit": {
                     "type": "integer"
@@ -9844,8 +10040,11 @@
                 },
                 "notificationSettings": {
                     "description": "Has one notification settings",
-                    "type": "object",
-                    "$ref": "#/definitions/models.NotificationSettings"
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.NotificationSettings"
+                        }
+                    ]
                 },
                 "notificationTokens": {
                     "description": "Has many notification tokens",
@@ -9862,7 +10061,6 @@
                     "type": "boolean"
                 },
                 "office": {
-                    "type": "object",
                     "$ref": "#/definitions/models.Office"
                 },
                 "officeID": {
@@ -9991,7 +10189,6 @@
             "type": "object",
             "properties": {
                 "dorm": {
-                    "type": "object",
                     "$ref": "#/definitions/responses.GetUserResponseDorm"
                 },
                 "dormID": {
@@ -10052,14 +10249,12 @@
                     "type": "integer"
                 },
                 "department": {
-                    "type": "object",
                     "$ref": "#/definitions/responses.GetUserResponseDepartment"
                 },
                 "departmentID": {
                     "type": "integer"
                 },
                 "dormRoom": {
-                    "type": "object",
                     "$ref": "#/definitions/responses.GetUserResponseDormRoom"
                 },
                 "dormRoomID": {
@@ -10120,7 +10315,6 @@
                     "type": "boolean"
                 },
                 "office": {
-                    "type": "object",
                     "$ref": "#/definitions/responses.GetUserResponseOffice"
                 },
                 "officeID": {
@@ -10171,7 +10365,6 @@
                     "type": "integer"
                 },
                 "matchedUser": {
-                    "type": "object",
                     "$ref": "#/definitions/responses.ListMatchesResponseMatchedUser"
                 },
                 "matchedUserID": {
@@ -10230,7 +10423,6 @@
                     "type": "string"
                 },
                 "ephmatchProfile": {
-                    "type": "object",
                     "$ref": "#/definitions/responses.ListMatchesResponseEphmatchProfile"
                 },
                 "id": {
@@ -10308,7 +10500,6 @@
             "type": "object",
             "properties": {
                 "dorm": {
-                    "type": "object",
                     "$ref": "#/definitions/responses.ListUsersResponseDorm"
                 },
                 "dormID": {
@@ -10369,14 +10560,12 @@
                     "type": "integer"
                 },
                 "department": {
-                    "type": "object",
                     "$ref": "#/definitions/responses.ListUsersResponseDepartment"
                 },
                 "departmentID": {
                     "type": "integer"
                 },
                 "dormRoom": {
-                    "type": "object",
                     "$ref": "#/definitions/responses.ListUsersResponseDormRoom"
                 },
                 "dormRoomID": {
@@ -10437,7 +10626,6 @@
                     "type": "boolean"
                 },
                 "office": {
-                    "type": "object",
                     "$ref": "#/definitions/responses.ListUsersResponseOffice"
                 },
                 "officeID": {
@@ -10490,7 +10678,6 @@
             "type": "object",
             "properties": {
                 "error": {
-                    "type": "object",
                     "$ref": "#/definitions/services.RespError"
                 },
                 "status": {
@@ -10558,41 +10745,6 @@
                     "items": {
                         "type": "string"
                     }
-                }
-            }
-        },
-        "v1.JobStatus": {
-            "type": "object",
-            "properties": {
-                "active": {
-                    "type": "integer"
-                },
-                "completedIndexes": {
-                    "type": "string"
-                },
-                "completionTime": {
-                    "type": "string"
-                },
-                "conditions": {
-                    "type": "array",
-                    "items": {
-                        "type": "JobCondition"
-                    }
-                },
-                "failed": {
-                    "type": "integer"
-                },
-                "ready": {
-                    "type": "integer"
-                },
-                "startTime": {
-                    "type": "string"
-                },
-                "succeeded": {
-                    "type": "integer"
-                },
-                "uncountedTerminatedPods": {
-                    "type": "UncountedTerminatedPods"
                 }
             }
         }
