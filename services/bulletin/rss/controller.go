@@ -46,7 +46,7 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 // @Param offset query int false "Offset Pagination"
 // @Param limit query int false "Limit Pagination"
 // @Param all query string false "Get All Bulletins (no restriction on startDate, endDate)"
-// @Success 200 {object} feeds.Feed
+// @Success 200 {string} string "A RSS Feed serialized as XML string"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/rss/lostAndFound [get]
@@ -64,7 +64,7 @@ func (t *Controller) ListLostAndFoundBulletins(c *gin.Context) {
 // @Param offset query int false "Offset Pagination"
 // @Param limit query int false "Limit Pagination"
 // @Param all query string false "Get All Bulletins (no restriction on startDate, endDate)"
-// @Success 200 {object} feeds.Feed
+// @Success 200 {string} string "A RSS Feed serialized as XML string"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/rss/job [get]
@@ -82,7 +82,7 @@ func (t *Controller) ListJobBulletins(c *gin.Context) {
 // @Param offset query int false "Offset Pagination"
 // @Param limit query int false "Limit Pagination"
 // @Param all query string false "Get All Bulletins (no restriction on startDate, endDate)"
-// @Success 200 {object} feeds.Feed
+// @Success 200 {string} string "A RSS Feed serialized as XML string"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/rss/exchange [get]
@@ -100,7 +100,7 @@ func (t *Controller) ListExchangeBulletins(c *gin.Context) {
 // @Param offset query int false "Offset Pagination"
 // @Param limit query int false "Limit Pagination"
 // @Param all query string false "Get All Bulletins (no restriction on startDate, endDate)"
-// @Success 200 {object} feeds.Feed
+// @Success 200 {string} string "A RSS Feed serialized as XML string"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/rss/announcement [get]
@@ -119,7 +119,7 @@ func (t *Controller) ListAnnouncementBulletins(c *gin.Context) {
 // @Param limit query int false "Limit Pagination"
 // @Param type query string false "Ride Type (request, offer)"
 // @Param all query string false "Get All Bulletins (no restriction on startDate, endDate)"
-// @Success 200 {object} feeds.Feed
+// @Success 200 {string} string "A RSS Feed serialized as XML string"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/rss/ride [get]
@@ -198,7 +198,7 @@ func (t *Controller) ListRideBulletins(c *gin.Context) {
 // @Param start query string false "Start Pagination (timestamp)"
 // @Param offset query int false "Offset Pagination"
 // @Param limit query int false "Limit Pagination"
-// @Success 200 {object} feeds.Feed
+// @Success 200 {string} string "A RSS Feed serialized as XML string"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/rss/discussion [get]
