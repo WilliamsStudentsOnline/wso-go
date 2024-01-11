@@ -113,10 +113,20 @@ func (o *GetAllCoursesOptions) Paginate(db *gorm.DB) *gorm.DB {
 }
 
 func (o *GetAllCoursesOptions) Run(db *gorm.DB) *gorm.DB {
-	db = o.Paginate(db)
 	db = o.Preloader(db)
 
 	m := NewCourseModel(db.New(), nil)
+
+	if o.Metric != nil {
+		if o.Ascending != nil {
+			db = m.withRanking(*o.Metric, *o.Ascending)(db)
+		} else {
+			db = m.withRanking(*o.Metric, false)(db)
+		}
+	} else {
+		// No reason to order twice, only order by ID if no metric is given
+		db = o.Order(db)
+	}
 
 	if o.AreaOfStudyID != nil {
 		db = m.withAreaOfStudy(*o.AreaOfStudyID)(db)
@@ -128,16 +138,7 @@ func (o *GetAllCoursesOptions) Run(db *gorm.DB) *gorm.DB {
 	if o.ProfessorID != nil {
 		db = m.withProfessor(*o.ProfessorID)(db)
 	}
-	if o.Metric != nil {
-		if o.Ascending != nil {
-			db = m.withRanking(*o.Metric, *o.Ascending)(db)
-		} else {
-			db = m.withRanking(*o.Metric, false)(db)
-		}
-	} else {
-		// No reason to order twice, only order by ID if no metric is given
-		db = o.Order(db)
-	}
+	db = o.Paginate(db)
 
 	return db
 }
