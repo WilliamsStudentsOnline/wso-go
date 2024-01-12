@@ -27,6 +27,9 @@ type GetAllBooksOptions struct {
 	Title     *string `json:"title" form:"title"`
 	Publisher *string `json:"publisher,omitempty" form:"publisher"`
 	Isbn      *string `json:"isbn" form:"isbn" binding:"omitempty,isbn"`
+
+	// Preloading: courses,bookListings
+	Preload []string `json:"preload" form:"preload[]" enums:",courses,bookListings"`
 }
 
 func (m *BookModel) GetBookByID(id uint, b *Book) (err error) {
@@ -47,6 +50,30 @@ func (o *GetAllBooksOptions) Paginate(db *gorm.DB) *gorm.DB {
 		}
 	}
 	return db
+}
+
+func (o *GetAllBooksOptions) Preloader(db *gorm.DB) *gorm.DB {
+	if o.Preload == nil {
+		return db
+	}
+
+	bookModel := NewBookModel(nil, nil)
+	if stringsContains(o.Preload, "courses") {
+		db = bookModel.preloadCourses(db)
+	}
+	if stringsContains(o.Preload, "bookListings") {
+		db = bookModel.preloadBookListings(db)
+	}
+
+	return db
+}
+
+func (m *BookModel) preloadCourses(db *gorm.DB) *gorm.DB {
+	return db.Preload("Courses")
+}
+
+func (m *BookModel) preloadBookListings(db *gorm.DB) *gorm.DB {
+	return db.Preload("BookListings")
 }
 
 func (m *BookModel) GetAllBooks(c *[]*Book, opts *GetAllBooksOptions) (err error) {

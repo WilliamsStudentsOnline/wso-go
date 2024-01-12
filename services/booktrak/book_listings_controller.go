@@ -3,6 +3,7 @@ package booktrak
 import (
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
+	"github.com/WilliamsStudentsOnline/wso-go/sanitize"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 )
@@ -88,8 +89,9 @@ type ListBookListingsParams struct {
 // @Param userID query int false "User ID"
 // @Param isbn query string false "Book ISBN-13"
 // @Param minCondition query string false "Minimum Book Condition" Enums(POOR,FAIR,GOOD,VERY_GOOD,LIKE_NEW,NEW)
-// @Param maxCondition query string false "Maximum Book Condition"  Enums(POOR,FAIR,GOOD,VERY_GOOD,LIKE_NEW,NEW)
+// @Param maxCondition query string false "Maximum Book Condition" Enums(POOR,FAIR,GOOD,VERY_GOOD,LIKE_NEW,NEW)
 // @Param listingType query string false "Type of the listing" Enum(BUY,SELL)
+// @Param preload query []string false "Preload" Enums(user,book)
 // @Success 200 {array} models.BookListing
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -111,6 +113,7 @@ func (t *Controller) ListBookListings(c *gin.Context) {
 		return
 	}
 
+	sanitize.BookListings(bookListings, c)
 	t.RespondOK(c, bookListings)
 }
 

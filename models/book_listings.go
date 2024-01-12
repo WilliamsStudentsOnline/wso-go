@@ -29,6 +29,9 @@ type GetAllBookListingsOptions struct {
 	MinCondition *Condition   `json:"minCondition" form:"minCondition" enums:",POOR,FAIR,GOOD,VERY_GOOD,LIKE_NEW,NEW"`
 	MaxCondition *Condition   `json:"maxCondition" form:"maxCondition" enums:",POOR,FAIR,GOOD,VERY_GOOD,LIKE_NEW,NEW"`
 	ListingType  *ListingType `json:"listingType" form:"listingType" enums:",BUY,SELL"`
+
+	// Preloading: user,book
+	Preload []string `json:"preload" form:"preload[]" enums:",user,book"`
 }
 
 func (o *GetAllBookListingsOptions) Order(db *gorm.DB) *gorm.DB {
@@ -47,6 +50,30 @@ func (o *GetAllBookListingsOptions) Paginate(db *gorm.DB) *gorm.DB {
 	return db
 }
 
+func (o *GetAllBookListingsOptions) Preloader(db *gorm.DB) *gorm.DB {
+	if o.Preload == nil {
+		return db
+	}
+
+	bookListingModel := NewBookListingModel(nil, nil)
+	if stringsContains(o.Preload, "book") {
+		db = bookListingModel.preloadBook(db)
+	}
+	if stringsContains(o.Preload, "user") {
+		db = bookListingModel.preloadUser(db)
+	}
+
+	return db
+}
+
+func (m *BookListingModel) preloadBook(db *gorm.DB) *gorm.DB {
+	return db.Preload("Book")
+}
+
+func (m *BookListingModel) preloadUser(db *gorm.DB) *gorm.DB {
+	return db.Preload("User")
+}
+
 func (m *BookListingModel) GetAllBookListings(c *[]*BookListing, opts *GetAllBookListingsOptions) (err error) {
 	db := m.DB
 	if opts != nil {
@@ -54,12 +81,13 @@ func (m *BookListingModel) GetAllBookListings(c *[]*BookListing, opts *GetAllBoo
 	}
 
 	// Do db query
-	err = db.Preload("User").Find(c).Error
+	err = db.Find(c).Error
 	return
 }
 
 func (o *GetAllBookListingsOptions) Run(db *gorm.DB) *gorm.DB {
 	db = o.Paginate(db)
+	db = o.Preloader(db)
 
 	m := NewBookListingModel(db.New(), nil)
 
