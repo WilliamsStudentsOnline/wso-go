@@ -118,7 +118,7 @@ func savePhoto(path string, unix string, pb pictures.PictureBackend) error {
 	}
 
 	var dualSaveWg sync.WaitGroup
-	errors := make(chan error)
+	errors := make(chan error, 2)
 
 	dualSaveWg.Add(1)
 	go func(wg *sync.WaitGroup) {
