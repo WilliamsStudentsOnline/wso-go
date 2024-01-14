@@ -405,7 +405,7 @@ func (t *Controller) UploadProfilePhoto(c *gin.Context) {
 	}
 
 	var wg sync.WaitGroup
-	errors := make(chan error)
+	errors := make(chan error, 2)
 
 	wg.Add(1)
 	go func(wg *sync.WaitGroup) {
