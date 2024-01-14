@@ -68,6 +68,23 @@ func NewBackend(path string, log *zap.SugaredLogger) (*Backend, error) {
 	return &Backend{path: absPath, log: log}, nil
 }
 
+// DoesFacebookPhotoExists checks whether the user has a valid Facebook photo (both thumb and large)
+func (b *Backend) DoesFacebookPhotoExists(unixID string) (bool, error) {
+	// check for thumb
+	existsThumb, err := b.DoesPhotoExists(unixID, dirUserThumb)
+	if err != nil {
+		return false, err
+	}
+
+	// check for large
+	existsLarge, err := b.DoesPhotoExists(unixID, dirUserLarge)
+	if err != nil {
+		return false, err
+	}
+
+	return existsThumb && existsLarge, nil
+}
+
 // Simply replace user profile thumb here
 // All file names should be in the format `user/thumb/{userID}.jpg`
 func (b *Backend) SaveUserPhotoThumb(unixID string, img image.Image) error {
@@ -78,6 +95,19 @@ func (b *Backend) SaveUserPhotoThumb(unixID string, img image.Image) error {
 // All file names should be in the format `user/large/{userID}.jpg`
 func (b *Backend) SaveUserPhotoLarge(unixID string, img image.Image) error {
 	return b.saveUserProfile(img, unixID, dirUserLarge)
+}
+
+func (b *Backend) DoesPhotoExists(unixID string, category string) (bool, error) {
+	path := filepath.Join(b.path, dirUserLarge, unixID+".jpg")
+
+	_, statErr := os.Stat(path)
+	if os.IsNotExist(statErr) {
+		return false, nil
+	} else if statErr != nil {
+		return false, statErr
+	}
+
+	return true, nil
 }
 
 func (b *Backend) saveUserProfile(img image.Image, unixID string, category string) error {

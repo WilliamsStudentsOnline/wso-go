@@ -15,6 +15,7 @@ const (
 )
 
 type PictureBackend interface {
+	DoesFacebookPhotoExists(unixID string) (bool, error)
 	SaveUserPhotoLarge(unixID string, img image.Image) error
 	SaveUserPhotoThumb(unixID string, img image.Image) error
 	SaveEphmatchPhoto(unixID string, img image.Image) error
