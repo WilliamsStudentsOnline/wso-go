@@ -113,6 +113,13 @@ func (t *Controller) ListBookListings(c *gin.Context) {
 		return
 	}
 
+	count, err := t.bookListingModel.CountAllBookListings(&opts.GetAllBookListingsOptions)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+	t.SetPaginationTotal(c, count)
+
 	sanitize.BookListings(bookListings, c)
 	t.RespondOK(c, bookListings)
 }
