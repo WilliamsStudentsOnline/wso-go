@@ -77,6 +77,7 @@ func (m *BookListingModel) preloadUser(db *gorm.DB) *gorm.DB {
 func (m *BookListingModel) GetAllBookListings(c *[]*BookListing, opts *GetAllBookListingsOptions) (err error) {
 	db := m.DB
 	if opts != nil {
+		db = opts.Paginate(db)
 		db = opts.Run(db)
 	}
 
@@ -85,8 +86,17 @@ func (m *BookListingModel) GetAllBookListings(c *[]*BookListing, opts *GetAllBoo
 	return
 }
 
+func (m *BookListingModel) CountAllBookListings(opts *GetAllBookListingsOptions) (count int, err error) {
+	db := m.DB.Model(&BookListing{})
+	if opts != nil {
+		db = opts.Run(db)
+	}
+
+	err = db.Count(&count).Error
+	return
+}
+
 func (o *GetAllBookListingsOptions) Run(db *gorm.DB) *gorm.DB {
-	db = o.Paginate(db)
 	db = o.Preloader(db)
 
 	m := NewBookListingModel(db.New(), nil)
