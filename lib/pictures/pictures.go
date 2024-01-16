@@ -16,6 +16,9 @@ const (
 
 type PictureBackend interface {
 	DoesUserPhotoExists(unixID string) (bool, error)
+	// SaveUserPhotoBoth saves both `large` and `thumb` user profile, by resizing
+	// img. Large photos are resized to 300x300. Thumb photos are resized to 50x50.
+	SaveUserPhotoBoth(unixID string, img image.Image) error
 	SaveUserPhotoLarge(unixID string, img image.Image) error
 	SaveUserPhotoThumb(unixID string, img image.Image) error
 	SaveEphmatchPhoto(unixID string, img image.Image) error

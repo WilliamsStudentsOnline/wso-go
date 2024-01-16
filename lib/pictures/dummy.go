@@ -12,6 +12,10 @@ func (d *pictureBackendDummy) DoesUserPhotoExists(unixID string) (bool, error) {
 	return false, nil
 }
 
+func (d *pictureBackendDummy) SaveUserPhotoBoth(unixID string, img image.Image) error {
+	return nil
+}
+
 func (*pictureBackendDummy) SaveUserPhotoThumb(unixID string, img image.Image) error {
 	return nil
 }

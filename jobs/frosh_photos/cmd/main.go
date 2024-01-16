@@ -10,12 +10,10 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/logging"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/pictures"
-	"github.com/disintegration/imaging"
 )
 
 func main() {
@@ -97,37 +95,5 @@ func savePhoto(path string, unix string, pb pictures.PictureBackend) error {
 		return err
 	}
 
-	var dualSaveWg sync.WaitGroup
-	errors := make(chan error, 2)
-
-	dualSaveWg.Add(1)
-	go func(wg *sync.WaitGroup) {
-		imgScaled := imaging.Fill(img, 300, 300, imaging.Center, imaging.Lanczos)
-		err = pb.SaveUserPhotoLarge(unix, imgScaled)
-		if err != nil {
-			errors <- err
-		}
-		wg.Done()
-	}(&dualSaveWg)
-
-	dualSaveWg.Add(1)
-	go func(wg *sync.WaitGroup) {
-		imgThumb := imaging.Fill(img, 50, 50, imaging.Center, imaging.Lanczos)
-
-		err = pb.SaveUserPhotoThumb(unix, imgThumb)
-		if err != nil {
-			errors <- err
-		}
-		wg.Done()
-	}(&dualSaveWg)
-
-	dualSaveWg.Wait()
-	close(errors)
-
-	err = <-errors
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return pb.SaveUserPhotoBoth(unix, img)
 }

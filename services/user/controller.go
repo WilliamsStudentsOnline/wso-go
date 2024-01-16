@@ -6,7 +6,6 @@ import (
 	_ "image/jpeg"
 	_ "image/png"
 	"net/http"
-	"sync"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
@@ -18,7 +17,6 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/sanitize"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/WilliamsStudentsOnline/wso-go/services/user/responses"
-	"github.com/disintegration/imaging"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
@@ -404,38 +402,7 @@ func (t *Controller) UploadProfilePhoto(c *gin.Context) {
 		return
 	}
 
-	var wg sync.WaitGroup
-	errors := make(chan error, 2)
-
-	wg.Add(1)
-	go func(wg *sync.WaitGroup) {
-		imgScaled := imaging.Fill(img, 300, 300, imaging.Center, imaging.Lanczos)
-		err = t.pictureBackend.SaveUserPhotoLarge(user.UnixID, imgScaled)
-		if err != nil {
-			errors <- err
-			// Put error in the context so it can be reported
-			c.Error(err)
-		}
-		wg.Done()
-	}(&wg)
-
-	wg.Add(1)
-	go func(wg *sync.WaitGroup) {
-		imgThumb := imaging.Fill(img, 50, 50, imaging.Center, imaging.Lanczos)
-
-		err = t.pictureBackend.SaveUserPhotoThumb(user.UnixID, imgThumb)
-		if err != nil {
-			errors <- err
-			// Put error in the context so it can be reported
-			c.Error(err)
-		}
-		wg.Done()
-	}(&wg)
-
-	wg.Wait()
-	close(errors)
-
-	err = <-errors
+	err = t.pictureBackend.SaveUserPhotoBoth(user.UnixID, img)
 	if err != nil {
 		c.Error(err)
 		t.RespondAPIError(c, lib.ErrorUnableToSavePicture)

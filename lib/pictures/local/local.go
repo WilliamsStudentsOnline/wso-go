@@ -9,7 +9,9 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"sync"
 
+	"github.com/disintegration/imaging"
 	"go.uber.org/zap"
 )
 
@@ -87,6 +89,39 @@ func (b *Backend) DoesUserPhotoExists(unixID string) (bool, error) {
 	}
 
 	return existsThumb && existsLarge, nil
+}
+
+func (b *Backend) SaveUserPhotoBoth(unixID string, img image.Image) error {
+	var dualSaveWg sync.WaitGroup
+	dualSaveErrors := make(chan error, 2)
+
+	dualSaveWg.Add(1)
+	go func(wg *sync.WaitGroup) {
+		imgScaled := imaging.Fill(img, 300, 300, imaging.Center, imaging.Lanczos)
+		err := b.SaveUserPhotoLarge(unixID, imgScaled)
+		if err != nil {
+			dualSaveErrors <- err
+		}
+		wg.Done()
+	}(&dualSaveWg)
+
+	dualSaveWg.Add(1)
+	go func(wg *sync.WaitGroup) {
+		imgThumb := imaging.Fill(img, 50, 50, imaging.Center, imaging.Lanczos)
+
+		err := b.SaveUserPhotoThumb(unixID, imgThumb)
+		if err != nil {
+			dualSaveErrors <- err
+		}
+		wg.Done()
+	}(&dualSaveWg)
+
+	dualSaveWg.Wait()
+	close(dualSaveErrors)
+
+	// if multiple error occurs, returning only the first one should suffice
+	err := <-dualSaveErrors
+	return err
 }
 
 // Simply replace user profile thumb here
