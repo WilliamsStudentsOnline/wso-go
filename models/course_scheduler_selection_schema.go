@@ -17,9 +17,9 @@ const (
 type CourseSchedulerSelection struct {
 	BaseSchema
 
-	// Student information
-	Student   *User `gorm:"not null" json:"student"`
-	StudentID *uint `gorm:"not null" json:"studentID"` // User object UUID as stored in users table
+	// User information
+	User   *User `gorm:"not null" json:"user"`
+	UserID *uint `gorm:"index:index_user_id;not null" json:"userID"` // User object UUID as stored in users table, used for indexing
 
 	// Course information
 	Course   *Course `gorm:"not null" json:"course"`
