@@ -176,16 +176,16 @@ func TestCourseSchedulerSelectionModel_AddSelection(t *testing.T) {
 
 	for i := range res {
 		assert.Equal(true, res[i].Hidden)
-		assert.Equal("SPRING", res[i].Semester)
-		assert.Equal(2023, res[i].Year)
+		assert.Equal(SemesterFall, res[i].Semester)
+		assert.Equal(uint(2023), *res[i].Year)
 
 		// Check preloaded fields
 		assert.Equal("Foo", res[i].User.Name)
 		assert.Equal("256", res[i].Course.Number)
 
 		// Check auto-generated IDs
-		assert.Equal(0, res[i].User.ID)
-		assert.Equal(0, res[i].Course.ID)
+		assert.Equal(uint(1), res[i].User.ID)
+		assert.Equal(uint(1), res[i].Course.ID)
 	}
 
 }

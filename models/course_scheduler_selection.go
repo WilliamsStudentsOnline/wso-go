@@ -166,7 +166,7 @@ func (m *CourseSchedulerSelectionModel) withYear(year uint) func(*gorm.DB) *gorm
 }
 
 func (m *CourseSchedulerSelectionModel) AddSelection(user *User, course *Course, hidden bool, semester SemesterType, year uint) (err error) {
-	return m.DB.FirstOrCreate(course, CourseSchedulerSelection{
+	return m.DB.Create(&CourseSchedulerSelection{
 		User:     user,
 		Course:   course,
 		UserID:   &user.ID,
