@@ -21,7 +21,7 @@ var AddUserDiningKeywords20240110165319 = &gormigrate.Migration{
 		// with those fields.
 		type User struct {
 			models.BaseSchema
-			Keywords []*models.DiningKeyword `gorm:"many2many:user_dining_keywords"`
+			DiningKeywords []*models.DiningKeyword `gorm:"many2many:user_dining_keywords"`
 		}
 		type DiningKeyword struct {
 			models.BaseSchema
