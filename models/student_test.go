@@ -393,7 +393,7 @@ func TestStudentModel_UpdateDormtrakReviewDeficit(t *testing.T) {
 	).Error
 	testify.NoError(t, err)
 
-	fsM := NewDormtrakReviewModel(db, log)
+	drM := NewDormtrakReviewModel(db, log)
 
 	t.Run("prefrosh", func(t *testing.T) {
 		assert := testify.New(t)
@@ -560,12 +560,12 @@ func TestStudentModel_UpdateDormtrakReviewDeficit(t *testing.T) {
 		assert.NoError(m.UpdateDormtrakReviewDeficit(&student))
 		assert.NoError(db.First(&student).Error)
 
-		surveyCount, err := fsM.CountReviewsbyUser(student.ID)
+		reviewCount, err := drM.CountReviewsbyUser(student.ID)
 		assert.NoError(err)
-		assert.Equal(0, surveyCount)
+		assert.Equal(0, reviewCount)
 
-		// Assert the number of surveys
-		assert.Equal(2, *student.DormtrakReviewDeficit)
+		// Assert the number of reviews
+		assert.Equal(1, *student.DormtrakReviewDeficit)
 
 		// Cleanup
 		assert.NoError(db.Unscoped().Delete(&student).Error)
@@ -613,15 +613,15 @@ func TestStudentModel_UpdateDormtrakReviewDeficit(t *testing.T) {
 		// Create, update deficit, and get student
 		assert.NoError(db.Create(&student).Error)
 		assert.NoError(m.InitializeOnCampusSemesters(&student))
-		assert.NoError(m.UpdateFactrakSurveyDeficit(&student))
+		assert.NoError(m.UpdateDormtrakReviewDeficit(&student))
 		assert.NoError(db.First(&student).Error)
 
-		reviewCount, err := fsM.CountReviewsbyUser(student.ID)
+		reviewCount, err := drM.CountReviewsbyUser(student.ID)
 		assert.NoError(err)
 		assert.Equal(0, reviewCount)
 
 		// Assert the number of surveys
-		assert.Equal(2, *student.DormtrakReviewDeficit)
+		assert.Equal(1, *student.DormtrakReviewDeficit)
 
 		// make a factrak survey
 		fs1 := DormtrakReview{
@@ -634,7 +634,7 @@ func TestStudentModel_UpdateDormtrakReviewDeficit(t *testing.T) {
 		assert.NoError(db.First(&student).Error)
 
 		// assert one less
-		assert.Equal(1, *student.FactrakSurveyDeficit)
+		assert.Equal(1, *student.DormtrakReviewDeficit)
 
 		// Cleanup
 		assert.NoError(db.Unscoped().Delete(&student).Error)
@@ -684,23 +684,23 @@ func TestStudentModel_UpdateDormtrakReviewDeficit(t *testing.T) {
 		assert.NoError(db.Create(&student).Error)
 
 		// make a dormtrak review
-		fs1 := FactrakSurvey{
+		dr1 := DormtrakReview{
 			UserID: student.ID,
 		}
-		assert.NoError(m.DB.Create(&fs1).Error)
+		assert.NoError(m.DB.Create(&dr1).Error)
 		assert.NoError(m.InitializeOnCampusSemesters(&student))
-		assert.NoError(m.UpdateFactrakSurveyDeficit(&student))
+		assert.NoError(m.UpdateDormtrakReviewDeficit(&student))
 		assert.NoError(db.First(&student).Error)
 
-		reviewCount, err := fsM.CountReviewsbyUser(student.ID)
+		reviewCount, err := drM.CountReviewsbyUser(student.ID)
 		assert.NoError(err)
 		assert.Equal(1, reviewCount)
 
 		// Assert the number of reviews
-		assert.Equal(1, *student.DormtrakReviewDeficit)
+		assert.Equal(0, *student.DormtrakReviewDeficit)
 
 		// Delete
-		assert.NoError(db.Delete(&fs1).Error)
+		assert.NoError(db.Delete(&dr1).Error)
 
 		// Recalculate deficit
 		assert.NoError(m.UpdateDormtrakReviewDeficit(&student))

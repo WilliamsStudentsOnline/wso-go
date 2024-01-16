@@ -222,7 +222,6 @@ func (t *Controller) CreateReview(c *gin.Context) {
 		return
 	}
 
-	// New- Brenda (from factrak)
 	err = t.userModel.UpdateDormtrakReviewDeficit(user)
 	if err != nil {
 		t.RespondError(c, err)
@@ -373,7 +372,6 @@ func (t *Controller) DeleteReview(c *gin.Context) {
 		return
 	}
 
-	//New - Brenda
 	user := new(models.User)
 	user.ID = review.UserID
 	err = t.userModel.UpdateDormtrakReviewDeficit(user)
