@@ -11,6 +11,7 @@ type NotificationSettings struct {
 	// Settings:
 	EnableNotifications bool `json:"enableNotifications"`
 	SalmonNotify        bool `json:"salmonNotify"`
+	FoodNotify          bool `json:"foodNotify"`
 }
 
 func (*NotificationSettings) TableName() string {
