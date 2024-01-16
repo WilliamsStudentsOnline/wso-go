@@ -32,6 +32,10 @@ Telos Structure:
 /ephmatch/unixid.jpg
 */
 
+// Backend implements pictures.PictureBackend with a local file system.
+// The file systems structure is specified above.
+// I assume Telos refers to https://github.com/WilliamsStudentsOnline/telos
+// but I do not know whether it's in use.
 type Backend struct {
 	path string
 	log  *zap.SugaredLogger
@@ -68,8 +72,8 @@ func NewBackend(path string, log *zap.SugaredLogger) (*Backend, error) {
 	return &Backend{path: absPath, log: log}, nil
 }
 
-// DoesFacebookPhotoExists checks whether the user has a valid Facebook photo (both thumb and large)
-func (b *Backend) DoesFacebookPhotoExists(unixID string) (bool, error) {
+// DoesUserPhotoExists checks whether the user has a valid Facebook photo (both thumb and large)
+func (b *Backend) DoesUserPhotoExists(unixID string) (bool, error) {
 	// check for thumb
 	existsThumb, err := b.DoesPhotoExists(unixID, dirUserThumb)
 	if err != nil {
@@ -98,7 +102,7 @@ func (b *Backend) SaveUserPhotoLarge(unixID string, img image.Image) error {
 }
 
 func (b *Backend) DoesPhotoExists(unixID string, category string) (bool, error) {
-	path := filepath.Join(b.path, dirUserLarge, unixID+".jpg")
+	path := filepath.Join(b.path, category, unixID+".jpg")
 
 	_, statErr := os.Stat(path)
 	if os.IsNotExist(statErr) {

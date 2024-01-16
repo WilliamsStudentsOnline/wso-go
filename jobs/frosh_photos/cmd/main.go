@@ -67,7 +67,7 @@ func main() {
 		unix := strings.TrimSuffix(file.Name(), ".jpg")
 
 		// skip if photo already exists (e.g. if the user has already uploaded)
-		exists, existErr := pb.DoesFacebookPhotoExists(unix)
+		exists, existErr := pb.DoesUserPhotoExists(unix)
 		if exists {
 			log.Warnf("Skipping %s, already has photo.", unix)
 		}

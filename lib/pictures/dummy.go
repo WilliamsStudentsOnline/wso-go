@@ -8,7 +8,7 @@ func NewPictureBackendDummy() PictureBackend {
 
 type pictureBackendDummy struct{}
 
-func (d *pictureBackendDummy) DoesFacebookPhotoExists(unixID string) (bool, error) {
+func (d *pictureBackendDummy) DoesUserPhotoExists(unixID string) (bool, error) {
 	return false, nil
 }
 
