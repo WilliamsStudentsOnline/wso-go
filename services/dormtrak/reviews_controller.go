@@ -374,6 +374,7 @@ func (t *Controller) DeleteReview(c *gin.Context) {
 
 	user := new(models.User)
 	user.ID = review.UserID
+	user.Type = models.UserTypeStudent
 	err = t.userModel.UpdateDormtrakReviewDeficit(user)
 	if err != nil {
 		t.RespondError(c, err)

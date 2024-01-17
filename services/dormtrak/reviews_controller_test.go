@@ -617,6 +617,15 @@ func TestController_DeleteReview(t *testing.T) {
 		Name:   "User 2",
 		UnixID: "u2",
 	}
+	dorm := models.Dorm{
+		//Neighborhood: &models.Neighborhood,
+		Name: "Currier",
+		//DormRooms: &dormRoom,
+	}
+	dormRoom := models.DormRoom{
+		Number: "103",
+		Dorm:   &dorm,
+	}
 	review := models.DormtrakReview{
 		User: &u1,
 		DormRoom: &models.DormRoom{
@@ -635,7 +644,7 @@ func TestController_DeleteReview(t *testing.T) {
 		Location:         lib.IntToPtr(4),
 		Wifi:             lib.IntToPtr(7),
 	}
-	assert.NoError(db.Create(&u1).Create(&u2).Create(&review).Error)
+	assert.NoError(db.Create(&u1).Create(&u2).Create(&review).Create(&dorm).Create(&dormRoom).Error)
 
 	// Setup router
 	router := utils.SetupRouter(auth.ScopeDormtrak, auth.ScopeDormtrakWrite)

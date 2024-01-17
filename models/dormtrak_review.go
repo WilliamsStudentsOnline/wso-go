@@ -87,6 +87,9 @@ func (m *DormtrakReviewModel) UpdateReview(p *DormtrakReview) (err error) {
 
 func (m *DormtrakReviewModel) DeleteReview(p *DormtrakReview) (err error) {
 	err = m.DB.Delete(p).Error
+	if err != nil {
+		return
+	}
 	return
 }
 

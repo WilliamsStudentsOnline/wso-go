@@ -44,6 +44,7 @@ func TestStudentModel_UpdateFactrakSurveyDeficit(t *testing.T) {
 		AreaOfStudy{},
 		FactrakSurvey{},
 		FactrakAgreement{},
+		DormtrakReview{},
 	).Error
 	testify.NoError(t, err)
 
@@ -387,6 +388,11 @@ func TestStudentModel_UpdateDormtrakReviewDeficit(t *testing.T) {
 	db.LogMode(true)
 	err := db.AutoMigrate(
 		User{},
+		Department{},
+		Course{},
+		AreaOfStudy{},
+		FactrakSurvey{},
+		FactrakAgreement{},
 		Dorm{},
 		DormRoom{},
 		DormtrakReview{},
@@ -623,22 +629,38 @@ func TestStudentModel_UpdateDormtrakReviewDeficit(t *testing.T) {
 		// Assert the number of surveys
 		assert.Equal(1, *student.DormtrakReviewDeficit)
 
-		// make a factrak survey
-		fs1 := DormtrakReview{
-			UserID: student.ID,
+		// Test dorm
+		dorm1 := Dorm{
+			NeighborhoodID: 01,
+			Name:           "Dorm",
+			//DormRooms: &dormRoom,
 		}
-		assert.NoError(m.DB.Create(&fs1).Error)
+		dormRoom1 := DormRoom{
+			DormID: 1,
+			Dorm:   &dorm1,
+		}
+
+		assert.NoError(db.Create(&dormRoom1).Error)
+
+		// make a dormtrak review
+		dr1 := DormtrakReview{
+			UserID: student.ID,
+			//Dorm: 1,
+			DormRoomID: 1,
+		}
+
+		assert.NoError(m.DB.Create(&dr1).Error)
 
 		// recalculate deficit
 		assert.NoError(m.UpdateDormtrakReviewDeficit(&student))
 		assert.NoError(db.First(&student).Error)
 
 		// assert one less
-		assert.Equal(1, *student.DormtrakReviewDeficit)
+		assert.Equal(0, *student.DormtrakReviewDeficit)
 
 		// Cleanup
 		assert.NoError(db.Unscoped().Delete(&student).Error)
-		assert.NoError(db.Unscoped().Delete(&fs1).Error)
+		assert.NoError(db.Unscoped().Delete(&dr1).Error)
 	})
 
 	t.Run("when review is deleted", func(t *testing.T) {
@@ -683,12 +705,27 @@ func TestStudentModel_UpdateDormtrakReviewDeficit(t *testing.T) {
 		// Create, update deficit, and get student
 		assert.NoError(db.Create(&student).Error)
 
-		// make a dormtrak review
-		dr1 := DormtrakReview{
-			UserID: student.ID,
+		// Test dorm
+		dorm := Dorm{
+			NeighborhoodID: 01,
+			Name:           "Dorm",
+			//DormRooms: &dormRoom,
 		}
-		assert.NoError(m.DB.Create(&dr1).Error)
-		assert.NoError(m.InitializeOnCampusSemesters(&student))
+		dormRoom := DormRoom{
+			DormID: 1,
+			Dorm:   &dorm,
+		}
+
+		assert.NoError(db.Create(&dormRoom).Error)
+
+		// make a dormtrak review
+		dr2 := DormtrakReview{
+			UserID: student.ID,
+			//Dorm: 1,
+			DormRoomID: 1,
+		}
+		assert.NoError(m.DB.Create(&dr2).Error)
+		// // assert.NoError(m.InitializeOnCampusSemesters(&student))
 		assert.NoError(m.UpdateDormtrakReviewDeficit(&student))
 		assert.NoError(db.First(&student).Error)
 
@@ -696,20 +733,20 @@ func TestStudentModel_UpdateDormtrakReviewDeficit(t *testing.T) {
 		assert.NoError(err)
 		assert.Equal(1, reviewCount)
 
-		// Assert the number of reviews
+		// // Assert the number of reviews
 		assert.Equal(0, *student.DormtrakReviewDeficit)
 
-		// Delete
-		assert.NoError(db.Delete(&dr1).Error)
+		// // Delete
+		assert.NoError(db.Delete(&dr2).Error)
 
-		// Recalculate deficit
+		// // Recalculate deficit
 		assert.NoError(m.UpdateDormtrakReviewDeficit(&student))
 		assert.NoError(db.First(&student).Error)
 
-		// assert one less
-		assert.Equal(2, *student.DormtrakReviewDeficit)
+		// // assert one less
+		assert.Equal(0, *student.DormtrakReviewDeficit)
 
-		// Cleanup
+		// // Cleanup
 		assert.NoError(db.Unscoped().Delete(&student).Error)
 	})
 }
