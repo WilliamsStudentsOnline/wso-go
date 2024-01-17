@@ -78,7 +78,7 @@ func (t *Controller) CreateBookListing(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param updateParams body booktrak.CreateBookListingParams true "Create Book Listing Params"
-// @Param listingID path uint true "Listing ID"
+// @Param bookListingID path uint true "Book Listing ID"
 // @Success 200 {object} models.BookListing
 // @Failure 1331 {object} services.BaseErrorResponse "must be self"
 // @Failure 2232 {object} services.BaseErrorResponse "invalid book condition"
@@ -86,11 +86,11 @@ func (t *Controller) CreateBookListing(c *gin.Context) {
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
-// @Router /booktrak/listings [post]
+// @Router /booktrak/listings/{bookListingID} [put]
 func (t *Controller) UpdateBookListing(c *gin.Context) {
 	userID := services.GetUserID(c)
 
-	listingID, err := services.GetUIntParam(c, "listingID")
+	bookListingID, err := services.GetUIntParam(c, "bookListingID")
 	if err != nil {
 		t.RespondError(c, err)
 		return
@@ -106,7 +106,7 @@ func (t *Controller) UpdateBookListing(c *gin.Context) {
 
 	// Do database query
 	var listing models.BookListing
-	err = t.bookListingModel.GetBookListingByID(listingID, &listing)
+	err = t.bookListingModel.GetBookListingByID(bookListingID, &listing)
 	if err != nil {
 		t.RespondError(c, err)
 		return

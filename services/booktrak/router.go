@@ -29,5 +29,6 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	r.POST("/listings", c.CreateBookListing)
 	r.GET("/listings", c.ListBookListings)
 	r.GET("/listings/:bookListingID", c.GetBookListing)
+	r.PUT("/listings/:bookListingID", c.UpdateBookListing)
 	r.DELETE("/listings/:bookListingID", c.DeleteBookListing)
 }
