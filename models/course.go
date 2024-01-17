@@ -311,12 +311,6 @@ func (m *CourseModel) withRanking(ranking string, ascending bool) func(db *gorm.
 
 		db = db.Table("courses").Select("courses.*, scores.factrak_score").Joins("left join (?) as scores on courses.id = scores.course_id", subQuery).Where("factrak_score IS NOT NULL").Order("factrak_score "+order, true)
 
-		/*db = db.Joins("left join factrak_surveys on courses.id = factrak_surveys.course_id")
-		db = db.Where(notNull)
-		db = db.Where("factrak_surveys.created_at >= ?", time.Now().AddDate(-5, 0, 0))
-		db = db.Group("factrak_surveys.course_id")
-		db = db.Having(havingCount)
-		db = db.Order(avgRating, true)*/
 		return db
 	}
 }
