@@ -71,6 +71,86 @@ func (t *Controller) CreateBookListing(c *gin.Context) {
 	t.RespondCreated(c, bookListing)
 }
 
+// UpdateBookListing @Summary Update book listing
+// @Description update a book listing
+// @ID booktrak-update-book-listing
+// @Tags booktrak
+// @Accept  json
+// @Produce  json
+// @Param updateParams body booktrak.CreateBookListingParams true "Create Book Listing Params"
+// @Param bookListingID path uint true "Book Listing ID"
+// @Success 200 {object} models.BookListing
+// @Failure 1331 {object} services.BaseErrorResponse "must be self"
+// @Failure 2232 {object} services.BaseErrorResponse "invalid book condition"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
+// @Security Bearer
+// @Router /booktrak/listings/{bookListingID} [put]
+func (t *Controller) UpdateBookListing(c *gin.Context) {
+	userID := services.GetUserID(c)
+
+	bookListingID, err := services.GetUIntParam(c, "bookListingID")
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	// Bind update params
+	updateData := CreateBookListingParams{}
+	err = c.ShouldBind(&updateData)
+	if err != nil {
+		t.RespondBadBind(c, err)
+		return
+	}
+
+	// Do database query
+	var listing models.BookListing
+	err = t.bookListingModel.GetBookListingByID(bookListingID, &listing)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	// Listing must be owned by user id
+	if listing.UserID != userID {
+		t.RespondError(c, lib.ErrorMustBeSelf)
+		return
+	}
+
+	// check that listing's book exists
+	exists, err := t.bookModel.DoesBookExist(models.BookIdentifier{Id: lib.UIntToPtr(listing.BookID)})
+	if err != nil {
+		t.RespondAPIError(c, lib.ErrorInternalServerError)
+		return
+	}
+	if !exists {
+		t.RespondAPIError(c, lib.ErrorBookNotFound)
+		return
+	}
+
+	// check that a condition was given
+	if listing.Condition == models.ConditionUndefined {
+		t.RespondAPIError(c, lib.ErrorBookListingInvalidCondition)
+		return
+	}
+
+	// Update listing fields
+	listing.BookID = updateData.BookID
+	listing.Condition = updateData.Condition
+	listing.Description = updateData.Description
+	listing.ListingType = updateData.ListingType
+
+	// Do db update
+	err = t.bookListingModel.UpdateBookListing(&listing)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	t.RespondOK(c, listing)
+}
+
 type ListBookListingsParams struct {
 	models.GetAllBookListingsOptions
 }
