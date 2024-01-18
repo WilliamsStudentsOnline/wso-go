@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
+	_ "github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/WilliamsStudentsOnline/wso-go/services/goodrich/lease"
 	"github.com/gin-gonic/gin"
 )
