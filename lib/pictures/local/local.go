@@ -9,7 +9,9 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"sync"
 
+	"github.com/disintegration/imaging"
 	"go.uber.org/zap"
 )
 
@@ -32,6 +34,10 @@ Telos Structure:
 /ephmatch/unixid.jpg
 */
 
+// Backend implements pictures.PictureBackend with a local file system.
+// The file systems structure is specified above.
+// I assume Telos refers to https://github.com/WilliamsStudentsOnline/telos
+// but I do not know whether it's in use.
 type Backend struct {
 	path string
 	log  *zap.SugaredLogger
@@ -68,6 +74,56 @@ func NewBackend(path string, log *zap.SugaredLogger) (*Backend, error) {
 	return &Backend{path: absPath, log: log}, nil
 }
 
+// DoesUserPhotoExists checks whether the user has a valid Facebook photo (both thumb and large)
+func (b *Backend) DoesUserPhotoExists(unixID string) (bool, error) {
+	// check for thumb
+	existsThumb, err := b.DoesPhotoExists(unixID, dirUserThumb)
+	if err != nil {
+		return false, err
+	}
+
+	// check for large
+	existsLarge, err := b.DoesPhotoExists(unixID, dirUserLarge)
+	if err != nil {
+		return false, err
+	}
+
+	return existsThumb && existsLarge, nil
+}
+
+func (b *Backend) SaveUserPhotoBoth(unixID string, img image.Image) error {
+	var dualSaveWg sync.WaitGroup
+	dualSaveErrors := make(chan error, 2)
+
+	dualSaveWg.Add(1)
+	go func(wg *sync.WaitGroup) {
+		imgScaled := imaging.Fill(img, 300, 300, imaging.Center, imaging.Lanczos)
+		err := b.SaveUserPhotoLarge(unixID, imgScaled)
+		if err != nil {
+			dualSaveErrors <- err
+		}
+		wg.Done()
+	}(&dualSaveWg)
+
+	dualSaveWg.Add(1)
+	go func(wg *sync.WaitGroup) {
+		imgThumb := imaging.Fill(img, 50, 50, imaging.Center, imaging.Lanczos)
+
+		err := b.SaveUserPhotoThumb(unixID, imgThumb)
+		if err != nil {
+			dualSaveErrors <- err
+		}
+		wg.Done()
+	}(&dualSaveWg)
+
+	dualSaveWg.Wait()
+	close(dualSaveErrors)
+
+	// if multiple error occurs, returning only the first one should suffice
+	err := <-dualSaveErrors
+	return err
+}
+
 // Simply replace user profile thumb here
 // All file names should be in the format `user/thumb/{userID}.jpg`
 func (b *Backend) SaveUserPhotoThumb(unixID string, img image.Image) error {
@@ -78,6 +134,19 @@ func (b *Backend) SaveUserPhotoThumb(unixID string, img image.Image) error {
 // All file names should be in the format `user/large/{userID}.jpg`
 func (b *Backend) SaveUserPhotoLarge(unixID string, img image.Image) error {
 	return b.saveUserProfile(img, unixID, dirUserLarge)
+}
+
+func (b *Backend) DoesPhotoExists(unixID string, category string) (bool, error) {
+	path := filepath.Join(b.path, category, unixID+".jpg")
+
+	_, statErr := os.Stat(path)
+	if os.IsNotExist(statErr) {
+		return false, nil
+	} else if statErr != nil {
+		return false, statErr
+	}
+
+	return true, nil
 }
 
 func (b *Backend) saveUserProfile(img image.Image, unixID string, category string) error {

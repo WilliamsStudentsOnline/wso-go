@@ -7,16 +7,13 @@ import (
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/logging"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/pictures"
-	"github.com/disintegration/imaging"
 )
 
 func main() {
@@ -58,48 +55,29 @@ func main() {
 		log.Fatal("Filepath: " + err.Error())
 	}
 
-	files, err := ioutil.ReadDir(in)
+	files, err := os.ReadDir(in)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// run for every photo
-	/*
-		var photosWg sync.WaitGroup
-		errors := make(chan struct {
-			err  error
-			file string
-		})
-
-		for _, file := range files {
-			photosWg.Add(1)
-			go func(wg *sync.WaitGroup, file os.FileInfo) {
-				unix := strings.TrimSuffix(file.Name(), ".jpg")
-				log.Infof("saving %s", unix)
-				saveErr := savePhoto(filepath.Join(in, file.Name()), unix, pb)
-				if saveErr != nil {
-					errors <- struct {
-						err  error
-						file string
-					}{err: saveErr, file: file.Name()}
-				}
-				wg.Done()
-			}(&photosWg, file)
-		}
-
-		photosWg.Wait()
-		close(errors)
-		for pErr := range errors {
-			log.Warnf("%s has an error: %v", pErr.file, pErr.err)
-		}
-	*/
-
 	for _, file := range files {
 		unix := strings.TrimSuffix(file.Name(), ".jpg")
+
+		// skip if photo already exists (e.g. if the user has already uploaded)
+		exists, existErr := pb.DoesUserPhotoExists(unix)
+		if exists {
+			log.Warnf("Skipping %s, already has photo.", unix)
+		}
+		if existErr != nil {
+			log.Warnf("%s error checking existence: %v", unix, existErr)
+			continue
+		}
+
 		log.Infof("saving %s", unix)
 		saveErr := savePhoto(filepath.Join(in, file.Name()), unix, pb)
 		if saveErr != nil {
-			log.Warnf("%s has an error: %v", unix, saveErr)
+			log.Warnf("%s error saving: %v", unix, saveErr)
 		}
 	}
 }
@@ -117,37 +95,5 @@ func savePhoto(path string, unix string, pb pictures.PictureBackend) error {
 		return err
 	}
 
-	var dualSaveWg sync.WaitGroup
-	errors := make(chan error)
-
-	dualSaveWg.Add(1)
-	go func(wg *sync.WaitGroup) {
-		imgScaled := imaging.Fill(img, 300, 300, imaging.Center, imaging.Lanczos)
-		err = pb.SaveUserPhotoLarge(unix, imgScaled)
-		if err != nil {
-			errors <- err
-		}
-		wg.Done()
-	}(&dualSaveWg)
-
-	dualSaveWg.Add(1)
-	go func(wg *sync.WaitGroup) {
-		imgThumb := imaging.Fill(img, 50, 50, imaging.Center, imaging.Lanczos)
-
-		err = pb.SaveUserPhotoThumb(unix, imgThumb)
-		if err != nil {
-			errors <- err
-		}
-		wg.Done()
-	}(&dualSaveWg)
-
-	dualSaveWg.Wait()
-	close(errors)
-
-	err = <-errors
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return pb.SaveUserPhotoBoth(unix, img)
 }
