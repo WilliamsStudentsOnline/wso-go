@@ -36,14 +36,14 @@ type GetAllCourseSchedulerSelectionsOptions struct {
 	Preload []string `json:"preload" form:"preload[]"`
 
 	// Filters
-	UserID       *uint        `json:"userID" form:"userID"`
-	CourseID     *uint        `json:"courseID" form:"courseID"`
-	DepartmentID *uint        `json:"departmentID" form:"departmentID"`
-	ProfessorID  *uint        `json:"professorID" form:"professorID"`
-	UserYear     *uint        `json:"userYear" form:"userYear"`
-	Hidden       bool         `json:"hidden" form:"hidden"`
-	Semester     SemesterType `json:"semester" form:"semester"`
-	Year         *uint        `json:"year" form:"year"`
+	UserID        *uint        `json:"userID" form:"userID"`
+	CourseID      *uint        `json:"courseID" form:"courseID"`
+	DepartmentID  *uint        `json:"departmentID" form:"departmentID"`
+	ProfessorID   *uint        `json:"professorID" form:"professorID"`
+	UserClassYear *uint        `json:"userClassYear" form:"userClassYear"`
+	Hidden        bool         `json:"hidden" form:"hidden"`
+	Semester      SemesterType `json:"semester" form:"semester"`
+	Year          *uint        `json:"year" form:"year"`
 }
 
 // Preload users or courses if requested
@@ -80,8 +80,8 @@ func (o *GetAllCourseSchedulerSelectionsOptions) Run(db *gorm.DB) *gorm.DB {
 	if o.ProfessorID != nil {
 		db = m.withProfessor(*o.ProfessorID)(db)
 	}
-	if o.UserYear != nil {
-		db = m.withUserYear(*o.UserYear)(db)
+	if o.UserClassYear != nil {
+		db = m.withUserClassYear(*o.UserClassYear)(db)
 	}
 	if o.Semester != "" {
 		db = m.withSemester(o.Semester)(db)
@@ -137,13 +137,13 @@ func (m *CourseSchedulerSelectionModel) withProfessor(professorID uint) func(*go
 	}
 }
 
-func (m *CourseSchedulerSelectionModel) withUserYear(userYear uint) func(*gorm.DB) *gorm.DB {
+func (m *CourseSchedulerSelectionModel) withUserClassYear(userClassYear uint) func(*gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Where(
 			"user_id in (?)",
 			m.DB.Model(&User{}).Select("id").Where(
 				"type = ?", "user",
-				"class_year = ?", userYear,
+				"class_year = ?", userClassYear,
 			).QueryExpr(),
 		)
 	}
@@ -165,45 +165,37 @@ func (m *CourseSchedulerSelectionModel) withYear(year uint) func(*gorm.DB) *gorm
 	}
 }
 
-func (m *CourseSchedulerSelectionModel) AddSelection(user *User, course *Course, hidden bool, semester SemesterType, year uint) (err error) {
-	return m.DB.Create(&CourseSchedulerSelection{
-		User:     user,
-		Course:   course,
-		UserID:   &user.ID,
-		CourseID: &course.ID,
-		Hidden:   hidden,
-		Semester: semester,
-		Year:     &year,
-	}).Error
+func (m *CourseSchedulerSelectionModel) CreateSelection(selection CourseSchedulerSelection) (err error) {
+	return m.DB.Create(&selection).Error
 }
 
-func (m *CourseSchedulerSelectionModel) DeleteSelectionsByUserID(userID uint) (err error) {
+func (m *CourseSchedulerSelectionModel) DeleteAllSelectionsByUserID(userID uint) (err error) {
 	return m.DB.Where(
 		"user_id = ?", userID,
 	).Delete(&CourseSchedulerSelection{}).Error
 }
 
-func (m *CourseSchedulerSelectionModel) DeleteSelectionsByCourseID(courseID uint) (err error) {
+func (m *CourseSchedulerSelectionModel) DeleteAllSelectionsByCourseID(courseID uint) (err error) {
 	return m.DB.Where(
 		"course_id = ?", courseID,
 	).Delete(&CourseSchedulerSelection{}).Error
 }
 
-func (m *CourseSchedulerSelectionModel) DeleteSelectionsBySemesterAndYear(semester SemesterType, year uint) (err error) {
+func (m *CourseSchedulerSelectionModel) DeleteAllSelectionsBySemesterAndYear(semester SemesterType, year uint) (err error) {
 	return m.DB.Where(
 		"semester = ?", semester,
 		"year = ?", year,
 	).Delete(&CourseSchedulerSelection{}).Error
 }
 
-func (m *CourseSchedulerSelectionModel) DeleteSelectionsByUserIDAndCourseID(userID uint, courseID uint) (err error) {
+func (m *CourseSchedulerSelectionModel) DeleteAllSelectionsByUserIDAndCourseID(userID uint, courseID uint) (err error) {
 	return m.DB.Where(
 		"user_id = ?", userID,
 		"course_id = ?", courseID,
 	).Delete(&CourseSchedulerSelection{}).Error
 }
 
-func (m *CourseSchedulerSelectionModel) DeleteSelectionsByUserIDAndSemesterAndYear(userID uint, semester string, year uint) (err error) {
+func (m *CourseSchedulerSelectionModel) DeleteAllSelectionsByUserIDAndSemesterAndYear(userID uint, semester string, year uint) (err error) {
 	return m.DB.Where(
 		"user_id = ?", userID,
 		"semester = ?", semester,

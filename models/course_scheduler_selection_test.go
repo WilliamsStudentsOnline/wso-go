@@ -167,8 +167,18 @@ func TestCourseSchedulerSelectionModel_AddSelection(t *testing.T) {
 			},
 		},
 	}
+	var year uint = 2023
+	courseSchedulerSelection := &CourseSchedulerSelection{
+		User:     user,
+		UserID:   &user.ID,
+		Course:   course,
+		CourseID: &course.ID,
+		Hidden:   true,
+		Semester: SemesterFall,
+		Year:     &year,
+	}
 
-	assert.NoError(m.AddSelection(user, course, true, SemesterFall, 2023))
+	assert.NoError(m.CreateSelection(*courseSchedulerSelection))
 
 	// depends on GetAllCourseSchedulerSelections working, see test above
 	var res []*CourseSchedulerSelection
@@ -190,7 +200,7 @@ func TestCourseSchedulerSelectionModel_AddSelection(t *testing.T) {
 
 }
 
-func TestCourseSchedulerSelectionModel_DeleteSelectionsByUserIDAndCourseID(t *testing.T) {
+func TestCourseSchedulerSelectionModel_DeleteAllSelectionsByUserIDAndCourseID(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 
@@ -290,7 +300,7 @@ func TestCourseSchedulerSelectionModel_DeleteSelectionsByUserIDAndCourseID(t *te
 		assert.NoError(db.Create(&courseSchedulerSelections[i]).Error)
 	}
 
-	assert.NoError(m.DeleteSelectionsByUserIDAndCourseID(userID1, courseID1))
+	assert.NoError(m.DeleteAllSelectionsByUserIDAndCourseID(userID1, courseID1))
 
 	// depends on GetAllCourseSchedulerSelections working, see test above
 	var res []*CourseSchedulerSelection
