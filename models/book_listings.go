@@ -170,13 +170,49 @@ func (m *BookListingModel) withListingType(listingType ListingType) func(*gorm.D
 
 func (m *BookListingModel) withMinCondition(minCondition Condition) func(*gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Where("condition >= ?", minCondition)
+		var acceptableConditions []Condition
+
+		switch minCondition {
+		case ConditionNew:
+			acceptableConditions = []Condition{ConditionNew}
+		case ConditionLikeNew:
+			acceptableConditions = []Condition{ConditionNew, ConditionLikeNew}
+		case ConditionVeryGood:
+			acceptableConditions = []Condition{ConditionNew, ConditionLikeNew, ConditionVeryGood}
+		case ConditionGood:
+			acceptableConditions = []Condition{ConditionNew, ConditionLikeNew, ConditionVeryGood, ConditionGood}
+		case ConditionFair:
+			acceptableConditions = []Condition{ConditionNew, ConditionLikeNew, ConditionVeryGood, ConditionGood, ConditionFair}
+		case ConditionPoor:
+			acceptableConditions = []Condition{ConditionNew, ConditionLikeNew, ConditionVeryGood, ConditionGood, ConditionFair, ConditionPoor}
+		}
+
+		return db.Where("condition IN (?)", acceptableConditions)
 	}
 }
 
 func (m *BookListingModel) withMaxCondition(maxCondition Condition) func(*gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Where("condition <= ?", maxCondition)
+		var acceptableConditions []Condition
+
+		switch maxCondition {
+		case ConditionPoor:
+			acceptableConditions = []Condition{ConditionPoor}
+		case ConditionFair:
+			acceptableConditions = []Condition{ConditionPoor, ConditionFair}
+		case ConditionGood:
+			acceptableConditions = []Condition{ConditionPoor, ConditionFair, ConditionGood}
+		case ConditionVeryGood:
+			acceptableConditions = []Condition{ConditionPoor, ConditionFair, ConditionGood, ConditionVeryGood}
+		case ConditionLikeNew:
+			acceptableConditions = []Condition{ConditionPoor, ConditionFair, ConditionGood, ConditionVeryGood, ConditionLikeNew}
+		case ConditionNew:
+			acceptableConditions = []Condition{ConditionPoor, ConditionFair, ConditionGood, ConditionVeryGood, ConditionLikeNew, ConditionNew}
+		default:
+			acceptableConditions = []Condition{}
+		}
+
+		return db.Where("condition IN (?)", acceptableConditions)
 	}
 }
 
