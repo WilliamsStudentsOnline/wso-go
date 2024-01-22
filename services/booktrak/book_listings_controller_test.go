@@ -20,7 +20,7 @@ import (
 func TestController_CreateBookListing(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf)
+	router := utils.SetupRouter(auth.ScopeBooktrak, auth.ScopeWriteSelf)
 	cfg := utils.SetupConfig()
 
 	u1 := models.User{
@@ -106,7 +106,7 @@ func TestController_UpdateBookListing(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf)
+	router := utils.SetupRouter(auth.ScopeBooktrak, auth.ScopeWriteSelf)
 	cfg := utils.SetupConfig()
 
 	u1 := models.User{
@@ -461,7 +461,7 @@ func TestController_GetBookListing(t *testing.T) {
 	var resp models.BookListing
 	assert.NoError(json.Unmarshal(respData.Data, &resp))
 
-	// Check if correct bulletin
+	// Check if correct listing
 	assert.Equal(bookListing.ID, resp.ID)
 	assert.Equal(bookListing.BookID, resp.BookID)
 	assert.Equal(bookListing.UserID, resp.UserID)
