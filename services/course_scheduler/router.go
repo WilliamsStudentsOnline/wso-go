@@ -13,7 +13,7 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	writer := r.Group("")
 	writer.Use(auth.RequireScopes(auth.ScopeWriteSelf))
 
-	r.GET("", c.ListCourseSchedulerSelections)
+	r.GET("/get/", c.ListCourseSchedulerSelections)
 
 	writer.POST("/add/", c.AddCourseSchedulerSelection)
 	writer.POST("/del/", c.RemoveCourseSchedulerSelections)
