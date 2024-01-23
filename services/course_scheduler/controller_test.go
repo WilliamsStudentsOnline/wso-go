@@ -204,7 +204,6 @@ func TestController_AddCourse(t *testing.T) {
 		},
 	}
 
-	// //
 	user := User{
 		Type:        UserTypeStudent,
 		Name:        "Bar",
@@ -243,10 +242,10 @@ func TestController_AddCourse(t *testing.T) {
 
 	assert.NoError(db.Create(&user).Create(&course).Error)
 	assert.NoError(db.Create(&courseSchedulerSelections[0]).Error)
-	// //
+
+	// user and course are grabbed correctly before adding, so what is wrong?
 
 	// Create test selection
-	// THIS IS FAILING BECAUSE IT DOES NOT GRAB THE USER AND COURSE OBJECTS CORRECTLY USING ID VALUES
 	_, err := utils.DoHTTPReq(router, http.MethodPost, "/add/?userID=1&courseID=1&hidden=FALSE&semester=SPRING&year=2024", nil)
 	assert.NoError(err)
 
@@ -256,9 +255,41 @@ func TestController_AddCourse(t *testing.T) {
 
 	resp := GetSelectionsFromResp(assert, w)
 	assert.Equal(2, len(resp))
-	assert.Equal(uint(1), resp[1].CourseID)
+	assert.Equal(uint(1), *resp[1].CourseID)
 
 	// Check that we can't mess up adding a course
-	_, err = utils.DoHTTPReq(router, http.MethodPost, "/add/?hidden=TRUE", nil)
-	assert.Error(err)
+	// Missing userID
+	w, err = utils.DoHTTPReq(router, http.MethodPost, "/add/", nil)
+	assert.NoError(err)
+	assert.Equal(lib.ErrorCourseSchedulerMissingUserID.HTTPCode, w.Code)
+
+	// Missing courseID
+	w, err = utils.DoHTTPReq(router, http.MethodPost, "/add/?userID=1", nil)
+	assert.NoError(err)
+	assert.Equal(lib.ErrorCourseSchedulerMissingCourseID.HTTPCode, w.Code)
+
+	// Missing semester
+	w, err = utils.DoHTTPReq(router, http.MethodPost, "/add/?userID=1&courseID=1&hidden=FALSE", nil)
+	assert.NoError(err)
+	assert.Equal(lib.ErrorCourseSchedulerMissingSemesterYear.HTTPCode, w.Code)
+
+	// Missing year
+	w, err = utils.DoHTTPReq(router, http.MethodPost, "/add/?userID=1&courseID=1&hidden=FALSE&semester=SPRING", nil)
+	assert.NoError(err)
+	assert.Equal(lib.ErrorCourseSchedulerMissingSemesterYear.HTTPCode, w.Code)
+
+	// Missing courseID in the middle
+	w, err = utils.DoHTTPReq(router, http.MethodPost, "/add/?userID=1&hidden=FALSE&semester=SPRING&year=2024", nil)
+	assert.NoError(err)
+	assert.Equal(lib.ErrorCourseSchedulerMissingCourseID.HTTPCode, w.Code)
+
+	// Invalid userID
+	w, err = utils.DoHTTPReq(router, http.MethodPost, "/add/?userID=999999&courseID=1&hidden=FALSE&semester=SPRING&year=2024", nil)
+	assert.NoError(err)
+	assert.Equal(lib.ErrorCourseSchedulerInvalidUserID.HTTPCode, w.Code)
+
+	// Invalid courseID
+	w, err = utils.DoHTTPReq(router, http.MethodPost, "/add/?userID=1&courseID=999999&hidden=FALSE&semester=SPRING&year=2024", nil)
+	assert.NoError(err)
+	assert.Equal(lib.ErrorCourseSchedulerInvalidCourseID.HTTPCode, w.Code)
 }

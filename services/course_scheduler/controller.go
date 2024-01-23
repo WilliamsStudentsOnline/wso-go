@@ -1,9 +1,8 @@
 package course_scheduler
 
 import (
-	"errors"
-
 	"github.com/WilliamsStudentsOnline/wso-go/config"
+	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
@@ -23,6 +22,8 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Cou
 	return &CourseSchedulerController{
 		BaseController:                services.BaseController{Log: log},
 		courseSchedulerSelectionModel: models.NewCourseSchedulerSelectionModel(db, log),
+		userModel:                     models.NewUserModel(db, log),
+		courseModel:                   models.NewCourseModel(db, log),
 	}
 }
 
@@ -95,14 +96,13 @@ func (t *CourseSchedulerController) AddCourseSchedulerSelection(c *gin.Context) 
 		var user models.User
 		usererr := t.userModel.GetUserByID(*opts.UserID, &user)
 		if usererr != nil {
-			t.RespondError(c, errors.New("failed to grab user by uuid"))
-			return
+			t.RespondAPIError(c, lib.ErrorCourseSchedulerInvalidUserID)
 		}
 
 		var course models.Course
 		courseerr := t.courseModel.GetCourseByID(*opts.CourseID, &course)
 		if courseerr != nil {
-			t.RespondError(c, errors.New("failed to grab course by uuid"))
+			t.RespondAPIError(c, lib.ErrorCourseSchedulerInvalidCourseID)
 			return
 		}
 
@@ -117,11 +117,16 @@ func (t *CourseSchedulerController) AddCourseSchedulerSelection(c *gin.Context) 
 				Year:     opts.Year,
 			})
 		} else {
-			t.RespondError(c, errors.New("missing semester or year"))
+			t.RespondAPIError(c, lib.ErrorCourseSchedulerMissingSemesterYear)
 			return
 		}
 	} else {
-		t.RespondError(c, errors.New("missing user or course id"))
+		if opts.UserID == nil {
+			t.RespondAPIError(c, lib.ErrorCourseSchedulerMissingUserID)
+		}
+		if opts.CourseID == nil {
+			t.RespondAPIError(c, lib.ErrorCourseSchedulerMissingCourseID)
+		}
 		return
 	}
 
@@ -175,9 +180,7 @@ func (t *CourseSchedulerController) RemoveCourseSchedulerSelections(c *gin.Conte
 		return
 	}
 
-	t.RespondOK(c, services.BaseResponse{
-		Status: 200,
-	})
+	t.RespondOK(c, nil)
 
 }
 

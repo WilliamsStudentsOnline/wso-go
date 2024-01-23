@@ -178,4 +178,11 @@ var (
 	ErrorGoodrichNoLeasesAvailable    = NewAPIError(2171, "cannot acquire a lease as no leases available")
 	ErrorGoodrichLeaseMissing         = NewAPIError(2172, "goodrich lease missing: reload this page and try again")
 	ErrorGoodrichLeaseExpired         = NewAPIError(2173, "goodrich order lease has expired")
+
+	// 22** are course scheduler errors
+	ErrorCourseSchedulerInvalidUserID       = NewAPIError(2230, "user id not found")
+	ErrorCourseSchedulerInvalidCourseID     = NewAPIError(2231, "course id not found")
+	ErrorCourseSchedulerMissingUserID       = NewAPIError(2240, "failed to provide user id")
+	ErrorCourseSchedulerMissingCourseID     = NewAPIError(2241, "failed to provide course id")
+	ErrorCourseSchedulerMissingSemesterYear = NewAPIError(2242, "failed to provide semester and/or year")
 )
