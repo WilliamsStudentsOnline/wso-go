@@ -82,6 +82,11 @@ func (t *CourseSchedulerController) ListCourseSchedulerSelections(c *gin.Context
 // @Param semester query string false "Semester" Enums(FALL,WINTER,SPRING)
 // @Param year query uint false "Year"
 // @Success 200 {object} services.BaseResponse
+// @Failure 2230 {object} services.BaseErrorResponse "user id not found"
+// @Failure 2231 {object} services.BaseErrorResponse "course id not found"
+// @Failure 2240 {object} services.BaseErrorResponse "failed to provide user id"
+// @Failure 2241 {object} services.BaseErrorResponse "failed to provide course id"
+// @Failure 2242 {object} services.BaseErrorResponse "failed to provide semester and or year"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 func (t *CourseSchedulerController) AddCourseSchedulerSelection(c *gin.Context) {
@@ -153,7 +158,8 @@ func (t *CourseSchedulerController) AddCourseSchedulerSelection(c *gin.Context) 
 // @Param semester query string false "Semester" Enums(FALL,WINTER,SPRING)
 // @Param year query uint false "Year"
 // @Success 200 {object} services.BaseResponse
-// @Success 500 {object} services.BaseErrorResponse
+// @Failure 2243 {object} services.BaseErrorResponse "failed to provide any identifiers for selection deletion"
+// @Failure 500 {object} services.BaseErrorResponse
 func (t *CourseSchedulerController) RemoveCourseSchedulerSelections(c *gin.Context) {
 	var err error
 
@@ -168,11 +174,16 @@ func (t *CourseSchedulerController) RemoveCourseSchedulerSelections(c *gin.Conte
 			err = t.courseSchedulerSelectionModel.DeleteAllSelectionsByUserIDAndCourseID(*opts.UserID, *opts.CourseID)
 		} else if opts.Semester != models.SemesterUndefined && opts.Year != nil {
 			err = t.courseSchedulerSelectionModel.DeleteAllSelectionsByUserIDAndSemesterAndYear(*opts.UserID, opts.Semester, *opts.Year)
+		} else {
+			t.RespondAPIError(c, lib.ErrorCourseSchedulerMissingDeletionQueryParam)
 		}
 	} else if opts.CourseID != nil {
 		err = t.courseSchedulerSelectionModel.DeleteAllSelectionsByCourseID(*opts.CourseID)
 	} else if opts.Semester != models.SemesterUndefined && opts.Year != nil {
 		err = t.courseSchedulerSelectionModel.DeleteAllSelectionsBySemesterAndYear(opts.Semester, *opts.Year)
+	} else {
+		t.RespondAPIError(c, lib.ErrorCourseSchedulerMissingDeletionQueryParam)
+		return
 	}
 
 	if err != nil {
@@ -198,7 +209,9 @@ func (t *CourseSchedulerController) RemoveCourseSchedulerSelections(c *gin.Conte
 // @Param semester query string false "Semester" Enums(FALL,WINTER,SPRING)
 // @Param year query uint false "Year"
 // @Success 200 {object} services.BaseResponse
-// @Success 500 {object} services.BaseErrorResponse
+// @Failure 2240 {object} services.BaseErrorResponse "failed to provide user id"
+// @Failure 2244 {object} services.BaseErrorResponse "failed to provide additional identifiers for selection visibility update"
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 func (t *CourseSchedulerController) HideCourseSchedulerSelection(c *gin.Context) {
 	var err error
@@ -214,7 +227,13 @@ func (t *CourseSchedulerController) HideCourseSchedulerSelection(c *gin.Context)
 			err = t.courseSchedulerSelectionModel.SetSelectionHiddenByUserIDAndSemesterAndYear(*opts.UserID, opts.Semester, *opts.Year, opts.Hidden)
 		} else if opts.CourseID != nil {
 			err = t.courseSchedulerSelectionModel.SetSelectionHiddenByUserIDAndCourseID(*opts.UserID, *opts.CourseID, opts.Hidden)
+		} else {
+			t.RespondAPIError(c, lib.ErrorCourseSchedulerMissingHideQueryParam)
+			return
 		}
+	} else {
+		t.RespondAPIError(c, lib.ErrorCourseSchedulerMissingUserID)
+		return
 	}
 
 	if err != nil {
@@ -222,7 +241,5 @@ func (t *CourseSchedulerController) HideCourseSchedulerSelection(c *gin.Context)
 		return
 	}
 
-	t.RespondOK(c, services.BaseResponse{
-		Status: 200,
-	})
+	t.RespondOK(c, nil)
 }

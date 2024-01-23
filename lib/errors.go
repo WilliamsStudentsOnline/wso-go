@@ -180,9 +180,11 @@ var (
 	ErrorGoodrichLeaseExpired         = NewAPIError(2173, "goodrich order lease has expired")
 
 	// 22** are course scheduler errors
-	ErrorCourseSchedulerInvalidUserID       = NewAPIError(2230, "user id not found")
-	ErrorCourseSchedulerInvalidCourseID     = NewAPIError(2231, "course id not found")
-	ErrorCourseSchedulerMissingUserID       = NewAPIError(2240, "failed to provide user id")
-	ErrorCourseSchedulerMissingCourseID     = NewAPIError(2241, "failed to provide course id")
-	ErrorCourseSchedulerMissingSemesterYear = NewAPIError(2242, "failed to provide semester and/or year")
+	ErrorCourseSchedulerInvalidUserID             = NewAPIError(2230, "user id not found")
+	ErrorCourseSchedulerInvalidCourseID           = NewAPIError(2231, "course id not found")
+	ErrorCourseSchedulerMissingUserID             = NewAPIError(2240, "failed to provide user id")
+	ErrorCourseSchedulerMissingCourseID           = NewAPIError(2241, "failed to provide course id")
+	ErrorCourseSchedulerMissingSemesterYear       = NewAPIError(2242, "failed to provide semester and or year")
+	ErrorCourseSchedulerMissingDeletionQueryParam = NewAPIError(2243, "failed to provide any identifiers for selection deletion")
+	ErrorCourseSchedulerMissingHideQueryParam     = NewAPIError(2244, "failed to provide additional identifiers for selection visibility update")
 )
