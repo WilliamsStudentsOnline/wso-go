@@ -108,9 +108,9 @@ type CreateRideParams struct {
 	Body           string          `json:"body" binding:"required"`
 	Date           time.Time       `json:"date" binding:"required"`
 	Offer          *bool           `json:"offer"`
-	Source         models.Location `json:"source" enums:",WILLIAMS,ALBANY,NYC,BOSTON,PITTSFIELD"`
-	Destination    models.Location `json:"destination" enums:",WILLIAMS,ALBANY,NYC,BOSTON,PITTSFIELD"`
-	AvailableSeats int             `json:"availableSeats"`
+	Source         models.Location `json:"source" binding:"required" enums:",WILLIAMS,ALBANY,NYC,BOSTON,PITTSFIELD"`
+	Destination    models.Location `json:"destination" binding:"required" enums:",WILLIAMS,ALBANY,NYC,BOSTON,PITTSFIELD"`
+	AvailableSeats uint            `json:"availableSeats"`
 	Price          float64         `json:"price"`
 }
 
