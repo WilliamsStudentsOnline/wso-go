@@ -155,7 +155,7 @@ func (m *BookListingModel) withIsbn(isbn string) func(*gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Where(
 			"book_listings.book_id in (?)",
-			m.DB.Table("books").Select("book_id").Where(
+			m.DB.Table("books").Select("id").Where(
 				"isbn = ?", isbn,
 			).QueryExpr(),
 		)

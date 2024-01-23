@@ -355,6 +355,11 @@ func TestController_ListBookListings(t *testing.T) {
 			[]uint{4, 2},
 		},
 		{
+			"filter by isbn",
+			fmt.Sprintf("isbn=%s", book.Isbn),
+			[]uint{4, 2},
+		},
+		{
 			"filter by course",
 			fmt.Sprintf("courseID=%d", course.ID),
 			[]uint{4, 2},
