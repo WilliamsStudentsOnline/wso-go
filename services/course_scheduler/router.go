@@ -16,6 +16,6 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	r.GET("/get/", c.ListCourseSchedulerSelections)
 
 	writer.POST("/add/", c.AddCourseSchedulerSelection)
-	writer.POST("/del/", c.RemoveCourseSchedulerSelections)
-	writer.POST("/hide/", c.HideCourseSchedulerSelection)
+	writer.DELETE("/del/", c.RemoveCourseSchedulerSelections)
+	writer.PATCH("/hide/", c.HideCourseSchedulerSelection)
 }
