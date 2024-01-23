@@ -195,7 +195,7 @@ func (m *CourseSchedulerSelectionModel) DeleteAllSelectionsByUserIDAndCourseID(u
 	).Delete(&CourseSchedulerSelection{}).Error
 }
 
-func (m *CourseSchedulerSelectionModel) DeleteAllSelectionsByUserIDAndSemesterAndYear(userID uint, semester string, year uint) (err error) {
+func (m *CourseSchedulerSelectionModel) DeleteAllSelectionsByUserIDAndSemesterAndYear(userID uint, semester SemesterType, year uint) (err error) {
 	return m.DB.Where(
 		"user_id = ?", userID,
 		"semester = ?", semester,
