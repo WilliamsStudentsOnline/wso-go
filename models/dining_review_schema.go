@@ -31,20 +31,27 @@ type DiningHallReview struct {
 	// Dining info data
 	DiningHall DiningHall `json:"diningHall" enums:"Driscoll, Mission, Whitman's"` //Driscoll, Mission, Whitman's
 
+	// Has many agreements
+	Agreements []*DiningReviewAgreement `json:"agreements,omitempty"`
+
+	// Not looked at by GORM, just for returning in JSON
+	TotalAgree    int `gorm:"-" json:"totalAgree"`
+	TotalDisagree int `gorm:"-" json:"totalDisagree"`
+
 	// Pass the created time: not looked at by GORM
 	CreatedTime time.Time `gorm:"-" json:"createdTime"`
 
 	// Pass if the client agreed with the survey; not looked at by GORM.
 	// True means user agreed, false means user disagreed, and null/missing means user does not have any
 	// agreement/disagreement.
-	ClientAgreement *bool `gorm:"-" json:"clientAgreement,omitempty"`
+	UserAgreement *bool `gorm:"-" json:"userAgreement,omitempty"`
 }
 
-func (*DiningHallReview) TableName() string {
+func (*DiningHallReview) ReviewTable() string {
 	return "dining_reviews"
 }
 
-func NewDiningReview(id uint) *DiningHallReview {
+func NewDiningHallReview(id uint) *DiningHallReview {
 	return &DiningHallReview{
 		BaseSchema: BaseSchema{
 			ID: id,
