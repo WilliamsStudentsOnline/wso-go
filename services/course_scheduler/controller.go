@@ -1,6 +1,8 @@
 package course_scheduler
 
 import (
+	"errors"
+
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
@@ -83,7 +85,6 @@ func (t *CourseSchedulerController) ListCourseSchedulerSelections(c *gin.Context
 // @Security Bearer
 func (t *CourseSchedulerController) AddCourseSchedulerSelection(c *gin.Context) {
 	var err error
-
 	opts := models.GetAllCourseSchedulerSelectionsOptions{}
 	if err = c.ShouldBindQuery(&opts); err != nil {
 		t.RespondBadBind(c, err)
@@ -94,14 +95,14 @@ func (t *CourseSchedulerController) AddCourseSchedulerSelection(c *gin.Context) 
 		var user models.User
 		usererr := t.userModel.GetUserByID(*opts.UserID, &user)
 		if usererr != nil {
-			t.RespondError(c, usererr)
+			t.RespondError(c, errors.New("failed to grab user by uuid"))
 			return
 		}
 
 		var course models.Course
 		courseerr := t.courseModel.GetCourseByID(*opts.CourseID, &course)
 		if courseerr != nil {
-			t.RespondError(c, courseerr)
+			t.RespondError(c, errors.New("failed to grab course by uuid"))
 			return
 		}
 
@@ -115,7 +116,13 @@ func (t *CourseSchedulerController) AddCourseSchedulerSelection(c *gin.Context) 
 				Semester: opts.Semester,
 				Year:     opts.Year,
 			})
+		} else {
+			t.RespondError(c, errors.New("missing semester or year"))
+			return
 		}
+	} else {
+		t.RespondError(c, errors.New("missing user or course id"))
+		return
 	}
 
 	if err != nil {

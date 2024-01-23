@@ -10,8 +10,9 @@ import (
 
 func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) {
 	c := NewController(db, cfg, log)
+
 	writer := r.Group("")
-	writer.Use(auth.RequireScopes(auth.ScopeWriteSelf))
+	writer.Use(auth.RequireScopes(auth.ScopeCourseSchedulerFull))
 
 	r.GET("/get/", c.ListCourseSchedulerSelections)
 
