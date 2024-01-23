@@ -101,7 +101,6 @@ func (o *GetAllCoursesOptions) Order(db *gorm.DB) *gorm.DB {
 }
 
 func (o *GetAllCoursesOptions) Paginate(db *gorm.DB) *gorm.DB {
-	//db = o.Order(db)
 	if o.Limit != nil {
 		db = db.Limit(*o.Limit)
 		if o.Offset != nil {
