@@ -118,8 +118,8 @@ func (t *Controller) UpdateBookListing(c *gin.Context) {
 		return
 	}
 
-	// check that listing's book exists
-	exists, err := t.bookModel.DoesBookExist(models.BookIdentifier{Id: lib.UIntToPtr(listing.BookID)})
+	// check that updated listing's book exists
+	exists, err := t.bookModel.DoesBookExist(models.BookIdentifier{Id: lib.UIntToPtr(updateData.BookID)})
 	if err != nil {
 		t.RespondAPIError(c, lib.ErrorInternalServerError)
 		return
@@ -130,7 +130,7 @@ func (t *Controller) UpdateBookListing(c *gin.Context) {
 	}
 
 	// check that a condition was given
-	if listing.Condition == models.ConditionUndefined {
+	if updateData.Condition == models.ConditionUndefined {
 		t.RespondAPIError(c, lib.ErrorBookListingInvalidCondition)
 		return
 	}
@@ -267,7 +267,7 @@ func (t *Controller) DeleteBookListing(c *gin.Context) {
 	}
 
 	if bookListing.UserID != userID {
-		t.RespondError(c, lib.ErrorMustBeSelf)
+		t.RespondAPIError(c, lib.ErrorMustBeSelf)
 		return
 	}
 
