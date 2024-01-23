@@ -9,17 +9,17 @@ import (
 type DiningHall string
 
 const (
-	DiningReviewDriscoll DiningHall = "Driscoll"
-	DiningReviewMission  DiningHall = "Mission"
-	DiningReviewWhitmans DiningHall = "Whitman's"
+	DiningHallDriscoll DiningHall = "DRISCOLL"
+	DiningHallMission  DiningHall = "MISSION"
+	DiningHallWhitmans DiningHall = "WHITMANS"
 )
 
-// Dining Review Schema
+// Dining Hall Review Schema
 type DiningHallReview struct {
 	BaseSchema
 
 	// Belongs to user (student)
-	UserID uint  `gorm:"index:index_dining_review_on_user_id;not null" json:"userID"`
+	UserID uint  `gorm:"index:index_dining_hall_review_on_user_id;not null" json:"userID"`
 	User   *User `json:"user,omitempty"`
 
 	WouldRecommendFood *bool  `json:"wouldRecommendFood"`
@@ -29,7 +29,7 @@ type DiningHallReview struct {
 	Flagged            bool   `json:"flagged"`
 
 	// Dining info data
-	DiningHall DiningHall `json:"diningHall" enums:"Driscoll, Mission, Whitman's"` //Driscoll, Mission, Whitman's
+	DiningHall DiningHall `json:"diningHall" enums:"DRISCOLL, MISSION, WHITMANS"` //Driscoll, Mission, Whitman's
 
 	// Has many agreements
 	Agreements []*DiningReviewAgreement `json:"agreements,omitempty"`
@@ -48,7 +48,7 @@ type DiningHallReview struct {
 }
 
 func (*DiningHallReview) ReviewTable() string {
-	return "dining_reviews"
+	return "dining_hall_reviews"
 }
 
 func NewDiningHallReview(id uint) *DiningHallReview {
@@ -68,7 +68,7 @@ func (diningHall *DiningHall) UnmarshalJSON(b []byte) error {
 		panic(err)
 	}
 	switch *diningHall {
-	case DiningReviewDriscoll, DiningReviewMission, DiningReviewWhitmans:
+	case DiningHallDriscoll, DiningHallMission, DiningHallWhitmans:
 		return nil
 	}
 	return errors.New("invalid dining hall")
