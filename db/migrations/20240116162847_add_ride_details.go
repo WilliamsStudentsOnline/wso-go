@@ -22,13 +22,13 @@ var AddRideDetails20240116162847 = &gormigrate.Migration{
 		// But, when the table already exists, it just adds new fields as columns, so just have a struct
 		// with those fields.
 		type BulletinRide struct {
-			models.BaseSchema
+			// models.BaseSchema
 			Body           string          `gorm:"size:65535" json:"body"`
 			Date           time.Time       `json:"date"`
-			Offer          *bool           `gorm:"not null;" json:"offer"`
-			Source         models.Location `json:"source" enums:",WILLIAMS,ALBANY,NYC,BOSTON,PITTSFIELD"`
-			Destination    models.Location `json:"destination" enums:",WILLIAMS,ALBANY,NYC,BOSTON,PITTSFIELD"`
-			AvailableSeats int             `gorm:"not null" json:"availableSeats"`
+			Offer          *bool           `gorm:"not null" json:"offer"`
+			Source         models.Location `json:"source" binding:"required" enums:",WILLIAMS,ALBANY,NYC,BOSTON,PITTSFIELD"`
+			Destination    models.Location `json:"destination"  binding:"required" enums:",WILLIAMS,ALBANY,NYC,BOSTON,PITTSFIELD"`
+			AvailableSeats uint            `gorm:"not null" json:"availableSeats"`
 			Price          float64         `json:"price"`
 
 			// Belongs to user
@@ -38,7 +38,19 @@ var AddRideDetails20240116162847 = &gormigrate.Migration{
 		return tx.AutoMigrate(&BulletinRide{}).Error
 	},
 	Rollback: func(tx *gorm.DB) error {
-		// For a new table,
-		return tx.DropTable("bulletin_rides").Error
+		err := tx.Table("bulletin_rides").DropColumn("available_seats").Error
+		if err != nil {
+			return err
+		}
+		err = tx.Table("bulletin_rides").DropColumn("price").Error
+		if err != nil {
+			return err
+		}
+		err = tx.Table("bulletin_rides").DropColumn("source").Error
+		if err != nil {
+			return err
+		}
+		err = tx.Table("bulletin_rides").DropColumn("destination").Error
+		return err
 	},
 }

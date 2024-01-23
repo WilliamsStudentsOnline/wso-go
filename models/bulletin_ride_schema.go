@@ -23,10 +23,10 @@ type BulletinRide struct {
 
 	Body           string    `gorm:"size:65535" json:"body"`
 	Date           time.Time `json:"date"`
-	Offer          *bool     `gorm:"not null;" json:"offer"`
-	Source         Location  `json:"source" enums:",WILLIAMS,ALBANY,NYC,BOSTON,PITTSFIELD"`
-	Destination    Location  `json:"destination" enums:",WILLIAMS,ALBANY,NYC,BOSTON,PITTSFIELD"`
-	AvailableSeats int       `gorm:"not null" json:"availableSeats"`
+	Offer          *bool     `gorm:"not null" json:"offer"`
+	Source         Location  `json:"source" binding:"required" enums:",WILLIAMS,ALBANY,NYC,BOSTON,PITTSFIELD"`
+	Destination    Location  `json:"destination" binding:"required" enums:",WILLIAMS,ALBANY,NYC,BOSTON,PITTSFIELD"`
+	AvailableSeats uint      `gorm:"not null" json:"availableSeats"`
 	Price          float64   `json:"price"`
 
 	// Belongs to user
