@@ -12,6 +12,18 @@ type DormtrakReviewModel struct {
 	*BaseModel
 }
 
+func (m *DormtrakReviewModel) CountReviewsbyUser(userID uint) (count int, err error) {
+	err = m.DB.Model(&DormtrakReview{}).Where("dormtrak_reviews.user_id = ?", userID).Count(&count).Error
+	return
+}
+
+func (m *DormtrakReviewModel) CountReviewsThisYearbyUser(userID uint, now time.Time) (count int, err error) {
+	err = m.DB.Model(&DormtrakReview{}).
+		Scopes(m.withScopeThisYear(now), m.withAuthorID(userID)).
+		Count(&count).Error
+	return
+}
+
 func NewDormtrakReviewModel(db *gorm.DB, log *zap.SugaredLogger) *DormtrakReviewModel {
 	return &DormtrakReviewModel{
 		BaseModel: NewBaseModel(db, log),
@@ -184,6 +196,27 @@ func (*DormtrakReviewModel) withDormRoomID(dormRoomID uint) func(db *gorm.DB) *g
 func (*DormtrakReviewModel) withUserID(userID uint) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Where(&DormtrakReview{UserID: userID})
+	}
+}
+
+func (m *DormtrakReviewModel) withScopeThisYear(now time.Time) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		year := now.Year()
+		if now.Month() < time.June {
+			year = now.Year() - 1
+		}
+		query := time.Date(year, time.June, 1, 0, 0, 0, 0, time.UTC)
+		return db.Where("dormtrak_reviews.created_at >= ?", query)
+	}
+}
+
+func (*DormtrakReviewModel) scopeCurrent(db *gorm.DB) *gorm.DB {
+	return db.Where("dormtrak_reviews.created_at >= ?", time.Now().AddDate(-5, 0, 0))
+}
+
+func (*DormtrakReviewModel) withAuthorID(authorID uint) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where(&DormtrakReview{UserID: authorID})
 	}
 }
 

@@ -47,6 +47,7 @@ type User struct {
 	Entry                     *string `json:"entry"`
 	Admin                     *bool   `gorm:"DEFAULT:false;not null" json:"admin"`
 	FactrakAdmin              *bool   `gorm:"DEFAULT:false;not null" json:"factrakAdmin"`
+	DormtrakAdmin             *bool   `gorm:"DEFAULT:false;not null" json:"dormtrakAdmin"`
 	HasAcceptedFactrakPolicy  *bool   `gorm:"DEFAULT:false;not null" json:"hasAcceptedFactrakPolicy"`
 	HasAcceptedDormtrakPolicy *bool   `gorm:"DEFAULT:false;not null" json:"hasAcceptedDormtrakPolicy"`
 
@@ -65,11 +66,12 @@ type User struct {
 	DormRoomID *uint     `gorm:"index:index_rooms_on_dorm_room_id" json:"dormRoomID"`
 	DormRoom   *DormRoom `json:"dormRoom,omitempty"`
 
-	Pronoun              *string `json:"pronoun"`
-	AtWilliams           *bool   `gorm:"DEFAULT:true;not null" json:"atWilliams"`
-	OffCycle             *bool   `gorm:"DEFAULT:false;not null" json:"offCycle"`
-	FactrakSurveyDeficit *int    `json:"factrakSurveyDeficit"`
-	OnCampusSemesters    int     `gorm:"DEFAULT:0;not null" json:"onCampusSemester"` // used to calculate number of factrack surveys needed
+	Pronoun               *string `json:"pronoun"`
+	AtWilliams            *bool   `gorm:"DEFAULT:true;not null" json:"atWilliams"`
+	OffCycle              *bool   `gorm:"DEFAULT:false;not null" json:"offCycle"`
+	FactrakSurveyDeficit  *int    `json:"factrakSurveyDeficit"`
+	DormtrakReviewDeficit *int    `json:"dormtrakReviewDeficit"`
+	OnCampusSemesters     int     `gorm:"DEFAULT:0;not null" json:"onCampusSemester"` // used to calculate number of factrack surveys needed
 
 	OptOutEphcatch      *bool `gorm:"DEFAULT:false;not null" json:"optOutEphcatch"`
 	EphcatchEligibility *bool `gorm:"DEFAULT:false;not null" json:"ephcatchEligibility"`
@@ -227,6 +229,11 @@ func (u *User) AfterCreate(scope *gorm.Scope) (err error) {
 		userModel := NewUserModel(scope.DB(), nil)
 
 		err = userModel.UpdateFactrakSurveyDeficit(u)
+		if err != nil {
+			return
+		}
+
+		err = userModel.UpdateDormtrakReviewDeficit(u)
 		if err != nil {
 			return
 		}

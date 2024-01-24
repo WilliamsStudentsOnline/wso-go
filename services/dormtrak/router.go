@@ -11,28 +11,32 @@ import (
 func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) {
 	c := NewController(db, cfg, log)
 
+	// Full dormtrak scoping:
+	full := r.Group("")
+	full.Use(auth.RequireScopes(auth.ScopeDormtrakFull))
+
 	// Neighborhoods endpoint
 	r.GET("/neighborhoods", c.ListNeighborhoods)
 	r.GET("/neighborhoods/:neighborhoodID", c.GetNeighborhood)
-	r.GET("/neighborhoods/:neighborhoodID/facts", c.GetNeighborhoodFacts)
+	full.GET("/neighborhoods/:neighborhoodID/facts", c.GetNeighborhoodFacts)
 
 	// Dorms endpoint
 	r.GET("/dorms", c.ListDorms)
 	r.GET("/dorms/:dormID", c.GetDorm)
 	r.GET("/dorms/:dormID/rooms", c.GetDormRooms)
-	r.GET("/dorms/:dormID/facts", c.GetDormFacts)
+	full.GET("/dorms/:dormID/facts", c.GetDormFacts)
 
 	// Rooms endpoint
 	r.GET("/rooms/:roomID/photos", c.GetRoomPhotos)
 
 	// Get rankings overall
-	r.GET("/rankings", c.GetRankings)
+	full.GET("/rankings", c.GetRankings)
 
 	// Must be logged in:
 	// Get reviews by dormID, dormRoomID, userID, pagination
-	r.GET("/reviews", c.ListReviews)
-	r.GET("/reviews/:reviewID", c.GetReview)
-	r.GET("/reviews/:reviewID/photos", c.GetReviewPhotos)
+	full.GET("/reviews", c.ListReviews)
+	full.GET("/reviews/:reviewID", c.GetReview)
+	full.GET("/reviews/:reviewID/photos", c.GetReviewPhotos)
 
 	// ScopeDormtrakWrite ensures that the person is a student and in the upperclasses
 	writer := r.Group("")
