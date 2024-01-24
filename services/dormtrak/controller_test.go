@@ -232,10 +232,10 @@ func TestLimitedScopeAccess(t *testing.T) {
 	cfg := utils.SetupConfig()
 	SetupRouter(r, db, cfg, zaptest.NewLogger(t).Sugar())
 
-	// // Can list professors
-	// w, err := utils.DoHTTPReq(r, http.MethodGet, fmt.Sprintf("/professors"), nil)
-	// assert.NoError(err)
-	// assert.Equal(http.StatusOK, w.Code)
+	// Can list dorms
+	w, err := utils.DoHTTPReq(r, http.MethodGet, "/dorms", nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
 
 	// // Can get professor, but not with reviews
 	// w, err = utils.DoHTTPReq(r, http.MethodGet, fmt.Sprintf("/professors/%d", p1.ID), nil)
@@ -244,7 +244,7 @@ func TestLimitedScopeAccess(t *testing.T) {
 	// assert.Nil(profResp.DormtrakReviews)
 
 	// Cannot get professor's reviews
-	w, err := utils.DoHTTPReq(r, http.MethodGet, fmt.Sprintf("/dormtrak_reviews/%d/dorm_room_id", d1.ID), nil)
+	w, err = utils.DoHTTPReq(r, http.MethodGet, "/reviews/:reviewID", nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusForbidden, w.Code)
 
@@ -274,7 +274,7 @@ func TestLimitedScopeAccess(t *testing.T) {
 	// assert.Equal(http.StatusForbidden, w.Code)
 
 	// // Can get review, but only owned review (works as s1)
-	w, err = utils.DoHTTPReq(r, http.MethodGet, fmt.Sprintf("/reviews/%d", dr1.ID), nil)
+	w, err = utils.DoHTTPReq(r, http.MethodGet, fmt.Sprintf("/dorms/%d/rooms", do1.ID), nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w.Code)
 

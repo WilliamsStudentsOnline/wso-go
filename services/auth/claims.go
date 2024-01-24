@@ -111,12 +111,10 @@ func GenerateClaimsFactory(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogg
 			} else if v.User.FactrakAdmin != nil && *v.User.FactrakAdmin {
 				// If not admin, check if factrak admin
 				scope = append(scope, auth.ScopeFactrakAdmin)
-			}
 			} else if v.User.DormtrakAdmin != nil && *v.User.DormtrakAdmin {
 				// If not admin, check if dormtrak admin
 				scope = append(scope, auth.ScopeDormtrakAdmin)
 			}
-
 
 			// Add goodrich manager scope
 			for _, gmUnix := range cfg.GoodrichManagerUnixes {
