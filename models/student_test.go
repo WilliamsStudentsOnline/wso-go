@@ -39,6 +39,9 @@ func TestStudentModel_UpdateFactrakSurveyDeficit(t *testing.T) {
 	db.LogMode(true)
 	err := db.AutoMigrate(
 		User{},
+		Dorm{},
+		DormRoom{},
+		DormtrakReview{},
 		Department{},
 		Course{},
 		AreaOfStudy{},
@@ -362,6 +365,373 @@ func TestStudentModel_UpdateFactrakSurveyDeficit(t *testing.T) {
 
 		// assert one less
 		assert.Equal(2, *student.FactrakSurveyDeficit)
+
+		// Cleanup
+		assert.NoError(db.Unscoped().Delete(&student).Error)
+	})
+}
+
+func TestStudentModel_UpdateDormtrakReviewDeficit(t *testing.T) {
+	cfg := &config.Config{
+		Env:          "test",
+		GinMode:      "test",
+		JWTRealm:     "wso-go-test",
+		DatabaseType: "sqlite3",
+		DatabaseArgs: ":memory:",
+		Secrets: &config.Secrets{
+			JWTSecretKey: "wso-jwt-test-secret",
+		},
+	}
+
+	log := zaptest.NewLogger(t).Sugar()
+
+	db := config.LoadDatabase(cfg, log)
+	db.SetLogger(gorm.Logger{LogWriter: zap.NewStdLog(log.Desugar())})
+	db.LogMode(true)
+	err := db.AutoMigrate(
+		User{},
+		Department{},
+		Course{},
+		AreaOfStudy{},
+		FactrakSurvey{},
+		FactrakAgreement{},
+		Dorm{},
+		DormRoom{},
+		DormtrakReview{},
+	).Error
+	testify.NoError(t, err)
+
+	drM := NewDormtrakReviewModel(db, log)
+
+	t.Run("prefrosh", func(t *testing.T) {
+		assert := testify.New(t)
+		m := NewStudentModel(db, zaptest.NewLogger(t).Sugar())
+
+		// Set time to be may
+		m.Clock = testClock{time.Date(
+			time.Now().Year(),
+			time.May,
+			1,
+			1,
+			1,
+			1,
+			1,
+			time.Now().Location(),
+		)}
+
+		// Test user
+		student := User{
+			Type:      UserTypeStudent,
+			Name:      "Student",
+			UnixID:    "s1",
+			ClassYear: lib.IntToPtr(4 + m.SeniorYear()),
+		}
+		// Create, update deficit, and get student
+		assert.NoError(db.Create(&student).Error)
+		assert.NoError(m.UpdateDormtrakReviewDeficit(&student))
+		assert.NoError(db.First(&student).Error)
+
+		// Assert the number of reviews
+		assert.Equal(1, *student.DormtrakReviewDeficit)
+
+		// Cleanup
+		assert.NoError(db.Unscoped().Delete(&student).Error)
+	})
+
+	t.Run("freshman pre-fall", func(t *testing.T) {
+		assert := testify.New(t)
+		m := NewStudentModel(db, zaptest.NewLogger(t).Sugar())
+
+		// Test user
+		student := User{
+			Type:      UserTypeStudent,
+			Name:      "Student",
+			UnixID:    "s1",
+			ClassYear: lib.IntToPtr(3 + m.SeniorYear()),
+		}
+
+		// Set time to be may
+		m.Clock = testClock{time.Date(
+			*student.ClassYear-4,
+			time.July,
+			1,
+			1,
+			1,
+			1,
+			1,
+			time.Now().Location(),
+		)}
+
+		// Create, update deficit, and get student
+		assert.NoError(db.Create(&student).Error)
+		assert.NoError(m.UpdateDormtrakReviewDeficit(&student))
+		assert.NoError(db.First(&student).Error)
+
+		// Assert the number of surveys
+		assert.Equal(1, *student.DormtrakReviewDeficit)
+
+		// Cleanup
+		assert.NoError(db.Unscoped().Delete(&student).Error)
+	})
+
+	t.Run("freshman fall", func(t *testing.T) {
+		assert := testify.New(t)
+		m := NewStudentModel(db, zaptest.NewLogger(t).Sugar())
+
+		// Test user
+		student := User{
+			Type:   UserTypeStudent,
+			Name:   "Student",
+			UnixID: "s1",
+			BaseSchema: BaseSchema{
+				// So we can properly Initialize OnCampusSemesters
+				CreatedAt: time.Date(
+					m.SeniorYear()-1,
+					time.September,
+					1,
+					1,
+					1,
+					1,
+					1,
+					time.Now().Location(),
+				),
+			},
+			ClassYear: lib.IntToPtr(3 + m.SeniorYear()),
+		}
+
+		// Set time to be may
+		m.Clock = testClock{time.Date(
+			*student.ClassYear-4,
+			time.November,
+			1,
+			1,
+			1,
+			1,
+			1,
+			time.Now().Location(),
+		)}
+
+		// Create, update deficit, and get student
+		assert.NoError(db.Create(&student).Error)
+		assert.NoError(m.InitializeOnCampusSemesters(&student))
+		assert.NoError(m.UpdateDormtrakReviewDeficit(&student))
+		assert.NoError(db.First(&student).Error)
+
+		// Assert the number of surveys
+		assert.Equal(1, *student.DormtrakReviewDeficit)
+
+		// Cleanup
+		assert.NoError(db.Unscoped().Delete(&student).Error)
+	})
+
+	t.Run("freshman january", func(t *testing.T) {
+		assert := testify.New(t)
+		m := &StudentModel{
+			UserModel: NewUserModel(db, zaptest.NewLogger(t).Sugar()),
+		}
+
+		// Test user
+		student := User{
+			Type:   UserTypeStudent,
+			Name:   "Student",
+			UnixID: "s1",
+			BaseSchema: BaseSchema{
+				// So we can properly Initialize OnCampusSemesters
+				CreatedAt: time.Date(
+					m.SeniorYear()-1,
+					time.September,
+					1,
+					1,
+					1,
+					1,
+					1,
+					time.Now().Location(),
+				),
+			},
+			ClassYear: lib.IntToPtr(3 + m.SeniorYear()),
+		}
+
+		m.Clock = testClock{time.Date(
+			*student.ClassYear-3,
+			time.January,
+			1,
+			1,
+			1,
+			1,
+			1,
+			time.Now().Location(),
+		)}
+
+		// Create, update deficit, and get student
+		assert.NoError(db.Create(&student).Error)
+		assert.NoError(m.InitializeOnCampusSemesters(&student))
+		assert.NoError(m.UpdateDormtrakReviewDeficit(&student))
+		assert.NoError(db.First(&student).Error)
+
+		reviewCount, err := drM.CountReviewsbyUser(student.ID)
+		assert.NoError(err)
+		assert.Equal(0, reviewCount)
+
+		// Assert the number of reviews
+		assert.Equal(1, *student.DormtrakReviewDeficit)
+
+		// Cleanup
+		assert.NoError(db.Unscoped().Delete(&student).Error)
+	})
+
+	t.Run("when new review created", func(t *testing.T) {
+		assert := testify.New(t)
+		m := &StudentModel{
+			UserModel: NewUserModel(db, zaptest.NewLogger(t).Sugar()),
+		}
+
+		// Test user
+		student := User{
+			Type:   UserTypeStudent,
+			Name:   "Student",
+			UnixID: "s1",
+			// Sophomore year
+			BaseSchema: BaseSchema{
+				// So we can properly Initialize OnCampusSemesters
+				CreatedAt: time.Date(
+					m.SeniorYear()-2,
+					time.September,
+					1,
+					1,
+					1,
+					1,
+					1,
+					time.Now().Location(),
+				),
+			},
+			ClassYear: lib.IntToPtr(2 + m.SeniorYear()),
+		}
+
+		m.Clock = testClock{time.Date(
+			*student.ClassYear-3,
+			time.January,
+			1,
+			1,
+			1,
+			1,
+			1,
+			time.Now().Location(),
+		)}
+
+		// Create, update deficit, and get student
+		assert.NoError(db.Create(&student).Error)
+		assert.NoError(m.InitializeOnCampusSemesters(&student))
+		assert.NoError(m.UpdateFactrakSurveyDeficit(&student))
+		assert.NoError(db.First(&student).Error)
+
+		reviewCount, err := drM.CountReviewsbyUser(student.ID)
+		assert.NoError(err)
+		assert.Equal(0, reviewCount)
+
+		// Assert the number of reviews
+		assert.Equal(1, *student.DormtrakReviewDeficit)
+
+		// make a dormtrak review
+		d1 := Dorm{
+			NeighborhoodID: 01,
+			Name:           "Currier",
+		}
+		r1 := DormRoom{
+			Dorm: &d1,
+		}
+		dr1 := DormtrakReview{
+			UserID:   student.ID,
+			DormRoom: &r1,
+		}
+		assert.NoError(m.DB.Create(&d1).Create(&r1).Create(&dr1).Error)
+
+		// recalculate deficit
+		assert.NoError(m.UpdateDormtrakReviewDeficit(&student))
+		assert.NoError(db.First(&student).Error)
+
+		// assert one less
+		assert.Equal(2, *student.FactrakSurveyDeficit)
+
+		// Cleanup
+		assert.NoError(db.Unscoped().Delete(&student).Error)
+		assert.NoError(db.Unscoped().Delete(&dr1).Error)
+	})
+
+	t.Run("when review is deleted", func(t *testing.T) {
+		assert := testify.New(t)
+		m := &StudentModel{
+			UserModel: NewUserModel(db, zaptest.NewLogger(t).Sugar()),
+		}
+
+		// Test user
+		student := User{
+			Type:   UserTypeStudent,
+			Name:   "Student",
+			UnixID: "s1",
+			// Sophomore year
+			BaseSchema: BaseSchema{
+				// So we can properly Initialize OnCampusSemesters
+				CreatedAt: time.Date(
+					m.SeniorYear()-2,
+					time.September,
+					1,
+					1,
+					1,
+					1,
+					1,
+					time.Now().Location(),
+				),
+			},
+			ClassYear: lib.IntToPtr(2 + m.SeniorYear()),
+		}
+
+		m.Clock = testClock{time.Date(
+			*student.ClassYear-3,
+			time.January,
+			1,
+			1,
+			1,
+			1,
+			1,
+			time.Now().Location(),
+		)}
+
+		// Create, update deficit, and get student
+		assert.NoError(db.Create(&student).Error)
+
+		// make a dormtrak review
+		d1 := Dorm{
+			NeighborhoodID: 01,
+			Name:           "Currier",
+		}
+		r1 := DormRoom{
+			Dorm: &d1,
+		}
+		dr1 := DormtrakReview{
+			UserID:   student.ID,
+			DormRoom: &r1,
+		}
+		assert.NoError(m.DB.Create(&d1).Create(&r1).Create(&dr1).Error)
+		assert.NoError(m.InitializeOnCampusSemesters(&student))
+		assert.NoError(m.UpdateDormtrakReviewDeficit(&student))
+		assert.NoError(db.First(&student).Error)
+
+		reviewCount, err := drM.CountReviewsbyUser(student.ID)
+		assert.NoError(err)
+		assert.Equal(1, reviewCount)
+
+		// Assert the number of reviews
+		assert.Equal(0, *student.DormtrakReviewDeficit)
+
+		// Delete
+		assert.NoError(db.Delete(&dr1).Error)
+
+		// Recalculate deficit
+		assert.NoError(m.UpdateDormtrakReviewDeficit(&student))
+		assert.NoError(db.First(&student).Error)
+
+		// assert one less
+		assert.Equal(1, *student.DormtrakReviewDeficit)
 
 		// Cleanup
 		assert.NoError(db.Unscoped().Delete(&student).Error)

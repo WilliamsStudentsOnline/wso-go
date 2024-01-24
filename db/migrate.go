@@ -51,6 +51,7 @@ var Migrations = []*gormigrate.Migration{
 	migrations.UserAddAreasOfStudy20220219171916,
 	migrations.AddBannedUsersTable20220228163053,
 	migrations.LookingForColumn20220504015544,
+	migrations.UserAddDormtrakReviewDeficit20240109164702,
 }
 
 var MigrationGormOptions = gormigrate.DefaultOptions

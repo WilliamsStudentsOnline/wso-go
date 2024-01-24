@@ -728,6 +728,13 @@ func (m *UserModel) UpdateFactrakSurveyDeficit(user *User) error {
 	return NewStudentModel(m.DB, m.log).UpdateFactrakSurveyDeficit(user)
 }
 
+func (m *UserModel) UpdateDormtrakReviewDeficit(user *User) error {
+	if !user.IsStudent() {
+		return errors.New("user must be student")
+	}
+	return NewStudentModel(m.DB, m.log).UpdateDormtrakReviewDeficit(user)
+}
+
 func (*UserModel) scopeVisible(db *gorm.DB) *gorm.DB {
 	return db.Where("users.visible = ?", true)
 }

@@ -63,6 +63,31 @@ func (m *StudentModel) UpdateFactrakSurveyDeficit(user *User) (err error) {
 	return
 }
 
+func (m *StudentModel) UpdateDormtrakReviewDeficit(user *User) (err error) {
+	// Count written surveys
+	drM := NewDormtrakReviewModel(m.DB, m.log)
+	if err != nil {
+		return
+	}
+
+	var deficit int
+
+	reviewsThisYear, err := drM.CountReviewsThisYearbyUser(user.ID, m.Clock.Now())
+	if err != nil {
+		return err
+	}
+
+	deficit = 1 - reviewsThisYear
+
+	// Minimum 0 deficit
+	if deficit < 0 {
+		deficit = 0
+	}
+
+	err = m.DB.Model(&user).Update("dormtrak_review_deficit", deficit).Error
+	return
+}
+
 func (m *StudentModel) SeniorYear() int {
 	// TODO: changing time.Now() below to m.Clock will break Student.YearNumber(), which creates an empty StudentModel{} without specifying Clock (a workaround would be use localClock, but it is best if we can keep it consistent with m.Clock)
 	locTime := time.Now().Local()
