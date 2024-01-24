@@ -94,6 +94,12 @@ func GenerateClaimsFactory(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogg
 					if v.User.Student().IsUpperClass() {
 						scope = append(scope, auth.ScopeDormtrakWrite)
 					}
+					if v.User.DormtrakReviewDeficit != nil && *v.User.DormtrakReviewDeficit == 0 {
+						scope = append(scope, auth.ScopeDormtrakFull)
+					} else {
+						// Otherwise, give limited access
+						scope = append(scope, auth.ScopeDormtrakLimited)
+					}
 				}
 			}
 
@@ -101,10 +107,16 @@ func GenerateClaimsFactory(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogg
 			if v.User.Admin != nil && *v.User.Admin {
 				scope = append(scope, auth.ScopeAdminAll)
 				scope = append(scope, auth.ScopeFactrakAdmin)
+				scope = append(scope, auth.ScopeDormtrakAdmin)
 			} else if v.User.FactrakAdmin != nil && *v.User.FactrakAdmin {
 				// If not admin, check if factrak admin
 				scope = append(scope, auth.ScopeFactrakAdmin)
 			}
+			} else if v.User.DormtrakAdmin != nil && *v.User.DormtrakAdmin {
+				// If not admin, check if dormtrak admin
+				scope = append(scope, auth.ScopeDormtrakAdmin)
+			}
+
 
 			// Add goodrich manager scope
 			for _, gmUnix := range cfg.GoodrichManagerUnixes {

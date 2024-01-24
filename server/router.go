@@ -174,6 +174,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 		// Dormtrak Service
 		dormtrakGroup := v2.Group("/dormtrak")
 		dormtrakGroup.Use(auth.RequireScopes(auth.ScopeDormtrak))
+		dormtrakGroup.Use(auth.RequireScopes(auth.ScopeDormtrakLimited, auth.ScopeDormtrakFull))
 		dormtrakService.SetupRouter(dormtrakGroup, db, cfg, log.Named("dormtrak"))
 
 		// Bulletin Service

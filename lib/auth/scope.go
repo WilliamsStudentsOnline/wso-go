@@ -30,6 +30,13 @@ const (
 	ScopeDormtrak = "service:dormtrak"
 	// Ability to create reviews, etc. (must be upperclass)
 	ScopeDormtrakWrite = "service:dormtrak:write"
+	// Limited access to dormtrak for people with outstanding review deficit
+	ScopeDormtrakLimited = "service:dormtrak:limited"
+	// Full access to dormtrak for people with no review deficit. Includes everything from ScopeDormtrakLimited.
+	ScopeDormtrakFull = "service:dormtrak:full"
+	// Allows admin access to dormtrak. This includes everything from ScopeDormtrakFull, while also opening up
+	// admin endpoints and allowing certain admin-level write actions (need write-self for normal actions, though).
+	ScopeDormtrakAdmin = "service:dormtrak:admin"
 
 	ScopeEphcatch      = "service:ephcatch"
 	ScopeBulletin      = "service:bulletin"

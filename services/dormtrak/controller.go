@@ -46,7 +46,7 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 }
 
 func RemoveUserIDFromReviews(c *gin.Context, r []*models.DormtrakReview) {
-	if auth.HasScope(c, auth.ScopeAdminAll, auth.ScopeFactrakAdmin) {
+	if auth.HasScope(c, auth.ScopeAdminAll, auth.ScopeDormtrakAdmin) {
 		return
 	}
 
@@ -59,4 +59,12 @@ func RemoveUserIDFromReviews(c *gin.Context, r []*models.DormtrakReview) {
 		review.UserID = 0
 		review.User = nil
 	}
+}
+
+func IsScopeLimited(c *gin.Context) bool {
+	return !auth.HasScope(c, auth.ScopeAdminAll, auth.ScopeDormtrakAdmin, auth.ScopeDormtrakFull)
+}
+
+func IsScopeAdmin(c *gin.Context) bool {
+	return auth.HasScope(c, auth.ScopeAdminAll, auth.ScopeDormtrakAdmin)
 }

@@ -14,7 +14,7 @@ import (
 func TestRemoveBannedScope(t *testing.T) {
 	scope := []string{auth.ScopeChat, auth.ScopeUsers, auth.ScopeBulletin, auth.ScopeWriteSelf, auth.ScopeFactrakFull,
 		auth.ScopeFactrakLimited, auth.ScopeBulletinWrite, auth.ScopeEphmatch, auth.ScopeDormtrakWrite,
-		auth.ScopeDormtrak}
+		auth.ScopeDormtrak, auth.ScopeDormtrakFull, auth.ScopeDormtrakLimited}
 	banInfo := models.BannedUser{
 		Factrak:       true,
 		Dormtrak:      false,
@@ -68,4 +68,5 @@ func TestBannedUser(t *testing.T) {
 	assert.NotContains(claims["scope"], auth.ScopeBulletinWrite)
 	assert.Contains(claims["scope"], auth.ScopeUsers)
 	assert.Contains(claims["scope"], auth.ScopeFactrakLimited)
+	assert.Contains(claims["scope"], auth.ScopeDormtrakLimited)
 }
