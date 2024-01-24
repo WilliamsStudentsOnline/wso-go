@@ -50,3 +50,12 @@ func (m *DiningKeywordModel) DeleteKeywordAssociation(t *DiningKeyword, u *User)
 func (m *DiningKeywordModel) DeleteKeyword(t *DiningKeyword) (err error) {
 	return m.DB.Delete(t).Error
 }
+
+func (m *DiningKeywordModel) GetUsersForKeyword(keyword *DiningKeyword, users *[]*User) (err error) {
+	// Load the Users association for the given keyword
+	err = m.DB.Model(keyword).Association("Users").Find(users).Error
+	if err != nil {
+		return err
+	}
+	return
+}

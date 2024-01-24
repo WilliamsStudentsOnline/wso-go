@@ -87,3 +87,37 @@ func TestDiningKeywordModel_KeywordAssociation(t *testing.T) {
 	return
 
 }
+
+func TestDiningKeywordModel_GetUsersForKeyword(t *testing.T) {
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+	m := NewDiningKeywordModel(db, zaptest.NewLogger(t).Sugar())
+
+	new_keyword := &DiningKeyword{
+		Keyword: "yellow chicken",
+	}
+	new_user := &User{
+		Type:   UserTypeStudent,
+		Name:   "Donald J Trump",
+		UnixID: "djt12",
+	}
+	new_user_2 := &User{
+		Type:   UserTypeStudent,
+		Name:   "Ethan Lee",
+		UnixID: "enl14",
+	}
+
+	assert.NoError(
+		db.Create(&new_user).Error)
+
+	assert.NoError(m.CreateKeyword(new_keyword))
+
+	assert.NoError(m.NewKeywordAssociation(new_keyword, new_user))
+	assert.NoError(m.NewKeywordAssociation(new_keyword, new_user_2))
+	var associated_users []*User
+	assert.NoError(m.GetUsersForKeyword(new_keyword, &associated_users))
+
+	assert.Equal(associated_users[0].Name, "Donald J Trump")
+	assert.Equal(associated_users[1].Name, "Ethan Lee")
+
+}
