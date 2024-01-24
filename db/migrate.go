@@ -52,6 +52,7 @@ var Migrations = []*gormigrate.Migration{
 	migrations.AddBannedUsersTable20220228163053,
 	migrations.LookingForColumn20220504015544,
 	migrations.AddFoodNotify20240111162825,
+	migrations.AddUserDiningKeywords20240110165319,
 }
 
 var MigrationGormOptions = gormigrate.DefaultOptions
@@ -93,6 +94,7 @@ func MigrateDB(db *gorm.DB) error {
 			&models.GoodrichOrder{},
 			&models.EphmatchRelation{},
 			&models.BannedUser{},
+			&models.DiningKeyword{},
 		).Error
 		if err != nil {
 			return err

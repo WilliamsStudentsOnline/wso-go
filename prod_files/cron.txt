@@ -26,9 +26,9 @@ SHELL="/bin/bash"
 SHELL="/bin/bash"
 0 1 * * * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/dining-update -out /home/wso/wso/static/dining.json -vi /home/wso/wso/wso-backend/vendor_info.yaml -eats4Ephs >> /home/wso/wso/wso-backend/logs/dining-update-cron.log 2>&1'
 
-# Salmon scheduled notif
+# Scheduled Notif for Dining Keywords
 SHELL="/bin/bash"
-0 9 * * * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/schedule-notifs -notif salmon -console -config /home/wso/wso/wso-backend/config.yaml >> /home/wso/wso/wso-backend/logs/schedule-notifs-cron.log 2>&1'
+0 9 * * * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/schedule-notifs -notif food -console -config /home/wso/wso/wso-backend/config.yaml >> /home/wso/wso/wso-backend/logs/schedule-notifs-cron.log 2>&1'
 
 # Increment students' on campus semester (for those with at_williams = true)
 # This is run at the beginning of each semester (Feb & Sep)

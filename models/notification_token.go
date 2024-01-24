@@ -42,11 +42,12 @@ func (m *NotificationTokenModel) GetTokensWhereSalmonNotif(t *[]*NotificationTok
 	return
 }
 
-func (m *NotificationTokenModel) GetTokensWhereFoodNotif(t *[]*NotificationToken) (err error) {
+func (m *NotificationTokenModel) GetNotifTokensForUser(user *User, t *[]*NotificationToken) (err error) {
 	err = m.DB.Model(&NotificationToken{}).
 		Joins("INNER JOIN notification_settings ON notification_tokens.user_id = notification_settings.user_id").
 		Where("notification_settings.enable_notifications = ?", true).
 		Where("notification_settings.food_notify = ?", true).
+		Where("notification_settings.user_id = ?", user.ID).
 		Find(t).Error
 	return
 }
