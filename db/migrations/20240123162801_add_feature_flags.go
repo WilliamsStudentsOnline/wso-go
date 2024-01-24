@@ -19,17 +19,11 @@ var AddFeatureFlags20240123162801 = &gormigrate.Migration{
 		// so side effects are prevented if the original struct changes during the time.
 		// But, when the table already exists, it just adds new fields as columns, so just have a struct
 		// with those fields.
-		type FlagStatus string
-
-		const (
-			FlagEnabled  FlagStatus = "ENABLED"
-			FlagDisabled FlagStatus = "DISABLED"
-		)
 
 		type FeatureFlags struct {
 			models.BaseSchema
-			Name   string     `gorm:"uniqueIndex;not null" json:"name"`
-			Status FlagStatus `gorm:"not null" json:"status"`
+			Name   string            `gorm:"uniqueIndex;not null" json:"name"`
+			Status models.FlagStatus `gorm:"not null" json:"status"`
 		}
 		return tx.AutoMigrate(&FeatureFlags{}).Error
 	},

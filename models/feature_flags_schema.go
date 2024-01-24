@@ -13,7 +13,6 @@ const (
 	FlagDisabled FlagStatus = "DISABLED"
 )
 
-// FeatureFlag Schema
 type FeatureFlags struct {
 	BaseSchema
 
@@ -25,11 +24,6 @@ func (*FeatureFlags) TableName() string {
 	return "feature_flags"
 }
 
-// func (ff *FeatureFlag) SetFeatureFlag(status FlagStatus) {
-// 	// Set the status based on the provided parameter
-// 	ff.Status = status
-// }
-
 func (fs *FlagStatus) UnmarshalJSON(b []byte) error {
 	type F FlagStatus
 	var status = (*F)(fs)
@@ -38,7 +32,6 @@ func (fs *FlagStatus) UnmarshalJSON(b []byte) error {
 		return err
 	}
 
-	// Validate the received status
 	switch *fs {
 	case FlagEnabled, FlagDisabled:
 		return nil
