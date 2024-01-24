@@ -43,14 +43,6 @@ var AddRideDetails20240116162847 = &gormigrate.Migration{
 			return err
 		}
 		err = tx.Table("bulletin_rides").DropColumn("price").Error
-		if err != nil {
-			return err
-		}
-		err = tx.Table("bulletin_rides").DropColumn("source").Error
-		if err != nil {
-			return err
-		}
-		err = tx.Table("bulletin_rides").DropColumn("destination").Error
 		return err
 	},
 }
