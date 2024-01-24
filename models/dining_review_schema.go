@@ -1,0 +1,75 @@
+package models
+
+import (
+	"encoding/json"
+	"errors"
+	"time"
+)
+
+type DiningHall string
+
+const (
+	DiningHallDriscoll DiningHall = "DRISCOLL"
+	DiningHallMission  DiningHall = "MISSION"
+	DiningHallWhitmans DiningHall = "WHITMANS"
+)
+
+// Dining Hall Review Schema
+type DiningHallReview struct {
+	BaseSchema
+
+	// Belongs to user (student)
+	UserID uint  `gorm:"index:index_dining_hall_review_on_user_id;not null" json:"userID"`
+	User   *User `json:"user,omitempty"`
+
+	WouldRecommendFood *bool  `json:"wouldRecommendFood"`
+	FoodQuality        *int   `json:"foodQuality"`
+	WaitTime           *int   `json:"waitTime"`
+	Comment            string `gorm:"size:65535" json:"comment"`
+	Flagged            bool   `json:"flagged"`
+
+	// Dining info data
+	DiningHall DiningHall `json:"diningHall" enums:"DRISCOLL, MISSION, WHITMANS"` //Driscoll, Mission, Whitman's
+
+	// Has many agreements
+	Agreements []*DiningReviewAgreement `json:"agreements,omitempty"`
+
+	// Not looked at by GORM, just for returning in JSON
+	TotalAgree    int `gorm:"-" json:"totalAgree"`
+	TotalDisagree int `gorm:"-" json:"totalDisagree"`
+
+	// Pass the created time: not looked at by GORM
+	CreatedTime time.Time `gorm:"-" json:"createdTime"`
+
+	// Pass if the client agreed with the survey; not looked at by GORM.
+	// True means user agreed, false means user disagreed, and null/missing means user does not have any
+	// agreement/disagreement.
+	UserAgreement *bool `gorm:"-" json:"userAgreement,omitempty"`
+}
+
+func (*DiningHallReview) ReviewTable() string {
+	return "dining_hall_reviews"
+}
+
+func NewDiningHallReview(id uint) *DiningHallReview {
+	return &DiningHallReview{
+		BaseSchema: BaseSchema{
+			ID: id,
+		},
+	}
+}
+
+func (diningHall *DiningHall) UnmarshalJSON(b []byte) error {
+	// Define a secondary type to avoid ending up with a recursive call to json.Unmarshal
+	type DH DiningHall
+	var r = (*DH)(diningHall)
+	err := json.Unmarshal(b, &r)
+	if err != nil {
+		panic(err)
+	}
+	switch *diningHall {
+	case DiningHallDriscoll, DiningHallMission, DiningHallWhitmans:
+		return nil
+	}
+	return errors.New("invalid dining hall")
+}
