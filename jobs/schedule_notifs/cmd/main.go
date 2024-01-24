@@ -66,6 +66,8 @@ func main() {
 	switch notif {
 	case "salmon":
 		notifErr = schedule_notifs.SalmonNotify(cfg, db, log)
+	case "food":
+		notifErr = schedule_notifs.FoodNotify(cfg, db, log)
 	default:
 		log.Fatal("unknown scheduled notification job")
 	}
