@@ -66,23 +66,18 @@ func (m *StudentModel) UpdateFactrakSurveyDeficit(user *User) (err error) {
 func (m *StudentModel) UpdateDormtrakReviewDeficit(user *User) (err error) {
 	// Count written surveys
 	drM := NewDormtrakReviewModel(m.DB, m.log)
-	reviewCount, err := drM.CountReviewsbyUser(user.ID)
 	if err != nil {
 		return
 	}
 
 	var deficit int
 
-	if reviewCount >= user.Student().dormtrakReviewThreshold() { //surveyThreshold -> reviewThreshold
-		deficit = 0
-	} else {
-		reviewsThisYear, err := drM.CountReviewsThisYearbyUser(user.ID, m.Clock.Now())
-		if err != nil {
-			return err
-		}
-
-		deficit = 1 - reviewsThisYear
+	reviewsThisYear, err := drM.CountReviewsThisYearbyUser(user.ID, m.Clock.Now())
+	if err != nil {
+		return err
 	}
+
+	deficit = 1 - reviewsThisYear
 
 	// Minimum 0 deficit
 	if deficit < 0 {
@@ -263,19 +258,6 @@ func (s *Student) IsUpperClass() bool {
 // To be excluded from the 2 surveys requirement this sem, you must have submitted
 // at least 2N reviews, where N is the number of semesters you have stayed on campus.
 func (s *Student) surveyThreshold() int {
-	if s.ClassYear == nil {
-		// Mostly Language TAs and Grad students; return a flat 3 requirement
-		return 3
-	} else if s.OnCampusSemesters < 1 {
-		// Pre-Frosh
-		return 0
-	} else {
-		// Note that OnCampusSemesters signals the current semester, and user only need to write about past semesters
-		return (s.OnCampusSemesters - 1) * 2
-	}
-}
-
-func (s *Student) dormtrakReviewThreshold() int {
 	if s.ClassYear == nil {
 		// Mostly Language TAs and Grad students; return a flat 3 requirement
 		return 3
