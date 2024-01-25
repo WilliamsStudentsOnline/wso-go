@@ -203,36 +203,46 @@ func TestController_ListCoursesRanked(t *testing.T) {
 	assert.NoError(err)
 	resp := GetCoursesFromResp(assert, w)
 	assert.NoError(EqualCourseIDs([]models.Course{c3, c1, c2}, resp))
+	assert.Equal(*resp[0].FactrakScore, 40.0/14)
+	assert.Equal(*resp[1].FactrakScore, 30.0/10)
+	assert.Equal(*resp[2].FactrakScore, 90.0/10)
 
 	// Test 3: Get courses ranked by workload, for one professor
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/courses?metric=course_workload&ascending=true&professorID=%d", p1.ID), nil)
 	assert.NoError(err)
 	resp = GetCoursesFromResp(assert, w)
 	assert.NoError(EqualCourseIDs([]models.Course{c1, c2}, resp))
+	assert.Equal(*resp[0].FactrakScore, 30.0/10)
+	assert.Equal(*resp[1].FactrakScore, 90.0/10)
 
 	// Test 4: Get courses ranked by whether students would recommend them
 	w, err = utils.DoHTTPReq(router, http.MethodGet, "/courses?metric=would_recommend_course", nil)
 	assert.NoError(err)
 	resp = GetCoursesFromResp(assert, w)
 	assert.NoError(EqualCourseIDs([]models.Course{c1}, resp))
+	assert.Equal(*resp[0].FactrakScore, 10.0/10)
 
 	// Test 5: Get courses ranked by how stimulating they are, limited to one area of study
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/courses?metric=course_stimulating&areaOfStudyID=%d", area2.ID), nil)
 	assert.NoError(err)
 	resp = GetCoursesFromResp(assert, w)
 	assert.NoError(EqualCourseIDs([]models.Course{c2}, resp))
+	assert.Equal(*resp[0].FactrakScore, 80.0/10)
 
 	// Test 6: Get courses ranked by workload, with pagination
 	w, err = utils.DoHTTPReq(router, http.MethodGet, "/courses?metric=course_workload&ascending=true&limit=2", nil)
 	assert.NoError(err)
 	resp = GetCoursesFromResp(assert, w)
 	assert.NoError(EqualCourseIDs([]models.Course{c3, c1}, resp))
+	assert.Equal(*resp[0].FactrakScore, 40.0/14)
+	assert.Equal(*resp[1].FactrakScore, 30.0/10)
 
 	//Test 6, part 2 of pagination
 	w, err = utils.DoHTTPReq(router, http.MethodGet, "/courses?metric=course_workload&ascending=true&limit=2&offset=2", nil)
 	assert.NoError(err)
 	resp = GetCoursesFromResp(assert, w)
 	assert.NoError(EqualCourseIDs([]models.Course{c2}, resp))
+	assert.Equal(*resp[0].FactrakScore, 90.0/10)
 }
 
 func TestController_GetCourse(t *testing.T) {
