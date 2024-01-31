@@ -5,7 +5,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/lib/isbn"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/gin-gonic/gin"
-	"google.golang.org/api/books/v1"
+	books "google.golang.org/api/books/v1"
 )
 
 type SearchBooksRequest struct {

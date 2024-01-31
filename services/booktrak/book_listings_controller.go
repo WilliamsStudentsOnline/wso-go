@@ -15,7 +15,8 @@ type CreateBookListingParams struct {
 	ListingType models.ListingType `json:"listingType" enums:",BUY,SELL" binding:"required"`
 }
 
-// CreateBookListing @Summary Create book listing
+// CreateBookListing
+// @Summary Create book listing
 // @Description create a book listing
 // @ID booktrak-create-book-listing
 // @Tags booktrak
@@ -71,7 +72,8 @@ func (t *Controller) CreateBookListing(c *gin.Context) {
 	t.RespondCreated(c, bookListing)
 }
 
-// UpdateBookListing @Summary Update book listing
+// UpdateBookListing
+// @Summary Update book listing
 // @Description update a book listing
 // @ID booktrak-update-book-listing
 // @Tags booktrak

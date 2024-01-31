@@ -1,8 +1,9 @@
 package isbn
 
 import (
-	testify "github.com/stretchr/testify/assert"
 	"testing"
+
+	testify "github.com/stretchr/testify/assert"
 )
 
 func TestCleanIsbn(t *testing.T) {

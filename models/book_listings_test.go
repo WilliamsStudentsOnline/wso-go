@@ -1,12 +1,13 @@
 package models_test
 
 import (
+	"testing"
+
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	. "github.com/WilliamsStudentsOnline/wso-go/models"
 	testify "github.com/stretchr/testify/assert"
 	"go.uber.org/zap/zaptest"
-	"testing"
 )
 
 func TestBookListingModel_GetAllBookListings(t *testing.T) {

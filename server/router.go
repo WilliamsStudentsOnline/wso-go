@@ -173,8 +173,9 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 		factrakGroup.Use(auth.RequireScopes(auth.ScopeFactrakLimited, auth.ScopeFactrakFull))
 		factrakService.SetupRouter(factrakGroup, db, cfg, log.Named("factrak"))
 
+		// Booktrak Service
 		booktrakGroup := v2.Group("/booktrak")
-		booktrakGroup.Use(auth.RequireScopes(auth.ScopeFactrakLimited, auth.ScopeFactrakFull))
+		booktrakGroup.Use(auth.RequireScopes(auth.ScopeBooktrak))
 		booktrakService.SetupRouter(booktrakGroup, db, cfg, log.Named("booktrak"))
 
 		// Dormtrak Service

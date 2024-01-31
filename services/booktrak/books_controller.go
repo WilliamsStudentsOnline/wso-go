@@ -7,7 +7,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
-	"google.golang.org/api/books/v1"
+	books "google.golang.org/api/books/v1"
 )
 
 type ListBooksParams struct {
@@ -54,7 +54,8 @@ type CreateBookParams struct {
 	ISBN string `json:"isbn" binding:"required,isbn"`
 }
 
-// CreateBook @Summary Create a book if it doesn't exist already
+// CreateBook
+// @Summary Create a book if it doesn't exist already
 // @Description create a book
 // @ID booktrak-create-book
 // @Tags booktrak
