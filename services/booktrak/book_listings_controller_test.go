@@ -20,7 +20,7 @@ import (
 func TestController_CreateBookListing(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeBooktrak, auth.ScopeWriteSelf)
+	router := utils.SetupRouter(auth.ScopeBooktrak, auth.ScopeBooktrakWrite, auth.ScopeWriteSelf)
 	cfg := utils.SetupConfig()
 
 	u1 := models.User{
@@ -106,7 +106,7 @@ func TestController_UpdateBookListing(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeBooktrak, auth.ScopeWriteSelf)
+	router := utils.SetupRouter(auth.ScopeBooktrak, auth.ScopeBooktrakWrite, auth.ScopeWriteSelf)
 	cfg := utils.SetupConfig()
 
 	u1 := models.User{
@@ -247,7 +247,7 @@ func TestController_UpdateBookListing(t *testing.T) {
 func TestController_ListBookListings(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeBooktrak, auth.ScopeWriteSelf)
+	router := utils.SetupRouter(auth.ScopeBooktrak, auth.ScopeBooktrakWrite, auth.ScopeWriteSelf)
 	cfg := utils.SetupConfig()
 
 	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
@@ -414,7 +414,7 @@ func TestController_ListBookListings(t *testing.T) {
 func TestController_GetBookListing(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeBooktrak, auth.ScopeWriteSelf)
+	router := utils.SetupRouter(auth.ScopeBooktrak, auth.ScopeBooktrakWrite, auth.ScopeWriteSelf)
 	cfg := utils.SetupConfig()
 
 	u1 := models.User{
@@ -478,7 +478,7 @@ func TestController_GetBookListing(t *testing.T) {
 func TestController_DeleteBookListing(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeBooktrak, auth.ScopeWriteSelf)
+	router := utils.SetupRouter(auth.ScopeBooktrak, auth.ScopeBooktrakWrite, auth.ScopeWriteSelf)
 	cfg := utils.SetupConfig()
 
 	u1 := models.User{

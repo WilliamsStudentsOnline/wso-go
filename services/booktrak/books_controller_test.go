@@ -20,7 +20,7 @@ import (
 func TestController_ListBooks(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeBooktrak, auth.ScopeWriteSelf)
+	router := utils.SetupRouter(auth.ScopeBooktrak, auth.ScopeBooktrakWrite, auth.ScopeWriteSelf)
 	cfg := utils.SetupConfig()
 
 	books := []*models.Book{
@@ -105,7 +105,7 @@ func TestController_ListBooks(t *testing.T) {
 func TestController_GetBook(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeBooktrak, auth.ScopeWriteSelf)
+	router := utils.SetupRouter(auth.ScopeBooktrak, auth.ScopeBooktrakWrite, auth.ScopeWriteSelf)
 	cfg := utils.SetupConfig()
 
 	book := &models.Book{
@@ -154,7 +154,7 @@ func TestController_GetBook(t *testing.T) {
 func TestController_CreateBoook(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeBooktrak, auth.ScopeWriteSelf)
+	router := utils.SetupRouter(auth.ScopeBooktrak, auth.ScopeBooktrakWrite, auth.ScopeWriteSelf)
 	cfg := utils.SetupConfig()
 
 	book := &models.Book{
@@ -215,7 +215,7 @@ func TestController_CreateBoook(t *testing.T) {
 func TestController_UpdateBookCourses(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeBooktrak, auth.ScopeWriteSelf)
+	router := utils.SetupRouter(auth.ScopeBooktrak, auth.ScopeBooktrakWrite, auth.ScopeWriteSelf)
 	cfg := utils.SetupConfig()
 
 	book := &models.Book{
