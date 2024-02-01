@@ -768,6 +768,560 @@ const docTemplate = `{
                 }
             }
         },
+        "/books/{bookID}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "get a book by book id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "books"
+                ],
+                "summary": "Get book by book id",
+                "operationId": "get-book",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Book ID",
+                        "name": "bookID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Book"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/booktrak/books": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "lists all books. Order by creation date.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "booktrak"
+                ],
+                "summary": "List books",
+                "operationId": "booktrak-list-books",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Offset Pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Book Title",
+                        "name": "title",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Book Publisher",
+                        "name": "publisher",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Book ISBN-13 (must be in ISBN format)",
+                        "name": "isbn",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Book"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "create a book",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "booktrak"
+                ],
+                "summary": "Create a book if it doesn't exist already",
+                "operationId": "booktrak-create-book",
+                "parameters": [
+                    {
+                        "description": "Create Book Params",
+                        "name": "createParams",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/booktrak.CreateBookParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.Book"
+                        }
+                    },
+                    "2251": {
+                        "description": "failed to find book online by isbn",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/booktrak/books/{bookID}": {
+            "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "update a book's courses",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "booktrak"
+                ],
+                "summary": "Update book",
+                "operationId": "booktrak-update-book",
+                "parameters": [
+                    {
+                        "description": "Update Book Params",
+                        "name": "updateParams",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/booktrak.UpdateBookCoursesParams"
+                        }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Book ID",
+                        "name": "bookID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Book"
+                        }
+                    },
+                    "2253": {
+                        "description": "some courses could not be found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/booktrak/listings": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "lists all book listings",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "booktrak"
+                ],
+                "summary": "List book listings",
+                "operationId": "booktrak-list-book-listings",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Offset Pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Course ID",
+                        "name": "courseID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "userID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Book ISBN-13",
+                        "name": "isbn",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "POOR",
+                            "FAIR",
+                            "GOOD",
+                            "VERY_GOOD",
+                            "LIKE_NEW",
+                            "NEW"
+                        ],
+                        "type": "string",
+                        "description": "Minimum Book Condition",
+                        "name": "minCondition",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "POOR",
+                            "FAIR",
+                            "GOOD",
+                            "VERY_GOOD",
+                            "LIKE_NEW",
+                            "NEW"
+                        ],
+                        "type": "string",
+                        "description": "Maximum Book Condition",
+                        "name": "maxCondition",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Type of the listing",
+                        "name": "listingType",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "enum": [
+                                "user",
+                                "book"
+                            ],
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Preload",
+                        "name": "preload",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.BookListing"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "create a book listing",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "booktrak"
+                ],
+                "summary": "Create book listing",
+                "operationId": "booktrak-create-book-listing",
+                "parameters": [
+                    {
+                        "description": "Create Book Listing Params",
+                        "name": "createParams",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/booktrak.CreateBookListingParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.BookListing"
+                        }
+                    },
+                    "2232": {
+                        "description": "invalid book condition",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/booktrak/listings/{bookListingID}": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "update a book listing",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "booktrak"
+                ],
+                "summary": "Update book listing",
+                "operationId": "booktrak-update-book-listing",
+                "parameters": [
+                    {
+                        "description": "Create Book Listing Params",
+                        "name": "updateParams",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/booktrak.CreateBookListingParams"
+                        }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Book Listing ID",
+                        "name": "bookListingID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "1331": {
+                        "description": "must be self",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.BookListing"
+                        }
+                    },
+                    "2232": {
+                        "description": "invalid book condition",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "delete a book listing",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "booktrak",
+                    "booktrak-admin",
+                    "admin"
+                ],
+                "summary": "Delete book listing",
+                "operationId": "booktrak-delete-book-listing",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Book Listing ID",
+                        "name": "bookListingID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "1331": {
+                        "description": "must be self",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.BookListing"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/bulletin/bulletins": {
             "get": {
                 "security": [
@@ -7130,6 +7684,56 @@ const docTemplate = `{
                 }
             }
         },
+        "/listings/{bookListingID}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "get a book listing by book listing id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "booktrak"
+                ],
+                "summary": "Get book listing by book listing id",
+                "operationId": "get-book-listing",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Book Listing ID",
+                        "name": "bookListingID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.BookListing"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/notification/app/token": {
             "post": {
                 "security": [
@@ -7994,6 +8598,75 @@ const docTemplate = `{
                 }
             }
         },
+        "booktrak.CreateBookListingParams": {
+            "type": "object",
+            "required": [
+                "bookID",
+                "listingType"
+            ],
+            "properties": {
+                "bookID": {
+                    "type": "integer"
+                },
+                "condition": {
+                    "enum": [
+                        "",
+                        "POOR",
+                        "FAIR",
+                        "GOOD",
+                        "VERY_GOOD",
+                        "LIKE_NEW",
+                        "NEW"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Condition"
+                        }
+                    ]
+                },
+                "description": {
+                    "type": "string"
+                },
+                "listingType": {
+                    "enum": [
+                        "",
+                        "BUY",
+                        "SELL"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.ListingType"
+                        }
+                    ]
+                }
+            }
+        },
+        "booktrak.CreateBookParams": {
+            "type": "object",
+            "required": [
+                "isbn"
+            ],
+            "properties": {
+                "isbn": {
+                    "type": "string"
+                }
+            }
+        },
+        "booktrak.UpdateBookCoursesParams": {
+            "type": "object",
+            "required": [
+                "courseIDs"
+            ],
+            "properties": {
+                "courseIDs": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
         "bulletin.CreateBulletinParams": {
             "type": "object",
             "required": [
@@ -8729,6 +9402,112 @@ const docTemplate = `{
                 }
             }
         },
+        "models.Book": {
+            "type": "object",
+            "properties": {
+                "authors": {
+                    "description": "The names of the authors and/or editors for this book.",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "bookListings": {
+                    "description": "Has many Book Listings",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.BookListing"
+                    }
+                },
+                "courses": {
+                    "description": "Many2Many courses",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Course"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "imageLink": {
+                    "description": "Image link for book cover (Medium)",
+                    "type": "string"
+                },
+                "infoLink": {
+                    "description": "URL to view information about this book on the Google Books site.",
+                    "type": "string"
+                },
+                "isbn13": {
+                    "description": "ISBN-13 of this book (all books have this)",
+                    "type": "string"
+                },
+                "publisher": {
+                    "description": "Publisher of this book.",
+                    "type": "string"
+                },
+                "subtitle": {
+                    "description": "Book subtitle.",
+                    "type": "string"
+                },
+                "title": {
+                    "description": "Book title.",
+                    "type": "string"
+                }
+            }
+        },
+        "models.BookListing": {
+            "type": "object",
+            "properties": {
+                "book": {
+                    "$ref": "#/definitions/models.Book"
+                },
+                "bookID": {
+                    "description": "Belongs to book (FK)",
+                    "type": "integer"
+                },
+                "condition": {
+                    "enum": [
+                        "",
+                        "POOR",
+                        "FAIR",
+                        "GOOD",
+                        "VERY_GOOD",
+                        "LIKE_NEW",
+                        "NEW"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Condition"
+                        }
+                    ]
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "listingType": {
+                    "enum": [
+                        "",
+                        "BUY",
+                        "SELL"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.ListingType"
+                        }
+                    ]
+                },
+                "user": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "userID": {
+                    "description": "Belongs to user (FK)",
+                    "type": "integer"
+                }
+            }
+        },
         "models.Bulletin": {
             "type": "object",
             "properties": {
@@ -8792,6 +9571,27 @@ const docTemplate = `{
                 }
             }
         },
+        "models.Condition": {
+            "type": "string",
+            "enum": [
+                "",
+                "POOR",
+                "FAIR",
+                "GOOD",
+                "VERY_GOOD",
+                "LIKE_NEW",
+                "NEW"
+            ],
+            "x-enum-varnames": [
+                "ConditionUndefined",
+                "ConditionPoor",
+                "ConditionFair",
+                "ConditionGood",
+                "ConditionVeryGood",
+                "ConditionLikeNew",
+                "ConditionNew"
+            ]
+        },
         "models.Course": {
             "type": "object",
             "properties": {
@@ -8801,6 +9601,13 @@ const docTemplate = `{
                 "areaOfStudyID": {
                     "description": "Belongs to area of study",
                     "type": "integer"
+                },
+                "books": {
+                    "description": "Many2Many books",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Book"
+                    }
                 },
                 "factrakSurveys": {
                     "description": "Has many factrak surveys",
@@ -9755,6 +10562,19 @@ const docTemplate = `{
                 "GoodrichPaymentMethodCash",
                 "GoodrichPaymentMethodSwipePlusCash",
                 "GoodrichPaymentMethodSwipePlusCreditCard"
+            ]
+        },
+        "models.ListingType": {
+            "type": "string",
+            "enum": [
+                "",
+                "BUY",
+                "SELL"
+            ],
+            "x-enum-varnames": [
+                "ListingTypeUndefined",
+                "ListingTypeBuy",
+                "ListingTypeSell"
             ]
         },
         "models.Neighborhood": {
