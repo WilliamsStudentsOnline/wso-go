@@ -25,7 +25,7 @@ func GenerateClaimsFactory(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogg
 
 		// By default, can access bulletins
 		if v.TokenLevel >= TokenLevelOffCampus {
-			scope = append(scope, auth.ScopeBulletin)
+			scope = append(scope, auth.ScopeBulletin, auth.ScopeBooktrak)
 		}
 
 		// If on-campus, can access user info
@@ -42,7 +42,7 @@ func GenerateClaimsFactory(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogg
 		// If user exists that we signed in with
 		if v.TokenLevel >= TokenLevelUser && v.User != nil {
 			// Allow writing
-			scope = append(scope, auth.ScopeWriteSelf, auth.ScopeChat, auth.ScopeGoodrich, auth.ScopeBulletinWrite)
+			scope = append(scope, auth.ScopeWriteSelf, auth.ScopeChat, auth.ScopeGoodrich, auth.ScopeBulletinWrite, auth.ScopeBooktrakWrite)
 
 			// For ephcatch and factrak, user must be a student
 			if v.User.IsStudent() {
