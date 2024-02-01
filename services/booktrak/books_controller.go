@@ -77,7 +77,7 @@ func (t *Controller) CreateBook(c *gin.Context) {
 	}
 
 	params.ISBN = isbn.CleanISBN(params.ISBN)
-	volumes, err := t.searchVolumes(params.ISBN, lib.IntToPtr(20))
+	volumes, err := t.searchVolumes("isbn:"+params.ISBN, lib.IntToPtr(20))
 	if err != nil {
 		t.RespondAPIError(c, lib.ErrorInternalServerError)
 		return
