@@ -216,12 +216,12 @@ pipeline {
               slackSend (color: 'danger', message: "WSO-Go Failed to Deploy on Production\n Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
               discordSend (title: "WSO-Go Failed to Deploy on Production", description: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", link: env.BUILD_URL, result: currentBuild.currentResult, webhookURL: "${env.WSO_GO_DISCORD_WEBHOOK_URL}")
             }
-            cleanup {
-              // Run the cleaning-up in built-in node, only during production builds (to clean docker cache)
-              node('master || built-in') {
-                sh 'docker system prune -f'
-              }
-            }
+            // cleanup {
+            //   // Run the cleaning-up in built-in node, only during production builds (to clean docker cache)
+            //   node('master || built-in') {
+            //     sh 'docker system prune -f'
+            //   }
+            // }
           }
         }
   }
