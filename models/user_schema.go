@@ -26,7 +26,7 @@ type User struct {
 	Type           string  `json:"type"`
 	Name           string  `json:"name"`
 	CellPhone      *string `json:"cellPhone"`
-	CampusPhoneExt *string `json:"campusPhoneEXT"`
+	CampusPhoneExt *string `json:"campusPhoneEXT"` // campus phone extension after 413-597-
 	UnixID         string  `gorm:"unique;not null;size:100;" json:"unixID"`
 	WilliamsEmail  string  `json:"williamsEmail"`
 	Title          *string `json:"title"`
