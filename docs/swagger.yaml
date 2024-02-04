@@ -1654,6 +1654,7 @@ definitions:
         - $ref: '#/definitions/models.BannedUser'
         description: Has one (or zero) banned users
       campusPhoneEXT:
+        description: campus phone extension after 413-597-
         type: string
       campusStatus:
         description: 'Has campus status: either remote or on-campus'

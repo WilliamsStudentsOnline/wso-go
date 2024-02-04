@@ -10747,6 +10747,7 @@ const docTemplate = `{
                     ]
                 },
                 "campusPhoneEXT": {
+                    "description": "campus phone extension after 413-597-",
                     "type": "string"
                 },
                 "campusStatus": {
