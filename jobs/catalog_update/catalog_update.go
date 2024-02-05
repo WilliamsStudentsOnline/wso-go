@@ -15,6 +15,8 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 const (
@@ -574,5 +576,6 @@ func trimCapitalize(str string) string {
 
 // trimTitle trims leading/following white spaces and Title Cases the string.
 func trimTitle(str string) string {
-	return strings.Title(strings.TrimSpace(str))
+	caser := cases.Title(language.AmericanEnglish)
+	return caser.String(strings.TrimSpace(str))
 }

@@ -32,6 +32,7 @@ require (
 	github.com/thoas/go-funk v0.9.1
 	github.com/urfave/cli v1.22.5
 	go.uber.org/zap v1.21.0
+	golang.org/x/text v0.8.0
 	google.golang.org/api v0.103.0
 	gopkg.in/gormigrate.v1 v1.6.0
 	gopkg.in/ldap.v3 v3.1.0
@@ -92,7 +93,6 @@ require (
 	golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783 // indirect
 	golang.org/x/sys v0.6.0 // indirect
 	golang.org/x/term v0.6.0 // indirect
-	golang.org/x/text v0.8.0 // indirect
 	golang.org/x/time v0.0.0-20220224211638-0e9765cccd65 // indirect
 	golang.org/x/tools v0.7.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
