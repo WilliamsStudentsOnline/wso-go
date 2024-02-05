@@ -12,7 +12,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
 
-	ldap_lib "gopkg.in/ldap.v3"
+	ldap_lib "github.com/go-ldap/ldap/v3"
 )
 
 // User Model

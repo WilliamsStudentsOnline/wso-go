@@ -3,7 +3,7 @@ package ldap
 import (
 	"fmt"
 
-	"gopkg.in/ldap.v3"
+	"github.com/go-ldap/ldap/v3"
 )
 
 // TODO: Make this a connection pool (eg https://github.com/vetinari/go-ldappool)
