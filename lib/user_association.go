@@ -43,6 +43,8 @@ func (ua *UserAssociation) IsResearcher() bool {
 }
 
 func (ua *UserAssociation) IsGradStudent() bool {
+	// Ye Shu Note Feb 2024: this group no longer seems to be used
+	// CDE students (GE) and grad art students (G1/G2) are now all in Williams-Student group
 	return stringsContains(ua.MemberGroups, "CN=GEStudents,OU=williams,DC=ad,DC=williams,DC=edu")
 }
 
