@@ -535,10 +535,10 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 			}
 		}
 
-		// If user is not visible, finish parsing here.
+		// If user is not visible, skip parsing details for that user
 		if !*user.Visible {
 			users = append(users, user)
-			break
+			continue
 		}
 
 		// Personal info parsing
