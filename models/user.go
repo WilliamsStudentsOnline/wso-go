@@ -783,6 +783,12 @@ func (m *UserModel) updateNotInLDAP(user *User) error {
 	// We can do this without loading associations as we know that we deleted all of them.
 	user.SearchFields = user.GenerateSearchFields()
 
+	// truncate to 250 characters, since the column is only 255 characters long
+	if len(user.SearchFields) > 250 {
+		m.log.Infof("Truncating long search fields for user %s", user.UnixID)
+		user.SearchFields = user.SearchFields[:250]
+	}
+
 	return m.DB.Save(user).Error
 }
 
