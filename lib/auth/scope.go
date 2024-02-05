@@ -55,6 +55,10 @@ const (
 	ScopeGoodrich = "service:goodrich"
 	// Allows access to read/write all goodrich orders and read/write goodrich menu
 	ScopeGoodrichManager = "service:goodrich:manager"
+
+	// Services: Booktrak
+	ScopeBooktrak      = "service:booktrak"
+	ScopeBooktrakWrite = "service:booktrak:write"
 )
 
 // Require this endpoint to have a scope; multiple scopes mean an OR. For an AND, call this function multiple times
