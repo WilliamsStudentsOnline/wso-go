@@ -306,7 +306,8 @@ func (m *UserModel) updateUserUnsafe(dbUser *User, toUser *User) (err error) {
 
 	// 100% Could do this is a less verbose way, but this way is much more secure
 	dbUser.Name = toUser.Name
-	dbUser.CellPhone = toUser.CellPhone
+	// Ye Shu note Feb 2024: all home, phone, and dorm info are absent in ODIR LDAP, hence we do not overwrite them in the DB.
+	// dbUser.CellPhone = toUser.CellPhone
 	dbUser.CampusPhoneExt = toUser.CampusPhoneExt
 	dbUser.WilliamsEmail = toUser.WilliamsEmail
 	dbUser.Title = toUser.Title
@@ -314,17 +315,17 @@ func (m *UserModel) updateUserUnsafe(dbUser *User, toUser *User) (err error) {
 	dbUser.ClassYear = toUser.ClassYear
 	dbUser.DepartmentID = toUser.DepartmentID
 	dbUser.Department = toUser.Department
-	dbUser.HomeTown = toUser.HomeTown
-	dbUser.HomeZip = toUser.HomeZip
-	dbUser.HomePhone = toUser.HomePhone
-	dbUser.HomeState = toUser.HomeState
-	dbUser.HomeCountry = toUser.HomeCountry
+	// dbUser.HomeTown = toUser.HomeTown
+	// dbUser.HomeZip = toUser.HomeZip
+	// dbUser.HomePhone = toUser.HomePhone
+	// dbUser.HomeState = toUser.HomeState
+	// dbUser.HomeCountry = toUser.HomeCountry
 	dbUser.Major = toUser.Major
 	dbUser.SUBox = toUser.SUBox
 	dbUser.OfficeID = toUser.OfficeID
 	dbUser.Office = toUser.Office
-	dbUser.DormRoomID = toUser.DormRoomID
-	dbUser.DormRoom = toUser.DormRoom
+	// dbUser.DormRoomID = toUser.DormRoomID
+	// dbUser.DormRoom = toUser.DormRoom
 	dbUser.AtWilliams = toUser.AtWilliams
 	dbUser.WilliamsID = toUser.WilliamsID
 
@@ -406,7 +407,7 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 	}
 
 	// Initialize LDAPs
-	willyLdap := ldap.NewWilliamsLDAP()
+	odirLdap := ldap.NewODIRLDAP()
 	adLdap := ldap.NewADLDAP()
 
 	// We need the Willy LDAP credentials for this
@@ -416,19 +417,19 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 	}
 
 	// Connect & bind the Willy LDAP
-	err = willyLdap.ConnectWithBind(config.Secrets.WsoLdapDN, config.Secrets.WsoLdapPassword)
+	err = odirLdap.ConnectWithBind(config.Secrets.ODIRLDAPDN, config.Secrets.ODIRLDAPPassword)
 	if err != nil {
 		return nil, err
 	}
-	defer willyLdap.Close()
+	defer odirLdap.Close()
 
 	m.log.Info("Start Williams LDAP each")
-	// Get all users from Williams LDAP
-	userEntries, err := willyLdap.Each("uid", unixSearch)
+	// Get all matching users from ODIR LDAP
+	userEntries, err := odirLdap.Each("cn", unixSearch)
 	if err != nil {
 		return nil, err
 	}
-	m.log.Info("End Williams LDAP each. found: ", len(userEntries))
+	m.log.Info("End ODIR LDAP each. found: ", len(userEntries))
 
 	// Connect the AD LDAP
 	err = adLdap.ConnectWithBind(config.Secrets.ADLDAPDn, config.Secrets.ADLDAPPassword)
@@ -445,10 +446,11 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 		user := &User{
 			// We get last attribute value here due to OIT sometimes reassigning unixes and forgetting to
 			// remove the old unix.
-			UnixID:        getLDAPLastAttributeValue(entry, "uid"),
-			Name:          entry.GetAttributeValue("cn"),
+			UnixID:        getLDAPLastAttributeValue(entry, "cn"),
+			Name:          entry.GetAttributeValue("displayName"),
 			WilliamsEmail: entry.GetAttributeValue("mail"),
-			Visible:       lib.BoolToPtr(parseBool(entry.GetAttributeValue("visible"))),
+			// TODO: also support "wmsSuppressPhoto"
+			Visible: lib.BoolToPtr(!parseBool(entry.GetAttributeValue("wmsSuppressAll"))),
 			// User is in Ldap, therefore is at williams.
 			// Explicitly set this to handle alums who return as fac/staff
 			AtWilliams: lib.BoolToPtr(true),
@@ -467,6 +469,9 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 			continue
 		}
 
+		// Use the AD user groups to determine the user type
+		// Ye Shu note Feb 2024: AD groups are less accurate than ODIR LDAP wmsAffiliation attributes
+		// TODO: parse the wmsAffiliation attribute in ODIR LDAP instead of using AD groups
 		memberGroups := adUser.GetAttributeValues("memberOf")
 		ua := lib.NewUserAssociation(memberGroups)
 		adUserDN := strings.ToLower(adUser.DN)
@@ -513,7 +518,7 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 				// Handle Alum fac/staff from pre-2000.
 				// The year cutoff will need to be changed when we get to 2050!
 				// If the user is a student, we know it will be in the 21st century
-				// We will need to change this in 2100.
+				// We will need to change this in 2045.
 				if year < 50 || user.IsStudent() {
 					year += 2000
 				} else {
@@ -523,25 +528,30 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 			} else {
 				// If the class contains letters (grad students), put no class year, as
 				// they're not a normal student
+
+				// TODO: handle special class years (e.g. G1/G2/GE/SV, respectively meaning Grad Art year 1/2, CDE, Bennington College/MCLA visiting students)
+				// perhaps by adding a new field to the user schema?
+
 				user.ClassYear = nil
 			}
 		}
 
-		// If user is not visible, finish parsing here.
+		// If user is not visible, skip parsing details for that user
 		if !*user.Visible {
 			users = append(users, user)
-			break
+			continue
 		}
 
 		// Personal info parsing
-		user.HomeCountry = parseStrToPtr(entry.GetAttributeValue("wmsHomeCountry"))
-		user.HomeState = parseStrToPtr(entry.GetAttributeValue("wmsHomeState"))
-		user.HomeTown = parseStrToPtr(entry.GetAttributeValue("wmsHomeCity"))
-		user.HomeZip = parseStrToPtr(entry.GetAttributeValue("wmsHomePostal"))
-		user.CellPhone = parseStrToPtr(entry.GetAttributeValue("wmsCellPhone"))
+		// Ye Shu note Feb 2024: all home and cell phone info are absent in ODIR LDAP
+		// user.HomeCountry = parseStrToPtr(entry.GetAttributeValue("wmsHomeCountry"))
+		// user.HomeState = parseStrToPtr(entry.GetAttributeValue("wmsHomeState"))
+		// user.HomeTown = parseStrToPtr(entry.GetAttributeValue("wmsHomeCity"))
+		// user.HomeZip = parseStrToPtr(entry.GetAttributeValue("wmsHomePostal"))
+		// user.CellPhone = parseStrToPtr(entry.GetAttributeValue("wmsCellPhone"))
 		user.Title = parseStrToPtr(entry.GetAttributeValue("title"))
 
-		// Parse ext from whole phone number
+		// campus phone extension: parse from whole phone number
 		campusPhone := entry.GetAttributeValue("telephoneNumber")
 		if len(campusPhone) >= 4 {
 			campusPhone = campusPhone[len(campusPhone)-4:]
@@ -550,7 +560,9 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 
 		// Student personal parsing
 		if user.IsStudent() || user.IsAlum() {
-			dormName := entry.GetAttributeValue("wmsDormAddr1")
+			// Ye Shu note Feb 2024: all dorm info are absent in ODIR LDAP
+			dormName := ""
+			// dormName := entry.GetAttributeValue("wmsDormAddr1")
 
 			if !skipDorm && dormName != "" {
 				var dorm Dorm
@@ -607,9 +619,18 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 				user.DormRoomID = nil
 			}
 
-			user.SUBox = parseStrToPtr(entry.GetAttributeValue("wmsCampusAddr1"))
+			// Ye Shu note Feb 2024: for grad students, the field oktaRoomNumber may also be set
+			suBox := entry.GetAttributeValue("oktaBuildingName")
+			if entry.GetAttributeValue("oktaRoomNumber") != "" {
+				suBox = suBox + ", " + entry.GetAttributeValue("oktaRoomNumber")
+			}
+			user.SUBox = parseStrToPtr(suBox)
 		} else if user.IsProfessor() || user.IsStaff() {
-			number := entry.GetAttributeValue("wmsCampusAddr1") + " " + entry.GetAttributeValue("wmsCampusAddr2")
+			// Office Number: if oktaRoomNumber is empty, ignore it
+			number := entry.GetAttributeValue("oktaBuildingName")
+			if entry.GetAttributeValue("oktaRoomNumber") != "" {
+				number = number + " " + entry.GetAttributeValue("oktaRoomNumber")
+			}
 
 			var office Office
 			err = m.DB.Where(&Office{
@@ -621,8 +642,11 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 			user.Office = &office
 			user.OfficeID = &office.ID
 
-			departmentName := entry.GetAttributeValue("ou")
+			departmentName := entry.GetAttributeValue("department")
 			if departmentName != "" {
+				// remove " Department" from the end of the department name
+				// note: this only applies to faculties
+				// staff members' department name does not have " Department" at the end
 				deptIdx := strings.Index(departmentName, " Department")
 				if deptIdx == -1 {
 					deptIdx = len(departmentName)
@@ -758,6 +782,12 @@ func (m *UserModel) updateNotInLDAP(user *User) error {
 	user.OfficeID = nil
 	// We can do this without loading associations as we know that we deleted all of them.
 	user.SearchFields = user.GenerateSearchFields()
+
+	// truncate to 250 characters, since the column is only 255 characters long
+	if len(user.SearchFields) > 250 {
+		m.log.Infof("Truncating long search fields for user %s", user.UnixID)
+		user.SearchFields = user.SearchFields[:250]
+	}
 
 	return m.DB.Save(user).Error
 }

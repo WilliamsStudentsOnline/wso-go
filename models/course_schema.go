@@ -16,6 +16,8 @@ type Course struct {
 	Professors []*User `gorm:"-" json:"professors,omitempty"`
 
 	FactrakScore *float64 `gorm:"->;-:migration" json:"factrakScore,omitempty"`
+	// Many2Many books
+	Books []*Book `gorm:"many2many:course_book;" json:"books,omitempty"`
 }
 
 func (*Course) TableName() string {

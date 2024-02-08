@@ -168,6 +168,51 @@ definitions:
       value:
         type: string
     type: object
+  booktrak.CreateBookListingParams:
+    properties:
+      bookID:
+        type: integer
+      condition:
+        allOf:
+        - $ref: '#/definitions/models.Condition'
+        enum:
+        - ""
+        - POOR
+        - FAIR
+        - GOOD
+        - VERY_GOOD
+        - LIKE_NEW
+        - NEW
+      description:
+        type: string
+      listingType:
+        allOf:
+        - $ref: '#/definitions/models.ListingType'
+        enum:
+        - ""
+        - BUY
+        - SELL
+    required:
+    - bookID
+    - listingType
+    type: object
+  booktrak.CreateBookParams:
+    properties:
+      isbn:
+        type: string
+    required:
+    - isbn
+    type: object
+  booktrak.UpdateBookCoursesParams:
+    properties:
+      courseIDs:
+        items:
+          type: integer
+        minItems: 1
+        type: array
+    required:
+    - courseIDs
+    type: object
   bulletin.CreateBulletinParams:
     properties:
       body:
@@ -676,6 +721,79 @@ definitions:
       userID:
         type: integer
     type: object
+  models.Book:
+    properties:
+      authors:
+        description: The names of the authors and/or editors for this book.
+        items:
+          type: string
+        type: array
+      bookListings:
+        description: Has many Book Listings
+        items:
+          $ref: '#/definitions/models.BookListing'
+        type: array
+      courses:
+        description: Many2Many courses
+        items:
+          $ref: '#/definitions/models.Course'
+        type: array
+      id:
+        type: integer
+      imageLink:
+        description: Image link for book cover (Medium)
+        type: string
+      infoLink:
+        description: URL to view information about this book on the Google Books site.
+        type: string
+      isbn13:
+        description: ISBN-13 of this book (all books have this)
+        type: string
+      publisher:
+        description: Publisher of this book.
+        type: string
+      subtitle:
+        description: Book subtitle.
+        type: string
+      title:
+        description: Book title.
+        type: string
+    type: object
+  models.BookListing:
+    properties:
+      book:
+        $ref: '#/definitions/models.Book'
+      bookID:
+        description: Belongs to book (FK)
+        type: integer
+      condition:
+        allOf:
+        - $ref: '#/definitions/models.Condition'
+        enum:
+        - ""
+        - POOR
+        - FAIR
+        - GOOD
+        - VERY_GOOD
+        - LIKE_NEW
+        - NEW
+      description:
+        type: string
+      id:
+        type: integer
+      listingType:
+        allOf:
+        - $ref: '#/definitions/models.ListingType'
+        enum:
+        - ""
+        - BUY
+        - SELL
+      user:
+        $ref: '#/definitions/models.User'
+      userID:
+        description: Belongs to user (FK)
+        type: integer
+    type: object
   models.Bulletin:
     properties:
       body:
@@ -718,6 +836,24 @@ definitions:
         description: Belongs to user
         type: integer
     type: object
+  models.Condition:
+    enum:
+    - ""
+    - POOR
+    - FAIR
+    - GOOD
+    - VERY_GOOD
+    - LIKE_NEW
+    - NEW
+    type: string
+    x-enum-varnames:
+    - ConditionUndefined
+    - ConditionPoor
+    - ConditionFair
+    - ConditionGood
+    - ConditionVeryGood
+    - ConditionLikeNew
+    - ConditionNew
   models.Course:
     properties:
       areaOfStudy:
@@ -725,6 +861,11 @@ definitions:
       areaOfStudyID:
         description: Belongs to area of study
         type: integer
+      books:
+        description: Many2Many books
+        items:
+          $ref: '#/definitions/models.Book'
+        type: array
       factrakSurveys:
         description: Has many factrak surveys
         items:
@@ -1386,6 +1527,16 @@ definitions:
     - GoodrichPaymentMethodCash
     - GoodrichPaymentMethodSwipePlusCash
     - GoodrichPaymentMethodSwipePlusCreditCard
+  models.ListingType:
+    enum:
+    - ""
+    - BUY
+    - SELL
+    type: string
+    x-enum-varnames:
+    - ListingTypeUndefined
+    - ListingTypeBuy
+    - ListingTypeSell
   models.Neighborhood:
     properties:
       dorms:
@@ -1503,6 +1654,7 @@ definitions:
         - $ref: '#/definitions/models.BannedUser'
         description: Has one (or zero) banned users
       campusPhoneEXT:
+        description: campus phone extension after 413-597-
         type: string
       campusStatus:
         description: 'Has campus status: either remote or on-campus'
@@ -2554,6 +2706,369 @@ paths:
       summary: Autocomplete tag
       tags:
       - autocomplete
+  /books/{bookID}:
+    get:
+      consumes:
+      - application/json
+      description: get a book by book id
+      operationId: get-book
+      parameters:
+      - description: Book ID
+        in: path
+        name: bookID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Book'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get book by book id
+      tags:
+      - books
+  /booktrak/books:
+    get:
+      consumes:
+      - application/json
+      description: lists all books. Order by creation date.
+      operationId: booktrak-list-books
+      parameters:
+      - description: Offset Pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      - description: Book Title
+        in: query
+        name: title
+        type: string
+      - description: Book Publisher
+        in: query
+        name: publisher
+        type: string
+      - description: Book ISBN-13 (must be in ISBN format)
+        in: query
+        name: isbn
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Book'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: List books
+      tags:
+      - booktrak
+    put:
+      consumes:
+      - application/json
+      description: create a book
+      operationId: booktrak-create-book
+      parameters:
+      - description: Create Book Params
+        in: body
+        name: createParams
+        required: true
+        schema:
+          $ref: '#/definitions/booktrak.CreateBookParams'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Book'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "2251":
+          description: failed to find book online by isbn
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Create a book if it doesn't exist already
+      tags:
+      - booktrak
+  /booktrak/books/{bookID}:
+    patch:
+      consumes:
+      - application/json
+      description: update a book's courses
+      operationId: booktrak-update-book
+      parameters:
+      - description: Update Book Params
+        in: body
+        name: updateParams
+        required: true
+        schema:
+          $ref: '#/definitions/booktrak.UpdateBookCoursesParams'
+      - description: Book ID
+        in: path
+        name: bookID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Book'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "2253":
+          description: some courses could not be found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Update book
+      tags:
+      - booktrak
+  /booktrak/listings:
+    get:
+      consumes:
+      - application/json
+      description: lists all book listings
+      operationId: booktrak-list-book-listings
+      parameters:
+      - description: Offset Pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      - description: Course ID
+        in: query
+        name: courseID
+        type: integer
+      - description: User ID
+        in: query
+        name: userID
+        type: integer
+      - description: Book ISBN-13
+        in: query
+        name: isbn
+        type: string
+      - description: Minimum Book Condition
+        enum:
+        - POOR
+        - FAIR
+        - GOOD
+        - VERY_GOOD
+        - LIKE_NEW
+        - NEW
+        in: query
+        name: minCondition
+        type: string
+      - description: Maximum Book Condition
+        enum:
+        - POOR
+        - FAIR
+        - GOOD
+        - VERY_GOOD
+        - LIKE_NEW
+        - NEW
+        in: query
+        name: maxCondition
+        type: string
+      - description: Type of the listing
+        in: query
+        name: listingType
+        type: string
+      - collectionFormat: csv
+        description: Preload
+        in: query
+        items:
+          enum:
+          - user
+          - book
+          type: string
+        name: preload
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.BookListing'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: List book listings
+      tags:
+      - booktrak
+    post:
+      consumes:
+      - application/json
+      description: create a book listing
+      operationId: booktrak-create-book-listing
+      parameters:
+      - description: Create Book Listing Params
+        in: body
+        name: createParams
+        required: true
+        schema:
+          $ref: '#/definitions/booktrak.CreateBookListingParams'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.BookListing'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "2232":
+          description: invalid book condition
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Create book listing
+      tags:
+      - booktrak
+  /booktrak/listings/{bookListingID}:
+    delete:
+      consumes:
+      - application/json
+      description: delete a book listing
+      operationId: booktrak-delete-book-listing
+      parameters:
+      - description: Book Listing ID
+        in: path
+        name: bookListingID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BookListing'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "1331":
+          description: must be self
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Delete book listing
+      tags:
+      - booktrak
+      - booktrak-admin
+      - admin
+    put:
+      consumes:
+      - application/json
+      description: update a book listing
+      operationId: booktrak-update-book-listing
+      parameters:
+      - description: Create Book Listing Params
+        in: body
+        name: updateParams
+        required: true
+        schema:
+          $ref: '#/definitions/booktrak.CreateBookListingParams'
+      - description: Book Listing ID
+        in: path
+        name: bookListingID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BookListing'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "1331":
+          description: must be self
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "2232":
+          description: invalid book condition
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Update book listing
+      tags:
+      - booktrak
   /bulletin/bulletins:
     get:
       consumes:
@@ -6686,6 +7201,38 @@ paths:
       security:
       - Bearer: []
       summary: Health check
+  /listings/{bookListingID}:
+    get:
+      consumes:
+      - application/json
+      description: get a book listing by book listing id
+      operationId: get-book-listing
+      parameters:
+      - description: Book Listing ID
+        in: path
+        name: bookListingID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BookListing'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get book listing by book listing id
+      tags:
+      - booktrak
   /notification/app/token:
     post:
       consumes:
