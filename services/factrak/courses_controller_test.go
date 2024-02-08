@@ -88,24 +88,7 @@ func TestController_ListCoursesRanked(t *testing.T) {
 	// Set up the test environment
 	assert, db, router := SetupFactrakTest(t)
 
-	// Insert test professors and students into db
-	p1 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 1",
-		UnixID:     "p1",
-		AtWilliams: lib.BoolToPtr(true),
-	}
-	// Other prof
-	p2 := models.User{
-		Type:       models.UserTypeProfessor,
-		Name:       "Professor 2",
-		UnixID:     "p2",
-		AtWilliams: lib.BoolToPtr(true),
-	}
-	err := db.Create(&p1).Create(&p2).Error
-	assert.NoError(err)
-
-	// Need this to satisfy not null
+	// Need this to satisfy not null, create department and areas of study
 	dept := models.Department{
 		Name: "Computer Science",
 	}
@@ -120,6 +103,25 @@ func TestController_ListCoursesRanked(t *testing.T) {
 		Department:   &dept,
 	}
 	assert.NoError(db.Create(&dept).Create(&area1).Create(&area2).Error)
+
+	// Insert test professors and students into db
+	p1 := models.User{
+		Type:       models.UserTypeProfessor,
+		Name:       "Professor 1",
+		UnixID:     "p1",
+		AtWilliams: lib.BoolToPtr(true),
+	}
+	// Other prof
+	p2 := models.User{
+		Type:         models.UserTypeProfessor,
+		Name:         "Professor 2",
+		UnixID:       "p2",
+		AtWilliams:   lib.BoolToPtr(true),
+		Department:   &dept,
+		AreasOfStudy: []*models.AreaOfStudy{&area2},
+	}
+	err := db.Create(&p1).Create(&p2).Error
+	assert.NoError(err)
 
 	// Insert test course into db
 	c1 := models.Course{
@@ -201,36 +203,46 @@ func TestController_ListCoursesRanked(t *testing.T) {
 	assert.NoError(err)
 	resp := GetCoursesFromResp(assert, w)
 	assert.NoError(EqualCourseIDs([]models.Course{c3, c1, c2}, resp))
+	assert.Equal(*resp[0].FactrakScore, 40.0/14)
+	assert.Equal(*resp[1].FactrakScore, 30.0/10)
+	assert.Equal(*resp[2].FactrakScore, 90.0/10)
 
 	// Test 3: Get courses ranked by workload, for one professor
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/courses?metric=course_workload&ascending=true&professorID=%d", p1.ID), nil)
 	assert.NoError(err)
 	resp = GetCoursesFromResp(assert, w)
 	assert.NoError(EqualCourseIDs([]models.Course{c1, c2}, resp))
+	assert.Equal(*resp[0].FactrakScore, 30.0/10)
+	assert.Equal(*resp[1].FactrakScore, 90.0/10)
 
 	// Test 4: Get courses ranked by whether students would recommend them
 	w, err = utils.DoHTTPReq(router, http.MethodGet, "/courses?metric=would_recommend_course", nil)
 	assert.NoError(err)
 	resp = GetCoursesFromResp(assert, w)
 	assert.NoError(EqualCourseIDs([]models.Course{c1}, resp))
+	assert.Equal(*resp[0].FactrakScore, 10.0/10)
 
 	// Test 5: Get courses ranked by how stimulating they are, limited to one area of study
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/courses?metric=course_stimulating&areaOfStudyID=%d", area2.ID), nil)
 	assert.NoError(err)
 	resp = GetCoursesFromResp(assert, w)
 	assert.NoError(EqualCourseIDs([]models.Course{c2}, resp))
+	assert.Equal(*resp[0].FactrakScore, 80.0/10)
 
 	// Test 6: Get courses ranked by workload, with pagination
 	w, err = utils.DoHTTPReq(router, http.MethodGet, "/courses?metric=course_workload&ascending=true&limit=2", nil)
 	assert.NoError(err)
 	resp = GetCoursesFromResp(assert, w)
 	assert.NoError(EqualCourseIDs([]models.Course{c3, c1}, resp))
+	assert.Equal(*resp[0].FactrakScore, 40.0/14)
+	assert.Equal(*resp[1].FactrakScore, 30.0/10)
 
 	//Test 6, part 2 of pagination
 	w, err = utils.DoHTTPReq(router, http.MethodGet, "/courses?metric=course_workload&ascending=true&limit=2&offset=2", nil)
 	assert.NoError(err)
 	resp = GetCoursesFromResp(assert, w)
 	assert.NoError(EqualCourseIDs([]models.Course{c2}, resp))
+	assert.Equal(*resp[0].FactrakScore, 90.0/10)
 }
 
 func TestController_GetCourse(t *testing.T) {
