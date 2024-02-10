@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
 // ListUserOrders godoc
@@ -330,7 +331,7 @@ func (t *Controller) CreateOrder(c *gin.Context) {
 		// On error, record but continue because we have already created the order
 		err = t.menuModel.DecrementMenuItems(decItemIDs)
 		if err != nil {
-			t.Log.With(err).Error("Decrement Menu Items error!")
+			t.Log.With(zap.Error(err)).Error("Decrement Menu Items error!")
 			err = nil
 		}
 	}
@@ -587,7 +588,7 @@ func (t *Controller) AdminCreateOrder(c *gin.Context) {
 		// On error, record but continue because we have already created the order
 		err = t.menuModel.DecrementMenuItems(decItemIDs)
 		if err != nil {
-			t.Log.With(err).Error("Decrement Menu Items error!")
+			t.Log.With(zap.Error(err)).Error("Decrement Menu Items error!")
 			err = nil
 		}
 	}

@@ -706,19 +706,19 @@ func (m *UserModel) UpdateAllFromLDAP(cfg *config.Config) error {
 			// TODO: Figure out a way to batch these calls
 			err = m.updateUserUnsafe(dbUser, toUser)
 			if err != nil {
-				m.log.With(err).Errorf("Could not save user %s with %#+v", toUser.UnixID, toUser)
+				m.log.With(zap.Error(err)).Errorf("Could not save user %s with %#+v", toUser.UnixID, toUser)
 			}
 		} else {
 			// If the user does not exist
 			m.log.Infof("Creating new user %s type %s", toUser.UnixID, toUser.Type)
 			err = m.DB.Create(toUser).Error
 			if err != nil {
-				m.log.With(err).Errorf("Could not create user %s with %#+v", toUser.UnixID, toUser)
+				m.log.With(zap.Error(err)).Errorf("Could not create user %s with %#+v", toUser.UnixID, toUser)
 			}
 			// Update user with search field
 			err = m.PopulateSearchFields(toUser.ID)
 			if err != nil {
-				m.log.With(err).Errorf("Could not update user (%s) search field", toUser.UnixID)
+				m.log.With(zap.Error(err)).Errorf("Could not update user (%s) search field", toUser.UnixID)
 			}
 		}
 	}
@@ -736,7 +736,7 @@ func (m *UserModel) UpdateAllFromLDAP(cfg *config.Config) error {
 			// TODO: Figure out a way to batch these calls
 			err = m.updateNotInLDAP(&user)
 			if err != nil {
-				m.log.With(err).Errorf("Could not update (not in LDAP) user %s with %#+v", user.UnixID, user)
+				m.log.With(zap.Error(err)).Errorf("Could not update (not in LDAP) user %s with %#+v", user.UnixID, user)
 			}
 		}
 	}
