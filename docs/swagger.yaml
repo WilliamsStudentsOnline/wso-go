@@ -866,6 +866,8 @@ definitions:
         items:
           $ref: '#/definitions/models.Book'
         type: array
+      factrakScore:
+        type: number
       factrakSurveys:
         description: Has many factrak surveys
         items:
