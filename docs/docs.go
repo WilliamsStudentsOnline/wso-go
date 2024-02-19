@@ -9609,6 +9609,9 @@ const docTemplate = `{
                         "$ref": "#/definitions/models.Book"
                     }
                 },
+                "factrakScore": {
+                    "type": "number"
+                },
                 "factrakSurveys": {
                     "description": "Has many factrak surveys",
                     "type": "array",

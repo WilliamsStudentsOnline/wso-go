@@ -306,7 +306,8 @@ func (m *UserModel) updateUserUnsafe(dbUser *User, toUser *User) (err error) {
 
 	// 100% Could do this is a less verbose way, but this way is much more secure
 	dbUser.Name = toUser.Name
-	dbUser.CellPhone = toUser.CellPhone
+	// Ye Shu note Feb 2024: all home, phone, and dorm info are absent in ODIR LDAP, hence we do not overwrite them in the DB.
+	// dbUser.CellPhone = toUser.CellPhone
 	dbUser.CampusPhoneExt = toUser.CampusPhoneExt
 	dbUser.WilliamsEmail = toUser.WilliamsEmail
 	dbUser.Title = toUser.Title
@@ -314,17 +315,17 @@ func (m *UserModel) updateUserUnsafe(dbUser *User, toUser *User) (err error) {
 	dbUser.ClassYear = toUser.ClassYear
 	dbUser.DepartmentID = toUser.DepartmentID
 	dbUser.Department = toUser.Department
-	dbUser.HomeTown = toUser.HomeTown
-	dbUser.HomeZip = toUser.HomeZip
-	dbUser.HomePhone = toUser.HomePhone
-	dbUser.HomeState = toUser.HomeState
-	dbUser.HomeCountry = toUser.HomeCountry
+	// dbUser.HomeTown = toUser.HomeTown
+	// dbUser.HomeZip = toUser.HomeZip
+	// dbUser.HomePhone = toUser.HomePhone
+	// dbUser.HomeState = toUser.HomeState
+	// dbUser.HomeCountry = toUser.HomeCountry
 	dbUser.Major = toUser.Major
 	dbUser.SUBox = toUser.SUBox
 	dbUser.OfficeID = toUser.OfficeID
 	dbUser.Office = toUser.Office
-	dbUser.DormRoomID = toUser.DormRoomID
-	dbUser.DormRoom = toUser.DormRoom
+	// dbUser.DormRoomID = toUser.DormRoomID
+	// dbUser.DormRoom = toUser.DormRoom
 	dbUser.AtWilliams = toUser.AtWilliams
 	dbUser.WilliamsID = toUser.WilliamsID
 
@@ -705,19 +706,19 @@ func (m *UserModel) UpdateAllFromLDAP(cfg *config.Config) error {
 			// TODO: Figure out a way to batch these calls
 			err = m.updateUserUnsafe(dbUser, toUser)
 			if err != nil {
-				m.log.With(err).Errorf("Could not save user %s with %#+v", toUser.UnixID, toUser)
+				m.log.With(zap.Error(err)).Errorf("Could not save user %s with %#+v", toUser.UnixID, toUser)
 			}
 		} else {
 			// If the user does not exist
 			m.log.Infof("Creating new user %s type %s", toUser.UnixID, toUser.Type)
 			err = m.DB.Create(toUser).Error
 			if err != nil {
-				m.log.With(err).Errorf("Could not create user %s with %#+v", toUser.UnixID, toUser)
+				m.log.With(zap.Error(err)).Errorf("Could not create user %s with %#+v", toUser.UnixID, toUser)
 			}
 			// Update user with search field
 			err = m.PopulateSearchFields(toUser.ID)
 			if err != nil {
-				m.log.With(err).Errorf("Could not update user (%s) search field", toUser.UnixID)
+				m.log.With(zap.Error(err)).Errorf("Could not update user (%s) search field", toUser.UnixID)
 			}
 		}
 	}
@@ -735,7 +736,7 @@ func (m *UserModel) UpdateAllFromLDAP(cfg *config.Config) error {
 			// TODO: Figure out a way to batch these calls
 			err = m.updateNotInLDAP(&user)
 			if err != nil {
-				m.log.With(err).Errorf("Could not update (not in LDAP) user %s with %#+v", user.UnixID, user)
+				m.log.With(zap.Error(err)).Errorf("Could not update (not in LDAP) user %s with %#+v", user.UnixID, user)
 			}
 		}
 	}
@@ -781,6 +782,12 @@ func (m *UserModel) updateNotInLDAP(user *User) error {
 	user.OfficeID = nil
 	// We can do this without loading associations as we know that we deleted all of them.
 	user.SearchFields = user.GenerateSearchFields()
+
+	// truncate to 250 characters, since the column is only 255 characters long
+	if len(user.SearchFields) > 250 {
+		m.log.Infof("Truncating long search fields for user %s", user.UnixID)
+		user.SearchFields = user.SearchFields[:250]
+	}
 
 	return m.DB.Save(user).Error
 }
