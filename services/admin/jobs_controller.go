@@ -1,7 +1,6 @@
 package admin
 
 import (
-	"github.com/WilliamsStudentsOnline/wso-go/jobs"
 	_ "github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 )
@@ -18,15 +17,4 @@ import (
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /admin/jobs/{jobID}/status [get]
-func (t *Controller) GetJobStatus(c *gin.Context) {
-	job, err := jobs.GetJob(t.cfg, c.Param("jobID"))
-
-	if err != nil {
-		t.RespondError(c, err)
-		return
-	}
-
-	// TODO: do not return external types
-	// sanitize the output and use our own struct
-	t.RespondOK(c, job.Status)
-}
+func (t *Controller) GetJobStatus(c *gin.Context) {}

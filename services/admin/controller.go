@@ -2,13 +2,11 @@ package admin
 
 import (
 	"github.com/WilliamsStudentsOnline/wso-go/config"
-	"github.com/WilliamsStudentsOnline/wso-go/jobs"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
-	v1 "k8s.io/api/batch/v1"
 )
 
 type Controller struct {
@@ -28,10 +26,6 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 	}
 }
 
-type KubeJobReturn struct {
-	JobID string `json:"jobID"`
-}
-
 // Updates the course catalog
 // CatalogUpdate godoc
 // @Summary Updates the course catalog
@@ -44,28 +38,7 @@ type KubeJobReturn struct {
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /admin/catalog-update [post]
-func (t *Controller) CatalogUpdate(c *gin.Context) {
-	var job *v1.Job
-	var err error
-	var resp KubeJobReturn
-
-	if t.cfg.KubernetesEnabled {
-		job, err = jobs.RunCatalogUpdateJob(t.cfg)
-	}
-
-	if err != nil {
-		t.RespondError(c, err)
-		return
-	}
-
-	if job != nil {
-		resp = KubeJobReturn{
-			JobID: job.Name,
-		}
-	}
-
-	t.RespondCreated(c, resp)
-}
+func (t *Controller) CatalogUpdate(c *gin.Context) {}
 
 // Calls the UpdateAllFromLDAP from Users
 // TODO: This endpoint runs very slow; may want to return a job ID and then be able to query the job log (Aidan: like I did for brkt)
@@ -81,30 +54,7 @@ func (t *Controller) CatalogUpdate(c *gin.Context) {
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /admin/update-all-users-from-ldap [post]
-func (t *Controller) UpdateAllUsersFromLDAP(c *gin.Context) {
-	var job *v1.Job
-	var err error
-	var resp KubeJobReturn
-
-	if t.cfg.KubernetesEnabled {
-		job, err = jobs.RunUpdateAllUsersFromLDAPJob(t.cfg)
-	} else {
-		err = t.userModel.UpdateAllFromLDAP(t.cfg)
-	}
-
-	if err != nil {
-		t.RespondError(c, err)
-		return
-	}
-
-	if job != nil {
-		resp = KubeJobReturn{
-			JobID: job.Name,
-		}
-	}
-
-	t.RespondCreated(c, resp)
-}
+func (t *Controller) UpdateAllUsersFromLDAP(c *gin.Context) {}
 
 // Calls the UpdateAllFactrakSurveyDeficits from Students
 // TODO: This endpoint runs very slow; may want to return a job ID and then be able to query the job log (Aidan: like I did for brkt)
@@ -120,30 +70,7 @@ func (t *Controller) UpdateAllUsersFromLDAP(c *gin.Context) {
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /admin/update-all-factrak-survey-deficits [post]
-func (t *Controller) UpdateAllFactrakSurveyDeficits(c *gin.Context) {
-	var job *v1.Job
-	var err error
-	var resp KubeJobReturn
-
-	if t.cfg.KubernetesEnabled {
-		job, err = jobs.RunUpdateAllFactrakSurveyDeficits(t.cfg)
-	} else {
-		err = t.studentModel.UpdateAllFactrakSurveyDeficits()
-	}
-
-	if err != nil {
-		t.RespondError(c, err)
-		return
-	}
-
-	if job != nil {
-		resp = KubeJobReturn{
-			JobID: job.Name,
-		}
-	}
-
-	t.RespondCreated(c, resp)
-}
+func (t *Controller) UpdateAllFactrakSurveyDeficits(c *gin.Context) {}
 
 // Calls the DormsUpdate from Users
 // TODO: This endpoint runs very slow; may want to return a job ID and then be able to query the job log (Aidan: like I did for brkt)
@@ -159,25 +86,4 @@ func (t *Controller) UpdateAllFactrakSurveyDeficits(c *gin.Context) {
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /admin/dorms-update [post]
-func (t *Controller) DormsUpdate(c *gin.Context) {
-	var job *v1.Job
-	var err error
-	var resp KubeJobReturn
-
-	if t.cfg.KubernetesEnabled {
-		job, err = jobs.RunDormsUpdateJob(t.cfg)
-	}
-
-	if err != nil {
-		t.RespondError(c, err)
-		return
-	}
-
-	if job != nil {
-		resp = KubeJobReturn{
-			JobID: job.Name,
-		}
-	}
-
-	t.RespondCreated(c, resp)
-}
+func (t *Controller) DormsUpdate(c *gin.Context) {}

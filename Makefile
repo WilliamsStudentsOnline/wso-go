@@ -162,17 +162,3 @@ docker-rel-dev: docker-builder
 .PHONY: docker-jobs-dev
 docker-jobs-dev: docker-builder
 	docker build -t $(DOCKER_TAG)-jobs:dev-latest -f Dockerfile.release_jobs .
-
-.PHONY: k8-apply-dev
-k8-apply-dev:
-	kubectl apply -k k8s/development
-	minikube service backend -n development --url
-
-.PHONY: k8-delete-dev
-k8-delete-dev:
-	kubectl delete -k k8s/development
-
-.PHONY: k8-restart-backend-dev
-k8-restart-backend-dev:
-	kubectl -n development delete deployments.apps backend
-	kubectl -n development apply -k k8s/development
