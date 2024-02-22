@@ -105,7 +105,7 @@ We use something called a [JWT](jwt.io), or JSON Web Token for the API. This all
 - `db/` migration code (and dummy SQLite databases)
   - `migrations/` specific database migrations
 - `docs/` swagger API docs to be compiled
-- `jobs/` kubernetes job launching code and specific jobs to run on the server (e.g. update users from LDAP)
+- `jobs/` cron job launching code and specific jobs to run on the server (e.g. update users from LDAP)
   - `dorms_update/data` dorm and dorm room data
 - `lib/` library files (helpful functions, errors, etc.). We try to minimize the number of external libraries we import here, as this is so widely used
   - `errors.go` contains all API errors
