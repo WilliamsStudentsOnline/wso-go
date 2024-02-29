@@ -2,13 +2,13 @@
 Search query parsing (mostly for Users).
 
 Query Parsing Notes:
- - By default, terms are connected together by AND
+  - By default, terms are connected together by AND
 
 Changes from Rails:
- - Operators are "AND" and "OR", not "&" and "|"
- - Removed the "," operator; just use "OR"
- - Removed ability to do "name: (Ephraim, Hopkins)", that is: removed shorthand to search multiple field values.
-   Instead, do this "name: Ephraim OR name: Hopkins"
+  - Operators are "AND" and "OR", not "&" and "|"
+  - Removed the "," operator; just use "OR"
+  - Removed ability to do "name: (Ephraim, Hopkins)", that is: removed shorthand to search multiple field values.
+    Instead, do this "name: Ephraim OR name: Hopkins"
 */
 package search
 

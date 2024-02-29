@@ -13,7 +13,7 @@ To run the server, simply do `make run-dev` or `make && ./wso-backend --developm
 
 Note: you must include a secrets file. So, run `cp config/secrets_example.yaml config/secrets.yaml` and edit the fields from there. You can also just set the environment variable `WSO_SECRET_JWT_SECRET_KEY=wso-jwt-development-secret`, which will work.
 
-### Current Go Version: 1.14
+### Current Go Version: 1.21
 It is worth noting that you should install Go via the official site, not a package repository like apt-get or brew, which often have outdated versions. You can find info on how to install Go [here](https://golang.org/doc/install).
 
 ## Onboarding 
@@ -22,7 +22,7 @@ It is worth noting that you should install Go via the official site, not a packa
 There are a number of resources out there to learn Go. The official tutorial is found [here](tour.golang.org). However, I prefer [Learn Go in Y Minutes](https://learnxinyminutes.com/docs/go/), which is pretty short and informative. 
 
 ### IDE
-You can use whatever you want as your Go IDE. Personally, I use Intellij Goland, which you can get for free as a student. If you want something more lightweight, I suggest using Emacs.
+You can use whatever you want as your Go IDE. VSCode is a popular choice as a lightweight editor. If you would like a full IDE, JetBrains Goland is free for students and it provides many more features.
 
 ### First Issue
 Choose an unassigned issue tagged "good first issue" and reach out to the Backend team lead for more information and guidance. If you want some examples of good wso-go code, check out `wso-go/services/ephmatch` or `wso-go/services/users`.
@@ -105,11 +105,8 @@ We use something called a [JWT](jwt.io), or JSON Web Token for the API. This all
 - `db/` migration code (and dummy SQLite databases)
   - `migrations/` specific database migrations
 - `docs/` swagger API docs to be compiled
-- `jobs/` kubernetes job launching code and specific jobs to run on the server (e.g. update users from LDAP)
+- `jobs/` cron job launching code and specific jobs to run on the server (e.g. update users from LDAP)
   - `dorms_update/data` dorm and dorm room data
-- `k8s/` kubernetes configuration files
-  - `base/` the base kubernetes configuration inherited by every deployment
-  - `development/` the local development configuration
 - `lib/` library files (helpful functions, errors, etc.). We try to minimize the number of external libraries we import here, as this is so widely used
   - `errors.go` contains all API errors
   - `auth/` contains authentication info about scopes and useful ways to use scopes
@@ -123,108 +120,6 @@ We use something called a [JWT](jwt.io), or JSON Web Token for the API. This all
 - `server` master API routing and entrypoint for entire server
 - `services/` contains all server microservices
 - `Dockerfile.*` dockerfiles for various tasks and builds
-
-## Local Kubernetes Deployment
-This is a guide to how to set up and run a local kubernetes deployment. Usually if you are just working on the API, 
-it is okay to run the backend locally with `make` or `make run-dev`. But, if you need to make changes to the 
-infrastructure, or you want to run the backend as if it was on production, this is your best bet. Please note that 
-wso-dev can also function as a place to test your code in a kubernetes environment.
-
-### Requirements
-
-You will need [minikube](https://kubernetes.io/docs/setup/learning-environment/minikube/#installation) as your local Kubernetes installation.
-With minikube, you need a virtual machine hypervisor. I suggest [HyperKit](https://github.com/moby/hyperkit) for macOS. For other operating systems,
-go with what looks best, but VirtualBox is always a staple.
-
-You will also need to install [Docker](https://docs.docker.com/install/).
-
-### Setting up
-
-These instructions are for setting up for your first time.
-
-Start up your minikube instance with:
-```shell script
-minikube start --vm-driver=VM-DRIVER-HERE
-```
-
-You also probably want to switch your docker client to use minikube, rather than its own installation. To do that, shut 
-down your local docker machine if it is online. Then run:
-```shell script
-eval $(minikube docker-env)
-```
-
-You will need to do that every time you change shells or restart minikube.
-
-Now, you can build the WSO-backend docker images:
-```shell script
-make docker-build-dev
-```
-
-Once they are built, you can deploy the kubernetes cluster with:
-```shell script
-make k8-apply-dev
-```
-
-To see the status of your cluster, open a new terminal window and run:
-```shell script
-minikube dashboard
-```
-
-If your wso-backend pod is in a failing loop (more than 3 fails). This is may be because the MySQL image does not 
-contain the `development` database yet. If this is the case, run this:
-```shell script
-kubectl run -i --rm --image=mysql:8.0.17 --restart=Never mysql-client -- mysql -h mysql -ppassword < echo "create database development character set utf8mb4 collate utf8mb4_bin; exit;"
-```
-This command essentially deploys a MySQL kubernetes pod that connects to the database and creates the database. You may 
-want to run `make k8-apply-dev` again after this to restart the wso-backend deployment
-
-### Running
-
-These instructions are for everyday running.
-
-Tell docker to use minikube:
-```shell script
-eval $(minikube docker-env)
-```
-
-Build the docker images:
-```shell script
-make docker-build-dev
-```
-
-Open a dashboard:
-```shell script
-minikube dashboard
-```
-
-Deploy the kubernetes cluster:
-```shell script
-make k8-apply-dev
-```
-The last line of of this command outputs `Backend Service IP:`. This is the IP and port you use to connect to the 
-backend service, rather than `http://localhost:8080`. Using that IP, you can now connect to the backend.
-
-Take down the kubernetes cluster:
-```shell script
-make k8-delete-dev
-```
-
-To restart or reload the kubernetes cluster with a new image, just run `k8-delete-dev` followed by `k8-apply-dev`.
-
-To access the MySQL database directly, execute this command, which will open up a terminal interface:
-```shell script
-kubectl run -n development -it --rm --image=mysql:8.0.17 --restart=Never mysql-client -- mysql -h mysql -ppassword development
-```
-
-To import existing SQL into the MySQL database, run this:
-```shell script
-kubectl run -i --rm --image=mysql:8.0.17 --restart=Never mysql-client -- mysql -h mysql -ppassword development < PATH_TO_SQL_DUMP_HERE
-```
-
-To set the default namespace to development:
-```shell script
-kubectl config set-context --current --namespace=development
-```
 
 To remove intermediate docker builds:
 ```shell script

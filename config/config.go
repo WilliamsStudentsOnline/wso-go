@@ -82,11 +82,6 @@ type Config struct {
 	// Enable ephmatch indefinitely
 	EphmatchEnableNow bool `yaml:"ephmatch_enable_now" envconfig:"ephmatch_enable_now"`
 
-	/* Kubernetes */
-	KubernetesEnabled   bool   `yaml:"kubernetes_enabled" envconfig:"kubernetes_enabled"`
-	KubeNamespace       string `yaml:"kube_namespace" envconfig:"kube_namespace"`
-	KubeJobImageVersion string `yaml:"kube_job_image_version" envconfig:"kube_job_image_version"`
-
 	Secrets *Secrets `yaml:"-" envconfig:"-"`
 
 	/* Pictures */
@@ -325,11 +320,6 @@ func SetupConfig(c *Config) error {
 	case "sqlite":
 		c.DatabaseType = "sqlite3"
 		SetupSQLiteConfig(c)
-	}
-
-	// Default to latest
-	if c.KubeJobImageVersion == "" {
-		c.KubeJobImageVersion = "latest"
 	}
 
 	// Default to SearchBackendSQL
