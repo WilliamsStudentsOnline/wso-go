@@ -101,6 +101,7 @@ func GenerateClaimsFactory(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogg
 			if v.User.Admin != nil && *v.User.Admin {
 				scope = append(scope, auth.ScopeAdminAll)
 				scope = append(scope, auth.ScopeFactrakAdmin)
+				scope = append(scope, auth.ScopeCourseSchedulerAdmin)
 			} else if v.User.FactrakAdmin != nil && *v.User.FactrakAdmin {
 				// If not admin, check if factrak admin
 				scope = append(scope, auth.ScopeFactrakAdmin)

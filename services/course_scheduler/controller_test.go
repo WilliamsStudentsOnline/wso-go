@@ -164,7 +164,7 @@ func TestController_ListSelections(t *testing.T) {
 }
 
 func TestController_AddSelection(t *testing.T) {
-	assert, db, router := SetupCourseSchedulerSelectionTest(t, auth.ScopeCourseSchedulerFull)
+	assert, db, router := SetupCourseSchedulerSelectionTest(t, auth.ScopeCourseSchedulerAdmin)
 
 	var userID1 uint = 128
 	var courseID1 uint = 256
@@ -302,7 +302,7 @@ func TestController_AddSelection(t *testing.T) {
 }
 
 func TestController_RemoveSelection(t *testing.T) {
-	assert, db, router := SetupCourseSchedulerSelectionTest(t, auth.ScopeCourseSchedulerFull)
+	assert, db, router := SetupCourseSchedulerSelectionTest(t, auth.ScopeCourseSchedulerAdmin)
 
 	var userID1 uint = 128
 	var userID2 uint = 400
@@ -577,7 +577,7 @@ func DeletionCheck(assert *testify.Assertions, router *gin.Engine, delQuery stri
 }
 
 func TestController_HideSelection(t *testing.T) {
-	assert, db, router := SetupCourseSchedulerSelectionTest(t, auth.ScopeCourseSchedulerFull)
+	assert, db, router := SetupCourseSchedulerSelectionTest(t, auth.ScopeCourseSchedulerAdmin)
 
 	var userID1 uint = 128
 	var userID2 uint = 400

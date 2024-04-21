@@ -27,7 +27,7 @@ const (
 
 	// Service: Course Scheduler
 	// Allows creating/deleting/modifying entries in the course scheduler selections database
-	ScopeCourseSchedulerFull = "service:course_scheduler:full"
+	ScopeCourseSchedulerAdmin = "service:course_scheduler:full"
 
 	// Service: Dormtrak
 	// Access to dormtrak reviews, etc.
