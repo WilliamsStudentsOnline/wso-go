@@ -12,11 +12,11 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	c := NewController(db, cfg, log)
 
 	writer := r.Group("")
-	writer.Use(auth.RequireScopes(auth.ScopeCourseSchedulerFull))
+	writer.Use(auth.RequireScopes(auth.ScopeCourseSchedulerAdmin))
 
-	r.GET("/get/", c.ListCourseSchedulerSelections)
+	r.GET("/selections", c.ListCourseSchedulerSelections)
 
-	writer.POST("/add/", c.AddCourseSchedulerSelection)
-	writer.DELETE("/del/", c.RemoveCourseSchedulerSelections)
-	writer.PATCH("/hide/", c.HideCourseSchedulerSelection)
+	writer.POST("/selections", c.CreateCourseSchedulerSelection)
+	writer.DELETE("/selections/:selectionID", c.DeleteCourseSchedulerSelections)
+	writer.PATCH("/selections/:selectionID", c.UpdateHiddenCourseSchedulerSelection)
 }

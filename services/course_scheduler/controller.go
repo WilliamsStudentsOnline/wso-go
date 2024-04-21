@@ -1,6 +1,8 @@
 package course_scheduler
 
 import (
+	"strconv"
+
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
@@ -31,16 +33,16 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Cou
 // ListCourseSchedulerSelections godoc
 // @Summary List courseSchedulerSelections
 // @Description lists courseSchedulerSelections (user-course-time pairs)
-// @ID courseSchedulerSelections-list
+// @ID courseSchedulerSelections-get
 // @Tags course-scheduler
 // @Accept json
 // @Produce json
-// @Param userID query uint false "Student UUID"
 // @Param semester query string false "Semester" Enums(FALL,WINTER,SPRING)
 // @Param year query uint false "Year"
 // @Success 200 {array} models.CourseSchedulerSelection
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
+// @Router /course-scheduler/selections [get]
 func (t *CourseSchedulerController) ListCourseSchedulerSelections(c *gin.Context) {
 	var courseSchedulerSelections []*models.CourseSchedulerSelection
 	var err error
@@ -51,12 +53,11 @@ func (t *CourseSchedulerController) ListCourseSchedulerSelections(c *gin.Context
 		return
 	}
 
-	if opts.UserID != nil && opts.Semester != models.SemesterUndefined && opts.Year != nil {
-		err = t.courseSchedulerSelectionModel.GetSelectionsByUserIDAndSemesterAndYear(*opts.UserID, opts.Semester, *opts.Year, &courseSchedulerSelections)
-	} else if opts.UserID != nil {
-		err = t.courseSchedulerSelectionModel.GetSelectionsByUserID(*opts.UserID, &courseSchedulerSelections)
+	var userID = services.GetUserID(c)
+	if opts.Semester != models.SemesterUndefined && opts.Year != nil {
+		err = t.courseSchedulerSelectionModel.GetSelectionsByUserIDAndSemesterAndYear(userID, opts.Semester, *opts.Year, &courseSchedulerSelections)
 	} else {
-		err = t.courseSchedulerSelectionModel.GetAllCourseSchedulerSelections(&courseSchedulerSelections, &opts)
+		err = t.courseSchedulerSelectionModel.GetSelectionsByUserID(userID, &courseSchedulerSelections)
 	}
 
 	if err != nil {
@@ -68,73 +69,54 @@ func (t *CourseSchedulerController) ListCourseSchedulerSelections(c *gin.Context
 
 }
 
+type CourseSchedulerSelectionCreateParams struct {
+	Semester models.SemesterType `json:"semester" binding:"required" enums:",FALL,WINTER,SPRING"`
+	Year     uint                `json:"year" binding:"required"`
+	CourseID uint                `json:"courseID" binding:"required"`
+	Hidden   bool                `json:"hidden"`
+}
+
 // Add one courseSchedulerSelection entry
-// AddCourseSchedulerSelection godoc
+// CreateCourseSchedulerSelection godoc
 // @Summary Add courseSchedulerSelection
 // @Description add one courseSchedulerSelection entry (user-course-time pair)
-// @ID courseSchedulerSelections-add
+// @ID courseSchedulerSelections-post
 // @Tags course-scheduler
 // @Accept json
 // @Produce json
-// @Param userID query uint false "Student UUID"
-// @Param courseID query uint false "Course UUID"
-// @Param hidden query bool false "Hidden"
-// @Param semester query string false "Semester" Enums(FALL,WINTER,SPRING)
-// @Param year query uint false "Year"
+// @Param requestBody body CourseSchedulerSelectionCreateParams true "Course scheduler selection object"
 // @Success 200 {object} services.BaseResponse
 // @Failure 2230 {object} services.BaseErrorResponse "user id not found"
 // @Failure 2231 {object} services.BaseErrorResponse "course id not found"
-// @Failure 2240 {object} services.BaseErrorResponse "failed to provide user id"
-// @Failure 2241 {object} services.BaseErrorResponse "failed to provide course id"
-// @Failure 2242 {object} services.BaseErrorResponse "failed to provide semester and or year"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
-func (t *CourseSchedulerController) AddCourseSchedulerSelection(c *gin.Context) {
+// @Router /course-scheduler/selections [post]
+func (t *CourseSchedulerController) CreateCourseSchedulerSelection(c *gin.Context) {
 	var err error
-	opts := models.GetAllCourseSchedulerSelectionsOptions{}
-	if err = c.ShouldBindQuery(&opts); err != nil {
+	var params CourseSchedulerSelectionCreateParams
+	if err = c.ShouldBindQuery(&params); err != nil {
 		t.RespondBadBind(c, err)
 		return
 	}
 
-	if opts.UserID != nil && opts.CourseID != nil {
-		var user models.User
-		usererr := t.userModel.GetUserByID(*opts.UserID, &user)
-		if usererr != nil {
-			t.RespondAPIError(c, lib.ErrorCourseSchedulerInvalidUserID)
-		}
-
-		var course models.Course
-		courseerr := t.courseModel.GetCourseByID(*opts.CourseID, &course)
-		if courseerr != nil {
-			t.RespondAPIError(c, lib.ErrorCourseSchedulerInvalidCourseID)
-			return
-		}
-
-		if opts.Semester != models.SemesterUndefined && opts.Year != nil {
-			err = t.courseSchedulerSelectionModel.CreateSelection(models.CourseSchedulerSelection{
-				User:     &user,
-				UserID:   opts.UserID,
-				Course:   &course,
-				CourseID: opts.CourseID,
-				Hidden:   opts.Hidden,
-				Semester: opts.Semester,
-				Year:     opts.Year,
-			})
-		} else {
-			t.RespondAPIError(c, lib.ErrorCourseSchedulerMissingSemesterYear)
-			return
-		}
-	} else {
-		if opts.UserID == nil {
-			t.RespondAPIError(c, lib.ErrorCourseSchedulerMissingUserID)
-		}
-		if opts.CourseID == nil {
-			t.RespondAPIError(c, lib.ErrorCourseSchedulerMissingCourseID)
-		}
+	userID := services.GetUserID(c)
+	if exist, err := t.userModel.DoesUserExist(userID); exist || err != nil {
+		t.RespondAPIError(c, lib.ErrorCourseSchedulerInvalidUserID)
 		return
 	}
 
+	if exist, err := t.courseModel.DoesCourseExist(params.CourseID); exist || err != nil {
+		t.RespondAPIError(c, lib.ErrorCourseSchedulerInvalidCourseID)
+		return
+	}
+
+	err = t.courseSchedulerSelectionModel.CreateSelection(models.CourseSchedulerSelection{
+		UserID:   &userID,
+		CourseID: &params.CourseID,
+		Hidden:   params.Hidden,
+		Semester: params.Semester,
+		Year:     &params.Year,
+	})
 	if err != nil {
 		t.RespondError(c, err)
 		return
@@ -145,47 +127,29 @@ func (t *CourseSchedulerController) AddCourseSchedulerSelection(c *gin.Context) 
 	})
 }
 
-// Remove courseSchedulerSelection entries using filters
-// RemoveCourseSchedulerSelections godoc
-// @Summary Remove courseSchedulerSelection entries using filters
-// @Description Remove courseSchedulerSelection entries using filters
-// @ID courseSchedulerSelections-remove
+// Remove courseSchedulerSelection entries using filters and delete by ID
+// DeleteCourseSchedulerSelections godoc
+// @Summary Delete courseSchedulerSelection entries using filters
+// @Description Delete courseSchedulerSelection entries using filters
+// @ID courseSchedulerSelections-delete
 // @Tags course-scheduler
 // @Accept json
 // @Produce json
-// @Param userID query uint false "Student UUID"
-// @Param courseID query uint false "Course UUID"
-// @Param semester query string false "Semester" Enums(FALL,WINTER,SPRING)
-// @Param year query uint false "Year"
+// @Param id path uint true "Selection ID"
 // @Success 200 {object} services.BaseResponse
-// @Failure 2243 {object} services.BaseErrorResponse "failed to provide any identifiers for selection deletion"
 // @Failure 500 {object} services.BaseErrorResponse
-func (t *CourseSchedulerController) RemoveCourseSchedulerSelections(c *gin.Context) {
-	var err error
+// @Security Bearer
+// @Router /selections/{selectionID} [delete]
+func (t *CourseSchedulerController) DeleteCourseSchedulerSelections(c *gin.Context) {
+	selectionIDStr := c.Param("id")
+	selectionID, err := strconv.ParseUint(selectionIDStr, 10, 64)
 
-	opts := models.GetAllCourseSchedulerSelectionsOptions{}
-	if err = c.ShouldBindQuery(&opts); err != nil {
-		t.RespondBadBind(c, err)
+	if err != nil {
+		t.RespondError(c, err)
 		return
 	}
 
-	if opts.UserID != nil {
-		if opts.CourseID != nil {
-			err = t.courseSchedulerSelectionModel.DeleteAllSelectionsByUserIDAndCourseID(*opts.UserID, *opts.CourseID)
-		} else if opts.Semester != models.SemesterUndefined && opts.Year != nil {
-			err = t.courseSchedulerSelectionModel.DeleteAllSelectionsByUserIDAndSemesterAndYear(*opts.UserID, opts.Semester, *opts.Year)
-		} else {
-			t.RespondAPIError(c, lib.ErrorCourseSchedulerMissingDeletionQueryParam)
-		}
-	} else if opts.CourseID != nil {
-		err = t.courseSchedulerSelectionModel.DeleteAllSelectionsByCourseID(*opts.CourseID)
-	} else if opts.Semester != models.SemesterUndefined && opts.Year != nil {
-		err = t.courseSchedulerSelectionModel.DeleteAllSelectionsBySemesterAndYear(opts.Semester, *opts.Year)
-	} else {
-		t.RespondAPIError(c, lib.ErrorCourseSchedulerMissingDeletionQueryParam)
-		return
-	}
-
+	err = t.courseSchedulerSelectionModel.DeleteSelectionByID(uint(selectionID))
 	if err != nil {
 		t.RespondError(c, err)
 		return
@@ -195,46 +159,40 @@ func (t *CourseSchedulerController) RemoveCourseSchedulerSelections(c *gin.Conte
 
 }
 
+type CourseSchedulerSelectionUpdateParams struct {
+	Hidden bool `json:"hidden" binding:"required"`
+}
+
 // Update a course scheduler selection's hidden status
-// HideCourseSchedulerSelection godoc
+// UpdateHiddenCourseSchedulerSelection godoc
 // @Summary Modify courseSchedulerSelection hidden
 // @Description updates a course scheduler selection's hidden status
-// @ID courseSchedulerSelections-list
+// @ID courseSchedulerSelections-update
 // @Tags course-scheduler
 // @Accept json
 // @Produce json
-// @Param hidden query bool false "Hidden"
-// @Param userID query uint false "Student UUID"
-// @Param courseID query uint false "Course UUID"
-// @Param semester query string false "Semester" Enums(FALL,WINTER,SPRING)
-// @Param year query uint false "Year"
+// @Param id path uint true "Selection ID"
+// @Param requestBody body UpdateHiddenParams true "Request body"
 // @Success 200 {object} services.BaseResponse
-// @Failure 2240 {object} services.BaseErrorResponse "failed to provide user id"
-// @Failure 2244 {object} services.BaseErrorResponse "failed to provide additional identifiers for selection visibility update"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
-func (t *CourseSchedulerController) HideCourseSchedulerSelection(c *gin.Context) {
-	var err error
+// @Router /selections/{selectionID} [patch]
+func (t *CourseSchedulerController) UpdateHiddenCourseSchedulerSelection(c *gin.Context) {
+	selectionIDStr := c.Param("id")
+	selectionID, err := strconv.ParseUint(selectionIDStr, 10, 64)
 
-	opts := models.GetAllCourseSchedulerSelectionsOptions{}
-	if err = c.ShouldBindQuery(&opts); err != nil {
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	var params CourseSchedulerSelectionUpdateParams
+	if err := c.ShouldBindJSON(&params); err != nil {
 		t.RespondBadBind(c, err)
 		return
 	}
 
-	if opts.UserID != nil {
-		if opts.Semester != models.SemesterUndefined && opts.Year != nil {
-			err = t.courseSchedulerSelectionModel.SetSelectionHiddenByUserIDAndSemesterAndYear(*opts.UserID, opts.Semester, *opts.Year, opts.Hidden)
-		} else if opts.CourseID != nil {
-			err = t.courseSchedulerSelectionModel.SetSelectionHiddenByUserIDAndCourseID(*opts.UserID, *opts.CourseID, opts.Hidden)
-		} else {
-			t.RespondAPIError(c, lib.ErrorCourseSchedulerMissingHideQueryParam)
-			return
-		}
-	} else {
-		t.RespondAPIError(c, lib.ErrorCourseSchedulerMissingUserID)
-		return
-	}
+	err = t.courseSchedulerSelectionModel.SetSelectionHiddenByID(uint(selectionID), params.Hidden)
 
 	if err != nil {
 		t.RespondError(c, err)

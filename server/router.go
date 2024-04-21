@@ -220,6 +220,10 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 		} else {
 			log.Warn("Goodrich Config is not set up. Will not route Goodrich Service. ")
 		}
+
+		// Course Scheduler Service
+		courseSchedulerGroup := v2.Group("/course-scheduler")
+		courseSchedulerGroup.Use(auth.RequireScopes(auth.ScopeCourseSchedulerAdmin))
 	}
 
 	return r, nil

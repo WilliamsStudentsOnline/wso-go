@@ -198,6 +198,12 @@ func (m *CourseSchedulerSelectionModel) DeleteAllSelectionsByUserIDAndSemesterAn
 	).Delete(&CourseSchedulerSelection{}).Error
 }
 
+func (m *CourseSchedulerSelectionModel) DeleteSelectionByID(id uint) (err error) {
+	return m.DB.Where(
+		"ID = ?", id,
+	).Delete(&CourseSchedulerSelection{}).Error
+}
+
 func (m *CourseSchedulerSelectionModel) GetSelectionsByUserID(userID uint, courseSchedulerSelections *[]*CourseSchedulerSelection) (err error) {
 	return m.GetAllCourseSchedulerSelections(courseSchedulerSelections, &GetAllCourseSchedulerSelectionsOptions{
 		UserID: &userID,
@@ -216,6 +222,12 @@ func (m *CourseSchedulerSelectionModel) GetSelectionsByUserIDAndSemesterAndYear(
 		Semester: semester,
 		Year:     &year,
 	})
+}
+
+func (m *CourseSchedulerSelectionModel) SetSelectionHiddenByID(id uint, hidden bool) (err error) {
+	return m.DB.Model(&CourseSchedulerSelection{}).Where(
+		"ID = ?", id,
+	).Update("Hidden", hidden).Error
 }
 
 func (m *CourseSchedulerSelectionModel) SetSelectionHiddenByUserIDAndCourseID(userID uint, courseID uint, hidden bool) (err error) {
