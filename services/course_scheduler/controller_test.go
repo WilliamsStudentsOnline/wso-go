@@ -364,15 +364,100 @@ func TestController_DeleteSelection(t *testing.T) {
 	assert.NoError(db.Create(&courses[0]).Create(&courses[1]).Error)
 	assert.NoError(db.Create(&courseSchedulerSelections[0]).Create(&courseSchedulerSelections[1]).Error)
 
-	router := utils.SetupRouter(auth.ScopeUsers)
-	utils.AddUserContexts(router, users[0].ID)
+	router := utils.SetupRouter(auth.ScopeCourseSchedulerAdmin)
 	cfg := utils.SetupConfig()
 	course_scheduler.SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
+	// Check correct deletion by ID
 	w, err := utils.DoHTTPReq(router, http.MethodDelete, "/selections/1", nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w.Code)
 
-	// TODO THIS TEST NOT WORKING
+	// TODO SET UP USER VS ADMIN ACCESS
+
+}
+
+func TestController_HideSelection(t *testing.T) {
+	var year uint = 2024
+	users := []User{
+		{
+			Type:   UserTypeStudent,
+			Name:   "Foo",
+			UnixID: "foo1",
+		},
+		{
+			Type:   UserTypeStudent,
+			Name:   "Bar",
+			UnixID: "bar1",
+		},
+	}
+
+	courses := []Course{
+		{
+			Number: "256",
+			AreaOfStudy: &AreaOfStudy{
+				Name:         "Computer Science",
+				Abbreviation: "CSCI",
+				Department: &Department{
+					Name: "Computer Science",
+				},
+			},
+		},
+		{
+			Number: "101",
+			AreaOfStudy: &AreaOfStudy{
+				Name:         "Psychology",
+				Abbreviation: "PSYC",
+				Department: &Department{
+					Name: "Psychology",
+				},
+			},
+		},
+	}
+
+	courseSchedulerSelections := []CourseSchedulerSelection{
+		{
+			User:     &users[0],
+			UserID:   &users[0].ID,
+			Course:   &courses[0],
+			CourseID: &courses[0].ID,
+			Hidden:   true,
+			Semester: SemesterFall,
+			Year:     &year,
+		},
+		{
+			User:     &users[1],
+			UserID:   &users[1].ID,
+			Course:   &courses[1],
+			CourseID: &courses[1].ID,
+			Hidden:   false,
+			Semester: SemesterSpring,
+			Year:     &year,
+		},
+	}
+
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+	assert.NoError(db.Create(&users[0]).Create(&users[1]).Error)
+	assert.NoError(db.Create(&courses[0]).Create(&courses[1]).Error)
+	assert.NoError(db.Create(&courseSchedulerSelections[0]).Create(&courseSchedulerSelections[1]).Error)
+
+	router := utils.SetupRouter(auth.ScopeCourseSchedulerAdmin)
+	cfg := utils.SetupConfig()
+	course_scheduler.SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+
+	hidden := false
+	params := course_scheduler.CourseSchedulerSelectionUpdateParams{
+		Hidden: &hidden,
+	}
+	payload, err := json.Marshal(&params)
+	assert.NoError(err)
+
+	// Check correct update by ID
+	w, err := utils.DoHTTPReq(router, http.MethodPatch, "/selections/1", bytes.NewBuffer(payload))
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+
+	// TODO SET UP USER VS ADMIN ACCESS
 
 }

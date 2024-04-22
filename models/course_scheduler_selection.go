@@ -200,7 +200,7 @@ func (m *CourseSchedulerSelectionModel) DeleteAllSelectionsByUserIDAndSemesterAn
 
 func (m *CourseSchedulerSelectionModel) DeleteSelectionByID(id uint) (err error) {
 	return m.DB.Where(
-		"ID = ?", id,
+		"id = ?", id,
 	).Delete(&CourseSchedulerSelection{}).Error
 }
 
@@ -226,7 +226,7 @@ func (m *CourseSchedulerSelectionModel) GetSelectionsByUserIDAndSemesterAndYear(
 
 func (m *CourseSchedulerSelectionModel) SetSelectionHiddenByID(id uint, hidden bool) (err error) {
 	return m.DB.Model(&CourseSchedulerSelection{}).Where(
-		"ID = ?", id,
+		"id = ?", id,
 	).Update("Hidden", hidden).Error
 }
 

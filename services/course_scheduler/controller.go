@@ -151,14 +151,14 @@ func (t *CourseSchedulerController) CreateCourseSchedulerSelection(c *gin.Contex
 // @Tags course-scheduler
 // @Accept json
 // @Produce json
-// @Param id path uint true "Selection ID"
+// @Param selectionID path uint true "Selection ID"
 // @Success 200 {object} services.BaseResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /course-scheduler/selections/{selectionID} [delete]
 func (t *CourseSchedulerController) DeleteCourseSchedulerSelections(c *gin.Context) {
-	selectionIDStr := c.Param("id")
-	selectionID, err := strconv.ParseUint(selectionIDStr, 10, 64)
+	selectionIDStr := c.Param("selectionID")
+	selectionID, err := strconv.Atoi(selectionIDStr)
 
 	if err != nil {
 		t.RespondError(c, err)
@@ -176,7 +176,7 @@ func (t *CourseSchedulerController) DeleteCourseSchedulerSelections(c *gin.Conte
 }
 
 type CourseSchedulerSelectionUpdateParams struct {
-	Hidden bool `json:"hidden" binding:"required"`
+	Hidden *bool `json:"hidden" binding:"required"`
 }
 
 // Update a course scheduler selection's hidden status
@@ -187,28 +187,29 @@ type CourseSchedulerSelectionUpdateParams struct {
 // @Tags course-scheduler
 // @Accept json
 // @Produce json
-// @Param id path uint true "Selection ID"
-// @Param requestBody body UpdateHiddenParams true "Request body"
+// @Param selectionID path uint true "Selection ID"
+// @Param requestBody body CourseSchedulerSelectionUpdateParams true "Request body"
 // @Success 200 {object} services.BaseResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /course-scheduler/selections/{selectionID} [patch]
 func (t *CourseSchedulerController) UpdateHiddenCourseSchedulerSelection(c *gin.Context) {
-	selectionIDStr := c.Param("id")
-	selectionID, err := strconv.ParseUint(selectionIDStr, 10, 64)
+	var err error
+	var params CourseSchedulerSelectionUpdateParams
+	if err = c.ShouldBindJSON(&params); err != nil {
+		t.RespondBadBind(c, err)
+		return
+	}
+
+	selectionIDStr := c.Param("selectionID")
+	selectionID, err := strconv.Atoi(selectionIDStr)
 
 	if err != nil {
 		t.RespondError(c, err)
 		return
 	}
 
-	var params CourseSchedulerSelectionUpdateParams
-	if err := c.ShouldBindJSON(&params); err != nil {
-		t.RespondBadBind(c, err)
-		return
-	}
-
-	err = t.courseSchedulerSelectionModel.SetSelectionHiddenByID(uint(selectionID), params.Hidden)
+	err = t.courseSchedulerSelectionModel.SetSelectionHiddenByID(uint(selectionID), *params.Hidden)
 
 	if err != nil {
 		t.RespondError(c, err)
