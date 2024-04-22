@@ -85,27 +85,28 @@ type CourseSchedulerSelectionCreateParams struct {
 // @Accept json
 // @Produce json
 // @Param requestBody body CourseSchedulerSelectionCreateParams true "Course scheduler selection object"
-// @Success 200 {object} services.BaseResponse
+// @Success 201 {object} services.BaseResponse
 // @Failure 2230 {object} services.BaseErrorResponse "user id not found"
 // @Failure 2231 {object} services.BaseErrorResponse "course id not found"
-// @Failure 500 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 403 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /course-scheduler/selections [post]
 func (t *CourseSchedulerController) CreateCourseSchedulerSelection(c *gin.Context) {
 	var err error
 	var params CourseSchedulerSelectionCreateParams
-	if err = c.ShouldBindQuery(&params); err != nil {
+	if err = c.ShouldBindJSON(&params); err != nil {
 		t.RespondBadBind(c, err)
 		return
 	}
 
 	userID := services.GetUserID(c)
-	if exist, err := t.userModel.DoesUserExist(userID); exist || err != nil {
+	if exist, err := t.userModel.DoesUserExist(userID); !exist || err != nil {
 		t.RespondAPIError(c, lib.ErrorCourseSchedulerInvalidUserID)
 		return
 	}
 
-	if exist, err := t.courseModel.DoesCourseExist(params.CourseID); exist || err != nil {
+	if exist, err := t.courseModel.DoesCourseExist(params.CourseID); !exist || err != nil {
 		t.RespondAPIError(c, lib.ErrorCourseSchedulerInvalidCourseID)
 		return
 	}
@@ -122,9 +123,7 @@ func (t *CourseSchedulerController) CreateCourseSchedulerSelection(c *gin.Contex
 		return
 	}
 
-	t.RespondOK(c, services.BaseResponse{
-		Status: 200,
-	})
+	t.RespondCreated(c, nil)
 }
 
 // Remove courseSchedulerSelection entries using filters and delete by ID
@@ -139,7 +138,7 @@ func (t *CourseSchedulerController) CreateCourseSchedulerSelection(c *gin.Contex
 // @Success 200 {object} services.BaseResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
-// @Router /selections/{selectionID} [delete]
+// @Router /course-scheduler/selections/{selectionID} [delete]
 func (t *CourseSchedulerController) DeleteCourseSchedulerSelections(c *gin.Context) {
 	selectionIDStr := c.Param("id")
 	selectionID, err := strconv.ParseUint(selectionIDStr, 10, 64)
@@ -176,7 +175,7 @@ type CourseSchedulerSelectionUpdateParams struct {
 // @Success 200 {object} services.BaseResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
-// @Router /selections/{selectionID} [patch]
+// @Router /course-scheduler/selections/{selectionID} [patch]
 func (t *CourseSchedulerController) UpdateHiddenCourseSchedulerSelection(c *gin.Context) {
 	selectionIDStr := c.Param("id")
 	selectionID, err := strconv.ParseUint(selectionIDStr, 10, 64)
