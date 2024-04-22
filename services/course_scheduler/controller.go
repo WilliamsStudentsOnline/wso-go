@@ -5,6 +5,7 @@ import (
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
+	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
@@ -37,6 +38,7 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Cou
 // @Tags course-scheduler
 // @Accept json
 // @Produce json
+// @Param userID query uint false "UserID"
 // @Param semester query string false "Semester" Enums(FALL,WINTER,SPRING)
 // @Param year query uint false "Year"
 // @Success 200 {array} models.CourseSchedulerSelection
@@ -53,7 +55,16 @@ func (t *CourseSchedulerController) ListCourseSchedulerSelections(c *gin.Context
 		return
 	}
 
-	var userID = services.GetUserID(c)
+	var userID uint
+	if auth.HasScope(c, auth.ScopeCourseSchedulerAdmin) {
+		userID = *opts.UserID
+	} else {
+		userID = services.GetUserID(c)
+		if exist, err := t.userModel.DoesUserExist(userID); !exist || err != nil {
+			t.RespondError(c, err)
+			return
+		}
+	}
 	if opts.Semester != models.SemesterUndefined && opts.Year != nil {
 		err = t.courseSchedulerSelectionModel.GetSelectionsByUserIDAndSemesterAndYear(userID, opts.Semester, *opts.Year, &courseSchedulerSelections)
 	} else {
@@ -74,6 +85,7 @@ type CourseSchedulerSelectionCreateParams struct {
 	Year     uint                `json:"year" binding:"required"`
 	CourseID uint                `json:"courseID" binding:"required"`
 	Hidden   bool                `json:"hidden"`
+	UserID   uint                `json:"userID"`
 }
 
 // Add one courseSchedulerSelection entry
@@ -100,10 +112,15 @@ func (t *CourseSchedulerController) CreateCourseSchedulerSelection(c *gin.Contex
 		return
 	}
 
-	userID := services.GetUserID(c)
-	if exist, err := t.userModel.DoesUserExist(userID); !exist || err != nil {
-		t.RespondAPIError(c, lib.ErrorCourseSchedulerInvalidUserID)
-		return
+	var userID uint
+	if auth.HasScope(c, auth.ScopeCourseSchedulerAdmin) {
+		userID = params.UserID
+	} else {
+		userID = services.GetUserID(c)
+		if exist, err := t.userModel.DoesUserExist(userID); !exist || err != nil {
+			t.RespondAPIError(c, lib.ErrorCourseSchedulerInvalidUserID)
+			return
+		}
 	}
 
 	if exist, err := t.courseModel.DoesCourseExist(params.CourseID); !exist || err != nil {
