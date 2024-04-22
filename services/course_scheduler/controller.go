@@ -1,8 +1,6 @@
 package course_scheduler
 
 import (
-	"strconv"
-
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
@@ -60,10 +58,6 @@ func (t *CourseSchedulerController) ListCourseSchedulerSelections(c *gin.Context
 		userID = *opts.UserID
 	} else {
 		userID = services.GetUserID(c)
-		if exist, err := t.userModel.DoesUserExist(userID); !exist || err != nil {
-			t.RespondError(c, err)
-			return
-		}
 	}
 	if opts.Semester != models.SemesterUndefined && opts.Year != nil {
 		err = t.courseSchedulerSelectionModel.GetSelectionsByUserIDAndSemesterAndYear(userID, opts.Semester, *opts.Year, &courseSchedulerSelections)
@@ -96,7 +90,7 @@ type CourseSchedulerSelectionCreateParams struct {
 // @Tags course-scheduler
 // @Accept json
 // @Produce json
-// @Param requestBody body CourseSchedulerSelectionCreateParams true "Course scheduler selection object"
+// @Param createParams body CourseSchedulerSelectionCreateParams true "Course scheduler selection object"
 // @Success 201 {object} services.BaseResponse
 // @Failure 2230 {object} services.BaseErrorResponse "user id not found"
 // @Failure 2231 {object} services.BaseErrorResponse "course id not found"
@@ -117,10 +111,6 @@ func (t *CourseSchedulerController) CreateCourseSchedulerSelection(c *gin.Contex
 		userID = params.UserID
 	} else {
 		userID = services.GetUserID(c)
-		if exist, err := t.userModel.DoesUserExist(userID); !exist || err != nil {
-			t.RespondAPIError(c, lib.ErrorCourseSchedulerInvalidUserID)
-			return
-		}
 	}
 
 	if exist, err := t.courseModel.DoesCourseExist(params.CourseID); !exist || err != nil {
@@ -157,15 +147,13 @@ func (t *CourseSchedulerController) CreateCourseSchedulerSelection(c *gin.Contex
 // @Security Bearer
 // @Router /course-scheduler/selections/{selectionID} [delete]
 func (t *CourseSchedulerController) DeleteCourseSchedulerSelections(c *gin.Context) {
-	selectionIDStr := c.Param("selectionID")
-	selectionID, err := strconv.Atoi(selectionIDStr)
-
+	selectionID, err := services.GetUIntParam(c, "selectionID")
 	if err != nil {
 		t.RespondError(c, err)
 		return
 	}
 
-	err = t.courseSchedulerSelectionModel.DeleteSelectionByID(uint(selectionID))
+	err = t.courseSchedulerSelectionModel.DeleteSelectionByID(selectionID)
 	if err != nil {
 		t.RespondError(c, err)
 		return
@@ -188,7 +176,7 @@ type CourseSchedulerSelectionUpdateParams struct {
 // @Accept json
 // @Produce json
 // @Param selectionID path uint true "Selection ID"
-// @Param requestBody body CourseSchedulerSelectionUpdateParams true "Request body"
+// @Param updateParams body CourseSchedulerSelectionUpdateParams true "Request body"
 // @Success 200 {object} services.BaseResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -201,9 +189,7 @@ func (t *CourseSchedulerController) UpdateHiddenCourseSchedulerSelection(c *gin.
 		return
 	}
 
-	selectionIDStr := c.Param("selectionID")
-	selectionID, err := strconv.Atoi(selectionIDStr)
-
+	selectionID, err := services.GetUIntParam(c, "selectionID")
 	if err != nil {
 		t.RespondError(c, err)
 		return
