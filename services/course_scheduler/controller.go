@@ -53,18 +53,12 @@ func (t *CourseSchedulerController) ListCourseSchedulerSelections(c *gin.Context
 		return
 	}
 
-	var userID uint
-	if auth.HasScope(c, auth.ScopeCourseSchedulerAdmin) {
-		userID = *opts.UserID
-	} else {
-		userID = services.GetUserID(c)
-	}
-	if opts.Semester != models.SemesterUndefined && opts.Year != nil {
-		err = t.courseSchedulerSelectionModel.GetSelectionsByUserIDAndSemesterAndYear(userID, opts.Semester, *opts.Year, &courseSchedulerSelections)
-	} else {
-		err = t.courseSchedulerSelectionModel.GetSelectionsByUserID(userID, &courseSchedulerSelections)
+	if !auth.HasScope(c, auth.ScopeCourseSchedulerAdmin) {
+		userID := services.GetUserID(c)
+		opts.UserID = &userID
 	}
 
+	err = t.courseSchedulerSelectionModel.GetAllCourseSchedulerSelections(&courseSchedulerSelections, &opts)
 	if err != nil {
 		t.RespondError(c, err)
 		return
