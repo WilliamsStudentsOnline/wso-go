@@ -114,7 +114,22 @@ func TestController_ListSelections(t *testing.T) {
 	assert.NoError(json.Unmarshal(respData.Data, &resp))
 	assert.Equal(0, len(resp))
 
-	// TODO TESTS FOR ADMIN SCOPE
+	// Check that get works as expected for admin requests
+	assert = testify.New(t)
+	db = utils.SetupServiceTest(assert)
+	assert.NoError(db.Create(&users[0]).Create(&users[1]).Error)
+	assert.NoError(db.Create(&courses[0]).Create(&courses[1]).Error)
+	assert.NoError(db.Create(&courseSchedulerSelections[0]).Create(&courseSchedulerSelections[1]).Error)
+
+	router = utils.SetupRouter(auth.ScopeCourseSchedulerAdmin)
+	cfg = utils.SetupConfig()
+	course_scheduler.SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+
+	w, err = utils.DoHTTPReq(router, http.MethodGet, "/selections?userID=1&semester=FALL&year=2024", nil)
+	assert.NoError(err)
+	respData = utils.GetGoodResp(assert, w)
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	assert.Equal(1, len(resp))
 
 }
 
@@ -257,7 +272,30 @@ func TestController_AddSelection(t *testing.T) {
 	assert.NoError(err)
 	assert.Equal(lib.ErrorCourseSchedulerInvalidCourseID.HTTPCode, w.Code)
 
-	// TODO TESTS FOR ADMIN SCOPE
+	// Check that post works as expected for admin requests
+	assert = testify.New(t)
+	db = utils.SetupServiceTest(assert)
+	assert.NoError(db.Create(&users[0]).Create(&users[1]).Error)
+	assert.NoError(db.Create(&courses[0]).Create(&courses[1]).Error)
+	assert.NoError(db.Create(&courseSchedulerSelections[0]).Error)
+
+	router = utils.SetupRouter(auth.ScopeCourseSchedulerAdmin)
+	cfg = utils.SetupConfig()
+	course_scheduler.SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+
+	params = course_scheduler.CourseSchedulerSelectionCreateParams{
+		UserID:   2,
+		CourseID: 2,
+		Semester: models.SemesterSpring,
+		Year:     year,
+		Hidden:   false,
+	}
+
+	payload, err = json.Marshal(&params)
+	assert.NoError(err)
+	w, err = utils.DoHTTPReq(router, http.MethodPost, "/selections", bytes.NewBuffer(payload))
+	assert.NoError(err)
+	assert.Equal(http.StatusCreated, w.Code)
 
 }
 
