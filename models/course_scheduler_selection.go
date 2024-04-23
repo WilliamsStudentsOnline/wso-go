@@ -241,3 +241,13 @@ func (m *CourseSchedulerSelectionModel) SetSelectionHiddenByUserIDAndSemesterAnd
 		"user_id = ? AND semester = ? AND year = ?", userID, semester, year,
 	).Update("Hidden", hidden).Error
 }
+
+func (m *CourseSchedulerSelectionModel) VerifySelectionHasUserID(userID uint, selectionID uint) (hasUserID bool, err error) {
+	var count uint
+	err = m.DB.Model(&CourseSchedulerSelection{}).Where(
+		"id = ? AND user_id = ?", selectionID, userID).Count(&count).Error
+	if err != nil {
+		return false, err
+	}
+	return count > 0, err
+}

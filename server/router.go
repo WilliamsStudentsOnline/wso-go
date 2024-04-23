@@ -224,7 +224,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 
 		// Course Scheduler Service
 		courseSchedulerGroup := v2.Group("/api/v2/course-scheduler")
-		courseSchedulerGroup.Use(auth.RequireScopes(auth.ScopeCourseSchedulerAdmin))
+		courseSchedulerGroup.Use(auth.RequireScopes(auth.ScopeCourseSchedulerFull))
 		courseSchedulerService.SetupRouter(courseSchedulerGroup, db, cfg, log.Named("course-scheduler"))
 	}
 

@@ -11,13 +11,12 @@ import (
 func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) {
 	c := NewController(db, cfg, log)
 
-	writer := r.Group("")
-	writer.Use(auth.RequireScopes(auth.ScopeCourseSchedulerAdmin))
+	students := r.Group("")
+	students.Use(auth.RequireScopes(auth.ScopeCourseSchedulerFull, auth.ScopeCourseSchedulerAdmin))
 
-	r.GET("/selections", c.ListCourseSchedulerSelections)
-	r.POST("/selections", c.CreateCourseSchedulerSelection)
-
-	writer.DELETE("/selections/:selectionID", c.DeleteCourseSchedulerSelections)
-	writer.PATCH("/selections/:selectionID", c.UpdateHiddenCourseSchedulerSelection)
+	students.GET("/selections", c.ListCourseSchedulerSelections)
+	students.POST("/selections", c.CreateCourseSchedulerSelection)
+	students.DELETE("/selections/:selectionID", c.DeleteCourseSchedulerSelections)
+	students.PATCH("/selections/:selectionID", c.UpdateHiddenCourseSchedulerSelection)
 
 }

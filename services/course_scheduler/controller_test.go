@@ -81,7 +81,7 @@ func TestController_ListSelections(t *testing.T) {
 	assert.NoError(db.Create(&courses[0]).Create(&courses[1]).Error)
 	assert.NoError(db.Create(&courseSchedulerSelections[0]).Create(&courseSchedulerSelections[1]).Error)
 
-	router := utils.SetupRouter(auth.ScopeUsers)
+	router := utils.SetupRouter(auth.ScopeCourseSchedulerFull)
 	utils.AddUserContexts(router, users[0].ID)
 	cfg := utils.SetupConfig()
 	course_scheduler.SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
@@ -125,7 +125,7 @@ func TestController_ListSelections(t *testing.T) {
 	cfg = utils.SetupConfig()
 	course_scheduler.SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
-	w, err = utils.DoHTTPReq(router, http.MethodGet, "/selections?userID=1&semester=FALL&year=2024", nil)
+	w, err = utils.DoHTTPReq(router, http.MethodGet, "/selections?userID=1", nil)
 	assert.NoError(err)
 	respData = utils.GetGoodResp(assert, w)
 	assert.NoError(json.Unmarshal(respData.Data, &resp))
@@ -194,7 +194,7 @@ func TestController_AddSelection(t *testing.T) {
 	assert.NoError(db.Create(&courses[0]).Create(&courses[1]).Error)
 	assert.NoError(db.Create(&courseSchedulerSelections[0]).Error)
 
-	router := utils.SetupRouter(auth.ScopeUsers)
+	router := utils.SetupRouter(auth.ScopeCourseSchedulerFull)
 	utils.AddUserContexts(router, users[1].ID)
 	cfg := utils.SetupConfig()
 	course_scheduler.SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
@@ -284,7 +284,6 @@ func TestController_AddSelection(t *testing.T) {
 	course_scheduler.SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
 	params = course_scheduler.CourseSchedulerSelectionCreateParams{
-		UserID:   2,
 		CourseID: 2,
 		Semester: models.SemesterSpring,
 		Year:     year,
@@ -293,7 +292,7 @@ func TestController_AddSelection(t *testing.T) {
 
 	payload, err = json.Marshal(&params)
 	assert.NoError(err)
-	w, err = utils.DoHTTPReq(router, http.MethodPost, "/selections", bytes.NewBuffer(payload))
+	w, err = utils.DoHTTPReq(router, http.MethodPost, "/selections?userID=2", bytes.NewBuffer(payload))
 	assert.NoError(err)
 	assert.Equal(http.StatusCreated, w.Code)
 
@@ -364,16 +363,35 @@ func TestController_DeleteSelection(t *testing.T) {
 	assert.NoError(db.Create(&courses[0]).Create(&courses[1]).Error)
 	assert.NoError(db.Create(&courseSchedulerSelections[0]).Create(&courseSchedulerSelections[1]).Error)
 
-	router := utils.SetupRouter(auth.ScopeCourseSchedulerAdmin)
+	router := utils.SetupRouter(auth.ScopeCourseSchedulerFull)
+	utils.AddUserContexts(router, users[0].ID)
 	cfg := utils.SetupConfig()
 	course_scheduler.SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
-	// Check correct deletion by ID
+	// Check correct deletion by ID (for a user's selection)
 	w, err := utils.DoHTTPReq(router, http.MethodDelete, "/selections/1", nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w.Code)
 
-	// TODO SET UP USER VS ADMIN ACCESS
+	// Check failure to delete for unauthorized selection
+	w, err = utils.DoHTTPReq(router, http.MethodDelete, "/selections/2", nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusBadRequest, w.Code)
+
+	// Check if admins can delete any selection
+	assert = testify.New(t)
+	db = utils.SetupServiceTest(assert)
+	assert.NoError(db.Create(&users[0]).Create(&users[1]).Error)
+	assert.NoError(db.Create(&courses[0]).Create(&courses[1]).Error)
+	assert.NoError(db.Create(&courseSchedulerSelections[0]).Create(&courseSchedulerSelections[1]).Error)
+
+	router = utils.SetupRouter(auth.ScopeCourseSchedulerAdmin)
+	cfg = utils.SetupConfig()
+	course_scheduler.SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+
+	w, err = utils.DoHTTPReq(router, http.MethodDelete, "/selections/2", nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
 
 }
 
@@ -442,7 +460,8 @@ func TestController_HideSelection(t *testing.T) {
 	assert.NoError(db.Create(&courses[0]).Create(&courses[1]).Error)
 	assert.NoError(db.Create(&courseSchedulerSelections[0]).Create(&courseSchedulerSelections[1]).Error)
 
-	router := utils.SetupRouter(auth.ScopeCourseSchedulerAdmin)
+	router := utils.SetupRouter(auth.ScopeCourseSchedulerFull)
+	utils.AddUserContexts(router, users[0].ID)
 	cfg := utils.SetupConfig()
 	course_scheduler.SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
@@ -458,6 +477,24 @@ func TestController_HideSelection(t *testing.T) {
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w.Code)
 
-	// TODO SET UP USER VS ADMIN ACCESS
+	// Check failure to update for unauthorized selection
+	w, err = utils.DoHTTPReq(router, http.MethodPatch, "/selections/2", bytes.NewBuffer(payload))
+	assert.NoError(err)
+	assert.Equal(http.StatusBadRequest, w.Code)
+
+	// Check if admins can update any selection
+	assert = testify.New(t)
+	db = utils.SetupServiceTest(assert)
+	assert.NoError(db.Create(&users[0]).Create(&users[1]).Error)
+	assert.NoError(db.Create(&courses[0]).Create(&courses[1]).Error)
+	assert.NoError(db.Create(&courseSchedulerSelections[0]).Create(&courseSchedulerSelections[1]).Error)
+
+	router = utils.SetupRouter(auth.ScopeCourseSchedulerAdmin)
+	cfg = utils.SetupConfig()
+	course_scheduler.SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+
+	w, err = utils.DoHTTPReq(router, http.MethodPatch, "/selections/2", bytes.NewBuffer(payload))
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
 
 }

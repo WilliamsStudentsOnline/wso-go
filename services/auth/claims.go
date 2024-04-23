@@ -95,6 +95,9 @@ func GenerateClaimsFactory(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogg
 						scope = append(scope, auth.ScopeDormtrakWrite)
 					}
 				}
+
+				// For course scheduler, user must be a student only
+				scope = append(scope, auth.ScopeCourseSchedulerFull)
 			}
 
 			// Add admin scope

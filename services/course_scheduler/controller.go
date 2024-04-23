@@ -73,7 +73,6 @@ type CourseSchedulerSelectionCreateParams struct {
 	Year     uint                `json:"year" binding:"required"`
 	CourseID uint                `json:"courseID" binding:"required"`
 	Hidden   bool                `json:"hidden"`
-	UserID   uint                `json:"userID"`
 }
 
 // Add one courseSchedulerSelection entry
@@ -84,9 +83,9 @@ type CourseSchedulerSelectionCreateParams struct {
 // @Tags course-scheduler
 // @Accept json
 // @Produce json
+// @Param userID query uint false "UserID"
 // @Param createParams body CourseSchedulerSelectionCreateParams true "Course scheduler selection object"
 // @Success 201 {object} services.BaseResponse
-// @Failure 2230 {object} services.BaseErrorResponse "user id not found"
 // @Failure 2231 {object} services.BaseErrorResponse "course id not found"
 // @Failure 400 {object} services.BaseErrorResponse
 // @Failure 403 {object} services.BaseErrorResponse
@@ -102,7 +101,12 @@ func (t *CourseSchedulerController) CreateCourseSchedulerSelection(c *gin.Contex
 
 	var userID uint
 	if auth.HasScope(c, auth.ScopeCourseSchedulerAdmin) {
-		userID = params.UserID
+		opts := models.GetAllCourseSchedulerSelectionsOptions{}
+		if err = c.ShouldBindQuery(&opts); err != nil {
+			t.RespondBadBind(c, err)
+			return
+		}
+		userID = *opts.UserID
 	} else {
 		userID = services.GetUserID(c)
 	}
@@ -137,6 +141,7 @@ func (t *CourseSchedulerController) CreateCourseSchedulerSelection(c *gin.Contex
 // @Produce json
 // @Param selectionID path uint true "Selection ID"
 // @Success 200 {object} services.BaseResponse
+// @Failure 2230 {object} services.BaseErrorResponse "attempted to access selection of unauthorized user"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /course-scheduler/selections/{selectionID} [delete]
@@ -145,6 +150,14 @@ func (t *CourseSchedulerController) DeleteCourseSchedulerSelections(c *gin.Conte
 	if err != nil {
 		t.RespondError(c, err)
 		return
+	}
+
+	// if user is not admin, check that they are deleting their own selection
+	if !auth.HasScope(c, auth.ScopeCourseSchedulerAdmin) {
+		if hasUserID, err := t.courseSchedulerSelectionModel.VerifySelectionHasUserID(services.GetUserID(c), selectionID); !hasUserID || err != nil {
+			t.RespondAPIError(c, lib.ErrorCourseSchedulerUnauthorizedUser)
+			return
+		}
 	}
 
 	err = t.courseSchedulerSelectionModel.DeleteSelectionByID(selectionID)
@@ -187,6 +200,14 @@ func (t *CourseSchedulerController) UpdateHiddenCourseSchedulerSelection(c *gin.
 	if err != nil {
 		t.RespondError(c, err)
 		return
+	}
+
+	// if user is not admin, check that they are deleting their own selection
+	if !auth.HasScope(c, auth.ScopeCourseSchedulerAdmin) {
+		if hasUserID, err := t.courseSchedulerSelectionModel.VerifySelectionHasUserID(services.GetUserID(c), selectionID); !hasUserID || err != nil {
+			t.RespondAPIError(c, lib.ErrorCourseSchedulerUnauthorizedUser)
+			return
+		}
 	}
 
 	err = t.courseSchedulerSelectionModel.SetSelectionHiddenByID(uint(selectionID), *params.Hidden)
