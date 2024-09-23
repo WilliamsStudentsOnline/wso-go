@@ -325,6 +325,9 @@ func (m *EphmatchProfileModel) CreateOrUpdateProfileUnscoped(userID uint, newPro
 		if newProfile.MessagingUsername != nil {
 			query = query.Update("messaging_username", newProfile.MessagingUsername)
 		}
+		if newProfile.LookingFor != nil {
+			query = query.Update("looking_for", newProfile.LookingFor)
+		}
 		err = query.UpdateColumn("deleted_at", nil).
 			Preload("User").
 			First(p).
@@ -358,6 +361,7 @@ func (m *EphmatchProfileModel) CreateOrUpdateProfileUnscoped(userID uint, newPro
 			LocationCountry:   locationCountry,
 			MessagingPlatform: newProfile.MessagingPlatform,
 			MessagingUsername: newProfile.MessagingUsername,
+			LookingFor:        newProfile.LookingFor,
 		}).
 		Preload("User").
 		FirstOrCreate(p).Error

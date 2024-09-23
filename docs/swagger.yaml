@@ -1,10 +1,5 @@
 basePath: /api/v2
 definitions:
-  admin.KubeJobReturn:
-    properties:
-      jobID:
-        type: string
-    type: object
   auth.AuthResponse:
     properties:
       expire:
@@ -20,6 +15,51 @@ definitions:
         type: string
       value:
         type: string
+    type: object
+  booktrak.CreateBookListingParams:
+    properties:
+      bookID:
+        type: integer
+      condition:
+        allOf:
+        - $ref: '#/definitions/models.Condition'
+        enum:
+        - ""
+        - POOR
+        - FAIR
+        - GOOD
+        - VERY_GOOD
+        - LIKE_NEW
+        - NEW
+      description:
+        type: string
+      listingType:
+        allOf:
+        - $ref: '#/definitions/models.ListingType'
+        enum:
+        - ""
+        - BUY
+        - SELL
+    required:
+    - bookID
+    - listingType
+    type: object
+  booktrak.CreateBookParams:
+    properties:
+      isbn:
+        type: string
+    required:
+    - isbn
+    type: object
+  booktrak.UpdateBookCoursesParams:
+    properties:
+      courseIDs:
+        items:
+          type: integer
+        minItems: 1
+        type: array
+    required:
+    - courseIDs
     type: object
   bulletin.CreateBulletinParams:
     properties:
@@ -139,18 +179,26 @@ definitions:
       keyOrCard:
         type: string
       location:
+        maximum: 7
+        minimum: 0
         type: integer
       loudness:
+        maximum: 7
+        minimum: 0
         type: integer
       noise:
         type: string
       privateBathroom:
         type: boolean
       satisfaction:
+        maximum: 7
+        minimum: 0
         type: integer
       thermostatAccess:
         type: boolean
       wifi:
+        maximum: 7
+        minimum: 0
         type: integer
     required:
     - dormRoomID
@@ -174,18 +222,26 @@ definitions:
       keyOrCard:
         type: string
       location:
+        maximum: 7
+        minimum: 0
         type: integer
       loudness:
+        maximum: 7
+        minimum: 0
         type: integer
       noise:
         type: string
       privateBathroom:
         type: boolean
       satisfaction:
+        maximum: 7
+        minimum: 0
         type: integer
       thermostatAccess:
         type: boolean
       wifi:
+        maximum: 7
+        minimum: 0
         type: integer
     type: object
   ephmatch.CountMatchesResponse:
@@ -225,6 +281,8 @@ definitions:
         type: string
       locationVisible:
         type: boolean
+      lookingFor:
+        type: string
       matchMessage:
         type: string
       messagingPlatform:
@@ -244,6 +302,8 @@ definitions:
         type: string
       locationVisible:
         type: boolean
+      lookingFor:
+        type: string
       matchMessage:
         type: string
       messagingPlatform:
@@ -274,6 +334,8 @@ definitions:
   factrak.SurveyCreateParams:
     properties:
       approachability:
+        maximum: 7
+        minimum: 0
         type: integer
       areaOfStudyAbbreviation:
         description: 'Or this:'
@@ -291,21 +353,33 @@ definitions:
         description: Like "256"
         type: string
       courseStimulating:
+        maximum: 7
+        minimum: 0
         type: integer
       courseWorkload:
+        maximum: 7
+        minimum: 0
         type: integer
       gradeReceived:
         type: string
       leadLecture:
+        maximum: 7
+        minimum: 0
         type: integer
       mentalHealthSupport:
+        maximum: 7
+        minimum: 0
         type: integer
       outsideHelpfulness:
+        maximum: 7
+        minimum: 0
         type: integer
       professorID:
         description: 'Must include this:'
         type: integer
       promoteDiscussion:
+        maximum: 7
+        minimum: 0
         type: integer
       semesterSeason:
         description: Fall, Winter Study, Spring
@@ -323,6 +397,8 @@ definitions:
   factrak.SurveyUpdateParams:
     properties:
       approachability:
+        maximum: 7
+        minimum: 0
         type: integer
       comment:
         description: 'Params:'
@@ -331,18 +407,30 @@ definitions:
         description: Remote, Hybrid, In-Person
         type: string
       courseStimulating:
+        maximum: 7
+        minimum: 0
         type: integer
       courseWorkload:
+        maximum: 7
+        minimum: 0
         type: integer
       gradeReceived:
         type: string
       leadLecture:
+        maximum: 7
+        minimum: 0
         type: integer
       mentalHealthSupport:
+        maximum: 7
+        minimum: 0
         type: integer
       outsideHelpfulness:
+        maximum: 7
+        minimum: 0
         type: integer
       promoteDiscussion:
+        maximum: 7
+        minimum: 0
         type: integer
       semesterSeason:
         description: Fall, Winter Study, Spring
@@ -353,33 +441,6 @@ definitions:
         type: boolean
       wouldTakeAnother:
         type: boolean
-    type: object
-  feeds.Feed:
-    properties:
-      author:
-        type: Author
-      copyright:
-        type: string
-      created:
-        type: string
-      description:
-        type: string
-      id:
-        type: string
-      image:
-        type: Image
-      items:
-        items:
-          type: Item
-        type: array
-      link:
-        type: Link
-      subtitle:
-        type: string
-      title:
-        type: string
-      updated:
-        type: string
     type: object
   goodrich.CreateOrderParams:
     properties:
@@ -398,7 +459,7 @@ definitions:
       notes:
         type: string
       paymentMethod:
-        type: integer
+        $ref: '#/definitions/models.GoodrichPaymentMethod'
       phoneNumber:
         type: string
       timeSlot:
@@ -439,7 +500,7 @@ definitions:
       adminNotes:
         type: string
       status:
-        type: integer
+        $ref: '#/definitions/models.GoodrichOrderStatus'
     type: object
   identity.Credentials:
     properties:
@@ -467,7 +528,6 @@ definitions:
         type: array
       department:
         $ref: '#/definitions/models.Department'
-        type: object
       departmentID:
         description: Belongs to department
         type: integer
@@ -503,10 +563,83 @@ definitions:
         description: Reason why user was banned
         type: string
       user:
-        $ref: '#/definitions/models.User'
+        allOf:
+        - $ref: '#/definitions/models.User'
         description: Belongs to user
-        type: object
       userID:
+        type: integer
+    type: object
+  models.Book:
+    properties:
+      authors:
+        description: The names of the authors and/or editors for this book.
+        items:
+          type: string
+        type: array
+      bookListings:
+        description: Has many Book Listings
+        items:
+          $ref: '#/definitions/models.BookListing'
+        type: array
+      courses:
+        description: Many2Many courses
+        items:
+          $ref: '#/definitions/models.Course'
+        type: array
+      id:
+        type: integer
+      imageLink:
+        description: Image link for book cover (Medium)
+        type: string
+      infoLink:
+        description: URL to view information about this book on the Google Books site.
+        type: string
+      isbn13:
+        description: ISBN-13 of this book (all books have this)
+        type: string
+      publisher:
+        description: Publisher of this book.
+        type: string
+      subtitle:
+        description: Book subtitle.
+        type: string
+      title:
+        description: Book title.
+        type: string
+    type: object
+  models.BookListing:
+    properties:
+      book:
+        $ref: '#/definitions/models.Book'
+      bookID:
+        description: Belongs to book (FK)
+        type: integer
+      condition:
+        allOf:
+        - $ref: '#/definitions/models.Condition'
+        enum:
+        - ""
+        - POOR
+        - FAIR
+        - GOOD
+        - VERY_GOOD
+        - LIKE_NEW
+        - NEW
+      description:
+        type: string
+      id:
+        type: integer
+      listingType:
+        allOf:
+        - $ref: '#/definitions/models.ListingType'
+        enum:
+        - ""
+        - BUY
+        - SELL
+      user:
+        $ref: '#/definitions/models.User'
+      userID:
+        description: Belongs to user (FK)
         type: integer
     type: object
   models.Bulletin:
@@ -527,7 +660,6 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Author information
         type: integer
@@ -548,19 +680,42 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user
         type: integer
     type: object
+  models.Condition:
+    enum:
+    - ""
+    - POOR
+    - FAIR
+    - GOOD
+    - VERY_GOOD
+    - LIKE_NEW
+    - NEW
+    type: string
+    x-enum-varnames:
+    - ConditionUndefined
+    - ConditionPoor
+    - ConditionFair
+    - ConditionGood
+    - ConditionVeryGood
+    - ConditionLikeNew
+    - ConditionNew
   models.Course:
     properties:
       areaOfStudy:
         $ref: '#/definitions/models.AreaOfStudy'
-        type: object
       areaOfStudyID:
         description: Belongs to area of study
         type: integer
+      books:
+        description: Many2Many books
+        items:
+          $ref: '#/definitions/models.Book'
+        type: array
+      factrakScore:
+        type: number
       factrakSurveys:
         description: Has many factrak surveys
         items:
@@ -618,7 +773,6 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user
         type: integer
@@ -659,7 +813,6 @@ definitions:
         type: string
       neighborhood:
         $ref: '#/definitions/models.Neighborhood'
-        type: object
       neighborhoodID:
         description: Belongs to neighborhood
         type: integer
@@ -694,10 +847,8 @@ definitions:
         type: number
       biggestDouble:
         $ref: '#/definitions/models.DormRoom'
-        type: object
       biggestSingle:
         $ref: '#/definitions/models.DormRoom'
-        type: object
       capacity:
         type: integer
       commonRoomAccessRatio:
@@ -720,10 +871,8 @@ definitions:
         type: integer
       smallestDouble:
         $ref: '#/definitions/models.DormRoom'
-        type: object
       smallestSingle:
         $ref: '#/definitions/models.DormRoom'
-        type: object
       sophomoreCount:
         type: integer
       studentToBathroomRatio:
@@ -747,7 +896,6 @@ definitions:
         type: string
       dorm:
         $ref: '#/definitions/models.Dorm'
-        type: object
       dormID:
         description: Belongs to dorm
         type: integer
@@ -890,7 +1038,6 @@ definitions:
         type: string
       dormRoom:
         $ref: '#/definitions/models.DormRoom'
-        type: object
       dormRoomID:
         description: Belongs to dorm room
         type: integer
@@ -914,7 +1061,6 @@ definitions:
         type: boolean
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user (student)
         type: integer
@@ -929,17 +1075,17 @@ definitions:
       id:
         type: integer
       other:
-        $ref: '#/definitions/models.User'
+        allOf:
+        - $ref: '#/definitions/models.User'
         description: Belongs to other
-        type: object
       otherID:
         type: integer
       seen:
         type: boolean
       user:
-        $ref: '#/definitions/models.User'
+        allOf:
+        - $ref: '#/definitions/models.User'
         description: Belongs to user
-        type: object
       userID:
         type: integer
     type: object
@@ -975,6 +1121,9 @@ definitions:
       locationVisible:
         description: Current location columns
         type: boolean
+      lookingFor:
+        description: 'Looking for:'
+        type: string
       matchMessage:
         type: string
       matched:
@@ -990,7 +1139,6 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user
         type: integer
@@ -1001,7 +1149,6 @@ definitions:
         type: boolean
       factrakSurvey:
         $ref: '#/definitions/models.FactrakSurvey'
-        type: object
       factrakSurveyID:
         description: Belongs to survey
         type: integer
@@ -1009,7 +1156,6 @@ definitions:
         type: integer
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user
         type: integer
@@ -1033,7 +1179,6 @@ definitions:
         type: string
       course:
         $ref: '#/definitions/models.Course'
-        type: object
       courseFormat:
         description: Remote, Hybrid, In-Person
         type: string
@@ -1061,7 +1206,6 @@ definitions:
         type: integer
       professor:
         $ref: '#/definitions/models.User'
-        type: object
       professorID:
         description: Belongs to professor
         type: integer
@@ -1079,7 +1223,6 @@ definitions:
         type: integer
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user (student)
         type: integer
@@ -1175,11 +1318,11 @@ definitions:
       notes:
         type: string
       paymentMethod:
-        type: integer
+        $ref: '#/definitions/models.GoodrichPaymentMethod'
       phoneNumber:
         type: string
       status:
-        type: integer
+        $ref: '#/definitions/models.GoodrichOrderStatus'
       timeSlot:
         description: 'Format: 15:04'
         type: string
@@ -1187,7 +1330,6 @@ definitions:
         type: number
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user
         type: integer
@@ -1198,10 +1340,53 @@ definitions:
         type: integer
       item:
         $ref: '#/definitions/models.GoodrichMenuItem'
-        type: object
       note:
         type: string
     type: object
+  models.GoodrichOrderStatus:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    type: integer
+    x-enum-comments:
+      GoodrichOrderStatusUnknown: Default is unknown
+    x-enum-varnames:
+    - GoodrichOrderStatusUnknown
+    - GoodrichOrderStatusPlaced
+    - GoodrichOrderStatusReady
+    - GoodrichOrderStatusPaid
+  models.GoodrichPaymentMethod:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    type: integer
+    x-enum-comments:
+      GoodrichPaymentMethodUnknown: Default is unknown
+    x-enum-varnames:
+    - GoodrichPaymentMethodUnknown
+    - GoodrichPaymentMethodSwipe
+    - GoodrichPaymentMethodPoints
+    - GoodrichPaymentMethodCreditCard
+    - GoodrichPaymentMethodCash
+    - GoodrichPaymentMethodSwipePlusCash
+    - GoodrichPaymentMethodSwipePlusCreditCard
+  models.ListingType:
+    enum:
+    - ""
+    - BUY
+    - SELL
+    type: string
+    x-enum-varnames:
+    - ListingTypeUndefined
+    - ListingTypeBuy
+    - ListingTypeSell
   models.Neighborhood:
     properties:
       dorms:
@@ -1236,7 +1421,6 @@ definitions:
         type: boolean
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user
         type: integer
@@ -1251,7 +1435,6 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user
         type: integer
@@ -1276,7 +1459,6 @@ definitions:
         type: string
       discussion:
         $ref: '#/definitions/models.Discussion'
-        type: object
       discussionID:
         description: Belongs to discussion
         type: integer
@@ -1290,7 +1472,6 @@ definitions:
         type: integer
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user
         type: integer
@@ -1319,10 +1500,11 @@ definitions:
       atWilliams:
         type: boolean
       bannedUser:
-        $ref: '#/definitions/models.BannedUser'
+        allOf:
+        - $ref: '#/definitions/models.BannedUser'
         description: Has one (or zero) banned users
-        type: object
       campusPhoneEXT:
+        description: campus phone extension after 413-597-
         type: string
       campusStatus:
         description: 'Has campus status: either remote or on-campus'
@@ -1333,13 +1515,11 @@ definitions:
         type: integer
       department:
         $ref: '#/definitions/models.Department'
-        type: object
       departmentID:
         description: Belongs to Department iff professor (fetched from Williams LDAP)
         type: integer
       dormRoom:
         $ref: '#/definitions/models.DormRoom'
-        type: object
       dormRoomID:
         description: Belongs to Dorm Room iff student
         type: integer
@@ -1360,9 +1540,9 @@ definitions:
           $ref: '#/definitions/models.Ephcatch'
         type: array
       ephmatchProfile:
-        $ref: '#/definitions/models.EphmatchProfile'
+        allOf:
+        - $ref: '#/definitions/models.EphmatchProfile'
         description: Has one ephmatch profile
-        type: object
       factrakAdmin:
         type: boolean
       factrakAgreements:
@@ -1370,6 +1550,9 @@ definitions:
         items:
           $ref: '#/definitions/models.FactrakAgreement'
         type: array
+      factrakScore:
+        description: Only for professor retrieval with rankings
+        type: number
       factrakSurveyDeficit:
         type: integer
       factrakSurveys:
@@ -1404,9 +1587,9 @@ definitions:
       nickname:
         type: string
       notificationSettings:
-        $ref: '#/definitions/models.NotificationSettings'
+        allOf:
+        - $ref: '#/definitions/models.NotificationSettings'
         description: Has one notification settings
-        type: object
       notificationTokens:
         description: Has many notification tokens
         items:
@@ -1419,7 +1602,6 @@ definitions:
         type: boolean
       office:
         $ref: '#/definitions/models.Office'
-        type: object
       officeID:
         description: Belongs to Office iff staff/professor
         type: integer
@@ -1507,7 +1689,6 @@ definitions:
     properties:
       dorm:
         $ref: '#/definitions/responses.GetUserResponseDorm'
-        type: object
       dormID:
         type: integer
       id:
@@ -1547,12 +1728,10 @@ definitions:
         type: integer
       department:
         $ref: '#/definitions/responses.GetUserResponseDepartment'
-        type: object
       departmentID:
         type: integer
       dormRoom:
         $ref: '#/definitions/responses.GetUserResponseDormRoom'
-        type: object
       dormRoomID:
         type: integer
       dormVisible:
@@ -1593,7 +1772,6 @@ definitions:
         type: boolean
       office:
         $ref: '#/definitions/responses.GetUserResponseOffice'
-        type: object
       officeID:
         type: integer
       optOutEphcatch:
@@ -1627,7 +1805,6 @@ definitions:
         type: integer
       matchedUser:
         $ref: '#/definitions/responses.ListMatchesResponseMatchedUser'
-        type: object
       matchedUserID:
         type: integer
       seenByMatchedUser:
@@ -1649,6 +1826,8 @@ definitions:
         type: string
       locationVisible:
         type: boolean
+      lookingFor:
+        type: string
       matchMessage:
         type: string
       messagingPlatform:
@@ -1664,7 +1843,6 @@ definitions:
         type: string
       ephmatchProfile:
         $ref: '#/definitions/responses.ListMatchesResponseEphmatchProfile'
-        type: object
       id:
         type: integer
       major:
@@ -1715,7 +1893,6 @@ definitions:
     properties:
       dorm:
         $ref: '#/definitions/responses.ListUsersResponseDorm'
-        type: object
       dormID:
         type: integer
       id:
@@ -1755,12 +1932,10 @@ definitions:
         type: integer
       department:
         $ref: '#/definitions/responses.ListUsersResponseDepartment'
-        type: object
       departmentID:
         type: integer
       dormRoom:
         $ref: '#/definitions/responses.ListUsersResponseDormRoom'
-        type: object
       dormRoomID:
         type: integer
       dormVisible:
@@ -1801,7 +1976,6 @@ definitions:
         type: boolean
       office:
         $ref: '#/definitions/responses.ListUsersResponseOffice'
-        type: object
       officeID:
         type: integer
       optOutEphcatch:
@@ -1836,7 +2010,6 @@ definitions:
     properties:
       error:
         $ref: '#/definitions/services.RespError'
-        type: object
       status:
         type: integer
       updateToken:
@@ -1881,29 +2054,6 @@ definitions:
           type: string
         type: array
     type: object
-  v1.JobStatus:
-    properties:
-      active:
-        type: integer
-      completedIndexes:
-        type: string
-      completionTime:
-        type: string
-      conditions:
-        items:
-          type: JobCondition
-        type: array
-      failed:
-        type: integer
-      ready:
-        type: integer
-      startTime:
-        type: string
-      succeeded:
-        type: integer
-      uncountedTerminatedPods:
-        type: UncountedTerminatedPods
-    type: object
 host: wso.williams.edu
 info:
   contact:
@@ -1911,127 +2061,9 @@ info:
     name: WSO Dev
   description: API for WSO services like factrak, facebook, dormtrak, course scheduler,
     and others.
-  license: {}
   title: WSO API
   version: 2.0.0
 paths:
-  /admin/catalog-update:
-    post:
-      consumes:
-      - application/json
-      description: executes a kubernetes job that updates the course catalog
-      operationId: catalog-update
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/admin.KubeJobReturn'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-      security:
-      - Bearer: []
-      summary: Updates the course catalog
-      tags:
-      - admin
-  /admin/dorms-update:
-    post:
-      consumes:
-      - application/json
-      description: runs kubernetes job that updates all dorms from compiled data
-      operationId: dorms-update
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/admin.KubeJobReturn'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-      security:
-      - Bearer: []
-      summary: Updates all dorms from data compiled
-      tags:
-      - admin
-  /admin/jobs/{jobID}/status:
-    get:
-      consumes:
-      - application/json
-      description: connects to Kubernetes to get the status of a running (or recently
-        finished) job given an id
-      operationId: get-job-status
-      parameters:
-      - description: Kubernetes Job ID
-        in: path
-        name: jobID
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/v1.JobStatus'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-      security:
-      - Bearer: []
-      summary: Gets status of a job
-      tags:
-      - admin
-  /admin/update-all-factrak-survey-deficits:
-    post:
-      consumes:
-      - application/json
-      description: runs a slow job that updates all student factrak survey deficits
-      operationId: update-all-factrak-survey-deficits
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/admin.KubeJobReturn'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-      security:
-      - Bearer: []
-      summary: Updates all factrak survey deficits
-      tags:
-      - admin
-  /admin/update-all-users-from-ldap:
-    post:
-      consumes:
-      - application/json
-      description: runs a slow job that updates all users from LDAP
-      operationId: update-all-users-from-ldap
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/admin.KubeJobReturn'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-      security:
-      - Bearer: []
-      summary: Updates all users from LDAP
-      tags:
-      - admin
   /auth/api/refresh:
     get:
       consumes:
@@ -2407,6 +2439,369 @@ paths:
       summary: Autocomplete tag
       tags:
       - autocomplete
+  /books/{bookID}:
+    get:
+      consumes:
+      - application/json
+      description: get a book by book id
+      operationId: get-book
+      parameters:
+      - description: Book ID
+        in: path
+        name: bookID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Book'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get book by book id
+      tags:
+      - books
+  /booktrak/books:
+    get:
+      consumes:
+      - application/json
+      description: lists all books. Order by creation date.
+      operationId: booktrak-list-books
+      parameters:
+      - description: Offset Pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      - description: Book Title
+        in: query
+        name: title
+        type: string
+      - description: Book Publisher
+        in: query
+        name: publisher
+        type: string
+      - description: Book ISBN-13 (must be in ISBN format)
+        in: query
+        name: isbn
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Book'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: List books
+      tags:
+      - booktrak
+    put:
+      consumes:
+      - application/json
+      description: create a book
+      operationId: booktrak-create-book
+      parameters:
+      - description: Create Book Params
+        in: body
+        name: createParams
+        required: true
+        schema:
+          $ref: '#/definitions/booktrak.CreateBookParams'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Book'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "2251":
+          description: failed to find book online by isbn
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Create a book if it doesn't exist already
+      tags:
+      - booktrak
+  /booktrak/books/{bookID}:
+    patch:
+      consumes:
+      - application/json
+      description: update a book's courses
+      operationId: booktrak-update-book
+      parameters:
+      - description: Update Book Params
+        in: body
+        name: updateParams
+        required: true
+        schema:
+          $ref: '#/definitions/booktrak.UpdateBookCoursesParams'
+      - description: Book ID
+        in: path
+        name: bookID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Book'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "2253":
+          description: some courses could not be found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Update book
+      tags:
+      - booktrak
+  /booktrak/listings:
+    get:
+      consumes:
+      - application/json
+      description: lists all book listings
+      operationId: booktrak-list-book-listings
+      parameters:
+      - description: Offset Pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      - description: Course ID
+        in: query
+        name: courseID
+        type: integer
+      - description: User ID
+        in: query
+        name: userID
+        type: integer
+      - description: Book ISBN-13
+        in: query
+        name: isbn
+        type: string
+      - description: Minimum Book Condition
+        enum:
+        - POOR
+        - FAIR
+        - GOOD
+        - VERY_GOOD
+        - LIKE_NEW
+        - NEW
+        in: query
+        name: minCondition
+        type: string
+      - description: Maximum Book Condition
+        enum:
+        - POOR
+        - FAIR
+        - GOOD
+        - VERY_GOOD
+        - LIKE_NEW
+        - NEW
+        in: query
+        name: maxCondition
+        type: string
+      - description: Type of the listing
+        in: query
+        name: listingType
+        type: string
+      - collectionFormat: csv
+        description: Preload
+        in: query
+        items:
+          enum:
+          - user
+          - book
+          type: string
+        name: preload
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.BookListing'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: List book listings
+      tags:
+      - booktrak
+    post:
+      consumes:
+      - application/json
+      description: create a book listing
+      operationId: booktrak-create-book-listing
+      parameters:
+      - description: Create Book Listing Params
+        in: body
+        name: createParams
+        required: true
+        schema:
+          $ref: '#/definitions/booktrak.CreateBookListingParams'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.BookListing'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "2232":
+          description: invalid book condition
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Create book listing
+      tags:
+      - booktrak
+  /booktrak/listings/{bookListingID}:
+    delete:
+      consumes:
+      - application/json
+      description: delete a book listing
+      operationId: booktrak-delete-book-listing
+      parameters:
+      - description: Book Listing ID
+        in: path
+        name: bookListingID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BookListing'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "1331":
+          description: must be self
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Delete book listing
+      tags:
+      - booktrak
+      - booktrak-admin
+      - admin
+    put:
+      consumes:
+      - application/json
+      description: update a book listing
+      operationId: booktrak-update-book-listing
+      parameters:
+      - description: Create Book Listing Params
+        in: body
+        name: updateParams
+        required: true
+        schema:
+          $ref: '#/definitions/booktrak.CreateBookListingParams'
+      - description: Book Listing ID
+        in: path
+        name: bookListingID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BookListing'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "1331":
+          description: must be self
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "2232":
+          description: invalid book condition
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Update book listing
+      tags:
+      - booktrak
   /bulletin/bulletins:
     get:
       consumes:
@@ -2426,7 +2821,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -2681,7 +3077,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -2761,7 +3158,8 @@ paths:
         name: discussionID
         required: true
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -2815,7 +3213,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -3023,7 +3422,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -3244,9 +3644,9 @@ paths:
       - text/xml
       responses:
         "200":
-          description: OK
+          description: A RSS Feed serialized as XML string
           schema:
-            $ref: '#/definitions/feeds.Feed'
+            type: string
         "500":
           description: Internal Server Error
           schema:
@@ -3277,9 +3677,9 @@ paths:
       - text/xml
       responses:
         "200":
-          description: OK
+          description: A RSS Feed serialized as XML string
           schema:
-            $ref: '#/definitions/feeds.Feed'
+            type: string
         "500":
           description: Internal Server Error
           schema:
@@ -3314,9 +3714,9 @@ paths:
       - text/xml
       responses:
         "200":
-          description: OK
+          description: A RSS Feed serialized as XML string
           schema:
-            $ref: '#/definitions/feeds.Feed'
+            type: string
         "500":
           description: Internal Server Error
           schema:
@@ -3351,9 +3751,9 @@ paths:
       - text/xml
       responses:
         "200":
-          description: OK
+          description: A RSS Feed serialized as XML string
           schema:
-            $ref: '#/definitions/feeds.Feed'
+            type: string
         "500":
           description: Internal Server Error
           schema:
@@ -3388,9 +3788,9 @@ paths:
       - text/xml
       responses:
         "200":
-          description: OK
+          description: A RSS Feed serialized as XML string
           schema:
-            $ref: '#/definitions/feeds.Feed'
+            type: string
         "500":
           description: Internal Server Error
           schema:
@@ -3429,9 +3829,9 @@ paths:
       - text/xml
       responses:
         "200":
-          description: OK
+          description: A RSS Feed serialized as XML string
           schema:
-            $ref: '#/definitions/feeds.Feed'
+            type: string
         "500":
           description: Internal Server Error
           schema:
@@ -3486,7 +3886,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -3780,7 +4181,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -4013,7 +4415,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: OK
         "400":
           description: Bad Request
           schema:
@@ -4130,7 +4533,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -4209,7 +4613,8 @@ paths:
       produces:
       - application/json
       responses:
-        "201": {}
+        "201":
+          description: Created
         "400":
           description: Bad Request
           schema:
@@ -4255,7 +4660,8 @@ paths:
       produces:
       - application/json
       responses:
-        "201": {}
+        "201":
+          description: Created
         "400":
           description: Bad Request
           schema:
@@ -4324,7 +4730,8 @@ paths:
       description: lists all Ephmatch-eligible students that user has matched with
       operationId: ephmatch-list-matches
       parameters:
-      - description: Preload List [tags]
+      - collectionFormat: csv
+        description: Preload List [tags]
         in: query
         items:
           type: string
@@ -4387,7 +4794,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: OK
         "400":
           description: Bad Request
           schema:
@@ -4559,7 +4967,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: OK
         "400":
           description: Bad Request
           schema:
@@ -4591,7 +5000,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: OK
         "400":
           description: Bad Request
           schema:
@@ -4632,7 +5042,8 @@ paths:
         in: query
         name: noRelations
         type: boolean
-      - description: Preload List [tags, relation, matched]
+      - collectionFormat: csv
+        description: Preload List [tags, relation, matched]
         in: query
         items:
           type: string
@@ -4775,7 +5186,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload (course, professor)
+      - collectionFormat: csv
+        description: Preload (course, professor)
         in: query
         items:
           type: string
@@ -4824,7 +5236,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: OK
         "404":
           description: Not Found
           schema:
@@ -4855,7 +5268,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List (department, courses)
+      - collectionFormat: csv
+        description: Preload List (department, courses)
         in: query
         items:
           type: string
@@ -5014,7 +5428,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -5208,7 +5623,8 @@ paths:
         in: query
         name: professorID
         type: integer
-      - description: Preload (course, professor)
+      - collectionFormat: csv
+        description: Preload (course, professor)
         in: query
         items:
           type: string
@@ -5401,7 +5817,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -5429,7 +5846,7 @@ paths:
         type: string
       - description: Sorting Direction
         in: query
-        name: direction
+        name: ascending
         type: boolean
       produces:
       - application/json
@@ -5600,7 +6017,8 @@ paths:
         in: query
         name: courseID
         type: integer
-      - description: Preload (course, professor)
+      - collectionFormat: csv
+        description: Preload (course, professor)
         in: query
         items:
           type: string
@@ -5668,7 +6086,8 @@ paths:
         in: query
         name: userID
         type: integer
-      - description: Preload (course, professor)
+      - collectionFormat: csv
+        description: Preload (course, professor)
         in: query
         items:
           type: string
@@ -6100,7 +6519,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: OK
         "400":
           description: Bad Request
           schema:
@@ -6147,7 +6567,8 @@ paths:
         in: query
         name: courseID
         type: integer
-      - description: Preload (course, professor)
+      - collectionFormat: csv
+        description: Preload (course, professor)
         in: query
         items:
           type: string
@@ -6307,7 +6728,8 @@ paths:
         in: query
         name: userID
         type: integer
-      - description: Allowed Status list
+      - collectionFormat: csv
+        description: Allowed Status list
         in: query
         items:
           type: string
@@ -6512,6 +6934,38 @@ paths:
       security:
       - Bearer: []
       summary: Health check
+  /listings/{bookListingID}:
+    get:
+      consumes:
+      - application/json
+      description: get a book listing by book listing id
+      operationId: get-book-listing
+      parameters:
+      - description: Book Listing ID
+        in: path
+        name: bookListingID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BookListing'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get book listing by book listing id
+      tags:
+      - booktrak
   /notification/app/token:
     post:
       consumes:
@@ -6724,7 +7178,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -6868,7 +7323,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: OK
         "400":
           description: Bad Request
           schema:
@@ -6916,7 +7372,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: OK
         "400":
           description: Bad Request
           schema:

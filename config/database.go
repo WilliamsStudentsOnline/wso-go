@@ -15,7 +15,7 @@ func LoadDatabase(cfg *Config, log *zap.SugaredLogger) *gorm.DB {
 	// Database params passed by config
 	db, err := gorm.Open(cfg.DatabaseType, cfg.DatabaseArgs)
 	if err != nil {
-		log.With(err).Fatal("failed to connect database")
+		log.With(zap.Error(err)).Fatal("failed to connect database")
 	}
 
 	if cfg.IsDevelopment() || cfg.IsTest() {

@@ -26,7 +26,7 @@ type User struct {
 	Type           string  `json:"type"`
 	Name           string  `json:"name"`
 	CellPhone      *string `json:"cellPhone"`
-	CampusPhoneExt *string `json:"campusPhoneEXT"`
+	CampusPhoneExt *string `json:"campusPhoneEXT"` // campus phone extension after 413-597-
 	UnixID         string  `gorm:"unique;not null;size:100;" json:"unixID"`
 	WilliamsEmail  string  `json:"williamsEmail"`
 	Title          *string `json:"title"`
@@ -91,6 +91,9 @@ type User struct {
 	// As we cannot be both a student and a professor, this combines either a student or a professor's factrak survey.
 	// We populate this field as a hook AfterFind.
 	FactrakSurveys []*FactrakSurvey `gorm:"-" json:"factrakSurveys,omitempty"`
+
+	// Only for professor retrieval with rankings
+	FactrakScore *float64 `gorm:"->;-:migration" json:"factrakScore,omitempty"`
 
 	// Has many factrak agreements
 	FactrakAgreements []*FactrakAgreement `json:"factrakAgreements,omitempty"`

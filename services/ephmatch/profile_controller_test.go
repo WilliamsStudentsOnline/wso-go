@@ -212,6 +212,16 @@ func TestController_CreateProfile(t *testing.T) {
 	assert.Equal(apiErr.HTTPCode, w.Code)
 	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
 
+	/* Create ephmatch with bad looking for (expect failure on user 1) */
+	apiErr = lib.ErrorEphmatchInvalidLookingFor
+	params = ProfileCreateParams{Description: lib.StrToPtr("foobar"), LocationState: lib.StrToPtr("California"), LookingFor: lib.StrToPtr("BAD")}
+	paramsData, err = json.Marshal(&params)
+	assert.NoError(err)
+	w, err = utils.DoHTTPReq(routers[0], http.MethodPost, "/profile", bytes.NewBuffer(paramsData))
+	assert.NoError(err)
+	assert.Equal(apiErr.HTTPCode, w.Code)
+	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+
 	/* Create ephmatch with good data (expect success on user 1) */
 	params = ProfileCreateParams{Description: lib.StrToPtr("foobar"), LocationState: lib.StrToPtr("California")}
 	paramsData, err = json.Marshal(&params)
@@ -325,6 +335,7 @@ func TestController_UpdateProfile(t *testing.T) {
 				Description:  lib.StrToPtr("test123"),
 				MatchMessage: lib.StrToPtr("abc124"),
 				LocationTown: lib.StrToPtr("Woodside"),
+				LookingFor:   lib.StrToPtr(models.EphmatchLookingForOpen),
 			},
 		},
 		// Case: deleted profile
@@ -394,8 +405,18 @@ func TestController_UpdateProfile(t *testing.T) {
 	assert.Equal(apiErr.HTTPCode, w.Code)
 	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
 
+	/* Update profile with bad looking for (expect failure) */
+	apiErr = lib.ErrorEphmatchInvalidLookingFor
+	params = ProfileUpdateParams{LookingFor: lib.StrToPtr("BAD")}
+	paramsData, err = json.Marshal(&params)
+	assert.NoError(err)
+	w, err = utils.DoHTTPReq(routers[0], http.MethodPatch, "/profile", bytes.NewBuffer(paramsData))
+	assert.NoError(err)
+	assert.Equal(apiErr.HTTPCode, w.Code)
+	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+
 	/* Update profile with good match message (expect success on user 1) */
-	params = ProfileUpdateParams{MatchMessage: lib.StrToPtr("etwvinoerineroiv"), LocationTown: lib.StrToPtr("Portola Valley")}
+	params = ProfileUpdateParams{MatchMessage: lib.StrToPtr("etwvinoerineroiv"), LocationTown: lib.StrToPtr("Portola Valley"), LookingFor: lib.StrToPtr(models.EphmatchLookingForFun)}
 	paramsData, err = json.Marshal(&params)
 	assert.NoError(err)
 	w, err = utils.DoHTTPReq(routers[0], http.MethodPatch, "/profile", bytes.NewBuffer(paramsData))
@@ -407,6 +428,7 @@ func TestController_UpdateProfile(t *testing.T) {
 	assert.Equal(*s[0].EphmatchProfile.Description, *resDB.Description)
 	assert.Equal(*params.MatchMessage, *resDB.MatchMessage)
 	assert.Equal(*params.LocationTown, *resDB.LocationTown)
+	assert.Equal(*params.LookingFor, *resDB.LookingFor)
 }
 
 func TestController_UpdateProfile_Deleted(t *testing.T) {

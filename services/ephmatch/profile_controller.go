@@ -55,6 +55,7 @@ type ProfileCreateParams struct {
 	LocationCountry   *string `json:"LocationCountry"`
 	MessagingPlatform *string `json:"messagingPlatform"`
 	MessagingUsername *string `json:"messagingUsername"`
+	LookingFor        *string `json:"lookingFor"`
 }
 
 // CreateProfile godoc
@@ -89,6 +90,11 @@ func (t *Controller) CreateProfile(c *gin.Context) {
 		createData.MessagingUsername = lib.StrToPtr("")
 	}
 
+	// can have no looking for
+	if createData.LookingFor != nil && (*createData.LookingFor == "NONE" || *createData.LookingFor == "") {
+		createData.LookingFor = lib.StrToPtr("")
+	}
+
 	if createData.MessagingPlatform != nil && *createData.MessagingPlatform != "" {
 		// Must have valid platform or no platform (NONE)
 		if !models.ValidateEphmatchMessagingPlatform(*createData.MessagingPlatform) {
@@ -99,6 +105,14 @@ func (t *Controller) CreateProfile(c *gin.Context) {
 		// Cannot have a valid platform and no username
 		if createData.MessagingUsername == nil {
 			t.RespondError(c, lib.ErrorEphmatchEmptyMessagingUsername)
+			return
+		}
+	}
+
+	if createData.LookingFor != nil && *createData.LookingFor != "" {
+		// Must have valid lookingFor or no platform (NONE)
+		if !models.ValidateEphmatchLookingFor(*createData.LookingFor) {
+			t.RespondError(c, lib.ErrorEphmatchInvalidLookingFor)
 			return
 		}
 	}
@@ -118,6 +132,7 @@ func (t *Controller) CreateProfile(c *gin.Context) {
 		LocationCountry:   createData.LocationCountry,
 		MessagingPlatform: createData.MessagingPlatform,
 		MessagingUsername: createData.MessagingUsername,
+		LookingFor:        createData.LookingFor,
 	}
 
 	var profile models.EphmatchProfile
@@ -146,6 +161,7 @@ type ProfileUpdateParams struct {
 	LocationCountry   *string `json:"locationCountry"`
 	MessagingPlatform *string `json:"messagingPlatform"`
 	MessagingUsername *string `json:"messagingUsername"`
+	LookingFor        *string `json:"lookingFor"`
 }
 
 // UpdateProfile godoc
@@ -190,11 +206,17 @@ func (t *Controller) UpdateProfile(c *gin.Context) {
 	profile.LocationCountry = lib.StrPtrDefaults(updateData.LocationCountry, profile.LocationCountry)
 	profile.MessagingPlatform = lib.StrPtrDefaults(updateData.MessagingPlatform, profile.MessagingPlatform)
 	profile.MessagingUsername = lib.StrPtrDefaults(updateData.MessagingUsername, profile.MessagingUsername)
+	profile.LookingFor = lib.StrPtrDefaults(updateData.LookingFor, profile.LookingFor)
 
 	// Can have no platform and no username
 	if profile.MessagingPlatform != nil && (*profile.MessagingPlatform == "NONE" || *profile.MessagingPlatform == "") {
 		profile.MessagingPlatform = lib.StrToPtr("")
 		profile.MessagingUsername = lib.StrToPtr("")
+	}
+
+	// if LookingFor is NONE, delete
+	if profile.LookingFor != nil && (*profile.LookingFor == "NONE" || *profile.LookingFor == "") {
+		profile.LookingFor = lib.StrToPtr("")
 	}
 
 	if profile.MessagingPlatform != nil && *profile.MessagingPlatform != "" {
@@ -207,6 +229,15 @@ func (t *Controller) UpdateProfile(c *gin.Context) {
 		// Cannot have a valid platform and no username
 		if profile.MessagingUsername == nil || *profile.MessagingUsername == "" {
 			t.RespondError(c, lib.ErrorEphmatchEmptyMessagingUsername)
+			return
+		}
+	}
+
+	// validate looking for
+	if profile.LookingFor != nil && *profile.LookingFor != "" {
+		// Must have valid platform or no platform (NONE)
+		if !models.ValidateEphmatchLookingFor(*profile.LookingFor) {
+			t.RespondError(c, lib.ErrorEphmatchInvalidLookingFor)
 			return
 		}
 	}

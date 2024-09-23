@@ -5,7 +5,7 @@ BINARY_NAME=wso-backend
 DOCKER_TAG=wso-backend
 GIT_REPO=github.com/WilliamsStudentsOnline/wso-go
 BUILD_DIRS = config db lib models server services sanitize
-BUILD_DEPS = $(call rwildcard, $(BUILD_DIRS), *.go) jobs/jobs.go $(wildcard jobs/*/*.go) jobs/dorms_update/cmd/data.go docs/docs.go
+BUILD_DEPS = $(call rwildcard, $(BUILD_DIRS), *.go) $(wildcard jobs/*/*.go) jobs/dorms_update/cmd/data.go docs/docs.go
 SERVICE_DIRS = $(wildcard services/*)
 SWAGGER := $(shell which swag 2>/dev/null)
 GOIMPORTS := $(shell which goimports 2>/dev/null)
@@ -90,6 +90,10 @@ job-initialize-on-campus-semesters:
 job-update_profs_areas_of_study:
 	go build -tags jsoniter -o job-update_profs_areas_of_study ./jobs/update_profs_areas_of_study/cmd
 
+.PHONY: job-ephmatch-reset
+job-ephmatch-reset:
+	go build -tags jsoniter -o job-ephmatch-reset ./jobs/ephmatch_reset
+
 .PHONY: build-prod-linux
 build-prod-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o $(BINARY_NAME)_linux ./server/cmd
@@ -107,6 +111,7 @@ build-jobs-prod-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-update-on-campus-semesters ./jobs/update_on_campus_semesters/cmd
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-initialize-on-campus-semesters ./jobs/update_on_campus_semesters/initial-calculation
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-update_profs_areas_of_study ./jobs/update_profs_areas_of_study/cmd
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-ephmatch-reset ./jobs/ephmatch_reset
 
 .PHONY: go-gen
 go-gen:
@@ -157,17 +162,3 @@ docker-rel-dev: docker-builder
 .PHONY: docker-jobs-dev
 docker-jobs-dev: docker-builder
 	docker build -t $(DOCKER_TAG)-jobs:dev-latest -f Dockerfile.release_jobs .
-
-.PHONY: k8-apply-dev
-k8-apply-dev:
-	kubectl apply -k k8s/development
-	minikube service backend -n development --url
-
-.PHONY: k8-delete-dev
-k8-delete-dev:
-	kubectl delete -k k8s/development
-
-.PHONY: k8-restart-backend-dev
-k8-restart-backend-dev:
-	kubectl -n development delete deployments.apps backend
-	kubectl -n development apply -k k8s/development
