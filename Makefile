@@ -132,6 +132,10 @@ commit: jobs/dorms_update/cmd/data.go docs/docs.go fmt services/*/responses/*.go
 run-dev: $(BINARY_NAME)
 	./$(BINARY_NAME) --development
 
+.PHONY: run-verbose
+run-verbose: $(BINARY_NAME)
+	./$(BINARY_NAME) --verbose
+
 .PHONY: test
 test:
 	go test -race ./...
@@ -144,6 +148,10 @@ fast-test:
 mod:
 	go mod tidy
 	go mod download
+
+.PHONY: clean
+mod:
+	rm wso-backend{,.json,.log}
 
 .PHONY: docker-builder
 docker-builder:
