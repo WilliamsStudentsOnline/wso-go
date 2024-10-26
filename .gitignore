@@ -117,6 +117,11 @@ vendor/
 
 wso-go
 wso-backend
+
+# log files made in verbose mode
+wso-backend.json
+wso-backend.log
+
 config/secrets.yml
 config/secrets.yaml
 k8s/**/*secrets.yaml
