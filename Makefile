@@ -136,6 +136,10 @@ run-dev: $(BINARY_NAME)
 run-verbose: $(BINARY_NAME)
 	./$(BINARY_NAME) --verbose
 
+.PHONY: clean
+clean:
+	rm $(BINARY_NAME)
+
 .PHONY: test
 test:
 	go test -race ./...
@@ -148,10 +152,6 @@ fast-test:
 mod:
 	go mod tidy
 	go mod download
-
-.PHONY: clean
-mod:
-	rm wso-backend{,.json,.log}
 
 .PHONY: docker-builder
 docker-builder:
