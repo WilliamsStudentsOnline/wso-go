@@ -95,12 +95,16 @@ func GenerateClaimsFactory(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogg
 						scope = append(scope, auth.ScopeDormtrakWrite)
 					}
 				}
+
+				// For course scheduler, user must be a student only
+				scope = append(scope, auth.ScopeCourseSchedulerFull)
 			}
 
 			// Add admin scope
 			if v.User.Admin != nil && *v.User.Admin {
 				scope = append(scope, auth.ScopeAdminAll)
 				scope = append(scope, auth.ScopeFactrakAdmin)
+				scope = append(scope, auth.ScopeCourseSchedulerAdmin)
 			} else if v.User.FactrakAdmin != nil && *v.User.FactrakAdmin {
 				// If not admin, check if factrak admin
 				scope = append(scope, auth.ScopeFactrakAdmin)

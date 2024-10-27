@@ -45,6 +45,19 @@ func (semesterType *SemesterType) UnmarshalJSON(b []byte) error {
 	return errors.New("invalid semester type")
 }
 
+func ParseSemesterString(semesterString string) SemesterType {
+	switch semesterString {
+	case "FALL":
+		return SemesterFall
+	case "WINTER":
+		return SemesterWinter
+	case "SPRING":
+		return SemesterSpring
+	default:
+		return SemesterUndefined
+	}
+}
+
 func (*CourseSchedulerSelection) TableName() string {
 	return "course_scheduler_selection"
 }

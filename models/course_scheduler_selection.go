@@ -142,8 +142,7 @@ func (m *CourseSchedulerSelectionModel) withUserClassYear(userClassYear uint) fu
 		return db.Where(
 			"user_id in (?)",
 			m.DB.Model(&User{}).Select("id").Where(
-				"type = ?", "user",
-				"class_year = ?", userClassYear,
+				"type = ? AND class_year = ?", "user", userClassYear,
 			).QueryExpr(),
 		)
 	}
@@ -183,23 +182,25 @@ func (m *CourseSchedulerSelectionModel) DeleteAllSelectionsByCourseID(courseID u
 
 func (m *CourseSchedulerSelectionModel) DeleteAllSelectionsBySemesterAndYear(semester SemesterType, year uint) (err error) {
 	return m.DB.Where(
-		"semester = ?", semester,
-		"year = ?", year,
+		"semester = ? AND year = ?", semester, year,
 	).Delete(&CourseSchedulerSelection{}).Error
 }
 
 func (m *CourseSchedulerSelectionModel) DeleteAllSelectionsByUserIDAndCourseID(userID uint, courseID uint) (err error) {
 	return m.DB.Where(
-		"user_id = ?", userID,
-		"course_id = ?", courseID,
+		"user_id = ? AND course_id = ?", userID, courseID,
 	).Delete(&CourseSchedulerSelection{}).Error
 }
 
-func (m *CourseSchedulerSelectionModel) DeleteAllSelectionsByUserIDAndSemesterAndYear(userID uint, semester string, year uint) (err error) {
+func (m *CourseSchedulerSelectionModel) DeleteAllSelectionsByUserIDAndSemesterAndYear(userID uint, semester SemesterType, year uint) (err error) {
 	return m.DB.Where(
-		"user_id = ?", userID,
-		"semester = ?", semester,
-		"year = ?", year,
+		"user_id = ? AND semester = ? AND year = ?", userID, semester, year,
+	).Delete(&CourseSchedulerSelection{}).Error
+}
+
+func (m *CourseSchedulerSelectionModel) DeleteSelectionByID(id uint) (err error) {
+	return m.DB.Where(
+		"id = ?", id,
 	).Delete(&CourseSchedulerSelection{}).Error
 }
 
@@ -223,17 +224,30 @@ func (m *CourseSchedulerSelectionModel) GetSelectionsByUserIDAndSemesterAndYear(
 	})
 }
 
+func (m *CourseSchedulerSelectionModel) SetSelectionHiddenByID(id uint, hidden bool) (err error) {
+	return m.DB.Model(&CourseSchedulerSelection{}).Where(
+		"id = ?", id,
+	).Update("Hidden", hidden).Error
+}
+
 func (m *CourseSchedulerSelectionModel) SetSelectionHiddenByUserIDAndCourseID(userID uint, courseID uint, hidden bool) (err error) {
 	return m.DB.Model(&CourseSchedulerSelection{}).Where(
-		"user_id = ?", userID,
-		"course_id = ?", courseID,
+		"user_id = ? AND course_id = ?", userID, courseID,
 	).Update("Hidden", hidden).Error
 }
 
 func (m *CourseSchedulerSelectionModel) SetSelectionHiddenByUserIDAndSemesterAndYear(userID uint, semester SemesterType, year uint, hidden bool) (err error) {
 	return m.DB.Model(&CourseSchedulerSelection{}).Where(
-		"user_id = ?", userID,
-		"semester = ?", semester,
-		"year = ?", year,
+		"user_id = ? AND semester = ? AND year = ?", userID, semester, year,
 	).Update("Hidden", hidden).Error
+}
+
+func (m *CourseSchedulerSelectionModel) VerifySelectionHasUserID(userID uint, selectionID uint) (hasUserID bool, err error) {
+	var count uint
+	err = m.DB.Model(&CourseSchedulerSelection{}).Where(
+		"id = ? AND user_id = ?", selectionID, userID).Count(&count).Error
+	if err != nil {
+		return false, err
+	}
+	return count > 0, err
 }

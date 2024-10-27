@@ -28,6 +28,7 @@ import (
 	bulletinService "github.com/WilliamsStudentsOnline/wso-go/services/bulletin"
 	bulletinRSSService "github.com/WilliamsStudentsOnline/wso-go/services/bulletin/rss"
 	chatService "github.com/WilliamsStudentsOnline/wso-go/services/chat"
+	courseSchedulerService "github.com/WilliamsStudentsOnline/wso-go/services/course_scheduler"
 	dormtrakService "github.com/WilliamsStudentsOnline/wso-go/services/dormtrak"
 	ephcatchService "github.com/WilliamsStudentsOnline/wso-go/services/ephcatch"
 	ephmatchService "github.com/WilliamsStudentsOnline/wso-go/services/ephmatch"
@@ -220,6 +221,11 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 		} else {
 			log.Warn("Goodrich Config is not set up. Will not route Goodrich Service. ")
 		}
+
+		// Course Scheduler Service
+		courseSchedulerGroup := v2.Group("/api/v2/course-scheduler")
+		courseSchedulerGroup.Use(auth.RequireScopes(auth.ScopeCourseSchedulerFull))
+		courseSchedulerService.SetupRouter(courseSchedulerGroup, db, cfg, log.Named("course-scheduler"))
 	}
 
 	return r, nil

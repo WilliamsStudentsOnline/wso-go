@@ -25,6 +25,11 @@ const (
 	// admin endpoints and allowing certain admin-level write actions (need write-self for normal actions, though).
 	ScopeFactrakAdmin = "service:factrak:admin"
 
+	// Service: Course Scheduler
+	// Allows creating/deleting/modifying entries in the course scheduler selections database
+	ScopeCourseSchedulerFull  = "service:course_scheduler:full"
+	ScopeCourseSchedulerAdmin = "service:course_scheduler:admin"
+
 	// Service: Dormtrak
 	// Access to dormtrak reviews, etc.
 	ScopeDormtrak = "service:dormtrak"
