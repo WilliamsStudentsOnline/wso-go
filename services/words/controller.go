@@ -8,6 +8,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
+
+	// TESTING
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 )
 
 type Controller struct {
@@ -22,6 +26,14 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 		BaseController: services.BaseController{Log: log},
 	}
 }
+
+// TESTING
+var (
+	wordsGotten = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "wso_backend_words_fetched_total",
+		Help: "The total number of words fetched",
+	})
+)
 
 // GetWords godoc
 // @Summary Get words
@@ -39,4 +51,5 @@ func (t *Controller) GetWords(c *gin.Context) {
 	s := sWords[rand.Intn(len(sWords))]
 	o := oWords[rand.Intn(len(oWords))]
 	t.RespondOK(c, w+" "+s+" "+o)
+	wordsGotten.Add(3)
 }

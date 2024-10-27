@@ -5,6 +5,7 @@ import (
 	"math"
 	"time"
 
+	"github.com/WilliamsStudentsOnline/wso-go/config/log-analytics"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -60,10 +61,13 @@ func Logger(log *zap.SugaredLogger) gin.HandlerFunc {
 			statusCode,
 			latency)
 		if statusCode >= 500 {
+			errorCounter.Inc()
 			entry.Error(msg)
 		} else if statusCode >= 400 {
+			warnCounter.Inc()
 			entry.Warn(msg)
 		} else {
+			successCounter.Inc()
 			entry.Info(msg)
 		}
 	}
