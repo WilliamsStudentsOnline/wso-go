@@ -186,4 +186,7 @@ var (
 	ErrorBookNotFoundByISBN         = NewAPIError(2251, "could not find by book by ISBN")
 	ErrorBookDoesNotMatchOnlineData = NewAPIError(2252, "book does not match online data")
 	ErrorBookCourseNotFound         = NewAPIError(2253, "passed courses don't all exist")
+
+	// 23** are Course Scheduler errors
+	ErrorUserHasNoSelection = NewAPIError(2310, "user has no selections stored in database")
 )
