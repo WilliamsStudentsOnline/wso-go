@@ -22,6 +22,6 @@ func GetClient() *redis.Client {
 	return rdb
 }
 
-func GetUserIDStr(userID uint) string {
-	return "user:" + strconv.FormatUint(uint64(userID), 10)
+func GetUserSelectionStr(userID uint) string {
+	return "user-selection:" + strconv.FormatUint(uint64(userID), 10)
 }

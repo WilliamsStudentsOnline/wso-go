@@ -64,7 +64,7 @@ func (t *CourseSchedulerController) GetCourseSelectionsByUser(c *gin.Context) {
 		}
 	}
 
-	userIDStr := redis_util.GetUserIDStr(opts.UserID)
+	userIDStr := redis_util.GetUserSelectionStr(opts.UserID)
 
 	client := redis_util.GetClient()
 	val, err := client.Get(c, userIDStr).Result()
@@ -112,7 +112,7 @@ func (t *CourseSchedulerController) SetCourseSelectionsByUser(c *gin.Context) {
 		}
 	}
 
-	userIDStr := redis_util.GetUserIDStr(opts.UserID)
+	userIDStr := redis_util.GetUserSelectionStr(opts.UserID)
 
 	body := SelectionSetRequest{}
 	if err = c.ShouldBindJSON(&body); err != nil {
