@@ -1,8 +1,6 @@
 package coursescheduler
 
 import (
-	"strconv"
-
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
@@ -66,7 +64,7 @@ func (t *CourseSchedulerController) GetCourseSelectionsByUser(c *gin.Context) {
 		}
 	}
 
-	userIDStr := strconv.FormatUint(uint64(opts.UserID), 10)
+	userIDStr := redis_util.GetUserIDStr(opts.UserID)
 
 	client := redis_util.GetClient()
 	val, err := client.Get(c, userIDStr).Result()
@@ -114,7 +112,7 @@ func (t *CourseSchedulerController) SetCourseSelectionsByUser(c *gin.Context) {
 		}
 	}
 
-	userIDStr := strconv.FormatUint(uint64(opts.UserID), 10)
+	userIDStr := redis_util.GetUserIDStr(opts.UserID)
 
 	body := SelectionSetRequest{}
 	if err = c.ShouldBindJSON(&body); err != nil {
