@@ -5,7 +5,6 @@ import (
 	"math"
 	"time"
 
-	"github.com/WilliamsStudentsOnline/wso-go/config/log-analytics"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
