@@ -53,6 +53,8 @@ var Migrations = []*gormigrate.Migration{
 	migrations.LookingForColumn20220504015544,
 	migrations.CreateBookListings20221224071254,
 	migrations.CreateBooks20221230032200,
+	migrations.CreateClubTrakTable,
+	migrations.RenameClubTrakTable,
 }
 
 var MigrationGormOptions = gormigrate.DefaultOptions
@@ -96,11 +98,16 @@ func MigrateDB(db *gorm.DB) error {
 			&models.BannedUser{},
 			&models.BookListing{},
 			&models.Book{},
+			&models.ClubTrak{},
 		).Error
 		if err != nil {
 			return err
 		}
 
+		// db.AutoMigrate(&models.ClubTrak{})
+		// if db.Error != nil {
+		// 	return db.Error
+		// }
 		// all other foreign keys...
 		return nil
 	})
