@@ -36,7 +36,7 @@ func SetupServiceTest(assert *assert.Assertions) *gorm.DB {
 }
 
 // Connect to a Redis database for testing
-func SetupClientForTest() *redis.Client {
+func SetupRedisClientForTest() (*redis.Client, error) {
 	return redis_util.SetupClient("localhost:6379", "", redis_util.TestDatabaseID)
 }
 

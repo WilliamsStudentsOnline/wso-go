@@ -10,14 +10,18 @@ import (
 
 var rdb *redis.Client
 
-func SetupClient(url string, password string, databaseID int) *redis.Client {
+func SetupClient(url string, password string, databaseID int) (*redis.Client, error) {
 	rdb = redis.NewClient(&redis.Options{
 		Addr:     url,
 		Password: password,
 		DB:       databaseID,
 	})
 
-	return rdb
+	if err := rdb.Ping(context.TODO()).Err(); err != nil {
+		return nil, err
+	}
+
+	return rdb, nil
 }
 
 func GetClient() *redis.Client {
