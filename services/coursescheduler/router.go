@@ -13,6 +13,8 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	writer := r.Group("")
 	writer.Use(auth.RequireScopes(auth.ScopeUsers, auth.ScopeAdminAll))
 
-	writer.GET("/get", c.GetCourseSelectionsByUser)
-	writer.POST("/set", c.SetCourseSelectionsByUser)
+	writer.GET("/course-selections/:userID", c.GetCourseSelectionsByUser)
+	writer.PUT("/course-selections/:userID", c.SetCourseSelectionsByUser)
+	// We intend for the PUT endput to be used, but to avoid confusion we also enable POST (since Get does both)
+	writer.POST("/course-selections/:userID", c.SetCourseSelectionsByUser)
 }

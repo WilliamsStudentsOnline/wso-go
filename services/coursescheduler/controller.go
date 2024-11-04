@@ -16,10 +16,6 @@ type CourseSchedulerController struct {
 	services.BaseController
 }
 
-type SelectionGetRequest struct {
-	UserID uint `json:"userID" form:"userID" binding:"required"`
-}
-
 type SelectionSetRequest struct {
 	Courses string `json:"courses" form:"courses" binding:"required"`
 }
@@ -46,29 +42,29 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Cou
 // @Tags course-scheduler
 // @Accept json
 // @Produce json
-// @Param userID query uint false "UserID"
+// @Param userID path uint true "UserID"
 // @Success 200 {object} services.CourseSelectionsString
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
-// @Router /course-scheduler/selections [get]
+// @Router /course-selections/{userID} [get]
 func (t *CourseSchedulerController) GetCourseSelectionsByUser(c *gin.Context) {
 	var err error
 
-	opts := SelectionGetRequest{}
-	if err = c.ShouldBindQuery(&opts); err != nil {
-		t.RespondBadBind(c, err)
+	userID, err := services.GetUIntParam(c, "userID")
+	if err != nil {
+		t.RespondAPIError(c, lib.ErrorUserIDNoParse)
 		return
 	}
 
 	if !auth.HasScope(c, auth.ScopeAdminAll) {
-		userID := services.GetUserID(c)
-		if opts.UserID != userID {
+		authedUserID := services.GetUserID(c)
+		if userID != authedUserID {
 			t.RespondAPIError(c, lib.ErrorMustBeSelf)
 			return
 		}
 	}
 
-	userIDStr := redis_util.GetUserSelectionStr(opts.UserID)
+	userIDStr := redis_util.GetUserSelectionStr(userID)
 	val, err := redis_util.Get(c, userIDStr)
 	valStr, ok := val.(string)
 	if !ok {
@@ -96,30 +92,30 @@ func (t *CourseSchedulerController) GetCourseSelectionsByUser(c *gin.Context) {
 // @Tags course-scheduler
 // @Accept json
 // @Produce json
-// @Param userID query uint false "UserID"
+// @Param userID path uint true "UserID"
 // @Param courses body string true "Request body"
 // @Success 200
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
-// @Router /course-scheduler/selections [post]
+// @Router /course-selections/{userID} [put]
 func (t *CourseSchedulerController) SetCourseSelectionsByUser(c *gin.Context) {
 	var err error
 
-	opts := SelectionGetRequest{}
-	if err = c.ShouldBindQuery(&opts); err != nil {
-		t.RespondBadBind(c, err)
+	userID, err := services.GetUIntParam(c, "userID")
+	if err != nil {
+		t.RespondAPIError(c, lib.ErrorUserIDNoParse)
 		return
 	}
 
 	if !auth.HasScope(c, auth.ScopeAdminAll) {
-		userID := services.GetUserID(c)
-		if opts.UserID != userID {
+		authedUserID := services.GetUserID(c)
+		if userID != authedUserID {
 			t.RespondAPIError(c, lib.ErrorMustBeSelf)
 			return
 		}
 	}
 
-	userIDStr := redis_util.GetUserSelectionStr(opts.UserID)
+	userIDStr := redis_util.GetUserSelectionStr(userID)
 	body := SelectionSetRequest{}
 	if err = c.ShouldBindJSON(&body); err != nil {
 		t.RespondBadBind(c, err)

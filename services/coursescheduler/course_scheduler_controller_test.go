@@ -37,11 +37,11 @@ func TestCourseScheduler_Auth(t *testing.T) {
 	assert.NoError(err)
 
 	// Expecting failure because we are accessing a user other than ourself
-	w, err := utils.DoHTTPReq(router, http.MethodPost, "/set?userID="+testBadUserIDString, bytes.NewBuffer(payload))
+	w, err := utils.DoHTTPReq(router, http.MethodPut, "/course-selections/"+testBadUserIDString, bytes.NewBuffer(payload))
 	assert.NoError(err)
 	assert.Equal(http.StatusForbidden, w.Code)
 
-	w, err = utils.DoHTTPReq(router, http.MethodGet, "/get?userID="+testBadUserIDString, nil)
+	w, err = utils.DoHTTPReq(router, http.MethodGet, "/course-selections/"+testBadUserIDString, nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusForbidden, w.Code)
 }
@@ -67,7 +67,7 @@ func TestCourseScheduler_RedisSet(t *testing.T) {
 	payload, err := json.Marshal(params)
 	assert.NoError(err)
 
-	w, err := utils.DoHTTPReq(router, http.MethodPost, "/set?userID="+testUserIDString, bytes.NewBuffer(payload))
+	w, err := utils.DoHTTPReq(router, http.MethodPut, "/course-selections/"+testUserIDString, bytes.NewBuffer(payload))
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w.Code)
 }
@@ -94,12 +94,12 @@ func TestCourseScheduler_RedisGet(t *testing.T) {
 	payload, err := json.Marshal(params)
 	assert.NoError(err)
 
-	w, err := utils.DoHTTPReq(router, http.MethodPost, "/set?userID="+testUserIDString, bytes.NewBuffer(payload))
+	w, err := utils.DoHTTPReq(router, http.MethodPut, "/course-selections/"+testUserIDString, bytes.NewBuffer(payload))
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w.Code)
 
 	// Actual get test
-	w, err = utils.DoHTTPReq(router, http.MethodGet, "/get?userID="+testUserIDString, nil)
+	w, err = utils.DoHTTPReq(router, http.MethodGet, "/course-selections/"+testUserIDString, nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w.Code)
 
