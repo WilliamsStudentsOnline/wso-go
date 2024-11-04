@@ -24,8 +24,12 @@ type SelectionSetRequest struct {
 	Courses string `json:"courses" form:"courses" binding:"required"`
 }
 
+func (m SelectionSetRequest) MarshalBinary() ([]byte, error) {
+	return []byte(m.Courses), nil
+}
+
 type CourseSelectionsString struct {
-	Courses string `json:"courses" form:"courses"`
+	Courses string `json:"courses"`
 }
 
 func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *CourseSchedulerController {
@@ -127,7 +131,7 @@ func (t *CourseSchedulerController) SetCourseSelectionsByUser(c *gin.Context) {
 	if err == nil {
 		t.RespondOK(c, nil)
 		return
-	} else if err != nil {
+	} else {
 		t.RespondError(c, err)
 		return
 	}

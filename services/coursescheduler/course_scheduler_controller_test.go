@@ -15,8 +15,6 @@ import (
 	"go.uber.org/zap/zaptest"
 )
 
-// WARNING: THE TESTS IN THIS MODULE WILL FAIL LOCALLY IF REDIS IS NOT RUNNING UNAUTHED AT PORT 6379
-
 func TestCourseScheduler_Auth(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
