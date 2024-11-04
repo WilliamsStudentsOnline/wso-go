@@ -9,13 +9,21 @@ import (
 )
 
 var rdb *redis.Client
+var RedisClientConfiguredToTest bool
 
+// Only one Redis client can be active at a time
 func SetupClient(url string, password string, databaseID int) (*redis.Client, error) {
 	rdb = redis.NewClient(&redis.Options{
 		Addr:     url,
 		Password: password,
 		DB:       databaseID,
 	})
+
+	if databaseID == TestDatabaseID {
+		RedisClientConfiguredToTest = true
+	} else {
+		RedisClientConfiguredToTest = false
+	}
 
 	if err := rdb.Ping(context.TODO()).Err(); err != nil {
 		return nil, err
