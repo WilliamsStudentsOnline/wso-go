@@ -38,8 +38,7 @@ func GetClient() *redis.Client {
 
 // Wrappers for Get/Set
 func Get(ctx context.Context, key string) (interface{}, error) {
-	value := rdb.Get(ctx, key)
-	return value, value.Err()
+	return rdb.Get(ctx, key).Result()
 }
 
 func Set(ctx context.Context, key string, value interface{}) error {

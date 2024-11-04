@@ -188,5 +188,5 @@ var (
 	ErrorBookCourseNotFound         = NewAPIError(2253, "passed courses don't all exist")
 
 	// 23** are Course Scheduler errors
-	ErrorUserHasNoSelection = NewAPIError(2310, "user has no selections stored in database")
+	ErrorCourseSchedulerSelectionStrconv = NewAPIError(2310, "unable to assert course scheduler selection as string")
 )

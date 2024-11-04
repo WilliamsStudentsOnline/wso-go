@@ -65,19 +65,22 @@ func (t *CourseSchedulerController) GetCourseSelectionsByUser(c *gin.Context) {
 	}
 
 	userIDStr := redis_util.GetUserSelectionStr(opts.UserID)
-
-	client := redis_util.GetClient()
-	val, err := client.Get(c, userIDStr).Result()
+	val, err := redis_util.Get(c, userIDStr)
+	valStr, ok := val.(string)
+	if !ok {
+		t.RespondAPIError(c, lib.ErrorCourseSchedulerSelectionStrconv)
+		return
+	}
 
 	if err == redis.Nil {
-		t.RespondAPIError(c, lib.ErrorUserHasNoSelection)
+		t.RespondOK(c, CourseSelectionsString{Courses: ""})
 		return
 	} else if err != nil {
 		t.RespondError(c, err)
 		return
 	}
 
-	t.RespondOK(c, CourseSelectionsString{Courses: val})
+	t.RespondOK(c, CourseSelectionsString{Courses: valStr})
 
 }
 
@@ -113,17 +116,15 @@ func (t *CourseSchedulerController) SetCourseSelectionsByUser(c *gin.Context) {
 	}
 
 	userIDStr := redis_util.GetUserSelectionStr(opts.UserID)
-
 	body := SelectionSetRequest{}
 	if err = c.ShouldBindJSON(&body); err != nil {
 		t.RespondBadBind(c, err)
 		return
 	}
 
-	client := redis_util.GetClient()
-	err = client.Set(c, userIDStr, body.Courses, 0).Err()
+	err = redis_util.Set(c, userIDStr, body)
 
-	if err == redis.Nil {
+	if err == nil {
 		t.RespondOK(c, nil)
 		return
 	} else if err != nil {
