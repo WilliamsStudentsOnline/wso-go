@@ -104,10 +104,6 @@ func MigrateDB(db *gorm.DB) error {
 			return err
 		}
 
-		// db.AutoMigrate(&models.ClubTrak{})
-		// if db.Error != nil {
-		// 	return db.Error
-		// }
 		// all other foreign keys...
 		return nil
 	})

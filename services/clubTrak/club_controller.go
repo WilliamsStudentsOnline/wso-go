@@ -21,17 +21,24 @@ import (
 // Adds club to database
 func (t *Controller) AddClub(c *gin.Context) {
 	// Bind create params
-	var createData models.ClubTrak
+	createData := ClubCreateParams{}
 	err := c.ShouldBind(&createData)
 	if err != nil {
 		t.RespondBadBind(c, err)
 		return
 	}
 
+	//Error Cases
+
 	//Create a copy of the schema with relevent data for a given club
 	club := models.ClubTrak{
-		//Need to figure out how to set club name in struct!!
-		Description: "Test Test",
+		NumMembers:   createData.NumMembers,
+		ClubLeaders:  createData.ClubLeaders,
+		Description:  createData.Description,
+		MeetingTimes: createData.MeetingTimes,
+		Events:       createData.Events,
+		ClubID:       createData.ClubID,
+		Name:         createData.Name,
 	}
 
 	//Call create function to update database
@@ -42,4 +49,16 @@ func (t *Controller) AddClub(c *gin.Context) {
 	}
 	t.RespondCreated(c, club)
 
+}
+
+type ClubCreateParams struct {
+	NumMembers   string `gorm:"size:65535" json:"numMembers"`
+	ClubLeaders  string `json:"clubLeaders"`
+	Description  string `json:"description"`
+	MeetingTimes string `json:"meetingTimes"`
+	Events       string `json:"events"`
+
+	// Belongs to user Some Club Leader
+	ClubID uint   `json:"clubID"`
+	Name   string `json:"name"`
 }

@@ -11,6 +11,12 @@ type ClubModel struct {
 	*BaseModel
 }
 
+func NewClubModel(db *gorm.DB, log *zap.SugaredLogger) *ClubModel {
+	return &ClubModel{
+		BaseModel: NewBaseModel(db, log),
+	}
+}
+
 // Inserts new club into the database
 func (m *ClubModel) CreateClub(p *ClubTrak) (err error) {
 	err = m.DB.Create(p).Error
@@ -18,16 +24,10 @@ func (m *ClubModel) CreateClub(p *ClubTrak) (err error) {
 		return err
 	}
 
-	err = m.DB.
-		Preload("DormRoom").
-		Preload("DormRoom.Dorm").
-		Preload("DormRoom.Dorm.Neighborhood").
-		First(p).Error
+	// err = m.DB.
+	// 	Preload("DormRoom").
+	// 	Preload("DormRoom.Dorm").
+	// 	Preload("DormRoom.Dorm.Neighborhood").
+	// 	First(p).Error
 	return
-}
-
-func NewClubModel(db *gorm.DB, log *zap.SugaredLogger) *ClubModel {
-	return &ClubModel{
-		BaseModel: NewBaseModel(db, log),
-	}
 }
