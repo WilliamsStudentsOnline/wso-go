@@ -12,6 +12,24 @@ import (
 	"go.uber.org/zap"
 )
 
+var client *redis_util.RedisClient
+
+func init() {
+	ConfigureClientForProd()
+}
+
+func ConfigureClientForProd() error {
+	var err error
+	client, err = redis_util.SetupClient("localhost:6739", "", redis_util.CourseSchedulerSelectionsDatabaseID)
+	return err
+}
+
+func ConfigureControllerForTest() error {
+	var err error
+	client, err = redis_util.SetupRedisClientForTest()
+	return err
+}
+
 type CourseSchedulerController struct {
 	services.BaseController
 }
@@ -65,7 +83,10 @@ func (t *CourseSchedulerController) GetCourseSelectionsByUser(c *gin.Context) {
 	}
 
 	userIDStr := redis_util.GetUserSelectionStr(userID)
-	val, err := redis_util.Get(c, userIDStr)
+	val, err := client.Get(c, userIDStr)
+	if err == redis_util.ErrRedisClientNotConfigured {
+		t.RespondAPIError(c, lib.ErrorRedisClientNotConfigured)
+	}
 	valStr, ok := val.(string)
 	if !ok {
 		t.RespondAPIError(c, lib.ErrorCourseSchedulerSelectionStrconv)
@@ -122,7 +143,10 @@ func (t *CourseSchedulerController) SetCourseSelectionsByUser(c *gin.Context) {
 		return
 	}
 
-	err = redis_util.Set(c, userIDStr, body)
+	err = client.Set(c, userIDStr, body)
+	if err == redis_util.ErrRedisClientNotConfigured {
+		t.RespondAPIError(c, lib.ErrorRedisClientNotConfigured)
+	}
 
 	if err == nil {
 		t.RespondOK(c, nil)

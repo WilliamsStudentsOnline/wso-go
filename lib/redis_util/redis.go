@@ -2,51 +2,68 @@ package redis_util
 
 import (
 	"context"
+	"errors"
 	"strconv"
 	"time"
 
 	"github.com/redis/go-redis/v9"
 )
 
-var rdb *redis.Client
-var RedisClientConfiguredToTest bool
+var ErrRedisClientNotConfigured error = errors.New("no redis client configured")
 
-// Only one Redis client can be active at a time
-func SetupClient(url string, password string, databaseID int) (*redis.Client, error) {
-	rdb = redis.NewClient(&redis.Options{
+type RedisClient struct {
+	rdb                  *redis.Client
+	configuredForTesting bool
+}
+
+func SetupClient(url string, password string, databaseID int) (*RedisClient, error) {
+	rdb := redis.NewClient(&redis.Options{
 		Addr:     url,
 		Password: password,
 		DB:       databaseID,
 	})
 
-	if databaseID == TestDatabaseID {
-		RedisClientConfiguredToTest = true
-	} else {
-		RedisClientConfiguredToTest = false
-	}
-
 	if err := rdb.Ping(context.TODO()).Err(); err != nil {
 		return nil, err
 	}
 
-	return rdb, nil
+	client := RedisClient{
+		rdb:                  rdb,
+		configuredForTesting: false,
+	}
+
+	if databaseID == TestDatabaseID {
+		client.configuredForTesting = true
+	}
+
+	return &client, nil
 }
 
-func GetClient() *redis.Client {
-	return rdb
+// Connect to a Redis database for testing
+func SetupRedisClientForTest() (*RedisClient, error) {
+	return SetupClient("localhost:6379", "", TestDatabaseID)
 }
 
 // Wrappers for Get/Set
-func Get(ctx context.Context, key string) (interface{}, error) {
-	return rdb.Get(ctx, key).Result()
+func (client *RedisClient) Get(ctx context.Context, key string) (interface{}, error) {
+	if client == nil {
+		return nil, ErrRedisClientNotConfigured
+	}
+	return client.rdb.Get(ctx, key).Result()
 }
 
-func Set(ctx context.Context, key string, value interface{}) error {
-	return rdb.Set(ctx, key, value, 0).Err()
+func (client *RedisClient) Set(ctx context.Context, key string, value interface{}) error {
+	if client == nil {
+		return ErrRedisClientNotConfigured
+	}
+	return client.rdb.Set(ctx, key, value, 0).Err()
 }
 
-func SetWithExpiration(ctx context.Context, key string, value interface{}, duration time.Duration) error {
-	return rdb.Set(ctx, key, value, duration).Err()
+func (client *RedisClient) SetWithExpiration(ctx context.Context, key string, value interface{}, duration time.Duration) error {
+	if client == nil {
+		return ErrRedisClientNotConfigured
+	}
+	return client.rdb.Set(ctx, key, value, duration).Err()
 }
 
 // Key formatting

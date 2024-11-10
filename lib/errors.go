@@ -188,5 +188,6 @@ var (
 	ErrorBookCourseNotFound         = NewAPIError(2253, "passed courses don't all exist")
 
 	// 23** are Course Scheduler errors
+	ErrorRedisClientNotConfigured        = NewAPIError(2300, "redis client not configured, is redis running locally?")
 	ErrorCourseSchedulerSelectionStrconv = NewAPIError(2310, "unable to assert course scheduler selection as string")
 )

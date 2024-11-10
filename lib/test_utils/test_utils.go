@@ -12,12 +12,10 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	migrate "github.com/WilliamsStudentsOnline/wso-go/db"
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
-	"github.com/WilliamsStudentsOnline/wso-go/lib/redis_util"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/search"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
-	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 )
@@ -33,11 +31,6 @@ func SetupServiceTest(assert *assert.Assertions) *gorm.DB {
 	assert.NoError(err)
 
 	return db
-}
-
-// Connect to a Redis database for testing
-func SetupRedisClientForTest() (*redis.Client, error) {
-	return redis_util.SetupClient("localhost:6379", "", redis_util.TestDatabaseID)
 }
 
 // Return test configuration values

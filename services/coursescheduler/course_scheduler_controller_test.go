@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
-	"github.com/WilliamsStudentsOnline/wso-go/lib/redis_util"
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	"github.com/WilliamsStudentsOnline/wso-go/services/coursescheduler"
 	testify "github.com/stretchr/testify/assert"
@@ -26,8 +25,7 @@ func TestCourseScheduler_Auth(t *testing.T) {
 
 	cfg := utils.SetupConfig()
 	coursescheduler.SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
-	_, err := utils.SetupRedisClientForTest()
-	assert.True(redis_util.RedisClientConfiguredToTest)
+	err := coursescheduler.ConfigureControllerForTest()
 	assert.NoError(err)
 
 	params := coursescheduler.SelectionSetRequest{
@@ -57,8 +55,7 @@ func TestCourseScheduler_RedisSet(t *testing.T) {
 
 	cfg := utils.SetupConfig()
 	coursescheduler.SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
-	_, err := utils.SetupRedisClientForTest()
-	assert.True(redis_util.RedisClientConfiguredToTest)
+	err := coursescheduler.ConfigureControllerForTest()
 	assert.NoError(err)
 
 	params := coursescheduler.SelectionSetRequest{
@@ -83,8 +80,7 @@ func TestCourseScheduler_RedisGet(t *testing.T) {
 
 	cfg := utils.SetupConfig()
 	coursescheduler.SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
-	_, err := utils.SetupRedisClientForTest()
-	assert.True(redis_util.RedisClientConfiguredToTest)
+	err := coursescheduler.ConfigureControllerForTest()
 	assert.NoError(err)
 
 	// Runs the set test to ensure that a proper value is stored
