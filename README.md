@@ -16,7 +16,7 @@ Note: you must include a secrets file. So, run `cp config/secrets_example.yaml c
 ### Redis
 
 **NOTE**: As of November 2024, wso-go uses Redis for several non-critical database tables, such as saved classes in the course scheduler. For most cases, this is not important, but if you intend to develop for these features, deploy Redis with:
--  `docker build -t wso-redis -f lib/redis_util/Redis.Dockerfile lib/redis_util`. 
+-  `docker build -t wso-redis -f lib/redis_util/Redis.Dockerfile lib/redis_util`
 - `docker run --name wso-redis-instance -d -p 6379:6379 wso-redis`
 
 When you are finished, kill the container with:
