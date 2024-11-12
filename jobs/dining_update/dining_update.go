@@ -60,9 +60,6 @@ func UpdateDining(outPath string, eats4Ephs bool, vendorInfoPath string) error {
 	} else {
 		ed, err = loadDining(vendorInfoPath, time.Now())
 	}
-	if err != nil {
-		return err
-	}
 
 	f, err := os.OpenFile(outPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
