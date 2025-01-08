@@ -30,6 +30,7 @@ import (
 	bulletinService "github.com/WilliamsStudentsOnline/wso-go/services/bulletin"
 	bulletinRSSService "github.com/WilliamsStudentsOnline/wso-go/services/bulletin/rss"
 	chatService "github.com/WilliamsStudentsOnline/wso-go/services/chat"
+	clubTrakService "github.com/WilliamsStudentsOnline/wso-go/services/clubTrak"
 	dormtrakService "github.com/WilliamsStudentsOnline/wso-go/services/dormtrak"
 	ephcatchService "github.com/WilliamsStudentsOnline/wso-go/services/ephcatch"
 	ephmatchService "github.com/WilliamsStudentsOnline/wso-go/services/ephmatch"
@@ -218,6 +219,11 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 		notifGroup := v2.Group("/notification")
 		notifGroup.Use(auth.RequireScopes(auth.ScopeUsers))
 		notificationService.SetupRouter(notifGroup, db, cfg, log.Named("notification"))
+
+		//ClubTrak
+		clubTrakGroup := v2.Group("/clubTrak")
+		clubTrakGroup.Use(auth.RequireScopes(auth.ScopeFactrakLimited, auth.ScopeFactrakFull))
+		clubTrakService.SetupRouter(clubTrakGroup, db, cfg, log.Named("clubTrak"))
 
 		// Goodrich Service
 		if !cfg.MissingGoodrich() {

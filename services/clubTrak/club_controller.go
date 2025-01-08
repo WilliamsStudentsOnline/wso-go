@@ -24,11 +24,15 @@ func (t *Controller) AddClub(c *gin.Context) {
 	createData := ClubCreateParams{}
 	err := c.ShouldBind(&createData)
 	if err != nil {
-		t.RespondBadBind(c, err)
+		//t.RespondBadBind(c, err)
 		return
 	}
 
-	//Error Cases
+	p1 := models.User{
+		Type:   models.UserTypeStudent,
+		Name:   "Student 1",
+		UnixID: "s1",
+	}
 
 	//Create a copy of the schema with relevent data for a given club
 	club := models.ClubTrak{
@@ -38,6 +42,7 @@ func (t *Controller) AddClub(c *gin.Context) {
 		MeetingTimes: createData.MeetingTimes,
 		Events:       createData.Events,
 		ClubID:       createData.ClubID,
+		Club:         &p1,
 		Name:         createData.Name,
 	}
 
@@ -49,6 +54,25 @@ func (t *Controller) AddClub(c *gin.Context) {
 	}
 	t.RespondCreated(c, club)
 
+}
+
+func (t *Controller) TestingClub(c *gin.Context) {
+	p1 := models.User{
+		Type:   models.UserTypeStudent,
+		Name:   "Student 1",
+		UnixID: "s1",
+	}
+	club := models.ClubTrak{
+		NumMembers:   "Test",
+		ClubLeaders:  "Test",
+		Description:  "Test",
+		MeetingTimes: "Test",
+		Events:       "Test",
+		ClubID:       700,
+		Club:         &p1,
+		Name:         "Test",
+	}
+	t.RespondCreated(c, club)
 }
 
 type ClubCreateParams struct {
