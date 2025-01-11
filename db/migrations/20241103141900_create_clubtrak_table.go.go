@@ -10,7 +10,7 @@ var CreateClubTrakTable = &gormigrate.Migration{
 	ID: "20241103141900_create_clubtrak_table",
 	Migrate: func(tx *gorm.DB) error {
 		// Use AutoMigrate to create the ClubTrak table if it doesn’t exist
-		return tx.AutoMigrate(&models.ClubTrak{}).Error
+		return tx.AutoMigrate(&models.Club{}).Error
 	},
 	Rollback: func(tx *gorm.DB) error {
 		// Use DropTable directly, as there’s no Migrator in GORM v1

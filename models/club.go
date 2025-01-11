@@ -5,8 +5,6 @@ import (
 	"go.uber.org/zap"
 )
 
-// Bearbones Club Model
-// Final version final version may not import UserModel
 type ClubModel struct {
 	*BaseModel
 }
@@ -17,17 +15,13 @@ func NewClubModel(db *gorm.DB, log *zap.SugaredLogger) *ClubModel {
 	}
 }
 
+//Database Functions
+
 // Inserts new club into the database
-func (m *ClubModel) CreateClub(p *ClubTrak) (err error) {
+func (m *ClubModel) CreateClub(p *Club) (err error) {
 	err = m.DB.Create(p).Error
 	if err != nil {
 		return err
 	}
-
-	// err = m.DB.
-	// 	Preload("DormRoom").
-	// 	Preload("DormRoom.Dorm").
-	// 	Preload("DormRoom.Dorm.Neighborhood").
-	// 	First(p).Error
 	return
 }

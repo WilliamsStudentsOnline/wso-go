@@ -1,21 +1,18 @@
 package models
 
 // ClubTrak Schema
-type ClubTrak struct {
+type Club struct {
 	BaseSchema
-
-	NumMembers   string `gorm:"size:65535" json:"numMembers"`
-	ClubLeaders  string `json:"clubLeaders"`
-	Description  string `json:"description"`
-	MeetingTimes string `json:"meetingTimes"`
-	Events       string `json:"events"`
+	Name               string `json:"name"`
+	Subscribers        int    `json:"Subscribers"`
+	MeetingDescription string `json:"meetingDescription"`
+	Events             string `json:"events"`
 
 	// Belongs to user Some Club Leader
-	ClubID uint   `json:"clubID"`
-	Club   *User  `json:"club,omitempty"`
-	Name   string `json:"name"`
+	ClubAdmin   uint  `json:"clubID"`
+	ClubAdminID *User `json:"club,omitempty"`
 }
 
-func (*ClubTrak) TableName() string {
+func (*Club) TableName() string {
 	return "clubs"
 }

@@ -98,7 +98,7 @@ func MigrateDB(db *gorm.DB) error {
 			&models.BannedUser{},
 			&models.BookListing{},
 			&models.Book{},
-			&models.ClubTrak{},
+			&models.Club{},
 		).Error
 		if err != nil {
 			return err

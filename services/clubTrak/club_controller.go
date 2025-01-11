@@ -1,9 +1,24 @@
-package clubTrak
+package clubtrak
 
 import (
+	"net/http"
+
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/gin-gonic/gin"
 )
+
+type ClubCreateParams struct {
+	Subscribers  int    `json:"Subscriber"`
+	ClubLeaders  string `json:"clubLeaders"`
+	Description  string `json:"description"`
+	MeetingTimes string `json:"meetingTimes"`
+	Events       string `json:"events"`
+
+	// Belongs to user Some Club Leader
+	ClubID      uint   `json:"clubID"`
+	ClubAdminID *User  `json:"club,omitempty"`
+	Name        string `json:"name"`
+}
 
 // ListBulletins godoc
 // @Summary Adds clubs to database
@@ -19,15 +34,15 @@ import (
 // @Router /clubtrak [post]
 
 // Adds club to database
-func (t *Controller) AddClub(c *gin.Context) {
+func (t *Controller) CreateClub(c *gin.Context) {
 	// Bind create params
 	createData := ClubCreateParams{}
 	err := c.ShouldBind(&createData)
 	if err != nil {
-		//t.RespondBadBind(c, err)
+		t.RespondBadBind(c, err)
 		return
 	}
-
+	//TODO: Discuss User with Charlie
 	p1 := models.User{
 		Type:   models.UserTypeStudent,
 		Name:   "Student 1",
@@ -35,15 +50,12 @@ func (t *Controller) AddClub(c *gin.Context) {
 	}
 
 	//Create a copy of the schema with relevent data for a given club
-	club := models.ClubTrak{
-		NumMembers:   createData.NumMembers,
-		ClubLeaders:  createData.ClubLeaders,
-		Description:  createData.Description,
-		MeetingTimes: createData.MeetingTimes,
-		Events:       createData.Events,
-		ClubID:       createData.ClubID,
-		Club:         &p1,
-		Name:         createData.Name,
+	club := models.Club{
+		Subscribers:        createData.Subscribers,
+		MeetingDescription: createData.Description,
+		ClubAdmin:          createData.ClubID,
+		ClubAdminID:        &p1,
+		Name:               createData.Name,
 	}
 
 	//Call create function to update database
@@ -62,27 +74,15 @@ func (t *Controller) TestingClub(c *gin.Context) {
 		Name:   "Student 1",
 		UnixID: "s1",
 	}
-	club := models.ClubTrak{
-		NumMembers:   "Test",
-		ClubLeaders:  "Test",
-		Description:  "Test",
-		MeetingTimes: "Test",
-		Events:       "Test",
-		ClubID:       700,
-		Club:         &p1,
-		Name:         "Test",
+	c.JSON(http.StatusOK, p1)
+	club := models.Club{
+		Subscribers:        0,
+		MeetingDescription: "Test",
+		ClubAdmin:          700,
+		ClubAdminID:        &p1,
+		Name:               "Test",
 	}
+	c.JSON(http.StatusOK, club)
 	t.RespondCreated(c, club)
-}
-
-type ClubCreateParams struct {
-	NumMembers   string `gorm:"size:65535" json:"numMembers"`
-	ClubLeaders  string `json:"clubLeaders"`
-	Description  string `json:"description"`
-	MeetingTimes string `json:"meetingTimes"`
-	Events       string `json:"events"`
-
-	// Belongs to user Some Club Leader
-	ClubID uint   `json:"clubID"`
-	Name   string `json:"name"`
+	t.Log.Info("Testing Endpoint Reached")
 }

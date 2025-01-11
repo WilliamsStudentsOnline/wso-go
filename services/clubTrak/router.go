@@ -1,4 +1,4 @@
-package clubTrak
+package clubtrak
 
 import (
 	"github.com/WilliamsStudentsOnline/wso-go/config"
@@ -12,7 +12,11 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	c := NewController(db, cfg, log)
 
 	// Clubtrak CRUD endpoints
-	r.POST("/addClub", c.AddClub)
+
+	//TODO: Add Scopes here
+	r.POST("/clubs", c.CreateClub)
+
+	//TODO: Discuss Testing with Charlie
 	r.GET("/testing", c.TestingClub)
 
 }

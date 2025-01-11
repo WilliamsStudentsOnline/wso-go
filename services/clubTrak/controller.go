@@ -1,4 +1,4 @@
-package clubTrak
+package clubtrak
 
 import (
 	"github.com/WilliamsStudentsOnline/wso-go/config"
