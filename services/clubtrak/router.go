@@ -7,15 +7,10 @@ import (
 	"go.uber.org/zap"
 )
 
-// SetupRouter sets up the router for clubs
+// SetupRouter sets up the router for clubtrak
 func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) {
 	c := NewController(db, cfg, log)
 
-	// Clubtrak CRUD endpoints
-
 	//TODO: Add Scopes here
 	r.POST("/clubs", c.CreateClub)
-
-	//TODO: Discuss Testing with Charlie
-
 }

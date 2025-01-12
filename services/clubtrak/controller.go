@@ -17,7 +17,6 @@ type Controller struct {
 func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Controller {
 	return &Controller{
 		BaseController: services.BaseController{Log: log},
-		//TODO: Check that NewClubModel function is correct
-		clubModel: models.NewClubModel(db, log),
+		clubModel:      models.NewClubModel(db, log),
 	}
 }

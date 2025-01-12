@@ -22,10 +22,12 @@ func TestController_CreateClub(t *testing.T) {
 	cfg := utils.SetupConfig()
 	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
+	//TODO: Discuss more efficicent use of User
 	u1 := models.User{
 		Name:   "Drake",
 		UnixID: "dr25",
 	}
+
 	//Create Club Params
 	params := ClubParams{
 		Name:               "WSO",

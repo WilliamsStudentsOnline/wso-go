@@ -10,25 +10,23 @@ type ClubParams struct {
 	Subscribers        int    `json:"Subscriber"`
 	MeetingDescription string `json:"meetingDescription"`
 
-	// Belongs to user Some Club Leader
-	ClubID      uint         `json:"clubID"`
+	ClubID uint `json:"clubID"`
+	//Club leader's user struct assigned to ClubAdminID
 	ClubAdminID *models.User `json:"club,omitempty"`
 }
 
-// ListBulletins godoc
-// @Summary Adds clubs to database
+// CreateClub godoc
+// @Summary Creates a new club
 // @Description Adds club to database
-// @ID ?
+// @ID clubtrack-create-club
 // @Tags clubtrack
 // @Accept  json
 // @Produce  json
-// @Param all query bool false "Get All Bulletins (no restriction on startDate, endDate)"
+// @Param createParams body clubtrak.ClubParams true "Create Club Params"
 // @Success 200 {array} models.Clubtrack
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
-// @Router /clubtrak [post]
-
-// Adds club to database
+// @Router clubtrak/clubs [post]
 func (t *Controller) CreateClub(c *gin.Context) {
 	// Bind create params
 	createData := ClubParams{}
@@ -37,6 +35,7 @@ func (t *Controller) CreateClub(c *gin.Context) {
 		t.RespondBadBind(c, err)
 		return
 	}
+
 	//TODO: Discuss User with Charlie
 	p1 := models.User{
 		Type:   models.UserTypeStudent,

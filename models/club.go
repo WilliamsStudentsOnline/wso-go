@@ -15,8 +15,6 @@ func NewClubModel(db *gorm.DB, log *zap.SugaredLogger) *ClubModel {
 	}
 }
 
-//Database Functions
-
 // Inserts new club into the database
 func (m *ClubModel) CreateClub(p *Club) (err error) {
 	err = m.DB.Create(p).Error
