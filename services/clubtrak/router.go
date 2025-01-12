@@ -17,6 +17,5 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	r.POST("/clubs", c.CreateClub)
 
 	//TODO: Discuss Testing with Charlie
-	r.GET("/testing", c.TestingClub)
 
 }

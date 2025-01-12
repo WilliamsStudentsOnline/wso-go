@@ -1,18 +1,14 @@
 package clubtrak
 
 import (
-	"net/http"
-
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/gin-gonic/gin"
 )
 
 type ClubParams struct {
-	Name         string `json:"name"`
-	Subscribers  int    `json:"Subscriber"`
-	Description  string `json:"description"`
-	MeetingTimes string `json:"meetingTimes"`
-	Events       string `json:"events"`
+	Name               string `json:"name"`
+	Subscribers        int    `json:"Subscriber"`
+	MeetingDescription string `json:"meetingDescription"`
 
 	// Belongs to user Some Club Leader
 	ClubID      uint         `json:"clubID"`
@@ -51,7 +47,7 @@ func (t *Controller) CreateClub(c *gin.Context) {
 	//Create a copy of the schema with relevent data for a given club
 	club := models.Club{
 		Subscribers:        createData.Subscribers,
-		MeetingDescription: createData.Description,
+		MeetingDescription: createData.MeetingDescription,
 		ClubAdmin:          createData.ClubID,
 		ClubAdminID:        &p1,
 		Name:               createData.Name,
@@ -65,23 +61,4 @@ func (t *Controller) CreateClub(c *gin.Context) {
 	}
 	t.RespondCreated(c, club)
 
-}
-
-func (t *Controller) TestingClub(c *gin.Context) {
-	p1 := models.User{
-		Type:   models.UserTypeStudent,
-		Name:   "Student 1",
-		UnixID: "s1",
-	}
-	c.JSON(http.StatusOK, p1)
-	club := models.Club{
-		Subscribers:        0,
-		MeetingDescription: "Test",
-		ClubAdmin:          700,
-		ClubAdminID:        &p1,
-		Name:               "Test",
-	}
-	c.JSON(http.StatusOK, club)
-	t.RespondCreated(c, club)
-	t.Log.Info("Testing Endpoint Reached")
 }
