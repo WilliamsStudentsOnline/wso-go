@@ -31,29 +31,29 @@ import (
 // @Security Bearer
 // @Router /factrak/professors [get]
 func (t *Controller) ListProfessors(c *gin.Context) {
-	// var profs []*models.User
-	// var err error
+	var profs []*models.User
+	var err error
 
 	opts := models.GetAllProfessorsOptions{}
-	// if err = c.ShouldBindQuery(&opts); err != nil {
-	// 	t.RespondBadBind(c, err)
-	// 	return
-	// }
+	if err = c.ShouldBindQuery(&opts); err != nil {
+		t.RespondBadBind(c, err)
+		return
+	}
 
-	// if query, ok := c.GetQuery("q"); ok {
-	// 	err = t.factrakSearch.SearchProfessors(query, &profs, &opts)
-	// } else if sort, ok := c.GetQuery("metric"); ok {
-	// 	err = t.professorModel.GetProfessorsRanked(sort, &profs, &opts)
-	// } else {
-	// 	err = t.professorModel.GetAllProfessors(&profs, &opts)
-	// }
+	if query, ok := c.GetQuery("q"); ok {
+		err = t.factrakSearch.SearchProfessors(query, &profs, &opts)
+	} else if sort, ok := c.GetQuery("metric"); ok {
+		err = t.professorModel.GetProfessorsRanked(sort, &profs, &opts)
+	} else {
+		err = t.professorModel.GetAllProfessors(&profs, &opts)
+	}
 
-	// if err != nil {
-	// 	t.RespondError(c, err)
-	// 	return
-	// }
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
 
-	t.RespondOK(c, opts)
+	t.RespondOK(c, profs)
 }
 
 // Get a professor. May pass an optional "?courseID=XX" parameter to limit preload (ProfessorFactrakSurveys)
