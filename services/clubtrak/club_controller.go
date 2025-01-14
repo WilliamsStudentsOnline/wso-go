@@ -29,7 +29,6 @@ type ClubParams struct {
 // @Router /clubtrak/clubs [post]
 func (t *Controller) CreateClub(c *gin.Context) {
 	// Bind create params
-	t.Log.Panic()
 	createData := ClubParams{}
 	err := c.ShouldBind(&createData)
 	if err != nil {
