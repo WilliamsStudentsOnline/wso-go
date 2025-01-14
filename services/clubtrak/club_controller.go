@@ -19,16 +19,17 @@ type ClubParams struct {
 // @Summary Creates a new club
 // @Description Adds club to database
 // @ID clubtrack-create-club
-// @Tags clubtrack
+// @Tags clubtrak
 // @Accept  json
 // @Produce  json
 // @Param createParams body clubtrak.ClubParams true "Create Club Params"
-// @Success 200 {array} models.Clubtrack
+// @Success 200 {array} models.Club
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
-// @Router clubtrak/clubs [post]
+// @Router /clubtrak/clubs [post]
 func (t *Controller) CreateClub(c *gin.Context) {
 	// Bind create params
+	t.Log.Panic()
 	createData := ClubParams{}
 	err := c.ShouldBind(&createData)
 	if err != nil {

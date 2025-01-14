@@ -145,6 +145,26 @@ definitions:
       offer:
         type: boolean
     type: object
+  clubtrak.ClubParams:
+    properties:
+      Subscriber:
+        type: integer
+      club:
+        allOf:
+        - $ref: '#/definitions/models.User'
+        description: Club leader's user struct assigned to ClubAdminID
+      clubID:
+        type: integer
+      meetingDescription:
+        type: string
+      name:
+        type: string
+    type: object
+  coursescheduler.CourseSelectionsString:
+    properties:
+      courses:
+        type: string
+    type: object
   dormtrak.DormRoomPhotoInfo:
     properties:
       dormRoomId:
@@ -682,6 +702,22 @@ definitions:
         $ref: '#/definitions/models.User'
       userID:
         description: Belongs to user
+        type: integer
+    type: object
+  models.Club:
+    properties:
+      clubAdmin:
+        description: Belongs to some club leader
+        type: integer
+      clubAdminID:
+        $ref: '#/definitions/models.User'
+      id:
+        type: integer
+      meetingDescription:
+        type: string
+      name:
+        type: string
+      subscribers:
         type: integer
     type: object
   models.Condition:
@@ -3871,6 +3907,98 @@ paths:
       summary: Get Chat Auth JWT token
       tags:
       - chat
+  /clubtrak/clubs:
+    post:
+      consumes:
+      - application/json
+      description: Adds club to database
+      operationId: clubtrack-create-club
+      parameters:
+      - description: Create Club Params
+        in: body
+        name: createParams
+        required: true
+        schema:
+          $ref: '#/definitions/clubtrak.ClubParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Club'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Creates a new club
+      tags:
+      - clubtrak
+  /course-selections/{userID}:
+    get:
+      consumes:
+      - application/json
+      description: get courses selected by a user as a string of area of study and
+        course ID
+      operationId: courseSchedulerSelections-persist-get
+      parameters:
+      - description: UserID
+        in: path
+        name: userID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/coursescheduler.CourseSelectionsString'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get user course selections
+      tags:
+      - course-scheduler
+    put:
+      consumes:
+      - application/json
+      description: set courses selected by a user as a string of area of study and
+        course ID
+      operationId: courseSchedulerSelections-persist-set
+      parameters:
+      - description: UserID
+        in: path
+        name: userID
+        required: true
+        type: integer
+      - description: Request body
+        in: body
+        name: courses
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Set user course selections
+      tags:
+      - course-scheduler
   /dormtrak/dorms:
     get:
       consumes:

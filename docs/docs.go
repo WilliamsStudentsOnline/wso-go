@@ -2793,6 +2793,147 @@ const docTemplate = `{
                 }
             }
         },
+        "/clubtrak/clubs": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Adds club to database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clubtrak"
+                ],
+                "summary": "Creates a new club",
+                "operationId": "clubtrack-create-club",
+                "parameters": [
+                    {
+                        "description": "Create Club Params",
+                        "name": "createParams",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/clubtrak.ClubParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Club"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/course-selections/{userID}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "get courses selected by a user as a string of area of study and course ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "course-scheduler"
+                ],
+                "summary": "Get user course selections",
+                "operationId": "courseSchedulerSelections-persist-get",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "UserID",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/coursescheduler.CourseSelectionsString"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "set courses selected by a user as a string of area of study and course ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "course-scheduler"
+                ],
+                "summary": "Set user course selections",
+                "operationId": "courseSchedulerSelections-persist-set",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "UserID",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Request body",
+                        "name": "courses",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/dormtrak/dorms": {
             "get": {
                 "security": [
@@ -8481,6 +8622,39 @@ const docTemplate = `{
                 }
             }
         },
+        "clubtrak.ClubParams": {
+            "type": "object",
+            "properties": {
+                "Subscriber": {
+                    "type": "integer"
+                },
+                "club": {
+                    "description": "Club leader's user struct assigned to ClubAdminID",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    ]
+                },
+                "clubID": {
+                    "type": "integer"
+                },
+                "meetingDescription": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "coursescheduler.CourseSelectionsString": {
+            "type": "object",
+            "properties": {
+                "courses": {
+                    "type": "string"
+                }
+            }
+        },
         "dormtrak.DormRoomPhotoInfo": {
             "type": "object",
             "properties": {
@@ -9255,6 +9429,30 @@ const docTemplate = `{
                 },
                 "userID": {
                     "description": "Belongs to user",
+                    "type": "integer"
+                }
+            }
+        },
+        "models.Club": {
+            "type": "object",
+            "properties": {
+                "clubAdmin": {
+                    "description": "Belongs to some club leader",
+                    "type": "integer"
+                },
+                "clubAdminID": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "meetingDescription": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "subscribers": {
                     "type": "integer"
                 }
             }
