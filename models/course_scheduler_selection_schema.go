@@ -26,6 +26,10 @@ type CourseSchedulerSelection struct {
 	CourseID *uint   `gorm:"not null" json:"courseID"` // Course object UUID as stored in courses table
 	Hidden   bool    `gorm:"not null" json:"hidden"`
 
+	// TODO NEED: professor
+	// TODO NEED: peoplesoft ID
+	// TODO WHY NOT: department ID
+
 	Semester SemesterType `gorm:"not null" json:"semester" enums:",SPRING,FALL,WINTER"`
 	Year     *uint        `gorm:"not null" json:"year"`
 }
