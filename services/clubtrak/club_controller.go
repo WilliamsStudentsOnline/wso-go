@@ -1,7 +1,9 @@
 package clubtrak
 
 import (
+	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
+	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
 )
 
@@ -28,6 +30,8 @@ type ClubParams struct {
 // @Security Bearer
 // @Router /clubtrak/clubs [post]
 func (t *Controller) CreateClub(c *gin.Context) {
+	userID := services.GetUserID(c)
+
 	// Bind create params
 	createData := ClubParams{}
 	err := c.ShouldBind(&createData)
@@ -36,11 +40,26 @@ func (t *Controller) CreateClub(c *gin.Context) {
 		return
 	}
 
-	//TODO: Discuss User with Charlie
-	p1 := models.User{
-		Type:   models.UserTypeStudent,
-		Name:   "Student 1",
-		UnixID: "s1",
+	//Check that User exists
+	//user := new(models.User)
+	// if err = t.userModel.GetUserByID(userID, user); err != nil {
+	// 	// Don't return 404; instead, return authed user not found
+	// 	if gorm.IsRecordNotFoundError(err) {
+	// 		c.Set(services.UpdateTokenKey, true)
+	// 		err = lib.ErrorAuthedUserNotFound
+	// 	}
+
+	// 	t.RespondError(c, err)
+	// 	return
+	// }
+	if boo, err := t.userModel.DoesUserExist(userID); err != nil {
+		t.RespondError(c, err)
+		return
+
+	} else if !boo {
+		err := lib.ErrorAuthedUserNotFound
+		t.RespondErrorCode(c, 500, err)
+		return
 	}
 
 	//Create a copy of the schema with relevent data for a given club
@@ -48,8 +67,8 @@ func (t *Controller) CreateClub(c *gin.Context) {
 		Subscribers:        createData.Subscribers,
 		MeetingDescription: createData.MeetingDescription,
 		ClubAdmin:          createData.ClubID,
-		ClubAdminID:        &p1,
-		Name:               createData.Name,
+		//ClubAdminID:        user,
+		Name: createData.Name,
 	}
 
 	//Call create function to update database
@@ -59,5 +78,21 @@ func (t *Controller) CreateClub(c *gin.Context) {
 		return
 	}
 	t.RespondCreated(c, club)
+
+}
+
+// GetAllClubs godoc
+// @Summary Lists all clubs
+// @Description Lists all clubs in the database
+// @ID clubtrack-get-all-clubs
+// @Tags clubtrak
+// @Accept  json
+// @Produce  json
+// @Param createParams body clubtrak.ClubParams true "Create Club Params"
+// @Success 200 {array} models.Club
+// @Failure 500 {object} services.BaseErrorResponse
+// @Security Bearer
+// @Router /clubtrak/clubs [post]
+func (t *Controller) GetAllClubs(c *gin.Context) {
 
 }

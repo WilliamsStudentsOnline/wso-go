@@ -6,7 +6,7 @@ import (
 	"gopkg.in/gormigrate.v1"
 )
 
-var CreateClubTrakTable = &gormigrate.Migration{
+var CreateClubtrakTable = &gormigrate.Migration{
 	ID: "20250111153045_create_club",
 	Migrate: func(tx *gorm.DB) error {
 		return tx.AutoMigrate(&models.Club{}).Error

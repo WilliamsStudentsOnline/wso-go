@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
@@ -24,9 +25,15 @@ func TestController_CreateClub(t *testing.T) {
 
 	//TODO: Discuss more efficicent use of User
 	u1 := models.User{
-		Name:   "Drake",
-		UnixID: "dr25",
+		Type:       models.UserTypeStudent,
+		Name:       "User 1",
+		UnixID:     "u1",
+		Visible:    lib.BoolToPtr(true),
+		AtWilliams: lib.BoolToPtr(true),
 	}
+
+	assert.NoError(db.Create(&u1).Error)
+	utils.AddUserContexts(router, u1.ID)
 
 	//Create Club Params
 	params := ClubParams{

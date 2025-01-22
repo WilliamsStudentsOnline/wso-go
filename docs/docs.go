@@ -2800,7 +2800,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "Adds club to database",
+                "description": "Lists all clubs in the database",
                 "consumes": [
                     "application/json"
                 ],
@@ -2810,8 +2810,8 @@ const docTemplate = `{
                 "tags": [
                     "clubtrak"
                 ],
-                "summary": "Creates a new club",
-                "operationId": "clubtrack-create-club",
+                "summary": "Lists all clubs",
+                "operationId": "clubtrack-get-all-clubs",
                 "parameters": [
                     {
                         "description": "Create Club Params",
@@ -9436,12 +9436,21 @@ const docTemplate = `{
         "models.Club": {
             "type": "object",
             "properties": {
+                "category": {
+                    "type": "string"
+                },
                 "clubAdmin": {
                     "description": "Belongs to some club leader",
                     "type": "integer"
                 },
                 "clubAdminID": {
                     "$ref": "#/definitions/models.User"
+                },
+                "clubDescription": {
+                    "type": "string"
+                },
+                "clubPhoto": {
+                    "type": "string"
                 },
                 "id": {
                     "type": "integer"

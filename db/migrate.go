@@ -53,7 +53,7 @@ var Migrations = []*gormigrate.Migration{
 	migrations.LookingForColumn20220504015544,
 	migrations.CreateBookListings20221224071254,
 	migrations.CreateBooks20221230032200,
-	migrations.CreateClubTrakTable,
+	migrations.CreateClubtrakTable,
 }
 
 var MigrationGormOptions = gormigrate.DefaultOptions

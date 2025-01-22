@@ -706,11 +706,17 @@ definitions:
     type: object
   models.Club:
     properties:
+      category:
+        type: string
       clubAdmin:
         description: Belongs to some club leader
         type: integer
       clubAdminID:
         $ref: '#/definitions/models.User'
+      clubDescription:
+        type: string
+      clubPhoto:
+        type: string
       id:
         type: integer
       meetingDescription:
@@ -3911,8 +3917,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: Adds club to database
-      operationId: clubtrack-create-club
+      description: Lists all clubs in the database
+      operationId: clubtrack-get-all-clubs
       parameters:
       - description: Create Club Params
         in: body
@@ -3935,7 +3941,7 @@ paths:
             $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
-      summary: Creates a new club
+      summary: Lists all clubs
       tags:
       - clubtrak
   /course-selections/{userID}:

@@ -12,6 +12,7 @@ type Controller struct {
 	services.BaseController
 	// Put models here:
 	clubModel *models.ClubModel
+	userModel *models.UserModel
 }
 
 func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Controller {
