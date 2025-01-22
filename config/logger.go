@@ -3,10 +3,12 @@ package config
 import (
 	"fmt"
 	"math"
+	"strings"
 	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
+	"github.com/mileusna/useragent"
 	"go.uber.org/zap"
 )
 
@@ -59,6 +61,12 @@ func Logger(log *zap.SugaredLogger) gin.HandlerFunc {
 			path+queryUrl,
 			statusCode,
 			latency)
+
+		// Prometheus hooks and error messages
+		requestCounter.Inc()
+		pathRequest.WithLabelValues(path, query)
+
+		// Log error code of messages
 		if statusCode >= 500 {
 			errorCounter.Inc()
 			entry.Error(msg)
@@ -69,5 +77,40 @@ func Logger(log *zap.SugaredLogger) gin.HandlerFunc {
 			successCounter.Inc()
 			entry.Info(msg)
 		}
+
+		// Device type
+		ua := useragent.Parse(clientUserAgent)
+		if ua.Mobile {
+			mobileCounter.Inc()
+		} else if ua.Bot {
+			botCounter.Inc()
+		} else if ua.Desktop {
+			desktopCounter.Inc()
+		} else {
+			if strings.Contains(ua.Name, "curl") || strings.Contains(ua.Name, "wget") {
+				botCounter.Inc()
+			} else {
+				log.Warn("Unknown user agent detected")
+			}
+		}
+
+		// Browser type
+		switch ua.Name {
+		case "Safari":
+			safariCounter.Inc()
+		case "Internet Explorer":
+			ieCounter.Inc()
+		case "Edge":
+			edgeCounter.Inc()
+		case "Firefox":
+			firefoxCounter.Inc()
+		case "Chrome":
+			chromeCounter.Inc()
+		case "Opera":
+			operaCounter.Inc()
+		}
+
+		latencyGauge.Set(float64(latency))
+		// TODO: histogram for the request URL maybe?
 	}
 }
