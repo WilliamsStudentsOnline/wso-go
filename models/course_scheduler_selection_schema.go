@@ -32,7 +32,7 @@ type CourseSchedulerSelection struct {
 
 	PeoplesoftID *uint `gorm:"not null" json:"peoplesoftID"`
 
-	DepartmentID *uint `gorm:"not null" json:"departmentID"`
+	Department *string `gorm:"not null" json:"department"` // String representing the shortened department name eg AAS
 
 	Semester SemesterType `gorm:"not null" json:"semester" enums:",SPRING,FALL,WINTER"`
 	Year     *uint        `gorm:"not null" json:"year"`
