@@ -28,11 +28,11 @@ type CourseSchedulerSelection struct {
 
 	// Professor information
 	ProfessorID *uint `gorm:"index:index_professor_id;not null" json:"professorID"`
-	Professor   *User `gorm:"foreignkey:ProfessorID" json:"professor,omitempty"`
+	Professor   *User `gorm:"foreignKey:ProfessorID" json:"professor,omitempty"`
 
-	PeoplesoftID *uint `gorm:"not null" json:"PeoplesoftID"`
+	PeoplesoftID *uint `gorm:"not null" json:"peoplesoftID"`
 
-	DepartmentID *uint `gorm:"not null" json:"DepartmentID"`
+	DepartmentID *uint `gorm:"not null" json:"departmentID"`
 
 	Semester SemesterType `gorm:"not null" json:"semester" enums:",SPRING,FALL,WINTER"`
 	Year     *uint        `gorm:"not null" json:"year"`
