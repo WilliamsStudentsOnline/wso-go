@@ -132,14 +132,6 @@ commit: jobs/dorms_update/cmd/data.go docs/docs.go fmt services/*/responses/*.go
 run-dev: $(BINARY_NAME)
 	./$(BINARY_NAME) --development
 
-.PHONY: run-verbose
-run-verbose: $(BINARY_NAME)
-	./$(BINARY_NAME) --verbose
-
-.PHONY: clean
-clean:
-	rm $(BINARY_NAME)
-
 .PHONY: test
 test:
 	go test -race ./...

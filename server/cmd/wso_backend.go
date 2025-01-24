@@ -28,20 +28,15 @@ func main() {
 	/* Flags */
 	var configPath string
 	var doDevelopment bool
-	var beVerbose bool
 
 	// Command-line flags
 	// Note: these can be overridden by env vars
 	flag.StringVar(&configPath, "config", "", "path to config file")
 	flag.BoolVar(&doDevelopment, "development", false, "use development config")
-	flag.BoolVar(&beVerbose, "verbose", false, "enable log output to both standard output and syslog (for debugging logging)")
-
 	flag.Parse()
 
 	if doDevelopment && configPath == "" {
 		configPath = filepath.Join("config", "environment", "development.yaml")
-	} else if beVerbose && configPath == "" {
-		configPath = filepath.Join("config", "environment", "verbose.yaml")
 	}
 
 	/* Config */
@@ -58,9 +53,6 @@ func main() {
 		return
 	}
 	defer log.Sync()
-	if beVerbose {
-		log.Debug("note: logs will be extra verbose")
-	}
 
 	/* DATABASE */
 	dbLog := log.Named("database")
