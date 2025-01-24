@@ -1,0 +1,24 @@
+##### WSO-Backend WSO 2.0 #####
+
+# Prometheus configuration file
+# run by using: prometheus --config.file=prometheus.yml
+global:
+  scrape_interval: 10s # Set the scrape interval to every 10 seconds. 
+  evaluation_interval: 10s # Evaluate rules every 10 seconds.
+
+# Disabling Alertmanager
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - alertmanager:9093
+
+# Scraping from WSO-Backend and node.
+# Endpoint is at /metrics. Example: "http://localhost:2112/metrics"
+scrape_configs:
+  - job_name: "wso-go"
+    static_configs:
+      - targets: ["localhost:2112"]
+  - job_name: "node"
+    static_configs:
+      - targets: ["localhost:9120"]
