@@ -19,5 +19,6 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 	return &Controller{
 		BaseController: services.BaseController{Log: log},
 		clubModel:      models.NewClubModel(db, log),
+		userModel:      models.NewUserModel(db, log),
 	}
 }

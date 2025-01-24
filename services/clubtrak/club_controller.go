@@ -5,6 +5,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 )
 
 type ClubParams struct {
@@ -39,26 +40,16 @@ func (t *Controller) CreateClub(c *gin.Context) {
 		t.RespondBadBind(c, err)
 		return
 	}
-
 	//Check that User exists
-	//user := new(models.User)
-	// if err = t.userModel.GetUserByID(userID, user); err != nil {
-	// 	// Don't return 404; instead, return authed user not found
-	// 	if gorm.IsRecordNotFoundError(err) {
-	// 		c.Set(services.UpdateTokenKey, true)
-	// 		err = lib.ErrorAuthedUserNotFound
-	// 	}
+	user := new(models.User)
+	if err = t.userModel.GetUserByID(userID, user); err != nil {
+		// Don't return 404; instead, return authed user not found
+		if gorm.IsRecordNotFoundError(err) {
+			c.Set(services.UpdateTokenKey, true)
+			err = lib.ErrorAuthedUserNotFound
+		}
 
-	// 	t.RespondError(c, err)
-	// 	return
-	// }
-	if boo, err := t.userModel.DoesUserExist(userID); err != nil {
 		t.RespondError(c, err)
-		return
-
-	} else if !boo {
-		err := lib.ErrorAuthedUserNotFound
-		t.RespondErrorCode(c, 500, err)
 		return
 	}
 
@@ -67,10 +58,9 @@ func (t *Controller) CreateClub(c *gin.Context) {
 		Subscribers:        createData.Subscribers,
 		MeetingDescription: createData.MeetingDescription,
 		ClubAdmin:          createData.ClubID,
-		//ClubAdminID:        user,
-		Name: createData.Name,
+		ClubAdminID:        user,
+		Name:               createData.Name,
 	}
-
 	//Call create function to update database
 	err = t.clubModel.CreateClub(&club)
 	if err != nil {
@@ -88,11 +78,12 @@ func (t *Controller) CreateClub(c *gin.Context) {
 // @Tags clubtrak
 // @Accept  json
 // @Produce  json
-// @Param createParams body clubtrak.ClubParams true "Create Club Params"
+// @Param offset query int false "Offset Pagination"
+// @Param limit query int false "Limit Pagination"
 // @Success 200 {array} models.Club
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
-// @Router /clubtrak/clubs [post]
+// @Router /clubtrak/clubs [get]
 func (t *Controller) GetAllClubs(c *gin.Context) {
 
 }
