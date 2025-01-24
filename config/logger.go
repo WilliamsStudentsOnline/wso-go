@@ -64,7 +64,7 @@ func Logger(log *zap.SugaredLogger) gin.HandlerFunc {
 
 		// Prometheus hooks and error messages
 		requestCounter.Inc()
-		pathRequest.WithLabelValues(path, query)
+		pathRequest.WithLabelValues(path).Inc()
 
 		// Log error code of messages
 		if statusCode >= 500 {
@@ -111,6 +111,5 @@ func Logger(log *zap.SugaredLogger) gin.HandlerFunc {
 		}
 
 		latencyGauge.Set(float64(latency))
-		// TODO: histogram for the request URL maybe?
 	}
 }
