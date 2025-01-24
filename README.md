@@ -31,6 +31,12 @@ If you want to remove the container:
 
 All data is lost when a container is removed. For data persistence, use the flag `-v /absolute/path/on/your/computer/:data` on `docker run` to dump data to a path of your choice.
 
+### Grafana and Prometheus
+
+wso-go can be run with Grafana and Prometheus to improve the quality and accessiblity of logs. This feature is non-critical and you do not need to use it. To install Grafana and Prometheus, you should read this[https://grafana.com/docs/grafana/latest/setup-grafana/installation/debian/] site for Grafana and this[https://prometheus.io/docs/prometheus/latest/installation/] site for Prometheus. Open source version of both can be installed using a package manager like `apt-get` or `brew`. Please also install the package `prometheus-node-exporter`, or else many Grafana graphs will not work correctly.
+
+Once you have these packages installed, you can optionally install the Grafana config files to your system Grafana directory by running `grafana-install` as root in the `prod_files/` directory. To run them alongside wso-go, run the command `make run-with-analytics`. This should autostart the servers. Grafana is accessible on port 3000 through a browser, and Prometheus is configured to run on port 2112 and 9120 (the first is for wso-go and the other is for `node-exporter`, which lets Grafana see statistics about system performance). To login to Grafana for the first time, use the username `wso-admin` and the password `wso-admin`.
+
 ### Current Go Version: 1.21
 It is worth noting that you should install Go via the official site, not a package repository like `apt-get` or `brew`, which often have outdated versions. You can find info on how to install Go [here](https://golang.org/doc/install).
 
