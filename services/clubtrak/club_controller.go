@@ -1,6 +1,8 @@
 package clubtrak
 
 import (
+	"net/http"
+
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
@@ -106,5 +108,44 @@ func (t *Controller) GetAllClubs(c *gin.Context) {
 	}
 
 	t.RespondOK(c, clubs)
+
+}
+
+// DeleteClub godoc
+// @Summary Deletes a Club
+// @Description Deletes a Club given a clubID
+// @ID clubtrack-delete-club
+// @Tags clubtrak
+// @Accept  json
+// @Produce  json
+// @Param clubID path uint true "Discussion ID"
+// @Success 200 {object} models.Club
+// @Failure 500 {object} services.BaseErrorResponse
+// @Security Bearer
+// @Router /clubtrak/clubs/:clubID [delete]
+func (t *Controller) DeleteClub(c *gin.Context) {
+	// Get clubID
+	clubID, err := services.GetUIntParam(c, "clubID")
+	if err != nil {
+		t.RespondErrorCode(c, http.StatusBadRequest, err)
+		return
+	}
+
+	var club models.Club
+	var opts models.Options
+	err = t.clubModel.GetClubByID(clubID, &club, opts)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	// Delete discussion
+	err = t.clubModel.DeleteClub(&club)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	t.RespondOK(c, club)
 
 }

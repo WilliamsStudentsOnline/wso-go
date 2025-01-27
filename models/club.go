@@ -69,3 +69,37 @@ func (m *ClubModel) CreateClub(p *Club) (err error) {
 	}
 	return
 }
+
+// Returns specfied Club
+func (m *ClubModel) GetClubByID(id uint, c *Club, opts Options) (err error) {
+	db := m.DB
+	if opts != nil {
+		db = opts.Run(db)
+	}
+	err = db.First(c, id).Error
+	return
+}
+
+// Deletes club
+func (m *ClubModel) DeleteClub(c *Club) (err error) {
+	tx := m.DB.Begin()
+
+	if err = tx.Error; err != nil {
+		return
+	}
+
+	err = tx.Where("clubs.id = ?", c.ID).Delete(&Club{}).Error
+	if err != nil {
+		tx.Rollback()
+		return
+	}
+
+	err = tx.Delete(c).Error
+	if err != nil {
+		tx.Rollback()
+		return
+	}
+
+	err = tx.Commit().Error
+	return
+}
