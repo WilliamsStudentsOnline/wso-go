@@ -15,7 +15,7 @@ func NewCommunitySurveyModel(db *gorm.DB, log *zap.SugaredLogger) *CommunitySurv
 	}
 }
 
-type getAllCommunitySurveyOptions struct {
+type GetAllCommunitySurveyOptions struct {
 	//offset is ignored unless limit is applied
 	Offset *uint `json:"offset" form:"offset"`
 	Limit  *uint `json:"limit" form:"limit"`
@@ -29,11 +29,11 @@ type getAllCommunitySurveyOptions struct {
 	Preload []string `json:"preload" form:"preload[]"`
 }
 
-func (o *getAllCommunitySurveyOptions) Order(db *gorm.DB) *gorm.DB {
+func (o *GetAllCommunitySurveyOptions) Order(db *gorm.DB) *gorm.DB {
 	return db.Order("community_survey.created_at DESC")
 }
 
-func (o *getAllCommunitySurveyOptions) Paginate(db *gorm.DB) *gorm.DB {
+func (o *GetAllCommunitySurveyOptions) Paginate(db *gorm.DB) *gorm.DB {
 	db = o.Order(db)
 	if o.Limit != nil {
 		db = db.Limit(*o.Limit)
@@ -44,29 +44,20 @@ func (o *getAllCommunitySurveyOptions) Paginate(db *gorm.DB) *gorm.DB {
 	return db
 }
 
-func (o *getAllCommunitySurveyOptions) Preloader(db *gorm.DB) *gorm.DB {
+func (o *GetAllCommunitySurveyOptions) Preloader(db *gorm.DB) *gorm.DB {
 	if o.Preload == nil {
 		return db
 	}
-	CommunitySurveyModel := NewCommunitySurveyModel(nil, nil)
-	if stringsContains(o.Preload, "affiliate") {
-		db = CommunitySurveyModel.preloadUser(db)
+	if stringsContains(o.Preload, "user") {
+		db = db.Preload("User")
 	}
 	if stringsContains(o.Preload, "survey") {
-		db = CommunitySurveyModel.preloadSurvey(db)
+		db = db.Preload("Survey")
 	}
 	return db
 }
 
-func (m *CommunitySurveyModel) preloadUser(db *gorm.DB) *gorm.DB {
-	return db.Preload("Affiliate")
-}
-
-func (m *CommunitySurveyModel) preloadSurvey(db *gorm.DB) *gorm.DB {
-	return db.Preload("Survey")
-}
-
-func (o *getAllCommunitySurveyOptions) Run(db *gorm.DB) *gorm.DB {
+func (o *GetAllCommunitySurveyOptions) Run(db *gorm.DB) *gorm.DB {
 	db = o.Preloader(db)
 	m := NewCommunitySurveyModel(db.New(), nil)
 	if o.UserID != nil {
@@ -99,7 +90,7 @@ func (M *CommunitySurveyModel) withAnswerCount(answerCount uint) func(*gorm.DB) 
 	}
 }
 
-func (m *CommunitySurveyModel) GetAllCommunitySurvey(c *[]*CommunitySurvey, opts *getAllCommunitySurveyOptions) (err error) {
+func (m *CommunitySurveyModel) GetAllCommunitySurvey(c *[]*CommunitySurvey, opts *GetAllCommunitySurveyOptions) (err error) {
 	db := m.DB
 	if opts != nil {
 		db = opts.Paginate(db)
@@ -107,5 +98,29 @@ func (m *CommunitySurveyModel) GetAllCommunitySurvey(c *[]*CommunitySurvey, opts
 	}
 
 	err = db.Find(c).Error
+	return
+}
+
+func (m *CommunitySurveyModel) CreateCommunitySurvey(c *CommunitySurvey) (err error) {
+	err = m.DB.Create(c).Error
+	if err != nil {
+		return err
+	}
+	err = m.DB.Find(c).Error
+	return
+}
+
+func (m *CommunitySurveyModel) GetCommunitySurveyByID(id uint, c *CommunitySurvey) (err error) {
+	err = m.DB.First(c, id).Error
+	return
+}
+
+func (m *CommunitySurveyModel) UpdateCommunitySurvey(c *CommunitySurvey) (err error) {
+	err = m.DB.Save(c).Error
+	return
+}
+
+func (m *CommunitySurveyModel) DeleteCommunitySurvey(c *CommunitySurvey) (err error) {
+	err = m.DB.Delete(c).Error
 	return
 }
