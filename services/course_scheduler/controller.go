@@ -73,6 +73,9 @@ type CourseSchedulerSelectionCreateParams struct {
 	Year     uint                `json:"year" binding:"required"`
 	CourseID uint                `json:"courseID" binding:"required"`
 	Hidden   bool                `json:"hidden"`
+	ProfessorID uint 			 `json:"professorID" binding:"required"`
+	PeoplesoftID uint 			 `json:"peoplesoftID" binding:"required"`
+	Department string 			 `json:"department" binding:"required"`
 }
 
 // Add one courseSchedulerSelection entry
