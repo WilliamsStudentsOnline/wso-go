@@ -51,3 +51,13 @@ func TestController_CreateClub(t *testing.T) {
 	assert.Equal(http.StatusCreated, w.Code)
 
 }
+
+func TestController_GetAllClubs(t *testing.T) {
+	// Setup (can copy and paste this basically)
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+	router := utils.SetupRouter(auth.ScopeUsers)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+
+}

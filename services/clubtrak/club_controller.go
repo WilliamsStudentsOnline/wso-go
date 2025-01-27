@@ -85,5 +85,26 @@ func (t *Controller) CreateClub(c *gin.Context) {
 // @Security Bearer
 // @Router /clubtrak/clubs [get]
 func (t *Controller) GetAllClubs(c *gin.Context) {
+	var clubs []*models.Club
+	var err error
+
+	opts := models.GetAllClubsOptions{}
+	if err = c.ShouldBindQuery(&opts); err != nil {
+		t.RespondBadBind(c, err)
+		return
+	}
+
+	if query, ok := c.GetQuery("q"); ok {
+		err = t.clubtrakSearch.SearchClubs(query, &clubs, &opts)
+	} else {
+		err = t.clubModel.GetAllClubs(&clubs, &opts)
+	}
+
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	t.RespondOK(c, clubs)
 
 }
