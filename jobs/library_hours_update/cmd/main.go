@@ -10,7 +10,7 @@ import (
 func main() {
 	var out string
 
-	flag.StringVar(&out, "out", "library_hours.json", "path to output")
+	flag.StringVar(&out, "out", "library-hours.json", "path to output")
 
 	flag.Parse()
 
