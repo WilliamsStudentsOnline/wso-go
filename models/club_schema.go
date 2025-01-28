@@ -8,7 +8,7 @@ type Club struct {
 	Subscribers        int    `json:"subscribers"`
 	MeetingDescription string `json:"meetingDescription"`
 	ClubDescription    string `json:"clubDescription"`
-	ClubPhoto          string `json:"clubPhoto"`
+	ClubPhotoFilePath  string `json:"clubPhotoFilePath"`
 
 	// Belongs to some club leader
 	ClubAdmin   uint  `json:"clubAdmin"`

@@ -160,6 +160,26 @@ definitions:
       name:
         type: string
     type: object
+  clubtrak.ReviewUpdateParams:
+    properties:
+      category:
+        type: string
+      clubAdmin:
+        description: Belongs to some club leader
+        type: integer
+      clubAdminID:
+        $ref: '#/definitions/models.User'
+      clubDescription:
+        type: string
+      clubPhoto:
+        type: string
+      meetingDescription:
+        type: string
+      name:
+        type: string
+      subscribers:
+        type: integer
+    type: object
   coursescheduler.CourseSelectionsString:
     properties:
       courses:
@@ -715,7 +735,7 @@ definitions:
         $ref: '#/definitions/models.User'
       clubDescription:
         type: string
-      clubPhoto:
+      clubPhotoFilePath:
         type: string
       id:
         type: integer
@@ -3914,11 +3934,47 @@ paths:
       tags:
       - chat
   /clubtrak/clubs:
-    post:
+    get:
       consumes:
       - application/json
       description: Lists all clubs in the database
       operationId: clubtrack-get-all-clubs
+      parameters:
+      - description: Offset Pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      - description: Search Query
+        in: query
+        name: q
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Club'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Lists all clubs
+      tags:
+      - clubtrak
+    post:
+      consumes:
+      - application/json
+      description: Adds club to database
+      operationId: clubtrack-create-club
       parameters:
       - description: Create Club Params
         in: body
@@ -3941,7 +3997,68 @@ paths:
             $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
-      summary: Lists all clubs
+      summary: Creates a new club
+      tags:
+      - clubtrak
+  /clubtrak/clubs/:clubID:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a Club given a clubID
+      operationId: clubtrack-delete-club
+      parameters:
+      - description: Club ID
+        in: path
+        name: clubID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Club'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Deletes a Club
+      tags:
+      - clubtrak
+    patch:
+      consumes:
+      - application/json
+      description: Updates any of the data shown on a given club's webpage
+      operationId: clubtrack-update-club
+      parameters:
+      - description: Club ID
+        in: path
+        name: clubID
+        required: true
+        type: integer
+      - description: Update Club Params
+        in: body
+        name: updateParams
+        required: true
+        schema:
+          $ref: '#/definitions/clubtrak.ReviewUpdateParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Club'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Updates Club column
       tags:
       - clubtrak
   /course-selections/{userID}:

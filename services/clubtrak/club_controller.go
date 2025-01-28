@@ -82,6 +82,7 @@ func (t *Controller) CreateClub(c *gin.Context) {
 // @Produce  json
 // @Param offset query int false "Offset Pagination"
 // @Param limit query int false "Limit Pagination"
+// @Param q query string false "Search Query"
 // @Success 200 {array} models.Club
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -147,5 +148,48 @@ func (t *Controller) DeleteClub(c *gin.Context) {
 	}
 
 	t.RespondOK(c, club)
+
+}
+
+type ReviewUpdateParams struct {
+	Name               string `json:"name"`
+	Category           string `json:"category"`
+	Subscribers        int    `json:"subscribers"`
+	MeetingDescription string `json:"meetingDescription"`
+	ClubDescription    string `json:"clubDescription"`
+	ClubPhoto          string `json:"clubPhoto"`
+
+	// Belongs to some club leader
+	ClubAdmin   uint         `json:"clubAdmin"`
+	ClubAdminID *models.User `json:"clubAdminID,omitempty"`
+}
+
+// UpdateClub godoc
+// @Summary Updates Club column
+// @Description Updates any of the data shown on a given club's webpage
+// @ID clubtrack-update-club
+// @Tags clubtrak
+// @Accept  json
+// @Produce  json
+// @Param clubID path uint true "Club ID"
+// @Param updateParams body clubtrak.ReviewUpdateParams true "Update Club Params"
+// @Success 200 {object} models.Club
+// @Failure 500 {object} services.BaseErrorResponse
+// @Security Bearer
+// @Router /clubtrak/clubs/:clubID [patch]
+func (t *Controller) UpdateClub(c *gin.Context) {
+	clubID, err := services.GetUIntParam(c, "clubID")
+	if err != nil {
+		t.RespondErrorCode(c, http.StatusBadRequest, err)
+		return
+	}
+
+	var club models.Club
+	var opts models.Options
+	err = t.clubModel.GetClubByID(clubID, &club, opts)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
 
 }
