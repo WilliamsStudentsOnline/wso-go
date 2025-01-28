@@ -118,7 +118,7 @@ func (t *Controller) GetAllClubs(c *gin.Context) {
 // @Tags clubtrak
 // @Accept  json
 // @Produce  json
-// @Param clubID path uint true "Discussion ID"
+// @Param clubID path uint true "Club ID"
 // @Success 200 {object} models.Club
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -139,7 +139,7 @@ func (t *Controller) DeleteClub(c *gin.Context) {
 		return
 	}
 
-	// Delete discussion
+	// Delete club
 	err = t.clubModel.DeleteClub(&club)
 	if err != nil {
 		t.RespondError(c, err)

@@ -70,7 +70,7 @@ func (m *ClubModel) CreateClub(p *Club) (err error) {
 	return
 }
 
-// Returns specfied Club
+// Returns specfied club
 func (m *ClubModel) GetClubByID(id uint, c *Club, opts Options) (err error) {
 	db := m.DB
 	if opts != nil {
