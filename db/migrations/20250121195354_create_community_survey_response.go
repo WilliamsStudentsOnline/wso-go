@@ -19,14 +19,20 @@ var CreateCommunitySurveyResponse20250121195354 = &gormigrate.Migration{
 		// so side effects are prevented if the original struct changes during the time.
 		// But, when the table already exists, it just adds new fields as columns, so just have a struct
 		// with those fields.
-		type CommunitySurveyResponseModel struct {
+		type CommunitySurveyResponse struct {
 			models.BaseSchema
+
+			UserID uint `gorm:"index:index_survey_user_id;not null" json:"userID"`
+
+			SurveyID uint `gorm:"index:index_survey_id;not null" json:"surveyID"`
+
+			Response string `gorm:"size:65535" json:"response"`
 		}
-		return tx.AutoMigrate(&CommunitySurveyResponseModel{}).Error
+		return tx.AutoMigrate(&CommunitySurveyResponse{}).Error
 	},
 	Rollback: func(tx *gorm.DB) error {
 		// TODO: do one of these, remove the other
 		// For a new table,
-		return tx.DropTable("community_survey_response").Error
+		return tx.DropTable("community_survey_responses").Error
 	},
 }

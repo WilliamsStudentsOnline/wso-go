@@ -29,7 +29,7 @@ type GetAllCommunitySurveyResponseOptions struct {
 }
 
 func (o *GetAllCommunitySurveyResponseOptions) Order(db *gorm.DB) *gorm.DB {
-	return db.Order("community_survey_response.created_at DESC")
+	return db.Order("community_survey_responses.created_at DESC")
 }
 
 func (o *GetAllCommunitySurveyResponseOptions) Paginate(db *gorm.DB) *gorm.DB {
@@ -56,7 +56,7 @@ func (o *GetAllCommunitySurveyResponseOptions) Preloader(db *gorm.DB) *gorm.DB {
 	return db
 }
 
-func (m *CommunitySurveyResponseModel) GetAllCommunitySurveyResponse(c *[]*CommunitySurveyResponse, opts *GetAllCommunitySurveyResponseOptions) (err error) {
+func (m *CommunitySurveyResponseModel) GetAllCommunitySurveyResponses(c *[]*CommunitySurveyResponse, opts *GetAllCommunitySurveyResponseOptions) (err error) {
 	db := m.DB
 	if opts != nil {
 		db = opts.Paginate(db)
@@ -100,7 +100,7 @@ func (m *CommunitySurveyResponseModel) CreateCommunitySurveyResponse(c *Communit
 	return
 }
 
-func (m *CommunitySurveyResponseModel) GetCommunitySurveyResponse(id uint, c *CommunitySurveyResponse) (err error) {
+func (m *CommunitySurveyResponseModel) GetCommunitySurveyResponseByID(id uint, c *CommunitySurveyResponse) (err error) {
 	err = m.DB.First(c, id).Error
 	return
 }

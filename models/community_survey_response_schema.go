@@ -3,8 +3,8 @@ package models
 type CommunitySurveyResponse struct {
 	BaseSchema
 
-	UserID uint  `gorm:"index:index_user_id;not null" json:"userID"`
-	User   *User `json:"user"`
+	UserID uint  `gorm:"index:index_survey_user_id;not null" json:"userID"`
+	User   *User `gorm:"foreignKey:UserID" json:"user"`
 
 	SurveyID uint             `gorm:"index:index_survey_id;not null" json:"surveyID"`
 	Survey   *CommunitySurvey `gorm:"foreignKey:SurveyID" json:"survey"`
