@@ -10,7 +10,7 @@ var (
 		Name: "wso_backend_path_requested",
 		Help: "The total number of times each endpoint is contacted",
 	},
-		[]string{"endpoint", "method"},
+		[]string{"endpoint"},
 	)
 	requestCounter = promauto.NewCounter(prometheus.CounterOpts{
 		Name: "wso_backend_request_processed_total",
