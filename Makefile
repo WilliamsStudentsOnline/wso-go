@@ -134,7 +134,7 @@ run-dev: $(BINARY_NAME)
 
 .PHONY: run-with-analytics
 run-with-analytics: $(BINARY_NAME)
-	bash ./prod_files/run-analytics.sh
+	bash ./prod_files/run-analytics.sh &
 	./$(BINARY_NAME) --development
 
 .PHONY: test

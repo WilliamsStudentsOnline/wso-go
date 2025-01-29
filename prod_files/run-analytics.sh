@@ -53,7 +53,7 @@ export GF_DATABASE_PATH="$GRAFANA_DB_PATH"
 
 # Start Prometheus
 echo "Starting Prometheus..."
-prometheus --config.file="$PROMETHEUS_CONFIG" --storage.tsdb.path="$PROMETHEUS_STORAGE_PATH" 2>&1 --storage.tsbd.retention.time=60d | tee "$PROD_DIR/prometheus.log" &
+prometheus --config.file="$PROMETHEUS_CONFIG" --storage.tsdb.path="$PROMETHEUS_STORAGE_PATH" 2>&1 --storage.tsdb.retention.time=60d --web.config.file=prometheus-basicauth.yml | tee "$PROD_DIR/prometheus.log" &
 PROMETHEUS_PID=$!
 sleep 3  # Allow Prometheus to initialize
 if ! ps -p "$PROMETHEUS_PID" > /dev/null; then

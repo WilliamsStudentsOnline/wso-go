@@ -5,7 +5,8 @@
 # Run Prometheus with: prometheus --web.config.file=prometheus-basicauth.yml
 
 basic_auth_users:
-  admin: # Your bcrypt password here!
+  admin: $2a$12$hSCVcpzlArr0kmKPS3xRPejXKb0QH.tPIUhItYbI4hw2pc.2M48LO
+  # password is "password". Change this in production!
 
 # When logging in, use "admin" as the username and the un-bcrypted version
 # of your password. You can generate a password by running the Python
