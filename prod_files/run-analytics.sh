@@ -8,17 +8,17 @@ if [ "$(id -u)" = 0 ]; then
 fi
 
 if ! command -v grafana > /dev/null && ! command -v grafana-server > /dev/null; then
-  echo "You need to install grafana." >&2
+  echo "You need to install Grafana." >&2
   exit 1
 fi
 
 if ! command -v prometheus > /dev/null; then
-  echo "You need to install prometheus." >&2
+  echo "You need to install Prometheus." >&2
   exit 1
 fi
 
 if ! command -v node-exporter > /dev/null && ! command -v prometheus-node-exporter > /dev/null; then
-  echo "You need to install node exporter." >&2
+  echo "You need to install Node Exporter." >&2
   exit 1
 fi
 
@@ -53,7 +53,7 @@ export GF_DATABASE_PATH="$GRAFANA_DB_PATH"
 
 # Start Prometheus
 echo "Starting Prometheus..."
-prometheus --config.file="$PROMETHEUS_CONFIG" --storage.tsdb.path="$PROMETHEUS_STORAGE_PATH" 2>&1 | tee "$PROD_DIR/prometheus.log" &
+prometheus --config.file="$PROMETHEUS_CONFIG" --storage.tsdb.path="$PROMETHEUS_STORAGE_PATH" 2>&1 --storage.tsbd.retention.time=60d | tee "$PROD_DIR/prometheus.log" &
 PROMETHEUS_PID=$!
 sleep 3  # Allow Prometheus to initialize
 if ! ps -p "$PROMETHEUS_PID" > /dev/null; then
