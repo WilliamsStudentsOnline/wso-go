@@ -23,7 +23,7 @@ type CourseSchedulerSelection struct {
 
 	// Course information
 	Course   *Course `gorm:"not null" json:"course"`
-	CourseID *uint   `gorm:"not null" json:"courseID"` // Course object UUID as stored in courses table
+	CourseID *uint   `gorm:"index:index_course_id;not null" json:"courseID"` // Course object UUID as stored in courses table
 	Hidden   bool    `gorm:"not null" json:"hidden"`
 
 	// Professor information

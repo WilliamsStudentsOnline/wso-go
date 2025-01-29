@@ -75,7 +75,7 @@ type CourseSchedulerSelectionCreateParams struct {
 	Hidden   bool                `json:"hidden"`
 	ProfessorID uint 			 `json:"professorID" binding:"required"`
 	PeoplesoftID uint 			 `json:"peoplesoftID" binding:"required"`
-	Department string 			 `json:"department" binding:"required"`
+	DepartmentPrefix string 	 `json:"department" binding:"required"`
 }
 
 // Add one courseSchedulerSelection entry
@@ -123,6 +123,9 @@ func (t *CourseSchedulerController) CreateCourseSchedulerSelection(c *gin.Contex
 		UserID:   &userID,
 		CourseID: &params.CourseID,
 		Hidden:   params.Hidden,
+		ProfessorID: &params.ProfessorID,
+		PeoplesoftID: &params.PeoplesoftID,
+		DepartmentPrefix: &params.DepartmentPrefix,
 		Semester: params.Semester,
 		Year:     &params.Year,
 	})
