@@ -30,10 +30,13 @@ type CourseSchedulerSelection struct {
 	ProfessorID *uint `gorm:"index:index_professor_id;not null" json:"professorID"`
 	Professor   *User `gorm:"foreignKey:ProfessorID" json:"professor,omitempty"`
 
+	//Peoplesoft number
 	PeoplesoftID *uint `gorm:"not null" json:"peoplesoftID"`
 
-	DepartmentPrefix *string `gorm:"not null" json:"departmentPrefix"` // String representing the shortened department name eg AAS
+	 // String representing the shortened area of study name eg AAS
+	AreaOfStudyAbbr *string `gorm:"not null" json:"areaOfStudyAbbr"`
 
+	//Time period
 	Semester SemesterType `gorm:"not null" json:"semester" enums:",SPRING,FALL,WINTER"`
 	Year     *uint        `gorm:"not null" json:"year"`
 }

@@ -18,6 +18,9 @@ import (
 
 func TestController_ListSelections(t *testing.T) {
 	var year uint = 2024
+	var peoplesoftIdCS256 uint = 3044
+	var peoplesoftIdPSYC101 uint = 3720
+
 	users := []User{
 		{
 			Type:   UserTypeStudent,
@@ -28,6 +31,19 @@ func TestController_ListSelections(t *testing.T) {
 			Type:   UserTypeStudent,
 			Name:   "Bar",
 			UnixID: "bar1",
+		},
+	}
+
+	profs := []User{
+		{
+			Type: UserTypeProfessor,
+			Name: "CSCIProf",
+			UnixID: "csprof",
+		},
+		{
+			Type: UserTypeProfessor,
+			Name: "PSYCProf",
+			UnixID: "psyprof",
 		},
 	}
 
@@ -61,6 +77,9 @@ func TestController_ListSelections(t *testing.T) {
 			Course:   &courses[0],
 			CourseID: &courses[0].ID,
 			Hidden:   true,
+			AreaOfStudyAbbr: &courses[0].AreaOfStudy.Abbreviation,
+			ProfessorID: &profs[0].ID,
+			PeoplesoftID: &peoplesoftIdCS256,
 			Semester: SemesterFall,
 			Year:     &year,
 		},
@@ -70,6 +89,9 @@ func TestController_ListSelections(t *testing.T) {
 			Course:   &courses[1],
 			CourseID: &courses[1].ID,
 			Hidden:   false,
+			AreaOfStudyAbbr: &courses[1].AreaOfStudy.Abbreviation,
+			ProfessorID: &profs[1].ID,
+			PeoplesoftID: &peoplesoftIdPSYC101,
 			Semester: SemesterSpring,
 			Year:     &year,
 		},
@@ -135,7 +157,9 @@ func TestController_ListSelections(t *testing.T) {
 
 func TestController_AddSelection(t *testing.T) {
 	var year uint = 2024
+	var peoplesoftIdCS256 uint = 3044
 	var b bool = true
+
 	users := []User{
 		{
 			Type:       UserTypeStudent,
@@ -150,6 +174,19 @@ func TestController_AddSelection(t *testing.T) {
 			UnixID:     "bar1",
 			Visible:    &b,
 			AtWilliams: &b,
+		},
+	}
+
+	profs := []User{
+		{
+			Type: UserTypeProfessor,
+			Name: "CSCIProf",
+			UnixID: "csprof",
+		},
+		{
+			Type: UserTypeProfessor,
+			Name: "PSYCProf",
+			UnixID: "psyprof",
 		},
 	}
 
@@ -183,6 +220,9 @@ func TestController_AddSelection(t *testing.T) {
 			Course:   &courses[0],
 			CourseID: &courses[0].ID,
 			Hidden:   true,
+			AreaOfStudyAbbr: &courses[0].AreaOfStudy.Abbreviation,
+			ProfessorID: &profs[0].ID,
+			PeoplesoftID: &peoplesoftIdCS256,
 			Semester: SemesterFall,
 			Year:     &year,
 		},
@@ -300,6 +340,9 @@ func TestController_AddSelection(t *testing.T) {
 
 func TestController_DeleteSelection(t *testing.T) {
 	var year uint = 2024
+	var peoplesoftIdCS256 uint = 3044
+	var peoplesoftIdPSYC101 uint = 3720
+
 	users := []User{
 		{
 			Type:   UserTypeStudent,
@@ -310,6 +353,19 @@ func TestController_DeleteSelection(t *testing.T) {
 			Type:   UserTypeStudent,
 			Name:   "Bar",
 			UnixID: "bar1",
+		},
+	}
+
+	profs := []User{
+		{
+			Type: UserTypeProfessor,
+			Name: "CSCIProf",
+			UnixID: "csprof",
+		},
+		{
+			Type: UserTypeProfessor,
+			Name: "PSYCProf",
+			UnixID: "psyprof",
 		},
 	}
 
@@ -343,6 +399,9 @@ func TestController_DeleteSelection(t *testing.T) {
 			Course:   &courses[0],
 			CourseID: &courses[0].ID,
 			Hidden:   true,
+			AreaOfStudyAbbr: &courses[0].AreaOfStudy.Abbreviation,
+			ProfessorID: &profs[0].ID,
+			PeoplesoftID: &peoplesoftIdCS256,
 			Semester: SemesterFall,
 			Year:     &year,
 		},
@@ -352,6 +411,9 @@ func TestController_DeleteSelection(t *testing.T) {
 			Course:   &courses[1],
 			CourseID: &courses[1].ID,
 			Hidden:   false,
+			AreaOfStudyAbbr: &courses[1].AreaOfStudy.Abbreviation,
+			ProfessorID: &profs[1].ID,
+			PeoplesoftID: &peoplesoftIdPSYC101,
 			Semester: SemesterSpring,
 			Year:     &year,
 		},
@@ -397,6 +459,9 @@ func TestController_DeleteSelection(t *testing.T) {
 
 func TestController_HideSelection(t *testing.T) {
 	var year uint = 2024
+	var peoplesoftIdCS256 uint = 3044
+	var peoplesoftIdPSYC101 uint = 3720
+
 	users := []User{
 		{
 			Type:   UserTypeStudent,
@@ -407,6 +472,19 @@ func TestController_HideSelection(t *testing.T) {
 			Type:   UserTypeStudent,
 			Name:   "Bar",
 			UnixID: "bar1",
+		},
+	}
+
+	profs := []User{
+		{
+			Type: UserTypeProfessor,
+			Name: "CSCIProf",
+			UnixID: "csprof",
+		},
+		{
+			Type: UserTypeProfessor,
+			Name: "PSYCProf",
+			UnixID: "psyprof",
 		},
 	}
 
@@ -440,6 +518,9 @@ func TestController_HideSelection(t *testing.T) {
 			Course:   &courses[0],
 			CourseID: &courses[0].ID,
 			Hidden:   true,
+			AreaOfStudyAbbr: &courses[0].AreaOfStudy.Abbreviation,
+			ProfessorID: &profs[0].ID,
+			PeoplesoftID: &peoplesoftIdCS256,
 			Semester: SemesterFall,
 			Year:     &year,
 		},
@@ -449,6 +530,9 @@ func TestController_HideSelection(t *testing.T) {
 			Course:   &courses[1],
 			CourseID: &courses[1].ID,
 			Hidden:   false,
+			AreaOfStudyAbbr: &courses[1].AreaOfStudy.Abbreviation,
+			ProfessorID: &profs[1].ID,
+			PeoplesoftID: &peoplesoftIdPSYC101,
 			Semester: SemesterSpring,
 			Year:     &year,
 		},
