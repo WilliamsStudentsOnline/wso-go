@@ -37,19 +37,15 @@ fi
 # Generate absolute paths
 PROD_DIR="$(pwd)"
 PROMETHEUS_CONFIG="$PROD_DIR/prometheus.yml"
-PROMETHEUS_STORAGE_PATH="$PROD_DIR/prometheus-data"
+PROMETHEUS_STORAGE_PATH="$PROD_DIR/prometheus"
 GRAFANA_CONFIG="$PROD_DIR/grafana-config.ini"
-GRAFANA_DATAPATH="$PROD_DIR/grafana-data"
+GRAFANA_DATAPATH="$PROD_DIR/grafana"
 GRAFANA_DB_PATH="$PROD_DIR/grafana.db"  # Path to your preexisting grafana.db
-NODE_EXPORTER_LOG_PATH="$PROD_DIR/node-exporter-logs/node-exporter.log"
+NODE_EXPORTER_LOG_PATH="$PROD_DIR/prometheus/node-exporter.log"
 
 # Ensure directories exist
 mkdir -p "$PROMETHEUS_STORAGE_PATH"
 mkdir -p "$GRAFANA_DATAPATH"
-mkdir -p "$(dirname "$NODE_EXPORTER_LOG_PATH")"
-
-# Set Grafana's database path
-export GF_DATABASE_PATH="$GRAFANA_DB_PATH"
 
 # Start Prometheus
 echo "Starting Prometheus..."
@@ -64,8 +60,11 @@ echo "Prometheus is running (PID: $PROMETHEUS_PID)."
 
 # Set Grafana data path environment variable
 export GF_PATHS_DATA="$GRAFANA_DATAPATH"
-export GF_PATHS_LOGS="$PROD_DIR/grafana-logs"  # optional: log path
-export GF_PATHS_PLUGINS="$PROD_DIR/grafana-plugins"  # optional: plugins path
+export GF_PATHS_LOGS="$GRAFANA_DATAPATH/logs"
+export GF_PATHS_PLUGINS="$GRAFANA_DATAPATH/plugins"  # optional: plugins
+
+# Set Grafana's database path
+export GF_DATABASE_PATH="$GRAFANA_DB_PATH"
 
 # Start Grafana
 echo "Starting Grafana..."
