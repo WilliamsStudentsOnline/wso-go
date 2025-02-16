@@ -69,7 +69,7 @@ func TestController_GetAllClubs(t *testing.T) {
 	c1 := models.Club{
 		Name:               "WSO",
 		Category:           "STEM",
-		ClubAdminID:        &u1,
+		ClubAdminID:        u1.ID,
 		ClubDescription:    "Write code for WSO!",
 		MeetingDescription: "Sundays 1-3pm in Wach B11",
 	}
@@ -79,7 +79,7 @@ func TestController_GetAllClubs(t *testing.T) {
 	c2 := models.Club{
 		Name:               "Octet",
 		Category:           "Performing Arts",
-		ClubAdminID:        &u1,
+		ClubAdminID:        u1.ID,
 		ClubDescription:    "Sing without instruments!",
 		MeetingDescription: "Mondays 1-3pm in Bernhardt",
 	}
@@ -89,7 +89,7 @@ func TestController_GetAllClubs(t *testing.T) {
 	c3 := models.Club{
 		Name:               "Kusika",
 		Category:           "Performing Arts",
-		ClubAdminID:        &u1,
+		ClubAdminID:        u1.ID,
 		ClubDescription:    "Learn African Drumming and Dance from across the diaspora!",
 		MeetingDescription: "Mon Wed Fri 4-6pm in '62 Center Dance Studio",
 	}
@@ -132,7 +132,7 @@ func TestController_DeleteClubs(t *testing.T) {
 	c1 := models.Club{
 		Name:               "WSO",
 		Category:           "STEM",
-		ClubAdminID:        &u1,
+		ClubAdminID:        u1.ID,
 		ClubDescription:    "Write code for WSO!",
 		MeetingDescription: "Sundays 1-3pm in Wach B11",
 	}
@@ -142,7 +142,7 @@ func TestController_DeleteClubs(t *testing.T) {
 	c2 := models.Club{
 		Name:               "Octet",
 		Category:           "Performing Arts",
-		ClubAdminID:        &u1,
+		ClubAdminID:        u1.ID,
 		ClubDescription:    "Sing without instruments!",
 		MeetingDescription: "Mondays 1-3pm in Bernhardt",
 	}
@@ -152,7 +152,7 @@ func TestController_DeleteClubs(t *testing.T) {
 	c3 := models.Club{
 		Name:               "Kusika",
 		Category:           "Performing Arts",
-		ClubAdminID:        &u1,
+		ClubAdminID:        u1.ID,
 		ClubDescription:    "Learn African Drumming and Dance from across the diaspora!",
 		MeetingDescription: "Mon Wed Fri 4-6pm in '62 Center Dance Studio",
 	}
@@ -240,5 +240,68 @@ func TestController_DeleteClubs(t *testing.T) {
 
 	//Number of clubs should be zero
 	assert.Len(resp6, 0)
+
+}
+
+func TestController_UpdateClub(t *testing.T) {
+	// Setup (can copy and paste this basically)
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+	router := utils.SetupRouter(auth.ScopeUsers)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+
+	//Create Some Clubs
+	u1 := models.User{
+		Type:   models.UserTypeStudent,
+		Name:   "User 1",
+		UnixID: "u1",
+	}
+
+	c1 := models.Club{
+		Name:               "WSO",
+		Category:           "STEM",
+		ClubAdminID:        u1.ID,
+		ClubDescription:    "Write code for WSO!",
+		MeetingDescription: "Sundays 1-3pm in Wach B11",
+		Subscribers:        5,
+		ContactEmail:       "coolhuman24@williams.edu",
+		ContactPhoneNumber: "(123)-456-7890",
+		Website:            "acoolwebsitethathopefullyisntreal.com",
+	}
+
+	assert.NoError(db.Create(&u1).Create(&c1).Error)
+
+	//Create Updated Club Params
+	params := ClubUpdateParams{
+		Name:               "WSO",
+		MeetingDescription: "Sundays at 1pm in Wach B12",
+		Website:            "adifferentcoolwebistethathopefullyisntreal.com",
+	}
+
+	//Process Params
+	paramsData, err := json.Marshal(&params)
+	assert.NoError(err)
+
+	// Test HTTP Request
+	ID := c1.ID
+	IDstr := strconv.FormatUint(uint64(ID), 10)
+	w, err := utils.DoHTTPReq(router, http.MethodPatch, "/clubs/"+IDstr, bytes.NewBuffer(paramsData))
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+
+	//Use a get request to check that the clubs parameters have been updates
+	w2, err := utils.DoHTTPReq(router, http.MethodGet, "/clubs", nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w2.Code)
+
+	respData2 := utils.GetHTTPDataResp(assert, w2.Body.Bytes())
+	assert.Nil(respData2.Error)
+	var resp2 []models.Club
+	assert.NoError(json.Unmarshal(respData2.Data, &resp2))
+
+	//Assert Proper updated values
+	assert.Equal(resp2[0].MeetingDescription, params.MeetingDescription)
+	assert.Equal(resp2[0].Website, params.Website)
 
 }

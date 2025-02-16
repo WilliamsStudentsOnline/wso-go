@@ -27,8 +27,12 @@ func (m *ClubModel) GetAllClubs(p *[]*Club, opts Options) (err error) {
 
 type GetAllClubsOptions struct {
 	// Offset is ignored unless limit is supplied
-	Offset *uint `json:"offset" form:"offset"`
-	Limit  *uint `json:"limit" form:"limit"`
+	Offset     *uint  `json:"offset" form:"offset"`
+	Limit      *uint  `json:"limit" form:"limit"`
+	Name       string `json:"name"`
+	CategoryIN string `json:"categoryIN"`
+	//Checks club description for matching substring
+	DescriptionLIKE string `json:"descriptionLIKE"`
 
 	// Unsure what other data we may want to preload in future
 	Preload []string `json:"preload" form:"preload[]"`
@@ -81,25 +85,28 @@ func (m *ClubModel) GetClubByID(id uint, c *Club, opts Options) (err error) {
 }
 
 // Deletes club
-func (m *ClubModel) DeleteClub(c *Club) (err error) {
+func (m *ClubModel) DeleteClub(clubID uint) (err error) {
 	tx := m.DB.Begin()
 
 	if err = tx.Error; err != nil {
 		return
 	}
 
-	err = tx.Where("clubs.id = ?", c.ID).Delete(&Club{}).Error
-	if err != nil {
-		tx.Rollback()
-		return
-	}
-
-	err = tx.Delete(c).Error
+	err = tx.Where("clubs.id = ?", clubID).Delete(&Club{}).Error
 	if err != nil {
 		tx.Rollback()
 		return
 	}
 
 	err = tx.Commit().Error
+	return
+}
+
+// Updates club parameters (category, description, photo, etc)
+func (m *ClubModel) UpdateClub(c *Club) (err error) {
+	err = m.DB.Save(&c).Error
+	if err != nil {
+		return
+	}
 	return
 }

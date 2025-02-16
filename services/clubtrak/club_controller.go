@@ -59,8 +59,7 @@ func (t *Controller) CreateClub(c *gin.Context) {
 	club := models.Club{
 		Subscribers:        createData.Subscribers,
 		MeetingDescription: createData.MeetingDescription,
-		ClubAdmin:          createData.ClubID,
-		ClubAdminID:        user,
+		ClubAdminID:        userID,
 		Name:               createData.Name,
 	}
 	//Call create function to update database
@@ -141,7 +140,7 @@ func (t *Controller) DeleteClub(c *gin.Context) {
 	}
 
 	// Delete club
-	err = t.clubModel.DeleteClub(&club)
+	err = t.clubModel.DeleteClub(club.ID)
 	if err != nil {
 		t.RespondError(c, err)
 		return
@@ -151,13 +150,15 @@ func (t *Controller) DeleteClub(c *gin.Context) {
 
 }
 
-type ReviewUpdateParams struct {
+type ClubUpdateParams struct {
 	Name               string `json:"name"`
 	Category           string `json:"category"`
-	Subscribers        int    `json:"subscribers"`
 	MeetingDescription string `json:"meetingDescription"`
 	ClubDescription    string `json:"clubDescription"`
-	ClubPhoto          string `json:"clubPhoto"`
+	ClubPhotoFilePath  string `json:"clubPhoto"`
+	ContactEmail       string `json:"contactEmail"`
+	ContactPhoneNumber string `json:"contactPhoneNumber"`
+	Website            string `json:"website"`
 
 	// Belongs to some club leader
 	ClubAdmin   uint         `json:"clubAdmin"`
@@ -184,6 +185,15 @@ func (t *Controller) UpdateClub(c *gin.Context) {
 		return
 	}
 
+	// Bind update params
+	updateData := ClubUpdateParams{}
+	err = c.ShouldBind(&updateData)
+	if err != nil {
+		t.RespondBadBind(c, err)
+		return
+	}
+
+	// Get club (also serves as valid club check)
 	var club models.Club
 	var opts models.Options
 	err = t.clubModel.GetClubByID(clubID, &club, opts)
@@ -191,5 +201,23 @@ func (t *Controller) UpdateClub(c *gin.Context) {
 		t.RespondError(c, err)
 		return
 	}
+
+	//Update fields
+	club.Category = lib.StrDefaults(updateData.Category, club.Category)
+	club.MeetingDescription = lib.StrDefaults(updateData.MeetingDescription, club.MeetingDescription)
+	club.ClubDescription = lib.StrDefaults(updateData.ClubDescription, club.ClubDescription)
+	club.ClubPhotoFilePath = lib.StrDefaults(updateData.ClubPhotoFilePath, club.ClubPhotoFilePath)
+	club.ContactEmail = lib.StrDefaults(updateData.ContactEmail, club.ContactEmail)
+	club.ContactPhoneNumber = lib.StrDefaults(updateData.ContactPhoneNumber, club.ContactPhoneNumber)
+	club.Website = lib.StrDefaults(updateData.Website, club.Website)
+
+	// Do db update
+	err = t.clubModel.UpdateClub(&club)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	t.RespondOK(c, club)
 
 }

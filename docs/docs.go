@@ -9620,17 +9620,20 @@ const docTemplate = `{
                 "category": {
                     "type": "string"
                 },
-                "clubAdmin": {
-                    "description": "Belongs to some club leader",
-                    "type": "integer"
-                },
                 "clubAdminID": {
-                    "$ref": "#/definitions/models.User"
+                    "description": "Club leader's DB ID",
+                    "type": "integer"
                 },
                 "clubDescription": {
                     "type": "string"
                 },
                 "clubPhotoFilePath": {
+                    "type": "string"
+                },
+                "contactEmail": {
+                    "type": "string"
+                },
+                "contactPhoneNumber": {
                     "type": "string"
                 },
                 "id": {
@@ -9644,6 +9647,9 @@ const docTemplate = `{
                 },
                 "subscribers": {
                     "type": "integer"
+                },
+                "website": {
+                    "type": "string"
                 }
             }
         },

@@ -9,10 +9,12 @@ type Club struct {
 	MeetingDescription string `json:"meetingDescription"`
 	ClubDescription    string `json:"clubDescription"`
 	ClubPhotoFilePath  string `json:"clubPhotoFilePath"`
+	ContactEmail       string `json:"contactEmail"`
+	ContactPhoneNumber string `json:"contactPhoneNumber"`
+	Website            string `json:"website"`
 
-	// Belongs to some club leader
-	ClubAdmin   uint  `json:"clubAdmin"`
-	ClubAdminID *User `json:"clubAdminID,omitempty"`
+	// Club leader's DB ID
+	ClubAdminID uint `json:"clubAdminID"`
 }
 
 func (*Club) TableName() string {
