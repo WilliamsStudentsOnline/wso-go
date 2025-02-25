@@ -1,0 +1,66 @@
+##### WSO-Backend WSO 2.0 #####
+[Unit]
+Description=Prometheus Server
+Documentation=https://prometheus.io/docs/introduction/overview/
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+# change this to match the number of cores
+# if you want more than this, change it to EnvironmentFile
+Environment="GOMAXPROCS=1"
+#EnvironmentFile=/etc/default/prometheus
+# change this if needed!
+User=prometheus
+Group=grafana
+Type=simple
+Restart=on-failure
+SyslogIdentifier=prometheus
+WorkingDirectory=/home/wso/prometheus
+RuntimeDirectory=prometheus
+RuntimeDirectoryMode=0750
+ExecReload=/bin/kill -HUP $MAINPID
+# change all of this to reference the correct paths!
+# you should be able to find all these files within prod_files.
+ExecStart=/home/wso/prometheus/prometheus \
+ --config.file=/home/wso/prometheus/prometheus.yml \
+ --storage.tsbd.path=/home/wso/prometheus \
+ --storage.tsbd.retention.time=60d \
+ --web.config.file=/home/wso/prometheus/prometheus-basicauth.yml \
+ --web.listen-address=0.0.0.0:9090 
+
+TimeoutStopSec=20s
+SendSIGKILL=no
+
+# hardening stuff
+AmbientCapabilities=
+CapabilityBoundingSet=
+LimitNOFILE=10000
+LimitMEMLOCK=0
+CapabilityBoundingSet=
+DeviceAllow=/dev/null rw
+LockPersonality=true
+MemoryDenyWriteExecute=false
+NoNewPrivileges=true
+PrivateDevices=true
+PrivateTmp=true
+ProtectClock=true
+ProtectControlGroups=true
+ProtectHome=true
+ProtectHostname=true
+ProtectKernelLogs=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+ProtectProc=invisible
+ProtectSystem=full
+RemoveIPC=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+SystemCallArchitectures=native
+UMask=0027
+
+[Install]
+WantedBy=multi-user.target
+ 
