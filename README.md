@@ -3,7 +3,7 @@ The new flagship back-end for WSO's services. The WSO backend rewrite proposal i
 
 ## Docs
 
-WSO-Go auto-generates API docs found on:
+WSO-Go auto-generates API docs found on: 
  - The WSO-DEV server (you need a VPN or to be on campus) here: http://wso-dev.williams.edu/api/docs/index.html
  - Locally here: http://localhost:8080/docs/index.html
 
