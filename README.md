@@ -7,7 +7,7 @@ WSO-Go auto-generates API docs found on:
  - The WSO-DEV server (you need a VPN or to be on campus) here: http://wso-dev.williams.edu/api/docs/index.html
  - Locally here: http://localhost:8080/docs/index.html
 
-## Running Locally
+## Running Locally 
 
 To run the server, simply do `make run-dev` or `make && ./wso-backend --development`.
 
