@@ -30,31 +30,31 @@ func CreateWilliamsDiningAPI() (*WilliamsDiningAPI, error) {
 }
 
 func getSessionIdCookie() (string, error) {
-    	fmt.Println("getSessionIdCookie: Starting...")
+    	t.Log("getSessionIdCookie: Starting...")
 	client := &http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-    			fmt.Println("getSessionIdCookie: Starting...")
+    			t.Log("getSessionIdCookie: Starting...")
 			return http.ErrUseLastResponse
 		},
 	}
 
 	req, err := http.NewRequest(http.MethodGet, WilliamsDiningBaseUrl, nil)
 	if err != nil {
-            	fmt.Println("getSessionIdCookie: Redirect intercepted, using last response")
+            	t.Log("getSessionIdCookie: Redirect intercepted, using last response")
 		return "", err
 	}
 
 	resp, err := client.Do(req)
 	if err != nil {
-        	fmt.Printf("getSessionIdCookie: Error creating request: %v\n", err)
+        	t.Logf("getSessionIdCookie: Error creating request: %v\n", err)
 		return "", err
 	}
 	
-    	fmt.Printf("getSessionIdCookie: Found %d cookies\n", len(resp.Cookies()))
+    	t.Logf("getSessionIdCookie: Found %d cookies\n", len(resp.Cookies()))
 	for _, cookie := range resp.Cookies() {
-        	fmt.Printf("  Cookie #%d: Name=%s, Value=%s\n", i+1, cookie.Name, cookie.Value)
+        	t.Logf("  Cookie #%d: Name=%s, Value=%s\n", i+1, cookie.Name, cookie.Value)
 		if cookie.Name == "ASP.NET_SessionId" {
-            		fmt.Println("getSessionIdCookie: Found ASP.NET_SessionId cookie!")
+            		t.Log("getSessionIdCookie: Found ASP.NET_SessionId cookie!")
 			return cookie.Value, nil
 		}
 	}
