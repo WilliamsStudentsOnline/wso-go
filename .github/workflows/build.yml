@@ -18,6 +18,7 @@ jobs:
   lint:
     name: Build and Test
     runs-on: ubuntu-latest
+    permissions: write-all # fix PR comment failure
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v4
