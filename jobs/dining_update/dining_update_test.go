@@ -13,7 +13,14 @@ func TestDriscoll(t *testing.T) {
 	assert := testify.New(t)
 
 	d, err := api.CreateWilliamsDiningAPI()
-	assert.NoError(err)
+	if err != nil {
+		// CI/CD test marked as bot request and blocked by Williams
+		if err.Error() == "403" {
+			t.Skip("Skipping test due to Cloudflare firewall")
+		} else {
+			assert.NoError(err)
+		}
+	}
 
 	venues, err := parse.Populate(d)
 	fmt.Println(err)
