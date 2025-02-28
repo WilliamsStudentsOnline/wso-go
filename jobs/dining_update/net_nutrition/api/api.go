@@ -46,6 +46,11 @@ func getSessionIdCookie() (string, error) {
 		return "", err
 	}
 
+	// needed to ensure test case goes through (it otherwise gets blocked by Cloudflare)
+	if resp.StatusCode == 403 {
+		return "", errors.New("403")
+	}
+
 	for _, cookie := range resp.Cookies() {
 		if cookie.Name == "ASP.NET_SessionId" {
 			return cookie.Value, nil

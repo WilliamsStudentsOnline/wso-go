@@ -35,6 +35,18 @@ jobs:
       - name: Build Jobs
         run: make build-jobs-prod-linux
 
+      # Build Redis container for tests
+      - name: Build Redis Docker Image
+        run: docker build -t wso-redis -f lib/redis_util/Redis.Dockerfile lib/redis_util/
+
+      # Run Redis container
+      - name: Run Redis Container
+        run: |
+          docker run -d \
+            --name wso-redis-tests \
+            -p 6379:6379 \
+            wso-redis
+
       - name: Set up test environment
         run: |
           go install github.com/gotesttools/gotestfmt/v2/cmd/gotestfmt@latest
@@ -73,3 +85,11 @@ jobs:
         with:
           recreate: true
           path: code-coverage-results.md
+
+      # Kill Redis containers
+      - name: Stop Redis Container
+        if: always()
+        run: docker stop wso-redis-tests
+      - name: Remove Redis Container
+        if: always()
+        run: docker rm wso-redis-tests
