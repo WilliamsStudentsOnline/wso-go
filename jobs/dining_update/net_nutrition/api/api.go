@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"regexp"
 )
@@ -45,8 +46,12 @@ func getSessionIdCookie() (string, error) {
 	if err != nil {
 		return "", err
 	}
+	fmt.Printf("Status code: %d\n", resp.StatusCode)
+	fmt.Printf("Headers: %v\n", resp.Header)
+	fmt.Printf("Cookie count: %d\n", len(resp.Cookies()))
 
 	for _, cookie := range resp.Cookies() {
+		fmt.Printf("%s \n", cookie.Name)
 		if cookie.Name == "ASP.NET_SessionId" {
 			return cookie.Value, nil
 		}
