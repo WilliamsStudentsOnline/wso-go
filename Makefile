@@ -74,6 +74,10 @@ job-user-csv-data:
 job-dining-update:
 	go build -tags=jsoniter -o job-dining-update ./jobs/dining_update/cmd
 
+.PHONY: job-library-hours-update
+job-library-hours-update:
+	go build -tags=jsoniter -o job-library-hours-update ./jobs/library_hours_update/cmd
+
 PHONY: job-schedule-notifs
 job-schedule-notifs:
 	go build -tags=jsoniter -o job-schedule-notifs ./jobs/schedule_notifs/cmd

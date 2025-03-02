@@ -68,6 +68,10 @@ pipeline {
             sshPut remote: remote_dev, from: 'job-dining-update_linux', into: '/home/wsodev/wso-go/job-dining-update'
             sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/job-dining-update'
 
+	    sshRemove remote: remote_dev, path: '/home/wsodev/wso-go/library-hours-update'
+	    sshPut remote: remote_dev, from: 'job-library-hours-update_linux', into: '/home/wsodev/wso-go/job-library-hours-update'
+	    sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/job-library-hours-update'
+
             sshRemove remote: remote_dev, path: '/home/wsodev/wso-go/schedule-notifs'
             sshPut remote: remote_dev, from: 'job-schedule-notifs_linux', into: '/home/wsodev/wso-go/job-schedule-notifs'
             sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/job-schedule-notifs'

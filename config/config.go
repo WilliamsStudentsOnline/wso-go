@@ -103,6 +103,9 @@ type Config struct {
 	/* Dining (for read, not write) */
 	DiningFile string `yaml:"dining_file" envconfig:"dining_file"`
 
+	/* Library Services */
+	LibraryHoursFile string `yaml:"library_hours_file" envconfig:"library_hours_file"`
+
 	/* Goodrich */
 	GoodrichManagerUnixes []string `yaml:"goodrich_manager_unixes" envconfig:"goodrich_manager_unixes"`
 	// Use format: 2006-01-02
