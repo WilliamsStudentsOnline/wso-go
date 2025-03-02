@@ -2973,7 +2973,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/clubtrak.ReviewUpdateParams"
+                            "$ref": "#/definitions/clubtrak.ClubUpdateParams"
                         }
                     }
                 ],
@@ -8773,6 +8773,37 @@ const docTemplate = `{
                 }
             }
         },
+        "clubtrak.Category": {
+            "type": "string",
+            "enum": [
+                "club sport",
+                "dance performance",
+                "academic and honors",
+                "advocacy, debate, and political",
+                "affinity, culterally based, and MiNCO",
+                "arts and entertainment",
+                "community Support and/or Service Learning",
+                "environmental and sustainability",
+                "health and wellness",
+                "professional and career",
+                "recreation and sports",
+                "religious and spiritual"
+            ],
+            "x-enum-varnames": [
+                "CategoryClubSports",
+                "CategoryDance",
+                "CategoryAcademicAndHonors",
+                "CategoryAdvocacyDebatePolitical",
+                "CategoryAffinityCulturallyBasedMinco",
+                "CategoryArtsEntertainment",
+                "CategoryCommunitySupportServiceLearning",
+                "CategoryEnvironmentSustainability",
+                "CategoryHealthWellness",
+                "CategoryProfessionalCareer",
+                "CategoryRecreationSports",
+                "CategoryReligiousSpiritual"
+            ]
+        },
         "clubtrak.ClubParams": {
             "type": "object",
             "properties": {
@@ -8798,11 +8829,11 @@ const docTemplate = `{
                 }
             }
         },
-        "clubtrak.ReviewUpdateParams": {
+        "clubtrak.ClubUpdateParams": {
             "type": "object",
             "properties": {
                 "category": {
-                    "type": "string"
+                    "$ref": "#/definitions/clubtrak.Category"
                 },
                 "clubAdmin": {
                     "description": "Belongs to some club leader",
@@ -8817,14 +8848,20 @@ const docTemplate = `{
                 "clubPhoto": {
                     "type": "string"
                 },
+                "contactEmail": {
+                    "type": "string"
+                },
+                "contactPhoneNumber": {
+                    "type": "string"
+                },
                 "meetingDescription": {
                     "type": "string"
                 },
                 "name": {
                     "type": "string"
                 },
-                "subscribers": {
-                    "type": "integer"
+                "website": {
+                    "type": "string"
                 }
             }
         },
@@ -9614,11 +9651,42 @@ const docTemplate = `{
                 }
             }
         },
+        "models.Category": {
+            "type": "string",
+            "enum": [
+                "club sport",
+                "dance performance",
+                "academic and honors",
+                "advocacy, debate, and political",
+                "affinity, culterally based, and MiNCO",
+                "arts and entertainment",
+                "community Support and/or Service Learning",
+                "environmental and sustainability",
+                "health and wellness",
+                "professional and career",
+                "recreation and sports",
+                "religious and spiritual"
+            ],
+            "x-enum-varnames": [
+                "CategoryClubSports",
+                "CategoryDance",
+                "CategoryAcademicAndHonors",
+                "CategoryAdvocacyDebatePolitical",
+                "CategoryAffinityCulturallyBasedMinco",
+                "CategoryArtsEntertainment",
+                "CategoryCommunitySupportServiceLearning",
+                "CategoryEnvironmentSustainability",
+                "CategoryHealthWellness",
+                "CategoryProfessionalCareer",
+                "CategoryRecreationSports",
+                "CategoryReligiousSpiritual"
+            ]
+        },
         "models.Club": {
             "type": "object",
             "properties": {
                 "category": {
-                    "type": "string"
+                    "$ref": "#/definitions/models.Category"
                 },
                 "clubAdminID": {
                     "description": "Club leader's DB ID",

@@ -150,15 +150,33 @@ func (t *Controller) DeleteClub(c *gin.Context) {
 
 }
 
+type Category string
+
+const (
+	//Using the same categories as defined in interal spreadsheet of RSOs
+	CategoryClubSports                      Category = "club sport"
+	CategoryDance                           Category = "dance performance"
+	CategoryAcademicAndHonors               Category = "academic and honors"
+	CategoryAdvocacyDebatePolitical         Category = "advocacy, debate, and political"
+	CategoryAffinityCulturallyBasedMinco    Category = "affinity, culterally based, and MiNCO"
+	CategoryArtsEntertainment               Category = "arts and entertainment"
+	CategoryCommunitySupportServiceLearning Category = "community Support and/or Service Learning"
+	CategoryEnvironmentSustainability       Category = "environmental and sustainability"
+	CategoryHealthWellness                  Category = "health and wellness"
+	CategoryProfessionalCareer              Category = "professional and career"
+	CategoryRecreationSports                Category = "recreation and sports"
+	CategoryReligiousSpiritual              Category = "religious and spiritual"
+)
+
 type ClubUpdateParams struct {
-	Name               string `json:"name"`
-	Category           string `json:"category"`
-	MeetingDescription string `json:"meetingDescription"`
-	ClubDescription    string `json:"clubDescription"`
-	ClubPhotoFilePath  string `json:"clubPhoto"`
-	ContactEmail       string `json:"contactEmail"`
-	ContactPhoneNumber string `json:"contactPhoneNumber"`
-	Website            string `json:"website"`
+	Name               string   `json:"name"`
+	Category           Category `gnorm:"type=ENUM('club sport', 'dance performance', 'academic and honors', 'advocacy, debate, and political', 'affinity, culterally based, and MiNCO', 'arts and entertainment', 'community Support and/or Service Learning', 'environmental and sustainability', 'health and wellness', 'professional and career', 'recreation and sports', 'religious and spiritual');not null" json:"category"`
+	MeetingDescription string   `json:"meetingDescription"`
+	ClubDescription    string   `json:"clubDescription"`
+	ClubPhotoFilePath  string   `json:"clubPhoto"`
+	ContactEmail       string   `json:"contactEmail"`
+	ContactPhoneNumber string   `json:"contactPhoneNumber"`
+	Website            string   `json:"website"`
 
 	// Belongs to some club leader
 	ClubAdmin   uint         `json:"clubAdmin"`
@@ -173,7 +191,7 @@ type ClubUpdateParams struct {
 // @Accept  json
 // @Produce  json
 // @Param clubID path uint true "Club ID"
-// @Param updateParams body clubtrak.ReviewUpdateParams true "Update Club Params"
+// @Param updateParams body clubtrak.ClubUpdateParams true "Update Club Params"
 // @Success 200 {object} models.Club
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -203,7 +221,27 @@ func (t *Controller) UpdateClub(c *gin.Context) {
 	}
 
 	//Update fields
-	club.Category = lib.StrDefaults(updateData.Category, club.Category)
+	club.Category = models.Category(lib.StrDefaults(string(updateData.Category), string(club.Category)))
+	//Validate Category
+	switch string(club.Category) {
+	case string(CategoryClubSports),
+		string(CategoryDance),
+		string(CategoryAcademicAndHonors),
+		string(CategoryAdvocacyDebatePolitical),
+		string(CategoryAffinityCulturallyBasedMinco),
+		string(CategoryArtsEntertainment),
+		string(CategoryCommunitySupportServiceLearning),
+		string(CategoryEnvironmentSustainability),
+		string(CategoryHealthWellness),
+		string(CategoryProfessionalCareer),
+		string(CategoryRecreationSports),
+		string(CategoryReligiousSpiritual):
+	default:
+		//Case where category is not valid
+		t.RespondError(c, err)
+		return
+	}
+
 	club.MeetingDescription = lib.StrDefaults(updateData.MeetingDescription, club.MeetingDescription)
 	club.ClubDescription = lib.StrDefaults(updateData.ClubDescription, club.ClubDescription)
 	club.ClubPhotoFilePath = lib.StrDefaults(updateData.ClubPhotoFilePath, club.ClubPhotoFilePath)
