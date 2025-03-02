@@ -18,7 +18,7 @@ alerting:
 scrape_configs:
   - job_name: "wso-go"
     static_configs:
-      - targets: ["localhost:2112"]
+      - targets: ["localhost:9093"]
   - job_name: "node"
     static_configs:
-      - targets: ["localhost:9120"]
+      - targets: ["localhost:9094"]
