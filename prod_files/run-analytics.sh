@@ -2,6 +2,7 @@
 ##### WSO-Backend WSO 2.0 #####
 # Execute Prometheus, Grafana, and Node Exporter.
 
+######## SANITY CHECKING
 if [ "$(id -u)" = 0 ]; then
   echo "This script should never be run as root." >&2
   exit 1
@@ -36,20 +37,25 @@ fi
 
 # Generate absolute paths
 PROD_DIR="$(pwd)"
-PROMETHEUS_CONFIG="$PROD_DIR/prometheus.yml"
-PROMETHEUS_STORAGE_PATH="$PROD_DIR/prometheus"
-GRAFANA_CONFIG="$PROD_DIR/grafana-config.ini"
-GRAFANA_DATAPATH="$PROD_DIR/grafana"
-GRAFANA_DB_PATH="$PROD_DIR/grafana.db"  # Path to your preexisting grafana.db
-NODE_EXPORTER_LOG_PATH="$PROD_DIR/prometheus/node-exporter.log"
+PROMETHEUS_FOLDER="$PROD_DIR/prometheus"
+GRAFANA_FOLDER="$PROD_DIR/grafana"
 
 # Ensure directories exist
-mkdir -p "$PROMETHEUS_STORAGE_PATH"
-mkdir -p "$GRAFANA_DATAPATH"
+mkdir -p "$PROMETHEUS_FOLDER"
+mkdir -p "$GRAFANA_FOLDER/{logs,data,plugins}"
 
+######## PROMETHEUS
 # Start Prometheus
 echo "Starting Prometheus..."
-prometheus --config.file="$PROMETHEUS_CONFIG" --storage.tsdb.path="$PROMETHEUS_STORAGE_PATH" 2>&1 --storage.tsdb.retention.time=60d --web.config.file=prometheus-basicauth.yml | tee "$PROD_DIR/prometheus.log" &
+# Change this to match the number of cores
+GOMAXPROCS=1
+prometheus \
+  --config.file="$PROD_DIR/prometheus.yml" \
+  --storage.tsdb.path="$PROMETHEUS_FOLDER" 2>&1 \
+  --storage.tsdb.retention.time=365d \
+  --web.config.file="$PROD_DIR/prometheus-basicauth.yml" \
+  --web.listen-address=0.0.0.0:9090 \
+  | tee "$PROMETHEUS_FOLDER/prometheus.log" &
 PROMETHEUS_PID=$!
 sleep 3  # Allow Prometheus to initialize
 if ! ps -p "$PROMETHEUS_PID" > /dev/null; then
@@ -58,17 +64,17 @@ if ! ps -p "$PROMETHEUS_PID" > /dev/null; then
 fi
 echo "Prometheus is running (PID: $PROMETHEUS_PID)."
 
-# Set Grafana data path environment variable
-export GF_PATHS_DATA="$GRAFANA_DATAPATH"
-export GF_PATHS_LOGS="$GRAFANA_DATAPATH/logs"
-export GF_PATHS_PLUGINS="$GRAFANA_DATAPATH/plugins"  # optional: plugins
-
-# Set Grafana's database path
-export GF_DATABASE_PATH="$GRAFANA_DB_PATH"
-
+######## GRAFANA
 # Start Grafana
 echo "Starting Grafana..."
-grafana-server --config="$GRAFANA_CONFIG" --homepath="/usr/share/grafana" 2>&1 | tee "$PROD_DIR/grafana.log" &
+grafana-server \
+  --config="$PROD_DIR/grafana-config.ini" \
+  --pidfile="$GRAFANA_FOLDER/grafana-server.pid"
+  --homepath="$GRAFANA_FOLDER" 2>&1 \
+  cfg:default.paths.logs="$GRAFANA_FOLDER/logs" \
+  cfg.default.paths.data="$GRAFANA_FOLDER/data" \
+  cfg.default.paths.plugins="$GRAFANA_FOLDER/plugins"\
+  | tee "$GRAFANA_FOLDER/grafana.log" &
 GRAFANA_PID=$!
 sleep 3  # Allow Grafana to initialize
 if ! ps -p "$GRAFANA_PID" > /dev/null; then
@@ -77,13 +83,20 @@ if ! ps -p "$GRAFANA_PID" > /dev/null; then
 fi
 echo "Grafana is running (PID: $GRAFANA_PID)."
 
+######## NODE EXPORTER
 # Start Node Exporter
 echo "Starting Node Exporter..."
 if command -v node-exporter > /dev/null; then
-  node-exporter --web.listen-address="0.0.0.0:9120" --log.level=info 2>&1 | tee "$NODE_EXPORTER_LOG_PATH" &
+  node-exporter \
+    --web.listen-address="0.0.0.0:9091" \
+    --log.level=info 2>&1 \
+    | tee "$PROMETHEUS_FOLDER/node-exporter.log" &
   NODE_EXPORTER_PID=$!
 elif command -v prometheus-node-exporter > /dev/null; then
-  prometheus-node-exporter --web.listen-address="0.0.0.0:9120" --log.level=info 2>&1 | tee "$NODE_EXPORTER_LOG_PATH" &
+  prometheus-node-exporter \
+    --web.listen-address="0.0.0.0:9091" \
+    --log.level=info 2>&1 \
+    | tee "$PROMETHEUS_FOLDER/node-exporter.log" &
   NODE_EXPORTER_PID=$!
 else
   echo "Node Exporter failed to start." >&2
@@ -96,6 +109,7 @@ if ! ps -p "$NODE_EXPORTER_PID" > /dev/null; then
 fi
 echo "Node Exporter is running (PID: $NODE_EXPORTER_PID)."
 
+######## MAIN FUNCTION
 cd ..
 wait
 exit 0
