@@ -3,15 +3,33 @@ The new flagship back-end for WSO's services. The WSO backend rewrite proposal i
 
 ## Docs
 
-WSO-Go auto-generates API docs found on:
+WSO-Go auto-generates API docs found on: 
  - The WSO-DEV server (you need a VPN or to be on campus) here: http://wso-dev.williams.edu/api/docs/index.html
  - Locally here: http://localhost:8080/docs/index.html
 
-## Running Locally
+## Running Locally 
 
 To run the server, simply do `make run-dev` or `make && ./wso-backend --development`.
 
 Note: you must include a secrets file. So, run `cp config/secrets_example.yaml config/secrets.yaml` and edit the fields from there. You can also just set the environment variable `WSO_SECRET_JWT_SECRET_KEY=wso-jwt-development-secret`, which will work.
+
+### Redis
+
+**NOTE**: As of November 2024, wso-go uses Redis for several non-critical database tables, such as saved classes in the course scheduler. For most cases, this is not important, but if you intend to develop for these features, deploy Redis with:
+-  `docker build -t wso-redis -f lib/redis_util/Redis.Dockerfile lib/redis_util`
+- `docker run --name wso-redis-instance -d -p 6379:6379 wso-redis`
+
+When you are finished, kill the container with:
+- `docker kill wso-redis-instance`
+
+To restart the container if you regret killing it:
+- `docker restart wso-redis-instance`
+
+If you want to remove the container:
+- `docker remove wso-redis-instance`
+- `docker rmi wso-redis`
+
+All data is lost when a container is removed. For data persistence, use the flag `-v /absolute/path/on/your/computer/:data` on `docker run` to dump data to a path of your choice.
 
 ### Current Go Version: 1.21
 It is worth noting that you should install Go via the official site, not a package repository like apt-get or brew, which often have outdated versions. You can find info on how to install Go [here](https://golang.org/doc/install).
@@ -86,6 +104,9 @@ To build the Go binary, run `make`. You can then just execute `./wso-backend`.
 API Endpoints are documented at `localhost:8080/docs`, and in the director `docs/` as swagger files. You can also 
 look at controller comments for any endpoint info. Don't use the provided query tools, bc they don't play nice 
 with our authentication.
+
+### Grafana
+Analytics are available at port `:9092`!
 
 ## Authentication Flow
 *NOTE: THIS IS DEPRECATED*

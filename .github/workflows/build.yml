@@ -18,6 +18,7 @@ jobs:
   lint:
     name: Build and Test
     runs-on: ubuntu-latest
+    permissions: write-all # fix PR comment failure
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v4
@@ -34,6 +35,18 @@ jobs:
         run: make build-prod-linux
       - name: Build Jobs
         run: make build-jobs-prod-linux
+
+      # Build Redis container for tests
+      - name: Build Redis Docker Image
+        run: docker build -t wso-redis -f lib/redis_util/Redis.Dockerfile lib/redis_util/
+
+      # Run Redis container
+      - name: Run Redis Container
+        run: |
+          docker run -d \
+            --name wso-redis-tests \
+            -p 6379:6379 \
+            wso-redis
 
       - name: Set up test environment
         run: |
@@ -73,3 +86,11 @@ jobs:
         with:
           recreate: true
           path: code-coverage-results.md
+
+      # Kill Redis containers
+      - name: Stop Redis Container
+        if: always()
+        run: docker stop wso-redis-tests
+      - name: Remove Redis Container
+        if: always()
+        run: docker rm wso-redis-tests
