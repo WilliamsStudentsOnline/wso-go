@@ -110,3 +110,25 @@ func (m *ClubModel) UpdateClub(c *Club) (err error) {
 	}
 	return
 }
+
+// Returns err if category is not valid (not apart of category enumeration)
+func (m *ClubModel) ValidateCategory(category Category) (err error) {
+
+	switch category {
+	case CategoryClubSports:
+	case CategoryDance:
+	case CategoryAcademicAndHonors:
+	case CategoryAffinityCulturallyBasedMinco:
+	case CategoryAdvocacyDebatePolitical:
+	case CategoryArtsEntertainment:
+	case CategoryProfessionalCareer:
+	case CategoryCommunitySupportServiceLearning:
+	case CategoryEnvironmentSustainability:
+	case CategoryHealthWellness:
+	case CategoryRecreationSports:
+	case CategoryReligiousSpiritual:
+	default:
+		return err
+	}
+	return
+}

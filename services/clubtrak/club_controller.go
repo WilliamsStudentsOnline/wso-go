@@ -223,23 +223,8 @@ func (t *Controller) UpdateClub(c *gin.Context) {
 	//Update fields
 	club.Category = models.Category(lib.StrDefaults(string(updateData.Category), string(club.Category)))
 	//Validate Category
-	switch string(club.Category) {
-	case string(CategoryClubSports),
-		string(CategoryDance),
-		string(CategoryAcademicAndHonors),
-		string(CategoryAdvocacyDebatePolitical),
-		string(CategoryAffinityCulturallyBasedMinco),
-		string(CategoryArtsEntertainment),
-		string(CategoryCommunitySupportServiceLearning),
-		string(CategoryEnvironmentSustainability),
-		string(CategoryHealthWellness),
-		string(CategoryProfessionalCareer),
-		string(CategoryRecreationSports),
-		string(CategoryReligiousSpiritual):
-	default:
-		//Case where category is not valid
+	if t.clubModel.ValidateCategory(club.Category) != nil {
 		t.RespondError(c, err)
-		return
 	}
 
 	club.MeetingDescription = lib.StrDefaults(updateData.MeetingDescription, club.MeetingDescription)
