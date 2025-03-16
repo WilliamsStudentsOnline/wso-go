@@ -132,6 +132,11 @@ commit: jobs/dorms_update/cmd/data.go docs/docs.go fmt services/*/responses/*.go
 run-dev: $(BINARY_NAME)
 	./$(BINARY_NAME) --development
 
+.PHONY: run-with-analytics
+run-with-analytics: $(BINARY_NAME)
+	bash ./prod_files/run-analytics.sh &
+	./$(BINARY_NAME) --development
+
 .PHONY: test
 test:
 	go test -race ./...

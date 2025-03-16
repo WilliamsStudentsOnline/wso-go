@@ -1,0 +1,20 @@
+##### WSO-Backend WSO 2.0 #####
+
+# This file allows you to use Prometheus with basic auth,
+# which you will want to use when running it in production.
+# Run Prometheus with: prometheus --web.config.file=prometheus-basicauth.yml
+
+basic_auth_users:
+  admin: $2a$12$hSCVcpzlArr0kmKPS3xRPejXKb0QH.tPIUhItYbI4hw2pc.2M48LO
+  # password is "password". Change this in production!
+
+# When logging in, use "admin" as the username and the un-bcrypted version
+# of your password. You can generate a password by running the Python
+# script below, or by going to https://bcrypt-generator.com
+
+# #!/usr/bin/python3
+# import getpass
+# import bcrypt
+# password = getpass.getpass("password: ")
+# hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
+# print(hashed_password.decode())
