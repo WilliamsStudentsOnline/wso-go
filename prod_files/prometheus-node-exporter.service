@@ -19,7 +19,7 @@ ExecReload=/bin/kill -HUP $MAINPID
 # change all of this to reference the correct paths!
 # you should be able to find all these files within prod_files.
 ExecStart=/home/wso/prometheus/prometheus-node-exporter \
- --web.listen-address="0.0.0.0:9091"
+ --web.listen-address=0.0.0.0:9091
 TimeoutStopSec=20s
 SendSIGKILL=no
 

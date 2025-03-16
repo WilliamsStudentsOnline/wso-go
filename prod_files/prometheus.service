@@ -24,10 +24,10 @@ ExecReload=/bin/kill -HUP $MAINPID
 # you should be able to find all these files within prod_files.
 ExecStart=/home/wso/prometheus/prometheus \
  --config.file=/home/wso/prometheus/prometheus.yml \
- --storage.tsbd.path=/home/wso/prometheus \
- --storage.tsbd.retention.time=365d \
+ --storage.tsdb.path=/home/wso/prometheus \
+ --storage.tsdb.retention.time=365d \
  --web.config.file=/home/wso/prometheus/prometheus-basicauth.yml \
- --web.listen-address=0.0.0.0:9090 
+ --web.listen-address=0.0.0.0:9095
 
 TimeoutStopSec=20s
 SendSIGKILL=no

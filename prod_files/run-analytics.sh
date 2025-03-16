@@ -54,7 +54,7 @@ prometheus \
   --storage.tsdb.path="$PROMETHEUS_FOLDER" 2>&1 \
   --storage.tsdb.retention.time=365d \
   --web.config.file="$PROD_DIR/prometheus-basicauth.yml" \
-  --web.listen-address=0.0.0.0:9090 \
+  --web.listen-address=0.0.0.0:9095 \
   | tee "$PROMETHEUS_FOLDER/prometheus.log" &
 PROMETHEUS_PID=$!
 sleep 3  # Allow Prometheus to initialize
