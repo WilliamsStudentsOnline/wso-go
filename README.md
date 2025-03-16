@@ -113,6 +113,9 @@ API Endpoints are documented at `localhost:8080/docs`, and in the director `docs
 look at controller comments for any endpoint info. Don't use the provided query tools, bc they don't play nice 
 with our authentication.
 
+### Grafana
+Analytics are available at port `:9092`!
+
 ## Authentication Flow
 *NOTE: THIS IS DEPRECATED*
 We use something called a [JWT](jwt.io), or JSON Web Token for the API. This allows us to keep sessions and verify user identities without cookies or database queries. It works like this:
