@@ -124,6 +124,9 @@ API Endpoints are documented at `localhost:8080/docs`, and in the director `docs
 look at controller comments for any endpoint info. Don't use the provided query tools, bc they don't play nice
 with our authentication.
 
+### Grafana
+Analytics are available at port `:9092`!
+
 ## Authentication Flow
 
 _NOTE: THIS IS DEPRECATED_
