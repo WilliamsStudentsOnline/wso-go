@@ -2793,6 +2793,298 @@ const docTemplate = `{
                 }
             }
         },
+        "/clubtrak/clubs": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Lists all clubs in the database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clubtrak"
+                ],
+                "summary": "Lists all clubs",
+                "operationId": "clubtrack-get-all-clubs",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Offset Pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit Pagination",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search Query",
+                        "name": "q",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Club"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Adds club to database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clubtrak"
+                ],
+                "summary": "Creates a new club",
+                "operationId": "clubtrack-create-club",
+                "parameters": [
+                    {
+                        "description": "Create Club Params",
+                        "name": "createParams",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/clubtrak.ClubParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Club"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/clubtrak/clubs/:clubID": {
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Deletes a Club given a clubID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clubtrak"
+                ],
+                "summary": "Deletes a Club",
+                "operationId": "clubtrack-delete-club",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Club ID",
+                        "name": "clubID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Club"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Updates any of the data shown on a given club's webpage",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clubtrak"
+                ],
+                "summary": "Updates Club column",
+                "operationId": "clubtrack-update-club",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Club ID",
+                        "name": "clubID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Club Params",
+                        "name": "updateParams",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/clubtrak.ClubUpdateParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Club"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/course-selections/{userID}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "get courses selected by a user as a string of area of study and course ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "course-scheduler"
+                ],
+                "summary": "Get user course selections",
+                "operationId": "courseSchedulerSelections-persist-get",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "UserID",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/coursescheduler.CourseSelectionsString"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "set courses selected by a user as a string of area of study and course ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "course-scheduler"
+                ],
+                "summary": "Set user course selections",
+                "operationId": "courseSchedulerSelections-persist-set",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "UserID",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Request body",
+                        "name": "courses",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/dormtrak/dorms": {
             "get": {
                 "security": [
@@ -8481,6 +8773,106 @@ const docTemplate = `{
                 }
             }
         },
+        "clubtrak.Category": {
+            "type": "string",
+            "enum": [
+                "club sport",
+                "dance performance",
+                "academic and honors",
+                "advocacy, debate, and political",
+                "affinity, culterally based, and MiNCO",
+                "arts and entertainment",
+                "community Support and/or Service Learning",
+                "environmental and sustainability",
+                "health and wellness",
+                "professional and career",
+                "recreation and sports",
+                "religious and spiritual"
+            ],
+            "x-enum-varnames": [
+                "CategoryClubSports",
+                "CategoryDance",
+                "CategoryAcademicAndHonors",
+                "CategoryAdvocacyDebatePolitical",
+                "CategoryAffinityCulturallyBasedMinco",
+                "CategoryArtsEntertainment",
+                "CategoryCommunitySupportServiceLearning",
+                "CategoryEnvironmentSustainability",
+                "CategoryHealthWellness",
+                "CategoryProfessionalCareer",
+                "CategoryRecreationSports",
+                "CategoryReligiousSpiritual"
+            ]
+        },
+        "clubtrak.ClubParams": {
+            "type": "object",
+            "properties": {
+                "Subscriber": {
+                    "type": "integer"
+                },
+                "club": {
+                    "description": "Club leader's user struct assigned to ClubAdminID",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    ]
+                },
+                "clubID": {
+                    "type": "integer"
+                },
+                "meetingDescription": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "clubtrak.ClubUpdateParams": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "$ref": "#/definitions/clubtrak.Category"
+                },
+                "clubAdmin": {
+                    "description": "Belongs to some club leader",
+                    "type": "integer"
+                },
+                "clubAdminID": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "clubDescription": {
+                    "type": "string"
+                },
+                "clubPhoto": {
+                    "type": "string"
+                },
+                "contactEmail": {
+                    "type": "string"
+                },
+                "contactPhoneNumber": {
+                    "type": "string"
+                },
+                "meetingDescription": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "website": {
+                    "type": "string"
+                }
+            }
+        },
+        "coursescheduler.CourseSelectionsString": {
+            "type": "object",
+            "properties": {
+                "courses": {
+                    "type": "string"
+                }
+            }
+        },
         "dormtrak.DormRoomPhotoInfo": {
             "type": "object",
             "properties": {
@@ -9256,6 +9648,76 @@ const docTemplate = `{
                 "userID": {
                     "description": "Belongs to user",
                     "type": "integer"
+                }
+            }
+        },
+        "models.Category": {
+            "type": "string",
+            "enum": [
+                "club sport",
+                "dance performance",
+                "academic and honors",
+                "advocacy, debate, and political",
+                "affinity, culterally based, and MiNCO",
+                "arts and entertainment",
+                "community Support and/or Service Learning",
+                "environmental and sustainability",
+                "health and wellness",
+                "professional and career",
+                "recreation and sports",
+                "religious and spiritual"
+            ],
+            "x-enum-varnames": [
+                "CategoryClubSports",
+                "CategoryDance",
+                "CategoryAcademicAndHonors",
+                "CategoryAdvocacyDebatePolitical",
+                "CategoryAffinityCulturallyBasedMinco",
+                "CategoryArtsEntertainment",
+                "CategoryCommunitySupportServiceLearning",
+                "CategoryEnvironmentSustainability",
+                "CategoryHealthWellness",
+                "CategoryProfessionalCareer",
+                "CategoryRecreationSports",
+                "CategoryReligiousSpiritual"
+            ]
+        },
+        "models.Club": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "$ref": "#/definitions/models.Category"
+                },
+                "clubAdminID": {
+                    "description": "Club leader's DB ID",
+                    "type": "integer"
+                },
+                "clubDescription": {
+                    "type": "string"
+                },
+                "clubPhotoFilePath": {
+                    "type": "string"
+                },
+                "contactEmail": {
+                    "type": "string"
+                },
+                "contactPhoneNumber": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "meetingDescription": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "subscribers": {
+                    "type": "integer"
+                },
+                "website": {
+                    "type": "string"
                 }
             }
         },
