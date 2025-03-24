@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
 	"net/http"
 	"sort"
 	"strconv"
@@ -161,9 +162,30 @@ type RawCourse struct {
 	DistributionNotes    string `json:"WMS_DISTRIB_NOTES"`
 }
 
+type aggregatedInfo struct {
+	TotalReviews      uint   `gorm:"column:total_reviews"`
+	SumWouldRecommend uint   `gorm:"column:sum_would_recommend"`
+	CourseID          uint   `gorm:"column:course_id"`
+	ProfessorID       uint   `gorm:"column:professor_id"`
+	CourseAbbrev      string `gorm:"column:course_abbrev"`
+	CourseNumber      string `gorm:"column:course_number"`
+	ProfessorName     string `gorm:"column:professor_name"`
+}
+
+type courseWithAggregatedInfo struct {
+	Course
+	FactrakScore float64 `json:"factrakScore"` // (reviews that would recommend} / {total reviews} | (calculated using current instructors for this course)
+	DBID         uint    `json:"courseDBID"`   // ID in WSO courses database
+}
+
 type exportCourses struct {
 	Courses    []Course `json:"courses"`
 	UpdateTime string   `json:"updateTime"`
+}
+
+type exportAggregatedCourses struct {
+	Courses    []courseWithAggregatedInfo `json:"courses"`
+	UpdateTime string                     `json:"updateTime"`
 }
 
 // ParseCatalog processes the raw byte data from the JSON endpoint to obtain Course objects
@@ -533,6 +555,77 @@ func GetCatalog(academicYear int, draft bool) ([]RawCourse, error) {
 func SaveCatalog(w io.Writer, courses []Course) error {
 	var catalog = exportCourses{}
 	catalog.Courses = courses
+	catalog.UpdateTime = time.Now().Format(time.RFC850)
+
+	return json.NewEncoder(w).Encode(catalog)
+}
+
+// SaveFactrakCatalog aggregates Factrak data and a few extra course properties for easy access in Course Scheduler
+// (this file can only be fetched by logged in students with Factrak access)
+func SaveFactrakCatalog(w io.Writer, courses []Course, db *gorm.DB) error {
+	// fetch aggregated course info
+	results := []aggregatedInfo{}
+
+	// get number of would_recommends and total_reviews for each (course, prof) combination in the Factrak db
+	err := db.Raw(`
+        SELECT
+            COUNT(fs.id) AS total_reviews,
+            SUM(fs.would_recommend_course) AS sum_would_recommend,
+            fs.course_id,
+            fs.professor_id,
+            aos.abbrev AS course_abbrev,
+            c.number AS course_number,
+            u.name AS professor_name
+        FROM
+            factrak_surveys fs
+        JOIN
+            users u ON fs.professor_id = u.id
+        JOIN
+            courses c ON fs.course_id = c.id
+        JOIN
+            areas_of_study aos ON c.area_of_study_id = aos.id
+        WHERE
+            u.type = 'professor'
+            AND fs.deleted_at IS NULL
+        GROUP BY
+            fs.professor_id, fs.course_id
+    `).Scan(&results).Error
+
+	if err != nil {
+		return err
+	}
+
+	// hash results by [DEPT 123][profID]
+	ratingsByCourse := make(map[string]map[uint]aggregatedInfo)
+	for _, result := range results {
+		courseKey := result.CourseAbbrev + " " + result.CourseNumber
+		if _, ok := ratingsByCourse[courseKey]; !ok {
+			ratingsByCourse[courseKey] = make(map[uint]aggregatedInfo)
+		}
+		ratingsByCourse[courseKey][result.ProfessorID] = result
+	}
+
+	var catalog = exportAggregatedCourses{}
+	catalog.Courses = []courseWithAggregatedInfo{}
+	for _, course := range courses {
+		c := courseWithAggregatedInfo{}
+		c.Course = course
+
+		recommends := uint(0)
+		reviews := uint(0)
+		for _, prof := range course.Instructors {
+			result := ratingsByCourse[course.Department+" "+strconv.FormatInt(int64(course.Number), 10)][prof.ID]
+			recommends += result.SumWouldRecommend
+			reviews += result.TotalReviews
+			c.DBID = result.CourseID
+		}
+		c.FactrakScore = float64(recommends) / float64(reviews)
+		if math.IsNaN(c.FactrakScore) {
+			c.FactrakScore = -1
+		}
+
+		catalog.Courses = append(catalog.Courses, c)
+	}
 	catalog.UpdateTime = time.Now().Format(time.RFC850)
 
 	return json.NewEncoder(w).Encode(catalog)

@@ -25,6 +25,7 @@ func main() {
 	var winterSemesterID int
 	var springSemesterID int
 	var filename string
+	var factrakFilename string
 	var draftCatalog bool
 	var disableMigrationCheck bool
 	var console bool
@@ -36,6 +37,7 @@ func main() {
 	flag.IntVar(&winterSemesterID, "winter", 0, "winter courses semester id")
 	flag.IntVar(&springSemesterID, "spring", 0, "spring courses semester id")
 	flag.StringVar(&filename, "file", "courses.json", "where to save the courses JSON file")
+	flag.StringVar(&factrakFilename, "factrak-file", "courses-factrak.json", "where to save the JSON aggregated with Factrak info")
 	flag.BoolVar(&draftCatalog, "draft", false, "get the draft catalog at catalog.draft.williams.edu")
 	flag.BoolVar(&disableMigrationCheck, "disable-migration-check", false, "don't check for outdated migrations")
 	flag.BoolVar(&console, "console", false, "print logs in console as well as in ")
@@ -52,11 +54,13 @@ func main() {
 		}
 	}
 
+	// url endpoint for catalog may have changed, seems to take real year instead of 2X2(X+1)
+	academicYear = year
 	// Set the academic year from the last 2 digits of the year and the last 2 digits of the next year
-	if academicYear == 0 {
-		// Converts a real year's 2018 to 1819 (aabb to bb(bb+1))
-		academicYear = (year%100)*100 + (year % 100) + 1
-	}
+	// if academicYear == 0 {
+	// 	// Converts a real year's 2018 to 1819 (aabb to bb(bb+1))
+	// 	academicYear = (year%100)*100 + (year % 100) + 1
+	// }
 
 	// Set the fall semester ID to be a linear scale (+10 every year) starting at a fixed point
 	if fallSemesterID == 0 {
@@ -156,4 +160,21 @@ func main() {
 	}
 
 	log.Infof("successfully saved parsed course catalog to %s", filename)
+
+	f2, err := os.OpenFile(factrakFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	defer f2.Close()
+
+	db := config.LoadDatabase(cfg, log)
+	defer config.CloseDatabase(db, log)
+	err = catalog.SaveFactrakCatalog(f2, courses, db)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	log.Infof("successfully saved factrak-aggregated course catalog to %s", factrakFilename)
 }
