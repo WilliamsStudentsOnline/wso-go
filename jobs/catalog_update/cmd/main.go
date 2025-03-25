@@ -53,7 +53,7 @@ func main() {
 	// Year defaults to spring of current academic year
 	if year == 0 {
 		year = time.Now().Year()
-		if time.Now().Month() >= time.March { // load next year's catalog options in mar-aug, or this year's in sep-dec
+		if time.Now().Month() >= time.April { // load next year's catalog options in mar-aug, or this year's in sep-dec
 			year += 1
 		}
 	}
@@ -164,7 +164,7 @@ func getCatalogCourses(year int) (courses []catalog.Course, err error) {
 	yearForSemID := year
 	if year == 0 {
 		yearForSemID = time.Now().Year()
-		if time.Now().Month() >= time.March {
+		if time.Now().Month() >= time.April {
 			yearForSemID += 1
 		}
 	}
