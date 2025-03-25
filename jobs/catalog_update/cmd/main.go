@@ -142,6 +142,8 @@ func main() {
 	}
 	log.Infof("Successfully saved factrak-aggregated course catalog to %s", factrakFilename)
 
+	year = min(year, courses[0].Year) // prevent trying to access future catalogs
+
 	// Saves previous years to processed JSON, optionally cross listings as well
 	// Will write extra files for current year for compatibility (e.g. would save courses.json and courses-2025.json in AY 2024-5)
 	for i := 0; i <= savePreviousYears; i++ {
