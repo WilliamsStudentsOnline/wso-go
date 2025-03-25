@@ -53,7 +53,7 @@ func main() {
 	// Year defaults to spring of current academic year
 	if year == 0 {
 		year = time.Now().Year()
-		if time.Now().Month() >= time.April { // load next year's catalog options in mar-aug, or this year's in sep-dec
+		if time.Now().Month() >= time.March { // load next year's catalog options in mar-aug, or this year's in sep-dec
 			year += 1
 		}
 	}
@@ -115,7 +115,7 @@ func main() {
 		searchFactrak = factrak.NewSearchFactrak(db, cfg, log)
 	}
 
-	courses, err := getCatalogCourses(0) // 0 = current year
+	courses, err := getCatalogCourses(0)
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -161,24 +161,18 @@ func main() {
 }
 
 func getCatalogCourses(year int) (courses []catalog.Course, err error) {
-	yearForSemID := year
-	if year == 0 {
-		yearForSemID = time.Now().Year()
-		if time.Now().Month() >= time.April {
-			yearForSemID += 1
-		}
+	rawCourses, err := catalog.GetCatalog(year, draftCatalog)
+	if err != nil {
+		return
 	}
+
+	yearForSemID := rawCourses[0].AcademicYear
 	// Set the fall semester ID to be a linear scale (+10 every year) starting at a fixed point
 	fallSemesterID := FixedFallSemesterID + 10*(yearForSemID-FixedFallSemesterYear)
 	// Set winter semester ID to be one more than fall semester ID
 	winterSemesterID := fallSemesterID + 1
 	// Set spring semester ID to be two more than fall semester ID
 	springSemesterID := fallSemesterID + 2
-
-	rawCourses, err := catalog.GetCatalog(year, draftCatalog)
-	if err != nil {
-		return
-	}
 
 	courses, err = catalog.ParseCatalog(rawCourses, fallSemesterID, winterSemesterID, springSemesterID, log, searchFactrak)
 	if err != nil {
