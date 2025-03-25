@@ -14,7 +14,12 @@ file_path = Path(args.file)
 if file_path.exists() and not file_path.is_dir():
     with open(file_path, "r") as x:
         data_raw = x.read()
+        print(
+            "[ephmatch_parser] successfully parsed at time: "
+            + dt.datetime.now().isoformat()
+        )
 else:
+    print("[ephmatch_parser] update failed at time: " + dt.datetime.now().isoformat())
     raise FileNotFoundError("file " + str(args.file) + " does not exist.")
 
 ### find the dates
@@ -97,3 +102,4 @@ updated_block = re.sub(
 )
 with open(file_path, "w") as x:
     x.write(updated_block)
+print("[ephmatch_parser] update complete at time: " + dt.datetime.now().isoformat())
