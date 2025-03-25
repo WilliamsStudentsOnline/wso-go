@@ -161,8 +161,15 @@ func main() {
 }
 
 func getCatalogCourses(year int) (courses []catalog.Course, err error) {
+	yearForSemID := year
+	if year == 0 {
+		yearForSemID = time.Now().Year()
+		if time.Now().Month() >= time.March {
+			yearForSemID += 1
+		}
+	}
 	// Set the fall semester ID to be a linear scale (+10 every year) starting at a fixed point
-	fallSemesterID := FixedFallSemesterID + 10*(year-FixedFallSemesterYear)
+	fallSemesterID := FixedFallSemesterID + 10*(yearForSemID-FixedFallSemesterYear)
 	// Set winter semester ID to be one more than fall semester ID
 	winterSemesterID := fallSemesterID + 1
 	// Set spring semester ID to be two more than fall semester ID
