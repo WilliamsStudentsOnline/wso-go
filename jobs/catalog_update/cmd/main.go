@@ -18,7 +18,7 @@ import (
 
 const (
 	FixedFallSemesterID   = 1201
-	FixedFallSemesterYear = 2019
+	FixedFallSemesterYear = 2020
 )
 
 var (
