@@ -25,7 +25,6 @@ var (
 	configPath            string
 	filename              string
 	factrakFilename       string
-	crossListingsFilename string
 	savePreviousYears     int
 	draftCatalog          bool
 	disableMigrationCheck bool
@@ -43,7 +42,6 @@ func main() {
 	flag.IntVar(&savePreviousYears, "previous-years", 0, "parse n previous years and save to public JSONs")
 	flag.StringVar(&filename, "file", "courses.json", "where to save the courses JSON file")
 	flag.StringVar(&factrakFilename, "factrak-file", "", "where to save the JSON aggregated with Factrak info")
-	flag.StringVar(&crossListingsFilename, "cross-listings-file", "", "where to save cross-listings as a JSON (default no save)")
 	flag.BoolVar(&draftCatalog, "draft", false, "get the draft catalog at catalog.draft.williams.edu")
 	flag.BoolVar(&disableMigrationCheck, "disable-migration-check", false, "don't check for outdated migrations")
 	flag.BoolVar(&console, "console", false, "print logs in console as well as in ")
@@ -124,7 +122,7 @@ func main() {
 	}
 
 	// Save current year
-	err = writeCatalogFile(courses, filename, crossListingsFilename)
+	err = writeCatalogFile(courses, filename)
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -153,9 +151,7 @@ func main() {
 			return
 		}
 
-		err = writeCatalogFile(courses,
-			strings.Replace(filename, ".json", fmt.Sprintf("-%v.json", year-i), 1),
-			strings.Replace(crossListingsFilename, ".json", fmt.Sprintf("-%v.json", year-i), 1))
+		err = writeCatalogFile(courses, strings.Replace(filename, ".json", fmt.Sprintf("-%v.json", year-i), 1))
 		if err != nil {
 			log.Fatal(err)
 			return
@@ -185,7 +181,7 @@ func getCatalogCourses(year int) (courses []catalog.Course, err error) {
 	return
 }
 
-func writeCatalogFile(courses []catalog.Course, filename, crossListingsFilename string) (err error) {
+func writeCatalogFile(courses []catalog.Course, filename string) (err error) {
 	f_course, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return
@@ -199,23 +195,5 @@ func writeCatalogFile(courses []catalog.Course, filename, crossListingsFilename 
 	}
 
 	log.Infof("Successfully saved parsed catalog to %v", filename)
-
-	if crossListingsFilename != "" {
-		f_crosslist, err2 := os.OpenFile(crossListingsFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
-		if err2 != nil {
-			log.Fatal(err2)
-			return err2
-		}
-		defer f_crosslist.Close()
-
-		err2 = catalog.SaveCrossListings(f_crosslist, courses)
-		if err2 != nil {
-			log.Fatal(err2)
-			return err2
-		}
-
-		log.Infof("Successfully saved cross listings to %s", crossListingsFilename)
-	}
-
 	return nil
 }

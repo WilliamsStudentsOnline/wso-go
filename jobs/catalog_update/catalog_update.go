@@ -180,13 +180,15 @@ type courseWithAggregatedInfo struct {
 }
 
 type exportCourses struct {
-	Courses    []Course `json:"courses"`
-	UpdateTime string   `json:"updateTime"`
+	Courses       []Course            `json:"courses"`
+	UpdateTime    string              `json:"updateTime"`
+	CrossListings map[string][]string `json:"crossListings"`
 }
 
 type exportAggregatedCourses struct {
-	Courses    []courseWithAggregatedInfo `json:"courses"`
-	UpdateTime string                     `json:"updateTime"`
+	Courses       []courseWithAggregatedInfo `json:"courses"`
+	UpdateTime    string                     `json:"updateTime"`
+	CrossListings map[string][]string        `json:"crossListings"`
 }
 
 // ParseCatalog processes the raw byte data from the JSON endpoint to obtain Course objects
@@ -561,6 +563,7 @@ func SaveCatalog(w io.Writer, courses []Course) error {
 	var catalog = exportCourses{}
 	catalog.Courses = courses
 	catalog.UpdateTime = time.Now().Format(time.RFC850)
+	catalog.CrossListings = HashCrossListings(courses)
 
 	return json.NewEncoder(w).Encode(catalog)
 }
@@ -631,18 +634,20 @@ func SaveFactrakCatalog(w io.Writer, courses []Course, db *gorm.DB) error {
 
 		catalog.Courses = append(catalog.Courses, c)
 	}
+
 	catalog.UpdateTime = time.Now().Format(time.RFC850)
+	catalog.CrossListings = HashCrossListings(courses)
 
 	return json.NewEncoder(w).Encode(catalog)
 }
 
-func SaveCrossListings(w io.Writer, courses []Course) error {
+func HashCrossListings(courses []Course) map[string][]string {
 	crossListings := make(map[string][]string)
 	for _, course := range courses {
 		crossListings[course.Department+" "+strconv.Itoa(course.Number)] = course.CrossListing
 	}
 
-	return json.NewEncoder(w).Encode(crossListings)
+	return crossListings
 }
 
 func AttachDBProfessors(courses []*Course, db *gorm.DB) error {
