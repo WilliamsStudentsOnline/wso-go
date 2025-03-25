@@ -22,9 +22,10 @@ import (
 
 const (
 	// CatalogURL stores the endpoint for the catalog
-	CatalogURL      = "https://catalog.williams.edu/wp-json/courses/v1/year"
-	DraftCatalogURL = "https://catalog.draft.williams.edu/wp-json/courses/v1/year"
-	hourFormat      = "15:04"
+	CatalogURL        = "https://catalog.williams.edu/wp-json/courses/v1/year"
+	CatalogCurrentURL = "https://catalog.williams.edu/wp-json/courses/v1/year/current"
+	DraftCatalogURL   = "https://catalog.draft.williams.edu/wp-json/courses/v1/year"
+	hourFormat        = "15:04"
 )
 
 // Instructor holds the url and name of the instructors
@@ -533,7 +534,11 @@ func GetCatalog(academicYear int, draft bool) ([]RawCourse, error) {
 	if draft {
 		url = fmt.Sprintf("%s/%d", DraftCatalogURL, academicYear)
 	} else {
-		url = fmt.Sprintf("%s/%d", CatalogURL, academicYear)
+		if academicYear == 0 {
+			url = CatalogCurrentURL
+		} else {
+			url = fmt.Sprintf("%s/%d", CatalogURL, academicYear)
+		}
 	}
 
 	// Send the GET request and get back the response

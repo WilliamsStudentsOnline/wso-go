@@ -12,6 +12,8 @@ import (
 	catalog "github.com/WilliamsStudentsOnline/wso-go/jobs/catalog_update"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/logging"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/search/factrak"
+	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
 const (
@@ -19,30 +21,28 @@ const (
 	FixedFallSemesterYear = 2019
 )
 
+var (
+	configPath            string
+	filename              string
+	factrakFilename       string
+	crossListingsFilename string
+	savePreviousYears     int
+	draftCatalog          bool
+	disableMigrationCheck bool
+	console               bool
+
+	log           *zap.SugaredLogger
+	searchFactrak factrak.SearchFactrak
+)
+
 func main() {
-	var configPath string
 	var year int
-	var academicYear int
-	var fallSemesterID int
-	var winterSemesterID int
-	var springSemesterID int
-	var filename string
-	var factrakFilename string
-	var crossListingsFilename string
-	var savePreviousYears int
-	var draftCatalog bool
-	var disableMigrationCheck bool
-	var console bool
 
 	flag.StringVar(&configPath, "config", "", "path to config file")
 	flag.IntVar(&year, "year", 0, "the calendar year; set this to the year of fall semester")
-	flag.IntVar(&academicYear, "academic-year", 0, "academic year of courses (eg 1819, 1920)")
-	flag.IntVar(&fallSemesterID, "fall", 0, "fall courses semester id")
-	flag.IntVar(&winterSemesterID, "winter", 0, "winter courses semester id")
-	flag.IntVar(&springSemesterID, "spring", 0, "spring courses semester id")
 	flag.IntVar(&savePreviousYears, "previous-years", 0, "parse n previous years and save to public JSONs")
 	flag.StringVar(&filename, "file", "courses.json", "where to save the courses JSON file")
-	flag.StringVar(&factrakFilename, "factrak-file", "courses-factrak.json", "where to save the JSON aggregated with Factrak info")
+	flag.StringVar(&factrakFilename, "factrak-file", "", "where to save the JSON aggregated with Factrak info")
 	flag.StringVar(&crossListingsFilename, "cross-listings-file", "", "where to save cross-listings as a JSON (default no save)")
 	flag.BoolVar(&draftCatalog, "draft", false, "get the draft catalog at catalog.draft.williams.edu")
 	flag.BoolVar(&disableMigrationCheck, "disable-migration-check", false, "don't check for outdated migrations")
@@ -52,33 +52,12 @@ func main() {
 
 	/* Flag Defaults */
 
-	// Default year is now, but if it is march or before (early-mid 2nd semester), set it to the previous year
+	// Year defaults to spring of current academic year
 	if year == 0 {
 		year = time.Now().Year()
-		if time.Now().Month() <= time.March {
-			year = year - 1
+		if time.Now().Month() >= time.March { // load next year's catalog options in mar-aug, or this year's in sep-dec
+			year += 1
 		}
-	}
-
-	// url endpoint for catalog may have changed, seems to take real year instead of 2X2(X+1)
-	academicYear = year
-	// Set the academic year from the last 2 digits of the year and the last 2 digits of the next year
-	// if academicYear == 0 {
-	// 	// Converts a real year's 2018 to 1819 (aabb to bb(bb+1))
-	// 	academicYear = (year%100)*100 + (year % 100) + 1
-	// }
-
-	// Set the fall semester ID to be a linear scale (+10 every year) starting at a fixed point
-	if fallSemesterID == 0 {
-		fallSemesterID = FixedFallSemesterID + 10*(year-FixedFallSemesterYear)
-	}
-	// Set winter semester ID to be one more than fall semester ID
-	if winterSemesterID == 0 {
-		winterSemesterID = fallSemesterID + 1
-	}
-	// Set spring semester ID to be two more than fall semester ID
-	if springSemesterID == 0 {
-		springSemesterID = fallSemesterID + 2
 	}
 
 	/* CONFIG */
@@ -107,7 +86,8 @@ func main() {
 	}
 	defer log.Sync()
 
-	var searchFactrak factrak.SearchFactrak = nil
+	searchFactrak = nil
+	var factrakDB *gorm.DB = nil
 
 	/* LOAD DB AND FACTRAK SEARCH ENGINE IF ENABLED */
 
@@ -116,6 +96,7 @@ func main() {
 	if configPath != "" {
 		/* DATABASE */
 		db := config.LoadDatabase(cfg, log)
+		factrakDB = db
 		defer config.CloseDatabase(db, log)
 
 		/* Database Migrations */
@@ -136,24 +117,77 @@ func main() {
 		searchFactrak = factrak.NewSearchFactrak(db, cfg, log)
 	}
 
-	/* Command Code */
-
-	rawCourses, err := catalog.GetCatalog(academicYear, draftCatalog)
+	courses, err := getCatalogCourses(0) // 0 = current year
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
 
-	courses, err := catalog.ParseCatalog(rawCourses, fallSemesterID, winterSemesterID, springSemesterID, log, searchFactrak)
+	// Save current year
+	err = writeCatalogFile(courses, filename, crossListingsFilename)
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
 
-	// Open a file to save it as
+	// Save current year with Factrak reviews
+	f_factrak, err := os.OpenFile(factrakFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	defer f_factrak.Close()
+	err = catalog.SaveFactrakCatalog(f_factrak, courses, factrakDB)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	log.Infof("Successfully saved factrak-aggregated course catalog to %s", factrakFilename)
+
+	// Saves previous years to processed JSON, optionally cross listings as well
+	// Will write extra files for current year for compatibility (e.g. would save courses.json and courses-2025.json in AY 2024-5)
+	for i := 0; i <= savePreviousYears; i++ {
+		courses, err := getCatalogCourses(year - i)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+
+		err = writeCatalogFile(courses,
+			strings.Replace(filename, ".json", fmt.Sprintf("-%v.json", year-i), 1),
+			strings.Replace(crossListingsFilename, ".json", fmt.Sprintf("-%v.json", year-i), 1))
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+	}
+
+}
+
+func getCatalogCourses(year int) (courses []catalog.Course, err error) {
+	// Set the fall semester ID to be a linear scale (+10 every year) starting at a fixed point
+	fallSemesterID := FixedFallSemesterID + 10*(year-FixedFallSemesterYear)
+	// Set winter semester ID to be one more than fall semester ID
+	winterSemesterID := fallSemesterID + 1
+	// Set spring semester ID to be two more than fall semester ID
+	springSemesterID := fallSemesterID + 2
+
+	rawCourses, err := catalog.GetCatalog(year, draftCatalog)
+	if err != nil {
+		return
+	}
+
+	courses, err = catalog.ParseCatalog(rawCourses, fallSemesterID, winterSemesterID, springSemesterID, log, searchFactrak)
+	if err != nil {
+		return
+	}
+	log.Infof("Successfully loaded catalog courses for %v", year)
+	return
+}
+
+func writeCatalogFile(courses []catalog.Course, filename, crossListingsFilename string) (err error) {
 	f_course, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
-		log.Fatal(err)
 		return
 	}
 	defer f_course.Close()
@@ -164,88 +198,24 @@ func main() {
 		return
 	}
 
-	log.Infof("Successfully saved parsed course catalog to %s", filename)
-
-	// writes extra files for compatibility (e.g. would save courses.json and courses-2025.json)
-	for i := 0; i <= savePreviousYears; i++ {
-		rawCoursesPrev, err := catalog.GetCatalog(academicYear-i, draftCatalog)
-		if err != nil {
-			log.Fatal(err)
-			return
-		}
-
-		coursesPrev, err := catalog.ParseCatalog(rawCoursesPrev, fallSemesterID, winterSemesterID, springSemesterID, log, searchFactrak)
-		if err != nil {
-			log.Fatal(err)
-			return
-		}
-
-		// saves to {path}-20XX.json
-		f_prevcourse, err := os.OpenFile(strings.Replace(filename, ".json", fmt.Sprintf("-%v.json", year), 1), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
-		if err != nil {
-			log.Fatal(err)
-			return
-		}
-
-		err = catalog.SaveCatalog(f_prevcourse, coursesPrev)
-		if err != nil {
-			log.Fatal(err)
-			return
-		}
-
-		f_prevcourse.Close()
-
-		if crossListingsFilename != "" {
-			f_prevcrosslist, err := os.OpenFile(strings.Replace(crossListingsFilename, ".json", fmt.Sprintf("-%v.json", year), 1), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
-			if err != nil {
-				log.Fatal(err)
-				return
-			}
-
-			err = catalog.SaveCrossListings(f_prevcrosslist, courses)
-			if err != nil {
-				log.Fatal(err)
-				return
-			}
-
-			f_prevcrosslist.Close()
-
-			log.Infof("Successfully saved cross listings to %s", crossListingsFilename)
-		}
-	}
-
-	f_factrak, err := os.OpenFile(factrakFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-	defer f_factrak.Close()
-
-	db := config.LoadDatabase(cfg, log)
-	defer config.CloseDatabase(db, log)
-	err = catalog.SaveFactrakCatalog(f_factrak, courses, db)
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-
-	log.Infof("Successfully saved factrak-aggregated course catalog to %s", factrakFilename)
+	log.Infof("Successfully saved parsed catalog to %v", filename)
 
 	if crossListingsFilename != "" {
-		f_crosslist, err := os.OpenFile(crossListingsFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
-		if err != nil {
-			log.Fatal(err)
-			return
+		f_crosslist, err2 := os.OpenFile(crossListingsFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+		if err2 != nil {
+			log.Fatal(err2)
+			return err2
 		}
 		defer f_crosslist.Close()
 
-		err = catalog.SaveCrossListings(f_crosslist, courses)
-		if err != nil {
-			log.Fatal(err)
-			return
+		err2 = catalog.SaveCrossListings(f_crosslist, courses)
+		if err2 != nil {
+			log.Fatal(err2)
+			return err2
 		}
 
 		log.Infof("Successfully saved cross listings to %s", crossListingsFilename)
 	}
 
+	return nil
 }
