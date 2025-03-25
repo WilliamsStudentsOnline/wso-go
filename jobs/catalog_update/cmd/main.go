@@ -115,7 +115,7 @@ func main() {
 		searchFactrak = factrak.NewSearchFactrak(db, cfg, log)
 	}
 
-	courses, err := getCatalogCourses(0) // 0 = current year
+	courses, err := getCatalogCourses(0)
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -142,36 +142,41 @@ func main() {
 	}
 	log.Infof("Successfully saved factrak-aggregated course catalog to %s", factrakFilename)
 
+	year = min(year, courses[0].Year) // prevent trying to access future catalogs
+
 	// Saves previous years to processed JSON, optionally cross listings as well
 	// Will write extra files for current year for compatibility (e.g. would save courses.json and courses-2025.json in AY 2024-5)
 	for i := 0; i <= savePreviousYears; i++ {
 		courses, err := getCatalogCourses(year - i)
 		if err != nil {
-			log.Fatal(err)
-			return
+			log.Errorf("Failed to parse catalog: %v", err)
+			continue
 		}
 
 		err = writeCatalogFile(courses, strings.Replace(filename, ".json", fmt.Sprintf("-%v.json", year-i), 1))
 		if err != nil {
-			log.Fatal(err)
-			return
+			log.Error("Failed to write catalog: %v", err)
+			continue
 		}
 	}
 
 }
 
 func getCatalogCourses(year int) (courses []catalog.Course, err error) {
-	// Set the fall semester ID to be a linear scale (+10 every year) starting at a fixed point
-	fallSemesterID := FixedFallSemesterID + 10*(year-FixedFallSemesterYear)
-	// Set winter semester ID to be one more than fall semester ID
-	winterSemesterID := fallSemesterID + 1
-	// Set spring semester ID to be two more than fall semester ID
-	springSemesterID := fallSemesterID + 2
+	log.Infof("Fetching catalog for %v", year)
 
 	rawCourses, err := catalog.GetCatalog(year, draftCatalog)
 	if err != nil {
 		return
 	}
+
+	yearForSemID := rawCourses[0].AcademicYear
+	// Set the fall semester ID to be a linear scale (+10 every year) starting at a fixed point
+	fallSemesterID := FixedFallSemesterID + 10*(yearForSemID-FixedFallSemesterYear)
+	// Set winter semester ID to be one more than fall semester ID
+	winterSemesterID := fallSemesterID + 1
+	// Set spring semester ID to be two more than fall semester ID
+	springSemesterID := fallSemesterID + 2
 
 	courses, err = catalog.ParseCatalog(rawCourses, fallSemesterID, winterSemesterID, springSemesterID, log, searchFactrak)
 	if err != nil {
