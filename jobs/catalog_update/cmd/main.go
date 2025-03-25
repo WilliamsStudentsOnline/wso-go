@@ -147,20 +147,22 @@ func main() {
 	for i := 0; i <= savePreviousYears; i++ {
 		courses, err := getCatalogCourses(year - i)
 		if err != nil {
-			log.Fatal(err)
-			return
+			log.Errorf("Failed to parse catalog: %v", err)
+			continue
 		}
 
 		err = writeCatalogFile(courses, strings.Replace(filename, ".json", fmt.Sprintf("-%v.json", year-i), 1))
 		if err != nil {
-			log.Fatal(err)
-			return
+			log.Error("Failed to write catalog: %v", err)
+			continue
 		}
 	}
 
 }
 
 func getCatalogCourses(year int) (courses []catalog.Course, err error) {
+	log.Infof("Fetching catalog for %v", year)
+
 	rawCourses, err := catalog.GetCatalog(year, draftCatalog)
 	if err != nil {
 		return
