@@ -26,6 +26,7 @@ func main() {
 	var springSemesterID int
 	var filename string
 	var factrakFilename string
+	var crossListingsFilename string
 	var draftCatalog bool
 	var disableMigrationCheck bool
 	var console bool
@@ -38,6 +39,7 @@ func main() {
 	flag.IntVar(&springSemesterID, "spring", 0, "spring courses semester id")
 	flag.StringVar(&filename, "file", "courses.json", "where to save the courses JSON file")
 	flag.StringVar(&factrakFilename, "factrak-file", "courses-factrak.json", "where to save the JSON aggregated with Factrak info")
+	flag.StringVar(&crossListingsFilename, "cross-listings-file", "", "where to save cross-listings as a JSON (default no save)")
 	flag.BoolVar(&draftCatalog, "draft", false, "get the draft catalog at catalog.draft.williams.edu")
 	flag.BoolVar(&disableMigrationCheck, "disable-migration-check", false, "don't check for outdated migrations")
 	flag.BoolVar(&console, "console", false, "print logs in console as well as in ")
@@ -98,7 +100,6 @@ func main() {
 	log, err := logging.SetupLog(cfg, "catalog-update")
 	if err != nil {
 		panic("Log Setup Error: " + err.Error())
-		return
 	}
 	defer log.Sync()
 
@@ -159,7 +160,7 @@ func main() {
 		return
 	}
 
-	log.Infof("successfully saved parsed course catalog to %s", filename)
+	log.Infof("Successfully saved parsed course catalog to %s", filename)
 
 	f2, err := os.OpenFile(factrakFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
@@ -176,5 +177,23 @@ func main() {
 		return
 	}
 
-	log.Infof("successfully saved factrak-aggregated course catalog to %s", factrakFilename)
+	log.Infof("Successfully saved factrak-aggregated course catalog to %s", factrakFilename)
+
+	if crossListingsFilename != "" {
+		f3, err := os.OpenFile(crossListingsFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+		defer f3.Close()
+
+		err = catalog.SaveCrossListings(f3, courses)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+
+		log.Infof("Successfully saved cross listings to %s", crossListingsFilename)
+	}
+
 }

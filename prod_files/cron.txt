@@ -16,7 +16,7 @@ SHELL="/bin/bash"
 
 # Catalog update
 SHELL="/bin/bash"
-0 3 * * * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/catalog-update -config /home/wso/wso/wso-backend/config.yaml -file /home/wso/wso/static/courses.json -factrak-file /home/wso/wso/static-auth/courses.json >> /home/wso/wso/wso-backend/logs/catalog-update-cron.log 2>&1'
+0 3 * * * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/catalog-update -config /home/wso/wso/wso-backend/config.yaml -file /home/wso/wso/static/courses.json -factrak-file /home/wso/wso/static-auth/courses.json -cross-listings-file /home/wso/wso/static/cross-listings.json >> /home/wso/wso/wso-backend/logs/catalog-update-cron.log 2>&1'
 
 # User CSV Data update
 SHELL="/bin/bash"

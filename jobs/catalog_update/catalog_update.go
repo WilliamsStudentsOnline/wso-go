@@ -614,7 +614,7 @@ func SaveFactrakCatalog(w io.Writer, courses []Course, db *gorm.DB) error {
 		recommends := uint(0)
 		reviews := uint(0)
 		for _, prof := range course.Instructors {
-			result := ratingsByCourse[course.Department+" "+strconv.FormatInt(int64(course.Number), 10)][prof.ID]
+			result := ratingsByCourse[course.Department+" "+strconv.Itoa(course.Number)][prof.ID]
 			recommends += result.SumWouldRecommend
 			reviews += result.TotalReviews
 			c.DBID = result.CourseID
@@ -629,6 +629,15 @@ func SaveFactrakCatalog(w io.Writer, courses []Course, db *gorm.DB) error {
 	catalog.UpdateTime = time.Now().Format(time.RFC850)
 
 	return json.NewEncoder(w).Encode(catalog)
+}
+
+func SaveCrossListings(w io.Writer, courses []Course) error {
+	crossListings := make(map[string][]string)
+	for _, course := range courses {
+		crossListings[course.Department+" "+strconv.Itoa(course.Number)] = course.CrossListing
+	}
+
+	return json.NewEncoder(w).Encode(crossListings)
 }
 
 func AttachDBProfessors(courses []*Course, db *gorm.DB) error {
