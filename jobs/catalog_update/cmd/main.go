@@ -38,7 +38,7 @@ func main() {
 	var year int
 
 	flag.StringVar(&configPath, "config", "", "path to config file")
-	flag.IntVar(&year, "year", 0, "the calendar year; set this to the year of fall semester")
+	flag.IntVar(&year, "year", 0, "the calendar year; set this to the year of spring semester")
 	flag.IntVar(&savePreviousYears, "previous-years", 0, "parse n previous years and save to public JSONs")
 	flag.StringVar(&filename, "file", "courses.json", "where to save the courses JSON file")
 	flag.StringVar(&factrakFilename, "factrak-file", "", "where to save the JSON aggregated with Factrak info")
@@ -78,7 +78,7 @@ func main() {
 	}
 
 	/* LOGGING */
-	log, err := logging.SetupLog(cfg, "catalog-update")
+	log, err = logging.SetupLog(cfg, "catalog-update")
 	if err != nil {
 		panic("Log Setup Error: " + err.Error())
 	}
