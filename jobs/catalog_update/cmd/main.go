@@ -2,7 +2,9 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
@@ -27,6 +29,7 @@ func main() {
 	var filename string
 	var factrakFilename string
 	var crossListingsFilename string
+	var savePreviousYears int
 	var draftCatalog bool
 	var disableMigrationCheck bool
 	var console bool
@@ -37,6 +40,7 @@ func main() {
 	flag.IntVar(&fallSemesterID, "fall", 0, "fall courses semester id")
 	flag.IntVar(&winterSemesterID, "winter", 0, "winter courses semester id")
 	flag.IntVar(&springSemesterID, "spring", 0, "spring courses semester id")
+	flag.IntVar(&savePreviousYears, "previous-years", 0, "parse n previous years and save to public JSONs")
 	flag.StringVar(&filename, "file", "courses.json", "where to save the courses JSON file")
 	flag.StringVar(&factrakFilename, "factrak-file", "courses-factrak.json", "where to save the JSON aggregated with Factrak info")
 	flag.StringVar(&crossListingsFilename, "cross-listings-file", "", "where to save cross-listings as a JSON (default no save)")
@@ -147,14 +151,14 @@ func main() {
 	}
 
 	// Open a file to save it as
-	f, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	f_course, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
-	defer f.Close()
+	defer f_course.Close()
 
-	err = catalog.SaveCatalog(f, courses)
+	err = catalog.SaveCatalog(f_course, courses)
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -162,16 +166,64 @@ func main() {
 
 	log.Infof("Successfully saved parsed course catalog to %s", filename)
 
-	f2, err := os.OpenFile(factrakFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	// writes extra files for compatibility (e.g. would save courses.json and courses-2025.json)
+	for i := 0; i <= savePreviousYears; i++ {
+		rawCoursesPrev, err := catalog.GetCatalog(academicYear-i, draftCatalog)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+
+		coursesPrev, err := catalog.ParseCatalog(rawCoursesPrev, fallSemesterID, winterSemesterID, springSemesterID, log, searchFactrak)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+
+		// saves to {path}-20XX.json
+		f_prevcourse, err := os.OpenFile(strings.Replace(filename, ".json", fmt.Sprintf("-%v.json", year), 1), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+
+		err = catalog.SaveCatalog(f_prevcourse, coursesPrev)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+
+		f_prevcourse.Close()
+
+		if crossListingsFilename != "" {
+			f_prevcrosslist, err := os.OpenFile(strings.Replace(crossListingsFilename, ".json", fmt.Sprintf("-%v.json", year), 1), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+			if err != nil {
+				log.Fatal(err)
+				return
+			}
+
+			err = catalog.SaveCrossListings(f_prevcrosslist, courses)
+			if err != nil {
+				log.Fatal(err)
+				return
+			}
+
+			f_prevcrosslist.Close()
+
+			log.Infof("Successfully saved cross listings to %s", crossListingsFilename)
+		}
+	}
+
+	f_factrak, err := os.OpenFile(factrakFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
-	defer f2.Close()
+	defer f_factrak.Close()
 
 	db := config.LoadDatabase(cfg, log)
 	defer config.CloseDatabase(db, log)
-	err = catalog.SaveFactrakCatalog(f2, courses, db)
+	err = catalog.SaveFactrakCatalog(f_factrak, courses, db)
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -180,14 +232,14 @@ func main() {
 	log.Infof("Successfully saved factrak-aggregated course catalog to %s", factrakFilename)
 
 	if crossListingsFilename != "" {
-		f3, err := os.OpenFile(crossListingsFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+		f_crosslist, err := os.OpenFile(crossListingsFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 		if err != nil {
 			log.Fatal(err)
 			return
 		}
-		defer f3.Close()
+		defer f_crosslist.Close()
 
-		err = catalog.SaveCrossListings(f3, courses)
+		err = catalog.SaveCrossListings(f_crosslist, courses)
 		if err != nil {
 			log.Fatal(err)
 			return
