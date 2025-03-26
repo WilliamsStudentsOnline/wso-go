@@ -57,7 +57,7 @@ fi
 # so as a result we'll use the existing directory size as an estimate.
 if [ -n "$FILE_LIST" ]; then
   # convert the file list into null-separated format for du, then summarize in bytes
-  GUESS_SIZE=$(du -c --files0-from=<(tr '\n' '\0' < "$FILE_LIST") --block-size=1 2>/dev/null | tail -n 1 | awk '{print $1}')
+  GUESS_SIZE=$(du -c --files0-from=<(tr '\n' '\0' < "$BACKUP_FILES") --block-size=1 2>/dev/null | tail -n 1 | awk '{print $1}')
 else
     # convert the file list into null-separated format for du, then summarize in bytes
   GUESS_SIZE=$(du -c --block-size=1 "$BACKUP" 2>/dev/null | tail -n 1 | awk '{print $1}')
