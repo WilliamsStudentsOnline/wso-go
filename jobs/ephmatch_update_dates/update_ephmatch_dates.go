@@ -105,14 +105,14 @@ func main() {
 	dataRawValue := strings.Join(indentedLines, "\n")
 
 	// find all lines until the first with a non-whitespace character after our key
-	pattern := `(?s)(?m)(?<=ephmatch_eras:)(.*?)(?=\n^\S)`
+	pattern := `(?m)(^ephmatch_eras:\s*\n)(?:^\s+.*$\n?)*`
 	re := regexp.MustCompile(pattern)
 
 	if !re.MatchString(dataRaw) {
 		log.Fatalf("Error: Could not find the 'ephmatch_eras:' block to replace in %s", absFilePath)
 	}
 
-	replacement := "\n" + dataRawValue
+	replacement := "ephmatch_eras:\n" + dataRawValue + "\n"
 	updatedBlock := re.ReplaceAllString(dataRaw, replacement)
 
 	err = os.WriteFile(absFilePath, []byte(updatedBlock), 0664) // let's hope that 0664 perms are fine for config
