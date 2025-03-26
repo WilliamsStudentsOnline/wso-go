@@ -31,22 +31,46 @@ TIMESTAMP=$(date -Iseconds | tr ':' '_')
 # archive size. these files are really big and the server is quite slow
 BACKUP_OUTPUT_FILE="$BACKUP/wso-backup-$TIMESTAMP.tar.zst"
 
-echo "(backup) backup started at time: $TIMESTAMP"
+usage() {
+  echo "Usage: $0 [-v] [-h] [-f file]";
+  exit 0;
+}
+# arguments:
+while getopts "vhf:" OPT; do
+  case $OPT in
+    v)
+      VERBOSE=1
+      ;;
+    h)
+      usage
+      ;;
+    f)
+      # file list argument
+      if [ -z "$OPTARG" ]; then
+        echo "(backup) error: '-f' requires a file argument."
+        usage
+        exit 1
+      fi
+      FILE_LIST="$OPTARG"
+      if [ ! -f "$FILE_LIST" ]; then
+        echo "(backup) error: file list '$FILE_LIST' not found."
+        echo "(backup) are you sure it has the right permissions?"
+        exit 1
+      fi
+      # this is so mind-numbingly stupid but Bash doesn't give other methods for concatenation
+      TMPAFFIX=".tmp"
+      sed "s|^|$TARGET/|" "$FILE_LIST" > "$FILE_LIST$TMPAFFIX"
+      # note that this is technically a bash array, and not a string
+      BACKUP_FILES=(-T "$FILE_LIST$TMPAFFIX")
+      ;;
+    *)
+      usage
+      ;;
+  esac
+done
 
-# file list argument
-if [ -n "$1" ]; then
-  FILE_LIST="$1"
-  if [ ! -f "$FILE_LIST" ]; then
-    echo "(backup) error: file list '$FILE_LIST' not found."
-    echo "(backup) are you sure it has the right permissions?"
-    exit 1
-  fi
-  # this is so mind-numbingly stupid but Bash doesn't give other methods for concatenation
-  TMPAFFIX=".tmp"
-  sed "s|^|$TARGET/|" "$FILE_LIST" > "$FILE_LIST$TMPAFFIX"
-  # note that this is technically a bash array, and not a string
-  BACKUP_FILES=(-T "$FILE_LIST$TMPAFFIX")
-else
+echo "(backup) backup started at time: $TIMESTAMP"
+if [ -z "$FILE_LIST" ]; then
   echo "(backup) no file list provided, archiving everything in $SOURCE"
   # tar syntax to nab everything
   BACKUP_FILES=(.)
@@ -57,7 +81,7 @@ fi
 # so as a result we'll use the existing directory size as an estimate.
 if [ -n "$FILE_LIST" ]; then
   # convert the file list into null-separated format for du, then summarize in bytes
-  GUESS_SIZE=$(du -c --files0-from=<(tr '\n' '\0' < "$BACKUP_FILES") --block-size=1 2>/dev/null | tail -n 1 | awk '{print $1}')
+  GUESS_SIZE=$(du -c --files0-from=<(tr '\n' '\0' < "${BACKUP_FILES[-1]}") --block-size=1 2>/dev/null | tail -n 1 | awk '{print $1}')
 else
     # convert the file list into null-separated format for du, then summarize in bytes
   GUESS_SIZE=$(du -c --block-size=1 "$BACKUP" 2>/dev/null | tail -n 1 | awk '{print $1}')
@@ -93,11 +117,10 @@ echo "(backup) creating backup: $BACKUP_OUTPUT_FILE"
 # of course, this doesn't help for any files which are inside of the archive
 # why is $SOURCE not in quotes? this is because something is wrong with tar's parsing
 # I give up on trying to fix it. this is a gross hack.
-tar -cfz "$BACKUP_OUTPUT_FILE" --zstd --checkpoint-action=dot --xattrs-include='*.*' --numeric-owner --transform='s#[/:*?"<>|]#_#g' -C $SOURCE "${BACKUP_FILES[@]}"
+tar -cf "$BACKUP_OUTPUT_FILE"  --ignore-failed-read --zstd --checkpoint-action=dot --xattrs-include='*.*' --numeric-owner --transform='s#[/:*?"<>|]#_#g' -C $SOURCE "${BACKUP_FILES[@]}" > /dev/null
 
 # time has passed
 TIMESTAMP=$(date -Iseconds | tr ':' '_')
 # delete that temp file we made to overcome a Bash limitation
 rm "$FILE_LIST$TMPAFFIX"
-echo "(backup) backup complete at time: $TIMESTAMP"
-  
+echo "(backup) backup complete at time: $TIMESTAMP"  
