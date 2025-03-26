@@ -115,7 +115,7 @@ func main() {
 	replacement := "ephmatch_eras:\n" + dataRawValue + "\n"
 	updatedBlock := re.ReplaceAllString(dataRaw, replacement)
 
-	err = os.WriteFile(absFilePath, []byte(updatedBlock), 0644) // let's hope that 0644 perms are fine for config
+	err = os.WriteFile(absFilePath, []byte(updatedBlock), 0664) // let's hope that 0664 perms are fine for config
 	if err != nil {
 		log.Fatalf("Error writing updated content to file %s: %v", absFilePath, err)
 	}
