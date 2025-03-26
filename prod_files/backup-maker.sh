@@ -28,9 +28,6 @@ BACKUP="/backup"
 TARGET=$(find /backup-sync -maxdepth 1 -type d -name "????-??-??" -exec stat --format="%Y %n" {} + | sort -n | tail -n 1 | cut -d ' ' -f 2-)
 # use Windows-compatible filenames
 TIMESTAMP=$(date -Iseconds | tr ':' '_')
-# we use zstd compression since it strikes a nice balance between speed and
-# archive size. these files are really big and the server is quite slow
-BACKUP_OUTPUT_FILE="$BACKUP/wso-backup-$TIMESTAMP.tar.zst"
 
 usage() {
   echo "Usage: $0 [-h] [-f file]";
@@ -60,6 +57,8 @@ while getopts "vhf:" OPT; do
       sed "s|^|$TARGET/|" "$FILE_LIST" > "$FILE_LIST$TMPAFFIX"
       # note that this is technically a bash array, and not a string
       BACKUP_FILES=(-T "$FILE_LIST$TMPAFFIX")
+      # since we're specifying a file, this must be partial
+      BACKUP_TYPE="partial"
       ;;
     *)
       usage
@@ -72,7 +71,12 @@ if [ -z "$FILE_LIST" ]; then
   echo "(backup) no file list provided, archiving everything in $SOURCE"
   # tar syntax to nab everything
   BACKUP_FILES=(.)
+  BACKUP_TYPE="full"
 fi
+
+# we use zstd compression since it strikes a nice balance between speed and
+# archive size. these files are really big and the server is quite slow
+BACKUP_OUTPUT_FILE="$BACKUP/wso-backup-$TIMESTAMP-$BACKUP_TYPE.tar.zst"
 
 # estimate size of our compressed backup
 # we can't always assume that compression will be more efficient or significant,
