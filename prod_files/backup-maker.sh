@@ -7,6 +7,7 @@
 
 # DO NOT PUT COMMENTS IN BACKUP-PARTIAL! ENSURE THAT ALL FILES IN THERE
 # EXIST, OR TAR WILL FAIL AND THERE'LL BE NO BACKUP!
+# tar can gracefully recover sometimes. but don't rely on it! tar is a cruel mistress.
 
 #    (__)    )
 #    (..)   /|\
@@ -32,15 +33,12 @@ TIMESTAMP=$(date -Iseconds | tr ':' '_')
 BACKUP_OUTPUT_FILE="$BACKUP/wso-backup-$TIMESTAMP.tar.zst"
 
 usage() {
-  echo "Usage: $0 [-v] [-h] [-f file]";
+  echo "Usage: $0 [-h] [-f file]";
   exit 0;
 }
 # arguments:
 while getopts "vhf:" OPT; do
   case $OPT in
-    v)
-      VERBOSE=1
-      ;;
     h)
       usage
       ;;
