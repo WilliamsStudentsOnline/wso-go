@@ -623,12 +623,24 @@ func SaveFactrakCatalog(w io.Writer, courses []Course, db *gorm.DB) error {
 
 		recommends := uint(0)
 		reviews := uint(0)
-		for _, prof := range course.Instructors {
-			result := ratingsByCourse[course.Department+" "+strconv.Itoa(course.Number)][prof.ID]
-			recommends += result.SumWouldRecommend
-			reviews += result.TotalReviews
-			c.DBID = result.CourseID
+
+		crossListedCourses := []string{course.Department + " " + strconv.Itoa(course.Number)}
+		for _, listing := range course.CrossListing {
+			crossListedCourses = append(crossListedCourses, listing)
 		}
+
+		for i, crossListedCourse := range crossListedCourses {
+			for _, prof := range course.Instructors {
+				if result, ok := ratingsByCourse[crossListedCourse][prof.ID]; ok {
+					recommends += result.SumWouldRecommend
+					reviews += result.TotalReviews
+					if i == 0 {
+						c.DBID = result.CourseID
+					}
+				}
+			}
+		}
+
 		c.RecommendedReviews = recommends
 		c.TotalReviews = reviews
 		c.FactrakScore = float64(recommends) / float64(reviews)
