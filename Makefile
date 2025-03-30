@@ -74,10 +74,6 @@ job-user-csv-data:
 job-dining-update:
 	go build -tags=jsoniter -o job-dining-update ./jobs/dining_update/cmd
 
-.PHONY: job-library-hours-update
-job-library-hours-update:
-	go build -tags=jsoniter -o job-library-hours-update ./jobs/library_hours_update/cmd
-
 PHONY: job-schedule-notifs
 job-schedule-notifs:
 	go build -tags=jsoniter -o job-schedule-notifs ./jobs/schedule_notifs/cmd
@@ -98,6 +94,10 @@ job-update_profs_areas_of_study:
 job-ephmatch-reset:
 	go build -tags jsoniter -o job-ephmatch-reset ./jobs/ephmatch_reset
 
+.PHONY: job-ephmatch-update-dates
+job-ephmatch-update-dates:
+	go build -tags jsoniter -o job-ephmatch_update_dates ./jobs/ephmatch_update_dates
+
 .PHONY: build-prod-linux
 build-prod-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o $(BINARY_NAME)_linux ./server/cmd
@@ -117,6 +117,7 @@ build-jobs-prod-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-initialize-on-campus-semesters ./jobs/update_on_campus_semesters/initial-calculation
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-update_profs_areas_of_study ./jobs/update_profs_areas_of_study/cmd
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-ephmatch-reset ./jobs/ephmatch_reset
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-ephmatch_update_dates ./jobs/ephmatch_update_dates
 
 .PHONY: go-gen
 go-gen:
@@ -135,6 +136,11 @@ commit: jobs/dorms_update/cmd/data.go docs/docs.go fmt services/*/responses/*.go
 
 .PHONY: run-dev
 run-dev: $(BINARY_NAME)
+	./$(BINARY_NAME) --development
+
+.PHONY: run-with-analytics
+run-with-analytics: $(BINARY_NAME)
+	bash ./prod_files/run-analytics.sh &
 	./$(BINARY_NAME) --development
 
 .PHONY: test
