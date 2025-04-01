@@ -176,19 +176,21 @@ type aggregatedInfo struct {
 
 type courseWithAggregatedInfo struct {
 	Course
-	FactrakScore float64 `json:"factrakScore"` // (reviews that would recommend} / {total reviews} | (calculated using current instructors for this course)
-	DBID         uint    `json:"courseDBID"`   // ID in WSO courses database
+	RecommendedReviews uint    `json:"recommendReviews"`
+	TotalReviews       uint    `json:"totalReviews"`
+	FactrakScore       float64 `json:"factrakScore"` // (reviews that would recommend} / {total reviews} | (calculated using current instructors for this course)
+	DBID               uint    `json:"courseDBID"`   // ID in WSO courses database
 }
 
 type exportCourses struct {
-	Courses       []Course            `json:"courses"`
 	UpdateTime    string              `json:"updateTime"`
+	Courses       []Course            `json:"courses"`
 	CrossListings map[string][]string `json:"crossListings"`
 }
 
 type exportAggregatedCourses struct {
-	Courses       []courseWithAggregatedInfo `json:"courses"`
 	UpdateTime    string                     `json:"updateTime"`
+	Courses       []courseWithAggregatedInfo `json:"courses"`
 	CrossListings map[string][]string        `json:"crossListings"`
 }
 
@@ -625,12 +627,21 @@ func SaveFactrakCatalog(w io.Writer, courses []Course, db *gorm.DB) error {
 
 		recommends := uint(0)
 		reviews := uint(0)
-		for _, prof := range course.Instructors {
-			result := ratingsByCourse[course.Department+" "+strconv.Itoa(course.Number)][prof.ID]
-			recommends += result.SumWouldRecommend
-			reviews += result.TotalReviews
-			c.DBID = result.CourseID
+
+		for i, crossListedCourse := range course.CrossListing {
+			for _, prof := range course.Instructors {
+				if result, ok := ratingsByCourse[crossListedCourse][prof.ID]; ok {
+					recommends += result.SumWouldRecommend
+					reviews += result.TotalReviews
+					if i == 0 {
+						c.DBID = result.CourseID
+					}
+				}
+			}
 		}
+
+		c.RecommendedReviews = recommends
+		c.TotalReviews = reviews
 		c.FactrakScore = float64(recommends) / float64(reviews)
 		if math.IsNaN(c.FactrakScore) {
 			c.FactrakScore = -1

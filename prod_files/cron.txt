@@ -40,3 +40,6 @@ SHELL="/bin/bash"
 
 # Reset EphMatch. This is run on September 1st every year
 0 0 1 9 * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/ephmatch-reset -console -config /home/wso/wso/wso-backend/config.yaml >> /home/wso/wso/wso-backend/logs/ephmatch-reset-cron.log 2>&1'
+
+# Create EphMatch dates. This is run on January 1st every year
+0 0 1 1 * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/update_ephmatch_dates -config /home/wso/wso/wso-backend/config.yaml >> /home/wso/wso/wso-backend/logs/ephmatch-update-dates-cron.log 2>&1'
