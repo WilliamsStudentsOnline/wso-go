@@ -423,7 +423,7 @@ func ParseCatalog(catalog []RawCourse, fallSemID, winterSemID, springSemID int, 
 		}
 
 		// Contains many other course attributes not to be parsed into friendlier strings
-		course.RawAttributes = strings.Split(unparsedAttributes, ";")
+		course.RawAttributes = strings.Split(unparsedAttributes, ",")
 
 		course.ClassFormat = trimTitle(unparsed.ClassFormat)
 		course.ClassReqEval = trimCapitalize(unparsed.Evaluation)
