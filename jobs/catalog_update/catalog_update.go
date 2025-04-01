@@ -73,6 +73,7 @@ type Course struct {
 	Instructors           []*Instructor `json:"instructors"`
 	Meetings              []*Meeting    `json:"meetings"`
 	CourseAttributes      Attributes    `json:"courseAttributes"`
+	RawAttributes         []string      `json:"rawAttributes"`
 	ClassFormat           string        `json:"classFormat"`
 	ClassReqEval          string        `json:"classReqEval"`
 	ExtraInfo             string        `json:"extraInfo"`
@@ -422,6 +423,9 @@ func ParseCatalog(catalog []RawCourse, fallSemID, winterSemID, springSemID int, 
 			PassFail:    passFail,
 			FifthCourse: fifthCourse,
 		}
+
+		// Contains many other course attributes not to be parsed into friendlier strings
+		course.RawAttributes = strings.Split(unparsedAttributes, ",")
 
 		course.ClassFormat = trimTitle(unparsed.ClassFormat)
 		course.ClassReqEval = trimCapitalize(unparsed.Evaluation)
