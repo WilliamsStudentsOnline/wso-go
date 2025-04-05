@@ -87,6 +87,8 @@ var (
 	ErrorInvalidSearchToken          = NewAPIErrorWithHTTP(1150, http.StatusBadRequest, "invalid search token")
 	ErrorInvalidSearchQuery          = NewAPIErrorWithHTTP(1151, http.StatusBadRequest, "invalid search query")
 	ErrorUnknownSearchField          = NewAPIErrorWithHTTP(1152, http.StatusBadRequest, "unknown search field")
+	ErrorUnableToSavePicture         = NewAPIErrorWithHTTP(1160, http.StatusInternalServerError, "unable to save uploaded picture")
+	ErrorUnableToDeletePicture       = NewAPIErrorWithHTTP(1161, http.StatusInternalServerError, "unable to delete uploaded picture")
 
 	// 13** are authorization errors
 	ErrorNoScopeAuthorization         = NewAPIErrorWithHTTP(1330, http.StatusForbidden, "no scope authorization")
@@ -96,13 +98,13 @@ var (
 	ErrorFailedIdentityAuthentication = NewAPIErrorWithHTTP(1351, http.StatusBadRequest, "failed to authenticate identity (incorrect unix id or password)")
 
 	// 14** are user service errors
-	ErrorUserMustBeStudent    = NewAPIError(1401, "user must be a student")
-	ErrorUserCannotBePrefrosh = NewAPIError(1402, "user cannot be prefrosh")
-	ErrorUserNotVisible       = NewAPIError(1403, "user not visible")
-	ErrorUserNotAtWilliams    = NewAPIError(1404, "user not at williams")
-	ErrorUserIDNoParse        = NewAPIError(1405, "user id could not be parsed")
-	ErrorInvalidUserTag       = NewAPIError(1406, "invalid user tag")
-	ErrorUnableToSavePicture  = NewAPIErrorWithHTTP(1420, http.StatusInternalServerError, "unable to save uploaded picture")
+	ErrorUserMustBeStudent       = NewAPIError(1401, "user must be a student")
+	ErrorUserCannotBePrefrosh    = NewAPIError(1402, "user cannot be prefrosh")
+	ErrorUserNotVisible          = NewAPIError(1403, "user not visible")
+	ErrorUserNotAtWilliams       = NewAPIError(1404, "user not at williams")
+	ErrorUserIDNoParse           = NewAPIError(1405, "user id could not be parsed")
+	ErrorInvalidUserTag          = NewAPIError(1406, "invalid user tag")
+	ErrorUserInvalidCampusStatus = NewAPIError(1407, "user campus status is invalid")
 
 	// 15** are factrak errors
 	// Create/Update errors
@@ -113,10 +115,15 @@ var (
 	ErrorSurveyCourseNotFound      = NewAPIError(1535, "passed course could not be found")
 	ErrorSurveyAreaOfStudyNotFound = NewAPIError(1536, "passed area of study could not be found")
 	ErrorSurveyAlreadyExists       = NewAPIError(1537, "survey already exists with passed user ID, professor ID, and course ID")
+	ErrorSurveyCourseSemesterBad   = NewAPIError(1538, "survey course semester has an incorrect year or season")
+	ErrorSurveyCourseFormatBad     = NewAPIError(1539, "survey course format is invalid")
+	ErrorSurveyCourseYearFuture    = NewAPIError(1540, "survey course year is in the future")
 	// Agreement errors
 	ErrorSurveyAgreementNotFound      = NewAPIErrorWithHTTP(1551, http.StatusNotFound, "survey agreement could not be found")
 	ErrorSurveyAgreementAlreadyExists = NewAPIError(1552, "survey agreement already exists for this user and survey")
 	ErrorSurveyAgreementNoSelf        = NewAPIError(1553, "cannot create survey agreement with your own survey")
+	// Ranking errors
+	ErrorInvalidRankingMetric = NewAPIErrorWithHTTP(1570, http.StatusBadRequest, "cannot rank by this metric")
 
 	// 16** are dormtrak errors
 	// Create/Update errors
@@ -124,6 +131,7 @@ var (
 	ErrorReviewMissingDorm     = NewAPIError(1634, "user is missing dorm field")
 	ErrorReviewDormNotOwner    = NewAPIError(1635, "user does not own this dorm room")
 	ErrorReviewAlreadyExists   = NewAPIError(1536, "review already exists with passed user ID and dorm room ID")
+	ErrorDormtrakTooManyPhotos = NewAPIErrorWithHTTP(1640, http.StatusBadRequest, "too many photos already uploaded to this review")
 
 	// 17** are ephcatch errors
 	ErrorEphcatchLikeNoSelf    = NewAPIError(1730, "cannot ephcatch-like yourself")
@@ -140,8 +148,46 @@ var (
 	// 19** are ephmatch errors
 	ErrorEphmatchLikeNoSelf               = NewAPIError(1930, "cannot ephmatch-like yourself")
 	ErrorEphmatchProfileNotFound          = NewAPIError(1931, "ephmatch profile could not be found")
-	ErrorEphmatchAlreadyExists            = NewAPIError(1932, "ephmatch already exists with user ID and passed ephmatch profile user ID")
+	ErrorEphmatchRelationAlreadyExists    = NewAPIError(1932, "ephmatch relation already exists with user ID and passed ephmatch profile user ID")
 	ErrorEphmatchDoesNotExist             = NewAPIError(1933, "ephmatch does not exist with user ID and passed ephmatch profile user ID")
 	ErrorEphmatchInvalidMessagingPlatform = NewAPIError(1934, "ephmatch messaging platform is invalid")
 	ErrorEphmatchEmptyMessagingUsername   = NewAPIError(1935, "ephmatch messaging username is empty")
+	ErrorEphmatchDescriptionTooLong       = NewAPIError(1936, "ephmatch description is too long")
+	ErrorEphmatchInvalidRelation          = NewAPIError(1937, "ephmatch relation is invalid")
+	ErrorEphmatchInvalidLookingFor        = NewAPIError(1938, "ephmatch looking for is invalid")
+
+	// 20** are notification errors
+	ErrorNotificationInvalidTokenType = NewAPIError(2030, "notification token type is invalid")
+	ErrorNotificationEmptyToken       = NewAPIError(2031, "notification token is empty")
+
+	// 21** are Goodrich errors
+	ErrorGoodrichInvalidPaymentMethod = NewAPIError(2130, "goodrich payment method is invalid")
+	ErrorGoodrichTimeSlotInvalid      = NewAPIError(2131, "goodrich time slot is not valid")
+	ErrorGoodrichMissingWilliamsID    = NewAPIError(2132, "missing williams id number for payment swipe or points")
+	ErrorGoodrichUnknownMenuItem      = NewAPIError(2133, "unknown menu item in order")
+	ErrorGoodrichUnavailableMenuItem  = NewAPIError(2134, "unavailable menu item in order")
+	ErrorGoodrichTimeBadDay           = NewAPIError(2135, "goodrich time is on wrong day")
+	ErrorGoodrichTimeFilled           = NewAPIError(2136, "goodrich time is filled")
+	ErrorGoodrichComboDealInvalid     = NewAPIError(2137, "cannot get combo pricing with this selection of items")
+	ErrorGoodrichSwipeMaxedOut        = NewAPIError(2138, "cannot use a swipe on more than $5")
+	ErrorGoodrichOrderNoItems         = NewAPIError(2139, "order has no items")
+	ErrorGoodrichDateClosed           = NewAPIError(2140, "goodrich closed on this date")
+	ErrorGoodrichOutOfMenuItem        = NewAPIError(2141, "out of a menu item in order")
+	ErrorGoodrichInvalidOrderStatus   = NewAPIError(2150, "goodrich order status is invalid")
+	ErrorGoodrichNoTimesAvailable     = NewAPIError(2170, "goodrich has no time slots available")
+	ErrorGoodrichNoLeasesAvailable    = NewAPIError(2171, "cannot acquire a lease as no leases available")
+	ErrorGoodrichLeaseMissing         = NewAPIError(2172, "goodrich lease missing: reload this page and try again")
+	ErrorGoodrichLeaseExpired         = NewAPIError(2173, "goodrich order lease has expired")
+
+	// 22** are Booktrak errors
+	ErrorBookListingInvalidCondition = NewAPIError(2232, "passed condition is invalid")
+
+	ErrorBookNotFound               = NewAPIError(2250, "passed book could not be found")
+	ErrorBookNotFoundByISBN         = NewAPIError(2251, "could not find by book by ISBN")
+	ErrorBookDoesNotMatchOnlineData = NewAPIError(2252, "book does not match online data")
+	ErrorBookCourseNotFound         = NewAPIError(2253, "passed courses don't all exist")
+
+	// 23** are Course Scheduler errors
+	ErrorRedisClientNotConfigured        = NewAPIError(2300, "redis client not configured, is redis running locally?")
+	ErrorCourseSchedulerSelectionStrconv = NewAPIError(2310, "unable to assert course scheduler selection as string")
 )

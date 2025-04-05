@@ -246,10 +246,11 @@ var surveyFields = []string{
 	"lead_lecture",
 	"promote_discussion",
 	"outside_helpfulness",
+	"mental_health_support",
 }
 
 // Gets average survey ratings by professor id, course id, or both.
-func (m *FactrakSurveyModel) GetSurveyRatingsByProfessorOrCourse(profID *uint, courseID *uint, ratings *FactrakSurveyAvgRatings) (err error) {
+func (m *FactrakSurveyModel) GetSurveyRatingsByProfessorOrCourse(profID *uint, courseID *uint, metric *string, ratings *FactrakSurveyAvgRatings) (err error) {
 	scopes := []func(db *gorm.DB) *gorm.DB{
 		m.scopeCurrent,
 	}
@@ -261,6 +262,10 @@ func (m *FactrakSurveyModel) GetSurveyRatingsByProfessorOrCourse(profID *uint, c
 	}
 	if courseID != nil {
 		scopes = append(scopes, m.withCourseID(*courseID))
+	}
+
+	if metric != nil && *metric != "" {
+		return m.getSingleRating(ratings, metric, scopes...)
 	}
 
 	return m.getSurveyRatings(ratings, scopes...)
@@ -345,6 +350,16 @@ func (m *FactrakSurveyModel) getSurveyRatings(ratings *FactrakSurveyAvgRatings, 
 	}
 
 	q := strings.Join(queries, ", ")
+
+	err = m.DB.Model(&FactrakSurvey{}).Select(q).Scopes(scopes...).Scan(&ratings).Error
+	return
+}
+
+func (m *FactrakSurveyModel) getSingleRating(ratings *FactrakSurveyAvgRatings, metric *string, scopes ...func(*gorm.DB) *gorm.DB) (err error) {
+	avg := fmt.Sprintf("avg(%s) AS avg_%s", *metric, *metric)
+	count := fmt.Sprintf("count(%s) AS num_%s", *metric, *metric)
+
+	q := avg + ", " + count
 
 	err = m.DB.Model(&FactrakSurvey{}).Select(q).Scopes(scopes...).Scan(&ratings).Error
 	return
@@ -481,4 +496,6 @@ type FactrakSurveyAvgRatings struct {
 	NumPromoteDiscussion    int     `json:"numPromoteDiscussion"`
 	AvgOutsideHelpfulness   float64 `json:"avgOutsideHelpfulness"`
 	NumOutsideHelpfulness   int     `json:"numOutsideHelpfulness"`
+	AvgMentalHealthSupport  float64 `json:"avgMentalHealthSupport"`
+	NumMentalHealthSupport  int     `json:"numMentalHealthSupport"`
 }

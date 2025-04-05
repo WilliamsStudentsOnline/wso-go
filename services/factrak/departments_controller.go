@@ -18,7 +18,7 @@ import (
 // @Accept  json
 // @Produce  json
 // @Success 200 {array} models.Department
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/departments [get]
 func (t *Controller) ListDepartments(c *gin.Context) {
@@ -43,9 +43,9 @@ func (t *Controller) ListDepartments(c *gin.Context) {
 // @Produce  json
 // @Param departmentID path uint true "Department ID"
 // @Success 200 {object} models.Department
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/departments/{departmentID} [get]
 func (t *Controller) GetDepartment(c *gin.Context) {
@@ -77,9 +77,9 @@ func (t *Controller) GetDepartment(c *gin.Context) {
 // @Produce  json
 // @Param departmentID path uint true "Department ID"
 // @Success 200 {array} models.User
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/departments/{departmentID}/professors [get]
 // @Deprecated
@@ -124,9 +124,9 @@ func (t *Controller) ListDepartmentProfessors(c *gin.Context) {
 // @Produce  json
 // @Param departmentID path uint true "Department ID"
 // @Success 200 {array} models.Course
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/departments/{departmentID}/courses [get]
 // @Deprecated

@@ -21,7 +21,7 @@ import (
 // @Param preload query []string false "Preload List"
 // @Param q query string false "Search Query"
 // @Success 200 {array} models.Dorm
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /dormtrak/dorms [get]
 func (t *Controller) ListDorms(c *gin.Context) {
@@ -57,9 +57,9 @@ func (t *Controller) ListDorms(c *gin.Context) {
 // @Produce  json
 // @Param dormID path uint true "Dorm ID"
 // @Success 200 {object} models.Dorm
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /dormtrak/dorms/{dormID} [get]
 func (t *Controller) GetDorm(c *gin.Context) {
@@ -92,9 +92,9 @@ func (t *Controller) GetDorm(c *gin.Context) {
 // @Param offset query int false "Offset Pagination"
 // @Param limit query int false "Limit Pagination"
 // @Success 200 {array} models.DormRoom
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /dormtrak/dorms/{dormID}/rooms [get]
 func (t *Controller) GetDormRooms(c *gin.Context) {
@@ -149,9 +149,9 @@ func (t *Controller) GetDormRooms(c *gin.Context) {
 // @Produce  json
 // @Param dormID path uint true "Dorm ID"
 // @Success 200 {object} models.DormFacts
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /dormtrak/dorms/{dormID}/facts [get]
 func (t *Controller) GetDormFacts(c *gin.Context) {

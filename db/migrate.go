@@ -37,6 +37,22 @@ var Migrations = []*gormigrate.Migration{
 	migrations.CurrentLocationColumns20200524014728,
 	migrations.MessagingPlatformsColumns20200525010513,
 	migrations.EphmatchMatchSeenColumns20200526221419,
+	migrations.CampusStatusColumn20200713222414,
+	migrations.FactrakSurveysCourseInfoColumns20210207234139,
+	migrations.CreateNotificationSettings20210326205124,
+	migrations.CreateNotificationTokens20210326205140,
+	migrations.WilliamsIdColumn20210425233453,
+	migrations.CreateGoodrichMenuItems20210426013057,
+	migrations.CreateGoodrichOrders20210426013116,
+	migrations.QuantityColumn20210507173142,
+	migrations.UserAddOnCampusSemestersColumn20210406005136,
+	migrations.CreateEphmatchRelations20210607211439,
+	migrations.AddMhFactrakSurveyQ20211201012742,
+	migrations.UserAddAreasOfStudy20220219171916,
+	migrations.AddBannedUsersTable20220228163053,
+	migrations.LookingForColumn20220504015544,
+	migrations.CreateBookListings20221224071254,
+	migrations.CreateBooks20221230032200,
 }
 
 var MigrationGormOptions = gormigrate.DefaultOptions
@@ -72,6 +88,14 @@ func MigrateDB(db *gorm.DB) error {
 			&models.EphmatchProfile{},
 			&models.EphmatchMatch{},
 			&models.EphmatchLike{},
+			&models.NotificationSettings{},
+			&models.NotificationToken{},
+			&models.GoodrichMenuItem{},
+			&models.GoodrichOrder{},
+			&models.EphmatchRelation{},
+			&models.BannedUser{},
+			&models.BookListing{},
+			&models.Book{},
 		).Error
 		if err != nil {
 			return err

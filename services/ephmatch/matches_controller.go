@@ -1,6 +1,9 @@
 package ephmatch
 
 import (
+	"net/http"
+
+	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/sanitize"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
@@ -19,7 +22,7 @@ import (
 // @Produce  json
 // @Param preload query []string false "Preload List [tags]"
 // @Success 200 {array} responses.ListMatchesResponseEphmatchMatch
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /ephmatch/matches [get]
 func (t *Controller) ListMatches(c *gin.Context) {
@@ -71,7 +74,7 @@ type CountMatchesResponse struct {
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} ephmatch.CountMatchesResponse
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /ephmatch/matches-count [get]
 func (t *Controller) CountMatches(c *gin.Context) {
@@ -89,4 +92,53 @@ func (t *Controller) CountMatches(c *gin.Context) {
 		Unseen: unseen,
 		Total:  total,
 	})
+}
+
+// Unmatch godoc
+// @Summary Unmatches Ephmatch matched users
+// @Description Removes the match (and sets the to-relation to none) of a specific matched pair
+// @ID ephmatch-unmatch
+// @Tags ephmatch
+// @Accept  json
+// @Produce  json
+// @Param matchUserID path uint true "Match User ID"
+// @Success 200
+// @Failure 1730 {object} services.BaseErrorResponse "cannot ephmatch-relate yourself"
+// @Failure 1733 {object} services.BaseErrorResponse "ephmatch match could not be found"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
+// @Security Bearer
+// @Router /ephmatch/matches/{matchUserID} [delete]
+func (t *Controller) Unmatch(c *gin.Context) {
+	userID := services.GetUserID(c)
+
+	// Decode matchUserID.
+	matchUserID, err := services.GetUIntParam(c, "matchUserID")
+	if err != nil {
+		t.RespondErrorCode(c, http.StatusBadRequest, err)
+		return
+	}
+
+	if matchUserID == userID {
+		t.RespondError(c, lib.ErrorEphmatchLikeNoSelf)
+		return
+	}
+
+	matching, err := t.matchModel.IsMatching(userID, matchUserID)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+	if !matching {
+		t.RespondError(c, lib.ErrorEphmatchDoesNotExist)
+		return
+	}
+
+	err = t.ephmatchModel.DeleteRelationWithMatchHooks(userID, matchUserID)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+	t.RespondOK(c, nil)
 }

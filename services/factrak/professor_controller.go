@@ -24,8 +24,10 @@ import (
 // @Param departmentID query int false "Department ID"
 // @Param areaOfStudyID query int false "Area Of Study ID"
 // @Param q query string false "Search Query"
+// @Param metric query string false "Ranking Metric"
+// @Param ascending query bool false "Sorting Direction"
 // @Success 200 {array} models.User
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/professors [get]
 func (t *Controller) ListProfessors(c *gin.Context) {
@@ -40,6 +42,8 @@ func (t *Controller) ListProfessors(c *gin.Context) {
 
 	if query, ok := c.GetQuery("q"); ok {
 		err = t.factrakSearch.SearchProfessors(query, &profs, &opts)
+	} else if sort, ok := c.GetQuery("metric"); ok {
+		err = t.professorModel.GetProfessorsRanked(sort, &profs, &opts)
 	} else {
 		err = t.professorModel.GetAllProfessors(&profs, &opts)
 	}
@@ -65,9 +69,9 @@ func (t *Controller) ListProfessors(c *gin.Context) {
 // @Param courseID query uint false "Course ID"
 // @Param professorID path uint true "Professor ID"
 // @Success 200 {object} models.User
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/professors/{professorID} [get]
 func (t *Controller) GetProfessor(c *gin.Context) {
@@ -117,9 +121,9 @@ func (t *Controller) GetProfessor(c *gin.Context) {
 // @Param populateAgreements query bool false "Populate Agreement Counts"
 // @Param populateClientAgreement query bool false "Populate Client's Agreement"
 // @Success 200 {array} models.FactrakSurvey
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/professors/{professorID}/surveys [get]
 // @Deprecated
@@ -179,9 +183,9 @@ func (t *Controller) ListProfessorSurveys(c *gin.Context) {
 // @Produce  json
 // @Param professorID path uint true "Professor ID"
 // @Success 200 {array} models.Course
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/professors/{professorID}/courses [get]
 // @Deprecated
@@ -217,7 +221,7 @@ func (t *Controller) ListProfessorCourses(c *gin.Context) {
 }
 
 // Gets average ratings for a professor. May pass an optional "?courseID=XX" parameter to limit scope to a
-// professor and a course.
+// professor and a course and "?metric=XX" to return only one metric.
 // @Summary Get professor ratings
 // @Description get one professor's ratings
 // @ID factrak-get-professor-ratings
@@ -225,11 +229,12 @@ func (t *Controller) ListProfessorCourses(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param courseID query uint false "Course ID"
+// @Param metric query string false "Metrics: course_workload, course_stimulating, would_take_another, approachability, lead_lecture, promote_discussion, outside_helpfulness"
 // @Param professorID path uint true "Professor ID"
 // @Success 200 {object} models.FactrakSurveyAvgRatings
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/professors/{professorID}/ratings [get]
 func (t *Controller) GetProfessorRatings(c *gin.Context) {
@@ -256,10 +261,18 @@ func (t *Controller) GetProfessorRatings(c *gin.Context) {
 		return
 	}
 
+	metric := c.Query("metric")
+	if c.IsAborted() {
+		return
+	}
+	validMetric := t.professorModel.IsProfessorMetric(metric)
+	if !validMetric {
+		metric = ""
+	}
 	// Do database query
 	var ratings models.FactrakSurveyAvgRatings
 
-	err = t.surveyModel.GetSurveyRatingsByProfessorOrCourse(&profID, courseID, &ratings)
+	err = t.surveyModel.GetSurveyRatingsByProfessorOrCourse(&profID, courseID, &metric, &ratings)
 	if err != nil {
 		t.RespondError(c, err)
 		return

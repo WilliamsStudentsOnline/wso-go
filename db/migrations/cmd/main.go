@@ -133,7 +133,11 @@ var {{.camelTitle}}{{.migrationTime}} = &gormigrate.Migration{
 		return tx.AutoMigrate(&{{.model}}{}).Error
 	},
 	Rollback: func(tx *gorm.DB) error {
+		// TODO: do one of these, remove the other
+		// For a new table,
 		return tx.DropTable("{{.table}}").Error
+		// For a new column:
+		return tx.Table("{{.table}}").DropColumn(COLUMN_GOES_HERE).Error
 	},
 }
 `

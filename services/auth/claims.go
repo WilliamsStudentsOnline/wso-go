@@ -8,6 +8,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 )
 
 type TokenType string
@@ -18,17 +19,18 @@ var (
 	TokenTypeAPI      TokenType = "api"
 )
 
-func GenerateClaimsFactory(cfg *config.Config, db *gorm.DB) func(v *AuthenticatorPayload, tokenType TokenType) jwt.MapClaims {
+func GenerateClaimsFactory(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) func(v *AuthenticatorPayload, tokenType TokenType) jwt.MapClaims {
 	return func(v *AuthenticatorPayload, tokenType TokenType) jwt.MapClaims {
 		var scope []string
 
 		// By default, can access bulletins
 		if v.TokenLevel >= TokenLevelOffCampus {
-			scope = append(scope, auth.ScopeBulletin)
+			scope = append(scope, auth.ScopeBulletin, auth.ScopeBooktrak)
 		}
 
 		// If on-campus, can access user info
-		if v.TokenLevel >= TokenLevelOnCampus {
+		// TODO: THIS WAS REMOVED TO USER TO ALLOW DATA PRIVLEDGING REQUIREMENTS TO PASS WITH EDUROAM BEING ENABLED. FIGURE THIS OUT LATER
+		if v.TokenLevel >= TokenLevelUser /*TokenLevelOnCampus*/ {
 			scope = append(scope, auth.ScopeUsers)
 		}
 
@@ -40,7 +42,7 @@ func GenerateClaimsFactory(cfg *config.Config, db *gorm.DB) func(v *Authenticato
 		// If user exists that we signed in with
 		if v.TokenLevel >= TokenLevelUser && v.User != nil {
 			// Allow writing
-			scope = append(scope, auth.ScopeWriteSelf, auth.ScopeChat)
+			scope = append(scope, auth.ScopeWriteSelf, auth.ScopeChat, auth.ScopeGoodrich, auth.ScopeBulletinWrite, auth.ScopeBooktrakWrite)
 
 			// For ephcatch and factrak, user must be a student
 			if v.User.IsStudent() {
@@ -60,7 +62,15 @@ func GenerateClaimsFactory(cfg *config.Config, db *gorm.DB) func(v *Authenticato
 					scope = append(scope, auth.ScopeEphmatchMatches)
 					// If ephmatch is open, give access to like/unlike, other profiles
 					if enableEphmatch(cfg) {
-						scope = append(scope, auth.ScopeEphmatchProfiles)
+						// If ephmatch is senior only, only grant scope to seniors
+						// Otherwise, grant scope to everyone
+						if ephmatchSeniorOnly(cfg) {
+							if v.User.Student().SeniorPlus() {
+								scope = append(scope, auth.ScopeEphmatchProfiles)
+							}
+						} else {
+							scope = append(scope, auth.ScopeEphmatchProfiles)
+						}
 					}
 				}
 
@@ -95,6 +105,22 @@ func GenerateClaimsFactory(cfg *config.Config, db *gorm.DB) func(v *Authenticato
 				// If not admin, check if factrak admin
 				scope = append(scope, auth.ScopeFactrakAdmin)
 			}
+
+			// Add goodrich manager scope
+			for _, gmUnix := range cfg.GoodrichManagerUnixes {
+				if v.User.UnixID == gmUnix {
+					scope = append(scope, auth.ScopeGoodrichManager)
+				}
+			}
+
+			// Look up to see if user is banned
+			banInfo := models.BannedUser{}
+			if isBanned(db, log, v.User.ID, &banInfo) {
+				// Remove any scopes that user may be banned from
+				removeBannedScope(&scope, &banInfo)
+				log.Info("removing scopes from banned user: ", v.User.ID)
+			}
+
 		}
 
 		var jwtUserID uint = 0
@@ -110,6 +136,55 @@ func GenerateClaimsFactory(cfg *config.Config, db *gorm.DB) func(v *Authenticato
 			"type":       tokenType,
 		}
 	}
+}
+
+// isBanned searches DB if a user is banned and returns true if banned. A pointer can be passed that will
+// populate with the banning info if user is banned. On error, will log but not propogate up; assume not banned.
+func isBanned(db *gorm.DB, log *zap.SugaredLogger, userID uint, banInfo *models.BannedUser) bool {
+	bum := models.NewBannedUserModel(db, log)
+	missing, err := bum.GetBannedUserByID(userID, banInfo)
+	if err != nil {
+		log.Error("error when getting banned user info", err)
+		return false
+	}
+	return !missing
+}
+
+func removeBannedScope(scope *[]string, banInfo *models.BannedUser) {
+	var newScope []string
+	for _, s := range *scope {
+		switch s {
+		case auth.ScopeFactrakLimited, auth.ScopeFactrakFull, auth.ScopeFactrakAdmin:
+			if banInfo.Factrak {
+				continue
+			}
+		case auth.ScopeDormtrak, auth.ScopeDormtrakWrite:
+			if banInfo.Dormtrak {
+				continue
+			}
+		case auth.ScopeEphcatch:
+			if banInfo.Ephcatch {
+				continue
+			}
+		case auth.ScopeBulletin:
+			if banInfo.BulletinRead {
+				continue
+			}
+		case auth.ScopeBulletinWrite:
+			if banInfo.BulletinWrite {
+				continue
+			}
+		case auth.ScopeEphmatch, auth.ScopeEphmatchMatches, auth.ScopeEphmatchProfiles:
+			if banInfo.Ephmatch {
+				continue
+			}
+		}
+
+		newScope = append(newScope, s)
+	}
+
+	// Reassign the scope pointer to the new scope
+	*scope = newScope
 }
 
 func hasEphmatchProfile(db *gorm.DB, userID uint) bool {
@@ -129,19 +204,29 @@ func isSeniorWeek() bool {
 	return now.After(seniorWeek) && now.Before(seniorWeekEnd)
 }
 
-func enableEphmatch(cfg *config.Config) bool {
+func getCurrentEphmatchEra(cfg *config.Config) (enabled bool, era *config.EphmatchEra) {
 	if cfg.EphmatchEnableNow {
-		return true
+		return true, nil
 	}
 
 	now := time.Now()
 	for _, era := range cfg.EphmatchEras {
 		if era.Start.Before(now) && era.End.After(now) {
-			return true
+			return true, &era
 		}
 	}
 
-	return false
+	return false, nil
+}
+
+func enableEphmatch(cfg *config.Config) bool {
+	enabled, _ := getCurrentEphmatchEra(cfg)
+	return enabled
+}
+
+func ephmatchSeniorOnly(cfg *config.Config) bool {
+	_, era := getCurrentEphmatchEra(cfg)
+	return era != nil && era.SeniorOnly
 }
 
 func isWinterStudy() bool {

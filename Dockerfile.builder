@@ -1,4 +1,4 @@
-FROM golang:1.14
+FROM golang:1.24.1
 LABEL stage=intermediate
 
 # Turn on modules
@@ -22,6 +22,9 @@ RUN go mod verify
 
 # Copy the rest of the project into the file
 COPY . .
+
+# Copy git files (for Golang VCS stamping)
+COPY .git/ ./.git/
 
 # Set build flags
 ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64

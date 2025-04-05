@@ -31,8 +31,9 @@ const (
 	// Ability to create reviews, etc. (must be upperclass)
 	ScopeDormtrakWrite = "service:dormtrak:write"
 
-	ScopeEphcatch = "service:ephcatch"
-	ScopeBulletin = "service:bulletin"
+	ScopeEphcatch      = "service:ephcatch"
+	ScopeBulletin      = "service:bulletin"
+	ScopeBulletinWrite = "service:bulletin:write"
 	// This is for facebook & users
 	ScopeUsers = "service:users"
 	// Allows you to access other services not mentioned above
@@ -48,6 +49,16 @@ const (
 	ScopeEphmatchMatches = "service:ephmatch:matches"
 	// Allows access to read profiles, write like/unlike. For when a user is signed up and Ephmatch is open
 	ScopeEphmatchProfiles = "service:ephmatch:profiles"
+
+	// Service: Goodrich
+	// Allows access to read/write self goodrich orders and read goodrich menu
+	ScopeGoodrich = "service:goodrich"
+	// Allows access to read/write all goodrich orders and read/write goodrich menu
+	ScopeGoodrichManager = "service:goodrich:manager"
+
+	// Services: Booktrak
+	ScopeBooktrak      = "service:booktrak"
+	ScopeBooktrakWrite = "service:booktrak:write"
 )
 
 // Require this endpoint to have a scope; multiple scopes mean an OR. For an AND, call this function multiple times

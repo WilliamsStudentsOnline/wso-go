@@ -24,8 +24,10 @@ import (
 // @Param areaOfStudyID query string false "Area of Study ID"
 // @Param departmentID query string false "Department ID"
 // @Param professorID query string false "Professor ID"
+// @Param metric query string false "Ranking Metric"
+// @Param direction query bool false "Sorting Direction"
 // @Success 200 {array} models.Course
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/courses [get]
 func (t *Controller) ListCourses(c *gin.Context) {
@@ -40,6 +42,8 @@ func (t *Controller) ListCourses(c *gin.Context) {
 
 	if query, ok := c.GetQuery("q"); ok {
 		err = t.factrakSearch.SearchCourses(query, &courses, &opts)
+	} else if sort, ok := c.GetQuery("metric"); ok {
+		err = t.courseModel.GetCoursesRanked(sort, &courses, &opts)
 	} else {
 		err = t.courseModel.GetAllCourses(&courses, &opts)
 	}
@@ -64,9 +68,9 @@ func (t *Controller) ListCourses(c *gin.Context) {
 // @Param professorID query uint false "Professor ID"
 // @Param courseID path uint true "Course ID"
 // @Success 200 {object} models.Course
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/courses/{courseID} [get]
 func (t *Controller) GetCourse(c *gin.Context) {
@@ -115,9 +119,9 @@ func (t *Controller) GetCourse(c *gin.Context) {
 // @Param populateAgreements query bool false "Populate Agreement Counts"
 // @Param populateClientAgreement query bool false "Populate Client's Agreement"
 // @Success 200 {array} models.FactrakSurvey
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/courses/{courseID}/surveys [get]
 // @Deprecated
@@ -174,9 +178,9 @@ func (t *Controller) ListCourseSurveys(c *gin.Context) {
 // @Produce  json
 // @Param courseID path uint true "Course ID"
 // @Success 200 {array} models.User
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/courses/{courseID}/professors [get]
 // @Deprecated
@@ -222,9 +226,9 @@ func (t *Controller) ListCourseProfessors(c *gin.Context) {
 // @Param professorID query uint false "Professor ID"
 // @Param courseID path uint true "Course ID"
 // @Success 200 {object} models.FactrakSurveyAvgRatings
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/courses/{courseID}/ratings [get]
 func (t *Controller) GetCourseRatings(c *gin.Context) {
@@ -254,7 +258,7 @@ func (t *Controller) GetCourseRatings(c *gin.Context) {
 	// Do database query
 	var ratings models.FactrakSurveyAvgRatings
 
-	err = t.surveyModel.GetSurveyRatingsByProfessorOrCourse(profID, &courseID, &ratings)
+	err = t.surveyModel.GetSurveyRatingsByProfessorOrCourse(profID, &courseID, nil, &ratings)
 	if err != nil {
 		t.RespondError(c, err)
 		return

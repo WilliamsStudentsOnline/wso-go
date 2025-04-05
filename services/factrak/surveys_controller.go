@@ -3,6 +3,7 @@ package factrak
 import (
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
@@ -28,7 +29,7 @@ import (
 // @Param populateAgreements query bool false "Populate Agreement Counts"
 // @Param populateClientAgreement query bool false "Populate Client's Agreement"
 // @Success 200 {array} models.FactrakSurvey
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/surveys [get]
 func (t *Controller) ListSurveys(c *gin.Context) {
@@ -82,10 +83,10 @@ func (t *Controller) ListSurveys(c *gin.Context) {
 // @Produce  json
 // @Param surveyID path uint true "Survey ID"
 // @Success 200 {object} models.FactrakSurvey
-// @Failure 1330 {object} lib.APIError "no scope authorization"
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1330 {object} services.BaseErrorResponse "no scope authorization"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/surveys/{surveyID} [get]
 func (t *Controller) GetSurvey(c *gin.Context) {
@@ -154,7 +155,12 @@ type SurveyCreateParams struct {
 	LeadLecture          *int    `json:"leadLecture" binding:"omitempty,gte=0,lte=7"`
 	PromoteDiscussion    *int    `json:"promoteDiscussion" binding:"omitempty,gte=0,lte=7"`
 	OutsideHelpfulness   *int    `json:"outsideHelpfulness" binding:"omitempty,gte=0,lte=7"`
+	MentalHealthSupport  *int    `json:"mentalHealthSupport" binding:"omitempty,gte=0,lte=7"`
 	GradeReceived        *string `json:"gradeReceived"`
+
+	SemesterSeason *string `json:"semesterSeason"` // Fall, Winter Study, Spring
+	SemesterYear   *int    `json:"semesterYear"`
+	CourseFormat   *string `json:"courseFormat"` // Remote, Hybrid, In-Person
 }
 
 // @Summary Create survey
@@ -165,17 +171,17 @@ type SurveyCreateParams struct {
 // @Produce  json
 // @Param createParams body factrak.SurveyCreateParams true "Create Survey Params"
 // @Success 201 {object} models.FactrakSurvey
-// @Failure 1531 {object} lib.APIError "missing course parameters in create data: courseID or (areaOfStudyAbbreviation and courseNumber)"
-// @Failure 1532 {object} lib.APIError "comment must be 100 characters or more"
-// @Failure 1533 {object} lib.APIError "user must be a student and could not be found"
-// @Failure 1534 {object} lib.APIError "passed professor must be a professor and could not be found"
-// @Failure 1535 {object} lib.APIError "passed course could not be found"
-// @Failure 1536 {object} lib.APIError "passed area of study could not be found"
-// @Failure 1537 {object} lib.APIError "survey already exists with passed user ID, professor ID, and course ID"
-// @Failure 1101 {object} lib.APIError "request data validation failed"
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1531 {object} services.BaseErrorResponse "missing course parameters in create data: courseID or (areaOfStudyAbbreviation and courseNumber)"
+// @Failure 1532 {object} services.BaseErrorResponse "comment must be 100 characters or more"
+// @Failure 1533 {object} services.BaseErrorResponse "user must be a student and could not be found"
+// @Failure 1534 {object} services.BaseErrorResponse "passed professor must be a professor and could not be found"
+// @Failure 1535 {object} services.BaseErrorResponse "passed course could not be found"
+// @Failure 1536 {object} services.BaseErrorResponse "passed area of study could not be found"
+// @Failure 1537 {object} services.BaseErrorResponse "survey already exists with passed user ID, professor ID, and course ID"
+// @Failure 1101 {object} services.BaseErrorResponse "request data validation failed"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/surveys [post]
 func (t *Controller) CreateSurvey(c *gin.Context) {
@@ -204,6 +210,44 @@ func (t *Controller) CreateSurvey(c *gin.Context) {
 
 	if len(createData.Comment) < 100 {
 		t.RespondError(c, lib.ErrorSurveyCommentTooSmall)
+		return
+	}
+
+	// Either no semester data or both semester and year must be filled out
+	if (createData.SemesterYear != nil && createData.SemesterSeason == nil) || (createData.SemesterYear == nil && createData.SemesterSeason != nil) {
+		t.RespondError(c, lib.ErrorSurveyCourseSemesterBad)
+		return
+	}
+
+	// If semester season isn't one of (fall, winter-study, spring)
+	if createData.SemesterSeason != nil &&
+		*createData.SemesterSeason != models.FactrakSurveySemesterSeasonFall &&
+		*createData.SemesterSeason != models.FactrakSurveySemesterSeasonWinterStudy &&
+		*createData.SemesterSeason != models.FactrakSurveySemesterSeasonSpring {
+
+		t.RespondError(c, lib.ErrorSurveyCourseSemesterBad)
+		return
+	}
+
+	// If semester year is before 2000, error out.
+	if createData.SemesterYear != nil && *createData.SemesterYear < 2000 {
+		t.RespondError(c, lib.ErrorSurveyCourseSemesterBad)
+		return
+	}
+
+	// If semester year is in future, error
+	if createData.SemesterYear != nil && *createData.SemesterYear > time.Now().Year() {
+		t.RespondError(c, lib.ErrorSurveyCourseYearFuture)
+		return
+	}
+
+	// If course format isn't one of (in-person, hybrid, remote)
+	if createData.CourseFormat != nil &&
+		*createData.CourseFormat != models.FactrakSurveyCourseFormatInPerson &&
+		*createData.CourseFormat != models.FactrakSurveyCourseFormatHybrid &&
+		*createData.CourseFormat != models.FactrakSurveyCourseFormatRemote {
+
+		t.RespondError(c, lib.ErrorSurveyCourseFormatBad)
 		return
 	}
 
@@ -305,7 +349,12 @@ func (t *Controller) CreateSurvey(c *gin.Context) {
 		LeadLecture:          createData.LeadLecture,
 		PromoteDiscussion:    createData.PromoteDiscussion,
 		OutsideHelpfulness:   createData.OutsideHelpfulness,
+		MentalHealthSupport:  createData.MentalHealthSupport,
 		GradeReceived:        createData.GradeReceived,
+
+		SemesterSeason: createData.SemesterSeason,
+		SemesterYear:   createData.SemesterYear,
+		CourseFormat:   createData.CourseFormat,
 
 		// Defaults
 		TotalAgree:    0,
@@ -347,7 +396,12 @@ type SurveyUpdateParams struct {
 	LeadLecture          *int    `json:"leadLecture" binding:"omitempty,gte=0,lte=7"`
 	PromoteDiscussion    *int    `json:"promoteDiscussion" binding:"omitempty,gte=0,lte=7"`
 	OutsideHelpfulness   *int    `json:"outsideHelpfulness" binding:"omitempty,gte=0,lte=7"`
+	MentalHealthSupport  *int    `json:"mentalHealthSupport" binding:"omitempty,gte=0,lte=7"`
 	GradeReceived        *string `json:"gradeReceived"`
+
+	SemesterSeason *string `json:"semesterSeason"` // Fall, Winter Study, Spring
+	SemesterYear   *int    `json:"semesterYear"`
+	CourseFormat   *string `json:"courseFormat"` // Remote, Hybrid, In-Person
 }
 
 // Update survey data
@@ -360,12 +414,12 @@ type SurveyUpdateParams struct {
 // @Param updateParams body factrak.SurveyUpdateParams true "Update Survey Params"
 // @Param surveyID path uint true "Survey ID"
 // @Success 200 {object} models.FactrakSurvey
-// @Failure 1532 {object} lib.APIError "comment must be 100 characters or more"
-// @Failure 1101 {object} lib.APIError "request data validation failed"
-// @Failure 1331 {object} lib.APIError "must be self"
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1532 {object} services.BaseErrorResponse "comment must be 100 characters or more"
+// @Failure 1101 {object} services.BaseErrorResponse "request data validation failed"
+// @Failure 1331 {object} services.BaseErrorResponse "must be self"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/surveys/{surveyID} [patch]
 func (t *Controller) UpdateSurvey(c *gin.Context) {
@@ -405,6 +459,44 @@ func (t *Controller) UpdateSurvey(c *gin.Context) {
 		return
 	}
 
+	// Either no semester data or both semester and year must be filled out
+	if (updateData.SemesterYear != nil && updateData.SemesterSeason == nil) || (updateData.SemesterYear == nil && updateData.SemesterSeason != nil) {
+		t.RespondError(c, lib.ErrorSurveyCourseSemesterBad)
+		return
+	}
+
+	// If semester season isn't one of (fall, winter-study, spring)
+	if updateData.SemesterSeason != nil &&
+		*updateData.SemesterSeason != models.FactrakSurveySemesterSeasonFall &&
+		*updateData.SemesterSeason != models.FactrakSurveySemesterSeasonWinterStudy &&
+		*updateData.SemesterSeason != models.FactrakSurveySemesterSeasonSpring {
+
+		t.RespondError(c, lib.ErrorSurveyCourseSemesterBad)
+		return
+	}
+
+	// If semester year is before 2000, error out.
+	if updateData.SemesterYear != nil && *updateData.SemesterYear < 2000 {
+		t.RespondError(c, lib.ErrorSurveyCourseSemesterBad)
+		return
+	}
+
+	// If semester year is in future, error
+	if updateData.SemesterYear != nil && *updateData.SemesterYear > time.Now().Year() {
+		t.RespondError(c, lib.ErrorSurveyCourseYearFuture)
+		return
+	}
+
+	// If course format isn't one of (in-person, hybrid, remote)
+	if updateData.CourseFormat != nil &&
+		*updateData.CourseFormat != models.FactrakSurveyCourseFormatInPerson &&
+		*updateData.CourseFormat != models.FactrakSurveyCourseFormatHybrid &&
+		*updateData.CourseFormat != models.FactrakSurveyCourseFormatRemote {
+
+		t.RespondError(c, lib.ErrorSurveyCourseFormatBad)
+		return
+	}
+
 	// Update fields: this is a bit long and verbose, but I don't want to mess with reflect
 
 	// Trim comment of leading/trailing whitespaces
@@ -417,7 +509,11 @@ func (t *Controller) UpdateSurvey(c *gin.Context) {
 	survey.LeadLecture = lib.IntPtrDefaults(updateData.LeadLecture, survey.LeadLecture)
 	survey.PromoteDiscussion = lib.IntPtrDefaults(updateData.PromoteDiscussion, survey.PromoteDiscussion)
 	survey.OutsideHelpfulness = lib.IntPtrDefaults(updateData.OutsideHelpfulness, survey.OutsideHelpfulness)
+	survey.MentalHealthSupport = lib.IntPtrDefaults(updateData.MentalHealthSupport, survey.MentalHealthSupport)
 	survey.GradeReceived = lib.StrPtrDefaults(updateData.GradeReceived, survey.GradeReceived)
+	survey.SemesterSeason = lib.StrPtrDefaults(updateData.SemesterSeason, survey.SemesterSeason)
+	survey.SemesterYear = lib.IntPtrDefaults(updateData.SemesterYear, survey.SemesterYear)
+	survey.CourseFormat = lib.StrPtrDefaults(updateData.CourseFormat, survey.CourseFormat)
 
 	// Do db update
 	err = t.surveyModel.UpdateSurvey(&survey)
@@ -446,10 +542,10 @@ func (t *Controller) UpdateSurvey(c *gin.Context) {
 // @Produce  json
 // @Param surveyID path uint true "Survey ID"
 // @Success 200 {object} models.FactrakSurvey
-// @Failure 1331 {object} lib.APIError "must be self"
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1331 {object} services.BaseErrorResponse "must be self"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/surveys/{surveyID} [delete]
 func (t *Controller) DeleteSurvey(c *gin.Context) {
@@ -519,9 +615,9 @@ func (t *Controller) DeleteSurvey(c *gin.Context) {
 // @Produce  json
 // @Param surveyID path uint true "Survey ID"
 // @Success 200
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/surveys/{surveyID}/flag [post]
 func (t *Controller) FlagSurvey(c *gin.Context) {

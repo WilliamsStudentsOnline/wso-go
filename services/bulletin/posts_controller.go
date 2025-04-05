@@ -21,9 +21,9 @@ import (
 // @Produce  json
 // @Param postID path uint true "Post ID"
 // @Success 200 {object} models.Post
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/posts/{postID} [get]
 func (t *Controller) GetPost(c *gin.Context) {
@@ -75,11 +75,11 @@ type CreatePostParams struct {
 // @Produce  json
 // @Param createParams body bulletin.CreatePostParams true "Create Post Params"
 // @Success 201 {object} models.Post
-// @Failure 1101 {object} lib.APIError "request data validation failed"
-// @Failure 1332 {object} lib.APIError "authenticated user not found"
-// @Failure 1850 {object} lib.APIError "discussion cannot be found"
-// @Failure 400 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1101 {object} services.BaseErrorResponse "request data validation failed"
+// @Failure 1332 {object} services.BaseErrorResponse "authenticated user not found"
+// @Failure 1850 {object} services.BaseErrorResponse "discussion cannot be found"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/posts [post]
 func (t *Controller) CreatePost(c *gin.Context) {
@@ -148,10 +148,10 @@ type UpdatePostParams struct {
 // @Param updateParams body bulletin.UpdatePostParams true "Update Post Params"
 // @Param postID path uint true "Post ID"
 // @Success 200 {object} models.Post
-// @Failure 1331 {object} lib.APIError "must be self"
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1331 {object} services.BaseErrorResponse "must be self"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/posts/{postID} [patch]
 func (t *Controller) UpdatePost(c *gin.Context) {
@@ -207,10 +207,10 @@ func (t *Controller) UpdatePost(c *gin.Context) {
 // @Produce  json
 // @Param postID path uint true "Post ID"
 // @Success 200 {object} models.Post
-// @Failure 1331 {object} lib.APIError "must be self"
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1331 {object} services.BaseErrorResponse "must be self"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/posts/{postID} [delete]
 func (t *Controller) DeletePost(c *gin.Context) {

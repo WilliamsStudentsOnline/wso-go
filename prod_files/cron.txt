@@ -1,8 +1,14 @@
 ##### WSO-Backend WSO 2.0 #####
 
+##################
+# IMPORTANT (by Ye Shu):
+# THIS SCRIPT IS NOT AUTOMATICALLY UPDATED ON THE SERVER
+# IF YOU'VE MADE CHANGES, log onto wso and use `crontab -e` to manually update
+#################
+
 # Factrak survey deficits
 SHELL="/bin/bash"
-0 0 1 9,3 * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/update-all-factrak-survey-deficits -console -config /home/wso/wso/wso-backend/config.yaml >> /home/wso/wso/wso-backend/logs/update-all-factrak-survey-deficits-cron.log 2>&1'
+0 0 1 9,2 * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/update-all-factrak-survey-deficits -console -config /home/wso/wso/wso-backend/config.yaml >> /home/wso/wso/wso-backend/logs/update-all-factrak-survey-deficits-cron.log 2>&1'
 
 # User update
 SHELL="/bin/bash"
@@ -10,4 +16,30 @@ SHELL="/bin/bash"
 
 # Catalog update
 SHELL="/bin/bash"
-0 3 * * * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/catalog-update -file /home/wso/wso/static/courses.json >> /home/wso/wso/wso-backend/logs/catalog-update-cron.log 2>&1'
+0 3 * * * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/catalog-update -config /home/wso/wso/wso-backend/config.yaml -file /home/wso/wso/static/courses.json -factrak-file /home/wso/wso/static-auth/courses.json >> /home/wso/wso/wso-backend/logs/catalog-update-cron.log 2>&1'
+
+# User CSV Data update
+SHELL="/bin/bash"
+0 4 * * * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/user-csv-data -console -config /home/wso/wso/wso-backend/config.yaml -file /var/sftp/oit/wso_student_data.csv >> /home/wso/wso/wso-backend/logs/user-csv-data-cron.log 2>&1'
+
+# Dining update
+SHELL="/bin/bash"
+0 1 * * * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/dining-update -out /home/wso/wso/static/dining.json -vi /home/wso/wso/wso-backend/vendor_info.yaml -eats4Ephs >> /home/wso/wso/wso-backend/logs/dining-update-cron.log 2>&1'
+
+# Salmon scheduled notif
+SHELL="/bin/bash"
+0 9 * * * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/schedule-notifs -notif salmon -console -config /home/wso/wso/wso-backend/config.yaml >> /home/wso/wso/wso-backend/logs/schedule-notifs-cron.log 2>&1'
+
+# Increment students' on campus semester (for those with at_williams = true)
+# This is run at the beginning of each semester (Feb & Sep)
+0 0 1 2,9 * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/update-on-campus-semesters -console -config /home/wso/wso/wso-backend/config.yaml >> /home/wso/wso/wso-backend/logs/update-on-campus-semesters-cron.log 2>&1'
+
+# Update professors' areas of study based on their course reviews
+# This is run at the beginning of April, August, November (registration periods)
+0 0 1 4,8,11 * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/update_profs_areas_of_study -console -config /home/wso/wso/wso-backend/config.yaml >> /home/wso/wso/wso-backend/logs/update-profs_areas_of_study-cron.log 2>&1'
+
+# Reset EphMatch. This is run on September 1st every year
+0 0 1 9 * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/ephmatch-reset -console -config /home/wso/wso/wso-backend/config.yaml >> /home/wso/wso/wso-backend/logs/ephmatch-reset-cron.log 2>&1'
+
+# Create EphMatch dates. This is run on January 1st every year
+0 0 1 1 * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/update_ephmatch_dates -config /home/wso/wso/wso-backend/config.yaml >> /home/wso/wso/wso-backend/logs/ephmatch-update-dates-cron.log 2>&1'

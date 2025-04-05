@@ -5,11 +5,12 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/go-playground/validator/v10"
+
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
-	"gopkg.in/go-playground/validator.v9"
 )
 
 type BaseController struct {
@@ -22,6 +23,12 @@ type BaseResponse struct {
 	Error           *RespError  `json:"error,omitempty"`
 	UpdateToken     bool        `json:"updateToken,omitempty"`
 	PaginationTotal int         `json:"paginationTotal,omitempty"`
+}
+
+type BaseErrorResponse struct {
+	Status      int        `json:"status"`
+	Error       *RespError `json:"error,omitempty"`
+	UpdateToken bool       `json:"updateToken,omitempty"`
 }
 
 type RespError struct {
@@ -140,7 +147,7 @@ func (b BaseController) RespondErrorCode(c *gin.Context, code int, err error) {
 // Respond to request with an error and abort
 func respondError(c *gin.Context, httpCode int, err *RespError) {
 	c.Set(ErrorCodeKey, err.ErrorCode)
-	c.AbortWithStatusJSON(httpCode, BaseResponse{
+	c.AbortWithStatusJSON(httpCode, BaseErrorResponse{
 		Status: err.ErrorCode,
 		Error:  err,
 		// We set this in the context at any point if we need to update the token

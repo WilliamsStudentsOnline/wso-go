@@ -2,23 +2,45 @@ package local
 
 import (
 	"errors"
+	"fmt"
 	"image"
 	"image/jpeg"
+	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strconv"
+	"sync"
 
+	"github.com/disintegration/imaging"
 	"go.uber.org/zap"
 )
 
 const (
-	dirThumb = "thumb"
-	dirLarge = "large"
+	dirUserThumb        = "user/thumb"
+	dirUserLarge        = "user/large"
+	dirEphmatch         = "ephmatch"
+	dirDormtrakDormroom = "dormtrak/dormroom"
+	maxDormtrakPhotos   = 10
 )
 
-// Pictures backend for local filesystem images
+var ErrorMaxDormtrakPhotos = errors.New("max dormtrak photos")
 
+// Pictures backend for local filesystem images
+/*
+Telos Structure:
+/user/large/unixid.jpg
+/user/thumb/unixid.jpg
+/dormtrak/dormroom/dorm_room_id/n.jpg
+/ephmatch/unixid.jpg
+*/
+
+// Backend implements pictures.PictureBackend with a local file system.
+// The file systems structure is specified above.
+// I assume Telos refers to https://github.com/WilliamsStudentsOnline/telos
+// but I do not know whether it's in use.
 type Backend struct {
 	path string
+	log  *zap.SugaredLogger
 }
 
 func NewBackend(path string, log *zap.SugaredLogger) (*Backend, error) {
@@ -28,38 +50,207 @@ func NewBackend(path string, log *zap.SugaredLogger) (*Backend, error) {
 	}
 
 	// Ensure (some) directories exist
-	if _, err := os.Stat(absPath); os.IsNotExist(err) {
-		return nil, errors.New("missing picture directory: " + absPath)
+	if _, statErr := os.Stat(absPath); os.IsNotExist(statErr) {
+		err := os.MkdirAll(absPath, 0770)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// Warn if these sub directories don't exist
-	if _, err := os.Stat(filepath.Join(absPath, dirThumb)); os.IsNotExist(err) {
-		log.Warnf("missing picture sub-directory: %s", filepath.Join(absPath, dirThumb))
+	requiredDirs := []string{dirUserThumb, dirUserLarge, dirEphmatch, dirDormtrakDormroom}
+	for _, dir := range requiredDirs {
+		fullPath := filepath.Join(absPath, dir)
+		if _, statErr := os.Stat(fullPath); os.IsNotExist(statErr) {
+			log.Warnf("missing picture directory: %s", fullPath)
+
+			err := os.MkdirAll(fullPath, 0770)
+			if err != nil {
+				return nil, err
+			}
+		}
 	}
-	if _, err := os.Stat(filepath.Join(absPath, dirLarge)); os.IsNotExist(err) {
-		log.Warnf("missing picture sub-directory: %s", filepath.Join(absPath, dirLarge))
+
+	return &Backend{path: absPath, log: log}, nil
+}
+
+// DoesUserPhotoExists checks whether the user has a valid Facebook photo (both thumb and large)
+func (b *Backend) DoesUserPhotoExists(unixID string) (bool, error) {
+	// check for thumb
+	existsThumb, err := b.DoesPhotoExists(unixID, dirUserThumb)
+	if err != nil {
+		return false, err
 	}
 
-	return &Backend{path: absPath}, nil
+	// check for large
+	existsLarge, err := b.DoesPhotoExists(unixID, dirUserLarge)
+	if err != nil {
+		return false, err
+	}
+
+	return existsThumb && existsLarge, nil
 }
 
-func (b *Backend) SaveThumb(img image.Image, unixID string) error {
-	return b.Save(img, unixID, dirThumb)
+func (b *Backend) SaveUserPhotoBoth(unixID string, img image.Image) error {
+	var dualSaveWg sync.WaitGroup
+	dualSaveErrors := make(chan error, 2)
+
+	dualSaveWg.Add(1)
+	go func(wg *sync.WaitGroup) {
+		imgScaled := imaging.Fill(img, 300, 300, imaging.Center, imaging.Lanczos)
+		err := b.SaveUserPhotoLarge(unixID, imgScaled)
+		if err != nil {
+			dualSaveErrors <- err
+		}
+		wg.Done()
+	}(&dualSaveWg)
+
+	dualSaveWg.Add(1)
+	go func(wg *sync.WaitGroup) {
+		imgThumb := imaging.Fill(img, 50, 50, imaging.Center, imaging.Lanczos)
+
+		err := b.SaveUserPhotoThumb(unixID, imgThumb)
+		if err != nil {
+			dualSaveErrors <- err
+		}
+		wg.Done()
+	}(&dualSaveWg)
+
+	dualSaveWg.Wait()
+	close(dualSaveErrors)
+
+	// if multiple error occurs, returning only the first one should suffice
+	err := <-dualSaveErrors
+	return err
 }
 
-func (b *Backend) SaveLarge(img image.Image, unixID string) error {
-	return b.Save(img, unixID, dirLarge)
+// Simply replace user profile thumb here
+// All file names should be in the format `user/thumb/{userID}.jpg`
+func (b *Backend) SaveUserPhotoThumb(unixID string, img image.Image) error {
+	return b.saveUserProfile(img, unixID, dirUserThumb)
 }
 
-func (b *Backend) Save(img image.Image, unixID string, category string) error {
+// Simply replace user profile large here
+// All file names should be in the format `user/large/{userID}.jpg`
+func (b *Backend) SaveUserPhotoLarge(unixID string, img image.Image) error {
+	return b.saveUserProfile(img, unixID, dirUserLarge)
+}
+
+func (b *Backend) DoesPhotoExists(unixID string, category string) (bool, error) {
+	path := filepath.Join(b.path, category, unixID+".jpg")
+
+	_, statErr := os.Stat(path)
+	if os.IsNotExist(statErr) {
+		return false, nil
+	} else if statErr != nil {
+		return false, statErr
+	}
+
+	return true, nil
+}
+
+func (b *Backend) saveUserProfile(img image.Image, unixID string, category string) error {
 	path := filepath.Join(b.path, category, unixID+".jpg")
 
 	file, err := os.Create(path)
 	if err != nil {
 		return err
 	}
-	defer file.Close()
 
 	err = jpeg.Encode(file, img, &jpeg.Options{Quality: 80})
-	return err
+	if err != nil {
+		return err
+	}
+
+	return file.Close()
+}
+
+// All file names should be in the format `dormtrak/dormroom/{dormRoomID}/{reviewID}_{n}.jpg`
+func (b *Backend) SaveDormRoom(dormRoomID uint, reviewID uint, img image.Image) error {
+	dirPath := filepath.Join(b.path, dirDormtrakDormroom, strconv.Itoa(int(dormRoomID)))
+
+	if _, statErr := os.Stat(dirPath); os.IsNotExist(statErr) {
+		err := os.MkdirAll(dirPath, 0770)
+		if err != nil {
+			return err
+		}
+	}
+
+	files, err := ioutil.ReadDir(dirPath)
+	if err != nil {
+		return err
+	}
+
+	// All file names should be in the format `dormRoomID/reviewID_n.jpg`
+	// We parse find n+1
+	maxN := -1
+	for _, file := range files {
+		var fileN, parsedReviewID int
+		_, err := fmt.Sscanf(file.Name(), "%d_%d.jpg", &parsedReviewID, &fileN)
+		if err != nil {
+			continue
+		}
+
+		if uint(parsedReviewID) != reviewID {
+			continue
+		}
+
+		if fileN > maxN {
+			maxN = fileN
+		}
+	}
+
+	if maxN > maxDormtrakPhotos {
+		return ErrorMaxDormtrakPhotos
+	}
+
+	path := filepath.Join(dirPath, fmt.Sprintf("%d_%d.jpg", reviewID, maxN+1))
+
+	file, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+
+	err = jpeg.Encode(file, img, &jpeg.Options{Quality: 80})
+	if err != nil {
+		return err
+	}
+
+	return file.Close()
+}
+
+func (b *Backend) ListDormRoom(dormRoomID uint) ([]string, error) {
+	dirPath := filepath.Join(b.path, dirDormtrakDormroom, strconv.Itoa(int(dormRoomID)))
+
+	if _, statErr := os.Stat(dirPath); os.IsNotExist(statErr) {
+		return nil, statErr
+	}
+
+	files, err := ioutil.ReadDir(dirPath)
+	if err != nil {
+		return nil, err
+	}
+
+	pics := make([]string, len(files))
+
+	for i := range files {
+		pics[i] = files[i].Name()
+	}
+
+	return pics, nil
+}
+
+// All file names should be in the format `ephmatch/{userID}.jpg`
+func (b *Backend) SaveEphmatchPhoto(unixID string, img image.Image) error {
+	return b.saveUserProfile(img, unixID, dirEphmatch)
+}
+
+func (b *Backend) DeleteEphmatchPhoto(unixID string) error {
+	fPath := filepath.Join(b.path, dirEphmatch, unixID+".jpg")
+
+	if _, statErr := os.Stat(fPath); os.IsNotExist(statErr) {
+		return statErr
+	}
+
+	return os.Remove(fPath)
 }

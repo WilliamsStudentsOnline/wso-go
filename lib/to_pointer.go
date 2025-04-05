@@ -10,6 +10,10 @@ func Int32ToPtr(i int32) *int32 {
 	return &i
 }
 
+func UIntToPtr(i uint) *uint {
+	return &i
+}
+
 func StrToPtr(s string) *string {
 	return &s
 }
@@ -70,6 +74,14 @@ func BoolPtrDefaults(value, defaultVal *bool) *bool {
 
 // Either goes with string ptr if not nil or with default otherwise
 func TimePtrDefaults(value, defaultVal *time.Time) *time.Time {
+	if value == nil {
+		return defaultVal
+	}
+	return value
+}
+
+// Either goes with float64 ptr if not nil or with default otherwise
+func Float64PtrDefaults(value, defaultVal *float64) *float64 {
 	if value == nil {
 		return defaultVal
 	}

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net"
 
-	"gopkg.in/ldap.v3"
+	"github.com/go-ldap/ldap/v3"
 )
 
 const LDAPServer = "adldap.williams.edu"
@@ -77,5 +77,5 @@ func OnCampusIP(ipString string) bool {
 		return false
 	}
 
-	return schoolSubnet.Contains(ip) || localSubnet.Contains(ip)
+	return schoolSubnet.Contains(ip) || localSubnet.Contains(ip) || ip.IsLoopback()
 }

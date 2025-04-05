@@ -51,10 +51,10 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 // @Tags chat
 // @Accept  json
 // @Produce  json
-// @Success 200 {string} token string
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Success 200 {string} string token
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /chat/auth/token [get]
 func (t *Controller) GetChatAuthToken(c *gin.Context) {

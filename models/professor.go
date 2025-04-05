@@ -1,6 +1,9 @@
 package models
 
 import (
+	"errors"
+	"fmt"
+
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
@@ -18,12 +21,50 @@ func NewProfessorModel(db *gorm.DB, log *zap.SugaredLogger) *ProfessorModel {
 }
 
 func (m *ProfessorModel) GetAllProfessors(u *[]*User, opts Options) (err error) {
-	db := m.DB.Scopes(m.scopeDefault)
+	db := m.DB
 	if opts != nil {
 		db = opts.Run(db)
 	}
+	db = db.Scopes(m.scopeDefault)
 	err = db.Find(u).Error
 	return
+}
+
+func (m *ProfessorModel) UpdateAreasOfStudyFromCourses() error {
+
+	courseModel := NewCourseModel(m.DB, m.log)
+
+	var courses []*Course
+
+	err := courseModel.GetAllCourses(&courses, &GetAllCoursesOptions{
+		Preload: []string{"areaOfStudy", "professorWithAreaOfStudy"},
+	})
+	if err != nil {
+		return err
+	}
+	if courses == nil {
+		// TODO: error
+		return errors.New("Courses are empty.")
+	}
+
+	for _, course := range courses {
+		areaOfStudy := course.AreaOfStudy
+		for _, professor := range course.Professors {
+			professor.AreasOfStudy = append(professor.AreasOfStudy, areaOfStudy)
+			m.DB.Save(&professor)
+		}
+	}
+
+	return nil
+}
+
+// Get all professors, ranked by one of the factrak surveys' fields
+func (m *ProfessorModel) GetProfessorsRanked(sort string, u *[]*User, opts Options) (err error) {
+	if !m.IsProfessorMetric(sort) {
+		return lib.ErrorInvalidRankingMetric
+	}
+
+	return m.GetAllProfessors(u, opts)
 }
 
 type GetAllProfessorsOptions struct {
@@ -38,6 +79,10 @@ type GetAllProfessorsOptions struct {
 	CourseID      *uint `json:"courseID" form:"courseID"`
 	DepartmentID  *uint `json:"departmentID" form:"departmentID"`
 	AreaOfStudyID *uint `json:"areaOfStudyID" form:"areaOfStudyID"`
+
+	// Rank by a professor metric, in either sort direction
+	Metric    *string `json:"metric" form:"metric"`
+	Ascending *bool   `json:"ascending" form:"ascending"`
 }
 
 // Preload specifically allowed parts if requested
@@ -64,7 +109,6 @@ func (o *GetAllProfessorsOptions) Order(db *gorm.DB) *gorm.DB {
 }
 
 func (o *GetAllProfessorsOptions) Paginate(db *gorm.DB) *gorm.DB {
-	db = o.Order(db)
 	if o.Limit != nil {
 		db = db.Limit(*o.Limit)
 		if o.Offset != nil {
@@ -77,10 +121,19 @@ func (o *GetAllProfessorsOptions) Paginate(db *gorm.DB) *gorm.DB {
 
 func (o *GetAllProfessorsOptions) Run(db *gorm.DB) *gorm.DB {
 	db = o.Preloader(db)
-	db = o.Paginate(db)
 
 	m := NewProfessorModel(db.New(), nil)
 
+	if o.Metric != nil {
+		if o.Ascending != nil {
+			db = m.withRanking(*o.Metric, *o.Ascending)(db)
+		} else {
+			db = m.withRanking(*o.Metric, false)(db)
+		}
+	} else {
+		// No reason to order twice, only order by ID if no metric is given
+		db = o.Order(db)
+	}
 	if o.CourseID != nil {
 		db = m.withCourse(*o.CourseID)(db)
 	}
@@ -89,7 +142,9 @@ func (o *GetAllProfessorsOptions) Run(db *gorm.DB) *gorm.DB {
 	}
 	if o.AreaOfStudyID != nil {
 		db = m.withAreaOfStudy(*o.AreaOfStudyID)(db)
+		db = db.Preload("AreasOfStudy")
 	}
+	db = o.Paginate(db)
 
 	return db
 }
@@ -187,10 +242,47 @@ func (m *ProfessorModel) withDepartment(deptID uint) func(db *gorm.DB) *gorm.DB 
 func (m *ProfessorModel) withAreaOfStudy(areaID uint) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Where(
-			"users.department_id in (?)",
-			m.DB.Model(&AreaOfStudy{}).Select("department_id").Where(
-				"id = ?", areaID,
+			"users.id in (?)",
+			m.DB.Table("user_areaOfStudy").Select("user_id").Where(
+				"area_of_study_id = ?", areaID,
 			).QueryExpr(),
 		)
+	}
+}
+
+func (m *ProfessorModel) IsProfessorMetric(metric string) bool {
+	switch metric {
+	case
+		"course_workload",
+		"course_stimulating",
+		"would_take_another",
+		"approachability",
+		"lead_lecture",
+		"promote_discussion",
+		"outside_helpfulness":
+		return true
+	}
+	return false
+}
+
+func (m *ProfessorModel) withRanking(ranking string, ascending bool) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		var order string
+
+		if ascending {
+			order = "ASC"
+		} else {
+			order = "DESC"
+		}
+
+		avgRating := fmt.Sprintf("avg(factrak_surveys.%s)", ranking)
+		havingCount := fmt.Sprintf("count(factrak_surveys.%s) >= 5", ranking)
+		notNull := fmt.Sprintf("factrak_surveys.%s IS NOT NULL", ranking)
+
+		subQuery := db.Table("factrak_surveys").Select("professor_id, " + avgRating + " as factrak_score").Group("factrak_surveys.professor_id").Where(notNull).Having(havingCount).SubQuery()
+
+		db = db.Table("users").Select("users.*, scores.factrak_score").Joins("left join (?) as scores on users.id = scores.professor_id", subQuery).Where("factrak_score IS NOT NULL").Order("factrak_score "+order, true)
+
+		return db
 	}
 }

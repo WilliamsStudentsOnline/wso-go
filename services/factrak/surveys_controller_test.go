@@ -3,9 +3,11 @@ package factrak_test
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math/rand"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -20,13 +22,39 @@ import (
 	"go.uber.org/zap/zaptest"
 )
 
+// Check that a slice of surveys matches the expected slice, by comparing course IDs
+func EqualSurveyIDs(expected, resp []models.FactrakSurvey) error {
+	if len(resp) != len(expected) {
+		return errors.New(fmt.Sprintf("Expected length %d, got %d", len(expected), len(resp)))
+	}
+
+	for i, v := range expected {
+		if v.ID != resp[i].ID {
+			return errors.New(fmt.Sprintf("At index %d, expected ID %d, got %d", i, v.ID, resp[i].ID))
+		}
+	}
+	return nil
+}
+
+// Unmarshal a slice of surveys from an http response
+func GetSurveysFromResp(assert *testify.Assertions, w *httptest.ResponseRecorder) []models.FactrakSurvey {
+	respData := utils.GetGoodResp(assert, w)
+	var resp []models.FactrakSurvey
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	return resp
+}
+
+// Unmarshal a single survey from an http response
+func GetSurveyFromResp(assert *testify.Assertions, w *httptest.ResponseRecorder) models.FactrakSurvey {
+	respData := utils.GetGoodResp(assert, w)
+	var resp models.FactrakSurvey
+	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	return resp
+}
+
 func TestController_ListSurveys(t *testing.T) {
-	// Setup (can copy and paste this basically)
-	assert := testify.New(t)
-	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
-	cfg := utils.SetupConfig()
-	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+	// Set up the test environment
+	assert, db, router := SetupFactrakTest(t)
 
 	c1 := models.Course{
 		Number: "c1",
@@ -70,19 +98,9 @@ func TestController_ListSurveys(t *testing.T) {
 	w, err := utils.DoHTTPReq(router, http.MethodGet, "/surveys", nil)
 	assert.NoError(err)
 
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode response
-	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	var resp []models.FactrakSurvey
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-
 	// Check if correct surveys (ordered by date)
-	assert.Len(resp, 2)
-	assert.Equal(fs2.Comment, resp[0].Comment)
-	assert.Equal(fs1.Comment, resp[1].Comment)
+	resp := GetSurveysFromResp(assert, w)
+	assert.NoError(EqualSurveyIDs([]models.FactrakSurvey{fs2, fs1}, resp))
 
 	// Make sure anonymous
 	assert.Zero(resp[0].UserID)
@@ -238,19 +256,13 @@ func TestController_ListSurveys2(t *testing.T) {
 		assert.NoError(db.Create(surveys[i]).Error)
 	}
 
-	/* Default */
+	/* Get all surveys (default) */
 
 	// Get test surveys
 	w, err := utils.DoHTTPReq(router, http.MethodGet, "/surveys", nil)
 	assert.NoError(err)
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
 
-	// Decode response
-	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	var resp []models.FactrakSurvey
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
+	resp := GetSurveysFromResp(assert, w)
 
 	// Check if correct surveys (ordered by date)
 	assert.Len(resp, 8)
@@ -261,45 +273,27 @@ func TestController_ListSurveys2(t *testing.T) {
 		assert.Nil(resp[i].User)
 	}
 
-	/* courseID */
+	/* Get surveys by courseID */
 
 	// Get test surveys
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/surveys?courseID=%d", c2.ID), nil)
 	assert.NoError(err)
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode response
-	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	resp = []models.FactrakSurvey{}
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
 
 	// Check if correct surveys (ordered by date)
-	assert.Len(resp, 2)
-	assert.Equal(surveys[5].Comment, resp[0].Comment)
-	assert.Equal(surveys[2].Comment, resp[1].Comment)
+	resp = GetSurveysFromResp(assert, w)
+	assert.NoError(EqualSurveyIDs([]models.FactrakSurvey{*surveys[5], *surveys[2]}, resp))
 
-	/* professorID */
+	/* Get surveys by professorID */
 
 	// Get test surveys
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/surveys?professorID=%d", p2.ID), nil)
 	assert.NoError(err)
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode response
-	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	resp = []models.FactrakSurvey{}
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
 
 	// Check if correct surveys (ordered by date)
-	assert.Len(resp, 2)
-	assert.Equal(surveys[5].Comment, resp[0].Comment)
-	assert.Equal(surveys[3].Comment, resp[1].Comment)
+	resp = GetSurveysFromResp(assert, w)
+	assert.NoError(EqualSurveyIDs([]models.FactrakSurvey{*surveys[5], *surveys[3]}, resp))
 
-	/* userID */
+	/* Get surveys by authorized userID */
 
 	// Get test surveys
 	r1 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
@@ -307,38 +301,22 @@ func TestController_ListSurveys2(t *testing.T) {
 	SetupRouter(r1, db, cfg, zaptest.NewLogger(t).Sugar())
 	w, err = utils.DoHTTPReq(r1, http.MethodGet, fmt.Sprintf("/surveys?userID=%d", s2.ID), nil)
 	assert.NoError(err)
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode response
-	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	resp = []models.FactrakSurvey{}
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
 
 	// Check if correct surveys (ordered by date)
-	assert.Len(resp, 1)
-	assert.Equal(surveys[4].Comment, resp[0].Comment)
+	resp = GetSurveysFromResp(assert, w)
+	assert.NoError(EqualSurveyIDs([]models.FactrakSurvey{*surveys[4]}, resp))
 
-	/* courseID and professorID */
+	/* Get surveys by courseID and professorID */
 
 	// Get test surveys
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/surveys?courseID=%d&professorID=%d", c2.ID, p2.ID), nil)
 	assert.NoError(err)
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode response
-	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	resp = []models.FactrakSurvey{}
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
 
 	// Check if correct surveys (ordered by date)
-	assert.Len(resp, 1)
-	assert.Equal(surveys[5].Comment, resp[0].Comment)
+	resp = GetSurveysFromResp(assert, w)
+	assert.NoError(EqualSurveyIDs([]models.FactrakSurvey{*surveys[5]}, resp))
 
-	/* userID bad */
+	/* Get surveys with unauthorized userID */
 
 	// Get test surveys
 	r2 := utils.SetupRouter(auth.ScopeFactrakFull, auth.ScopeWriteSelf)
@@ -346,43 +324,26 @@ func TestController_ListSurveys2(t *testing.T) {
 	SetupRouter(r2, db, cfg, zaptest.NewLogger(t).Sugar())
 	w, err = utils.DoHTTPReq(r2, http.MethodGet, fmt.Sprintf("/surveys?userID=%d", s2.ID), nil)
 	assert.NoError(err)
-	// Status is okay
+	// Status is forbidden
 	assert.Equal(http.StatusForbidden, w.Code)
 
 	/* limit and start */
 
 	// Get test surveys
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/surveys?limit=2&start=%s", surveys[5].CreatedAt.Format(time.RFC3339Nano)), nil)
-	assert.NoError(err)
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode response
-	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	resp = []models.FactrakSurvey{}
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
 
 	// Check if correct surveys (ordered by date)
-	assert.Len(resp, 2)
-	assert.Equal(surveys[4].Comment, resp[0].Comment)
-	assert.Equal(surveys[3].Comment, resp[1].Comment)
+	resp = GetSurveysFromResp(assert, w)
+	assert.NoError(EqualSurveyIDs([]models.FactrakSurvey{*surveys[4], *surveys[3]}, resp))
 
 	/* preload professor, course */
 
 	// Get test surveys
 	w, err = utils.DoHTTPReq(router, http.MethodGet, "/surveys?preload[]=professor&preload[]=course", nil)
 	assert.NoError(err)
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode response
-	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	resp = []models.FactrakSurvey{}
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
 
 	// Check if correct surveys (ordered by date)
+	resp = GetSurveysFromResp(assert, w)
 	assert.Len(resp, 8)
 	assert.Equal(surveys[0].Comment, resp[7].Comment)
 	assert.NotNil(resp[7].Professor)
@@ -395,16 +356,9 @@ func TestController_ListSurveys2(t *testing.T) {
 	// Get test surveys
 	w, err = utils.DoHTTPReq(router, http.MethodGet, "/surveys?populateAgreements=true", nil)
 	assert.NoError(err)
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
 
-	// Decode response
-	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	resp = []models.FactrakSurvey{}
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-
-	// Check if correct surveys (ordered by date)
+	// Check if correct agreement values for surveys (ordered by date)
+	resp = GetSurveysFromResp(assert, w)
 	assert.Len(resp, 8)
 	assert.Equal(surveys[6].Comment, resp[1].Comment)
 	assert.Equal(2, resp[1].TotalAgree)
@@ -418,16 +372,9 @@ func TestController_ListSurveys2(t *testing.T) {
 	SetupRouter(r3, db, cfg, zaptest.NewLogger(t).Sugar())
 	w, err = utils.DoHTTPReq(r3, http.MethodGet, "/surveys?populateClientAgreement=true", nil)
 	assert.NoError(err)
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
 
-	// Decode response
-	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	resp = []models.FactrakSurvey{}
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-
-	// Check if correct surveys (ordered by date)
+	// Check if correct client agreements for the surveys (ordered by date)
+	resp = GetSurveysFromResp(assert, w)
 	assert.Len(resp, 8)
 	assert.Equal(surveys[7].Comment, resp[0].Comment)
 	assert.Equal(true, *resp[0].ClientAgreement)
@@ -484,19 +431,11 @@ func TestController_GetSurvey(t *testing.T) {
 	w, err := utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/surveys/%d", fs1.ID), nil)
 	assert.NoError(err)
 
-	// Status is okay
-	assert.Equal(http.StatusOK, w.Code)
-
-	// Decode response
-	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
-	var resp models.FactrakSurvey
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-
-	// Check if correct surveys
+	// Check if response has correct survey
+	resp := GetSurveyFromResp(assert, w)
 	assert.Equal(fs1.Comment, resp.Comment)
 
-	// Make sure anonymous
+	// Make sure survey is anonymous
 	assert.Zero(resp.UserID)
 	assert.Nil(resp.User)
 
@@ -509,7 +448,7 @@ func TestController_GetSurvey(t *testing.T) {
 }
 
 func TestController_CreateSurvey(t *testing.T) {
-	// Setup (can copy and paste this basically)
+	// Setup
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 
@@ -620,11 +559,44 @@ func TestController_CreateSurvey(t *testing.T) {
 	}
 	createSurveyExpectError(assert, router, params, lib.ErrorSurveyAreaOfStudyNotFound)
 
-	// Test 9: create survey via courseID
+	// Test 9: error for having only one of semester info
+	params = SurveyCreateParams{ProfessorID: &p1.ID, Comment: generateSurveyTestComment(),
+		CourseID:     &c1.ID,
+		SemesterYear: lib.IntToPtr(2020),
+	}
+	createSurveyExpectError(assert, router, params, lib.ErrorSurveyCourseSemesterBad)
+
+	// Test 10: error for having bad semester season
+	params = SurveyCreateParams{ProfessorID: &p1.ID, Comment: generateSurveyTestComment(),
+		CourseID:       &c1.ID,
+		SemesterSeason: lib.StrToPtr("foo"),
+		SemesterYear:   lib.IntToPtr(2020),
+	}
+	createSurveyExpectError(assert, router, params, lib.ErrorSurveyCourseSemesterBad)
+
+	// Test 10: error for having future course semester year
+	params = SurveyCreateParams{ProfessorID: &p1.ID, Comment: generateSurveyTestComment(),
+		CourseID:       &c1.ID,
+		SemesterSeason: lib.StrToPtr("spring"),
+		SemesterYear:   lib.IntToPtr(time.Now().Year() + 4),
+	}
+	createSurveyExpectError(assert, router, params, lib.ErrorSurveyCourseYearFuture)
+
+	// Test 11: error for bad course format
+	params = SurveyCreateParams{ProfessorID: &p1.ID, Comment: generateSurveyTestComment(),
+		CourseID:     &c1.ID,
+		CourseFormat: lib.StrToPtr("ofpow"),
+	}
+	createSurveyExpectError(assert, router, params, lib.ErrorSurveyCourseFormatBad)
+
+	// Test 12: create survey via courseID
 	params = SurveyCreateParams{ProfessorID: &p1.ID, Comment: generateSurveyTestComment(),
 		CourseID:         &c1.ID,
 		WouldTakeAnother: lib.BoolToPtr(false),
 		CourseWorkload:   lib.IntToPtr(4),
+		CourseFormat:     lib.StrToPtr("in-person"),
+		SemesterSeason:   lib.StrToPtr("spring"),
+		SemesterYear:     lib.IntToPtr(2020),
 	}
 	resSurvey := createSurveyExpectSuccess(assert, router, params)
 
@@ -633,6 +605,9 @@ func TestController_CreateSurvey(t *testing.T) {
 	assert.Equal(*params.ProfessorID, resSurvey.ProfessorID)
 	assert.Equal(*params.CourseID, resSurvey.CourseID)
 	assert.Equal(s1.ID, resSurvey.UserID)
+	assert.Equal(*params.CourseFormat, *resSurvey.CourseFormat)
+	assert.Equal(*params.SemesterSeason, *resSurvey.SemesterSeason)
+	assert.Equal(*params.SemesterYear, *resSurvey.SemesterYear)
 	assert.False(*resSurvey.WouldTakeAnother)
 	assert.Equal(*params.CourseWorkload, *resSurvey.CourseWorkload)
 	assert.Nil(resSurvey.WouldRecommendCourse)
@@ -661,13 +636,13 @@ func TestController_CreateSurvey(t *testing.T) {
 	assert.Zero(surveyInDB.TotalDisagree)
 	assert.False(surveyInDB.Flagged)
 
-	// Test 10: error on unique survey requirement
+	// Test 13: error on unique survey requirement
 	params = SurveyCreateParams{ProfessorID: &p1.ID, Comment: generateSurveyTestComment(),
 		CourseID: &c1.ID,
 	}
 	createSurveyExpectError(assert, router, params, lib.ErrorSurveyAlreadyExists)
 
-	// Test 11: create survey via existing course number
+	// Test 14: create survey via existing course number
 	params = SurveyCreateParams{ProfessorID: &p1.ID, Comment: generateSurveyTestComment(),
 		CourseNumber:            &c2.Number,
 		AreaOfStudyAbbreviation: &c2.AreaOfStudy.Abbreviation,
@@ -687,7 +662,7 @@ func TestController_CreateSurvey(t *testing.T) {
 	assert.True(*resSurvey.WouldRecommendCourse)
 	assert.Equal(*params.Approachability, *resSurvey.Approachability)
 
-	// Test 12: create survey via new course number
+	// Test 15: create survey via new course number
 	params = SurveyCreateParams{ProfessorID: &p1.ID, Comment: generateSurveyTestComment(),
 		CourseNumber:            lib.StrToPtr("c3"),
 		AreaOfStudyAbbreviation: &a1.Abbreviation,
@@ -709,7 +684,7 @@ func TestController_CreateSurvey(t *testing.T) {
 }
 
 func TestController_UpdateSurvey(t *testing.T) {
-	// Setup (can copy and paste this basically)
+	// Setup
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 
@@ -800,14 +775,9 @@ func TestController_UpdateSurvey(t *testing.T) {
 	w, err := utils.DoHTTPReq(router,
 		http.MethodPatch, fmt.Sprintf("/surveys/%d", survey.ID), bytes.NewBuffer(paramsData))
 	assert.NoError(err)
-	assert.Equal(http.StatusOK, w.Code)
-	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
 
-	// Parse API response
-	var resp models.FactrakSurvey
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
-	// Assert for response
+	// Check survey from response has the correct values
+	resp := GetSurveyFromResp(assert, w)
 	assert.Equal(survey.ID, resp.ID)
 	assert.Equal(*params.Comment, resp.Comment)
 	assert.Equal(6, *resp.CourseWorkload)
@@ -832,7 +802,7 @@ func TestController_UpdateSurvey(t *testing.T) {
 }
 
 func TestController_DeleteSurvey(t *testing.T) {
-	// Setup (can copy and paste this basically)
+	// Setup
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 
@@ -908,29 +878,22 @@ func TestController_DeleteSurvey(t *testing.T) {
 	apiErr := lib.ErrorRecordNotFound
 	w, err := utils.DoHTTPReq(router, http.MethodDelete, fmt.Sprintf("/surveys/%d", 42), nil)
 	assert.NoError(err)
-	assert.Equal(apiErr.HTTPCode, w.Code)
-	// Assert correct error
-	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+	// Check that the response returns the correct error codes
+	utils.CheckRespError(assert, w, apiErr)
 
 	// Test 2: error on user not self
 	apiErr = lib.ErrorMustBeSelf
 	w, err = utils.DoHTTPReq(router, http.MethodDelete, fmt.Sprintf("/surveys/%d", survey2.ID), nil)
 	assert.NoError(err)
-	assert.Equal(apiErr.HTTPCode, w.Code)
-	// Assert correct error
-	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+	// Check that the response returns the correct error codes
+	utils.CheckRespError(assert, w, apiErr)
 
 	// Test 3: actually delete
 	w, err = utils.DoHTTPReq(router, http.MethodDelete, fmt.Sprintf("/surveys/%d", survey.ID), nil)
 	assert.NoError(err)
-	assert.Equal(http.StatusOK, w.Code)
-	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	assert.Nil(respData.Error)
 
-	// Decode resp data
-	var resp models.FactrakSurvey
-	assert.NoError(json.Unmarshal(respData.Data, &resp))
 	// Assert that we get the correct survey back
+	resp := GetSurveyFromResp(assert, w)
 	assert.Equal(survey.ID, resp.ID)
 	assert.Equal(survey.Comment, resp.Comment)
 	assert.Equal(1, resp.TotalAgree)
@@ -962,7 +925,7 @@ func TestController_DeleteSurvey(t *testing.T) {
 }
 
 func TestController_FlagSurvey(t *testing.T) {
-	// Setup (can copy and paste this basically)
+	// Setup
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 
@@ -1005,9 +968,8 @@ func TestController_FlagSurvey(t *testing.T) {
 	apiErr := lib.ErrorRecordNotFound
 	w, err := utils.DoHTTPReq(router, http.MethodPost, fmt.Sprintf("/surveys/%d/flag", 42), nil)
 	assert.NoError(err)
-	assert.Equal(apiErr.HTTPCode, w.Code)
-	// Assert correct error
-	assert.Equal(apiErr.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+	// Check that the response returns the correct error codes
+	utils.CheckRespError(assert, w, apiErr)
 
 	// Test 2: actually flag
 	w, err = utils.DoHTTPReq(router, http.MethodPost, fmt.Sprintf("/surveys/%d/flag", survey.ID), nil)
@@ -1051,10 +1013,8 @@ func createSurveyExpectError(assert *testify.Assertions, router *gin.Engine, par
 	// Get bad survey (expect failure)
 	w, err := utils.DoHTTPReq(router, http.MethodPost, "/surveys", bytes.NewBuffer(paramsData))
 	assert.NoError(err)
-	assert.Equal(apiErr.HTTPCode, w.Code)
-	// Assert correct error
-	respErrCode := utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode
-	assert.Equal(apiErr.Code, respErrCode)
+	// Check that the correct api error code is returned
+	utils.CheckRespError(assert, w, apiErr)
 }
 
 func createSurveyExpectSuccess(assert *testify.Assertions, router *gin.Engine, params SurveyCreateParams) models.FactrakSurvey {

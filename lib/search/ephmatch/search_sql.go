@@ -65,9 +65,9 @@ func (s *SearchEphmatchMySQL) SearchProfiles(query string, profiles *[]*models.E
 			}
 		}
 
-		// Populate liked field
-		if lib.StringsContains(opts.Preload, "liked") {
-			err = epM.PopulateLiked(profiles, selfID)
+		// Populate relation field
+		if lib.StringsContains(opts.Preload, "relation") {
+			err = epM.PopulateRelations(profiles, selfID)
 			if err != nil {
 				return
 			}

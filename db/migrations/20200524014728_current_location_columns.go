@@ -30,6 +30,19 @@ var CurrentLocationColumns20200524014728 = &gormigrate.Migration{
 		return tx.AutoMigrate(&EphmatchProfile{}).Error
 	},
 	Rollback: func(tx *gorm.DB) error {
-		return tx.DropTable("ephmatch_profiles").Error
+		err := tx.Table("ephmatch_profiles").DropColumn("location_visible").Error
+		if err != nil {
+			return err
+		}
+		err = tx.Table("ephmatch_profiles").DropColumn("location_town").Error
+		if err != nil {
+			return err
+		}
+		err = tx.Table("ephmatch_profiles").DropColumn("location_state").Error
+		if err != nil {
+			return err
+		}
+		err = tx.Table("ephmatch_profiles").DropColumn("location_country").Error
+		return err
 	},
 }

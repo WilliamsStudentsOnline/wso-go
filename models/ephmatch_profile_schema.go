@@ -6,9 +6,26 @@ const (
 	EphmatchMessagingPlatformInstagram = "Instagram"
 )
 
+const (
+	EphmatchLookingForFriends = "friends"
+	EphmatchLookingForFun     = "fun"
+	EphmatchLookingForCasual  = "casual" // something casual
+	EphmatchLookingForLove    = "love"
+	EphmatchLookingForOpen    = "open" // open for whatever
+)
+
 func ValidateEphmatchMessagingPlatform(str string) bool {
 	switch str {
 	case EphmatchMessagingPlatformPhone, EphmatchMessagingPlatformSnapchat, EphmatchMessagingPlatformInstagram:
+		return true
+	default:
+		return false
+	}
+}
+
+func ValidateEphmatchLookingFor(str string) bool {
+	switch str {
+	case EphmatchLookingForFriends, EphmatchLookingForFun, EphmatchLookingForCasual, EphmatchLookingForLove, EphmatchLookingForOpen:
 		return true
 	default:
 		return false
@@ -26,8 +43,8 @@ type EphmatchProfile struct {
 	Description  *string `json:"description"`
 	MatchMessage *string `json:"matchMessage"`
 
-	Liked   *bool `gorm:"-" json:"liked,omitempty"`   // If self has liked this profile (user)
-	Matched *bool `gorm:"-" json:"matched,omitempty"` // If user and self are matched
+	Relation *string `gorm:"-" json:"relation,omitempty"` // If self has an out-relation with this profile (user)
+	Matched  *bool   `gorm:"-" json:"matched,omitempty"`  // If user and self are matched
 
 	// Current location columns
 	LocationVisible *bool   `gorm:"DEFAULT:true;not null" json:"locationVisible"`
@@ -38,6 +55,9 @@ type EphmatchProfile struct {
 	// Messaging platform columns
 	MessagingPlatform *string `json:"messagingPlatform"`
 	MessagingUsername *string `json:"messagingUsername"`
+
+	// Looking for:
+	LookingFor *string `json:"lookingFor"`
 
 	// Non db entry that acts as a flag for deleted_at column
 	Deleted bool `gorm:"-" json:"deleted"`

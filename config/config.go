@@ -6,6 +6,8 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib/search"
@@ -80,11 +82,6 @@ type Config struct {
 	// Enable ephmatch indefinitely
 	EphmatchEnableNow bool `yaml:"ephmatch_enable_now" envconfig:"ephmatch_enable_now"`
 
-	/* Kubernetes */
-	KubernetesEnabled   bool   `yaml:"kubernetes_enabled" envconfig:"kubernetes_enabled"`
-	KubeNamespace       string `yaml:"kube_namespace" envconfig:"kube_namespace"`
-	KubeJobImageVersion string `yaml:"kube_job_image_version" envconfig:"kube_job_image_version"`
-
 	Secrets *Secrets `yaml:"-" envconfig:"-"`
 
 	/* Pictures */
@@ -94,11 +91,40 @@ type Config struct {
 	/* Chat */
 	// The name of ejabberd service, like wso.williams.edu
 	ChatEjabberdName string `yaml:"chat_ejabberd_name" envconfig:"chat_ejabberd_name"`
+
+	/* Notifications */
+	/* APNS */
+	APNSAuthKey    string `yaml:"apns_auth_key" envconfig:"apns_auth_key"`
+	APNSKeyID      string `yaml:"apns_key_id" envconfig:"apns_key_id"`
+	APNSTeamID     string `yaml:"apns_team_id" envconfig:"apns_team_id"`
+	APNSTopic      string `yaml:"apns_topic" envconfig:"apns_topic"`
+	APNSProduction bool   `yaml:"apns_production" envconfig:"apns_production"`
+
+	/* Dining (for read, not write) */
+	DiningFile string `yaml:"dining_file" envconfig:"dining_file"`
+
+	/* Goodrich */
+	GoodrichManagerUnixes []string `yaml:"goodrich_manager_unixes" envconfig:"goodrich_manager_unixes"`
+	// Use format: 2006-01-02
+	GoodrichOpenDays []string `yaml:"goodrich_open_days" envconfig:"goodrich_open_days"`
+	// Format: 15:04
+	GoodrichOpen              string `yaml:"goodrich_open" envconfig:"goodrich_open"`
+	GoodrichClose             string `yaml:"goodrich_close" envconfig:"goodrich_close"`
+	GoodrichSlotSpotSize      int    `yaml:"goodrich_slot_spot_size" envconfig:"goodrich_slot_spot_size"`
+	GoodrichEmail             string `yaml:"goodrich_email" envconfig:"goodrich_email"`
+	GoodrichMaxLeases         int    `yaml:"goodrich_max_leases" envconfig:"goodrich_max_leases"`
+	GoodrichLeaseTerm         string `yaml:"goodrich_lease_term" envconfig:"goodrich_lease_term"`
+	GoodrichLeaseTermDuration time.Duration
+
+	/* Email */
+	EmailSMTPHost string `yaml:"email_smtp_host" envconfig:"email_smtp_host"`
+	EmailSMTPPort int    `yaml:"email_smtp_port" envconfig:"email_smtp_port"`
 }
 
 type EphmatchEra struct {
-	Start time.Time `yaml:"start"`
-	End   time.Time `yaml:"end"`
+	Start      time.Time `yaml:"start"`
+	End        time.Time `yaml:"end"`
+	SeniorOnly bool      `yaml:"senior_only"`
 }
 
 // Check what environment our config is in
@@ -116,6 +142,46 @@ func (c *Config) IsTest() bool {
 
 func (c *Config) IsProduction() bool {
 	return c.IsEnv("production")
+}
+
+func (c *Config) GoodrichMustParseTime(t string) (hour, minute int) {
+	hour, minute, err := c.goodrichParseTime(t)
+	if err != nil {
+		panic(err)
+	}
+	return
+}
+
+func (c *Config) goodrichParseTime(t string) (hour, minute int, err error) {
+	spl := strings.Split(t, ":")
+	if len(spl) != 2 {
+		return 0, 0, errors.New("could not parse time")
+	}
+
+	hour, err = strconv.Atoi(spl[0])
+	if err != nil {
+		return 0, 0, err
+	}
+	minute, err = strconv.Atoi(spl[1])
+	if err != nil {
+		return 0, 0, err
+	}
+
+	return
+}
+
+func (c *Config) MissingGoodrich() bool {
+	return c.GoodrichOpen == "" ||
+		c.GoodrichClose == "" ||
+		c.GoodrichSlotSpotSize == 0 ||
+		c.GoodrichEmail == "" ||
+		c.GoodrichLeaseTerm == "" ||
+		c.GoodrichMaxLeases == 0
+}
+
+func (c *Config) MissingEmail() bool {
+	return c.EmailSMTPHost == "" ||
+		c.EmailSMTPPort == 0
 }
 
 func (c *Config) GenerateURL() *url.URL {
@@ -256,11 +322,6 @@ func SetupConfig(c *Config) error {
 		SetupSQLiteConfig(c)
 	}
 
-	// Default to latest
-	if c.KubeJobImageVersion == "" {
-		c.KubeJobImageVersion = "latest"
-	}
-
 	// Default to SearchBackendSQL
 	if c.SearchBackend == "" {
 		c.SearchBackend = search.SearchBackendSQL
@@ -302,6 +363,27 @@ func SetupConfig(c *Config) error {
 
 	if c.ChatEjabberdName == "" {
 		c.ChatEjabberdName = "wso.williams.edu"
+	}
+
+	if !c.MissingGoodrich() {
+		if _, _, err := c.goodrichParseTime(c.GoodrichOpen); err != nil {
+			return errors.New("bad goodrich open time")
+		}
+		if _, _, err := c.goodrichParseTime(c.GoodrichClose); err != nil {
+			return errors.New("bad goodrich close time")
+		}
+		if c.Secrets.GoodrichEmailPassword == "" {
+			return errors.New("goodrich email password missing")
+		}
+		if c.MissingEmail() {
+			return errors.New("email SMTP settings missing")
+		}
+
+		dur, err := time.ParseDuration(c.GoodrichLeaseTerm)
+		if err != nil {
+			return errors.New("goodirch lease term invalid")
+		}
+		c.GoodrichLeaseTermDuration = dur
 	}
 
 	return nil

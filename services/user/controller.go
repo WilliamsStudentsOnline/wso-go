@@ -6,7 +6,6 @@ import (
 	_ "image/jpeg"
 	_ "image/png"
 	"net/http"
-	"sync"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
@@ -18,7 +17,6 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/sanitize"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/WilliamsStudentsOnline/wso-go/services/user/responses"
-	"github.com/disintegration/imaging"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
@@ -63,7 +61,7 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 // @Param preload query []string false "Preload List"
 // @Param q query string false "Search Query"
 // @Success 200 {array} responses.ListUsersResponseUser
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /users [get]
 func (t *Controller) ListUsers(c *gin.Context) {
@@ -78,7 +76,7 @@ func (t *Controller) ListUsers(c *gin.Context) {
 	}
 
 	if query, ok := c.GetQuery("q"); ok {
-		users, totalResults, err = t.userSearch.Search(query, &search.SearchUsersOptionsMysql{&opts})
+		users, totalResults, err = t.userSearch.Search(query, &search.SearchUsersOptionsMysql{GetAllUsersOptions: &opts})
 
 		if err != nil {
 			if searchLib.IsInvalidTokenError(err) {
@@ -140,11 +138,11 @@ func (t *Controller) ListUsers(c *gin.Context) {
 // @Produce  json
 // @Param userID path uint true "User ID"
 // @Success 200 {object} responses.GetUserResponseUser
-// @Failure 1403 {object} lib.APIError "user not visible"
-// @Failure 1404 {object} lib.APIError "user not at williams"
-// @Failure 1405 {object} lib.APIError "user id could not be parsed"
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1403 {object} services.BaseErrorResponse "user not visible"
+// @Failure 1404 {object} services.BaseErrorResponse "user not at williams"
+// @Failure 1405 {object} services.BaseErrorResponse "user id could not be parsed"
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /users/{userID} [get]
 func (t *Controller) GetUser(c *gin.Context) {
@@ -201,12 +199,12 @@ type UpdateUserParams struct {
 	Visible                   *bool   `json:"visible"`
 	DormVisible               *bool   `json:"dormVisible"`
 	HomeVisible               *bool   `json:"homeVisible"`
-	Pronoun                   *string `json:"pronoun"`
 	OffCycle                  *bool   `json:"offCycle"`
 	HasAcceptedFactrakPolicy  *bool   `json:"hasAcceptedFactrakPolicy"`
 	HasAcceptedDormtrakPolicy *bool   `json:"hasAcceptedDormtrakPolicy"`
 	Nickname                  *string `json:"nickname"`
 	OptOutEphcatch            *bool   `json:"optOutEphcatch"`
+	CampusStatus              *string `json:"campusStatus"`
 }
 
 // UpdateUser godoc
@@ -219,11 +217,11 @@ type UpdateUserParams struct {
 // @Param userID path uint true "User ID"
 // @Param updateParams body user.UpdateUserParams true "Update User Parameters"
 // @Success 200 {object} models.User
-// @Failure 1405 {object} lib.APIError "user id could not be parsed"
-// @Failure 1331 {object} lib.APIError "must be self"
-// @Failure 1100 {object} lib.APIError "could not parse malformed request data"
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1405 {object} services.BaseErrorResponse "user id could not be parsed"
+// @Failure 1331 {object} services.BaseErrorResponse "must be self"
+// @Failure 1100 {object} services.BaseErrorResponse "could not parse malformed request data"
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /users/{userID} [patch]
 func (t *Controller) UpdateUser(c *gin.Context) {
@@ -260,12 +258,18 @@ func (t *Controller) UpdateUser(c *gin.Context) {
 	user.Visible = lib.BoolPtrDefaults(updateData.Visible, user.Visible)
 	user.DormVisible = lib.BoolPtrDefaults(updateData.DormVisible, user.DormVisible)
 	user.HomeVisible = lib.BoolPtrDefaults(updateData.HomeVisible, user.HomeVisible)
-	user.Pronoun = lib.StrPtrDefaults(updateData.Pronoun, user.Pronoun)
 	user.OffCycle = lib.BoolPtrDefaults(updateData.OffCycle, user.OffCycle)
 	user.HasAcceptedFactrakPolicy = lib.BoolPtrDefaults(updateData.HasAcceptedFactrakPolicy, user.HasAcceptedFactrakPolicy)
 	user.HasAcceptedDormtrakPolicy = lib.BoolPtrDefaults(updateData.HasAcceptedDormtrakPolicy, user.HasAcceptedDormtrakPolicy)
 	user.Nickname = lib.StrPtrDefaults(updateData.Nickname, user.Nickname)
 	user.OptOutEphcatch = lib.BoolPtrDefaults(updateData.OptOutEphcatch, user.OptOutEphcatch)
+	user.CampusStatus = lib.StrPtrDefaults(updateData.CampusStatus, user.CampusStatus)
+
+	// Error if bad campus status
+	if user.CampusStatus != nil && *user.CampusStatus != "" && !models.ValidateCampusStatus(*user.CampusStatus) {
+		t.RespondError(c, lib.ErrorUserInvalidCampusStatus)
+		return
+	}
 
 	// Update the user in the db
 	err = t.userModel.UpdateUser(&user)
@@ -297,13 +301,13 @@ type UpdateUserTagsParams struct {
 // @Param userID path uint true "User ID"
 // @Param updateTagsParams body user.UpdateUserTagsParams true "Update Tags Params"
 // @Success 200
-// @Failure 1405 {object} lib.APIError "user id could not be parsed"
-// @Failure 1331 {object} lib.APIError "must be self"
-// @Failure 1100 {object} lib.APIError "could not parse malformed request data"
-// @Failure 1406 {object} lib.APIError "invalid user tag"
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1405 {object} services.BaseErrorResponse "user id could not be parsed"
+// @Failure 1331 {object} services.BaseErrorResponse "must be self"
+// @Failure 1100 {object} services.BaseErrorResponse "could not parse malformed request data"
+// @Failure 1406 {object} services.BaseErrorResponse "invalid user tag"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /users/{userID}/tags [put]
 func (t *Controller) UpdateUserTags(c *gin.Context) {
@@ -349,11 +353,11 @@ func (t *Controller) UpdateUserTags(c *gin.Context) {
 // @Param userID path uint true "User ID"
 // @Param file formData file true "Profile Photo"
 // @Success 200
-// @Failure 1405 {object} lib.APIError "user id could not be parsed"
-// @Failure 1331 {object} lib.APIError "must be self"
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1405 {object} services.BaseErrorResponse "user id could not be parsed"
+// @Failure 1331 {object} services.BaseErrorResponse "must be self"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /users/{userID}/photo [put]
 func (t *Controller) UploadProfilePhoto(c *gin.Context) {
@@ -398,39 +402,9 @@ func (t *Controller) UploadProfilePhoto(c *gin.Context) {
 		return
 	}
 
-	var wg sync.WaitGroup
-	errors := make(chan error)
-
-	wg.Add(1)
-	go func(wg *sync.WaitGroup) {
-		imgScaled := imaging.Fill(img, 300, 300, imaging.Center, imaging.Lanczos)
-		err = t.pictureBackend.SaveLarge(imgScaled, user.UnixID)
-		if err != nil {
-			errors <- err
-			// Put error in the context so it can be reported
-			c.Error(err)
-		}
-		wg.Done()
-	}(&wg)
-
-	wg.Add(1)
-	go func(wg *sync.WaitGroup) {
-		imgThumb := imaging.Fill(img, 50, 50, imaging.Center, imaging.Lanczos)
-
-		err = t.pictureBackend.SaveThumb(imgThumb, user.UnixID)
-		if err != nil {
-			errors <- err
-			// Put error in the context so it can be reported
-			c.Error(err)
-		}
-		wg.Done()
-	}(&wg)
-
-	wg.Wait()
-	close(errors)
-
-	err = <-errors
+	err = t.pictureBackend.SaveUserPhotoBoth(user.UnixID, img)
 	if err != nil {
+		c.Error(err)
 		t.RespondAPIError(c, lib.ErrorUnableToSavePicture)
 		return
 	}

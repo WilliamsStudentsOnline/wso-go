@@ -24,6 +24,6 @@ var ShortUnixIdColumn20191023142446 = &gormigrate.Migration{
 		return tx.AutoMigrate(&User{}).Error
 	},
 	Rollback: func(tx *gorm.DB) error {
-		return tx.DropTable("users").Error
+		return nil
 	},
 }

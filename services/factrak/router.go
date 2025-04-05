@@ -27,10 +27,14 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 			?professorID
 			?departmentID
 			?areaOfStudyID
+			?metric
+			?direction
 		ListProfessors
 			?courseID
 			?departmentID
 			?areaOfStudyID
+			?metric
+			?direction
 	*/
 
 	// Professors Endpoint

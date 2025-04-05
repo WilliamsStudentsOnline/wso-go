@@ -5,10 +5,24 @@ BINARY_NAME=wso-backend
 DOCKER_TAG=wso-backend
 GIT_REPO=github.com/WilliamsStudentsOnline/wso-go
 BUILD_DIRS = config db lib models server services sanitize
-BUILD_DEPS = $(call rwildcard, $(BUILD_DIRS), *.go) jobs/jobs.go $(wildcard jobs/*/*.go) jobs/dorms_update/cmd/data.go docs/docs.go
+BUILD_DEPS = $(call rwildcard, $(BUILD_DIRS), *.go) $(wildcard jobs/*/*.go) jobs/dorms_update/cmd/data.go docs/docs.go
 SERVICE_DIRS = $(wildcard services/*)
 SWAGGER := $(shell which swag 2>/dev/null)
 GOIMPORTS := $(shell which goimports 2>/dev/null)
+
+define GOIMPORTS_ERROR
+goimports command is missing.
+
+GoImports Installation Instructions
+---
+Run:
+  go get golang.org/x/tools/cmd/goimports
+
+Ensure your go bin is in your $$PATH.
+Edit your ~/.bashrc to add this line:
+  export PATH=$$PATH:$$(go env GOPATH)/bin
+
+endef
 
 $(BINARY_NAME): $(BUILD_DEPS)
 	go build -tags=jsoniter -o $(BINARY_NAME) ./server/cmd
@@ -22,6 +36,8 @@ ifdef SWAGGER
 endif
 ifdef GOIMPORTS
 	goimports -w docs/docs.go
+else
+	$(warning $(GOIMPORTS_ERROR))
 endif
 
 services/*/responses/%.go: services/*/responses/%.json
@@ -46,6 +62,42 @@ job-update-all-users-from-ldap:
 job-dorms-update:
 	go build -tags=jsoniter -o job-dorms-update ./jobs/dorms_update/cmd
 
+.PHONY: job-frosh-photos
+job-frosh-photos:
+	go build -tags=jsoniter -o job-frosh-photos ./jobs/frosh_photos/cmd
+
+.PHONY: job-user-csv-data
+job-user-csv-data:
+	go build -tags=jsoniter -o job-user-csv-data ./jobs/user_csv_data/cmd
+
+.PHONY: job-dining-update
+job-dining-update:
+	go build -tags=jsoniter -o job-dining-update ./jobs/dining_update/cmd
+
+PHONY: job-schedule-notifs
+job-schedule-notifs:
+	go build -tags=jsoniter -o job-schedule-notifs ./jobs/schedule_notifs/cmd
+
+.PHONY: job-update-on-campus-semesters
+job-update-on-campus-semesters:
+	go build -tags jsoniter -o job-increment-oncampus-semesters ./jobs/update_on_campus_semesters/cmd
+
+.PHONY: job-initialize-on-campus-semesters
+job-initialize-on-campus-semesters:
+	go build -tags jsoniter -o job-increment-oncampus-semesters ./jobs/update_on_campus_semesters/initial-calculation
+
+.PHONY: job-update_profs_areas_of_study
+job-update_profs_areas_of_study:
+	go build -tags jsoniter -o job-update_profs_areas_of_study ./jobs/update_profs_areas_of_study/cmd
+
+.PHONY: job-ephmatch-reset
+job-ephmatch-reset:
+	go build -tags jsoniter -o job-ephmatch-reset ./jobs/ephmatch_reset
+
+.PHONY: job-ephmatch-update-dates
+job-ephmatch-update-dates:
+	go build -tags jsoniter -o job-ephmatch_update_dates ./jobs/ephmatch_update_dates
+
 .PHONY: build-prod-linux
 build-prod-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o $(BINARY_NAME)_linux ./server/cmd
@@ -56,6 +108,15 @@ build-jobs-prod-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-update-all-factrak-survey-deficits_linux ./jobs/update_all_factrak_survey_deficits/cmd
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-update-all-users-from-ldap_linux ./jobs/update_all_users_from_ldap/cmd
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-dorms-update_linux ./jobs/dorms_update/cmd
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-frosh-photos_linux ./jobs/frosh_photos/cmd
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-user-csv-data_linux ./jobs/user_csv_data/cmd
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-dining-update_linux ./jobs/dining_update/cmd
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-schedule-notifs_linux ./jobs/schedule_notifs/cmd
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-update-on-campus-semesters ./jobs/update_on_campus_semesters/cmd
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-initialize-on-campus-semesters ./jobs/update_on_campus_semesters/initial-calculation
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-update_profs_areas_of_study ./jobs/update_profs_areas_of_study/cmd
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-ephmatch-reset ./jobs/ephmatch_reset
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-ephmatch_update_dates ./jobs/ephmatch_update_dates
 
 .PHONY: go-gen
 go-gen:
@@ -63,13 +124,22 @@ go-gen:
 
 .PHONY: fmt
 fmt:
+ifdef GOIMPORTS
 	goimports -w ./
+else
+	$(error $(GOIMPORTS_ERROR))
+endif
 
 .PHONY: commit
 commit: jobs/dorms_update/cmd/data.go docs/docs.go fmt services/*/responses/*.go
 
 .PHONY: run-dev
 run-dev: $(BINARY_NAME)
+	./$(BINARY_NAME) --development
+
+.PHONY: run-with-analytics
+run-with-analytics: $(BINARY_NAME)
+	bash ./prod_files/run-analytics.sh &
 	./$(BINARY_NAME) --development
 
 .PHONY: test
@@ -102,17 +172,3 @@ docker-rel-dev: docker-builder
 .PHONY: docker-jobs-dev
 docker-jobs-dev: docker-builder
 	docker build -t $(DOCKER_TAG)-jobs:dev-latest -f Dockerfile.release_jobs .
-
-.PHONY: k8-apply-dev
-k8-apply-dev:
-	kubectl apply -k k8s/development
-	minikube service backend -n development --url
-
-.PHONY: k8-delete-dev
-k8-delete-dev:
-	kubectl delete -k k8s/development
-
-.PHONY: k8-restart-backend-dev
-k8-restart-backend-dev:
-	kubectl -n development delete deployments.apps backend
-	kubectl -n development apply -k k8s/development

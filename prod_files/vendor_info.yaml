@@ -1,0 +1,355 @@
+---
+driscoll:
+  name: Driscoll
+  eats_4_ephs_unit_id: "27"
+  operating: true
+  online_order: false
+  hours:
+    monday:
+      breakfast:
+        open: 7:30am
+        close: 10:30am
+      lunch:
+        open: 11:30am
+        close: 2:00pm
+      dinner:
+        open: 5:00pm
+        close: 8:00pm
+    tuesday:
+      breakfast:
+        open: 7:30am
+        close: 10:30am
+      lunch:
+        open: 11:30am
+        close: 2:00pm
+      dinner:
+        open: 5:00pm
+        close: 8:00pm
+    wednesday:
+      breakfast:
+        open: 7:30am
+        close: 10:30am
+      lunch:
+        open: 11:30am
+        close: 2:00pm
+      dinner:
+        open: 5:00pm
+        close: 8:00pm
+    thursday:
+      breakfast:
+        open: 7:30am
+        close: 10:30am
+      lunch:
+        open: 11:30am
+        close: 2:00pm
+      dinner:
+        open: 5:00pm
+        close: 8:00pm
+    friday:
+      breakfast:
+        open: 7:30am
+        close: 10:30am
+      lunch:
+        open: 11:30am
+        close: 2:00pm
+      dinner:
+        open: 5:00pm
+        close: 8:00pm
+    saturday:
+      breakfast:
+        open: 7:30am
+        close: 10:30am
+      lunch:
+        open: 11:30am
+        close: 2:00pm
+      dinner:
+        open: 5:00pm
+        close: 8:00pm
+    sunday:
+      breakfast:
+        open: 7:30am
+        close: 10:30am
+      lunch:
+        open: 11:30am
+        close: 2:00pm
+      dinner:
+        open: 5:00pm
+        close: 8:00pm
+whitmans:
+  name: "Whitman's"
+  eats_4_ephs_unit_id: "208"
+  operating: true
+  online_order: false
+  hours:
+    monday:
+      breakfast:
+        open: 7:30am
+        close: 10:30am
+      lunch:
+        open: 11:30am
+        close: 2:00pm
+      dinner:
+        open: 5:00pm
+        close: 8:00pm
+      'whitmans late night':
+        open: 9:00pm
+        close: 1:00am
+    tuesday:
+      breakfast:
+        open: 7:30am
+        close: 10:30am
+      lunch:
+        open: 11:30am
+        close: 2:00pm
+      dinner:
+        open: 5:00pm
+        close: 8:00pm
+      'whitmans late night':
+        open: 9:00pm
+        close: 1:00am
+    wednesday:
+      breakfast:
+        open: 7:30am
+        close: 10:30am
+      lunch:
+        open: 11:30am
+        close: 2:00pm
+      dinner:
+        open: 5:00pm
+        close: 8:00pm
+      'whitmans late night':
+        open: 9:00pm
+        close: 1:00am
+    thursday:
+      breakfast:
+        open: 7:30am
+        close: 10:30am
+      lunch:
+        open: 11:30am
+        close: 2:00pm
+      dinner:
+        open: 5:00pm
+        close: 8:00pm
+      'whitmans late night':
+        open: 9:00pm
+        close: 1:00am
+    friday:
+      breakfast:
+        open: 7:30am
+        close: 10:30am
+      lunch:
+        open: 11:30am
+        close: 2:00pm
+      dinner:
+        open: 5:00pm
+        close: 8:00pm
+      'whitmans late night':
+        open: 9:00pm
+        close: 1:00am
+    saturday:
+      brunch:
+        open: 11:00am
+        close: 2:00pm
+      dinner:
+        open: 5:00pm
+        close: 8:00pm
+      'whitmans late night':
+        open: 9:00pm
+        close: 1:00am
+    sunday:
+      brunch:
+        open: 11:00am
+        close: 2:00pm
+      dinner:
+        open: 5:00pm
+        close: 8:00pm
+      'whitmans late night':
+        open: 9:00pm
+        close: 1:00am
+mission:
+  name: Mission
+  eats_4_ephs_unit_id: "29"
+  operating: true
+  online_order: false
+  hours:
+    sunday:
+      brunch:
+        open: 11:30am
+        close: 1:30pm
+      dinner:
+        open: 4:30pm
+        close: 6:30pm
+    monday:
+      dinner:
+        open: 5:00pm
+        close: 8:00pm
+    tuesday:
+      dinner:
+        open: 5:00pm
+        close: 8:00pm
+    wednesday:
+      dinner:
+        open: 5:00pm
+        close: 8:00pm
+    thursday:
+      dinner:
+        open: 5:00pm
+        close: 8:00pm
+lees-snack-bar:
+  name: "Lee's Snack Bar"
+  operating: true
+  online_order: true
+  hours:
+    monday:
+      breakfast:
+        open: 8:00am
+        close: 10:00am
+      lunch:
+        open: 1:00pm
+        close: 2:00pm
+      midday:
+        open: 2:00pm
+        close: 5:00pm
+    tuesday:
+      breakfast:
+        open: 8:00am
+        close: 10:00am
+      lunch:
+        open: 1:00pm
+        close: 2:00pm
+      midday:
+        open: 2:00pm
+        close: 5:00pm
+    wednesday:
+      breakfast:
+        open: 8:00am
+        close: 10:00am
+      lunch:
+        open: 1:00pm
+        close: 2:00pm
+      midday:
+        open: 2:00pm
+        close: 5:00pm
+    thursday:
+      breakfast:
+        open: 8:00am
+        close: 10:00am
+      lunch:
+        open: 1:00pm
+        close: 2:00pm
+      midday:
+        open: 2:00pm
+        close: 5:00pm
+    friday:
+      breakfast:
+        open: 8:00am
+        close: 10:00am
+      lunch:
+        open: 1:00pm
+        close: 2:00pm
+      midday:
+        open: 2:00pm
+        close: 5:00pm
+82-grill:
+  name: 82 Grill
+  operating: true
+  online_order: true
+  hours:
+    monday:
+      lunch:
+        open: 11:00am
+        close: 2:00pm
+      dinner:
+        open: 4:00pm
+        close: 9:00pm
+    tuesday:
+      lunch:
+        open: 11:00am
+        close: 2:00pm
+      dinner:
+        open: 4:00pm
+        close: 9:00pm
+    wednesday:
+      lunch:
+        open: 11:00am
+        close: 2:00pm
+      dinner:
+        open: 4:00pm
+        close: 9:00pm
+    thursday:
+      lunch:
+        open: 11:00am
+        close: 2:00pm
+      dinner:
+        open: 4:00pm
+        close: 9:00pm
+    friday:
+      lunch:
+        open: 11:00am
+        close: 2:00pm
+      dinner:
+        open: 4:00pm
+        close: 9:00pm
+fresh-n-go:
+  name: Fresh-N-Go
+  operating: true
+  online_order: true
+  hours:
+    monday:
+      lunch:
+        open: 11:00am
+        close: 2:00pm
+    tuesday:
+      lunch:
+        open: 11:00am
+        close: 2:00pm
+    wednesday:
+      lunch:
+        open: 11:00am
+        close: 2:00pm
+    thursday:
+      lunch:
+        open: 11:00am
+        close: 2:00pm
+    friday:
+      lunch:
+        open: 11:00am
+        close: 2:00pm
+goodrich:
+  name: Goodrich
+  operating: true
+  online_order: false
+  hours:
+    monday:
+      morning:
+        open: 7:30am
+        close: 11:30am
+      night:
+        open: 8:00pm
+        close: 10:45pm
+    tuesday:
+      morning:
+        open: 7:30am
+        close: 11:30am
+      night:
+        open: 8:00pm
+        close: 10:45pm
+    wednesday:
+      morning:
+        open: 7:30am
+        close: 11:30am
+      night:
+        open: 8:00pm
+        close: 10:45pm
+    thursday:
+      morning:
+        open: 7:30am
+        close: 11:30am
+    friday:
+      morning:
+        open: 7:30am
+        close: 11:30am
+    sunday:
+      morning:
+        open: 7:30am
+        close: 11:30am

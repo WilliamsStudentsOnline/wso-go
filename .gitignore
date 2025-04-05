@@ -117,8 +117,10 @@ vendor/
 
 wso-go
 wso-backend
+
 config/secrets.yml
 config/secrets.yaml
 k8s/**/*secrets.yaml
 pics/
 /job-*
+/local/

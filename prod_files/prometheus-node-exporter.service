@@ -1,0 +1,31 @@
+##### WSO-Backend WSO 2.0 #####
+[Unit]
+Description=Prometheus Node Exporter
+Documentation=https://prometheus.io/docs/introduction/overview/
+Wants=network-online.target
+After=network-online.target
+After=prometheus.service
+
+[Service]
+User=prometheus
+Group=prometheus
+Type=simple
+Restart=on-failure
+SyslogIdentifier=prometheus
+WorkingDirectory=/home/wso/prometheus
+RuntimeDirectory=prometheus
+RuntimeDirectoryMode=0750
+ExecReload=/bin/kill -HUP $MAINPID
+# change all of this to reference the correct paths!
+# you should be able to find all these files within prod_files.
+ExecStart=/home/wso/prometheus/prometheus-node-exporter \
+ --web.listen-address=0.0.0.0:9091
+TimeoutStopSec=20s
+SendSIGKILL=no
+
+# hardening stuff disabled, because collecting device data is the only point
+# of using this in the first place, and that would block it
+
+[Install]
+WantedBy=multi-user.target
+ 

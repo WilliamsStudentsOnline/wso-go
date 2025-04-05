@@ -6,6 +6,7 @@ import (
 
 	. "github.com/WilliamsStudentsOnline/wso-go/jobs/catalog_update"
 	testify "github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
 )
 
 const (
@@ -23,7 +24,7 @@ func TestParse(t *testing.T) {
 		err := json.Unmarshal([]byte(catalog), &rawCourses)
 		assert.NoError(err)
 
-		courses, err := ParseCatalog(rawCourses, fallSemesterID, winterSemesterID, springSemesterID)
+		courses, err := ParseCatalog(rawCourses, fallSemesterID, winterSemesterID, springSemesterID, zap.S(), nil)
 		assert.NoError(err)
 		b, err := json.Marshal(courses)
 		assert.NoError(err)
@@ -111,7 +112,7 @@ func TestParse(t *testing.T) {
 			}
 		  ]`
 
-		expected := `[{"year":2020,"semester":"Fall","courseID":"020209","department":"AFR","number":105,"section":"01","peoplesoftNumber":1089,"consent":"N","gradingBasisDesc":"Pass/Fail Available, Fifth Course Available","classType":"Lecture","titleLong":"Materials, Meanings, And Messages In The Arts Of Africa","titleShort":"African Art Survey","instructors":[{"id":0,"name":"Michelle M. Apotsos"}],"meetings":[{"days":"MW","start":"11:00","end":"12:15","facility":""}],"courseAttributes":{"div1":false,"div2":true,"div3":false,"dpe":true,"qfr":false,"wac":false,"passFail":true,"fifthCourse":true},"classFormat":"Lecture","classReqEval":"Three 2-page response papers, class journal on WCMA objects, finals","extraInfo":"","prereqs":"None","departmentNotes":"","descriptionSearch":"Lorem Ipsum.","enrolmentPreferences":"Art History and African Studies majors","crossListing":["AFR 105"],"components":["Lecture"]}]`
+		expected := `[{"year":2020,"semester":"Fall","semID":1201,"courseID":"020209","department":"AFR","number":105,"section":"01","sectionType":"in-person","peoplesoftNumber":1089,"consent":"N","gradingBasisDesc":"Pass/Fail Available, Fifth Course Available","classType":"Lecture","titleLong":"Materials, Meanings, and Messages in the Arts of Africa","titleShort":"African Art Survey","instructors":[{"id":0,"name":"Michelle M. Apotsos"}],"meetings":[{"days":"MW","start":"11:00","end":"12:15","facility":""}],"courseAttributes":{"div1":false,"div2":true,"div3":false,"dpe":true,"qfr":false,"wac":false,"passFail":true,"fifthCourse":true},"classFormat":"Lecture","classReqEval":"Three 2-page response papers, class journal on WCMA objects, finals","extraInfo":"","prereqs":"None","rawAttributes":["DIV_D2", "DPE_DPE"],"departmentNotes":"","descriptionSearch":"Lorem Ipsum.","enrolmentPreferences":"Art History and African Studies majors","crossListing":["AFR 105"],"components":["Lecture"]}]`
 		assertParse(catalog, expected, t)
 	})
 

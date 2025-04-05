@@ -27,6 +27,6 @@ var MatchMessageColumn20200123225124 = &gormigrate.Migration{
 		return tx.AutoMigrate(&EphmatchProfile{}).Error
 	},
 	Rollback: func(tx *gorm.DB) error {
-		return tx.DropTable("ephmatch_profiles").Error
+		return tx.Table("ephmatch_profiles").DropColumn("match_message").Error
 	},
 }

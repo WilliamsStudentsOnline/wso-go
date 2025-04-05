@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
@@ -38,6 +39,15 @@ func (m *CourseModel) GetAllCourses(c *[]*Course, opts *GetAllCoursesOptions) (e
 	return
 }
 
+// Return courses, ranked by one of the factrak surveys' fields
+func (m *CourseModel) GetCoursesRanked(sort string, c *[]*Course, opts *GetAllCoursesOptions) (err error) {
+	// Check if the metric is valid
+	if !isCourseMetric(sort) {
+		return lib.ErrorInvalidRankingMetric
+	}
+	return m.GetAllCourses(c, opts)
+}
+
 type GetAllCoursesOptions struct {
 	// Offset is ignored unless limit is supplied
 	Offset *uint `json:"offset" form:"offset"`
@@ -50,6 +60,10 @@ type GetAllCoursesOptions struct {
 	AreaOfStudyID *uint `json:"areaOfStudyID" form:"areaOfStudyID"`
 	DepartmentID  *uint `json:"departmentID" form:"departmentID"`
 	ProfessorID   *uint `json:"professorID" form:"professorID"`
+
+	//Rank by a course metric, in either sort direction
+	Metric    *string `json:"metric" form:"metric"`
+	Ascending *bool   `json:"ascending" form:"ascending"`
 }
 
 // Preload specifically allowed parts if requested
@@ -73,6 +87,12 @@ func (o *GetAllCoursesOptions) Preloader(db *gorm.DB) *gorm.DB {
 		db = db.Preload("FactrakSurveys", fsm.scopeCurrent).Preload("FactrakSurveys.Professor", pm.scopeAtWilliams)
 	}
 
+	if lib.StringsContains(o.Preload, "professorWithAreaOfStudy") {
+		fsm := NewFactrakSurveyModel(nil, nil)
+		pm := NewProfessorModel(nil, nil)
+		db = db.Preload("FactrakSurveys", fsm.scopeCurrent).Preload("FactrakSurveys.Professor", pm.scopeAtWilliams).Preload("FactrakSurveys.Professor.AreasOfStudy")
+	}
+
 	return db
 }
 
@@ -81,7 +101,6 @@ func (o *GetAllCoursesOptions) Order(db *gorm.DB) *gorm.DB {
 }
 
 func (o *GetAllCoursesOptions) Paginate(db *gorm.DB) *gorm.DB {
-	db = o.Order(db)
 	if o.Limit != nil {
 		db = db.Limit(*o.Limit)
 		if o.Offset != nil {
@@ -93,10 +112,20 @@ func (o *GetAllCoursesOptions) Paginate(db *gorm.DB) *gorm.DB {
 }
 
 func (o *GetAllCoursesOptions) Run(db *gorm.DB) *gorm.DB {
-	db = o.Paginate(db)
 	db = o.Preloader(db)
 
 	m := NewCourseModel(db.New(), nil)
+
+	if o.Metric != nil {
+		if o.Ascending != nil {
+			db = m.withRanking(*o.Metric, *o.Ascending)(db)
+		} else {
+			db = m.withRanking(*o.Metric, false)(db)
+		}
+	} else {
+		// No reason to order twice, only order by ID if no metric is given
+		db = o.Order(db)
+	}
 
 	if o.AreaOfStudyID != nil {
 		db = m.withAreaOfStudy(*o.AreaOfStudyID)(db)
@@ -107,12 +136,13 @@ func (o *GetAllCoursesOptions) Run(db *gorm.DB) *gorm.DB {
 	if o.ProfessorID != nil {
 		db = m.withProfessor(*o.ProfessorID)(db)
 	}
+	db = o.Paginate(db)
 
 	return db
 }
 
 func (o *GetAllCoursesOptions) Post(courses []*Course) {
-	if lib.StringsContains(o.Preload, "professors") {
+	if lib.StringsContains(o.Preload, "professors") || lib.StringsContains(o.Preload, "professorWithAreaOfStudy") {
 		// Go through all preloaded survey professors and make a unique list of profs
 		for _, course := range courses {
 			// Unique set of professors of all surveys in this course
@@ -242,10 +272,44 @@ func (m *CourseModel) withDepartment(departmentID uint) func(*gorm.DB) *gorm.DB 
 func (m *CourseModel) withProfessor(professorID uint) func(*gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Where(
-			"id in (?)",
+			"courses.id in (?)",
 			m.DB.Model(&FactrakSurvey{}).Select("course_id").Where(
 				"professor_id = ?", professorID,
 			).QueryExpr(),
 		)
+	}
+}
+
+func isCourseMetric(metric string) bool {
+	switch metric {
+	case
+		"would_recommend_course",
+		"course_workload",
+		"course_stimulating":
+		return true
+	}
+	return false
+}
+
+func (m *CourseModel) withRanking(ranking string, ascending bool) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		var order string
+
+		if ascending {
+			order = "ASC"
+		} else {
+			order = "DESC"
+		}
+
+		avgRating := fmt.Sprintf("avg(factrak_surveys.%s)", ranking)
+		havingCount := fmt.Sprintf("count(factrak_surveys.%s) >= 5", ranking)
+		notNull := fmt.Sprintf("factrak_surveys.%s IS NOT NULL", ranking)
+
+		// Ye Shu: for subqueries, we should use a separate, untainted db (that do not have the withXXX constraints)
+		subQuery := m.DB.Table("factrak_surveys").Select("course_id, " + avgRating + " as factrak_score").Group("factrak_surveys.course_id").Where(notNull).Having(havingCount).SubQuery()
+
+		db = db.Table("courses").Select("courses.*, scores.factrak_score").Joins("left join (?) as scores on courses.id = scores.course_id", subQuery).Where("factrak_score IS NOT NULL").Order("factrak_score "+order, true)
+
+		return db
 	}
 }

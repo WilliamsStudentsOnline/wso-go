@@ -1,10 +1,17 @@
 package ephmatch
 
 import (
+	"image"
+	"net/http"
+	"os"
+
+	"unicode/utf8"
+
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/sanitize"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
+	"github.com/disintegration/imaging"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,9 +23,9 @@ import (
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} models.EphmatchProfile
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /ephmatch/profile [get]
 func (t *Controller) GetSelfProfile(c *gin.Context) {
@@ -48,6 +55,7 @@ type ProfileCreateParams struct {
 	LocationCountry   *string `json:"LocationCountry"`
 	MessagingPlatform *string `json:"messagingPlatform"`
 	MessagingUsername *string `json:"messagingUsername"`
+	LookingFor        *string `json:"lookingFor"`
 }
 
 // CreateProfile godoc
@@ -59,10 +67,10 @@ type ProfileCreateParams struct {
 // @Produce  json
 // @Param createParams body ephmatch.ProfileCreateParams true "Create Profile Params"
 // @Success 201 {object} models.EphmatchProfile
-// @Failure 1101 {object} lib.APIError "request data validation failed"
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1101 {object} services.BaseErrorResponse "request data validation failed"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /ephmatch/profile [post]
 func (t *Controller) CreateProfile(c *gin.Context) {
@@ -82,6 +90,11 @@ func (t *Controller) CreateProfile(c *gin.Context) {
 		createData.MessagingUsername = lib.StrToPtr("")
 	}
 
+	// can have no looking for
+	if createData.LookingFor != nil && (*createData.LookingFor == "NONE" || *createData.LookingFor == "") {
+		createData.LookingFor = lib.StrToPtr("")
+	}
+
 	if createData.MessagingPlatform != nil && *createData.MessagingPlatform != "" {
 		// Must have valid platform or no platform (NONE)
 		if !models.ValidateEphmatchMessagingPlatform(*createData.MessagingPlatform) {
@@ -96,6 +109,19 @@ func (t *Controller) CreateProfile(c *gin.Context) {
 		}
 	}
 
+	if createData.LookingFor != nil && *createData.LookingFor != "" {
+		// Must have valid lookingFor or no platform (NONE)
+		if !models.ValidateEphmatchLookingFor(*createData.LookingFor) {
+			t.RespondError(c, lib.ErrorEphmatchInvalidLookingFor)
+			return
+		}
+	}
+
+	if createData.Description != nil && utf8.RuneCountInString(*createData.Description) >= 255 {
+		t.RespondError(c, lib.ErrorEphmatchDescriptionTooLong)
+		return
+	}
+
 	newProfile := models.EphmatchProfile{
 		Description:       createData.Description,
 		MatchMessage:      createData.MatchMessage,
@@ -106,6 +132,7 @@ func (t *Controller) CreateProfile(c *gin.Context) {
 		LocationCountry:   createData.LocationCountry,
 		MessagingPlatform: createData.MessagingPlatform,
 		MessagingUsername: createData.MessagingUsername,
+		LookingFor:        createData.LookingFor,
 	}
 
 	var profile models.EphmatchProfile
@@ -134,6 +161,7 @@ type ProfileUpdateParams struct {
 	LocationCountry   *string `json:"locationCountry"`
 	MessagingPlatform *string `json:"messagingPlatform"`
 	MessagingUsername *string `json:"messagingUsername"`
+	LookingFor        *string `json:"lookingFor"`
 }
 
 // UpdateProfile godoc
@@ -145,10 +173,10 @@ type ProfileUpdateParams struct {
 // @Produce  json
 // @Param updateParams body ephmatch.ProfileUpdateParams true "Update Profile Params"
 // @Success 200 {object} models.EphmatchProfile
-// @Failure 1101 {object} lib.APIError "request data validation failed"
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1101 {object} services.BaseErrorResponse "request data validation failed"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /ephmatch/profile [patch]
 func (t *Controller) UpdateProfile(c *gin.Context) {
@@ -178,11 +206,17 @@ func (t *Controller) UpdateProfile(c *gin.Context) {
 	profile.LocationCountry = lib.StrPtrDefaults(updateData.LocationCountry, profile.LocationCountry)
 	profile.MessagingPlatform = lib.StrPtrDefaults(updateData.MessagingPlatform, profile.MessagingPlatform)
 	profile.MessagingUsername = lib.StrPtrDefaults(updateData.MessagingUsername, profile.MessagingUsername)
+	profile.LookingFor = lib.StrPtrDefaults(updateData.LookingFor, profile.LookingFor)
 
 	// Can have no platform and no username
 	if profile.MessagingPlatform != nil && (*profile.MessagingPlatform == "NONE" || *profile.MessagingPlatform == "") {
 		profile.MessagingPlatform = lib.StrToPtr("")
 		profile.MessagingUsername = lib.StrToPtr("")
+	}
+
+	// if LookingFor is NONE, delete
+	if profile.LookingFor != nil && (*profile.LookingFor == "NONE" || *profile.LookingFor == "") {
+		profile.LookingFor = lib.StrToPtr("")
 	}
 
 	if profile.MessagingPlatform != nil && *profile.MessagingPlatform != "" {
@@ -197,6 +231,20 @@ func (t *Controller) UpdateProfile(c *gin.Context) {
 			t.RespondError(c, lib.ErrorEphmatchEmptyMessagingUsername)
 			return
 		}
+	}
+
+	// validate looking for
+	if profile.LookingFor != nil && *profile.LookingFor != "" {
+		// Must have valid platform or no platform (NONE)
+		if !models.ValidateEphmatchLookingFor(*profile.LookingFor) {
+			t.RespondError(c, lib.ErrorEphmatchInvalidLookingFor)
+			return
+		}
+	}
+
+	if updateData.Description != nil && utf8.RuneCountInString(*updateData.Description) >= 255 {
+		t.RespondError(c, lib.ErrorEphmatchDescriptionTooLong)
+		return
 	}
 
 	err = t.profileModel.UpdateProfile(&profile)
@@ -219,9 +267,9 @@ func (t *Controller) UpdateProfile(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} models.EphmatchProfile
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /ephmatch/profile [delete]
 func (t *Controller) DeleteProfile(c *gin.Context) {
@@ -249,4 +297,96 @@ func (t *Controller) DeleteProfile(c *gin.Context) {
 	t.SetUpdateToken(c)
 
 	t.RespondOK(c, profile)
+}
+
+// UploadEphmatchProfilePhoto godoc
+// @Summary Upload an ephmatch profile photo by user id
+// @Description upload an ephmatch user's ephmatch profile photo by user id.
+// @ID upload-ephmatch-profile-photo
+// @Tags users
+// @Accept  multipart/form-data
+// @Produce  json
+// @Param file formData file true "Profile Photo"
+// @Success 200
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
+// @Security Bearer
+// @Router /ephmatch/profile/photo [put]
+func (t *Controller) UploadEphmatchProfilePhoto(c *gin.Context) {
+	userID := services.GetUserID(c)
+
+	// Do database query
+	var profile models.EphmatchProfile
+	err := t.profileModel.GetSelfProfileByIDScopedNoDefault(userID, &profile)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	formFile, err := c.FormFile("file")
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	file, err := formFile.Open()
+	if err != nil {
+		t.RespondErrorCode(c, http.StatusBadRequest, err)
+		return
+	}
+
+	defer file.Close()
+
+	img, _, err := image.Decode(file)
+	if err != nil {
+		t.RespondErrorCode(c, http.StatusBadRequest, err)
+		return
+	}
+
+	imgScaled := imaging.Fill(img, 300, 300, imaging.Center, imaging.Lanczos)
+	err = t.pictureBackend.SaveEphmatchPhoto(profile.User.UnixID, imgScaled)
+	if err != nil {
+		c.Error(err)
+		t.RespondError(c, lib.ErrorUnableToSavePicture)
+		return
+	}
+
+	t.RespondOK(c, nil)
+}
+
+// DeleteEphmatchProfilePhoto godoc
+// @Summary Delete an ephmatch profile photo by user id
+// @Description delete an ephmatch user's ephmatch profile photo by user id.
+// @ID delete-ephmatch-profile-photo
+// @Tags users
+// @Produce  json
+// @Success 200
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
+// @Security Bearer
+// @Router /ephmatch/profile/photo [delete]
+func (t *Controller) DeleteEphmatchProfilePhoto(c *gin.Context) {
+	userID := services.GetUserID(c)
+
+	// Do database query
+	var profile models.EphmatchProfile
+	err := t.profileModel.GetSelfProfileByIDScopedNoDefault(userID, &profile)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	err = t.pictureBackend.DeleteEphmatchPhoto(profile.User.UnixID)
+	if err != nil && os.IsNotExist(err) {
+		t.RespondError(c, lib.ErrorRecordNotFound)
+		return
+	} else if err != nil {
+		c.Error(err)
+		t.RespondError(c, lib.ErrorUnableToDeletePicture)
+		return
+	}
+
+	t.RespondOK(c, nil)
 }

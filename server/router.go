@@ -25,6 +25,8 @@ import (
 	authIdentService "github.com/WilliamsStudentsOnline/wso-go/services/auth/identity"
 	authOldService "github.com/WilliamsStudentsOnline/wso-go/services/auth/old"
 	autocompleteService "github.com/WilliamsStudentsOnline/wso-go/services/autocomplete"
+
+	booktrakService "github.com/WilliamsStudentsOnline/wso-go/services/booktrak"
 	bulletinService "github.com/WilliamsStudentsOnline/wso-go/services/bulletin"
 	bulletinRSSService "github.com/WilliamsStudentsOnline/wso-go/services/bulletin/rss"
 	chatService "github.com/WilliamsStudentsOnline/wso-go/services/chat"
@@ -32,6 +34,8 @@ import (
 	ephcatchService "github.com/WilliamsStudentsOnline/wso-go/services/ephcatch"
 	ephmatchService "github.com/WilliamsStudentsOnline/wso-go/services/ephmatch"
 	factrakService "github.com/WilliamsStudentsOnline/wso-go/services/factrak"
+	goodrichService "github.com/WilliamsStudentsOnline/wso-go/services/goodrich"
+	notificationService "github.com/WilliamsStudentsOnline/wso-go/services/notification"
 	onboardingService "github.com/WilliamsStudentsOnline/wso-go/services/onboarding"
 	userService "github.com/WilliamsStudentsOnline/wso-go/services/user"
 	wordsService "github.com/WilliamsStudentsOnline/wso-go/services/words"
@@ -169,6 +173,11 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 		factrakGroup.Use(auth.RequireScopes(auth.ScopeFactrakLimited, auth.ScopeFactrakFull))
 		factrakService.SetupRouter(factrakGroup, db, cfg, log.Named("factrak"))
 
+		// Booktrak Service
+		booktrakGroup := v2.Group("/booktrak")
+		booktrakGroup.Use(auth.RequireScopes(auth.ScopeBooktrak))
+		booktrakService.SetupRouter(booktrakGroup, db, cfg, log.Named("booktrak"))
+
 		// Dormtrak Service
 		dormtrakGroup := v2.Group("/dormtrak")
 		dormtrakGroup.Use(auth.RequireScopes(auth.ScopeDormtrak))
@@ -204,7 +213,26 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 		// Onboarding Service
 		onboardingGroup := v2.Group("/onboarding")
 		onboardingService.SetupRouter(onboardingGroup, db, cfg, log.Named("onboarding"))
+
+		// Notifications Service
+		notifGroup := v2.Group("/notification")
+		notifGroup.Use(auth.RequireScopes(auth.ScopeUsers))
+		notificationService.SetupRouter(notifGroup, db, cfg, log.Named("notification"))
+
+		// Goodrich Service
+		if !cfg.MissingGoodrich() {
+			goodrichGroup := v2.Group("/goodrich")
+			goodrichGroup.Use(auth.RequireScopes(auth.ScopeGoodrich))
+			goodrichService.SetupRouter(goodrichGroup, db, cfg, log.Named("goodrich"))
+		} else {
+			log.Warn("Goodrich Config is not set up. Will not route Goodrich Service. ")
+		}
 	}
+
+	// Require auth to access catalog with aggregated Factrak reviews
+	coursesFactrakFile := router.Group("/courses-factrak")
+	coursesFactrakFile.Use(auth.RequireScopes(auth.ScopeFactrakFull))
+	coursesFactrakFile.StaticFS("/", http.Dir("/home/wso/wso/static-auth"))
 
 	return r, nil
 }

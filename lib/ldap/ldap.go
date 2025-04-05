@@ -3,7 +3,7 @@ package ldap
 import (
 	"fmt"
 
-	"gopkg.in/ldap.v3"
+	"github.com/go-ldap/ldap/v3"
 )
 
 // TODO: Make this a connection pool (eg https://github.com/vetinari/go-ldappool)
@@ -15,6 +15,8 @@ type LDAP struct {
 	conn  *ldap.Conn
 }
 
+// NewWilliamsLDAP connects to the Williams LDAP server
+// Ye Shu Note Feb 2024: this is not updated since July 2023 and deprecated in favor of ODIR
 func NewWilliamsLDAP() *LDAP {
 	return &LDAP{
 		Host:  "ldap://ldap.williams.edu",
@@ -33,12 +35,28 @@ func NewNDSLDAP() *LDAP {
 	}
 }
 
+// NewADLDAP connects to the Williams AD LDAP server
+// Ye Shu Note Feb 2024: this is used for authenticating users
+// It contains all users, including students, faculty, staff, and some who have left the college
 func NewADLDAP() *LDAP {
 	return &LDAP{
 		Host:  "ldaps://adldap.williams.edu",
 		Base:  "ou=williams,dc=ad,dc=williams,dc=edu",
 		Scope: ldap.ScopeWholeSubtree,
 		Port:  636,
+	}
+}
+
+// NewODIRLDAP connects to the OIT secret ODIR LDAP server
+// Ye Shu Note Feb 2024: this is only accessible from wso-vm and wso-vm-dev
+// Also, I have configured firewall to allow outgoing traffic to this server
+// This is the backend LDAP server that powers the Online directory so it only contains active students, faculty, and staff.
+func NewODIRLDAP() *LDAP {
+	return &LDAP{
+		Host:  "ldap://odirldap-vip.williams.edu",
+		Base:  "ou=users,dc=odirldap,dc=williams,dc=edu",
+		Scope: ldap.ScopeWholeSubtree,
+		Port:  389,
 	}
 }
 

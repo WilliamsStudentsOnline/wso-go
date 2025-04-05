@@ -26,7 +26,7 @@ import (
 // @Param type query string false "Bulletin Type"
 // @Param all query bool false "Get All Bulletins (no restriction on startDate, endDate)"
 // @Success 200 {array} models.Bulletin
-// @Failure 500 {object} lib.APIError
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/bulletins [get]
 func (t *Controller) ListBulletins(c *gin.Context) {
@@ -67,9 +67,9 @@ func (t *Controller) ListBulletins(c *gin.Context) {
 // @Produce  json
 // @Param bulletinID path uint true "Bulletin ID"
 // @Success 200 {object} models.Bulletin
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/bulletins/{bulletinID} [get]
 func (t *Controller) GetBulletin(c *gin.Context) {
@@ -117,11 +117,11 @@ type CreateBulletinParams struct {
 // @Produce  json
 // @Param createParams body bulletin.CreateBulletinParams true "Create Bulletin Params"
 // @Success 201 {object} models.Bulletin
-// @Failure 1830 {object} lib.APIError "start date cannot be after end date"
-// @Failure 1831 {object} lib.APIError "invalid bulletin type"
-// @Failure 1101 {object} lib.APIError "request data validation failed"
-// @Failure 400 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1830 {object} services.BaseErrorResponse "start date cannot be after end date"
+// @Failure 1831 {object} services.BaseErrorResponse "invalid bulletin type"
+// @Failure 1101 {object} services.BaseErrorResponse "request data validation failed"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/bulletins [post]
 func (t *Controller) CreateBulletin(c *gin.Context) {
@@ -193,11 +193,11 @@ type UpdateBulletinParams struct {
 // @Param updateParams body bulletin.UpdateBulletinParams true "Update Bulletin Params"
 // @Param bulletinID path uint true "Bulletin ID"
 // @Success 200 {object} models.Bulletin
-// @Failure 1830 {object} lib.APIError "start date cannot be after end date"
-// @Failure 1331 {object} lib.APIError "must be self"
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1830 {object} services.BaseErrorResponse "start date cannot be after end date"
+// @Failure 1331 {object} services.BaseErrorResponse "must be self"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/bulletins/{bulletinID} [patch]
 func (t *Controller) UpdateBulletin(c *gin.Context) {
@@ -266,10 +266,10 @@ func (t *Controller) UpdateBulletin(c *gin.Context) {
 // @Produce  json
 // @Param bulletinID path uint true "Bulletin ID"
 // @Success 200 {object} models.Bulletin
-// @Failure 1331 {object} lib.APIError "must be self"
-// @Failure 400 {object} lib.APIError
-// @Failure 404 {object} lib.APIError
-// @Failure 500 {object} lib.APIError
+// @Failure 1331 {object} services.BaseErrorResponse "must be self"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/bulletins/{bulletinID} [delete]
 func (t *Controller) DeleteBulletin(c *gin.Context) {

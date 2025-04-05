@@ -15,13 +15,18 @@ const (
 	UserTypeUnknown   = "unknown"
 )
 
+const (
+	CampusStatusOnCampus = "on-campus"
+	CampusStatusRemote   = "remote"
+)
+
 // User Model Schema
 type User struct {
 	BaseSchema
 	Type           string  `json:"type"`
 	Name           string  `json:"name"`
 	CellPhone      *string `json:"cellPhone"`
-	CampusPhoneExt *string `json:"campusPhoneEXT"`
+	CampusPhoneExt *string `json:"campusPhoneEXT"` // campus phone extension after 413-597-
 	UnixID         string  `gorm:"unique;not null;size:100;" json:"unixID"`
 	WilliamsEmail  string  `json:"williamsEmail"`
 	Title          *string `json:"title"`
@@ -45,9 +50,12 @@ type User struct {
 	HasAcceptedFactrakPolicy  *bool   `gorm:"DEFAULT:false;not null" json:"hasAcceptedFactrakPolicy"`
 	HasAcceptedDormtrakPolicy *bool   `gorm:"DEFAULT:false;not null" json:"hasAcceptedDormtrakPolicy"`
 
-	// Belongs to Department iff professor
+	// Belongs to Department iff professor (fetched from Williams LDAP)
 	DepartmentID *uint       `json:"departmentID"`
 	Department   *Department `json:"department,omitempty"`
+
+	// Many2Many Area of Studies iff professor (computed periodically from courses)
+	AreasOfStudy []*AreaOfStudy `gorm:"many2many:user_areaOfStudy;" json:"areasOfStudy"`
 
 	// Belongs to Office iff staff/professor
 	OfficeID *uint   `json:"officeID"`
@@ -61,6 +69,7 @@ type User struct {
 	AtWilliams           *bool   `gorm:"DEFAULT:true;not null" json:"atWilliams"`
 	OffCycle             *bool   `gorm:"DEFAULT:false;not null" json:"offCycle"`
 	FactrakSurveyDeficit *int    `json:"factrakSurveyDeficit"`
+	OnCampusSemesters    int     `gorm:"DEFAULT:0;not null" json:"onCampusSemester"` // used to calculate number of factrack surveys needed
 
 	OptOutEphcatch      *bool `gorm:"DEFAULT:false;not null" json:"optOutEphcatch"`
 	EphcatchEligibility *bool `gorm:"DEFAULT:false;not null" json:"ephcatchEligibility"`
@@ -83,6 +92,9 @@ type User struct {
 	// We populate this field as a hook AfterFind.
 	FactrakSurveys []*FactrakSurvey `gorm:"-" json:"factrakSurveys,omitempty"`
 
+	// Only for professor retrieval with rankings
+	FactrakScore *float64 `gorm:"->;-:migration" json:"factrakScore,omitempty"`
+
 	// Has many factrak agreements
 	FactrakAgreements []*FactrakAgreement `json:"factrakAgreements,omitempty"`
 
@@ -94,6 +106,20 @@ type User struct {
 
 	// Has one ephmatch profile
 	EphmatchProfile *EphmatchProfile `json:"ephmatchProfile,omitempty"`
+
+	// Has one notification settings
+	NotificationSettings *NotificationSettings `json:"notificationSettings,omitempty"`
+	// Has many notification tokens
+	NotificationTokens []*NotificationToken `gorm:"foreignkey:UserID" json:"notificationTokens,omitempty"`
+
+	// Has campus status: either remote or on-campus
+	CampusStatus *string `json:"campusStatus"`
+
+	// Williams W# ID
+	WilliamsID string `json:"williamsID"`
+
+	// Has one (or zero) banned users
+	BannedUser *BannedUser `json:"bannedUser,omitempty"`
 }
 
 func (*User) TableName() string {
@@ -148,6 +174,10 @@ func (u *User) HomeAddress() string {
 	}
 
 	return strings.Join(addressSlice, ", ")
+}
+
+func ValidateCampusStatus(str string) bool {
+	return str == CampusStatusOnCampus || str == CampusStatusRemote
 }
 
 func (u *User) GenerateSearchFields() string {

@@ -26,6 +26,6 @@ var UserAddOffCampusColumn20200125225400 = &gormigrate.Migration{
 		return tx.AutoMigrate(&User{}).Error
 	},
 	Rollback: func(tx *gorm.DB) error {
-		return tx.DropTable("users").Error
+		return tx.Table("users").DropColumn("off_campus").Error
 	},
 }

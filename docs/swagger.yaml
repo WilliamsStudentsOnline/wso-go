@@ -1,10 +1,5 @@
 basePath: /api/v2
 definitions:
-  admin.KubeJobReturn:
-    properties:
-      jobID:
-        type: string
-    type: object
   auth.AuthResponse:
     properties:
       expire:
@@ -20,6 +15,51 @@ definitions:
         type: string
       value:
         type: string
+    type: object
+  booktrak.CreateBookListingParams:
+    properties:
+      bookID:
+        type: integer
+      condition:
+        allOf:
+        - $ref: '#/definitions/models.Condition'
+        enum:
+        - ""
+        - POOR
+        - FAIR
+        - GOOD
+        - VERY_GOOD
+        - LIKE_NEW
+        - NEW
+      description:
+        type: string
+      listingType:
+        allOf:
+        - $ref: '#/definitions/models.ListingType'
+        enum:
+        - ""
+        - BUY
+        - SELL
+    required:
+    - bookID
+    - listingType
+    type: object
+  booktrak.CreateBookParams:
+    properties:
+      isbn:
+        type: string
+    required:
+    - isbn
+    type: object
+  booktrak.UpdateBookCoursesParams:
+    properties:
+      courseIDs:
+        items:
+          type: integer
+        minItems: 1
+        type: array
+    required:
+    - courseIDs
     type: object
   bulletin.CreateBulletinParams:
     properties:
@@ -105,6 +145,17 @@ definitions:
       offer:
         type: boolean
     type: object
+  dormtrak.DormRoomPhotoInfo:
+    properties:
+      dormRoomId:
+        type: integer
+      name:
+        type: string
+      number:
+        type: integer
+      reviewId:
+        type: integer
+    type: object
   dormtrak.ReviewCreateParams:
     properties:
       bathroomDesc:
@@ -128,18 +179,26 @@ definitions:
       keyOrCard:
         type: string
       location:
+        maximum: 7
+        minimum: 0
         type: integer
       loudness:
+        maximum: 7
+        minimum: 0
         type: integer
       noise:
         type: string
       privateBathroom:
         type: boolean
       satisfaction:
+        maximum: 7
+        minimum: 0
         type: integer
       thermostatAccess:
         type: boolean
       wifi:
+        maximum: 7
+        minimum: 0
         type: integer
     required:
     - dormRoomID
@@ -163,18 +222,26 @@ definitions:
       keyOrCard:
         type: string
       location:
+        maximum: 7
+        minimum: 0
         type: integer
       loudness:
+        maximum: 7
+        minimum: 0
         type: integer
       noise:
         type: string
       privateBathroom:
         type: boolean
       satisfaction:
+        maximum: 7
+        minimum: 0
         type: integer
       thermostatAccess:
         type: boolean
       wifi:
+        maximum: 7
+        minimum: 0
         type: integer
     type: object
   ephmatch.CountMatchesResponse:
@@ -198,6 +265,9 @@ definitions:
       openIndefinitely:
         description: If Ephmatch has no closing time set
         type: boolean
+      seniorOnly:
+        description: Senior only ephmatch right now
+        type: boolean
     type: object
   ephmatch.ProfileCreateParams:
     properties:
@@ -211,6 +281,8 @@ definitions:
         type: string
       locationVisible:
         type: boolean
+      lookingFor:
+        type: string
       matchMessage:
         type: string
       messagingPlatform:
@@ -230,12 +302,24 @@ definitions:
         type: string
       locationVisible:
         type: boolean
+      lookingFor:
+        type: string
       matchMessage:
         type: string
       messagingPlatform:
         type: string
       messagingUsername:
         type: string
+    type: object
+  ephmatch.SetProfileRelationParams:
+    properties:
+      relation:
+        type: string
+    type: object
+  ephmatch.SetProfileRelationResp:
+    properties:
+      matched:
+        type: boolean
     type: object
   factrak.AgreementCreateParams:
     properties:
@@ -250,12 +334,17 @@ definitions:
   factrak.SurveyCreateParams:
     properties:
       approachability:
+        maximum: 7
+        minimum: 0
         type: integer
       areaOfStudyAbbreviation:
         description: 'Or this:'
         type: string
       comment:
         description: 'Params:'
+        type: string
+      courseFormat:
+        description: Remote, Hybrid, In-Person
         type: string
       courseID:
         description: 'Must include either this:'
@@ -264,19 +353,38 @@ definitions:
         description: Like "256"
         type: string
       courseStimulating:
+        maximum: 7
+        minimum: 0
         type: integer
       courseWorkload:
+        maximum: 7
+        minimum: 0
         type: integer
       gradeReceived:
         type: string
       leadLecture:
+        maximum: 7
+        minimum: 0
+        type: integer
+      mentalHealthSupport:
+        maximum: 7
+        minimum: 0
         type: integer
       outsideHelpfulness:
+        maximum: 7
+        minimum: 0
         type: integer
       professorID:
         description: 'Must include this:'
         type: integer
       promoteDiscussion:
+        maximum: 7
+        minimum: 0
+        type: integer
+      semesterSeason:
+        description: Fall, Winter Study, Spring
+        type: string
+      semesterYear:
         type: integer
       wouldRecommendCourse:
         type: boolean
@@ -289,26 +397,110 @@ definitions:
   factrak.SurveyUpdateParams:
     properties:
       approachability:
+        maximum: 7
+        minimum: 0
         type: integer
       comment:
         description: 'Params:'
         type: string
+      courseFormat:
+        description: Remote, Hybrid, In-Person
+        type: string
       courseStimulating:
+        maximum: 7
+        minimum: 0
         type: integer
       courseWorkload:
+        maximum: 7
+        minimum: 0
         type: integer
       gradeReceived:
         type: string
       leadLecture:
+        maximum: 7
+        minimum: 0
+        type: integer
+      mentalHealthSupport:
+        maximum: 7
+        minimum: 0
         type: integer
       outsideHelpfulness:
+        maximum: 7
+        minimum: 0
         type: integer
       promoteDiscussion:
+        maximum: 7
+        minimum: 0
+        type: integer
+      semesterSeason:
+        description: Fall, Winter Study, Spring
+        type: string
+      semesterYear:
         type: integer
       wouldRecommendCourse:
         type: boolean
       wouldTakeAnother:
         type: boolean
+    type: object
+  goodrich.CreateOrderParams:
+    properties:
+      comboDeal:
+        type: boolean
+      date:
+        type: string
+      idNumber:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/models.GoodrichOrderItem'
+        type: array
+      leaseID:
+        type: string
+      notes:
+        type: string
+      paymentMethod:
+        $ref: '#/definitions/models.GoodrichPaymentMethod'
+      phoneNumber:
+        type: string
+      timeSlot:
+        description: 'Format: 11:10 am'
+        type: string
+    type: object
+  goodrich.OrderLease:
+    properties:
+      expiry:
+        type: string
+      id:
+        type: string
+    type: object
+  goodrich.TimeSlot:
+    properties:
+      closedSpots:
+        type: integer
+      formatted:
+        type: string
+      hour:
+        type: integer
+      minute:
+        type: integer
+      openSpots:
+        type: integer
+    type: object
+  goodrich.UpdateMenuItemParams:
+    properties:
+      available:
+        type: boolean
+      quantity:
+        type: integer
+      quantityLimit:
+        type: boolean
+    type: object
+  goodrich.UpdateOrderParams:
+    properties:
+      adminNotes:
+        type: string
+      status:
+        $ref: '#/definitions/models.GoodrichOrderStatus'
     type: object
   identity.Credentials:
     properties:
@@ -325,19 +517,6 @@ definitions:
           or on-campus token
         type: boolean
     type: object
-  lib.APIError:
-    properties:
-      code:
-        type: integer
-      errors:
-        items:
-          type: error
-        type: array
-      httpcode:
-        type: integer
-      message:
-        type: string
-    type: object
   models.AreaOfStudy:
     properties:
       abbreviation:
@@ -349,7 +528,6 @@ definitions:
         type: array
       department:
         $ref: '#/definitions/models.Department'
-        type: object
       departmentID:
         description: Belongs to department
         type: integer
@@ -357,6 +535,112 @@ definitions:
         type: integer
       name:
         type: string
+      professors:
+        description: Many2Many professors  (computed periodically from courses)
+        items:
+          $ref: '#/definitions/models.User'
+        type: array
+    type: object
+  models.BannedUser:
+    properties:
+      bulletinRead:
+        type: boolean
+      bulletinWrite:
+        type: boolean
+      dormtrak:
+        type: boolean
+      ephcatch:
+        type: boolean
+      ephmatch:
+        type: boolean
+      factrak:
+        description: If banned from this service. True means user is banned; false
+          means user is not banned
+        type: boolean
+      id:
+        type: integer
+      reason:
+        description: Reason why user was banned
+        type: string
+      user:
+        allOf:
+        - $ref: '#/definitions/models.User'
+        description: Belongs to user
+      userID:
+        type: integer
+    type: object
+  models.Book:
+    properties:
+      authors:
+        description: The names of the authors and/or editors for this book.
+        items:
+          type: string
+        type: array
+      bookListings:
+        description: Has many Book Listings
+        items:
+          $ref: '#/definitions/models.BookListing'
+        type: array
+      courses:
+        description: Many2Many courses
+        items:
+          $ref: '#/definitions/models.Course'
+        type: array
+      id:
+        type: integer
+      imageLink:
+        description: Image link for book cover (Medium)
+        type: string
+      infoLink:
+        description: URL to view information about this book on the Google Books site.
+        type: string
+      isbn13:
+        description: ISBN-13 of this book (all books have this)
+        type: string
+      publisher:
+        description: Publisher of this book.
+        type: string
+      subtitle:
+        description: Book subtitle.
+        type: string
+      title:
+        description: Book title.
+        type: string
+    type: object
+  models.BookListing:
+    properties:
+      book:
+        $ref: '#/definitions/models.Book'
+      bookID:
+        description: Belongs to book (FK)
+        type: integer
+      condition:
+        allOf:
+        - $ref: '#/definitions/models.Condition'
+        enum:
+        - ""
+        - POOR
+        - FAIR
+        - GOOD
+        - VERY_GOOD
+        - LIKE_NEW
+        - NEW
+      description:
+        type: string
+      id:
+        type: integer
+      listingType:
+        allOf:
+        - $ref: '#/definitions/models.ListingType'
+        enum:
+        - ""
+        - BUY
+        - SELL
+      user:
+        $ref: '#/definitions/models.User'
+      userID:
+        description: Belongs to user (FK)
+        type: integer
     type: object
   models.Bulletin:
     properties:
@@ -376,7 +660,6 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Author information
         type: integer
@@ -397,19 +680,42 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user
         type: integer
     type: object
+  models.Condition:
+    enum:
+    - ""
+    - POOR
+    - FAIR
+    - GOOD
+    - VERY_GOOD
+    - LIKE_NEW
+    - NEW
+    type: string
+    x-enum-varnames:
+    - ConditionUndefined
+    - ConditionPoor
+    - ConditionFair
+    - ConditionGood
+    - ConditionVeryGood
+    - ConditionLikeNew
+    - ConditionNew
   models.Course:
     properties:
       areaOfStudy:
         $ref: '#/definitions/models.AreaOfStudy'
-        type: object
       areaOfStudyID:
         description: Belongs to area of study
         type: integer
+      books:
+        description: Many2Many books
+        items:
+          $ref: '#/definitions/models.Book'
+        type: array
+      factrakScore:
+        type: number
       factrakSurveys:
         description: Has many factrak surveys
         items:
@@ -467,7 +773,6 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user
         type: integer
@@ -508,7 +813,6 @@ definitions:
         type: string
       neighborhood:
         $ref: '#/definitions/models.Neighborhood'
-        type: object
       neighborhoodID:
         description: Belongs to neighborhood
         type: integer
@@ -543,10 +847,8 @@ definitions:
         type: number
       biggestDouble:
         $ref: '#/definitions/models.DormRoom'
-        type: object
       biggestSingle:
         $ref: '#/definitions/models.DormRoom'
-        type: object
       capacity:
         type: integer
       commonRoomAccessRatio:
@@ -569,10 +871,8 @@ definitions:
         type: integer
       smallestDouble:
         $ref: '#/definitions/models.DormRoom'
-        type: object
       smallestSingle:
         $ref: '#/definitions/models.DormRoom'
-        type: object
       sophomoreCount:
         type: integer
       studentToBathroomRatio:
@@ -596,7 +896,6 @@ definitions:
         type: string
       dorm:
         $ref: '#/definitions/models.Dorm'
-        type: object
       dormID:
         description: Belongs to dorm
         type: integer
@@ -639,6 +938,18 @@ definitions:
     type: object
   models.DormtrakRanking:
     properties:
+      bestLocation:
+        items:
+          $ref: '#/definitions/models.Dorm'
+        type: array
+      bestSatisfaction:
+        items:
+          $ref: '#/definitions/models.Dorm'
+        type: array
+      bestWifi:
+        items:
+          $ref: '#/definitions/models.Dorm'
+        type: array
       biggestDoubles:
         items:
           $ref: '#/definitions/models.DormRoom'
@@ -648,6 +959,10 @@ definitions:
           $ref: '#/definitions/models.DormRoom'
         type: array
       fewestBathrooms:
+        items:
+          $ref: '#/definitions/models.Dorm'
+        type: array
+      leastLoudness:
         items:
           $ref: '#/definitions/models.Dorm'
         type: array
@@ -675,6 +990,10 @@ definitions:
         items:
           $ref: '#/definitions/models.Dorm'
         type: array
+      mostLoudness:
+        items:
+          $ref: '#/definitions/models.Dorm'
+        type: array
       mostSingles:
         items:
           $ref: '#/definitions/models.Dorm'
@@ -686,6 +1005,18 @@ definitions:
       smallestSingles:
         items:
           $ref: '#/definitions/models.DormRoom'
+        type: array
+      worstLocation:
+        items:
+          $ref: '#/definitions/models.Dorm'
+        type: array
+      worstSatisfaction:
+        items:
+          $ref: '#/definitions/models.Dorm'
+        type: array
+      worstWifi:
+        items:
+          $ref: '#/definitions/models.Dorm'
         type: array
     type: object
   models.DormtrakReview:
@@ -707,7 +1038,6 @@ definitions:
         type: string
       dormRoom:
         $ref: '#/definitions/models.DormRoom'
-        type: object
       dormRoomID:
         description: Belongs to dorm room
         type: integer
@@ -731,7 +1061,6 @@ definitions:
         type: boolean
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user (student)
         type: integer
@@ -746,17 +1075,17 @@ definitions:
       id:
         type: integer
       other:
-        $ref: '#/definitions/models.User'
+        allOf:
+        - $ref: '#/definitions/models.User'
         description: Belongs to other
-        type: object
       otherID:
         type: integer
       seen:
         type: boolean
       user:
-        $ref: '#/definitions/models.User'
+        allOf:
+        - $ref: '#/definitions/models.User'
         description: Belongs to user
-        type: object
       userID:
         type: integer
     type: object
@@ -783,9 +1112,6 @@ definitions:
         type: string
       id:
         type: integer
-      liked:
-        description: If self has liked this profile (user)
-        type: boolean
       locationCountry:
         type: string
       locationState:
@@ -795,6 +1121,9 @@ definitions:
       locationVisible:
         description: Current location columns
         type: boolean
+      lookingFor:
+        description: 'Looking for:'
+        type: string
       matchMessage:
         type: string
       matched:
@@ -805,9 +1134,11 @@ definitions:
         type: string
       messagingUsername:
         type: string
+      relation:
+        description: If self has an out-relation with this profile (user)
+        type: string
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user
         type: integer
@@ -818,7 +1149,6 @@ definitions:
         type: boolean
       factrakSurvey:
         $ref: '#/definitions/models.FactrakSurvey'
-        type: object
       factrakSurveyID:
         description: Belongs to survey
         type: integer
@@ -826,7 +1156,6 @@ definitions:
         type: integer
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user
         type: integer
@@ -850,7 +1179,9 @@ definitions:
         type: string
       course:
         $ref: '#/definitions/models.Course'
-        type: object
+      courseFormat:
+        description: Remote, Hybrid, In-Person
+        type: string
       courseID:
         description: Belongs to course
         type: integer
@@ -869,15 +1200,21 @@ definitions:
         type: integer
       leadLecture:
         type: integer
+      mentalHealthSupport:
+        type: integer
       outsideHelpfulness:
         type: integer
       professor:
         $ref: '#/definitions/models.User'
-        type: object
       professorID:
         description: Belongs to professor
         type: integer
       promoteDiscussion:
+        type: integer
+      semesterSeason:
+        description: Course info data
+        type: string
+      semesterYear:
         type: integer
       totalAgree:
         description: Not looked at by GORM, just for returning in JSON
@@ -886,7 +1223,6 @@ definitions:
         type: integer
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user (student)
         type: integer
@@ -905,6 +1241,8 @@ definitions:
         type: number
       avgLeadLecture:
         type: number
+      avgMentalHealthSupport:
+        type: number
       avgOutsideHelpfulness:
         type: number
       avgPromoteDiscussion:
@@ -921,6 +1259,8 @@ definitions:
         type: integer
       numLeadLecture:
         type: integer
+      numMentalHealthSupport:
+        type: integer
       numOutsideHelpfulness:
         type: integer
       numPromoteDiscussion:
@@ -930,6 +1270,123 @@ definitions:
       numWouldTakeAnother:
         type: integer
     type: object
+  models.GoodrichMenuItem:
+    properties:
+      available:
+        description: false if item is out of stock
+        type: boolean
+      category:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      price:
+        type: number
+      quantity:
+        type: integer
+      quantityLimit:
+        description: |-
+          Number of this menu item left; goes down with every order
+          quantity limit describe if there is a limit on quantity
+        type: boolean
+      title:
+        type: string
+      type:
+        type: string
+    type: object
+  models.GoodrichOrder:
+    properties:
+      adminNotes:
+        type: string
+      comboDeal:
+        type: boolean
+      date:
+        description: 'Format: 2006-01-02'
+        type: string
+      id:
+        type: integer
+      idNumber:
+        type: string
+      items:
+        description: this means this field will be ignored in the DB. Use this to
+          pull the menu items from ItemList into actual objects in the Model/Controller
+          side.
+        items:
+          $ref: '#/definitions/models.GoodrichOrderItem'
+        type: array
+      notes:
+        type: string
+      paymentMethod:
+        $ref: '#/definitions/models.GoodrichPaymentMethod'
+      phoneNumber:
+        type: string
+      status:
+        $ref: '#/definitions/models.GoodrichOrderStatus'
+      timeSlot:
+        description: 'Format: 15:04'
+        type: string
+      totalPrice:
+        type: number
+      user:
+        $ref: '#/definitions/models.User'
+      userID:
+        description: Belongs to user
+        type: integer
+    type: object
+  models.GoodrichOrderItem:
+    properties:
+      id:
+        type: integer
+      item:
+        $ref: '#/definitions/models.GoodrichMenuItem'
+      note:
+        type: string
+    type: object
+  models.GoodrichOrderStatus:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    type: integer
+    x-enum-comments:
+      GoodrichOrderStatusUnknown: Default is unknown
+    x-enum-varnames:
+    - GoodrichOrderStatusUnknown
+    - GoodrichOrderStatusPlaced
+    - GoodrichOrderStatusReady
+    - GoodrichOrderStatusPaid
+  models.GoodrichPaymentMethod:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    type: integer
+    x-enum-comments:
+      GoodrichPaymentMethodUnknown: Default is unknown
+    x-enum-varnames:
+    - GoodrichPaymentMethodUnknown
+    - GoodrichPaymentMethodSwipe
+    - GoodrichPaymentMethodPoints
+    - GoodrichPaymentMethodCreditCard
+    - GoodrichPaymentMethodCash
+    - GoodrichPaymentMethodSwipePlusCash
+    - GoodrichPaymentMethodSwipePlusCreditCard
+  models.ListingType:
+    enum:
+    - ""
+    - BUY
+    - SELL
+    type: string
+    x-enum-varnames:
+    - ListingTypeUndefined
+    - ListingTypeBuy
+    - ListingTypeSell
   models.Neighborhood:
     properties:
       dorms:
@@ -953,6 +1410,35 @@ definitions:
       sophomoreCount:
         type: integer
     type: object
+  models.NotificationSettings:
+    properties:
+      enableNotifications:
+        description: 'Settings:'
+        type: boolean
+      id:
+        type: integer
+      salmonNotify:
+        type: boolean
+      user:
+        $ref: '#/definitions/models.User'
+      userID:
+        description: Belongs to user
+        type: integer
+    type: object
+  models.NotificationToken:
+    properties:
+      id:
+        type: integer
+      token:
+        type: string
+      type:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+      userID:
+        description: Belongs to user
+        type: integer
+    type: object
   models.Office:
     properties:
       id:
@@ -973,7 +1459,6 @@ definitions:
         type: string
       discussion:
         $ref: '#/definitions/models.Discussion'
-        type: object
       discussionID:
         description: Belongs to discussion
         type: integer
@@ -987,7 +1472,6 @@ definitions:
         type: integer
       user:
         $ref: '#/definitions/models.User'
-        type: object
       userID:
         description: Belongs to user
         type: integer
@@ -1007,9 +1491,23 @@ definitions:
     properties:
       admin:
         type: boolean
+      areasOfStudy:
+        description: Many2Many Area of Studies iff professor (computed periodically
+          from courses)
+        items:
+          $ref: '#/definitions/models.AreaOfStudy'
+        type: array
       atWilliams:
         type: boolean
+      bannedUser:
+        allOf:
+        - $ref: '#/definitions/models.BannedUser'
+        description: Has one (or zero) banned users
       campusPhoneEXT:
+        description: campus phone extension after 413-597-
+        type: string
+      campusStatus:
+        description: 'Has campus status: either remote or on-campus'
         type: string
       cellPhone:
         type: string
@@ -1017,13 +1515,11 @@ definitions:
         type: integer
       department:
         $ref: '#/definitions/models.Department'
-        type: object
       departmentID:
-        description: Belongs to Department iff professor
+        description: Belongs to Department iff professor (fetched from Williams LDAP)
         type: integer
       dormRoom:
         $ref: '#/definitions/models.DormRoom'
-        type: object
       dormRoomID:
         description: Belongs to Dorm Room iff student
         type: integer
@@ -1044,9 +1540,9 @@ definitions:
           $ref: '#/definitions/models.Ephcatch'
         type: array
       ephmatchProfile:
-        $ref: '#/definitions/models.EphmatchProfile'
+        allOf:
+        - $ref: '#/definitions/models.EphmatchProfile'
         description: Has one ephmatch profile
-        type: object
       factrakAdmin:
         type: boolean
       factrakAgreements:
@@ -1054,6 +1550,9 @@ definitions:
         items:
           $ref: '#/definitions/models.FactrakAgreement'
         type: array
+      factrakScore:
+        description: Only for professor retrieval with rankings
+        type: number
       factrakSurveyDeficit:
         type: integer
       factrakSurveys:
@@ -1087,6 +1586,15 @@ definitions:
         type: string
       nickname:
         type: string
+      notificationSettings:
+        allOf:
+        - $ref: '#/definitions/models.NotificationSettings'
+        description: Has one notification settings
+      notificationTokens:
+        description: Has many notification tokens
+        items:
+          $ref: '#/definitions/models.NotificationToken'
+        type: array
       offCampus:
         description: If user is Off-Campus and thus doesn't have a dorm
         type: boolean
@@ -1094,9 +1602,11 @@ definitions:
         type: boolean
       office:
         $ref: '#/definitions/models.Office'
-        type: object
       officeID:
         description: Belongs to Office iff staff/professor
+        type: integer
+      onCampusSemester:
+        description: used to calculate number of factrack surveys needed
         type: integer
       optOutEphcatch:
         type: boolean
@@ -1118,6 +1628,23 @@ definitions:
       visible:
         type: boolean
       williamsEmail:
+        type: string
+      williamsID:
+        description: Williams W# ID
+        type: string
+    type: object
+  notification.SettingsUpdateParams:
+    properties:
+      enableNotifications:
+        type: boolean
+      salmonNotify:
+        type: boolean
+    type: object
+  notification.TokenCreateParams:
+    properties:
+      token:
+        type: string
+      type:
         type: string
     type: object
   old.AuthResponse:
@@ -1162,7 +1689,6 @@ definitions:
     properties:
       dorm:
         $ref: '#/definitions/responses.GetUserResponseDorm'
-        type: object
       dormID:
         type: integer
       id:
@@ -1194,18 +1720,18 @@ definitions:
         type: boolean
       campusPhoneEXT:
         type: string
+      campusStatus:
+        type: string
       cellPhone:
         type: string
       classYear:
         type: integer
       department:
         $ref: '#/definitions/responses.GetUserResponseDepartment'
-        type: object
       departmentID:
         type: integer
       dormRoom:
         $ref: '#/definitions/responses.GetUserResponseDormRoom'
-        type: object
       dormRoomID:
         type: integer
       dormVisible:
@@ -1246,7 +1772,6 @@ definitions:
         type: boolean
       office:
         $ref: '#/definitions/responses.GetUserResponseOffice'
-        type: object
       officeID:
         type: integer
       optOutEphcatch:
@@ -1269,6 +1794,8 @@ definitions:
         type: boolean
       williamsEmail:
         type: string
+      williamsID:
+        type: string
     type: object
   responses.ListMatchesResponseEphmatchMatch:
     properties:
@@ -1278,7 +1805,6 @@ definitions:
         type: integer
       matchedUser:
         $ref: '#/definitions/responses.ListMatchesResponseMatchedUser'
-        type: object
       matchedUserID:
         type: integer
       seenByMatchedUser:
@@ -1300,6 +1826,8 @@ definitions:
         type: string
       locationVisible:
         type: boolean
+      lookingFor:
+        type: string
       matchMessage:
         type: string
       messagingPlatform:
@@ -1315,7 +1843,6 @@ definitions:
         type: string
       ephmatchProfile:
         $ref: '#/definitions/responses.ListMatchesResponseEphmatchProfile'
-        type: object
       id:
         type: integer
       major:
@@ -1366,7 +1893,6 @@ definitions:
     properties:
       dorm:
         $ref: '#/definitions/responses.ListUsersResponseDorm'
-        type: object
       dormID:
         type: integer
       id:
@@ -1398,18 +1924,18 @@ definitions:
         type: boolean
       campusPhoneEXT:
         type: string
+      campusStatus:
+        type: string
       cellPhone:
         type: string
       classYear:
         type: integer
       department:
         $ref: '#/definitions/responses.ListUsersResponseDepartment'
-        type: object
       departmentID:
         type: integer
       dormRoom:
         $ref: '#/definitions/responses.ListUsersResponseDormRoom'
-        type: object
       dormRoomID:
         type: integer
       dormVisible:
@@ -1450,7 +1976,6 @@ definitions:
         type: boolean
       office:
         $ref: '#/definitions/responses.ListUsersResponseOffice'
-        type: object
       officeID:
         type: integer
       optOutEphcatch:
@@ -1473,14 +1998,38 @@ definitions:
         type: boolean
       williamsEmail:
         type: string
+      williamsID:
+        type: string
     type: object
   server.HealthCheckResponse:
     properties:
       ok:
         type: boolean
     type: object
+  services.BaseErrorResponse:
+    properties:
+      error:
+        $ref: '#/definitions/services.RespError'
+      status:
+        type: integer
+      updateToken:
+        type: boolean
+    type: object
+  services.RespError:
+    properties:
+      errorCode:
+        type: integer
+      errors:
+        items:
+          type: string
+        type: array
+      message:
+        type: string
+    type: object
   user.UpdateUserParams:
     properties:
+      campusStatus:
+        type: string
       dormVisible:
         type: boolean
       hasAcceptedDormtrakPolicy:
@@ -1495,8 +2044,6 @@ definitions:
         type: boolean
       optOutEphcatch:
         type: boolean
-      pronoun:
-        type: string
       visible:
         type: boolean
     type: object
@@ -1514,127 +2061,9 @@ info:
     name: WSO Dev
   description: API for WSO services like factrak, facebook, dormtrak, course scheduler,
     and others.
-  license: {}
   title: WSO API
   version: 2.0.0
 paths:
-  /admin/catalog-update:
-    post:
-      consumes:
-      - application/json
-      description: executes a kubernetes job that updates the course catalog
-      operationId: catalog-update
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/admin.KubeJobReturn'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/lib.APIError'
-      security:
-      - Bearer: []
-      summary: Updates the course catalog
-      tags:
-      - admin
-  /admin/dorms-update:
-    post:
-      consumes:
-      - application/json
-      description: runs kubernetes job that updates all dorms from compiled data
-      operationId: dorms-update
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/admin.KubeJobReturn'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/lib.APIError'
-      security:
-      - Bearer: []
-      summary: Updates all dorms from data compiled
-      tags:
-      - admin
-  /admin/jobs/{jobID}/status:
-    get:
-      consumes:
-      - application/json
-      description: connects to Kubernetes to get the status of a running (or recently
-        finished) job given an id
-      operationId: get-job-status
-      parameters:
-      - description: Kubernetes Job ID
-        in: path
-        name: jobID
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/k8s.io/api/batch/v1.JobStatus'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/lib.APIError'
-      security:
-      - Bearer: []
-      summary: Gets status of a job
-      tags:
-      - admin
-  /admin/update-all-factrak-survey-deficits:
-    post:
-      consumes:
-      - application/json
-      description: runs a slow job that updates all student factrak survey deficits
-      operationId: update-all-factrak-survey-deficits
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/admin.KubeJobReturn'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/lib.APIError'
-      security:
-      - Bearer: []
-      summary: Updates all factrak survey deficits
-      tags:
-      - admin
-  /admin/update-all-users-from-ldap:
-    post:
-      consumes:
-      - application/json
-      description: runs a slow job that updates all users from LDAP
-      operationId: update-all-users-from-ldap
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/admin.KubeJobReturn'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/lib.APIError'
-      security:
-      - Bearer: []
-      summary: Updates all users from LDAP
-      tags:
-      - admin
   /auth/api/refresh:
     get:
       consumes:
@@ -1652,15 +2081,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Refresh API Token
@@ -1689,15 +2118,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       summary: Authenticate API Token
       tags:
       - auth
@@ -1715,7 +2144,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/identity.Credentials'
-          type: object
       produces:
       - application/json
       responses:
@@ -1726,15 +2154,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       summary: Authenticate Identity Token
       tags:
       - auth
@@ -1752,7 +2180,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/old.LoginParams'
-          type: object
       produces:
       - application/json
       responses:
@@ -1763,15 +2190,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       summary: Authenticate and Login
       tags:
       - auth
@@ -1792,15 +2219,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Refresh Token
@@ -1823,15 +2250,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Update Token
@@ -1866,7 +2293,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Autocomplete area of study
@@ -1901,7 +2328,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Autocomplete course
@@ -1936,7 +2363,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Autocomplete factrak professors and courses
@@ -1971,7 +2398,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Autocomplete professor
@@ -2006,12 +2433,375 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Autocomplete tag
       tags:
       - autocomplete
+  /books/{bookID}:
+    get:
+      consumes:
+      - application/json
+      description: get a book by book id
+      operationId: get-book
+      parameters:
+      - description: Book ID
+        in: path
+        name: bookID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Book'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get book by book id
+      tags:
+      - books
+  /booktrak/books:
+    get:
+      consumes:
+      - application/json
+      description: lists all books. Order by creation date.
+      operationId: booktrak-list-books
+      parameters:
+      - description: Offset Pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      - description: Book Title
+        in: query
+        name: title
+        type: string
+      - description: Book Publisher
+        in: query
+        name: publisher
+        type: string
+      - description: Book ISBN-13 (must be in ISBN format)
+        in: query
+        name: isbn
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Book'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: List books
+      tags:
+      - booktrak
+    put:
+      consumes:
+      - application/json
+      description: create a book
+      operationId: booktrak-create-book
+      parameters:
+      - description: Create Book Params
+        in: body
+        name: createParams
+        required: true
+        schema:
+          $ref: '#/definitions/booktrak.CreateBookParams'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Book'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "2251":
+          description: failed to find book online by isbn
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Create a book if it doesn't exist already
+      tags:
+      - booktrak
+  /booktrak/books/{bookID}:
+    patch:
+      consumes:
+      - application/json
+      description: update a book's courses
+      operationId: booktrak-update-book
+      parameters:
+      - description: Update Book Params
+        in: body
+        name: updateParams
+        required: true
+        schema:
+          $ref: '#/definitions/booktrak.UpdateBookCoursesParams'
+      - description: Book ID
+        in: path
+        name: bookID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Book'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "2253":
+          description: some courses could not be found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Update book
+      tags:
+      - booktrak
+  /booktrak/listings:
+    get:
+      consumes:
+      - application/json
+      description: lists all book listings
+      operationId: booktrak-list-book-listings
+      parameters:
+      - description: Offset Pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      - description: Course ID
+        in: query
+        name: courseID
+        type: integer
+      - description: User ID
+        in: query
+        name: userID
+        type: integer
+      - description: Book ISBN-13
+        in: query
+        name: isbn
+        type: string
+      - description: Minimum Book Condition
+        enum:
+        - POOR
+        - FAIR
+        - GOOD
+        - VERY_GOOD
+        - LIKE_NEW
+        - NEW
+        in: query
+        name: minCondition
+        type: string
+      - description: Maximum Book Condition
+        enum:
+        - POOR
+        - FAIR
+        - GOOD
+        - VERY_GOOD
+        - LIKE_NEW
+        - NEW
+        in: query
+        name: maxCondition
+        type: string
+      - description: Type of the listing
+        in: query
+        name: listingType
+        type: string
+      - collectionFormat: csv
+        description: Preload
+        in: query
+        items:
+          enum:
+          - user
+          - book
+          type: string
+        name: preload
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.BookListing'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: List book listings
+      tags:
+      - booktrak
+    post:
+      consumes:
+      - application/json
+      description: create a book listing
+      operationId: booktrak-create-book-listing
+      parameters:
+      - description: Create Book Listing Params
+        in: body
+        name: createParams
+        required: true
+        schema:
+          $ref: '#/definitions/booktrak.CreateBookListingParams'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.BookListing'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "2232":
+          description: invalid book condition
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Create book listing
+      tags:
+      - booktrak
+  /booktrak/listings/{bookListingID}:
+    delete:
+      consumes:
+      - application/json
+      description: delete a book listing
+      operationId: booktrak-delete-book-listing
+      parameters:
+      - description: Book Listing ID
+        in: path
+        name: bookListingID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BookListing'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "1331":
+          description: must be self
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Delete book listing
+      tags:
+      - booktrak
+      - booktrak-admin
+      - admin
+    put:
+      consumes:
+      - application/json
+      description: update a book listing
+      operationId: booktrak-update-book-listing
+      parameters:
+      - description: Create Book Listing Params
+        in: body
+        name: updateParams
+        required: true
+        schema:
+          $ref: '#/definitions/booktrak.CreateBookListingParams'
+      - description: Book Listing ID
+        in: path
+        name: bookListingID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BookListing'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "1331":
+          description: must be self
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "2232":
+          description: invalid book condition
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Update book listing
+      tags:
+      - booktrak
   /bulletin/bulletins:
     get:
       consumes:
@@ -2031,7 +2821,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -2057,7 +2848,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List bulletins
@@ -2075,7 +2866,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/bulletin.CreateBulletinParams'
-          type: object
       produces:
       - application/json
       responses:
@@ -2086,23 +2876,23 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1101":
           description: request data validation failed
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1830":
           description: start date cannot be after end date
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1831":
           description: invalid bulletin type
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Create bulletin
@@ -2130,19 +2920,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1331":
           description: must be self
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Delete bulletin
@@ -2169,15 +2959,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get bulletin
@@ -2195,7 +2985,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/bulletin.UpdateBulletinParams'
-          type: object
       - description: Bulletin ID
         in: path
         name: bulletinID
@@ -2211,23 +3000,23 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1331":
           description: must be self
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1830":
           description: start date cannot be after end date
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Update bulletin
@@ -2255,15 +3044,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Delete discussion
@@ -2288,7 +3077,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -2310,7 +3100,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List discussions
@@ -2328,7 +3118,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/bulletin.CreateDiscussionParams'
-          type: object
       produces:
       - application/json
       responses:
@@ -2339,19 +3128,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1101":
           description: request data validation failed
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1332":
           description: authenticated user not found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Create discussion
@@ -2369,7 +3158,8 @@ paths:
         name: discussionID
         required: true
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -2385,15 +3175,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get discussion
@@ -2423,7 +3213,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -2441,7 +3232,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get discussion posts
@@ -2460,7 +3251,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/bulletin.CreatePostParams'
-          type: object
       produces:
       - application/json
       responses:
@@ -2471,23 +3261,23 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1101":
           description: request data validation failed
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1332":
           description: authenticated user not found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1850":
           description: discussion cannot be found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Create post
@@ -2515,19 +3305,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1331":
           description: must be self
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Delete post
@@ -2554,15 +3344,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get post
@@ -2580,7 +3370,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/bulletin.UpdatePostParams'
-          type: object
       - description: Post ID
         in: path
         name: postID
@@ -2596,19 +3385,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1331":
           description: must be self
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Update post
@@ -2633,7 +3422,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -2659,7 +3449,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List rides
@@ -2677,7 +3467,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/bulletin.CreateRideParams'
-          type: object
       produces:
       - application/json
       responses:
@@ -2688,19 +3477,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1101":
           description: request data validation failed
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1830":
           description: date cannot be in past
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Create ride
@@ -2728,19 +3517,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1331":
           description: must be self
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Delete ride
@@ -2767,15 +3556,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get ride
@@ -2793,7 +3582,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/bulletin.UpdateRideParams'
-          type: object
       - description: Ride ID
         in: path
         name: rideID
@@ -2809,23 +3597,23 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1331":
           description: must be self
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1830":
           description: date cannot be in past
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Update ride
@@ -2856,13 +3644,13 @@ paths:
       - text/xml
       responses:
         "200":
-          description: OK
+          description: A RSS Feed serialized as XML string
           schema:
-            $ref: '#/definitions/github.com/gorilla/feeds.Feed'
+            type: string
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List announcement bulletins RSS
@@ -2889,13 +3677,13 @@ paths:
       - text/xml
       responses:
         "200":
-          description: OK
+          description: A RSS Feed serialized as XML string
           schema:
-            $ref: '#/definitions/github.com/gorilla/feeds.Feed'
+            type: string
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List discussion bulletins RSS
@@ -2926,13 +3714,13 @@ paths:
       - text/xml
       responses:
         "200":
-          description: OK
+          description: A RSS Feed serialized as XML string
           schema:
-            $ref: '#/definitions/github.com/gorilla/feeds.Feed'
+            type: string
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List exchange bulletins RSS
@@ -2963,13 +3751,13 @@ paths:
       - text/xml
       responses:
         "200":
-          description: OK
+          description: A RSS Feed serialized as XML string
           schema:
-            $ref: '#/definitions/github.com/gorilla/feeds.Feed'
+            type: string
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List job bulletins RSS
@@ -3000,13 +3788,13 @@ paths:
       - text/xml
       responses:
         "200":
-          description: OK
+          description: A RSS Feed serialized as XML string
           schema:
-            $ref: '#/definitions/github.com/gorilla/feeds.Feed'
+            type: string
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List lost and found bulletins RSS
@@ -3041,13 +3829,13 @@ paths:
       - text/xml
       responses:
         "200":
-          description: OK
+          description: A RSS Feed serialized as XML string
           schema:
-            $ref: '#/definitions/github.com/gorilla/feeds.Feed'
+            type: string
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List ride bulletins RSS
@@ -3069,15 +3857,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get Chat Auth JWT token
@@ -3098,7 +3886,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -3120,7 +3909,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List dorms
@@ -3148,15 +3937,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get dorm
@@ -3185,15 +3974,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get dorm facts
@@ -3231,15 +4020,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get dorm rooms
@@ -3263,7 +4052,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List neighborhoods
@@ -3291,15 +4080,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get neighborhood
@@ -3327,15 +4116,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get neighborhood facts
@@ -3359,7 +4148,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get rankings
@@ -3392,7 +4181,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -3414,11 +4204,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List reviews
@@ -3436,7 +4226,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/dormtrak.ReviewCreateParams'
-          type: object
       produces:
       - application/json
       responses:
@@ -3447,35 +4236,35 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1101":
           description: request data validation failed
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1633":
           description: user must be a student and could not be found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1634":
           description: user is missing dorm field
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1635":
           description: user does not own this dorm room
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1636":
           description: review already exists with passed user ID and dorm room ID
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Create review
@@ -3503,19 +4292,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1331":
           description: must be self
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Delete review
@@ -3542,15 +4331,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get review
@@ -3568,7 +4357,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/dormtrak.ReviewUpdateParams'
-          type: object
       - description: review ID
         in: path
         name: reviewID
@@ -3584,26 +4372,150 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1101":
           description: request data validation failed
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1331":
           description: must be self
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Update review
+      tags:
+      - dormtrak
+  /dormtrak/reviews/{reviewID}/photo:
+    put:
+      consumes:
+      - multipart/form-data
+      description: upload a dorm room review's photo. You may only upload rooms you
+        have reviewed.
+      operationId: upload-dorm-room-photo
+      parameters:
+      - description: Review ID
+        in: path
+        name: reviewID
+        required: true
+        type: integer
+      - description: Dorm Room Photo
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "1160":
+          description: unable to save picture
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "1331":
+          description: must be self
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Upload a dorm room photo by review and dorm room
+      tags:
+      - dormtrak
+  /dormtrak/reviews/{reviewID}/photos:
+    get:
+      consumes:
+      - application/json
+      description: gets file names to all photos uploaded to a dorm room by review
+      operationId: dormtrak-get-review-photos
+      parameters:
+      - description: Review ID
+        in: path
+        name: reviewID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dormtrak.DormRoomPhotoInfo'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get dorm room photos by review
+      tags:
+      - dormtrak
+  /dormtrak/rooms/{roomID}/photos:
+    get:
+      consumes:
+      - application/json
+      description: gets file names to all photos uploaded to a dorm room
+      operationId: dormtrak-get-room-photos
+      parameters:
+      - description: Dorm Room ID
+        in: path
+        name: roomID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dormtrak.DormRoomPhotoInfo'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get dorm room photos
       tags:
       - dormtrak
   /ephcatch/ephcatchers:
@@ -3621,7 +4533,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -3643,7 +4556,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List ephcatchers
@@ -3671,15 +4584,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get ephcatcher
@@ -3700,32 +4613,33 @@ paths:
       produces:
       - application/json
       responses:
-        "201": {}
+        "201":
+          description: Created
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1730":
           description: cannot ephcatch-like yourself
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1731":
           description: ephcatcher could not be found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1732":
           description: ephcatch already exists with user ID and passed ephcatcher
             ID
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Like ephcatcher
@@ -3746,19 +4660,20 @@ paths:
       produces:
       - application/json
       responses:
-        "201": {}
+        "201":
+          description: Created
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Unlike ephcatcher
@@ -3782,7 +4697,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List matches
@@ -3802,7 +4717,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get availability
@@ -3815,7 +4730,8 @@ paths:
       description: lists all Ephmatch-eligible students that user has matched with
       operationId: ephmatch-list-matches
       parameters:
-      - description: Preload List [tags]
+      - collectionFormat: csv
+        description: Preload List [tags]
         in: query
         items:
           type: string
@@ -3833,7 +4749,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List matches
@@ -3856,10 +4772,53 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Count matches
+      tags:
+      - ephmatch
+  /ephmatch/matches/{matchUserID}:
+    delete:
+      consumes:
+      - application/json
+      description: Removes the match (and sets the to-relation to none) of a specific
+        matched pair
+      operationId: ephmatch-unmatch
+      parameters:
+      - description: Match User ID
+        in: path
+        name: matchUserID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "1730":
+          description: cannot ephmatch-relate yourself
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "1733":
+          description: ephmatch match could not be found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Unmatches Ephmatch matched users
       tags:
       - ephmatch
   /ephmatch/profile:
@@ -3878,15 +4837,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Delete profile
@@ -3907,15 +4866,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get Ephmatch profile of self
@@ -3933,7 +4892,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/ephmatch.ProfileUpdateParams'
-          type: object
       produces:
       - application/json
       responses:
@@ -3944,19 +4902,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1101":
           description: request data validation failed
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Update an Ephmatch profile
@@ -3974,7 +4932,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/ephmatch.ProfileCreateParams'
-          type: object
       produces:
       - application/json
       responses:
@@ -3985,24 +4942,83 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1101":
           description: request data validation failed
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Create an Ephmatch profile
       tags:
       - ephmatch
+  /ephmatch/profile/photo:
+    delete:
+      description: delete an ephmatch user's ephmatch profile photo by user id.
+      operationId: delete-ephmatch-profile-photo
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Delete an ephmatch profile photo by user id
+      tags:
+      - users
+    put:
+      consumes:
+      - multipart/form-data
+      description: upload an ephmatch user's ephmatch profile photo by user id.
+      operationId: upload-ephmatch-profile-photo
+      parameters:
+      - description: Profile Photo
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Upload an ephmatch profile photo by user id
+      tags:
+      - users
   /ephmatch/profiles:
     get:
       consumes:
@@ -4022,7 +5038,12 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List [tags, liked, matched]
+      - description: Get profiles with no previous relations
+        in: query
+        name: noRelations
+        type: boolean
+      - collectionFormat: csv
+        description: Preload List [tags, relation, matched]
         in: query
         items:
           type: string
@@ -4040,7 +5061,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List Ephmatch profiles
@@ -4068,100 +5089,74 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get Ephmatch profile
       tags:
       - ephmatch
-  /ephmatch/profiles/{profileUserID}/like:
-    post:
+  /ephmatch/profiles/{profileUserID}/relation:
+    put:
       consumes:
       - application/json
-      description: Likes one ephmatch-eligible user profile
-      operationId: ephmatch-like-profile
+      description: Sets the relation (like, dislike, nothing) between self and one
+        ephmatch-eligible user profile
+      operationId: ephmatch-set-profile-relation
       parameters:
       - description: Profile User ID
         in: path
         name: profileUserID
         required: true
         type: integer
+      - description: Set Profile Relation Params
+        in: body
+        name: relationParams
+        required: true
+        schema:
+          $ref: '#/definitions/ephmatch.SetProfileRelationParams'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/LikeProfileResp'
+            $ref: '#/definitions/ephmatch.SetProfileRelationResp'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1730":
-          description: cannot ephmatch-like yourself
+          description: cannot ephmatch-relate yourself
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1731":
           description: ephmatch profile could not be found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1732":
-          description: ephmatch already exists with user ID and passed ephmatch profile
-            user ID
+          description: ephmatch relation already exists with user ID and passed ephmatch
+            profile user ID
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
-      summary: Like Ephmatch profile
-      tags:
-      - ephmatch
-  /ephmatch/profiles/{profileUserID}/unlike:
-    post:
-      consumes:
-      - application/json
-      description: Removes a like from one ephmatch-eligible user profile
-      operationId: ephmatch-unlike-profile
-      parameters:
-      - description: Profile User ID
-        in: path
-        name: profileUserID
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "201": {}
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/lib.APIError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/lib.APIError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/lib.APIError'
-      security:
-      - Bearer: []
-      summary: Unlike ephmatch profile
+      summary: Set Ephmatch profile relation
       tags:
       - ephmatch
   /factrak/admin/surveys:
@@ -4191,7 +5186,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload (course, professor)
+      - collectionFormat: csv
+        description: Preload (course, professor)
         in: query
         items:
           type: string
@@ -4217,7 +5213,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List flagged surveys
@@ -4240,15 +5236,16 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: OK
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Unflag survey
@@ -4271,7 +5268,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List (department, courses)
+      - collectionFormat: csv
+        description: Preload List (department, courses)
         in: query
         items:
           type: string
@@ -4293,7 +5291,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List areas of study
@@ -4321,15 +5319,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get area of study
@@ -4362,15 +5360,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List area of study courses
@@ -4401,15 +5399,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List area of study professors
@@ -4430,7 +5428,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -4452,6 +5451,14 @@ paths:
         in: query
         name: professorID
         type: string
+      - description: Ranking Metric
+        in: query
+        name: metric
+        type: string
+      - description: Sorting Direction
+        in: query
+        name: direction
+        type: boolean
       produces:
       - application/json
       responses:
@@ -4464,7 +5471,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List courses
@@ -4498,15 +5505,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get course
@@ -4537,15 +5544,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List course professors
@@ -4577,15 +5584,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get course ratings
@@ -4616,7 +5623,8 @@ paths:
         in: query
         name: professorID
         type: integer
-      - description: Preload (course, professor)
+      - collectionFormat: csv
+        description: Preload (course, professor)
         in: query
         items:
           type: string
@@ -4642,15 +5650,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List course surveys
@@ -4674,7 +5682,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List departments
@@ -4702,15 +5710,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get department
@@ -4741,15 +5749,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List department courses
@@ -4780,15 +5788,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List department professors
@@ -4809,7 +5817,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -4831,6 +5840,14 @@ paths:
         in: query
         name: q
         type: string
+      - description: Ranking Metric
+        in: query
+        name: metric
+        type: string
+      - description: Sorting Direction
+        in: query
+        name: ascending
+        type: boolean
       produces:
       - application/json
       responses:
@@ -4843,7 +5860,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List professors
@@ -4877,15 +5894,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get professor
@@ -4916,15 +5933,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List professor courses
@@ -4941,6 +5958,11 @@ paths:
         in: query
         name: courseID
         type: integer
+      - description: 'Metrics: course_workload, course_stimulating, would_take_another,
+          approachability, lead_lecture, promote_discussion, outside_helpfulness'
+        in: query
+        name: metric
+        type: string
       - description: Professor ID
         in: path
         name: professorID
@@ -4956,15 +5978,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get professor ratings
@@ -4995,7 +6017,8 @@ paths:
         in: query
         name: courseID
         type: integer
-      - description: Preload (course, professor)
+      - collectionFormat: csv
+        description: Preload (course, professor)
         in: query
         items:
           type: string
@@ -5021,15 +6044,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List professor surveys
@@ -5063,7 +6086,8 @@ paths:
         in: query
         name: userID
         type: integer
-      - description: Preload (course, professor)
+      - collectionFormat: csv
+        description: Preload (course, professor)
         in: query
         items:
           type: string
@@ -5089,7 +6113,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List surveys
@@ -5107,7 +6131,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/factrak.SurveyCreateParams'
-          type: object
       produces:
       - application/json
       responses:
@@ -5118,49 +6141,49 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1101":
           description: request data validation failed
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1531":
           description: 'missing course parameters in create data: courseID or (areaOfStudyAbbreviation
             and courseNumber)'
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1532":
           description: comment must be 100 characters or more
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1533":
           description: user must be a student and could not be found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1534":
           description: passed professor must be a professor and could not be found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1535":
           description: passed course could not be found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1536":
           description: passed area of study could not be found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1537":
           description: survey already exists with passed user ID, professor ID, and
             course ID
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Create survey
@@ -5188,19 +6211,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1331":
           description: must be self
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Delete survey
@@ -5229,19 +6252,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1330":
           description: no scope authorization
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get survey
@@ -5259,7 +6282,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/factrak.SurveyUpdateParams'
-          type: object
       - description: Survey ID
         in: path
         name: surveyID
@@ -5275,27 +6297,27 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1101":
           description: request data validation failed
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1331":
           description: must be self
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1532":
           description: comment must be 100 characters or more
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Update survey
@@ -5323,19 +6345,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1551":
           description: survey agreement could not be found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Delete survey agreement
@@ -5362,19 +6384,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1551":
           description: survey agreement could not be found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get survey agreement by self
@@ -5397,7 +6419,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/factrak.AgreementUpdateParams'
-          type: object
       produces:
       - application/json
       responses:
@@ -5408,23 +6429,23 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1100":
           description: could not parse malformed request data
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1551":
           description: survey agreement could not be found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Update survey agreement
@@ -5447,7 +6468,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/factrak.AgreementCreateParams'
-          type: object
       produces:
       - application/json
       responses:
@@ -5458,27 +6478,27 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1100":
           description: could not parse malformed request data
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1552":
           description: survey agreement already exists for this user and survey
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1553":
           description: cannot create survey agreement with your own survey
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Create survey agreement
@@ -5499,19 +6519,20 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: OK
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Flag survey
@@ -5546,7 +6567,8 @@ paths:
         in: query
         name: courseID
         type: integer
-      - description: Preload (course, professor)
+      - collectionFormat: csv
+        description: Preload (course, professor)
         in: query
         items:
           type: string
@@ -5568,24 +6590,334 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1331":
           description: must be self
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List user surveys
       tags:
       - factrak
+  /goodrich/menu:
+    get:
+      consumes:
+      - application/json
+      description: lists all menu items
+      operationId: goodrich-list-menu
+      parameters:
+      - description: Get all menu items (including unavailable)
+        in: query
+        name: all
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.GoodrichMenuItem'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: List menu
+      tags:
+      - goodrich
+  /goodrich/menu/{itemID}:
+    patch:
+      consumes:
+      - application/json
+      description: updates a menu item
+      operationId: goodrich-update-menu-item
+      parameters:
+      - description: Update Menu Item Params
+        in: body
+        name: updateParams
+        required: true
+        schema:
+          $ref: '#/definitions/goodrich.UpdateMenuItemParams'
+      - description: Item ID
+        in: path
+        name: itemID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GoodrichMenuItem'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Update menu item
+      tags:
+      - goodrich
+  /goodrich/order-lease:
+    get:
+      consumes:
+      - application/json
+      description: gets a lease to be able to order
+      operationId: goodrich-get-order-lease
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/goodrich.OrderLease'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get order lease
+      tags:
+      - goodrich
+  /goodrich/orders:
+    get:
+      consumes:
+      - application/json
+      description: lists all orders
+      operationId: goodrich-list-orders
+      parameters:
+      - description: Offset Pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit Pagination
+        in: query
+        name: limit
+        type: integer
+      - description: Sort
+        in: query
+        name: sort
+        type: string
+      - description: Date
+        in: query
+        name: date
+        type: string
+      - description: User ID
+        in: query
+        name: userID
+        type: integer
+      - collectionFormat: csv
+        description: Allowed Status list
+        in: query
+        items:
+          type: string
+        name: statuses
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.GoodrichOrder'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: List orders
+      tags:
+      - goodrich
+    post:
+      consumes:
+      - application/json
+      description: creates an order
+      operationId: goodrich-create-order
+      parameters:
+      - description: Create Order Params
+        in: body
+        name: createParams
+        required: true
+        schema:
+          $ref: '#/definitions/goodrich.CreateOrderParams'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.GoodrichOrder'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Create order
+      tags:
+      - goodrich
+  /goodrich/orders/{orderID}:
+    get:
+      consumes:
+      - application/json
+      description: gets an order
+      operationId: goodrich-get-order
+      parameters:
+      - description: Order ID
+        in: path
+        name: orderID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GoodrichOrder'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get order
+      tags:
+      - goodrich
+    patch:
+      consumes:
+      - application/json
+      description: updates an order
+      operationId: goodrich-update-order
+      parameters:
+      - description: Update Order Params
+        in: body
+        name: updateParams
+        required: true
+        schema:
+          $ref: '#/definitions/goodrich.UpdateOrderParams'
+      - description: Order ID
+        in: path
+        name: orderID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GoodrichOrder'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Update order
+      tags:
+      - goodrich
+  /goodrich/timeslots:
+    get:
+      consumes:
+      - application/json
+      description: lists all time slots today
+      operationId: goodrich-list-time-slots
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/goodrich.TimeSlot'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: List time slots
+      tags:
+      - goodrich
+  /goodrich/user/orders:
+    get:
+      consumes:
+      - application/json
+      description: lists all user orders
+      operationId: goodrich-list-user-orders
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.GoodrichOrder'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: List user orders
+      tags:
+      - goodrich
+  /goodrich/user/orders/{orderID}:
+    get:
+      consumes:
+      - application/json
+      description: gets a user order
+      operationId: goodrich-get-user-order
+      parameters:
+      - description: Order ID
+        in: path
+        name: orderID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GoodrichOrder'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get user order
+      tags:
+      - goodrich
   /health-check:
     get:
       consumes:
@@ -5602,6 +6934,149 @@ paths:
       security:
       - Bearer: []
       summary: Health check
+  /listings/{bookListingID}:
+    get:
+      consumes:
+      - application/json
+      description: get a book listing by book listing id
+      operationId: get-book-listing
+      parameters:
+      - description: Book Listing ID
+        in: path
+        name: bookListingID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BookListing'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get book listing by book listing id
+      tags:
+      - booktrak
+  /notification/app/token:
+    post:
+      consumes:
+      - application/json
+      description: creates self's notification token
+      operationId: notification-create-token
+      parameters:
+      - description: Create Token Params
+        in: body
+        name: updateParams
+        required: true
+        schema:
+          $ref: '#/definitions/notification.TokenCreateParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.NotificationToken'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "1101":
+          description: request data validation failed
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Create notification token
+      tags:
+      - notification
+  /notification/settings:
+    get:
+      consumes:
+      - application/json
+      description: gets self's notification settings
+      operationId: notification-get-settings
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.NotificationSettings'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get notification settings
+      tags:
+      - notification
+    patch:
+      consumes:
+      - application/json
+      description: updates (or creates if it does not exist) self's notification settings
+      operationId: notification-update-settings
+      parameters:
+      - description: Update Settings Params
+        in: body
+        name: updateParams
+        required: true
+        schema:
+          $ref: '#/definitions/notification.SettingsUpdateParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.NotificationSettings'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "1101":
+          description: request data validation failed
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Update notification settings
+      tags:
+      - notification
   /onboarding/canonical/{unixID}:
     get:
       consumes:
@@ -5624,7 +7099,63 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Gets a user
+      tags:
+      - onboarding
+  /onboarding/ks19/{unixID}:
+    get:
+      consumes:
+      - application/json
+      description: Gets a user from their unix. Onboarding exercise.
+      operationId: onboarding-ks19-get-user-by-unix
+      parameters:
+      - description: Unix ID
+        in: path
+        name: unixID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Gets a user
+      tags:
+      - onboarding
+  /onboarding/mgb4/{unixID}:
+    get:
+      consumes:
+      - application/json
+      description: Gets a user from their unix. Onboarding exercise.
+      operationId: onboarding-mgb4-get-user-by-unix
+      parameters:
+      - description: Unix ID
+        in: path
+        name: unixID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Gets a user
@@ -5647,7 +7178,8 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Preload List
+      - collectionFormat: csv
+        description: Preload List
         in: query
         items:
           type: string
@@ -5669,7 +7201,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: List users
@@ -5698,23 +7230,23 @@ paths:
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1403":
           description: user not visible
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1404":
           description: user not at williams
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1405":
           description: user id could not be parsed
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get user by user id
@@ -5738,7 +7270,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/user.UpdateUserParams'
-          type: object
       produces:
       - application/json
       responses:
@@ -5749,23 +7280,23 @@ paths:
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1100":
           description: could not parse malformed request data
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1331":
           description: must be self
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1405":
           description: user id could not be parsed
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Update user by user id
@@ -5792,27 +7323,28 @@ paths:
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: OK
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1331":
           description: must be self
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1405":
           description: user id could not be parsed
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Upload a profile photo by user id
@@ -5837,39 +7369,39 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/user.UpdateUserTagsParams'
-          type: object
       produces:
       - application/json
       responses:
-        "200": {}
+        "200":
+          description: OK
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1100":
           description: could not parse malformed request data
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1331":
           description: must be self
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1405":
           description: user id could not be parsed
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
         "1406":
           description: invalid user tag
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Update user tags by user id
@@ -5891,7 +7423,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/lib.APIError'
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Get words

@@ -39,6 +39,8 @@ func (m *EphmatchProfileModel) GetAllProfilesNoSelf(p *[]*EphmatchProfile, selfI
 	// Get profiles
 	db := m.DB.Model(&EphmatchProfile{}).Preload("User")
 
+	opts.selfUserID = selfID
+
 	db = m.scopeDefault(db)
 	if opts != nil {
 		db = opts.Run(db)
@@ -60,9 +62,9 @@ func (m *EphmatchProfileModel) GetAllProfilesNoSelf(p *[]*EphmatchProfile, selfI
 			}
 		}
 
-		// Populate liked field
-		if lib.StringsContains(opts.Preload, "liked") {
-			err = m.PopulateLiked(p, selfID)
+		// Populate relation field
+		if lib.StringsContains(opts.Preload, "relation") {
+			err = m.PopulateRelations(p, selfID)
 			if err != nil {
 				return
 			}
@@ -118,29 +120,27 @@ func (m *EphmatchProfileModel) SortProfilesByLiked(p *[]*EphmatchProfile, selfID
 	return nil
 }
 
-// Populate liked field on set of profiles
-func (m *EphmatchProfileModel) PopulateLiked(p *[]*EphmatchProfile, selfID uint) (err error) {
+// Populate relations field on set of profiles
+func (m *EphmatchProfileModel) PopulateRelations(p *[]*EphmatchProfile, selfID uint) (err error) {
 	// Get ephmatch likes made by user self (selfID) to populate "liked" field. This is significantly faster
 	// than a SQL query by several magnitudes.
-	var likes []*EphmatchLike
-	lm := NewEphmatchLikeModel(m.DB, m.log)
-	err = lm.GetUserLikes(selfID, &likes)
+	var rels []*EphmatchRelation
+	relModel := NewEphmatchRelationModel(m.DB, m.log)
+	err = relModel.GetUserOutRelations(selfID, &rels)
 	if err != nil {
 		return
 	}
 
 	// Create a map of users we liked.
-	likedUserMap := make(map[uint]bool)
-	for _, like := range likes {
-		likedUserMap[like.LikedID] = true
+	relUserMap := make(map[uint]string)
+	for _, rel := range rels {
+		relUserMap[rel.OtherID] = rel.Relation
 	}
 
 	// If a profile is in the likedUserMap, set it to liked
 	for _, profile := range *p {
-		if _, ok := likedUserMap[profile.UserID]; ok {
-			profile.Liked = lib.TruePtr()
-		} else {
-			profile.Liked = lib.FalsePtr()
+		if rel, ok := relUserMap[profile.UserID]; ok {
+			profile.Relation = &rel
 		}
 	}
 
@@ -184,18 +184,25 @@ type GetAllProfilesOptions struct {
 	Offset *uint `json:"offset" form:"offset"`
 	Limit  *uint `json:"limit" form:"limit"`
 
-	// You can preload: tags, liked, matched
+	// You can preload: tags, relation, liked, matched
 	Preload []string `json:"preload" form:"preload[]"`
 	// Note: [liked, matched] preloads are done not in the preload step
+
+	// Get profiles where the user has no previous relations
+	NoRelations bool `json:"noRelations" form:"noRelations"`
+	selfUserID  uint
+
+	// Filters only to look at seniors and off-cycle juniors
+	SeniorsPlusOnly bool
 }
 
-func (p *GetAllProfilesOptions) Order(db *gorm.DB) *gorm.DB {
-	if p.Sort != nil {
-		if *p.Sort == "new" {
+func (o *GetAllProfilesOptions) Order(db *gorm.DB) *gorm.DB {
+	if o.Sort != nil {
+		if *o.Sort == "new" {
 			return db.Order("ephmatch_profiles.created_at DESC", true)
-		} else if *p.Sort == "updated" {
+		} else if *o.Sort == "updated" {
 			return db.Order("ephmatch_profiles.updated_at DESC", true)
-		} else if *p.Sort == "recommended" {
+		} else if *o.Sort == "recommended" {
 			return db
 		}
 	}
@@ -203,17 +210,17 @@ func (p *GetAllProfilesOptions) Order(db *gorm.DB) *gorm.DB {
 	return db.Order("users.name ASC", true)
 }
 
-func (p *GetAllProfilesOptions) Paginate(db *gorm.DB) *gorm.DB {
+func (o *GetAllProfilesOptions) Paginate(db *gorm.DB) *gorm.DB {
 	// Do server-side limit/offset if recommended due to complex sorting algorithm
-	if p.Sort != nil && *p.Sort == "recommended" {
+	if o.Sort != nil && *o.Sort == "recommended" {
 		return db
 	}
 
-	db = p.Order(db)
-	if p.Limit != nil {
-		db = db.Limit(*p.Limit)
-		if p.Offset != nil {
-			db = db.Offset(*p.Offset)
+	db = o.Order(db)
+	if o.Limit != nil {
+		db = db.Limit(*o.Limit)
+		if o.Offset != nil {
+			db = db.Offset(*o.Offset)
 		}
 	}
 
@@ -233,12 +240,35 @@ func (o *GetAllProfilesOptions) Preloader(db *gorm.DB) *gorm.DB {
 	return db
 }
 
-func (p *GetAllProfilesOptions) Run(db *gorm.DB) *gorm.DB {
-	return p.Paginate(p.Preloader(db))
+func (o *GetAllProfilesOptions) Filter(db *gorm.DB) *gorm.DB {
+	if o.NoRelations {
+		db = db.Joins("LEFT OUTER JOIN ephmatch_relations r ON r.other_id = ephmatch_profiles.user_id AND r.user_id = ?", o.selfUserID).Where("r.other_id IS NULL")
+	}
+	if o.SeniorsPlusOnly {
+		seniorYear := (&StudentModel{}).SeniorYear()
+		db = db.Where("users.class_year = ? OR (users.class_year = ? AND users.off_cycle = ?)",
+			seniorYear, seniorYear-1, true)
+	}
+	return db
 }
 
-func (m *EphmatchProfileModel) CountProfiles() (count int, err error) {
-	db := m.scopeDefault(m.DB.Model(&EphmatchProfile{}))
+func (o *GetAllProfilesOptions) Run(db *gorm.DB) *gorm.DB {
+	return o.Paginate(o.Preloader(o.Filter(db)))
+}
+
+func (m *EphmatchProfileModel) CountProfiles(selfID uint, opts *GetAllProfilesOptions) (count int, err error) {
+	// Get profiles
+	db := m.DB.Model(&EphmatchProfile{})
+
+	opts.selfUserID = selfID
+
+	db = m.scopeDefault(db)
+	if opts != nil {
+		db = opts.Filter(db)
+	}
+
+	db = db.Not(EphmatchProfile{UserID: selfID})
+
 	err = db.Count(&count).Error
 	return
 }
@@ -295,6 +325,9 @@ func (m *EphmatchProfileModel) CreateOrUpdateProfileUnscoped(userID uint, newPro
 		if newProfile.MessagingUsername != nil {
 			query = query.Update("messaging_username", newProfile.MessagingUsername)
 		}
+		if newProfile.LookingFor != nil {
+			query = query.Update("looking_for", newProfile.LookingFor)
+		}
 		err = query.UpdateColumn("deleted_at", nil).
 			Preload("User").
 			First(p).
@@ -328,6 +361,7 @@ func (m *EphmatchProfileModel) CreateOrUpdateProfileUnscoped(userID uint, newPro
 			LocationCountry:   locationCountry,
 			MessagingPlatform: newProfile.MessagingPlatform,
 			MessagingUsername: newProfile.MessagingUsername,
+			LookingFor:        newProfile.LookingFor,
 		}).
 		Preload("User").
 		FirstOrCreate(p).Error
@@ -389,10 +423,10 @@ func (m *EphmatchProfileModel) DoesProfileExist(id uint) (exists bool, err error
 	return
 }
 
-// Default scope: is student and is visible. Make sure to enumerate users on join
+// Default scope: is student and is visible and is at williams. Make sure to enumerate users on join
 func (m *EphmatchProfileModel) scopeDefault(db *gorm.DB) *gorm.DB {
 	db = db.Joins("INNER JOIN users ON users.id = ephmatch_profiles.user_id").
-		Where("users.type = ?", UserTypeStudent)
+		Where("users.type = ? AND users.at_williams = ?", UserTypeStudent, true)
 	return db
 }
 
@@ -404,9 +438,9 @@ func (m *EphmatchProfileModel) SuggestUsers(userID uint) ([]uint, error) {
 	*/
 
 	// Get who user liked
-	rows, err := m.DB.Table("ephmatch_likes").
-		Select("liked_id").
-		Where("user_id = ?", userID).
+	rows, err := m.DB.Table("ephmatch_relations").
+		Select("other_id").
+		Where("user_id = ? AND relation = ?", userID, EphmatchRelationLike).
 		Rows()
 	if err != nil {
 		return nil, err
@@ -435,9 +469,9 @@ func (m *EphmatchProfileModel) SuggestUsers(userID uint) ([]uint, error) {
 	}
 
 	// Get users with similar like preferences (admirers of people user has liked)
-	rows, err = m.DB.Table("ephmatch_likes").
+	rows, err = m.DB.Table("ephmatch_relations").
 		Select("user_id").
-		Where("liked_id IN (" + strings.Join(likedUsersStr, ",") + ")").
+		Where("relation = ? AND other_id IN ("+strings.Join(likedUsersStr, ",")+")", EphmatchRelationLike).
 		Rows()
 	if err != nil {
 		return nil, err
@@ -465,10 +499,10 @@ func (m *EphmatchProfileModel) SuggestUsers(userID uint) ([]uint, error) {
 
 	// Get other users that admirers liked
 
-	rows, err = m.DB.Table("ephmatch_likes").
-		Select("liked_id, count(*)").
-		Where("user_id IN (" + strings.Join(admirersStr, ",") + ")").
-		Group("liked_id").Rows()
+	rows, err = m.DB.Table("ephmatch_relations").
+		Select("other_id, count(*)").
+		Where("relation = ? AND user_id IN ("+strings.Join(admirersStr, ",")+")", EphmatchRelationLike).
+		Group("other_id").Rows()
 	if err != nil {
 		return nil, err
 	}
