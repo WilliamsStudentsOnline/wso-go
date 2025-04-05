@@ -298,8 +298,8 @@ func ParseCatalog(catalog []RawCourse, fallSemID, winterSemID, springSemID int, 
 			course.ClassType = ssrComponent
 		}
 
-		course.TitleLong = trimTitle(unparsed.CourseTitleLong)
-		course.TitleShort = trimTitle(unparsed.Description)
+		course.TitleLong = strings.TrimSpace(unparsed.CourseTitleLong)
+		course.TitleShort = strings.TrimSpace(unparsed.Description)
 
 		// Instructors
 
