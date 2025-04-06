@@ -81,6 +81,19 @@ func (t *Controller) GetAvailability(c *gin.Context) {
 		}
 	}
 
+	// Quickly setting the status of our counters
+	if resp.SeniorOnly {
+		ephmatchSeniorsGauge.Set(1)
+	} else {
+		ephmatchSeniorsGauge.Set(0)
+	}
+
+	if resp.Available {
+		ephmatchOpenGauge.Set(1)
+	} else {
+		ephmatchOpenGauge.Set(0)
+	}
+
 	// Fill in next open time
 	var nextEraStart *time.Time
 	nextEraSeniorOnly := false

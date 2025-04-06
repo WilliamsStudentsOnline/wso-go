@@ -149,6 +149,9 @@ func (t *Controller) CreateProfile(c *gin.Context) {
 	// Sanitize user preloaded
 	sanitize.User(profile.User, c)
 
+	// Add one to the count
+	ephmatchProfileMakeCounter.Inc()
+
 	t.RespondCreated(c, profile)
 }
 
@@ -295,6 +298,9 @@ func (t *Controller) DeleteProfile(c *gin.Context) {
 
 	// Update when deleted
 	t.SetUpdateToken(c)
+
+	// Add one to the count
+	ephmatchProfileDeleteCounter.Inc()
 
 	t.RespondOK(c, profile)
 }
