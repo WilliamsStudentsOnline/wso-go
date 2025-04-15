@@ -582,27 +582,27 @@ func SaveFactrakCatalog(w io.Writer, courses []Course, db *gorm.DB) error {
 
 	// get number of would_recommends and total_reviews for each (course, prof) combination in the Factrak db
 	err := db.Raw(`
-        SELECT
-            COUNT(fs.id) AS total_reviews,
-            SUM(fs.would_recommend_course) AS sum_would_recommend,
-            fs.course_id,
-            fs.professor_id,
-            aos.abbrev AS course_abbrev,
-            c.number AS course_number,
-            u.name AS professor_name
-        FROM
-            factrak_surveys fs
-        JOIN
-            users u ON fs.professor_id = u.id
-        JOIN
-            courses c ON fs.course_id = c.id
-        JOIN
-            areas_of_study aos ON c.area_of_study_id = aos.id
-        WHERE
-            u.type = 'professor'
-            AND fs.deleted_at IS NULL
-        GROUP BY
-            fs.professor_id, fs.course_id
+SELECT
+    COUNT(CASE WHEN fs.would_recommend_course IS NOT NULL THEN 1 END) AS total_reviews,
+    SUM(fs.would_recommend_course) AS sum_would_recommend,
+    fs.course_id,
+    fs.professor_id,
+    aos.abbrev AS course_abbrev,
+    c.number AS course_number,
+    u.name AS professor_name
+FROM
+    factrak_surveys fs
+JOIN
+    users u ON fs.professor_id = u.id
+JOIN
+    courses c ON fs.course_id = c.id
+JOIN
+    areas_of_study aos ON c.area_of_study_id = aos.id
+WHERE
+    u.type = 'professor'
+    AND fs.deleted_at IS NULL
+GROUP BY
+    fs.professor_id, fs.course_id
     `).Scan(&results).Error
 
 	if err != nil {
