@@ -15,24 +15,20 @@ Note: you must include a secrets file. So, run `cp config/secrets_example.yaml c
 
 ### Redis
 
-**NOTE**: As of November 2024, wso-go uses Redis for several non-critical database tables, such as saved classes in the course scheduler. For most cases, this is not important, but if you intend to develop for these features, deploy Redis with:
--  `docker build -t wso-redis -f lib/redis_util/Redis.Dockerfile lib/redis_util`
-- `docker run --name wso-redis-instance -d -p 6379:6379 wso-redis`
+**NOTE**: As of November 2024, wso-go uses Redis for several non-critical database tables, such as saved classes in the course scheduler. For most cases, this is not important, but if you intend to develop for these features, deploy Redis with `make run-dev-redis`.
 
-When you are finished, kill the container with:
-- `docker kill wso-redis-instance`
+All data is lost when the command is re-run. For data persistence, edit the Makefile's definition of `docker-redis-dev` to use use the flag `-v /absolute/path/on/your/computer/:data` on the command `docker run` to dump data to a path of your choice.
 
-To restart the container if you regret killing it:
-- `docker restart wso-redis-instance`
+### Grafana and Prometheus
 
-If you want to remove the container:
-- `docker remove wso-redis-instance`
-- `docker rmi wso-redis`
+wso-go can be run with Grafana and Prometheus to improve the quality and accessiblity of logs. This feature is non-critical and you do not need to use it. To install Grafana and Prometheus, you should read [this](https://grafana.com/docs/grafana/latest/setup-grafana/installation/debian/) site for Grafana and [this](https://prometheus.io/docs/prometheus/latest/installation/) site for Prometheus. Open source version of both can be installed using a package manager like `apt-get` or `brew`. Please also install the package `prometheus-node-exporter`, or else many Grafana graphs will not work correctly.
 
-All data is lost when a container is removed. For data persistence, use the flag `-v /absolute/path/on/your/computer/:data` on `docker run` to dump data to a path of your choice.
+Once you have these packages installed, you can optionally install the Grafana config files to your system Grafana directory by running `grafana-install` as root in the `prod_files/` directory. To run them alongside wso-go, run the command `make run-with-analytics`. This should autostart the servers. Grafana is accessible on port 9093 through a browser, and Prometheus is configured to run on port 9095. To login to Grafana for the first time, use the username `admin` and the password `admin`. All files will be found in the `prod_files/` directory. Please change the values in `run-analytics.sh` when you use this in production. 
+
+Alternatively, if you're running wso-go on a Linux system, you can install the systemd service files and edit the values to run Grafana and Prometheus. This is how it is actually done in production.
 
 ### Current Go Version: 1.21
-It is worth noting that you should install Go via the official site, not a package repository like apt-get or brew, which often have outdated versions. You can find info on how to install Go [here](https://golang.org/doc/install).
+It is worth noting that you should install Go via the official site, not a package repository like `apt-get` or `brew`, which often have outdated versions. You can find info on how to install Go [here](https://golang.org/doc/install).
 
 ## Onboarding 
 
@@ -104,6 +100,9 @@ To build the Go binary, run `make`. You can then just execute `./wso-backend`.
 API Endpoints are documented at `localhost:8080/docs`, and in the director `docs/` as swagger files. You can also 
 look at controller comments for any endpoint info. Don't use the provided query tools, bc they don't play nice 
 with our authentication.
+
+### Grafana
+Analytics are available at port `:9092`!
 
 ## Authentication Flow
 *NOTE: THIS IS DEPRECATED*

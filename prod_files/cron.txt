@@ -16,7 +16,7 @@ SHELL="/bin/bash"
 
 # Catalog update
 SHELL="/bin/bash"
-0 3 * * * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/catalog-update -file /home/wso/wso/static/courses.json >> /home/wso/wso/wso-backend/logs/catalog-update-cron.log 2>&1'
+0 3 * * * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/catalog-update -config /home/wso/wso/wso-backend/config.yaml -file /home/wso/wso/static/courses.json -factrak-file /home/wso/wso/static-auth/courses.json >> /home/wso/wso/wso-backend/logs/catalog-update-cron.log 2>&1'
 
 # User CSV Data update
 SHELL="/bin/bash"
@@ -25,9 +25,6 @@ SHELL="/bin/bash"
 # Dining update
 SHELL="/bin/bash"
 0 1 * * * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/dining-update -out /home/wso/wso/static/dining.json -vi /home/wso/wso/wso-backend/vendor_info.yaml -eats4Ephs >> /home/wso/wso/wso-backend/logs/dining-update-cron.log 2>&1'
-
-# Library hours update
-0 1 * * * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/library-hours-update -out /home/wso/wso/static/library-hours.json >> /home/wso/wso/wso-backend/logs/library-hours-update-cron.log 2>&1'
 
 # Salmon scheduled notif
 SHELL="/bin/bash"
@@ -43,3 +40,6 @@ SHELL="/bin/bash"
 
 # Reset EphMatch. This is run on September 1st every year
 0 0 1 9 * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/ephmatch-reset -console -config /home/wso/wso/wso-backend/config.yaml >> /home/wso/wso/wso-backend/logs/ephmatch-reset-cron.log 2>&1'
+
+# Create EphMatch dates. This is run on January 1st every year
+0 0 1 1 * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/ephmatch_update_dates -file /home/wso/wso/wso-backend/config.yaml >> /home/wso/wso/wso-backend/logs/ephmatch-update-dates-cron.log 2>&1'

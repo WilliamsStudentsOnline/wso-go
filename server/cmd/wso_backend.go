@@ -20,6 +20,8 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/server"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
@@ -31,7 +33,6 @@ func main() {
 	// Note: these can be overridden by env vars
 	flag.StringVar(&configPath, "config", "", "path to config file")
 	flag.BoolVar(&doDevelopment, "development", false, "use development config")
-
 	flag.Parse()
 
 	if doDevelopment && configPath == "" {
@@ -107,6 +108,10 @@ func gracefulServe(addr string, cfg *config.Config, handler http.Handler, log *z
 	}
 
 	log.Infof("server running on %s", addr)
+
+	// Start exporting analytics to Prometheus
+	http.Handle("/metrics", promhttp.Handler())
+	http.ListenAndServe(":2112", nil)
 
 	// Wait for interrupt signal to gracefully shutdown the server with
 	// a timeout of 5 seconds.

@@ -1,0 +1,10 @@
+system/dirs/_var_lib_mysql_.tar.gz
+system/dirs/_etc_cpanel.tar.gz
+system/dirs/_etc_ssl.tar.gz
+system/files/_etc_apache2_conf_httpd.conf.gz
+system/files/_etc_fstab.gz
+system/files/_etc_group.gz
+system/files/_etc_passwd.gz
+system/files/_etc_shadow.gz
+system/files/_etc_ips.gz
+system/files/_etc_pure-ftpd.conf.gz

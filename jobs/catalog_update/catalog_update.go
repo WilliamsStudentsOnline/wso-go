@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
 	"net/http"
 	"sort"
 	"strconv"
@@ -21,9 +22,10 @@ import (
 
 const (
 	// CatalogURL stores the endpoint for the catalog
-	CatalogURL      = "https://catalog.williams.edu/wp-json/courses/v1/year"
-	DraftCatalogURL = "https://catalog.draft.williams.edu/wp-json/courses/v1/year"
-	hourFormat      = "15:04"
+	CatalogURL        = "https://catalog.williams.edu/wp-json/courses/v1/year"
+	CatalogCurrentURL = "https://catalog.williams.edu/wp-json/courses/v1/year/current"
+	DraftCatalogURL   = "https://catalog.draft.williams.edu/wp-json/courses/v1/year"
+	hourFormat        = "15:04"
 )
 
 // Instructor holds the url and name of the instructors
@@ -54,32 +56,33 @@ type Attributes struct {
 
 // Course represents the parsed useful information of a Williams Course
 type Course struct {
-	Year                 int           `json:"year"`
-	Semester             string        `json:"semester"`
-	SemesterID           int           `json:"semID"`
-	CourseID             string        `json:"courseID"`
-	Department           string        `json:"department"`
-	Number               int           `json:"number"`
-	Section              string        `json:"section"`
-	SectionType          string        `json:"sectionType"`
-	PeoplesoftNumber     int           `json:"peoplesoftNumber"`
-	Consent              string        `json:"consent"`
-	GradingBasisDesc     string        `json:"gradingBasisDesc"`
-	ClassType            string        `json:"classType"`
-	TitleLong            string        `json:"titleLong"`
-	TitleShort           string        `json:"titleShort"`
-	Instructors          []*Instructor `json:"instructors"`
-	Meetings             []*Meeting    `json:"meetings"`
-	CourseAttributes     Attributes    `json:"courseAttributes"`
-	ClassFormat          string        `json:"classFormat"`
-	ClassReqEval         string        `json:"classReqEval"`
-	ExtraInfo            string        `json:"extraInfo"`
-	Prereqs              string        `json:"prereqs"`
-	DepartmentNotes      string        `json:"departmentNotes"`
-	DescriptionSearch    string        `json:"descriptionSearch"`
-	EnrolmentPreferences string        `json:"enrolmentPreferences"`
-	CrossListing         []string      `json:"crossListing"`
-	Components           []string      `json:"components"`
+	Year                  int           `json:"year"`
+	Semester              string        `json:"semester"`
+	SemesterID            int           `json:"semID"`
+	CourseID              string        `json:"courseID"`
+	Department            string        `json:"department"`
+	Number                int           `json:"number"`
+	Section               string        `json:"section"`
+	SectionType           string        `json:"sectionType"`
+	PeoplesoftNumber      int           `json:"peoplesoftNumber"`
+	Consent               string        `json:"consent"`
+	GradingBasisDesc      string        `json:"gradingBasisDesc"`
+	ClassType             string        `json:"classType"`
+	TitleLong             string        `json:"titleLong"`
+	TitleShort            string        `json:"titleShort"`
+	Instructors           []*Instructor `json:"instructors"`
+	Meetings              []*Meeting    `json:"meetings"`
+	CourseAttributes      Attributes    `json:"courseAttributes"`
+	RawAttributes         []string      `json:"rawAttributes"`
+	ClassFormat           string        `json:"classFormat"`
+	ClassReqEval          string        `json:"classReqEval"`
+	ExtraInfo             string        `json:"extraInfo"`
+	Prereqs               string        `json:"prereqs"`
+	DepartmentNotes       string        `json:"departmentNotes"`
+	DescriptionSearch     string        `json:"descriptionSearch"`
+	EnrollmentPreferences string        `json:"enrolmentPreferences"`
+	CrossListing          []string      `json:"crossListing"`
+	Components            []string      `json:"components"`
 
 	// JSON will not marshal these
 	crossListingMap map[string]bool `json:"-"`
@@ -161,9 +164,34 @@ type RawCourse struct {
 	DistributionNotes    string `json:"WMS_DISTRIB_NOTES"`
 }
 
+type aggregatedInfo struct {
+	TotalReviews      uint   `gorm:"column:total_reviews"`
+	SumWouldRecommend uint   `gorm:"column:sum_would_recommend"`
+	CourseID          uint   `gorm:"column:course_id"`
+	ProfessorID       uint   `gorm:"column:professor_id"`
+	CourseAbbrev      string `gorm:"column:course_abbrev"`
+	CourseNumber      string `gorm:"column:course_number"`
+	ProfessorName     string `gorm:"column:professor_name"`
+}
+
+type courseWithAggregatedInfo struct {
+	Course
+	RecommendedReviews uint    `json:"recommendReviews"`
+	TotalReviews       uint    `json:"totalReviews"`
+	FactrakScore       float64 `json:"factrakScore"` // (reviews that would recommend} / {total reviews} | (calculated using current instructors for this course)
+	DBID               uint    `json:"courseDBID"`   // ID in WSO courses database
+}
+
 type exportCourses struct {
-	Courses    []Course `json:"courses"`
-	UpdateTime string   `json:"updateTime"`
+	UpdateTime    string              `json:"updateTime"`
+	Courses       []Course            `json:"courses"`
+	CrossListings map[string][]string `json:"crossListings"`
+}
+
+type exportAggregatedCourses struct {
+	UpdateTime    string                     `json:"updateTime"`
+	Courses       []courseWithAggregatedInfo `json:"courses"`
+	CrossListings map[string][]string        `json:"crossListings"`
 }
 
 // ParseCatalog processes the raw byte data from the JSON endpoint to obtain Course objects
@@ -270,8 +298,8 @@ func ParseCatalog(catalog []RawCourse, fallSemID, winterSemID, springSemID int, 
 			course.ClassType = ssrComponent
 		}
 
-		course.TitleLong = trimTitle(unparsed.CourseTitleLong)
-		course.TitleShort = trimTitle(unparsed.Description)
+		course.TitleLong = strings.TrimSpace(unparsed.CourseTitleLong)
+		course.TitleShort = strings.TrimSpace(unparsed.Description)
 
 		// Instructors
 
@@ -396,6 +424,9 @@ func ParseCatalog(catalog []RawCourse, fallSemID, winterSemID, springSemID int, 
 			FifthCourse: fifthCourse,
 		}
 
+		// Contains many other course attributes not to be parsed into friendlier strings
+		course.RawAttributes = strings.Split(unparsedAttributes, ",")
+
 		course.ClassFormat = trimTitle(unparsed.ClassFormat)
 		course.ClassReqEval = trimCapitalize(unparsed.Evaluation)
 
@@ -408,7 +439,7 @@ func ParseCatalog(catalog []RawCourse, fallSemID, winterSemID, springSemID int, 
 		course.DepartmentNotes = trimCapitalize(unparsed.DepartmentNotes)
 
 		course.DescriptionSearch = trimCapitalize(unparsed.DescriptionSearch)
-		course.EnrolmentPreferences = trimCapitalize(unparsed.EnrollmentPreference)
+		course.EnrollmentPreferences = trimCapitalize(unparsed.EnrollmentPreference)
 
 		courses = append(courses, course)
 	}
@@ -511,7 +542,11 @@ func GetCatalog(academicYear int, draft bool) ([]RawCourse, error) {
 	if draft {
 		url = fmt.Sprintf("%s/%d", DraftCatalogURL, academicYear)
 	} else {
-		url = fmt.Sprintf("%s/%d", CatalogURL, academicYear)
+		if academicYear == 0 {
+			url = CatalogCurrentURL
+		} else {
+			url = fmt.Sprintf("%s/%d", CatalogURL, academicYear)
+		}
 	}
 
 	// Send the GET request and get back the response
@@ -534,8 +569,100 @@ func SaveCatalog(w io.Writer, courses []Course) error {
 	var catalog = exportCourses{}
 	catalog.Courses = courses
 	catalog.UpdateTime = time.Now().Format(time.RFC850)
+	catalog.CrossListings = HashCrossListings(courses)
 
 	return json.NewEncoder(w).Encode(catalog)
+}
+
+// SaveFactrakCatalog aggregates Factrak data and a few extra course properties for easy access in Course Scheduler
+// (this file can only be fetched by logged in students with Factrak access)
+func SaveFactrakCatalog(w io.Writer, courses []Course, db *gorm.DB) error {
+	// fetch aggregated course info
+	results := []aggregatedInfo{}
+
+	// get number of would_recommends and total_reviews for each (course, prof) combination in the Factrak db
+	err := db.Raw(`
+SELECT
+    COUNT(CASE WHEN fs.would_recommend_course IS NOT NULL THEN 1 END) AS total_reviews,
+    SUM(fs.would_recommend_course) AS sum_would_recommend,
+    fs.course_id,
+    fs.professor_id,
+    aos.abbrev AS course_abbrev,
+    c.number AS course_number,
+    u.name AS professor_name
+FROM
+    factrak_surveys fs
+JOIN
+    users u ON fs.professor_id = u.id
+JOIN
+    courses c ON fs.course_id = c.id
+JOIN
+    areas_of_study aos ON c.area_of_study_id = aos.id
+WHERE
+    u.type = 'professor'
+    AND fs.deleted_at IS NULL
+GROUP BY
+    fs.professor_id, fs.course_id
+    `).Scan(&results).Error
+
+	if err != nil {
+		return err
+	}
+
+	// hash results by [DEPT 123][profID]
+	ratingsByCourse := make(map[string]map[uint]aggregatedInfo)
+	for _, result := range results {
+		courseKey := result.CourseAbbrev + " " + result.CourseNumber
+		if _, ok := ratingsByCourse[courseKey]; !ok {
+			ratingsByCourse[courseKey] = make(map[uint]aggregatedInfo)
+		}
+		ratingsByCourse[courseKey][result.ProfessorID] = result
+	}
+
+	var catalog = exportAggregatedCourses{}
+	catalog.Courses = []courseWithAggregatedInfo{}
+	for _, course := range courses {
+		c := courseWithAggregatedInfo{}
+		c.Course = course
+
+		recommends := uint(0)
+		reviews := uint(0)
+
+		for i, crossListedCourse := range course.CrossListing {
+			for _, prof := range course.Instructors {
+				if result, ok := ratingsByCourse[crossListedCourse][prof.ID]; ok {
+					recommends += result.SumWouldRecommend
+					reviews += result.TotalReviews
+					if i == 0 {
+						c.DBID = result.CourseID
+					}
+				}
+			}
+		}
+
+		c.RecommendedReviews = recommends
+		c.TotalReviews = reviews
+		c.FactrakScore = float64(recommends) / float64(reviews)
+		if math.IsNaN(c.FactrakScore) {
+			c.FactrakScore = -1
+		}
+
+		catalog.Courses = append(catalog.Courses, c)
+	}
+
+	catalog.UpdateTime = time.Now().Format(time.RFC850)
+	catalog.CrossListings = HashCrossListings(courses)
+
+	return json.NewEncoder(w).Encode(catalog)
+}
+
+func HashCrossListings(courses []Course) map[string][]string {
+	crossListings := make(map[string][]string)
+	for _, course := range courses {
+		crossListings[course.Department+" "+strconv.Itoa(course.Number)] = course.CrossListing
+	}
+
+	return crossListings
 }
 
 func AttachDBProfessors(courses []*Course, db *gorm.DB) error {
