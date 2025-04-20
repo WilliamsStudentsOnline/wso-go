@@ -1,3 +1,6 @@
+##### WSO-Backend WSO 2.0 #####
+### Variable definitions
+
 # Recursive wildcard
 rwildcard=$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
 
@@ -9,23 +12,6 @@ BUILD_DEPS = $(call rwildcard, $(BUILD_DIRS), *.go) $(wildcard jobs/*/*.go) jobs
 SERVICE_DIRS = $(wildcard services/*)
 SWAGGER := $(shell which swag 2>/dev/null)
 GOIMPORTS := $(shell which goimports 2>/dev/null)
-
-define GOIMPORTS_ERROR
-goimports command is missing.
-
-GoImports Installation Instructions
----
-Run:
-  go get golang.org/x/tools/cmd/goimports
-
-Ensure your go bin is in your $$PATH.
-Edit your ~/.bashrc to add this line:
-  export PATH=$$PATH:$$(go env GOPATH)/bin
-
-endef
-
-$(BINARY_NAME): $(BUILD_DEPS)
-	go build -tags=jsoniter -o $(BINARY_NAME) ./server/cmd
 
 jobs/dorms_update/cmd/data.go: $(wildcard jobs/dorms_update/data/*) jobs/dorms_update/cmd/gen.go
 	go generate $(GIT_REPO)/jobs/dorms_update/cmd
@@ -46,6 +32,7 @@ services/*/responses/%.go: services/*/responses/%.json
 services/words/words_data.go: services/words/words.json
 	go generate $(GIT_REPO)/services/words
 
+### Job definitions
 .PHONY: job-catalog-update
 job-catalog-update:
 	go build -tags=jsoniter -o job-catalog-update ./jobs/catalog_update/cmd
@@ -98,9 +85,32 @@ job-ephmatch-reset:
 job-ephmatch-update-dates:
 	go build -tags jsoniter -o job-ephmatch_update_dates ./jobs/ephmatch_update_dates
 
+### Build definitions
+$(BINARY_NAME): $(BUILD_DEPS)
+	go build -tags=jsoniter -o $(BINARY_NAME) ./server/cmd
+
+.PHONY: build-dev
+build: $(BINARY_NAME)
+
 .PHONY: build-prod-linux
 build-prod-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o $(BINARY_NAME)_linux ./server/cmd
+
+.PHONY: build-jobs
+build-jobs:
+	go build  -tags=jsoniter -o job-catalog-update_linux ./jobs/catalog_update/cmd
+	go build  -tags=jsoniter -o job-update-all-factrak-survey-deficits_linux ./jobs/update_all_factrak_survey_deficits/cmd
+	go build  -tags=jsoniter -o job-update-all-users-from-ldap_linux ./jobs/update_all_users_from_ldap/cmd
+	go build  -tags=jsoniter -o job-dorms-update_linux ./jobs/dorms_update/cmd
+	go build  -tags=jsoniter -o job-frosh-photos_linux ./jobs/frosh_photos/cmd
+	go build  -tags=jsoniter -o job-user-csv-data_linux ./jobs/user_csv_data/cmd
+	go build  -tags=jsoniter -o job-dining-update_linux ./jobs/dining_update/cmd
+	go build  -tags=jsoniter -o job-schedule-notifs_linux ./jobs/schedule_notifs/cmd
+	go build  -tags=jsoniter -o job-update-on-campus-semesters ./jobs/update_on_campus_semesters/cmd
+	go build -tags=jsoniter -o job-initialize-on-campus-semesters ./jobs/update_on_campus_semesters/initial-calculation
+	go build -tags=jsoniter -o job-update_profs_areas_of_study ./jobs/update_profs_areas_of_study/cmd
+	go build -tags=jsoniter -o job-ephmatch-reset ./jobs/ephmatch_reset
+	go build -tags=jsoniter -o job-ephmatch_update_dates ./jobs/ephmatch_update_dates
 
 .PHONY: build-jobs-prod-linux
 build-jobs-prod-linux:
@@ -119,6 +129,12 @@ build-jobs-prod-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-ephmatch-reset ./jobs/ephmatch_reset
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-ephmatch_update_dates ./jobs/ephmatch_update_dates
 
+### Utility definitions
+.PHONY: clean
+clean:
+	rm wso-backend
+	rm job-*
+
 .PHONY: go-gen
 go-gen:
 	go generate $(GIT_REPO)/...
@@ -131,6 +147,20 @@ else
 	$(error $(GOIMPORTS_ERROR))
 endif
 
+define GOIMPORTS_ERROR
+goimports command is missing.
+
+GoImports Installation Instructions
+---
+Run:
+  go get golang.org/x/tools/cmd/goimports
+
+Ensure your go bin is in your $$PATH.
+Edit your ~/.bashrc to add this line:
+  export PATH=$$PATH:$$(go env GOPATH)/bin
+
+endef
+
 .PHONY: commit
 commit: jobs/dorms_update/cmd/data.go docs/docs.go fmt services/*/responses/*.go
 
@@ -138,9 +168,9 @@ commit: jobs/dorms_update/cmd/data.go docs/docs.go fmt services/*/responses/*.go
 run-dev: $(BINARY_NAME)
 	./$(BINARY_NAME) --development
 
-.PHONY: run-with-analytics
-run-with-analytics: $(BINARY_NAME)
-	bash ./prod_files/run-analytics.sh &
+.PHONY: run-dev-redis
+run-dev-redis: $(BINARY_NAME)
+	$(MAKE) docker-redis-dev
 	./$(BINARY_NAME) --development
 
 .PHONY: test
@@ -156,6 +186,7 @@ mod:
 	go mod tidy
 	go mod download
 
+### Docker definitions
 .PHONY: docker-builder
 docker-builder:
 	docker build -t $(DOCKER_TAG)/builder -f Dockerfile.builder .
@@ -173,3 +204,13 @@ docker-rel-dev: docker-builder
 .PHONY: docker-jobs-dev
 docker-jobs-dev: docker-builder
 	docker build -t $(DOCKER_TAG)-jobs:dev-latest -f Dockerfile.release_jobs .
+
+.PHONY: docker-redis-dev
+# this thing below? you see that? that's a hack, and will delete the VM no matter what.
+# so be careful about running this if you like having state.
+# if you're here from the README, this is the part you want to edit.
+docker-redis-dev:
+	docker kill wso-redis-instance >/dev/null 2>&1 || true
+	docker remove wso-redis-instance >/dev/null 2>&1 || true
+	docker build -t wso-redis -f ./lib/redis_util/Redis.Dockerfile ./lib/redis_util
+	docker run --name wso-redis-instance -d -p 6379:6379 wso-redis

@@ -73,6 +73,7 @@ type Course struct {
 	Instructors           []*Instructor `json:"instructors"`
 	Meetings              []*Meeting    `json:"meetings"`
 	CourseAttributes      Attributes    `json:"courseAttributes"`
+	RawAttributes         []string      `json:"rawAttributes"`
 	ClassFormat           string        `json:"classFormat"`
 	ClassReqEval          string        `json:"classReqEval"`
 	ExtraInfo             string        `json:"extraInfo"`
@@ -297,8 +298,8 @@ func ParseCatalog(catalog []RawCourse, fallSemID, winterSemID, springSemID int, 
 			course.ClassType = ssrComponent
 		}
 
-		course.TitleLong = trimTitle(unparsed.CourseTitleLong)
-		course.TitleShort = trimTitle(unparsed.Description)
+		course.TitleLong = strings.TrimSpace(unparsed.CourseTitleLong)
+		course.TitleShort = strings.TrimSpace(unparsed.Description)
 
 		// Instructors
 
@@ -422,6 +423,9 @@ func ParseCatalog(catalog []RawCourse, fallSemID, winterSemID, springSemID int, 
 			PassFail:    passFail,
 			FifthCourse: fifthCourse,
 		}
+
+		// Contains many other course attributes not to be parsed into friendlier strings
+		course.RawAttributes = strings.Split(unparsedAttributes, ",")
 
 		course.ClassFormat = trimTitle(unparsed.ClassFormat)
 		course.ClassReqEval = trimCapitalize(unparsed.Evaluation)
@@ -578,27 +582,27 @@ func SaveFactrakCatalog(w io.Writer, courses []Course, db *gorm.DB) error {
 
 	// get number of would_recommends and total_reviews for each (course, prof) combination in the Factrak db
 	err := db.Raw(`
-        SELECT
-            COUNT(fs.id) AS total_reviews,
-            SUM(fs.would_recommend_course) AS sum_would_recommend,
-            fs.course_id,
-            fs.professor_id,
-            aos.abbrev AS course_abbrev,
-            c.number AS course_number,
-            u.name AS professor_name
-        FROM
-            factrak_surveys fs
-        JOIN
-            users u ON fs.professor_id = u.id
-        JOIN
-            courses c ON fs.course_id = c.id
-        JOIN
-            areas_of_study aos ON c.area_of_study_id = aos.id
-        WHERE
-            u.type = 'professor'
-            AND fs.deleted_at IS NULL
-        GROUP BY
-            fs.professor_id, fs.course_id
+SELECT
+    COUNT(CASE WHEN fs.would_recommend_course IS NOT NULL THEN 1 END) AS total_reviews,
+    SUM(fs.would_recommend_course) AS sum_would_recommend,
+    fs.course_id,
+    fs.professor_id,
+    aos.abbrev AS course_abbrev,
+    c.number AS course_number,
+    u.name AS professor_name
+FROM
+    factrak_surveys fs
+JOIN
+    users u ON fs.professor_id = u.id
+JOIN
+    courses c ON fs.course_id = c.id
+JOIN
+    areas_of_study aos ON c.area_of_study_id = aos.id
+WHERE
+    u.type = 'professor'
+    AND fs.deleted_at IS NULL
+GROUP BY
+    fs.professor_id, fs.course_id
     `).Scan(&results).Error
 
 	if err != nil {
