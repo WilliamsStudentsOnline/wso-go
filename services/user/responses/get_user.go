@@ -164,7 +164,7 @@ func ConvertGetUserResponseUser(m *models.User) *GetUserResponseUser {
 	r.AtWilliams = m.AtWilliams
 	r.CampusPhoneEXT = m.CampusPhoneExt
 	r.CampusStatus = m.CampusStatus
-	r.CellPhone = m.CellPhone
+	// r.CellPhone = m.CellPhone
 	r.ClassYear = m.ClassYear
 	r.Department = ConvertGetUserResponseDepartment(m.Department)
 	r.DepartmentID = m.DepartmentID
@@ -178,7 +178,7 @@ func ConvertGetUserResponseUser(m *models.User) *GetUserResponseUser {
 	r.HasAcceptedDormtrakPolicy = m.HasAcceptedDormtrakPolicy
 	r.HasAcceptedFactrakPolicy = m.HasAcceptedFactrakPolicy
 	r.HomeCountry = m.HomeCountry
-	r.HomePhone = m.HomePhone
+	//r.HomePhone = m.HomePhone
 	r.HomeState = m.HomeState
 	r.HomeTown = m.HomeTown
 	r.HomeVisible = m.HomeVisible
@@ -202,7 +202,7 @@ func ConvertGetUserResponseUser(m *models.User) *GetUserResponseUser {
 	r.UnixID = m.UnixID
 	r.Visible = m.Visible
 	r.WilliamsEmail = m.WilliamsEmail
-	r.WilliamsID = m.WilliamsID
+	//r.WilliamsID = m.WilliamsID
 
 	return r
 }
