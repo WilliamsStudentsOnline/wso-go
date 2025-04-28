@@ -486,6 +486,7 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 			1. unknown
 			2. faculty (if group has faculty)
 			3. staff (if group has staff)
+   				3.1 change to student if group also has student -- introduced to fix bugs where some students register as staff
 			4. student (if group has student)
 			5. alum (if qualifies for student but class year is after this year AND is not in LDAP servers)
 		*/
