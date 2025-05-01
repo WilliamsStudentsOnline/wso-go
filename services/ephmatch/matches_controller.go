@@ -88,6 +88,10 @@ func (t *Controller) CountMatches(c *gin.Context) {
 		return
 	}
 
+	// Log these numbers
+	ephmatchMatchesMatchSummaryTotal.Observe(float64(total))
+	ephmatchMatchesMatchSummaryUnseen.Observe(float64(total))
+
 	t.RespondOK(c, CountMatchesResponse{
 		Unseen: unseen,
 		Total:  total,
@@ -140,5 +144,9 @@ func (t *Controller) Unmatch(c *gin.Context) {
 		t.RespondError(c, err)
 		return
 	}
+
+	// Another one to the count
+	ephmatchMatchesUnmatchCounter.Inc()
+
 	t.RespondOK(c, nil)
 }
