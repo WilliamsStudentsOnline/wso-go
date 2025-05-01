@@ -115,7 +115,7 @@ build-jobs:
 	go build -tags=jsoniter -o job-update_profs_areas_of_study ./jobs/update_profs_areas_of_study/cmd
 	go build -tags=jsoniter -o job-ephmatch-reset ./jobs/ephmatch_reset
 	go build -tags=jsoniter -o job-ephmatch_update_dates ./jobs/ephmatch_update_dates
-	go build -tags jsoniter -o job-library-hours-update ./jobs/library_hours_update
+	go build -tags jsoniter -o job-library-hours-update ./jobs/library_hours_update/cmd
 
 .PHONY: build-jobs-prod-linux
 build-jobs-prod-linux:
