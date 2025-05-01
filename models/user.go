@@ -486,16 +486,19 @@ func (m *UserModel) LDAPLookup(unixSearch string, config *config.Config) ([]*Use
 			1. unknown
 			2. faculty (if group has faculty)
 			3. staff (if group has staff)
+   				3.1 change to student if group also has student -- introduced to fix bugs where some students register as staff
 			4. student (if group has student)
 			5. alum (if qualifies for student but class year is after this year AND is not in LDAP servers)
 		*/
-		switch {
-		case ua.IsFaculty():
-			//TODO: Delete emeriti faculty or mark as not at williams
+
+		if ua.IsFaculty() {
 			user.Type = UserTypeProfessor
-		case ua.IsStaff():
+		} else if ua.IsStaff() {
 			user.Type = UserTypeStaff
-		case ua.IsStudent():
+			if ua.IsStudent() {
+				user.Type = UserTypeStudent // trying to fix bug reported by Asa Shepard '27 where some students are reported as staff
+			}
+		} else if ua.IsStudent() {
 			user.Type = UserTypeStudent
 		}
 
