@@ -201,9 +201,9 @@ pipeline {
                 sshPut remote: remote_dev, from: 'job-ephmatch_update_dates_linux', into: '/home/wso/wso/wso-backend/jobs/ephmatch_update_dates'
                 sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/ephmatch_update_dates'
 
-                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/job-library-hours-update'
-                sshPut remote: remote_dev, from: 'job-library-hours-update_linux', into: '/home/wso/wso/wso-backend/job-library-hours-update'
-                sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/job-library-hours-update'
+                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/library-hours-update'
+                sshPut remote: remote_dev, from: 'job-library-hours-update_linux', into: '/home/wso/wso/wso-backend/jobs/library-hours-update'
+                sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/library-hours-update'
 
                 // Restart WSO-Go
                 sshCommand remote: remote_dev, command: '/bin/systemctl restart WSO-Go', sudo: true
