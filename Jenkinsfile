@@ -73,20 +73,24 @@ pipeline {
             sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/job-schedule-notifs'
 
             sshRemove remote: remote_dev, path: '/home/wsodev/wso-go/job-update-on-campus-semesters'
-            sshPut remote: remote_dev, from: 'job-update-on-campus-semesters', into: '/home/wsodev/wso-go/job-update-on-campus-semesters'
+            sshPut remote: remote_dev, from: 'job-update-on-campus-semesters_linux', into: '/home/wsodev/wso-go/job-update-on-campus-semesters'
             sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/job-update-on-campus-semesters'
 
             sshRemove remote: remote_dev, path: '/home/wsodev/wso-go/job-initialize-on-campus-semesters'
-            sshPut remote: remote_dev, from: 'job-initialize-on-campus-semesters', into: '/home/wsodev/wso-go/job-initialize-on-campus-semesters'
+            sshPut remote: remote_dev, from: 'job-initialize-on-campus-semesters_linux', into: '/home/wsodev/wso-go/job-initialize-on-campus-semesters'
             sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/job-initialize-on-campus-semesters'
 
             sshRemove remote: remote_dev, path: '/home/wsodev/wso-go/job-update_profs_areas_of_study'
-            sshPut remote: remote_dev, from: 'job-update_profs_areas_of_study', into: '/home/wsodev/wso-go/job-update_profs_areas_of_study'
+            sshPut remote: remote_dev, from: 'job-update_profs_areas_of_study_linux', into: '/home/wsodev/wso-go/job-update_profs_areas_of_study'
             sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/job-update_profs_areas_of_study'
 
             sshRemove remote: remote_dev, path: '/home/wsodev/wso-go/job-ephmatch-reset'
-            sshPut remote: remote_dev, from: 'job-ephmatch-reset', into: '/home/wsodev/wso-go/job-ephmatch-reset'
+            sshPut remote: remote_dev, from: 'job-ephmatch-reset_linux', into: '/home/wsodev/wso-go/job-ephmatch-reset'
             sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/job-ephmatch-reset'
+
+            sshRemove remote: remote_dev, path: '/home/wsodev/wso-go/job-library-hours-update'
+            sshPut remote: remote_dev, from: 'job-library-hours-update_linux', into: '/home/wsodev/wso-go/job-library-hours-update'
+            sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/job-library-hours-update'
 
             // Restart WSO-Go
             sshCommand remote: remote_dev, command: '/bin/systemctl restart WSO-Go', sudo: true
@@ -178,24 +182,28 @@ pipeline {
                 sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/schedule-notifs'
 
                 sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/update-on-campus-semesters'
-                sshPut remote: remote_dev, from: 'job-update-on-campus-semesters', into: '/home/wso/wso/wso-backend/jobs/update-on-campus-semesters'
+                sshPut remote: remote_dev, from: 'job-update-on-campus-semesters_linux', into: '/home/wso/wso/wso-backend/jobs/update-on-campus-semesters'
                 sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/update-on-campus-semesters'
 
                 sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/initialize-on-campus-semesters'
-                sshPut remote: remote_dev, from: 'job-initialize-on-campus-semesters', into: '/home/wso/wso/wso-backend/jobs/initialize-on-campus-semesters'
+                sshPut remote: remote_dev, from: 'job-initialize-on-campus-semesters_linux', into: '/home/wso/wso/wso-backend/jobs/initialize-on-campus-semesters'
                 sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/initialize-on-campus-semesters'
 
                 sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/job-update_profs_areas_of_study'
-                sshPut remote: remote_dev, from: 'job-update_profs_areas_of_study', into: '/home/wso/wso/wso-backend/jobs/job-update_profs_areas_of_study'
+                sshPut remote: remote_dev, from: 'job-update_profs_areas_of_study_linux', into: '/home/wso/wso/wso-backend/jobs/job-update_profs_areas_of_study'
                 sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/job-update_profs_areas_of_study'
 
                 sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/ephmatch-reset'
-                sshPut remote: remote_dev, from: 'job-ephmatch-reset', into: '/home/wso/wso/wso-backend/jobs/ephmatch-reset'
+                sshPut remote: remote_dev, from: 'job-ephmatch-reset_linux', into: '/home/wso/wso/wso-backend/jobs/ephmatch-reset'
                 sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/ephmatch-reset'
 
                 sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/update_ephmatch_dates'
-                sshPut remote: remote_dev, from: 'job-ephmatch_update_dates', into: '/home/wso/wso/wso-backend/jobs/ephmatch_update_dates'
+                sshPut remote: remote_dev, from: 'job-ephmatch_update_dates_linux', into: '/home/wso/wso/wso-backend/jobs/ephmatch_update_dates'
                 sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/ephmatch_update_dates'
+
+                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/library-hours-update'
+                sshPut remote: remote_dev, from: 'job-library-hours-update_linux', into: '/home/wso/wso/wso-backend/jobs/library-hours-update'
+                sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/library-hours-update'
 
                 // Restart WSO-Go
                 sshCommand remote: remote_dev, command: '/bin/systemctl restart WSO-Go', sudo: true

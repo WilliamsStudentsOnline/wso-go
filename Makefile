@@ -67,11 +67,11 @@ job-schedule-notifs:
 
 .PHONY: job-update-on-campus-semesters
 job-update-on-campus-semesters:
-	go build -tags jsoniter -o job-increment-oncampus-semesters ./jobs/update_on_campus_semesters/cmd
+	go build -tags jsoniter -o job-update-on-campus-semesters ./jobs/update_on_campus_semesters/cmd
 
 .PHONY: job-initialize-on-campus-semesters
 job-initialize-on-campus-semesters:
-	go build -tags jsoniter -o job-increment-oncampus-semesters ./jobs/update_on_campus_semesters/initial-calculation
+	go build -tags jsoniter -o job-increment-on-campus-semesters ./jobs/update_on_campus_semesters/initial-calculation
 
 .PHONY: job-update_profs_areas_of_study
 job-update_profs_areas_of_study:
