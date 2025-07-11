@@ -89,6 +89,8 @@ func Logger(log *zap.SugaredLogger) gin.HandlerFunc {
 		} else {
 			if strings.Contains(ua.Name, "curl") || strings.Contains(ua.Name, "wget") {
 				botCounter.Inc()
+			} else if strings.Contains(ua.Name, "WSO%20Mobile/16") {
+				mobileCounter.Inc()
 			} else {
 				log.Warn("Unknown user agent detected")
 			}
