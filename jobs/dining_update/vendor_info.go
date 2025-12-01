@@ -8,7 +8,7 @@ import (
 
 type VendorInfo struct {
 	Name            string `json:"name" yaml:"name"`
-	Eats4EphsUnitID string `json:"eats4EphsUnitID" yaml:"eats_4_ephs_unit_id"`
+	NutriSliceSlug  string `json:"NutriSliceSlug" yaml:"nutrislice_slug"`
 	Operating       bool   `json:"operating" yaml:"operating"`
 	OnlineOrder     bool   `json:"onlineOrder" yaml:"online_order"`
 	// key is day of week, value is list of meals to hours
