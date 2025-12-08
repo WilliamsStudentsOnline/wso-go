@@ -219,59 +219,14 @@ func loadVendorNutrisliceWeekly(
 	}
 
 	vendorsByDate := make(map[string]*Vendor)
-
 	for dateStr, dateMeals := range mealsByDate {
-
-		date, err := time.Parse("2006-01-02", dateStr)
-		if err != nil { continue }
-		dow := strings.ToLower(date.Weekday().String())
-		dayHours := vendorInfo.Hours[dow]
-
-		meals := make(map[string]*Meal)
-
-		for mealType, pm := range dateMeals {
-			m := &Meal{
-				Name:    pm.Name,
-				Courses: make(map[string]*Course),
-			}
-			if pm.Hours != nil {
-				m.Hours = &Hours{Open: pm.Hours.Open, Close: pm.Hours.Close}
-			}
-
-			for courseName, pc := range pm.Courses {
-				c := &Course{Name: pc.Name}
-				for _, pf := range pc.Items {
-					c.Items = append(c.Items, &Food{
-						Name:       pf.Name,
-						Vegetarian: pf.Vegetarian,
-						Vegan:      pf.Vegan,
-						GlutenFree: pf.GlutenFree,
-					})
-				}
-				m.Courses[courseName] = c
-			}
-
-			meals[mealType] = m
-		}
-
-		// add empty meal info
-		for mealType, h := range dayHours {
-			if _, ok := meals[mealType]; !ok {
-				meals[mealType] = &Meal{
-					Name:  mealType,
-					Hours: &Hours{Open: h.Open, Close: h.Close},
-					Courses: map[string]*Course{},
-				}
-			}
-		}
-
 		vendorsByDate[dateStr] = &Vendor{
 			Name:        vendorInfo.Name,
-			Meals:       meals,
+			Meals:       dateMeals,
 			OnlineOrder: vendorInfo.OnlineOrder,
-			Operating:   len(meals) > 0,
+			Operating:   len(dateMeals) > 0,
 		}
 	}
-
+	
 	return vendorsByDate, nil
 }

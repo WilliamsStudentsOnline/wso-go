@@ -70,6 +70,7 @@ func parseFoodItem(nutrisliceFood *NutrisliceFood) *Food {
 
 	parsedFood := &Food{
 		Name:       foodName,
+		ID: 								nutrisliceFood.ID,
 		Vegetarian: false,
 		Vegan:      false,
 		GlutenFree: false,
@@ -158,6 +159,18 @@ func parseWeeklyMenuToMeals(jsonData []byte, mealName string, vendorHours map[st
 		}
 
 		meals[dayData.Date] = meal
+	}
+
+	for _, dayHours := range vendorHours {
+		for mType := range dayHours {
+			if _, ok := meals[mType]; !ok {
+				meals[mType] = &Meal{
+					Name:    mType,
+					Hours:   &Hours{Open: dayHours[mType].Open, Close: dayHours[mType].Close},
+					Courses: map[string]*Course{},
+				}
+			}
+		}
 	}
 
 	return meals, nil
