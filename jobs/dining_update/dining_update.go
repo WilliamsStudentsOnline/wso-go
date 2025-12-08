@@ -204,10 +204,15 @@ func loadVendorNutrisliceWeekly(
 	for mealType := range mealTypes {
 		raw, err := api.GetWeeklyMenu(vendorInfo.NutriSliceSlug, mealType, startDate)
 		if err != nil {
-			log.Printf("warning: failed to fetch menu for vendor %s meal %s: %v", vendorInfo.Name, mealType, err)
+			log.Printf(
+				"warning: failed to fetch menu for vendor %s (slug: %s) meal %s: %v",
+				vendorInfo.Name,
+				vendorInfo.NutriSliceSlug,
+				mealType,
+				err,
+			)
 			continue
 		}
-
 		parsed, err := parseWeeklyMenuToMeals(raw, mealType, vendorHoursByDay)
 		if err != nil {
 			log.Printf("warning: failed to parse weekly menu for vendor %s meal %s: %v", vendorInfo.Name, mealType, err)
