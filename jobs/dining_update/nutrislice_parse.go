@@ -1,16 +1,13 @@
-package parse
+package dining_update
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 	"time"
 )
 
 var (
-	ErrorMissingMenuHours = errors.New("failed to get meal hours")
-
 	SkipCourses = map[string]bool{
 		"Drinks":             true,
 		"Condiments":         true,
@@ -29,78 +26,56 @@ var (
 
 )
 
-type MealHours struct {
-	Open  string
-	Close string
+type MealHoursMap map[string]Hours
+
+type NutriScliceWeeklyMenuResponse struct {
+	Days []NutriSliceDayData `json:"days"`
 }
 
-type MealHoursMap map[string]MealHours
-
-type ParsedMeal struct {
-	Name    string
-	Hours   *MealHours
-	Courses map[string]*ParsedCourse
-}
-
-type ParsedCourse struct {
-	Name  string
-	Items []*ParsedFood
-}
-
-type ParsedFood struct {
-	Name       string
-	Vegetarian bool
-	Vegan      bool
-	GlutenFree bool
-}
-
-type weeklyMenuResponse struct {
-	Days []dayData `json:"days"`
-}
-
-type dayData struct {
+type NutriSliceDayData struct {
 	Date      string     `json:"date"`
-	MenuItems []menuItem `json:"menu_items"`
+	MenuItems []NutrisliceMenuItem `json:"menu_items"`
 }
 
-type menuItem struct {
+type NutrisliceMenuItem struct {
 	IsSectionTitle  bool     `json:"is_section_title"`
 	IsStationHeader bool     `json:"is_station_header"`
 	BlankLine       bool     `json:"blank_line"`
 	Text            string   `json:"text"`
 	Category        string   `json:"category"`
-	Food            *food    `json:"food"`
+	Food            *NutrisliceFood    `json:"food"`
 	StationFoodTags []string `json:"station_food_tags"`
 }
 
-type food struct {
+type NutrisliceFood struct {
 	Name string `json:"name"`
-	Icons icons `json:"icons"`
+	Icons NutrisliceIcons `json:"icons"`
+	ID int						`json:"id"`
 }
 
-type icons struct {
-	FoodIcons []foodIcon `json:"food_icons"`
+type NutrisliceIcons struct {
+	FoodIcons []NutrisliceFoodIcon `json:"food_icons"`
 }
 
-type foodIcon struct {
+type NutrisliceFoodIcon struct {
 	SyncedName string `json:"synced_name"`
 }
 
 
-func ParseFoodItem(menuItem *food) *ParsedFood {
-	foodName := strings.TrimSpace(menuItem.Name)
+func parseFoodItem(nutrisliceFood *NutrisliceFood) *Food {
+	foodName := strings.TrimSpace(nutrisliceFood.Name)
 	if foodName == "" {
 		return nil
 	}
 
-	parsedFood := &ParsedFood{
+	parsedFood := &Food{
 		Name:       foodName,
 		Vegetarian: false,
 		Vegan:      false,
 		GlutenFree: false,
 	}
 
-	for _, icon := range menuItem.Icons.FoodIcons {
+	for _, icon := range nutrisliceFood.Icons.FoodIcons {
 		switch icon.SyncedName {
 		case "VEGT":
 			parsedFood.Vegetarian = true
@@ -117,13 +92,13 @@ func ParseFoodItem(menuItem *food) *ParsedFood {
 
 // ParseWeeklyMenuToMeals parses a weekly menu JSON response and returns meals for all available dates
 // Returns a map of date string (YYYY-MM-DD) -> ParsedMeal
-func ParseWeeklyMenuToMeals(jsonData []byte, mealName string, vendorHours map[string]MealHoursMap) (map[string]*ParsedMeal, error) {
-	var response weeklyMenuResponse
+func parseWeeklyMenuToMeals(jsonData []byte, mealName string, vendorHours map[string]MealHoursMap) (map[string]*Meal, error) {
+	var response NutriScliceWeeklyMenuResponse
 	if err := json.Unmarshal(jsonData, &response); err != nil {
 		return nil, fmt.Errorf("failed to parse JSON response: %w", err)
 	}
 
-	meals := make(map[string]*ParsedMeal)
+	meals := make(map[string]*Meal)
 
 	for _, dayData := range response.Days {
 		parsedDate, err := time.Parse("2006-01-02", dayData.Date)
@@ -133,10 +108,10 @@ func ParseWeeklyMenuToMeals(jsonData []byte, mealName string, vendorHours map[st
 
 		dayOfWeek := strings.ToLower(parsedDate.Weekday().String())
 
-		var parsedHours *MealHours
+		var parsedHours *Hours
 		if dayHours, ok := vendorHours[dayOfWeek]; ok {
 			if mealHours, ok := dayHours[mealName]; ok {
-				parsedHours = &MealHours{
+				parsedHours = &Hours{
 					Open:  mealHours.Open,
 					Close: mealHours.Close,
 				}
@@ -147,13 +122,13 @@ func ParseWeeklyMenuToMeals(jsonData []byte, mealName string, vendorHours map[st
 			continue
 		}
 
-		meal := &ParsedMeal{
+		meal := &Meal{
 			Name:    mealName,
 			Hours:   parsedHours,
-			Courses: make(map[string]*ParsedCourse),
+			Courses: make(map[string]*Course),
 		}
 
-		var currentCourse *ParsedCourse
+		var currentCourse *Course
 		for _, item := range dayData.MenuItems {
 			if item.BlankLine {
 				continue
@@ -169,14 +144,14 @@ func ParseWeeklyMenuToMeals(jsonData []byte, mealName string, vendorHours map[st
 				}
 				currentCourse = meal.Courses[courseName]
 				if currentCourse == nil {
-					currentCourse = &ParsedCourse{
+					currentCourse = &Course{
 						Name:  courseName,
-						Items: []*ParsedFood{},
+						Items: []*Food{},
 					}
 					meal.Courses[courseName] = currentCourse
 				}				
 			} else if (item.Food != nil && item.Food.Name != "" && currentCourse != nil) {
-				if parsedFood := ParseFoodItem(item.Food); parsedFood != nil {
+				if parsedFood := parseFoodItem(item.Food); parsedFood != nil {
 					currentCourse.Items = append(currentCourse.Items, parsedFood)
 				}
 			}

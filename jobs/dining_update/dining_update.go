@@ -8,8 +8,7 @@ import (
 	"time"
 	"path/filepath"
 
-	nutrisliceapi "github.com/WilliamsStudentsOnline/wso-go/jobs/dining_update/nutrislice/api"
-	nutrisliceparse "github.com/WilliamsStudentsOnline/wso-go/jobs/dining_update/nutrislice/parse"
+	nutrisliceapi "github.com/WilliamsStudentsOnline/wso-go/jobs/dining_update/api"
 )
 
 var (
@@ -55,6 +54,7 @@ type Course struct {
 
 type Food struct {
 	Name       string `json:"name"`
+	ID 								int				`json:"id"`
 	Vegetarian bool   `json:"vegetarian"`
 	Vegan      bool   `json:"vegan"`
 	GlutenFree bool   `json:"glutenFree"`
@@ -181,11 +181,11 @@ func loadVendorNutrisliceWeekly(
 	api *nutrisliceapi.NutriSliceAPI,
 ) (map[string]*Vendor, error) {
 
-	vendorHoursByDay := make(map[string]nutrisliceparse.MealHoursMap)
+	vendorHoursByDay := make(map[string]MealHoursMap)
 	for dow, hours := range vendorInfo.Hours {
-		m := make(nutrisliceparse.MealHoursMap)
+		m := make(MealHoursMap)
 		for mealName, h := range hours {
-			m[mealName] = nutrisliceparse.MealHours{Open: h.Open, Close: h.Close}
+			m[mealName] = Hours{Open: h.Open, Close: h.Close}
 		}
 		vendorHoursByDay[dow] = m
 	}
@@ -197,7 +197,7 @@ func loadVendorNutrisliceWeekly(
 		}
 	}
 
-	mealsByDate := make(map[string]map[string]*nutrisliceparse.ParsedMeal)
+	mealsByDate := make(map[string]map[string]*Meal)
 
 	for mealType := range mealTypes {
 		raw, err := api.GetWeeklyMenu(vendorInfo.NutriSliceSlug, mealType, startDate)
@@ -205,14 +205,14 @@ func loadVendorNutrisliceWeekly(
 			continue
 		}
 
-		parsed, err := nutrisliceparse.ParseWeeklyMenuToMeals(raw, mealType, vendorHoursByDay)
+		parsed, err := parseWeeklyMenuToMeals(raw, mealType, vendorHoursByDay)
 		if err != nil {
 			continue
 		}
 
 		for dateStr, pm := range parsed {
 			if mealsByDate[dateStr] == nil {
-				mealsByDate[dateStr] = make(map[string]*nutrisliceparse.ParsedMeal)
+				mealsByDate[dateStr] = make(map[string]*Meal)
 			}
 			mealsByDate[dateStr][mealType] = pm
 		}
