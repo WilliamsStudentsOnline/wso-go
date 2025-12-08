@@ -205,9 +205,9 @@ func loadVendorNutrisliceWeekly(
 		raw, err := api.GetWeeklyMenu(vendorInfo.NutriSliceSlug, mealType, startDate)
 		if err != nil {
 			log.Printf(
-				"warning: failed to fetch menu for vendor %s (slug: %s) meal %s: %v",
+				"warning: failed to fetch menu for vendor %s (url: %s) meal %s: %v",
 				vendorInfo.Name,
-				vendorInfo.NutriSliceSlug,
+				api.WeeklyMenuURL(vendorInfo.NutriSliceSlug, mealType, startDate),
 				mealType,
 				err,
 			)

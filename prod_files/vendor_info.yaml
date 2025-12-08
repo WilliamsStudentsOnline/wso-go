@@ -208,7 +208,7 @@ lees-snack-bar:
       lunch:
         open: 1:00pm
         close: 2:00pm
-      midday:
+      mid-day:
         open: 2:00pm
         close: 5:00pm
     tuesday:
@@ -218,7 +218,7 @@ lees-snack-bar:
       lunch:
         open: 1:00pm
         close: 2:00pm
-      midday:
+      mid-day:
         open: 2:00pm
         close: 5:00pm
     wednesday:
@@ -228,7 +228,7 @@ lees-snack-bar:
       lunch:
         open: 1:00pm
         close: 2:00pm
-      midday:
+      mid-day:
         open: 2:00pm
         close: 5:00pm
     thursday:
@@ -238,7 +238,7 @@ lees-snack-bar:
       lunch:
         open: 1:00pm
         close: 2:00pm
-      midday:
+      mid-day:
         open: 2:00pm
         close: 5:00pm
     friday:
@@ -248,7 +248,7 @@ lees-snack-bar:
       lunch:
         open: 1:00pm
         close: 2:00pm
-      midday:
+      mid-day:
         open: 2:00pm
         close: 5:00pm
 82-grill:
