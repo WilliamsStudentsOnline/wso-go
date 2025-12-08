@@ -20,12 +20,12 @@ var (
 
 
 
-type ExportDining struct {
+type WeeklyDiningInfo struct {
 	VendorsByDate    map[string]map[string]Vendor `json:"vendors"`
 	UpdateTime string            `json:"updateTime"`
 }
 
-type DailyExport struct {
+type ExportDining struct {
 	Vendors    map[string]Vendor `json:"vendors"`
 	UpdateTime string            `json:"updateTime"`
 }
@@ -61,12 +61,12 @@ type Food struct {
 }
 
 func UpdateDining(outputDir string, vendorInfoPath string, fetchDate time.Time) error {
-	ed, err := loadDiningNutrislice(vendorInfoPath, fetchDate)
+	weeklyDiningInfo, err := loadDiningNutrislice(vendorInfoPath, fetchDate)
 	if err != nil {
 		return err
 	}
 
-	for dateStr, vendors := range ed.VendorsByDate {
+	for dateStr, vendors := range weeklyDiningInfo.VendorsByDate {
 		filename := filepath.Join(outputDir, dateStr + ".json")
 
 		f, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
@@ -74,9 +74,9 @@ func UpdateDining(outputDir string, vendorInfoPath string, fetchDate time.Time) 
 			return err
 		}
 
-		fileContent := DailyExport{
+		fileContent := ExportDining{
 			Vendors: vendors,
-			UpdateTime: ed.UpdateTime,
+			UpdateTime: weeklyDiningInfo.UpdateTime,
 		}
 
 		if err := json.NewEncoder(f).Encode(fileContent); err != nil {
@@ -89,15 +89,15 @@ func UpdateDining(outputDir string, vendorInfoPath string, fetchDate time.Time) 
 	return nil
 }
 
-func loadDiningNutrislice(vendorInfoPath string, startDate time.Time) (ExportDining, error) {
+func loadDiningNutrislice(vendorInfoPath string, startDate time.Time) (WeeklyDiningInfo, error) {
 	vendorsInfo, err := ReadVendorInfo(vendorInfoPath)
 	if err != nil {
-		return ExportDining{}, err
+		return WeeklyDiningInfo{}, err
 	}
 
 	api := nutrisliceapi.CreateNutriSliceAPI()
 
-	ed := ExportDining{
+	weeklyDiningInfo := WeeklyDiningInfo{
 		VendorsByDate: make(map[string]map[string]Vendor),
 	}
 
@@ -116,15 +116,15 @@ func loadDiningNutrislice(vendorInfoPath string, startDate time.Time) (ExportDin
 		// weekly parsed vendors: map[date]Vendor
 		vendorsByDate, err := loadVendorNutrisliceWeekly(startDate, vendorInfo, api)
 		if err != nil {
-			return ExportDining{}, err
+			return WeeklyDiningInfo{}, err
 		}
 
 		// insert each date
 		for dateStr, vendor := range vendorsByDate {
-			if ed.VendorsByDate[dateStr] == nil {
-				ed.VendorsByDate[dateStr] = make(map[string]Vendor)
+			if weeklyDiningInfo.VendorsByDate[dateStr] == nil {
+				weeklyDiningInfo.VendorsByDate[dateStr] = make(map[string]Vendor)
 			}
-			ed.VendorsByDate[dateStr][vendorID] = *vendor
+			weeklyDiningInfo.VendorsByDate[dateStr][vendorID] = *vendor
 		}
 	}
 
@@ -143,8 +143,8 @@ func loadDiningNutrislice(vendorInfoPath string, startDate time.Time) (ExportDin
 
 		dateStr := startDate.Format("2006-01-02")
 
-		if ed.VendorsByDate[dateStr] == nil {
-			ed.VendorsByDate[dateStr] = make(map[string]Vendor)
+		if weeklyDiningInfo.VendorsByDate[dateStr] == nil {
+			weeklyDiningInfo.VendorsByDate[dateStr] = make(map[string]Vendor)
 		}
 
 		nv := Vendor{
@@ -167,11 +167,11 @@ func loadDiningNutrislice(vendorInfoPath string, startDate time.Time) (ExportDin
 			}
 		}
 
-		ed.VendorsByDate[dateStr][viID] = nv
+		weeklyDiningInfo.VendorsByDate[dateStr][viID] = nv
 	}
 
-	ed.UpdateTime = time.Now().Format(time.RFC850)
-	return ed, nil
+	weeklyDiningInfo.UpdateTime = time.Now().Format(time.RFC850)
+	return weeklyDiningInfo, nil
 }
 
 
