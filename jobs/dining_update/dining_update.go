@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 	"time"
+	"path/filepath"
 
 	nutrisliceapi "github.com/WilliamsStudentsOnline/wso-go/jobs/dining_update/nutrislice/api"
 	nutrisliceparse "github.com/WilliamsStudentsOnline/wso-go/jobs/dining_update/nutrislice/parse"
@@ -14,12 +15,21 @@ import (
 var (
 	ErrorMissingMenu      = errors.New("missing menu for date")
 	ErrorMissingMenuHours = errors.New("failed to get meal hours")
+
 )
 
+
+
 type ExportDining struct {
+	VendorsByDate    map[string]map[string]Vendor `json:"vendors"`
+	UpdateTime string            `json:"updateTime"`
+}
+
+type DailyExport struct {
 	Vendors    map[string]Vendor `json:"vendors"`
 	UpdateTime string            `json:"updateTime"`
 }
+
 type Vendor struct {
 	Name        string           `json:"name"`
 	Meals       map[string]*Meal `json:"meals"`
@@ -50,26 +60,36 @@ type Food struct {
 	GlutenFree bool   `json:"glutenFree"`
 }
 
-func UpdateDining(outPath string, vendorInfoPath string) error {
-	var ed ExportDining
-	var err error
-
-	ed, err = loadDiningNutrislice(vendorInfoPath, time.Now())
+func UpdateDining(outputDir string, vendorInfoPath string, fetchDate time.Time) error {
+	ed, err := loadDiningNutrislice(vendorInfoPath, fetchDate)
 	if err != nil {
 		return err
 	}
 
-	f, err := os.OpenFile(outPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
+	for dateStr, vendors := range ed.VendorsByDate {
+		filename := filepath.Join(outputDir, dateStr + ".json")
 
-	return json.NewEncoder(f).Encode(ed)
+		f, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+		if err != nil {
+			return err
+		}
+
+		fileContent := DailyExport{
+			Vendors: vendors,
+			UpdateTime: ed.UpdateTime,
+		}
+
+		if err := json.NewEncoder(f).Encode(fileContent); err != nil {
+			f.Close()
+			return err
+		}
+		f.Close()
+	}
+
+	return nil
 }
 
-
-func loadDiningNutrislice(vendorInfoPath string, date time.Time) (ExportDining, error) {
+func loadDiningNutrislice(vendorInfoPath string, startDate time.Time) (ExportDining, error) {
 	vendorsInfo, err := ReadVendorInfo(vendorInfoPath)
 	if err != nil {
 		return ExportDining{}, err
@@ -78,11 +98,14 @@ func loadDiningNutrislice(vendorInfoPath string, date time.Time) (ExportDining, 
 	api := nutrisliceapi.CreateNutriSliceAPI()
 
 	ed := ExportDining{
-		Vendors: make(map[string]Vendor),
+		VendorsByDate: make(map[string]map[string]Vendor),
 	}
 
-	// process each vendor that uses nutrislice
-	vendorIDs := []string{"driscoll", "whitmans", "mission", "82-grill", "fresh-n-go", "lees-snack-bar", "eco-cafe"}
+	// vendorIDs that use nutrislice
+	vendorIDs := []string{
+		"driscoll", "whitmans", "mission", "82-grill",
+		"fresh-n-go", "lees-snack-bar", "eco-cafe",
+	}
 
 	for _, vendorID := range vendorIDs {
 		vendorInfo, ok := vendorsInfo[vendorID]
@@ -90,20 +113,38 @@ func loadDiningNutrislice(vendorInfoPath string, date time.Time) (ExportDining, 
 			continue
 		}
 
-		vendor, err := loadVendorNutrislice(date, vendorInfo, api)
-		if err != nil && (err != ErrorMissingMenu && err != ErrorMissingMenuHours) {
+		// weekly parsed vendors: map[date]Vendor
+		vendorsByDate, err := loadVendorNutrisliceWeekly(startDate, vendorInfo, api)
+		if err != nil {
 			return ExportDining{}, err
 		}
-		if err == nil {
-			ed.Vendors[vendorID] = *vendor
+
+		// insert each date
+		for dateStr, vendor := range vendorsByDate {
+			if ed.VendorsByDate[dateStr] == nil {
+				ed.VendorsByDate[dateStr] = make(map[string]Vendor)
+			}
+			ed.VendorsByDate[dateStr][vendorID] = *vendor
 		}
 	}
 
-	// load hours for non nutrislice dining
+	// non nutrislice vendors
 	for viID, vi := range vendorsInfo {
-
-		if _, ok := ed.Vendors[viID]; ok {
+		isNutri := false
+		for _, nid := range vendorIDs {
+			if nid == viID {
+				isNutri = true
+				break
+			}
+		}
+		if isNutri {
 			continue
+		}
+
+		dateStr := startDate.Format("2006-01-02")
+
+		if ed.VendorsByDate[dateStr] == nil {
+			ed.VendorsByDate[dateStr] = make(map[string]Vendor)
 		}
 
 		nv := Vendor{
@@ -113,8 +154,8 @@ func loadDiningNutrislice(vendorInfoPath string, date time.Time) (ExportDining, 
 			Operating:   vi.Operating,
 		}
 
-		mealsToHours, ok := vi.Hours[strings.ToLower(date.Weekday().String())]
-		if ok {
+		dow := strings.ToLower(startDate.Weekday().String())
+		if mealsToHours, ok := vi.Hours[dow]; ok {
 			for mealName, hours := range mealsToHours {
 				nv.Meals[mealName] = &Meal{
 					Name: mealName,
@@ -126,112 +167,111 @@ func loadDiningNutrislice(vendorInfoPath string, date time.Time) (ExportDining, 
 			}
 		}
 
-		ed.Vendors[viID] = nv
+		ed.VendorsByDate[dateStr][viID] = nv
 	}
 
 	ed.UpdateTime = time.Now().Format(time.RFC850)
-
 	return ed, nil
 }
 
-func loadVendorNutrislice(date time.Time, vendorInfo VendorInfo, api *nutrisliceapi.NutriSliceAPI) (*Vendor, error) {
-	// get hours
-	dayOfWeek := strings.ToLower(date.Weekday().String())
-	hours, ok := vendorInfo.Hours[dayOfWeek]
-	if !ok {
-		return nil, ErrorMissingMenuHours
+
+func loadVendorNutrisliceWeekly(
+	startDate time.Time,
+	vendorInfo VendorInfo,
+	api *nutrisliceapi.NutriSliceAPI,
+) (map[string]*Vendor, error) {
+
+	vendorHoursByDay := make(map[string]nutrisliceparse.MealHoursMap)
+	for dow, hours := range vendorInfo.Hours {
+		m := make(nutrisliceparse.MealHoursMap)
+		for mealName, h := range hours {
+			m[mealName] = nutrisliceparse.MealHours{Open: h.Open, Close: h.Close}
+		}
+		vendorHoursByDay[dow] = m
 	}
 
-	meals := make(map[string]*Meal)
-
-	// make map for parsing
-	parseHours := make(nutrisliceparse.MealHoursMap)
-	for mealName, mealHours := range hours {
-		parseHours[mealName] = nutrisliceparse.MealHours{
-			Open:  mealHours.Open,
-			Close: mealHours.Close,
+	mealTypes := map[string]bool{}
+	for _, hours := range vendorInfo.Hours {
+		for mealName := range hours {
+			mealTypes[mealName] = true
 		}
 	}
 
-	// call api for each meal
-	for mealName := range hours {
-		jsonData, err := api.GetWeeklyMenu(vendorInfo.NutriSliceSlug, mealName, date)
+	mealsByDate := make(map[string]map[string]*nutrisliceparse.ParsedMeal)
+
+	for mealType := range mealTypes {
+		raw, err := api.GetWeeklyMenu(vendorInfo.NutriSliceSlug, mealType, startDate)
 		if err != nil {
-			// on api fail just put hours in
-			mealHours, hoursOk := hours[mealName]
-			if hoursOk {
-				meals[mealName] = &Meal{
-					Name: mealName,
-					Hours: &Hours{
-						Open:  mealHours.Open,
-						Close: mealHours.Close,
-					},
-					Courses: make(map[string]*Course),
-				}
-			}
 			continue
 		}
 
-		// parse meal from json
-		parsedMeal, err := nutrisliceparse.ParseWeeklyMenuToMeal(jsonData, mealName, date, parseHours)
+		parsed, err := nutrisliceparse.ParseWeeklyMenuToMeals(raw, mealType, vendorHoursByDay)
 		if err != nil {
-			// if cant parse, just put hours 
-			mealHours, hoursOk := hours[mealName]
-			if hoursOk {
-				meals[mealName] = &Meal{
-					Name: mealName,
-					Hours: &Hours{
-						Open:  mealHours.Open,
-						Close: mealHours.Close,
-					},
-					Courses: make(map[string]*Course),
-				}
-			}
 			continue
 		}
 
-		// convert from parsed structs to structs to be returned
-		meal := &Meal{
-			Name:    parsedMeal.Name,
-			Hours:   nil,
-			Courses: make(map[string]*Course),
-		}
-
-		if parsedMeal.Hours != nil {
-			meal.Hours = &Hours{
-				Open:  parsedMeal.Hours.Open,
-				Close: parsedMeal.Hours.Close,
+		for dateStr, pm := range parsed {
+			if mealsByDate[dateStr] == nil {
+				mealsByDate[dateStr] = make(map[string]*nutrisliceparse.ParsedMeal)
 			}
+			mealsByDate[dateStr][mealType] = pm
 		}
-
-		for courseName, parsedCourse := range parsedMeal.Courses {
-			course := &Course{
-				Name:  parsedCourse.Name,
-				Items: make([]*Food, 0, len(parsedCourse.Items)),
-			}
-
-			for _, parsedFood := range parsedCourse.Items {
-				course.Items = append(course.Items, &Food{
-					Name:       parsedFood.Name,
-					Vegetarian: parsedFood.Vegetarian,
-					Vegan:      parsedFood.Vegan,
-					GlutenFree: parsedFood.GlutenFree,
-				})
-			}
-
-			meal.Courses[courseName] = course
-		}
-
-		meals[mealName] = meal
 	}
 
-	// build out vendor struct
-	vendor := Vendor{
-		Name:        vendorInfo.Name,
-		Meals:       meals,
-		OnlineOrder: vendorInfo.OnlineOrder,
-		Operating:   vendorInfo.Operating,
+	vendorsByDate := make(map[string]*Vendor)
+
+	for dateStr, dateMeals := range mealsByDate {
+
+		date, err := time.Parse("2006-01-02", dateStr)
+		if err != nil { continue }
+		dow := strings.ToLower(date.Weekday().String())
+		dayHours := vendorInfo.Hours[dow]
+
+		meals := make(map[string]*Meal)
+
+		for mealType, pm := range dateMeals {
+			m := &Meal{
+				Name:    pm.Name,
+				Courses: make(map[string]*Course),
+			}
+			if pm.Hours != nil {
+				m.Hours = &Hours{Open: pm.Hours.Open, Close: pm.Hours.Close}
+			}
+
+			for courseName, pc := range pm.Courses {
+				c := &Course{Name: pc.Name}
+				for _, pf := range pc.Items {
+					c.Items = append(c.Items, &Food{
+						Name:       pf.Name,
+						Vegetarian: pf.Vegetarian,
+						Vegan:      pf.Vegan,
+						GlutenFree: pf.GlutenFree,
+					})
+				}
+				m.Courses[courseName] = c
+			}
+
+			meals[mealType] = m
+		}
+
+		// add empty meal info
+		for mealType, h := range dayHours {
+			if _, ok := meals[mealType]; !ok {
+				meals[mealType] = &Meal{
+					Name:  mealType,
+					Hours: &Hours{Open: h.Open, Close: h.Close},
+					Courses: map[string]*Course{},
+				}
+			}
+		}
+
+		vendorsByDate[dateStr] = &Vendor{
+			Name:        vendorInfo.Name,
+			Meals:       meals,
+			OnlineOrder: vendorInfo.OnlineOrder,
+			Operating:   len(meals) > 0,
+		}
 	}
 
-	return &vendor, nil
+	return vendorsByDate, nil
 }

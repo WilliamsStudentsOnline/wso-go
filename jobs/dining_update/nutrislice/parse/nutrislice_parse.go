@@ -10,6 +10,23 @@ import (
 
 var (
 	ErrorMissingMenuHours = errors.New("failed to get meal hours")
+
+	SkipCourses = map[string]bool{
+		"Drinks":             true,
+		"Condiments":         true,
+		"Salad Condiments":   true,
+		"Cereal":             true,
+		"Hot Cereal Station": true,
+		"Salad Bar A":        true,
+		"Salad Bar B":        true,
+		"MP Salad Bar A":     true,
+		"MP Salad Bar B":     true,
+		"MP Lettuce Area":    true,
+		"MP Salad Dressings": true,
+		"Daily Salad":        true,
+		"":        true, // idk why this would ever be the case but who knows
+	}
+
 )
 
 type MealHours struct {
@@ -58,192 +75,115 @@ type menuItem struct {
 
 type food struct {
 	Name string `json:"name"`
+	Icons icons `json:"icons"`
 }
 
-// json to parsed meal
-func ParseWeeklyMenuToMeal(jsonData []byte, mealName string, targetDate time.Time, hours MealHoursMap) (*ParsedMeal, error) {
-	mealHours, hoursOk := hours[mealName]
-	var parsedHours *MealHours
-	if hoursOk {
-		parsedHours = &MealHours{
-			Open:  mealHours.Open,
-			Close: mealHours.Close,
+type icons struct {
+	FoodIcons []foodIcon `json:"food_icons"`
+}
+
+type foodIcon struct {
+	SyncedName string `json:"synced_name"`
+}
+
+
+func ParseFoodItem(menuItem *food) *ParsedFood {
+	foodName := strings.TrimSpace(menuItem.Name)
+	if foodName == "" {
+		return nil
+	}
+
+	parsedFood := &ParsedFood{
+		Name:       foodName,
+		Vegetarian: false,
+		Vegan:      false,
+		GlutenFree: false,
+	}
+
+	for _, icon := range menuItem.Icons.FoodIcons {
+		switch icon.SyncedName {
+		case "VEGT":
+			parsedFood.Vegetarian = true
+		case "V", "VG", "Vegan":
+			parsedFood.Vegan = true
+		case "GF", "Gluten Free":
+			parsedFood.GlutenFree = true
 		}
 	}
 
-	meal := &ParsedMeal{
-		Name:    mealName,
-		Hours:   parsedHours,
-		Courses: make(map[string]*ParsedCourse),
-	}
+	return parsedFood
+}
 
+
+// ParseWeeklyMenuToMeals parses a weekly menu JSON response and returns meals for all available dates
+// Returns a map of date string (YYYY-MM-DD) -> ParsedMeal
+func ParseWeeklyMenuToMeals(jsonData []byte, mealName string, vendorHours map[string]MealHoursMap) (map[string]*ParsedMeal, error) {
 	var response weeklyMenuResponse
 	if err := json.Unmarshal(jsonData, &response); err != nil {
 		return nil, fmt.Errorf("failed to parse JSON response: %w", err)
 	}
 
-	targetDateStr := targetDate.Format("2006-01-02")
-	var dayData *dayData
-	for i := range response.Days {
-		if response.Days[i].Date == targetDateStr {
-			dayData = &response.Days[i]
-			break
-		}
-	}
+	meals := make(map[string]*ParsedMeal)
 
-	if dayData == nil {
-		return meal, nil
-	}
-
-	currentCourse := ""
-
-	for _, item := range dayData.MenuItems {
-
-		if item.BlankLine {
+	for _, dayData := range response.Days {
+		parsedDate, err := time.Parse("2006-01-02", dayData.Date)
+		if err != nil {
 			continue
 		}
 
-		if item.IsSectionTitle {
-			courseName := strings.TrimSpace(item.Text)
-			if courseName != "" {
-				currentCourse = courseName
-				if _, exists := meal.Courses[currentCourse]; !exists {
-					meal.Courses[currentCourse] = &ParsedCourse{
-						Name:  currentCourse,
+		dayOfWeek := strings.ToLower(parsedDate.Weekday().String())
+
+		var parsedHours *MealHours
+		if dayHours, ok := vendorHours[dayOfWeek]; ok {
+			if mealHours, ok := dayHours[mealName]; ok {
+				parsedHours = &MealHours{
+					Open:  mealHours.Open,
+					Close: mealHours.Close,
+				}
+			}
+		}
+
+		if parsedHours == nil {
+			continue
+		}
+
+		meal := &ParsedMeal{
+			Name:    mealName,
+			Hours:   parsedHours,
+			Courses: make(map[string]*ParsedCourse),
+		}
+
+		var currentCourse *ParsedCourse
+		for _, item := range dayData.MenuItems {
+			if item.BlankLine {
+				continue
+			}
+
+			// seems like is_section_titel adn is_sattion_header are the same
+			// in the json but honeslty who knows what dining is on
+			if item.IsSectionTitle || item.IsStationHeader {
+				courseName := strings.TrimSpace(item.Text)
+				if SkipCourses[courseName] {
+					currentCourse = nil
+					continue
+				}
+				currentCourse = meal.Courses[courseName]
+				if currentCourse == nil {
+					currentCourse = &ParsedCourse{
+						Name:  courseName,
 						Items: []*ParsedFood{},
 					}
+					meal.Courses[courseName] = currentCourse
+				}				
+			} else if (item.Food != nil && item.Food.Name != "" && currentCourse != nil) {
+				if parsedFood := ParseFoodItem(item.Food); parsedFood != nil {
+					currentCourse.Items = append(currentCourse.Items, parsedFood)
 				}
 			}
-			continue
 		}
 
-		if item.IsStationHeader && item.Text != "" {
-			stationName := strings.TrimSpace(item.Text)
-			if stationName != "" {
-				currentCourse = stationName
-				if _, exists := meal.Courses[currentCourse]; !exists {
-					meal.Courses[currentCourse] = &ParsedCourse{
-						Name:  currentCourse,
-						Items: []*ParsedFood{},
-					}
-				}
-			}
-			continue
-		}
-
-		if item.Food != nil && item.Food.Name != "" {
-			courseName := currentCourse
-			if courseName == "" && item.Category != "" {
-				courseName = strings.TrimSpace(item.Category)
-			}
-			if courseName == "" {
-				courseName = "Other"
-			}
-
-			course, courseExists := meal.Courses[courseName]
-			if !courseExists {
-				course = &ParsedCourse{
-					Name:  courseName,
-					Items: []*ParsedFood{},
-				}
-				meal.Courses[courseName] = course
-			}
-
-			foodName := strings.TrimSpace(item.Food.Name)
-			if foodName == "" {
-				foodName = strings.TrimSpace(item.Text)
-			}
-
-			if foodName != "" {
-				foodItem := &ParsedFood{
-					Name:       foodName,
-					Vegetarian: false,
-					Vegan:      false,
-					GlutenFree: false,
-				}
-
-				for _, tag := range item.StationFoodTags {
-					tagLower := strings.ToLower(tag)
-					if strings.Contains(tagLower, "vegetarian") || strings.Contains(tagLower, "vgt") {
-						foodItem.Vegetarian = true
-					}
-					if strings.Contains(tagLower, "vegan") || strings.Contains(tagLower, " v ") {
-						foodItem.Vegan = true
-					}
-					if strings.Contains(tagLower, "gluten") || strings.Contains(tagLower, "gf") {
-						foodItem.GlutenFree = true
-					}
-				}
-
-				foodNameUpper := strings.ToUpper(foodName)
-				if strings.HasSuffix(foodNameUpper, "VGT") {
-					foodItem.Vegetarian = true
-				}
-				if strings.HasSuffix(foodNameUpper, " V") || strings.HasSuffix(foodNameUpper, "V") {
-					foodItem.Vegan = true
-				}
-				if strings.HasSuffix(foodNameUpper, "GF") {
-					foodItem.GlutenFree = true
-				}
-
-				course.Items = append(course.Items, foodItem)
-			}
-		} else if item.Text != "" && !item.IsSectionTitle && !item.IsStationHeader {
-			
-			courseName := currentCourse
-			if courseName == "" && item.Category != "" {
-				courseName = strings.TrimSpace(item.Category)
-			}
-			if courseName == "" {
-				courseName = "Other"
-			}
-
-			course, courseExists := meal.Courses[courseName]
-			if !courseExists {
-				course = &ParsedCourse{
-					Name:  courseName,
-					Items: []*ParsedFood{},
-				}
-				meal.Courses[courseName] = course
-			}
-
-			foodName := strings.TrimSpace(item.Text)
-			if foodName != "" {
-				foodItem := &ParsedFood{
-					Name:       foodName,
-					Vegetarian: false,
-					Vegan:      false,
-					GlutenFree: false,
-				}
-
-				for _, tag := range item.StationFoodTags {
-					tagLower := strings.ToLower(tag)
-					if strings.Contains(tagLower, "vegetarian") || strings.Contains(tagLower, "vgt") {
-						foodItem.Vegetarian = true
-					}
-					if strings.Contains(tagLower, "vegan") || strings.Contains(tagLower, " v ") {
-						foodItem.Vegan = true
-					}
-					if strings.Contains(tagLower, "gluten") || strings.Contains(tagLower, "gf") {
-						foodItem.GlutenFree = true
-					}
-				}
-
-				foodNameUpper := strings.ToUpper(foodName)
-				if strings.HasSuffix(foodNameUpper, "VGT") {
-					foodItem.Vegetarian = true
-				}
-				if strings.HasSuffix(foodNameUpper, " V") || strings.HasSuffix(foodNameUpper, "V") {
-					foodItem.Vegan = true
-				}
-				if strings.HasSuffix(foodNameUpper, "GF") {
-					foodItem.GlutenFree = true
-				}
-
-				course.Items = append(course.Items, foodItem)
-			}
-		}
+		meals[dayData.Date] = meal
 	}
 
-	return meal, nil
+	return meals, nil
 }
