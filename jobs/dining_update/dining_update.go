@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 	"path/filepath"
+	"log"
 
 	nutrisliceapi "github.com/WilliamsStudentsOnline/wso-go/jobs/dining_update/api"
 )
@@ -110,6 +111,7 @@ func loadDiningNutrislice(vendorInfoPath string, startDate time.Time) (WeeklyDin
 	for _, vendorID := range vendorIDs {
 		vendorInfo, ok := vendorsInfo[vendorID]
 		if !ok {
+			log.Printf("warning: missing info for vendor %s, skipping", vendorID)
 			continue
 		}
 
@@ -202,11 +204,13 @@ func loadVendorNutrisliceWeekly(
 	for mealType := range mealTypes {
 		raw, err := api.GetWeeklyMenu(vendorInfo.NutriSliceSlug, mealType, startDate)
 		if err != nil {
+			log.Printf("warning: failed to fetch menu for vendor %s meal %s: %v", vendorInfo.Name, mealType, err)
 			continue
 		}
 
 		parsed, err := parseWeeklyMenuToMeals(raw, mealType, vendorHoursByDay)
 		if err != nil {
+			log.Printf("warning: failed to parse weekly menu for vendor %s meal %s: %v", vendorInfo.Name, mealType, err)
 			continue
 		}
 
