@@ -229,6 +229,20 @@ func loadVendorNutrisliceWeekly(
 
 	vendorsByDate := make(map[string]*Vendor)
 	for dateStr, dateMeals := range mealsByDate {
+		date, err := time.Parse("2006-01-02", dateStr)
+		if err != nil { continue }
+		dow := strings.ToLower(date.Weekday().String())
+		dayHours := vendorInfo.Hours[dow]
+
+		for mealType, h := range dayHours {
+			if _, ok := dateMeals[mealType]; !ok {
+				dateMeals[mealType] = &Meal{
+					Name:  mealType,
+					Hours: &Hours{Open: h.Open, Close: h.Close},
+					Courses: map[string]*Course{},
+				}
+			}
+		}
 		vendorsByDate[dateStr] = &Vendor{
 			Name:        vendorInfo.Name,
 			Meals:       dateMeals,
