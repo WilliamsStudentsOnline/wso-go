@@ -19,8 +19,9 @@ type VendorInfo struct {
 type VendorInfoHoursWeek map[string]VendorInfoHoursMeals
 
 type VendorInfoHoursMeals struct {
-	Open  string `json:"open" yaml:"open"`
-	Close string `json:"close" yaml:"close"`
+	Open        string `json:"open" yaml:"open"`
+	Close       string `json:"close" yaml:"close"`
+	DisplayName string `json:"display_name,omitempty" yaml:"display_name,omitempty"`
 }
 
 func ReadVendorInfo(path string) (map[string]VendorInfo, error) {

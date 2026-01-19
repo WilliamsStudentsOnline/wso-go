@@ -14,14 +14,11 @@ import (
 var (
 	ErrorMissingMenu      = errors.New("missing menu for date")
 	ErrorMissingMenuHours = errors.New("failed to get meal hours")
-
 )
 
-
-
 type WeeklyDiningInfo struct {
-	VendorsByDate    map[string]map[string]Vendor `json:"vendors"`
-	UpdateTime string            `json:"updateTime"`
+	VendorsByDate map[string]map[string]Vendor `json:"vendors"`
+	UpdateTime    string                       `json:"updateTime"`
 }
 
 type ExportDining struct {
@@ -54,7 +51,7 @@ type Course struct {
 
 type Food struct {
 	Name       string `json:"name"`
-	ID 								int				`json:"id"`
+	ID 		   int    `json:"id"`
 	Vegetarian bool   `json:"vegetarian"`
 	Vegan      bool   `json:"vegan"`
 	GlutenFree bool   `json:"glutenFree"`
@@ -174,7 +171,6 @@ func loadDiningNutrislice(vendorInfoPath string, startDate time.Time) (WeeklyDin
 	return weeklyDiningInfo, nil
 }
 
-
 func loadVendorNutrisliceWeekly(
 	startDate time.Time,
 	vendorInfo VendorInfo,
@@ -230,8 +226,15 @@ func loadVendorNutrisliceWeekly(
 		meals := make(map[string]*Meal)
 
 		for mealType, pm := range dateMeals {
+
+			displayName := mealType
+			if dowHours, ok := vendorInfo.Hours[dow]; ok {
+				if mealHours, ok := dowHours[mealType]; ok && mealHours.DisplayName != "" {
+					displayName = mealHours.DisplayName
+				}
+			}
 			m := &Meal{
-				Name:    pm.Name,
+				Name:    displayName,
 				Courses: make(map[string]*Course),
 			}
 			if pm.Hours != nil {
@@ -257,9 +260,13 @@ func loadVendorNutrisliceWeekly(
 		// add empty meal info
 		for mealType, h := range dayHours {
 			if _, ok := meals[mealType]; !ok {
+				displayName := mealType
+				if h.DisplayName != "" {
+					displayName = h.DisplayName
+				}
 				meals[mealType] = &Meal{
-					Name:  mealType,
-					Hours: &Hours{Open: h.Open, Close: h.Close},
+					Name:    displayName,
+					Hours:   &Hours{Open: h.Open, Close: h.Close},
 					Courses: map[string]*Course{},
 				}
 			}
