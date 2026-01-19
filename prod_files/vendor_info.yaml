@@ -91,9 +91,10 @@ whitmans:
       dinner:
         open: 5:00pm
         close: 9:00pm
-      'whitmans late night':
+      'late-night':
         open: 9:30pm
         close: 1:00am
+        display_name: "late night"
     tuesday:
       breakfast:
         open: 7:30am
@@ -104,9 +105,10 @@ whitmans:
       dinner:
         open: 5:00pm
         close: 9:00pm
-      'whitmans late night':
+      'late-night':
         open: 9:30pm
         close: 1:00am
+        display_name: "late night"
     wednesday:
       breakfast:
         open: 7:30am
@@ -117,9 +119,10 @@ whitmans:
       dinner:
         open: 5:00pm
         close: 9:00pm
-      'whitmans late night':
+      'late-night':
         open: 9:30pm
         close: 1:00am
+        display_name: "late night"
     thursday:
       breakfast:
         open: 7:30am
@@ -130,9 +133,10 @@ whitmans:
       dinner:
         open: 5:00pm
         close: 9:00pm
-      'whitmans late night':
+      'late-night':
         open: 9:30pm
         close: 1:00am
+        display_name: "late night"
     friday:
       breakfast:
         open: 7:30am
@@ -143,29 +147,34 @@ whitmans:
       dinner:
         open: 5:00pm
         close: 9:00pm
-      'whitmans late night':
+      'late-night':
         open: 9:30pm
         close: 1:00am
+        display_name: "late night"
     saturday:
-      brunch:
+      lunch:
         open: 11:00am
         close: 2:00pm
+        display_name: "brunch"
       dinner:
         open: 5:00pm
         close: 9:00pm
-      'whitmans late night':
+      'late-night':
         open: 9:30pm
         close: 1:00am
+        display_name: "late night"
     sunday:
-      brunch:
+      lunch:
         open: 11:00am
         close: 2:00pm
+        display_name: "brunch"
       dinner:
         open: 5:00pm
         close: 9:00pm
-      'whitmans late night':
+      'late-night':
         open: 9:30pm
         close: 1:00am
+        display_name: "late night"
 mission:
   name: "Mission"
   nutrislice_slug: "mission-park"
@@ -173,9 +182,10 @@ mission:
   online_order: false
   hours:
     sunday:
-      brunch:
+      lunch:
         open: 11:30am
         close: 1:30pm
+        display_name: "brunch"
       dinner:
         open: 4:30pm
         close: 6:30pm
@@ -208,9 +218,10 @@ lees-snack-bar:
       lunch:
         open: 1:00pm
         close: 2:00pm
-      midday:
+      mid-day:
         open: 2:00pm
         close: 5:00pm
+        display_name: "midday"
     tuesday:
       breakfast:
         open: 8:00am
@@ -218,9 +229,10 @@ lees-snack-bar:
       lunch:
         open: 1:00pm
         close: 2:00pm
-      midday:
+      mid-day:
         open: 2:00pm
         close: 5:00pm
+        display_name: "midday"
     wednesday:
       breakfast:
         open: 8:00am
@@ -228,9 +240,10 @@ lees-snack-bar:
       lunch:
         open: 1:00pm
         close: 2:00pm
-      midday:
+      mid-day:
         open: 2:00pm
         close: 5:00pm
+        display_name: "midday"
     thursday:
       breakfast:
         open: 8:00am
@@ -238,9 +251,10 @@ lees-snack-bar:
       lunch:
         open: 1:00pm
         close: 2:00pm
-      midday:
+      mid-day:
         open: 2:00pm
         close: 5:00pm
+        display_name: "midday"
     friday:
       breakfast:
         open: 8:00am
@@ -248,9 +262,10 @@ lees-snack-bar:
       lunch:
         open: 1:00pm
         close: 2:00pm
-      midday:
+      mid-day:
         open: 2:00pm
         close: 5:00pm
+        display_name: "midday"
 82-grill:
   name: "82 Grill"
   nutrislice_slug: "82-grill"
