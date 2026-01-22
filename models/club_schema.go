@@ -21,18 +21,18 @@ const (
 // Clubtrak Schema
 type Club struct {
 	BaseSchema
-	Name               string   `json:"name"`
+	Name               string   `gnorm:"not null" json:"name"`
 	Category           Category `gnorm:"type=ENUM('club sport', 'dance performance', 'academic and honors', 'advocacy, debate, and political', 'affinity, culterally based, and MiNCO', 'arts and entertainment', 'community support and/or service learning', 'environmental and sustainability', 'health and wellness', 'professional and career', 'recreation and sports', 'religious and spiritual');not null" json:"category"`
 	Subscribers        int      `json:"subscribers"`
 	MeetingDescription string   `json:"meetingDescription"`
-	ClubDescription    string   `json:"clubDescription"`
+	ClubDescription    string   `gnorm:"not null" json:"clubDescription"`
 	ClubPhotoFilePath  string   `json:"clubPhotoFilePath"`
 	ContactEmail       string   `json:"contactEmail"`
 	ContactPhoneNumber string   `json:"contactPhoneNumber"`
 	Website            string   `json:"website"`
 
 	// Club leader's DB ID
-	ClubAdminID uint `json:"clubAdminID"`
+	ClubAdminID uint `gnorm:"not null" json:"clubAdminID"`
 }
 
 func (*Club) TableName() string {

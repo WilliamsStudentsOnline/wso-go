@@ -1,6 +1,8 @@
 package models
 
 import (
+	"strings"
+
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
 )
@@ -33,16 +35,6 @@ type GetAllClubsOptions struct {
 	CategoryIN string `json:"categoryIN"`
 	//Checks club description for matching substring
 	DescriptionLIKE string `json:"descriptionLIKE"`
-
-	// Unsure what other data we may want to preload in future
-	Preload []string `json:"preload" form:"preload[]"`
-}
-
-// Preload specifically allowed parts if requested
-func (o *GetAllClubsOptions) Preloader(db *gorm.DB) *gorm.DB {
-	// Leaving this function blank until I figure out what or if we should preload
-	//any data
-	return db
 }
 
 func (o *GetAllClubsOptions) Order(db *gorm.DB) *gorm.DB {
@@ -62,7 +54,21 @@ func (o *GetAllClubsOptions) Paginate(db *gorm.DB) *gorm.DB {
 }
 
 func (o *GetAllClubsOptions) Run(db *gorm.DB) *gorm.DB {
-	return o.Paginate(o.Preloader(db))
+	return o.Paginate(db)
+}
+
+func (m *ClubModel) SearchClubs(db *gorm.DB, query string, clubs *[]*Club, opts *GetAllClubsOptions) (err error) {
+	// Do SQL
+	tx := db.Model(&Club{})
+	tx = tx.Where("lower(clubs.name) LIKE ?", "%"+strings.ToLower(query)+"%")
+
+	// Run options
+	if opts != nil {
+		tx = opts.Paginate(tx)
+	}
+
+	err = tx.Find(clubs).Error
+	return
 }
 
 // Inserts new club into the database

@@ -180,8 +180,8 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 		booktrakService.SetupRouter(booktrakGroup, db, cfg, log.Named("booktrak"))
 
 		//Clubtrak Service
-		clubtrakGroup := v2.Group("clubtrak")
-		clubtrakGroup.Use(auth.RequireScopes(auth.ScopeUsers))
+		clubtrakGroup := v2.Group("/clubtrak")
+		//clubtrakGroup.Use(auth.RequireScopes(auth.ScopeUsers))
 		clubtrakService.SetupRouter(clubtrakGroup, db, cfg, log.Named("clubtrak"))
 
 		// Dormtrak Service

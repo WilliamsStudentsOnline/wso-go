@@ -2,7 +2,6 @@ package clubtrak
 
 import (
 	"github.com/WilliamsStudentsOnline/wso-go/config"
-	search "github.com/WilliamsStudentsOnline/wso-go/lib/search/clubtrak"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/jinzhu/gorm"
@@ -12,9 +11,8 @@ import (
 type Controller struct {
 	services.BaseController
 	// Put models here:
-	clubModel      *models.ClubModel
-	userModel      *models.UserModel
-	clubtrakSearch search.SearchClubtrak
+	clubModel *models.ClubModel
+	userModel *models.UserModel
 }
 
 func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Controller {
@@ -22,6 +20,5 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 		BaseController: services.BaseController{Log: log},
 		clubModel:      models.NewClubModel(db, log),
 		userModel:      models.NewUserModel(db, log),
-		clubtrakSearch: search.NewSearchClubtrak(db, cfg, log),
 	}
 }

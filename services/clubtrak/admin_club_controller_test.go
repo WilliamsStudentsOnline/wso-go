@@ -15,11 +15,63 @@ import (
 	"go.uber.org/zap/zaptest"
 )
 
-func TestController_GetAllClubs(t *testing.T) {
+func TestAdminController_CreateClub(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeUsers)
+	router := utils.SetupRouter(auth.ScopeAdminAll)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+
+	u1 := models.User{
+		Type:   models.UserTypeStudent,
+		Name:   "User 1",
+		UnixID: "u1",
+	}
+
+	assert.NoError(db.Create(&u1).Error)
+	utils.AddUserContexts(router, u1.ID)
+
+	//Create Club Params
+	params := ClubParams{
+		Name:               "WSO",
+		Subscribers:        30,
+		MeetingDescription: "Sundays at 1pm in Wach B11",
+		ClubAdminID:        u1.ID,
+	}
+
+	//Process Params
+	paramsData, err := json.Marshal(&params)
+	assert.NoError(err)
+
+	// Test HTTP Request
+	w, err := utils.DoHTTPReq(router, http.MethodPost, "/admin/clubs", bytes.NewBuffer(paramsData))
+	assert.NoError(err)
+	assert.Equal(http.StatusCreated, w.Code)
+
+	//Missing Fields Case
+	params2 := ClubParams{
+		Name:               "WSO",
+		Subscribers:        30,
+		MeetingDescription: "Sundays at 1pm in Wach B11",
+	}
+
+	//Process Params
+	paramsData2, err := json.Marshal(&params2)
+	assert.NoError(err)
+
+	// Test HTTP Request
+	w2, err2 := utils.DoHTTPReq(router, http.MethodPost, "/admin/clubs", bytes.NewBuffer(paramsData2))
+	assert.NoError(err2)
+	assert.Equal(http.StatusCreated, w2.Code)
+
+}
+
+func TestAdminController_GetAllClubs(t *testing.T) {
+	// Setup (can copy and paste this basically)
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+	router := utils.SetupRouter(auth.ScopeAdminAll)
 	cfg := utils.SetupConfig()
 	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
@@ -60,7 +112,7 @@ func TestController_GetAllClubs(t *testing.T) {
 	assert.NoError(db.Create(&c3).Error)
 
 	// Test Endpoint
-	w, err := utils.DoHTTPReq(router, http.MethodGet, "/clubs", nil)
+	w, err := utils.DoHTTPReq(router, http.MethodGet, "/admin/clubs", nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w.Code)
 
@@ -77,11 +129,11 @@ func TestController_GetAllClubs(t *testing.T) {
 	assert.Equal(c3.Name, resp[2].Name)
 }
 
-func TestController_DeleteClubs(t *testing.T) {
+func TestAdminController_DeleteClubs(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeUsers)
+	router := utils.SetupRouter(auth.ScopeAdminAll)
 	cfg := utils.SetupConfig()
 	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
@@ -133,7 +185,7 @@ func TestController_DeleteClubs(t *testing.T) {
 	ID3str := strconv.FormatUint(uint64(ID3), 10)
 
 	// Test Deleting c1 (WSO)
-	w1, err := utils.DoHTTPReq(router, http.MethodDelete, "/clubs/"+ID1str, nil)
+	w1, err := utils.DoHTTPReq(router, http.MethodDelete, "/admin/clubs/"+ID1str, nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w1.Code)
 
@@ -144,7 +196,7 @@ func TestController_DeleteClubs(t *testing.T) {
 	assert.NoError(json.Unmarshal(respData1.Data, &resp1))
 
 	//Check that the clubs have been deleted with get request
-	w2, err := utils.DoHTTPReq(router, http.MethodGet, "/clubs", nil)
+	w2, err := utils.DoHTTPReq(router, http.MethodGet, "/admin/clubs", nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w2.Code)
 
@@ -157,7 +209,7 @@ func TestController_DeleteClubs(t *testing.T) {
 	assert.Len(resp2, 2)
 
 	// Test Deleting c2 (Octet)
-	w3, err := utils.DoHTTPReq(router, http.MethodDelete, "/clubs/"+ID2str, nil)
+	w3, err := utils.DoHTTPReq(router, http.MethodDelete, "/admin/clubs/"+ID2str, nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w3.Code)
 
@@ -168,7 +220,7 @@ func TestController_DeleteClubs(t *testing.T) {
 	assert.NoError(json.Unmarshal(respData3.Data, &resp3))
 
 	//Check that the clubs have been deleted with get request
-	w4, err := utils.DoHTTPReq(router, http.MethodGet, "/clubs", nil)
+	w4, err := utils.DoHTTPReq(router, http.MethodGet, "/admin/clubs", nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w4.Code)
 
@@ -181,7 +233,7 @@ func TestController_DeleteClubs(t *testing.T) {
 	assert.Len(resp4, 1)
 
 	// Test Deleting c3 (Kusika)
-	w5, err := utils.DoHTTPReq(router, http.MethodDelete, "/clubs/"+ID3str, nil)
+	w5, err := utils.DoHTTPReq(router, http.MethodDelete, "/admin/clubs/"+ID3str, nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w5.Code)
 
@@ -192,7 +244,7 @@ func TestController_DeleteClubs(t *testing.T) {
 	assert.NoError(json.Unmarshal(respData5.Data, &resp5))
 
 	//Check that the clubs have been deleted with get request
-	w6, err := utils.DoHTTPReq(router, http.MethodGet, "/clubs", nil)
+	w6, err := utils.DoHTTPReq(router, http.MethodGet, "/admin/clubs", nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w6.Code)
 
@@ -206,11 +258,11 @@ func TestController_DeleteClubs(t *testing.T) {
 
 }
 
-func TestController_UpdateClub(t *testing.T) {
+func TestAdminController_UpdateClub(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeUsers)
+	router := utils.SetupRouter(auth.ScopeAdminAll)
 	cfg := utils.SetupConfig()
 	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
@@ -249,12 +301,12 @@ func TestController_UpdateClub(t *testing.T) {
 	// Test HTTP Request
 	ID := c1.ID
 	IDstr := strconv.FormatUint(uint64(ID), 10)
-	w, err := utils.DoHTTPReq(router, http.MethodPatch, "/clubs/"+IDstr, bytes.NewBuffer(paramsData))
+	w, err := utils.DoHTTPReq(router, http.MethodPatch, "/admin/clubs/"+IDstr, bytes.NewBuffer(paramsData))
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w.Code)
 
 	//Use a get request to check that the clubs parameters have been updates
-	w2, err := utils.DoHTTPReq(router, http.MethodGet, "/clubs", nil)
+	w2, err := utils.DoHTTPReq(router, http.MethodGet, "/admin/clubs", nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w2.Code)
 
@@ -267,4 +319,51 @@ func TestController_UpdateClub(t *testing.T) {
 	assert.Equal(resp2[0].MeetingDescription, params.MeetingDescription)
 	assert.Equal(resp2[0].Website, params.Website)
 
+}
+
+func TestClubtrak_AdminAccessControl(t *testing.T) {
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+	cfg := utils.SetupConfig()
+
+	//Setup routers for different roles
+	userRouter := utils.SetupRouter(auth.ScopeUsers)
+	adminRouter := utils.SetupRouter(auth.ScopeAdminAll)
+
+	SetupRouter(userRouter, db, cfg, zaptest.NewLogger(t).Sugar())
+	SetupRouter(adminRouter, db, cfg, zaptest.NewLogger(t).Sugar())
+
+	u1 := models.User{
+		Type:   models.UserTypeStudent,
+		Name:   "User 1",
+		UnixID: "u1",
+	}
+	assert.NoError(db.Create(&u1).Error)
+
+	utils.AddUserContexts(userRouter, u1.ID)
+	utils.AddUserContexts(adminRouter, u1.ID)
+
+	params := ClubParams{
+		Name:               "Test Club",
+		Subscribers:        10,
+		MeetingDescription: "Fridays 5-6pm",
+		ClubAdminID:        u1.ID,
+	}
+	paramsData, err := json.Marshal(&params)
+	assert.NoError(err)
+
+	//Regular user tries to POST /admin/clubs
+	w, err := utils.DoHTTPReq(userRouter, http.MethodPost, "/admin/clubs", bytes.NewBuffer(paramsData))
+	assert.NoError(err)
+	assert.Equal(http.StatusForbidden, w.Code)
+
+	//Admin tries to POST /admin/clubs
+	w2, err2 := utils.DoHTTPReq(adminRouter, http.MethodPost, "/admin/clubs", bytes.NewBuffer(paramsData))
+	assert.NoError(err2)
+	assert.Equal(http.StatusCreated, w2.Code)
+
+	//Regular user GET /clubs
+	w4, err4 := utils.DoHTTPReq(userRouter, http.MethodGet, "/clubs", nil)
+	assert.NoError(err4)
+	assert.Equal(http.StatusOK, w4.Code)
 }

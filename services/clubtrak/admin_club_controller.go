@@ -4,24 +4,77 @@ import (
 	"net/http"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
+	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 )
 
-type ClubParams struct {
-	Name               string   `gnorm:"not null" json:"name"`
-	Category           Category `gnorm:"type=ENUM('club sport', 'dance performance', 'academic and honors', 'advocacy, debate, and political', 'affinity, culterally based, and MiNCO', 'arts and entertainment', 'community support and/or service learning', 'environmental and sustainability', 'health and wellness', 'professional and career', 'recreation and sports', 'religious and spiritual');not null" json:"category"`
-	Subscribers        int      `json:"subscribers"`
-	MeetingDescription string   `json:"meetingDescription"`
-	ClubDescription    string   `gnorm:"not null" json:"clubDescription"`
-	ClubPhotoFilePath  string   `json:"clubPhotoFilePath"`
-	ContactEmail       string   `json:"contactEmail"`
-	ContactPhoneNumber string   `json:"contactPhoneNumber"`
-	Website            string   `json:"website"`
+// CreateClub godoc
+// @Summary Creates a new club
+// @Description Adds club to database
+// @ID clubtrack-create-club
+// @Tags clubtrak
+// @Accept  json
+// @Produce  json
+// @Param createParams body clubtrak.ClubParams true "Create Club Params"
+// @Success 200 {array} models.Club
+// @Failure 500 {object} services.BaseErrorResponse
+// @Security Bearer
+// @Router /clubtrak/admin/clubs [post]
+func (t *Controller) CreateClub(c *gin.Context) {
 
-	// Club leader's DB ID
-	ClubAdminID uint `gnorm:"not null" json:"clubAdminID"`
+	//Check that user is admin
+	isAdmin := auth.HasScope(c, auth.ScopeAdminAll)
+
+	if !isAdmin {
+		t.RespondError(c, lib.ErrorNoScopeAuthorization)
+		return
+	}
+
+	// Bind create params
+	createData := ClubParams{}
+	err := c.ShouldBind(&createData)
+	if err != nil {
+		t.RespondBadBind(c, err)
+		return
+	}
+
+	userID := createData.ClubAdminID
+	//Check that User exists
+	user := new(models.User)
+	if err = t.userModel.GetUserByID(userID, user); err != nil {
+		// Don't return 404; instead, return authed user not found
+		if gorm.IsRecordNotFoundError(err) {
+			c.Set(services.UpdateTokenKey, true)
+			err = lib.ErrorAuthedUserNotFound
+		}
+
+		t.RespondError(c, err)
+		return
+	}
+
+	//Create a copy of the schema with relevent data for a given club
+	club := models.Club{
+		Subscribers:        createData.Subscribers,
+		MeetingDescription: createData.MeetingDescription,
+		ClubAdminID:        userID,
+		Name:               createData.Name,
+		Category:           models.Category(createData.Category),
+		ClubDescription:    createData.ClubDescription,
+		ClubPhotoFilePath:  createData.ClubPhotoFilePath,
+		ContactEmail:       createData.ContactEmail,
+		ContactPhoneNumber: createData.ContactPhoneNumber,
+	}
+	//Call create function to update database
+	err = t.clubModel.CreateClub(&club)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+	t.RespondCreated(c, club)
+
 }
 
 // GetAllClubs godoc
@@ -37,8 +90,8 @@ type ClubParams struct {
 // @Success 200 {array} models.Club
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
-// @Router /clubtrak/clubs [get]
-func (t *Controller) GetAllClubs(c *gin.Context) {
+// @Router /clubtrak/admin/clubs [get]
+func (t *Controller) AdminGetAllClubs(c *gin.Context) {
 	var clubs []*models.Club
 	var err error
 
@@ -74,8 +127,8 @@ func (t *Controller) GetAllClubs(c *gin.Context) {
 // @Success 200 {object} models.Club
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
-// @Router /clubtrak/clubs/:clubID [delete]
-func (t *Controller) DeleteClub(c *gin.Context) {
+// @Router /clubtrak/admin/clubs/:clubID [delete]
+func (t *Controller) AdminDeleteClub(c *gin.Context) {
 	// Get clubID
 	clubID, err := services.GetUIntParam(c, "clubID")
 	if err != nil {
@@ -102,39 +155,6 @@ func (t *Controller) DeleteClub(c *gin.Context) {
 
 }
 
-type Category string
-
-const (
-	//Using the same categories as defined in interal spreadsheet of RSOs
-	CategoryClubSports                      Category = "club sport"
-	CategoryDance                           Category = "dance performance"
-	CategoryAcademicAndHonors               Category = "academic and honors"
-	CategoryAdvocacyDebatePolitical         Category = "advocacy, debate, and political"
-	CategoryAffinityCulturallyBasedMinco    Category = "affinity, culterally based, and MiNCO"
-	CategoryArtsEntertainment               Category = "arts and entertainment"
-	CategoryCommunitySupportServiceLearning Category = "community Support and/or Service Learning"
-	CategoryEnvironmentSustainability       Category = "environmental and sustainability"
-	CategoryHealthWellness                  Category = "health and wellness"
-	CategoryProfessionalCareer              Category = "professional and career"
-	CategoryRecreationSports                Category = "recreation and sports"
-	CategoryReligiousSpiritual              Category = "religious and spiritual"
-)
-
-type ClubUpdateParams struct {
-	Name               string   `json:"name"`
-	Category           Category `gnorm:"type=ENUM('club sport', 'dance performance', 'academic and honors', 'advocacy, debate, and political', 'affinity, culterally based, and MiNCO', 'arts and entertainment', 'community Support and/or Service Learning', 'environmental and sustainability', 'health and wellness', 'professional and career', 'recreation and sports', 'religious and spiritual');not null" json:"category"`
-	MeetingDescription string   `json:"meetingDescription"`
-	ClubDescription    string   `json:"clubDescription"`
-	ClubPhotoFilePath  string   `json:"clubPhoto"`
-	ContactEmail       string   `json:"contactEmail"`
-	ContactPhoneNumber string   `json:"contactPhoneNumber"`
-	Website            string   `json:"website"`
-
-	// Belongs to some club leader
-	ClubAdmin   uint         `json:"clubAdmin"`
-	ClubAdminID *models.User `json:"clubAdminID,omitempty"`
-}
-
 // UpdateClub godoc
 // @Summary Updates Club column
 // @Description Updates any of the data shown on a given club's webpage
@@ -147,8 +167,8 @@ type ClubUpdateParams struct {
 // @Success 200 {object} models.Club
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
-// @Router /clubtrak/clubs/:clubID [patch]
-func (t *Controller) UpdateClub(c *gin.Context) {
+// @Router /clubtrak/admin/clubs/:clubID [patch]
+func (t *Controller) AdminUpdateClub(c *gin.Context) {
 	clubID, err := services.GetUIntParam(c, "clubID")
 	if err != nil {
 		t.RespondErrorCode(c, http.StatusBadRequest, err)
