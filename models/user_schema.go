@@ -42,6 +42,9 @@ type User struct {
 	HomeCountry *string `json:"homeCountry"`
 	HomeVisible *bool   `gorm:"DEFAULT:true;not null" json:"homeVisible"`
 
+	DietaryPreference *bool `gorm:"DEFAULT:false;not null" json:"dietaryPref"`
+	DietaryPrefVisibile *bool   `gorm:"DEFAULT:false;not null" json:"dietaryPrefVisible"`
+
 	Major                     *string `json:"major"`
 	SUBox                     *string `json:"suBox"`
 	Entry                     *string `json:"entry"`
