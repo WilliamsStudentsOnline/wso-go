@@ -20,7 +20,8 @@
         },
         "matchedUserID": {
           "type": "integer",
-          "goType": "uint"
+          "goType": "uint",
+          "goOtherName": "MatchedUserID"
         },
         "seenByMatchedUser": {
           "type": "boolean"
@@ -63,7 +64,8 @@
           "type": "string"
         },
         "unixID": {
-          "type": "string"
+          "type": "string",
+          "goOtherName": "UnixID"
         },
         "williamsEmail": {
           "type": "string"

@@ -35,7 +35,8 @@
           "goOtherName": "CampusPhoneExt"
         },
         "unixID": {
-          "type": "string"
+          "type": "string",
+          "goOtherName": "UnixID"
         },
         "williamsEmail": {
           "type": "string"
@@ -96,21 +97,24 @@
         },
         "departmentID": {
           "type": "integer",
-          "goType": "uint"
+          "goType": "uint",
+          "goOtherName": "DepartmentID"
         },
         "department": {
           "$ref": "#/definitions/Department"
         },
         "officeID": {
           "type": "integer",
-          "goType": "uint"
+          "goType": "uint",
+          "goOtherName": "OfficeID"
         },
         "office": {
           "$ref": "#/definitions/Office"
         },
         "dormRoomID": {
           "type": "integer",
-          "goType": "uint"
+          "goType": "uint",
+          "goOtherName": "DormRoomID"
         },
         "dormRoom": {
           "$ref": "#/definitions/DormRoom"
@@ -141,7 +145,17 @@
           "type": "string"
         },
         "williamsID": {
-          "type": "string"
+          "type": "string",
+          "goOtherName": "WilliamsID"
+        },
+        "dietaryPref": {
+          "type": "boolean",
+          "goPtr": true,
+          "goOtherName": "DietaryPreference"
+        },
+        "dietaryPrefVisible": {
+          "type": "boolean",
+          "goPtr": true
         },
         "tags": {
           "type": "array",
@@ -197,7 +211,8 @@
         },
         "dormID": {
           "type": "integer",
-          "goType": "uint"
+          "goType": "uint",
+          "goOtherName": "DormID"
         },
         "dorm": {
           "$ref": "#/definitions/Dorm"
@@ -236,7 +251,8 @@
         },
         "neighborhoodID": {
           "type": "integer",
-          "goType": "uint"
+          "goType": "uint",
+          "goOtherName": "NeighborhoodID"
         },
         "name": {
           "type": "string"

@@ -40,6 +40,11 @@ func User(user *models.User, ctx *gin.Context) {
 		user.HomeZip = nil
 	}
 
+	// Dietary preference visibility
+	if user.DietaryPrefVisible != nil && !*user.DietaryPrefVisible {
+		user.DietaryPreference = nil
+	}
+
 	// Williams ID
 	user.WilliamsID = ""
 }

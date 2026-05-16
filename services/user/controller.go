@@ -205,6 +205,8 @@ type UpdateUserParams struct {
 	Nickname                  *string `json:"nickname"`
 	OptOutEphcatch            *bool   `json:"optOutEphcatch"`
 	CampusStatus              *string `json:"campusStatus"`
+	DietaryPreference         *bool   `json:"dietaryPref"`
+	DietaryPrefVisible        *bool   `json:"dietaryPrefVisible"`
 }
 
 // UpdateUser godoc
@@ -264,6 +266,8 @@ func (t *Controller) UpdateUser(c *gin.Context) {
 	user.Nickname = lib.StrPtrDefaults(updateData.Nickname, user.Nickname)
 	user.OptOutEphcatch = lib.BoolPtrDefaults(updateData.OptOutEphcatch, user.OptOutEphcatch)
 	user.CampusStatus = lib.StrPtrDefaults(updateData.CampusStatus, user.CampusStatus)
+	user.DietaryPreference = lib.BoolPtrDefaults(updateData.DietaryPreference, user.DietaryPreference)
+	user.DietaryPrefVisible = lib.BoolPtrDefaults(updateData.DietaryPrefVisible, user.DietaryPrefVisible)
 
 	// Error if bad campus status
 	if user.CampusStatus != nil && *user.CampusStatus != "" && !models.ValidateCampusStatus(*user.CampusStatus) {
@@ -271,7 +275,6 @@ func (t *Controller) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	// Update the user in the db
 	err = t.userModel.UpdateUser(&user)
 	if err != nil {
 		t.RespondError(c, err)
