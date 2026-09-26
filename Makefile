@@ -37,6 +37,10 @@ services/words/words_data.go: services/words/words.json
 job-catalog-update:
 	go build -tags=jsoniter -o job-catalog-update ./jobs/catalog_update/cmd
 
+.PHONY: job-factrak-backfill
+job-factrak-backfill:
+	go build -tags=jsoniter -o job-factrak-backfill ./jobs/factrak_backfill/cmd
+
 .PHONY: job-update-all-factrak-survey-deficits
 job-update-all-factrak-survey-deficits:
 	go build -tags=jsoniter -o job-update-all-factrak-survey-deficits ./jobs/update_all_factrak_survey_deficits/cmd
