@@ -98,17 +98,12 @@ func loadDiningNutrislice(vendorInfoPath string, startDate time.Time) (WeeklyDin
 		VendorsByDate: make(map[string]map[string]Vendor),
 	}
 
-	// vendorIDs that use nutrislice
-	vendorIDs := []string{
-		"driscoll", "whitmans", "mission", "82-grill",
-		"fresh-n-go", "lees-snack-bar", "eco-cafe",
-	}
-
-	for _, vendorID := range vendorIDs {
-		vendorInfo, ok := vendorsInfo[vendorID]
-		if !ok {
+	nutriVendorIDs := map[string]bool{}
+	for vendorID, vendorInfo := range vendorsInfo {
+		if vendorInfo.NutriSliceSlug == "" {
 			continue
 		}
+		nutriVendorIDs[vendorID] = true
 
 		// weekly parsed vendors: map[date]Vendor
 		vendorsByDate, err := loadVendorNutrisliceWeekly(startDate, vendorInfo, api)
@@ -125,16 +120,9 @@ func loadDiningNutrislice(vendorInfoPath string, startDate time.Time) (WeeklyDin
 		}
 	}
 
-	// non nutrislice vendors
+	// non nutrislice vendors (hours-only, e.g. Goodrich)
 	for viID, vi := range vendorsInfo {
-		isNutri := false
-		for _, nid := range vendorIDs {
-			if nid == viID {
-				isNutri = true
-				break
-			}
-		}
-		if isNutri {
+		if nutriVendorIDs[viID] {
 			continue
 		}
 
@@ -196,7 +184,8 @@ func loadVendorNutrisliceWeekly(
 	mealsByDate := make(map[string]map[string]*Meal)
 
 	for mealType := range mealTypes {
-		raw, err := api.GetWeeklyMenu(vendorInfo.NutriSliceSlug, mealType, startDate)
+		apiMealType := nutriSliceMenuType(vendorInfo, mealType)
+		raw, err := api.GetWeeklyMenu(vendorInfo.NutriSliceSlug, apiMealType, startDate)
 		if err != nil {
 			continue
 		}
@@ -281,4 +270,15 @@ func loadVendorNutrisliceWeekly(
 	}
 
 	return vendorsByDate, nil
+}
+
+// nutriSliceMenuType returns the Nutrislice menu-type slug for a vendor meal key.
+// Prefers an explicit nutrislice_menu_type from vendor hours when present.
+func nutriSliceMenuType(vendorInfo VendorInfo, mealType string) string {
+	for _, dayHours := range vendorInfo.Hours {
+		if h, ok := dayHours[mealType]; ok && h.NutriSliceMenuType != "" {
+			return h.NutriSliceMenuType
+		}
+	}
+	return mealType
 }
