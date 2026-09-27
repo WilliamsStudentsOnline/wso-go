@@ -110,26 +110,32 @@ type RawCourse struct {
 	FirstName1           string `json:"WMS_FIRST_NAME1"`
 	MiddleName1          string `json:"WMS_MID_NAME1"`
 	LastName1            string `json:"WMS_LAST_NAME1"`
+	UnixID1              string `json:"WMS_UID1"`
 	URL1                 string `json:"URL_1"`
 	FirstName2           string `json:"WMS_FIRST_NAME2"`
 	MiddleName2          string `json:"WMS_MID_NAME2"`
 	LastName2            string `json:"WMS_LAST_NAME2"`
+	UnixID2              string `json:"WMS_UID2"`
 	URL2                 string `json:"URL_2"`
 	FirstName3           string `json:"WMS_FIRST_NAME3"`
 	MiddleName3          string `json:"WMS_MID_NAME3"`
 	LastName3            string `json:"WMS_LAST_NAME3"`
+	UnixID3              string `json:"WMS_UID3"`
 	URL3                 string `json:"URL_3"`
 	FirstName4           string `json:"WMS_FIRST_NAME4"`
 	MiddleName4          string `json:"WMS_MID_NAME4"`
 	LastName4            string `json:"WMS_LAST_NAME4"`
+	UnixID4              string `json:"WMS_UID4"`
 	URL4                 string `json:"URL_4"`
 	FirstName5           string `json:"WMS_FIRST_NAME5"`
 	MiddleName5          string `json:"WMS_MID_NAME5"`
 	LastName5            string `json:"WMS_LAST_NAME5"`
+	UnixID5              string `json:"WMS_UID5"`
 	URL5                 string `json:"URL_5"`
 	FirstName6           string `json:"WMS_FIRST_NAME6"`
 	MiddleName6          string `json:"WMS_MID_NAME6"`
 	LastName6            string `json:"WMS_LAST_NAME6"`
+	UnixID6              string `json:"WMS_UID6"`
 	URL6                 string `json:"URL_6"`
 	StandardMeeting1     string `json:"WMS_STND_MTG_PAT1"`
 	StartTime1           string `json:"WMS_START_TIME1"`
@@ -142,9 +148,10 @@ type RawCourse struct {
 	StandardMeeting3     string `json:"WMS_STND_MTG_PAT3"`
 	StartTime3           string `json:"WMS_START_TIME3"`
 	EndTime3             string `json:"WMS_END_TIME3"`
-	Facility3            string `json:"WMS_FACIL_DESCR"`
+	Facility3            string `json:"WMS_FACIL_DESCR3"`
 	AttributesSearch     string `json:"WMS_ATTR_SRCH"`
 	ClassFormat          string `json:"WMS_CLASS_FORMAT"`
+	ComponentList        string `json:"WMS_CMPNT"`
 	Evaluation           string `json:"WMS_RQMT_EVAL"`
 	ExtraInfo            string `json:"WMS_EXTRA_INFO"`
 	ExtraInfo2           string `json:"WMS_EXTRA_INFO2"`
@@ -162,6 +169,12 @@ type RawCourse struct {
 	DistributionNote3    string `json:"WMS_DISTRIB_NT3"`
 	DescriptionSearch    string `json:"WMS_DESCR_SRCH"`
 	DistributionNotes    string `json:"WMS_DISTRIB_NOTES"`
+}
+
+// catalogFeedError is returned by the Williams catalog API when a year is unavailable.
+type catalogFeedError struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
 }
 
 type aggregatedInfo struct {
@@ -532,8 +545,9 @@ func SearchProfessor(search factrak.SearchFactrak, fn, mn, ln string) (uint, err
 	}
 }
 
-// GetCatalog fetches the json from the CatalogURL endpoint and parses it into an array of RawCourses.
-func GetCatalog(academicYear int, draft bool) ([]RawCourse, error) {
+// FetchCatalogJSON fetches the raw JSON body from the catalog endpoint for the given year.
+// academicYear 0 means the "current" endpoint.
+func FetchCatalogJSON(academicYear int, draft bool) ([]byte, error) {
 	catalogClient := &http.Client{
 		Timeout: time.Second * 30, // Maximum of 30 seconds
 	}
@@ -549,19 +563,64 @@ func GetCatalog(academicYear int, draft bool) ([]RawCourse, error) {
 		}
 	}
 
-	// Send the GET request and get back the response
 	res, err := catalogClient.Get(url)
 	if err != nil {
 		return nil, err
 	}
+	defer res.Body.Close()
 
-	var rawCourses []RawCourse
-	err = json.NewDecoder(res.Body).Decode(&rawCourses)
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("catalog feed returned HTTP %d for year %d", res.StatusCode, academicYear)
+	}
+
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
+	return body, nil
+}
 
+// DecodeCatalog parses catalog JSON into RawCourses. Treats the unavailable-year error
+// body ({"status":"error",...}) as an error even when HTTP status is 200.
+func DecodeCatalog(data []byte) ([]RawCourse, error) {
+	var feedErr catalogFeedError
+	if err := json.Unmarshal(data, &feedErr); err == nil && feedErr.Status == "error" {
+		msg := feedErr.Message
+		if msg == "" {
+			msg = "catalog feed returned an error"
+		}
+		return nil, fmt.Errorf("%s", msg)
+	}
+
+	var rawCourses []RawCourse
+	if err := json.Unmarshal(data, &rawCourses); err != nil {
+		return nil, err
+	}
 	return rawCourses, nil
+}
+
+// GetCatalog fetches the json from the CatalogURL endpoint and parses it into an array of RawCourses.
+func GetCatalog(academicYear int, draft bool) ([]RawCourse, error) {
+	body, err := FetchCatalogJSON(academicYear, draft)
+	if err != nil {
+		return nil, err
+	}
+	return DecodeCatalog(body)
+}
+
+// TermFromStrm derives the term name from the last digit of PeopleSoft STRM
+// (1=Fall, 2=Winter, 3=Spring).
+func TermFromStrm(strm int) string {
+	switch strm % 10 {
+	case 1:
+		return "Fall"
+	case 2:
+		return "Winter"
+	case 3:
+		return "Spring"
+	default:
+		return "Unknown"
+	}
 }
 
 // SaveCatalog writes the array of courses and the update time into the provided writer.
