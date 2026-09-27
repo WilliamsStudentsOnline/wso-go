@@ -147,6 +147,15 @@ var (
 	ErrorBulletinRideDateInPast = NewAPIError(1841, "date cannot be in past")
 	ErrorDiscussionNotFound     = NewAPIErrorWithHTTP(1850, http.StatusNotFound, "discussion cannot be found")
 
+	// 24** are board errors
+	ErrorBoardInvalidType      = NewAPIError(2430, "invalid board thread type")
+	ErrorBoardInvalidDates     = NewAPIError(2431, "startsAt cannot be after endsAt")
+	ErrorBoardRepliesDisabled  = NewAPIErrorWithHTTP(2432, http.StatusForbidden, "replies are disabled on this thread")
+	ErrorBoardRideInformationRequired = NewAPIError(2435, "ride threads require offeringRide, source, and destination")
+	ErrorBoardTypeImmutable    = NewAPIError(2436, "thread type cannot be changed")
+	ErrorBoardThreadNotFound   = NewAPIErrorWithHTTP(2450, http.StatusNotFound, "board thread cannot be found")
+	ErrorBoardPostNotFound     = NewAPIErrorWithHTTP(2451, http.StatusNotFound, "board post cannot be found")
+
 	// 19** are ephmatch errors
 	ErrorEphmatchDeprecated = NewAPIErrorWithHTTP(1900, http.StatusGone, "ephmatch api is deprecated")
 

@@ -1227,6 +1227,302 @@ const docTemplate = `{
                 }
             }
         },
+        "/board/replies/{replyID}": {
+            "delete": {
+                "tags": [
+                    "board"
+                ],
+                "summary": "Delete a reply (OP delete cascades to thread)",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Reply ID",
+                        "name": "replyID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.BoardPost"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "board"
+                ],
+                "summary": "Update a reply",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Reply ID",
+                        "name": "replyID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update params",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/board.UpdateReplyParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.BoardPost"
+                        }
+                    }
+                }
+            }
+        },
+        "/board/threads": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "board"
+                ],
+                "summary": "List board threads",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Cursor pagination",
+                        "name": "cursor",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "activity|created|startsAt",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Include null startsAt when sorting by startsAt",
+                        "name": "includeNull",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Thread types",
+                        "name": "type[]",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Filter by resolved",
+                        "name": "resolved",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Filter rides by offeringRide",
+                        "name": "offeringRide",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Filter by author",
+                        "name": "userID",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/board.listThreadsResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "board"
+                ],
+                "summary": "Create board thread",
+                "parameters": [
+                    {
+                        "description": "Create params",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/board.CreateThreadParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.BoardThread"
+                        }
+                    }
+                }
+            }
+        },
+        "/board/threads/{threadID}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "board"
+                ],
+                "summary": "Get board thread",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Thread ID",
+                        "name": "threadID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.BoardThread"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "board"
+                ],
+                "summary": "Delete board thread",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Thread ID",
+                        "name": "threadID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.BoardThread"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "board"
+                ],
+                "summary": "Update board thread",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Thread ID",
+                        "name": "threadID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update params",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/board.UpdateThreadParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.BoardThread"
+                        }
+                    }
+                }
+            }
+        },
+        "/board/threads/{threadID}/replies": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "board"
+                ],
+                "summary": "Create a reply on a thread",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Thread ID",
+                        "name": "threadID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Reply content",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/board.CreateReplyParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.BoardPost"
+                        }
+                    }
+                }
+            }
+        },
         "/books/{bookID}": {
             "get": {
                 "security": [
@@ -9117,6 +9413,116 @@ const docTemplate = `{
                 }
             }
         },
+        "board.CreateReplyParams": {
+            "type": "object",
+            "required": [
+                "content"
+            ],
+            "properties": {
+                "content": {
+                    "type": "string"
+                }
+            }
+        },
+        "board.CreateThreadParams": {
+            "type": "object",
+            "required": [
+                "body",
+                "title",
+                "type"
+            ],
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "endsAt": {
+                    "type": "string"
+                },
+                "repliesEnabled": {
+                    "type": "boolean"
+                },
+                "resolved": {
+                    "type": "boolean"
+                },
+                "ride": {
+                    "$ref": "#/definitions/board.createThreadRideParams"
+                },
+                "startsAt": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "board.UpdateReplyParams": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                }
+            }
+        },
+        "board.UpdateThreadParams": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "endsAt": {
+                    "type": "string"
+                },
+                "repliesEnabled": {
+                    "type": "boolean"
+                },
+                "resolved": {
+                    "type": "boolean"
+                },
+                "ride": {
+                    "$ref": "#/definitions/board.createThreadRideParams"
+                },
+                "startsAt": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "board.createThreadRideParams": {
+            "type": "object",
+            "properties": {
+                "destination": {
+                    "type": "string"
+                },
+                "offeringRide": {
+                    "type": "boolean"
+                },
+                "source": {
+                    "type": "string"
+                }
+            }
+        },
+        "board.listThreadsResponse": {
+            "type": "object",
+            "properties": {
+                "nextCursor": {
+                    "type": "string"
+                },
+                "threads": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.BoardThread"
+                    }
+                }
+            }
+        },
         "booktrak.CreateBookListingParams": {
             "type": "object",
             "required": [
@@ -9957,6 +10363,113 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.User"
                         }
                     ]
+                },
+                "userID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.BoardPost": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "exUserName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isOP": {
+                    "type": "boolean"
+                },
+                "thread": {
+                    "$ref": "#/definitions/models.BoardThread"
+                },
+                "threadID": {
+                    "type": "integer"
+                },
+                "user": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "userID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.BoardRideInformation": {
+            "type": "object",
+            "properties": {
+                "destination": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "offeringRide": {
+                    "type": "boolean"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "thread": {
+                    "$ref": "#/definitions/models.BoardThread"
+                },
+                "threadID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.BoardThread": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "description": "hydrated from OP for API convenience",
+                    "type": "string"
+                },
+                "endsAt": {
+                    "type": "string"
+                },
+                "exUserName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "lastActive": {
+                    "type": "string"
+                },
+                "posts": {
+                    "description": "Associations",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.BoardPost"
+                    }
+                },
+                "repliesEnabled": {
+                    "type": "boolean"
+                },
+                "replyCount": {
+                    "type": "integer"
+                },
+                "resolved": {
+                    "type": "boolean"
+                },
+                "ride": {
+                    "$ref": "#/definitions/models.BoardRideInformation"
+                },
+                "startsAt": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/models.User"
                 },
                 "userID": {
                     "type": "integer"
