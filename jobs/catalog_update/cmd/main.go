@@ -38,6 +38,7 @@ var (
 	noIngestDB            bool
 	skipJSON              bool
 	skipCurrent           bool
+	rematchInstructors    bool
 	console               bool
 
 	log           *zap.SugaredLogger
@@ -64,6 +65,7 @@ func main() {
 	flag.BoolVar(&noIngestDB, "no-ingest-db", false, "skip DB upsert even when -config is set")
 	flag.BoolVar(&skipJSON, "skip-json", false, "skip writing courses.json outputs (DB ingest / archive only)")
 	flag.BoolVar(&skipCurrent, "skip-current", false, "skip the year/current fetch (useful with -from-year/-to-year)")
+	flag.BoolVar(&rematchInstructors, "rematch-instructors", false, "re-link offering_instructors.user_id via unix_id then normalized name; can run alone")
 	flag.BoolVar(&console, "console", false, "print logs in console as well as in ")
 
 	flag.Parse()
@@ -175,6 +177,17 @@ func main() {
 	if doIngest && db == nil {
 		log.Fatal("-ingest-db requires -config so a database can be loaded")
 	}
+	if rematchInstructors && db == nil {
+		log.Fatal("-rematch-instructors requires -config so a database can be loaded")
+	}
+
+	// Bare -rematch-instructors (no year range / previous-years): rematch and exit.
+	if rematchInstructors && !historical && savePreviousYears == 0 {
+		if _, err := catalog.RematchOfferingInstructors(db, log); err != nil {
+			log.Fatal(err)
+		}
+		return
+	}
 
 	var currentCourses []catalog.Course
 
@@ -237,6 +250,11 @@ func main() {
 			}
 		}
 		log.Infof("Historical load complete (%d–%d)", fromYear, toYear)
+		if rematchInstructors {
+			if _, err := catalog.RematchOfferingInstructors(db, log); err != nil {
+				log.Fatal(err)
+			}
+		}
 		return
 	}
 
