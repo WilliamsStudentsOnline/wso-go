@@ -224,7 +224,7 @@ lees-snack-bar:
         close: 4:30pm
         display_name: "midday"
       dinner:
-        open: 4:30pm
+        open: 5:00pm
         close: 8:00pm
         nutrislice_menu_type: lee-dinner
     tuesday:
@@ -239,7 +239,7 @@ lees-snack-bar:
         close: 4:30pm
         display_name: "midday"
       dinner:
-        open: 4:30pm
+        open: 5:00pm
         close: 8:00pm
         nutrislice_menu_type: lee-dinner
     wednesday:
@@ -254,7 +254,7 @@ lees-snack-bar:
         close: 4:30pm
         display_name: "midday"
       dinner:
-        open: 4:30pm
+        open: 5:00pm
         close: 8:00pm
         nutrislice_menu_type: lee-dinner
     thursday:
@@ -269,7 +269,7 @@ lees-snack-bar:
         close: 4:30pm
         display_name: "midday"
       dinner:
-        open: 4:30pm
+        open: 5:00pm
         close: 8:00pm
         nutrislice_menu_type: lee-dinner
     friday:
@@ -284,7 +284,7 @@ lees-snack-bar:
         close: 4:30pm
         display_name: "midday"
       dinner:
-        open: 4:30pm
+        open: 5:00pm
         close: 8:00pm
         nutrislice_menu_type: lee-dinner
 82-grill:
