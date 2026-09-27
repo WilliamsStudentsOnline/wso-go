@@ -2,6 +2,7 @@ package catalog_update_test
 
 import (
 	"encoding/json"
+	"strings"
 	"testing"
 
 	. "github.com/WilliamsStudentsOnline/wso-go/jobs/catalog_update"
@@ -282,3 +283,68 @@ func TestParse(t *testing.T) {
 		assertParse(catalog, expected, t)
 	})
 }
+
+func TestDecodeCatalog(t *testing.T) {
+	assert := testify.New(t)
+
+	t.Run("rejects unavailable year error body", func(t *testing.T) {
+		body := []byte(`{"status":"error","message":"requested year is unavailable"}`)
+		_, err := DecodeCatalog(body)
+		assert.Error(err)
+		assert.Contains(err.Error(), "unavailable")
+	})
+
+	t.Run("parses UID and Facility3 fields", func(t *testing.T) {
+		body := []byte(`[
+			{
+			  "WMS_ACAD_YEAR": "2027",
+			  "OFFERED": "Y",
+			  "STRM": "1271",
+			  "CRSE_ID": "020209",
+			  "EFFDT": "01-SEP-26",
+			  "SUBJECT": "AFR",
+			  "CATALOG_NBR": "105",
+			  "WMS_CRSE_LETTER": "B",
+			  "CLASS_SECTION": "01",
+			  "CLASS_NBR": "1089",
+			  "CONSENT": "N",
+			  "GRADING_BASIS": "OPT",
+			  "SSR_COMPONENT": "LEC",
+			  "DESCR": "African Art Survey",
+			  "COURSE_TITLE_LONG": "Materials",
+			  "WMS_FIRST_NAME1": "Michelle",
+			  "WMS_MID_NAME1": "M.",
+			  "WMS_LAST_NAME1": "Apotsos",
+			  "WMS_UID1": "ma11",
+			  "WMS_CMPNT": "lecture",
+			  "WMS_STND_MTG_PAT1": "MW",
+			  "WMS_START_TIME1": "11:00",
+			  "WMS_END_TIME1": "12:15",
+			  "WMS_FACIL_DESCR1": "Hopkins",
+			  "WMS_STND_MTG_PAT3": "F",
+			  "WMS_START_TIME3": "13:00",
+			  "WMS_END_TIME3": "14:00",
+			  "WMS_FACIL_DESCR3": "Schapiro 101",
+			  "WMS_ATTR_SRCH": "DIV_D2",
+			  "WMS_DESCR_SRCH": "Lorem."
+			}
+		]`)
+		raw, err := DecodeCatalog(body)
+		assert.NoError(err)
+		assert.Len(raw, 1)
+		assert.Equal("ma11", raw[0].UnixID1)
+		assert.Equal("B", strings.TrimSpace(raw[0].CourseLetter))
+		assert.Equal("lecture", raw[0].ComponentList)
+		assert.Equal("Schapiro 101", raw[0].Facility3)
+		assert.Equal("01-SEP-26", raw[0].EffectiveDate)
+	})
+}
+
+func TestTermFromStrm(t *testing.T) {
+	assert := testify.New(t)
+	assert.Equal("Fall", TermFromStrm(1271))
+	assert.Equal("Winter", TermFromStrm(1272))
+	assert.Equal("Spring", TermFromStrm(1273))
+	assert.Equal("Unknown", TermFromStrm(1270))
+}
+
