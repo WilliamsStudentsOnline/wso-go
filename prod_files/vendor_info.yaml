@@ -186,7 +186,6 @@ mission:
         open: 11:30am
         close: 1:30pm
         display_name: "brunch"
-        # Nutrislice renamed Mission's midday menu type from lunch → brunch
         nutrislice_menu_type: brunch
       dinner:
         open: 4:30pm
@@ -213,9 +212,6 @@ lees-snack-bar:
   operating: true
   online_order: true
   hours:
-    # Nutrislice dinner slug is lee-dinner (not dinner). Hours from Nutrislice
-    # operating schedule; dinner has an active menu type but no published hours,
-    # so we keep a weekday evening window after mid-day.
     monday:
       breakfast:
         open: 8:00am
@@ -297,7 +293,6 @@ lees-snack-bar:
   operating: true
   online_order: true
   hours:
-    # Nutrislice menu-type slugs are 82-grill-lunch / 82-grill-dinner (not lunch/dinner)
     monday:
       lunch:
         open: 11:00am
@@ -414,7 +409,6 @@ eco-cafe:
   nutrislice_slug: "eco-cafe"
   operating: true
   online_order: true
-  # Nutrislice only exposes an active lunch menu type for Eco Cafe now
   hours:
     monday:
       lunch:
