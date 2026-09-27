@@ -120,7 +120,7 @@ func loadDiningNutrislice(vendorInfoPath string, startDate time.Time) (WeeklyDin
 		}
 	}
 
-	// non nutrislice vendors (hours-only, e.g. Goodrich)
+	// non nutrislice vendors
 	for viID, vi := range vendorsInfo {
 		if nutriVendorIDs[viID] {
 			continue
@@ -272,8 +272,6 @@ func loadVendorNutrisliceWeekly(
 	return vendorsByDate, nil
 }
 
-// nutriSliceMenuType returns the Nutrislice menu-type slug for a vendor meal key.
-// Prefers an explicit nutrislice_menu_type from vendor hours when present.
 func nutriSliceMenuType(vendorInfo VendorInfo, mealType string) string {
 	for _, dayHours := range vendorInfo.Hours {
 		if h, ok := dayHours[mealType]; ok && h.NutriSliceMenuType != "" {
