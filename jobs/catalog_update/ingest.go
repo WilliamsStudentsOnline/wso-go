@@ -64,8 +64,10 @@ func IngestCatalog(db *gorm.DB, rawCourses []RawCourse, log *zap.SugaredLogger) 
 		log = zap.NewNop().Sugar()
 	}
 
-	// Cache unix_id -> user id lookups for this run (name matching comes in a later change).
-	userByUnix := make(map[string]*uint)
+	matcher, err := NewInstructorMatcher(db, log)
+	if err != nil {
+		return fmt.Errorf("build instructor matcher: %w", err)
+	}
 
 	tx := db.Begin()
 	if tx.Error != nil {
@@ -79,7 +81,7 @@ func IngestCatalog(db *gorm.DB, rawCourses []RawCourse, log *zap.SugaredLogger) 
 	}()
 
 	for i := range rawCourses {
-		if err := upsertRawCourse(tx, &rawCourses[i], userByUnix); err != nil {
+		if err := upsertRawCourse(tx, &rawCourses[i], matcher); err != nil {
 			tx.Rollback()
 			return err
 		}
@@ -92,7 +94,7 @@ func IngestCatalog(db *gorm.DB, rawCourses []RawCourse, log *zap.SugaredLogger) 
 	return nil
 }
 
-func upsertRawCourse(db *gorm.DB, raw *RawCourse, userByUnix map[string]*uint) error {
+func upsertRawCourse(db *gorm.DB, raw *RawCourse, matcher *InstructorMatcher) error {
 	crseID := strings.TrimSpace(raw.CourseID)
 	if crseID == "" {
 		return nil
@@ -131,7 +133,7 @@ func upsertRawCourse(db *gorm.DB, raw *RawCourse, userByUnix map[string]*uint) e
 	if err := replaceMeetings(db, offering.ID, raw); err != nil {
 		return err
 	}
-	return replaceInstructors(db, offering.ID, raw, userByUnix)
+	return replaceInstructors(db, offering.ID, raw, matcher)
 }
 
 func upsertCanonicalCourse(db *gorm.DB, crseID, title, description string, year int) (*models.CourseCanonical, error) {
@@ -308,7 +310,7 @@ func replaceMeetings(db *gorm.DB, offeringID uint, raw *RawCourse) error {
 	return nil
 }
 
-func replaceInstructors(db *gorm.DB, offeringID uint, raw *RawCourse, userByUnix map[string]*uint) error {
+func replaceInstructors(db *gorm.DB, offeringID uint, raw *RawCourse, matcher *InstructorMatcher) error {
 	if err := db.Unscoped().Where("offering_id = ?", offeringID).Delete(&models.OfferingInstructor{}).Error; err != nil {
 		return err
 	}
@@ -350,25 +352,7 @@ func replaceInstructors(db *gorm.DB, offeringID uint, raw *RawCourse, userByUnix
 			name = unixID
 		}
 
-		var userID *uint
-		if unixID != "" {
-			if cached, ok := userByUnix[unixID]; ok {
-				userID = cached
-			} else {
-				var user models.User
-				err := db.Where("unix_id = ?", unixID).First(&user).Error
-				if err != nil && !gorm.IsRecordNotFoundError(err) {
-					return err
-				}
-				if err == nil {
-					id := user.ID
-					userID = &id
-					userByUnix[unixID] = userID
-				} else {
-					userByUnix[unixID] = nil
-				}
-			}
-		}
+		userID, _ := matcher.Match(unixID, fn, mn, ln)
 
 		instr := models.OfferingInstructor{
 			OfferingID:   offeringID,
