@@ -124,3 +124,5 @@ k8s/**/*secrets.yaml
 pics/
 /job-*
 /local/
+db/*.db
+catalog-archive/

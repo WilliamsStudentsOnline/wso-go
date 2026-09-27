@@ -53,6 +53,7 @@ var Migrations = []*gormigrate.Migration{
 	migrations.LookingForColumn20220504015544,
 	migrations.CreateBookListings20221224071254,
 	migrations.CreateBooks20221230032200,
+	migrations.CreateCatalogTables20260926184159,
 }
 
 var MigrationGormOptions = gormigrate.DefaultOptions
@@ -96,6 +97,11 @@ func MigrateDB(db *gorm.DB) error {
 			&models.BannedUser{},
 			&models.BookListing{},
 			&models.Book{},
+			&models.CourseCanonical{},
+			&models.CourseListing{},
+			&models.Offering{},
+			&models.OfferingMeeting{},
+			&models.OfferingInstructor{},
 		).Error
 		if err != nil {
 			return err

@@ -1,0 +1,15 @@
+---
+env: development
+secrets_file: config/secrets_example.yaml
+database_type: sqlite3
+sqlite_file: db/catalog_historical.db
+jwt_realm: wso-go-dev
+port: 8080
+disable_ldap: true
+jwt_timeout_hours: 168
+jwt_identity_timeout_hours: 4272
+jwt_api_timeout_hours: 168
+enable_api_docs: true
+hostname: localhost
+log_formats: ['console']
+log_level: info
