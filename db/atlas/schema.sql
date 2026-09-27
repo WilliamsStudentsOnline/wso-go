@@ -30,21 +30,71 @@ CREATE TABLE `banned_users` (
   INDEX `idx_banned_users_deleted_at` (`deleted_at`),
   INDEX `index_banned_users_on_user_id` (`user_id`)
 ) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
--- Create "book_listings" table
-CREATE TABLE `book_listings` (
+-- Create "board_backfill_map" table
+CREATE TABLE `board_backfill_map` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `created_at` datetime NULL,
   `updated_at` datetime NULL,
   `deleted_at` datetime NULL,
-  `book_id` int unsigned NOT NULL,
-  `user_id` int unsigned NOT NULL,
-  `condition` varchar(255) NULL,
-  `description` longtext NULL,
-  `listing_type` varchar(255) NULL,
+  `source_table` varchar(255) NOT NULL,
+  `source_id` int unsigned NOT NULL,
+  `thread_id` int unsigned NOT NULL,
   PRIMARY KEY (`id`),
-  INDEX `idx_book_listings_deleted_at` (`deleted_at`),
-  INDEX `index_book_listings_on_book_id` (`book_id`),
-  INDEX `index_book_listings_on_user_id` (`user_id`)
+  INDEX `idx_board_backfill_map_deleted_at` (`deleted_at`),
+  UNIQUE INDEX `idx_board_backfill_source` (`source_table`, `source_id`),
+  INDEX `idx_board_backfill_thread` (`thread_id`)
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- Create "board_posts" table
+CREATE TABLE `board_posts` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime NULL,
+  `updated_at` datetime NULL,
+  `deleted_at` datetime NULL,
+  `thread_id` int unsigned NOT NULL,
+  `user_id` int unsigned NOT NULL,
+  `ex_user_name` varchar(255) NULL,
+  `content` longtext NOT NULL,
+  `is_op` bool NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  INDEX `idx_board_posts_deleted_at` (`deleted_at`),
+  INDEX `index_board_posts_on_thread_id` (`thread_id`),
+  INDEX `index_board_posts_on_user_id` (`user_id`)
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- Create "board_ride_information" table
+CREATE TABLE `board_ride_information` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime NULL,
+  `updated_at` datetime NULL,
+  `deleted_at` datetime NULL,
+  `thread_id` int unsigned NOT NULL,
+  `offering_ride` bool NOT NULL,
+  `source` varchar(255) NOT NULL,
+  `destination` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `idx_board_ride_information_deleted_at` (`deleted_at`),
+  UNIQUE INDEX `index_board_ride_information_on_thread_id` (`thread_id`)
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- Create "board_threads" table
+CREATE TABLE `board_threads` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime NULL,
+  `updated_at` datetime NULL,
+  `deleted_at` datetime NULL,
+  `type` varchar(255) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `user_id` int unsigned NOT NULL,
+  `ex_user_name` varchar(255) NULL,
+  `replies_enabled` bool NOT NULL DEFAULT 1,
+  `resolved` bool NULL,
+  `starts_at` datetime NULL,
+  `ends_at` datetime NULL,
+  `last_active` datetime NOT NULL,
+  `reply_count` int NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  INDEX `idx_board_threads_deleted_at` (`deleted_at`),
+  INDEX `index_board_threads_on_last_active` (`last_active`),
+  INDEX `index_board_threads_on_type` (`type`),
+  INDEX `index_board_threads_on_user_id` (`user_id`)
 ) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- Create "books" table
 CREATE TABLE `books` (
@@ -62,20 +112,21 @@ CREATE TABLE `books` (
   PRIMARY KEY (`id`),
   INDEX `idx_books_deleted_at` (`deleted_at`)
 ) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
--- Create "bulletin_rides" table
-CREATE TABLE `bulletin_rides` (
+-- Create "book_listings" table
+CREATE TABLE `book_listings` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `created_at` datetime NULL,
   `updated_at` datetime NULL,
   `deleted_at` datetime NULL,
-  `body` longtext NULL,
-  `date` datetime NULL,
-  `offer` bool NOT NULL,
-  `source` varchar(255) NOT NULL,
-  `destination` varchar(255) NOT NULL,
-  `user_id` int unsigned NULL,
+  `book_id` int unsigned NOT NULL,
+  `user_id` int unsigned NOT NULL,
+  `condition` varchar(255) NULL,
+  `description` longtext NULL,
+  `listing_type` varchar(255) NULL,
   PRIMARY KEY (`id`),
-  INDEX `idx_bulletin_rides_deleted_at` (`deleted_at`)
+  INDEX `idx_book_listings_deleted_at` (`deleted_at`),
+  INDEX `index_book_listings_on_book_id` (`book_id`),
+  INDEX `index_book_listings_on_user_id` (`user_id`)
 ) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- Create "bulletins" table
 CREATE TABLE `bulletins` (
@@ -94,11 +145,20 @@ CREATE TABLE `bulletins` (
   INDEX `idx_bulletins_deleted_at` (`deleted_at`),
   INDEX `index_bulletins_on_type` (`type`)
 ) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
--- Create "course_book" table
-CREATE TABLE `course_book` (
-  `course_id` int unsigned NOT NULL,
-  `book_id` int unsigned NOT NULL,
-  PRIMARY KEY (`course_id`, `book_id`)
+-- Create "bulletin_rides" table
+CREATE TABLE `bulletin_rides` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime NULL,
+  `updated_at` datetime NULL,
+  `deleted_at` datetime NULL,
+  `body` longtext NULL,
+  `date` datetime NULL,
+  `offer` bool NOT NULL,
+  `source` varchar(255) NOT NULL,
+  `destination` varchar(255) NOT NULL,
+  `user_id` int unsigned NULL,
+  PRIMARY KEY (`id`),
+  INDEX `idx_bulletin_rides_deleted_at` (`deleted_at`)
 ) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- Create "courses" table
 CREATE TABLE `courses` (
@@ -110,6 +170,12 @@ CREATE TABLE `courses` (
   `area_of_study_id` int unsigned NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `idx_courses_deleted_at` (`deleted_at`)
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- Create "course_book" table
+CREATE TABLE `course_book` (
+  `course_id` int unsigned NOT NULL,
+  `book_id` int unsigned NOT NULL,
+  PRIMARY KEY (`course_id`, `book_id`)
 ) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- Create "departments" table
 CREATE TABLE `departments` (
@@ -134,35 +200,6 @@ CREATE TABLE `discussions` (
   PRIMARY KEY (`id`),
   INDEX `idx_discussions_deleted_at` (`deleted_at`),
   INDEX `index_discussions_on_user_id` (`user_id`)
-) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
--- Create "dorm_rooms" table
-CREATE TABLE `dorm_rooms` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `created_at` datetime NULL,
-  `updated_at` datetime NULL,
-  `deleted_at` datetime NULL,
-  `dorm_id` int unsigned NOT NULL,
-  `number` varchar(255) NOT NULL,
-  `closet` longtext NULL,
-  `flooring` varchar(255) NULL,
-  `common_room_access` bool NULL,
-  `common_room_desc` longtext NULL,
-  `thermostat_access` bool NULL,
-  `key_or_card` varchar(255) NULL,
-  `noise` longtext NULL,
-  `bed_adjustable` bool NULL,
-  `private_bathroom` bool NULL,
-  `bathroom_desc` longtext NULL,
-  `picture` varchar(255) NULL,
-  `room_type` varchar(255) NOT NULL,
-  `faces` varchar(255) NULL,
-  `hc` bool NULL,
-  `floor_number` int NULL,
-  `area` int NULL,
-  `walkthrough` bool NULL,
-  PRIMARY KEY (`id`),
-  INDEX `idx_dorm_rooms_deleted_at` (`deleted_at`),
-  INDEX `index_dorm_rooms_on_dorm_id` (`dorm_id`)
 ) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- Create "dorms" table
 CREATE TABLE `dorms` (
@@ -220,6 +257,35 @@ CREATE TABLE `dormtrak_reviews` (
   INDEX `idx_dormtrak_reviews_deleted_at` (`deleted_at`),
   INDEX `index_dormtrak_reviews_on_dorm_room_id` (`dorm_room_id`),
   INDEX `index_dormtrak_reviews_on_user_id` (`user_id`)
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- Create "dorm_rooms" table
+CREATE TABLE `dorm_rooms` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime NULL,
+  `updated_at` datetime NULL,
+  `deleted_at` datetime NULL,
+  `dorm_id` int unsigned NOT NULL,
+  `number` varchar(255) NOT NULL,
+  `closet` longtext NULL,
+  `flooring` varchar(255) NULL,
+  `common_room_access` bool NULL,
+  `common_room_desc` longtext NULL,
+  `thermostat_access` bool NULL,
+  `key_or_card` varchar(255) NULL,
+  `noise` longtext NULL,
+  `bed_adjustable` bool NULL,
+  `private_bathroom` bool NULL,
+  `bathroom_desc` longtext NULL,
+  `picture` varchar(255) NULL,
+  `room_type` varchar(255) NOT NULL,
+  `faces` varchar(255) NULL,
+  `hc` bool NULL,
+  `floor_number` int NULL,
+  `area` int NULL,
+  `walkthrough` bool NULL,
+  PRIMARY KEY (`id`),
+  INDEX `idx_dorm_rooms_deleted_at` (`deleted_at`),
+  INDEX `index_dorm_rooms_on_dorm_id` (`dorm_id`)
 ) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- Create "ephcatches" table
 CREATE TABLE `ephcatches` (
@@ -396,8 +462,7 @@ CREATE TABLE `moderator_tasks` (
   INDEX `index_moderator_tasks_on_resolved_at` (`resolved_at`),
   INDEX `index_moderator_tasks_on_resolved_by_user_id` (`resolved_by_user_id`),
   INDEX `index_moderator_tasks_on_task_reference` (`task_reference`),
-  INDEX `index_moderator_tasks_on_task_type` (`task_type`),
-  INDEX `index_moderator_tasks_on_task_type_task_reference_resolved_at` (`task_type`, `task_reference`, `resolved_at`)
+  INDEX `index_moderator_tasks_on_task_type` (`task_type`)
 ) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- Create "feedback" table
 CREATE TABLE `feedback` (
@@ -497,12 +562,6 @@ CREATE TABLE `tags_users` (
   `tag_id` int unsigned NOT NULL,
   PRIMARY KEY (`user_id`, `tag_id`)
 ) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
--- Create "user_areaOfStudy" table
-CREATE TABLE `user_areaOfStudy` (
-  `user_id` int unsigned NOT NULL,
-  `area_of_study_id` int unsigned NOT NULL,
-  PRIMARY KEY (`user_id`, `area_of_study_id`)
-) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- Create "users" table
 CREATE TABLE `users` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -545,11 +604,17 @@ CREATE TABLE `users` (
   `opt_out_ephcatch` bool NOT NULL DEFAULT 0,
   `ephcatch_eligibility` bool NOT NULL DEFAULT 0,
   `off_campus` bool NOT NULL DEFAULT 0,
-  `search_fields` varchar(255) NULL DEFAULT "",
+  `search_fields` varchar(255) NULL DEFAULT '',
   `campus_status` varchar(255) NULL,
   `williams_id` varchar(255) NULL,
   PRIMARY KEY (`id`),
   INDEX `idx_users_deleted_at` (`deleted_at`),
   INDEX `index_rooms_on_dorm_room_id` (`dorm_room_id`),
   UNIQUE INDEX `unix_id` (`unix_id`)
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- Create "user_areaOfStudy" table
+CREATE TABLE `user_areaOfStudy` (
+  `user_id` int unsigned NOT NULL,
+  `area_of_study_id` int unsigned NOT NULL,
+  PRIMARY KEY (`user_id`, `area_of_study_id`)
 ) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
