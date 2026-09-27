@@ -27,6 +27,7 @@ import (
 	autocompleteService "github.com/WilliamsStudentsOnline/wso-go/services/autocomplete"
 
 	booktrakService "github.com/WilliamsStudentsOnline/wso-go/services/booktrak"
+	boardService "github.com/WilliamsStudentsOnline/wso-go/services/board"
 	bulletinService "github.com/WilliamsStudentsOnline/wso-go/services/bulletin"
 	bulletinRSSService "github.com/WilliamsStudentsOnline/wso-go/services/bulletin/rss"
 	chatService "github.com/WilliamsStudentsOnline/wso-go/services/chat"
@@ -187,6 +188,11 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 		bulletinGroup := v2.Group("/bulletin")
 		bulletinGroup.Use(auth.RequireScopes(auth.ScopeBulletin))
 		bulletinService.SetupRouter(bulletinGroup, db, cfg, log.Named("bulletin"))
+
+		// Board Service (unified threads)
+		boardGroup := v2.Group("/board")
+		boardGroup.Use(auth.RequireScopes(auth.ScopeBulletin))
+		boardService.SetupRouter(boardGroup, db, cfg, log.Named("board"))
 
 		// Ephcatch Service
 		ephcatchGroup := v2.Group("/ephcatch")
