@@ -73,6 +73,78 @@ definitions:
       visible:
         type: boolean
     type: object
+  board.CreateReplyParams:
+    properties:
+      content:
+        type: string
+    required:
+    - content
+    type: object
+  board.CreateThreadParams:
+    properties:
+      body:
+        type: string
+      endsAt:
+        type: string
+      repliesEnabled:
+        type: boolean
+      resolved:
+        type: boolean
+      ride:
+        $ref: '#/definitions/board.createThreadRideParams'
+      startsAt:
+        type: string
+      title:
+        type: string
+      type:
+        type: string
+    required:
+    - body
+    - title
+    - type
+    type: object
+  board.UpdateReplyParams:
+    properties:
+      content:
+        type: string
+    type: object
+  board.UpdateThreadParams:
+    properties:
+      body:
+        type: string
+      endsAt:
+        type: string
+      repliesEnabled:
+        type: boolean
+      resolved:
+        type: boolean
+      ride:
+        $ref: '#/definitions/board.createThreadRideParams'
+      startsAt:
+        type: string
+      title:
+        type: string
+      type:
+        type: string
+    type: object
+  board.createThreadRideParams:
+    properties:
+      destination:
+        type: string
+      offeringRide:
+        type: boolean
+      source:
+        type: string
+    type: object
+  board.listThreadsResponse:
+    properties:
+      nextCursor:
+        type: string
+      threads:
+        items:
+          $ref: '#/definitions/models.BoardThread'
+        type: array
+    type: object
   booktrak.CreateBookListingParams:
     properties:
       bookID:
@@ -650,6 +722,77 @@ definitions:
         allOf:
         - $ref: '#/definitions/models.User'
         description: Belongs to user
+      userID:
+        type: integer
+    type: object
+  models.BoardPost:
+    properties:
+      content:
+        type: string
+      exUserName:
+        type: string
+      id:
+        type: integer
+      isOP:
+        type: boolean
+      thread:
+        $ref: '#/definitions/models.BoardThread'
+      threadID:
+        type: integer
+      user:
+        $ref: '#/definitions/models.User'
+      userID:
+        type: integer
+    type: object
+  models.BoardRideInformation:
+    properties:
+      destination:
+        type: string
+      id:
+        type: integer
+      offeringRide:
+        type: boolean
+      source:
+        type: string
+      thread:
+        $ref: '#/definitions/models.BoardThread'
+      threadID:
+        type: integer
+    type: object
+  models.BoardThread:
+    properties:
+      body:
+        description: hydrated from OP for API convenience
+        type: string
+      endsAt:
+        type: string
+      exUserName:
+        type: string
+      id:
+        type: integer
+      lastActive:
+        type: string
+      posts:
+        description: Associations
+        items:
+          $ref: '#/definitions/models.BoardPost'
+        type: array
+      repliesEnabled:
+        type: boolean
+      replyCount:
+        type: integer
+      resolved:
+        type: boolean
+      ride:
+        $ref: '#/definitions/models.BoardRideInformation'
+      startsAt:
+        type: string
+      title:
+        type: string
+      type:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
       userID:
         type: integer
     type: object
@@ -3032,6 +3175,199 @@ paths:
       summary: Set homepage banner
       tags:
       - banner
+  /board/replies/{replyID}:
+    delete:
+      parameters:
+      - description: Reply ID
+        in: path
+        name: replyID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BoardPost'
+      summary: Delete a reply (OP delete cascades to thread)
+      tags:
+      - board
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Reply ID
+        in: path
+        name: replyID
+        required: true
+        type: integer
+      - description: Update params
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/board.UpdateReplyParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BoardPost'
+      summary: Update a reply
+      tags:
+      - board
+  /board/threads:
+    get:
+      parameters:
+      - description: Cursor pagination
+        in: query
+        name: cursor
+        type: string
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: activity|created|startsAt
+        in: query
+        name: sort
+        type: string
+      - description: Include null startsAt when sorting by startsAt
+        in: query
+        name: includeNull
+        type: boolean
+      - collectionFormat: csv
+        description: Thread types
+        in: query
+        items:
+          type: string
+        name: type[]
+        type: array
+      - description: Filter by resolved
+        in: query
+        name: resolved
+        type: boolean
+      - description: Filter rides by offeringRide
+        in: query
+        name: offeringRide
+        type: boolean
+      - description: Filter by author
+        in: query
+        name: userID
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/board.listThreadsResponse'
+      summary: List board threads
+      tags:
+      - board
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Create params
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/board.CreateThreadParams'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.BoardThread'
+      summary: Create board thread
+      tags:
+      - board
+  /board/threads/{threadID}:
+    delete:
+      parameters:
+      - description: Thread ID
+        in: path
+        name: threadID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BoardThread'
+      summary: Delete board thread
+      tags:
+      - board
+    get:
+      parameters:
+      - description: Thread ID
+        in: path
+        name: threadID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BoardThread'
+      summary: Get board thread
+      tags:
+      - board
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Thread ID
+        in: path
+        name: threadID
+        required: true
+        type: integer
+      - description: Update params
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/board.UpdateThreadParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BoardThread'
+      summary: Update board thread
+      tags:
+      - board
+  /board/threads/{threadID}/replies:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Thread ID
+        in: path
+        name: threadID
+        required: true
+        type: integer
+      - description: Reply content
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/board.CreateReplyParams'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.BoardPost'
+      summary: Create a reply on a thread
+      tags:
+      - board
   /books/{bookID}:
     get:
       consumes:
