@@ -30,6 +30,12 @@ type FactrakSurvey struct {
 	CourseID uint    `gorm:"index:index_factrak_surveys_on_course_id;not null" json:"courseID"`
 	Course   *Course `json:"course,omitempty"`
 
+	// Optional link to catalog canonical course / offering (Courses v2 backfill).
+	CanonicalCourseID *uint            `gorm:"index:index_factrak_surveys_on_canonical_course_id" json:"canonicalCourseID,omitempty"`
+	CanonicalCourse   *CourseCanonical `json:"canonicalCourse,omitempty"`
+	OfferingID        *uint            `gorm:"index:index_factrak_surveys_on_offering_id" json:"offeringID,omitempty"`
+	Offering          *Offering        `json:"offering,omitempty"`
+
 	WouldRecommendCourse *bool   `json:"wouldRecommendCourse"`
 	CourseWorkload       *int    `json:"courseWorkload"`
 	CourseStimulating    *int    `json:"courseStimulating"`

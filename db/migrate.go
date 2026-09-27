@@ -54,6 +54,7 @@ var Migrations = []*gormigrate.Migration{
 	migrations.CreateBookListings20221224071254,
 	migrations.CreateBooks20221230032200,
 	migrations.CreateCatalogTables20260926184159,
+	migrations.FactrakCatalogBackfill20260926192112,
 }
 
 var MigrationGormOptions = gormigrate.DefaultOptions
@@ -102,6 +103,7 @@ func MigrateDB(db *gorm.DB) error {
 			&models.Offering{},
 			&models.OfferingMeeting{},
 			&models.OfferingInstructor{},
+			&models.CourseSubjectAlias{},
 		).Error
 		if err != nil {
 			return err
