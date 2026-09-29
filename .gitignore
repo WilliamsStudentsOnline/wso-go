@@ -124,3 +124,8 @@ k8s/**/*secrets.yaml
 pics/
 /job-*
 /local/
+
+# slop
+AGENTS.md
+CLAUDE.md
+CURSOR.md
