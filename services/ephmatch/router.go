@@ -10,36 +10,25 @@ import (
 
 func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) {
 	c := NewController(db, cfg, log)
+	gone := c.RespondGone
 
-	r.GET("/availability", c.GetAvailability)
+	r.GET("/availability", gone)
 
-	// Requires ephmatch eligibility
 	selfGroup := r.Group("", auth.RequireScopes(auth.ScopeEphmatch, auth.ScopeAdminAll))
+	selfGroup.GET("/profile", gone)
+	selfGroup.POST("/profile", gone)
+	selfGroup.PATCH("/profile", gone)
+	selfGroup.DELETE("/profile", gone)
+	selfGroup.PUT("/profile/photo", gone)
+	selfGroup.DELETE("/profile/photo", gone)
 
-	// Always do self profile
-	// Get self profile
-	selfGroup.GET("/profile", c.GetSelfProfile)
-	// Create profile
-	selfGroup.POST("/profile", c.CreateProfile)
-	// Edit profile
-	selfGroup.PATCH("/profile", c.UpdateProfile)
-	// Delete profile
-	selfGroup.DELETE("/profile", c.DeleteProfile)
-	// Upload profile photo
-	selfGroup.PUT("/profile/photo", c.UploadEphmatchProfilePhoto)
-	// Delete profile photo
-	selfGroup.DELETE("/profile/photo", c.DeleteEphmatchProfilePhoto)
-
-	// Only get matches with scope
 	matchesGroup := selfGroup.Group("", auth.RequireScopes(auth.ScopeEphmatchMatches, auth.ScopeAdminAll))
-	// TODO: set seen:true?
-	matchesGroup.GET("/matches", c.ListMatches)
-	matchesGroup.GET("/matches-count", c.CountMatches)
-	matchesGroup.DELETE("/matches/:matchUserID", c.Unmatch)
+	matchesGroup.GET("/matches", gone)
+	matchesGroup.GET("/matches-count", gone)
+	matchesGroup.DELETE("/matches/:matchUserID", gone)
 
-	// Only get profiles with scope
 	profilesGroup := matchesGroup.Group("", auth.RequireScopes(auth.ScopeEphmatchProfiles, auth.ScopeAdminAll))
-	profilesGroup.GET("/profiles", c.ListProfiles)
-	profilesGroup.GET("/profiles/:profileUserID", c.GetProfile)
-	profilesGroup.PUT("/profiles/:profileUserID/relation", c.SetProfileRelation)
+	profilesGroup.GET("/profiles", gone)
+	profilesGroup.GET("/profiles/:profileUserID", gone)
+	profilesGroup.PUT("/profiles/:profileUserID/relation", gone)
 }
