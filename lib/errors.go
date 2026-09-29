@@ -180,6 +180,8 @@ var (
 	ErrorGoodrichLeaseExpired         = NewAPIError(2173, "goodrich order lease has expired")
 
 	// 22** are Booktrak errors
+	ErrorBooktrakDeprecated = NewAPIErrorWithHTTP(2200, http.StatusGone, "booktrak api is deprecated")
+
 	ErrorBookListingInvalidCondition = NewAPIError(2232, "passed condition is invalid")
 
 	ErrorBookNotFound               = NewAPIError(2250, "passed book could not be found")
