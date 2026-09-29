@@ -1,0 +1,91 @@
+name: stamp-buddy
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  approve:
+    if: >
+      github.event.issue.pull_request &&
+      contains(github.event.comment.body, '@stamp-buddy')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/create-github-app-token@v2
+        id: app-token
+        with:
+          app-id: ${{ secrets.STAMP_BUDDY_APP_ID }}
+          private-key: ${{ secrets.STAMP_BUDDY_PRIVATE_KEY }}
+
+      - uses: actions/github-script@v7
+        env:
+          PR_URL: ${{ github.event.issue.pull_request.url }}
+          COMMENTER: ${{ github.event.comment.user.login }}
+          COMMENT_ID: ${{ github.event.comment.id }}
+          WORKFLOW_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            const fs = require('fs');
+            const { getOctokit } = require('@actions/github');
+            const commentId = Number(process.env.COMMENT_ID);
+            const commenter = process.env.COMMENTER;
+            const workflowGithub = getOctokit(process.env.WORKFLOW_TOKEN);
+
+            async function react(content) {
+              await workflowGithub.rest.reactions.createForIssueComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: commentId,
+                content,
+              });
+            }
+
+            try {
+              const allowlist = fs
+                .readFileSync('.github/stamp-buddy-allowlist.txt', 'utf8')
+                .split(/\r?\n/)
+                .map((line) => line.trim())
+                .filter((line) => line && !line.startsWith('#'));
+
+              if (!allowlist.includes(commenter)) {
+                await react('-1');
+                core.setFailed(`@${commenter} is not on the stamp-buddy allowlist.`);
+                return;
+              }
+
+              const { data: pr } = await github.request(process.env.PR_URL);
+              if (pr.draft) {
+                await react('-1');
+                core.setFailed('PR is still a draft.');
+                return;
+              }
+              if (pr.head.repo.full_name !== pr.base.repo.full_name) {
+                await react('-1');
+                core.setFailed('Refusing to approve a fork PR.');
+                return;
+              }
+
+              await github.rest.pulls.createReview({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+                event: 'APPROVE',
+                body: `Approved by stamp-buddy (requested by @${commenter}).`,
+              });
+              await react('+1');
+            } catch (error) {
+              try {
+                await react('-1');
+              } catch (_) {
+                // ignore reaction failures after the real error
+              }
+              throw error;
+            }
