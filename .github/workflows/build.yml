@@ -2,11 +2,9 @@ name: CI/CD Build and Test
 on:
   push:
     branches:
-      - '**' # matches every branch
-      # - '!master' # excludes master (handled by Jenkins, we should rename to main sometime)
-      # - '!main' # excludes master (handled by Jenkins)
-      - '!production' # excludes production (handled by Jenkins)
+      - master
   pull_request:
+  merge_group:
 
 env:
   GO111MODULE: on
