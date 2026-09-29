@@ -51,10 +51,10 @@ jobs:
           go install github.com/gotesttools/gotestfmt/v2/cmd/gotestfmt@latest
           go install github.com/t-yuki/gocover-cobertura@latest
       - name: Run tests
-        # Exclude onboarding packages
         run: |
           set -euo pipefail
-          go test -race -json -v -coverprofile=coverage.txt `go list ./... | grep -v onboarding` 2>&1 | tee /tmp/gotest.log | gotestfmt -hide=successful-tests,empty-packages
+          mapfile -t packages < <(./scripts/list-test-packages.sh)
+          go test -race -json -v -coverprofile=coverage.txt "${packages[@]}" 2>&1 | tee /tmp/gotest.log | gotestfmt -hide=successful-tests,empty-packages
 
       # Disabled for now, due to the giant size (and not being used)
       # - name: Upload test log
