@@ -14,5 +14,6 @@ services/goodrich
 services/ephmatch
 services/booktrak
 services/chat
+services/dormtrak
 lib/search/ephmatch
 lib/search/dormtrak
