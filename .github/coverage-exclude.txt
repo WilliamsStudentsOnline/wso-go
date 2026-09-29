@@ -1,0 +1,18 @@
+# Directories excluded from CI tests/coverage.
+# Paths are relative to the repo root and match that package plus all subpackages.
+# Blank lines and # comments are ignored.
+
+config
+docs
+db/migrations
+db/seed
+lib/generate
+lib/test_utils
+server/cmd
+services/onboarding
+services/goodrich
+services/ephmatch
+services/booktrak
+services/chat
+lib/search/ephmatch
+lib/search/dormtrak
