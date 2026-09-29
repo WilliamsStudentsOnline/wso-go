@@ -10,36 +10,29 @@ import (
 
 func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) {
 	c := NewController(db, cfg, log)
+	gone := c.RespondGone
 
-	// Neighborhoods endpoint
-	r.GET("/neighborhoods", c.ListNeighborhoods)
-	r.GET("/neighborhoods/:neighborhoodID", c.GetNeighborhood)
-	r.GET("/neighborhoods/:neighborhoodID/facts", c.GetNeighborhoodFacts)
+	r.GET("/neighborhoods", gone)
+	r.GET("/neighborhoods/:neighborhoodID", gone)
+	r.GET("/neighborhoods/:neighborhoodID/facts", gone)
 
-	// Dorms endpoint
-	r.GET("/dorms", c.ListDorms)
-	r.GET("/dorms/:dormID", c.GetDorm)
-	r.GET("/dorms/:dormID/rooms", c.GetDormRooms)
-	r.GET("/dorms/:dormID/facts", c.GetDormFacts)
+	r.GET("/dorms", gone)
+	r.GET("/dorms/:dormID", gone)
+	r.GET("/dorms/:dormID/rooms", gone)
+	r.GET("/dorms/:dormID/facts", gone)
 
-	// Rooms endpoint
-	r.GET("/rooms/:roomID/photos", c.GetRoomPhotos)
+	r.GET("/rooms/:roomID/photos", gone)
 
-	// Get rankings overall
-	r.GET("/rankings", c.GetRankings)
+	r.GET("/rankings", gone)
 
-	// Must be logged in:
-	// Get reviews by dormID, dormRoomID, userID, pagination
-	r.GET("/reviews", c.ListReviews)
-	r.GET("/reviews/:reviewID", c.GetReview)
-	r.GET("/reviews/:reviewID/photos", c.GetReviewPhotos)
+	r.GET("/reviews", gone)
+	r.GET("/reviews/:reviewID", gone)
+	r.GET("/reviews/:reviewID/photos", gone)
 
-	// ScopeDormtrakWrite ensures that the person is a student and in the upperclasses
 	writer := r.Group("")
 	writer.Use(auth.RequireScopes(auth.ScopeDormtrakWrite))
-	// Writing review operations
-	writer.POST("/reviews", c.CreateReview)
-	writer.PATCH("/reviews/:reviewID", c.UpdateReview)
-	writer.DELETE("/reviews/:reviewID", c.DeleteReview)
-	writer.PUT("/reviews/:reviewID/photo", c.UploadDormRoomPhoto)
+	writer.POST("/reviews", gone)
+	writer.PATCH("/reviews/:reviewID", gone)
+	writer.DELETE("/reviews/:reviewID", gone)
+	writer.PUT("/reviews/:reviewID/photo", gone)
 }

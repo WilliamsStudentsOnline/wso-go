@@ -2,6 +2,7 @@ package dormtrak
 
 import (
 	"github.com/WilliamsStudentsOnline/wso-go/config"
+	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/pictures"
 	search "github.com/WilliamsStudentsOnline/wso-go/lib/search/dormtrak"
@@ -43,6 +44,10 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 		dormtrakSearch:    search.NewSearchDormtrak(db, cfg, log),
 		pictureBackend:    pb,
 	}
+}
+
+func (t *Controller) RespondGone(c *gin.Context) {
+	t.RespondAPIError(c, lib.ErrorDormtrakDeprecated)
 }
 
 func RemoveUserIDFromReviews(c *gin.Context, r []*models.DormtrakReview) {

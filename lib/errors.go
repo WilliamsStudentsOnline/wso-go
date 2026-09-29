@@ -126,6 +126,8 @@ var (
 	ErrorInvalidRankingMetric = NewAPIErrorWithHTTP(1570, http.StatusBadRequest, "cannot rank by this metric")
 
 	// 16** are dormtrak errors
+	ErrorDormtrakDeprecated = NewAPIErrorWithHTTP(1600, http.StatusGone, "dormtrak api is deprecated")
+
 	// Create/Update errors
 	ErrorReviewStudentNotFound = NewAPIError(1633, "user must be a student and could not be found")
 	ErrorReviewMissingDorm     = NewAPIError(1634, "user is missing dorm field")
