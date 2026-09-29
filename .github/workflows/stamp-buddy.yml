@@ -29,7 +29,6 @@ jobs:
           PR_URL: ${{ github.event.issue.pull_request.url }}
           COMMENTER: ${{ github.event.comment.user.login }}
           COMMENT_ID: ${{ github.event.comment.id }}
-          WORKFLOW_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           github-token: ${{ steps.app-token.outputs.token }}
           script: |
@@ -38,23 +37,12 @@ jobs:
             const commenter = process.env.COMMENTER;
 
             async function react(content) {
-              const res = await fetch(
-                `https://api.github.com/repos/${context.repo.owner}/${context.repo.repo}/issues/comments/${commentId}/reactions`,
-                {
-                  method: 'POST',
-                  headers: {
-                    Authorization: `Bearer ${process.env.WORKFLOW_TOKEN}`,
-                    Accept: 'application/vnd.github+json',
-                    'X-GitHub-Api-Version': '2022-11-28',
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify({ content }),
-                }
-              );
-              if (!res.ok) {
-                const body = await res.text();
-                throw new Error(`Reaction ${content} failed: ${res.status} ${body}`);
-              }
+              await github.rest.reactions.createForIssueComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: commentId,
+                content,
+              });
             }
 
             try {
