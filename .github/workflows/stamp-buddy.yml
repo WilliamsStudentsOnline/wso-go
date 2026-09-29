@@ -29,18 +29,15 @@ jobs:
           PR_URL: ${{ github.event.issue.pull_request.url }}
           COMMENTER: ${{ github.event.comment.user.login }}
           COMMENT_ID: ${{ github.event.comment.id }}
-          WORKFLOW_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           github-token: ${{ steps.app-token.outputs.token }}
           script: |
             const fs = require('fs');
-            const { getOctokit } = require('@actions/github');
             const commentId = Number(process.env.COMMENT_ID);
             const commenter = process.env.COMMENTER;
-            const workflowGithub = getOctokit(process.env.WORKFLOW_TOKEN);
 
             async function react(content) {
-              await workflowGithub.rest.reactions.createForIssueComment({
+              await github.rest.reactions.createForIssueComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 comment_id: commentId,
