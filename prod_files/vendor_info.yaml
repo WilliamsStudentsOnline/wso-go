@@ -214,77 +214,77 @@ lees-snack-bar:
   hours:
     monday:
       breakfast:
-        open: 8:00am
+        open: 7:30am
         close: 10:30am
       lunch:
         open: 11:30am
-        close: 1:45pm
+        close: 2:00pm
       mid-day:
         open: 2:00pm
-        close: 4:30pm
+        close: 5:00pm
         display_name: "midday"
       dinner:
-        open: 5:00pm
+        open: 5:30pm
         close: 8:00pm
         nutrislice_menu_type: lee-dinner
     tuesday:
       breakfast:
-        open: 8:00am
+        open: 7:30am
         close: 10:30am
       lunch:
         open: 11:30am
-        close: 1:45pm
+        close: 2:00pm
       mid-day:
         open: 2:00pm
-        close: 4:30pm
+        close: 5:00pm
         display_name: "midday"
       dinner:
-        open: 5:00pm
+        open: 5:30pm
         close: 8:00pm
         nutrislice_menu_type: lee-dinner
     wednesday:
       breakfast:
-        open: 8:00am
+        open: 7:30am
         close: 10:30am
       lunch:
         open: 11:30am
-        close: 1:45pm
+        close: 2:00pm
       mid-day:
         open: 2:00pm
-        close: 4:30pm
+        close: 5:00pm
         display_name: "midday"
       dinner:
-        open: 5:00pm
+        open: 5:30pm
         close: 8:00pm
         nutrislice_menu_type: lee-dinner
     thursday:
       breakfast:
-        open: 8:00am
+        open: 7:30am
         close: 10:30am
       lunch:
         open: 11:30am
-        close: 1:45pm
+        close: 2:00pm
       mid-day:
         open: 2:00pm
-        close: 4:30pm
+        close: 5:00pm
         display_name: "midday"
       dinner:
-        open: 5:00pm
+        open: 5:30pm
         close: 8:00pm
         nutrislice_menu_type: lee-dinner
     friday:
       breakfast:
-        open: 8:00am
+        open: 7:30am
         close: 10:30am
       lunch:
         open: 11:30am
-        close: 1:45pm
+        close: 2:00pm
       mid-day:
         open: 2:00pm
-        close: 4:30pm
+        close: 5:00pm
         display_name: "midday"
       dinner:
-        open: 5:00pm
+        open: 5:30pm
         close: 8:00pm
         nutrislice_menu_type: lee-dinner
 82-grill:
@@ -411,24 +411,39 @@ eco-cafe:
   online_order: true
   hours:
     monday:
+      breakfast:
+        open: 7:30am
+        close: 10:30am
       lunch:
-        open: 11:00am
+        open: 11:30am
         close: 2:00pm
     tuesday:
+      breakfast:
+        open: 7:30am
+        close: 10:30am
       lunch:
-        open: 11:00am
+        open: 11:30am
         close: 2:00pm
     wednesday:
+      breakfast:
+        open: 7:30am
+        close: 10:30am
       lunch:
-        open: 11:00am
+        open: 11:30am
         close: 2:00pm
     thursday:
+      breakfast:
+        open: 7:30am
+        close: 10:30am
       lunch:
-        open: 11:00am
+        open: 11:30am
         close: 2:00pm
     friday:
+      breakfast:
+        open: 7:30am
+        close: 10:30am
       lunch:
-        open: 11:00am
+        open: 11:30am
         close: 2:00pm
 
 clean-cuisine:

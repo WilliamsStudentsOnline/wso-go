@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
-	"path/filepath"
 
 	nutrisliceapi "github.com/WilliamsStudentsOnline/wso-go/jobs/dining_update/api"
 )
@@ -51,7 +51,7 @@ type Course struct {
 
 type Food struct {
 	Name       string `json:"name"`
-	ID 		   int    `json:"id"`
+	ID         int    `json:"id"`
 	Vegetarian bool   `json:"vegetarian"`
 	Vegan      bool   `json:"vegan"`
 	GlutenFree bool   `json:"glutenFree"`
@@ -64,7 +64,7 @@ func UpdateDining(outputDir string, vendorInfoPath string, fetchDate time.Time) 
 	}
 
 	for dateStr, vendors := range weeklyDiningInfo.VendorsByDate {
-		filename := filepath.Join(outputDir, dateStr + ".json")
+		filename := filepath.Join(outputDir, dateStr+".json")
 
 		f, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 		if err != nil {
@@ -72,7 +72,7 @@ func UpdateDining(outputDir string, vendorInfoPath string, fetchDate time.Time) 
 		}
 
 		fileContent := ExportDining{
-			Vendors: vendors,
+			Vendors:    vendors,
 			UpdateTime: weeklyDiningInfo.UpdateTime,
 		}
 
@@ -155,6 +155,8 @@ func loadDiningNutrislice(vendorInfoPath string, startDate time.Time) (WeeklyDin
 		weeklyDiningInfo.VendorsByDate[dateStr][viID] = nv
 	}
 
+	applyFoodTrucks(weeklyDiningInfo.VendorsByDate)
+
 	weeklyDiningInfo.UpdateTime = time.Now().Format(time.RFC850)
 	return weeklyDiningInfo, nil
 }
@@ -208,7 +210,9 @@ func loadVendorNutrisliceWeekly(
 	for dateStr, dateMeals := range mealsByDate {
 
 		date, err := time.Parse("2006-01-02", dateStr)
-		if err != nil { continue }
+		if err != nil {
+			continue
+		}
 		dow := strings.ToLower(date.Weekday().String())
 		dayHours := vendorInfo.Hours[dow]
 
