@@ -51,6 +51,8 @@ jobs:
           go install gotest.tools/gotestsum@latest
           go install github.com/t-yuki/gocover-cobertura@latest
       - name: Run tests
+        id: tests
+        continue-on-error: true
         run: |
           set -euo pipefail
           # Path prefixes from .github/coverage-exclude.txt (recursive)
@@ -64,14 +66,31 @@ jobs:
             --jsonfile=/tmp/gotest.log \
             -- \
             -race -coverprofile=coverage.txt "${packages[@]}"
-      - name: Summarize test failures
-        if: failure()
-        run: python3 .github/scripts/summarize-test-failures.py /tmp/gotest.log >> "$GITHUB_STEP_SUMMARY"
 
-      # Add coverage report to PRs
+      # Sticky test comment (above coverage). Always refresh on PRs.
+      - name: Write test results
+        if: always()
+        run: |
+          set -euo pipefail
+          if [[ "${{ steps.tests.outcome }}" == "success" ]]; then
+            python3 .github/scripts/summarize-test-failures.py --pass -o test-results.md
+          else
+            python3 .github/scripts/summarize-test-failures.py /tmp/gotest.log -o test-results.md
+          fi
+          cat test-results.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Add Test Results PR Comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        if: always() && github.event_name == 'pull_request'
+        with:
+          header: test-results
+          path: test-results.md
+
+      # Add coverage report to PRs (posted after tests so it sits below)
       - name: Convert go coverage to corbetura format
+        if: always() && hashFiles('coverage.txt') != ''
         run: gocover-cobertura < coverage.txt > coverage.xml
       - name: Coverage Summary Report
+        if: always() && hashFiles('coverage.xml') != ''
         uses: irongut/CodeCoverageSummary@v1.3.0
         with:
           filename: coverage.xml
@@ -83,7 +102,7 @@ jobs:
           output: both
       - name: Add Coverage PR Comment
         uses: marocchino/sticky-pull-request-comment@v2
-        if: github.event_name == 'pull_request'
+        if: always() && github.event_name == 'pull_request' && hashFiles('code-coverage-results.md') != ''
         with:
           header: coverage
           path: code-coverage-results.md
@@ -95,3 +114,7 @@ jobs:
       - name: Remove Redis Container
         if: always()
         run: docker rm wso-redis-tests
+
+      - name: Fail job if tests failed
+        if: always() && steps.tests.outcome != 'success'
+        run: exit 1
