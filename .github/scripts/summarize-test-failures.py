@@ -25,13 +25,12 @@ DROP = re.compile(
     r"SELECT |"
     r"rows affected|"
     r"gormigrate|"
-    r"^\s*\(/|"  # gorm file location lines like (/path/file.go:123)
+    r"^\s*\(/|"  # gorm (/path/file.go:123) location lines
     r"^\s*$"
     r")",
     re.IGNORECASE,
 )
 
-# testify assertion blocks + panics + FAIL headers
 SIGNAL = re.compile(
     r"(?:"
     r"Error Trace:|"

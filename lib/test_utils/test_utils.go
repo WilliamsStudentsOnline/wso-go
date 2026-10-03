@@ -28,7 +28,6 @@ func SetupServiceTest(assert *assert.Assertions) *gorm.DB {
 
 	db := config.LoadDatabase(cfg, zap.NewNop().Sugar())
 	if os.Getenv("CI") == "" {
-		// Local runs keep SQL logging for debugging; CI stays quiet so failures stay readable
 		db.SetLogger(gorm.Logger{LogWriter: log.New(os.Stdout, "\r\n", 0)})
 	} else {
 		db.LogMode(false)
@@ -39,7 +38,6 @@ func SetupServiceTest(assert *assert.Assertions) *gorm.DB {
 	return db
 }
 
-// Drop gin request logs in CI (DefaultWriter is what gin.Default's logger uses)
 func quietLogsInCI() {
 	if os.Getenv("CI") == "" {
 		return

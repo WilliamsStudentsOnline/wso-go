@@ -58,7 +58,6 @@ jobs:
           # Path prefixes from .github/coverage-exclude.txt (recursive)
           exclude="$(awk '/^[^#[:space:]]/ { print $1 }' .github/coverage-exclude.txt | paste -sd'|' -)"
           mapfile -t packages < <(go list ./... | grep -Ev "/(${exclude})(/|$)")
-          # One line per package; only expand failed test output. Full JSON kept for summaries.
           gotestsum \
             --format=pkgname-and-test-fails \
             --format-hide-empty-pkg \
@@ -67,7 +66,6 @@ jobs:
             -- \
             -race -coverprofile=coverage.txt "${packages[@]}"
 
-      # Sticky test comment (above coverage). Always refresh on PRs.
       - name: Write test results
         if: always()
         run: |
@@ -85,7 +83,7 @@ jobs:
           header: test-results
           path: test-results.md
 
-      # Add coverage report to PRs (posted after tests so it sits below)
+      # Add coverage report to PRs
       - name: Convert go coverage to corbetura format
         if: always() && hashFiles('coverage.txt') != ''
         run: gocover-cobertura < coverage.txt > coverage.xml
