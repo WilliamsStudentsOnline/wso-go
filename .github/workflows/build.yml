@@ -48,7 +48,7 @@ jobs:
 
       - name: Set up test environment
         run: |
-          go install github.com/gotesttools/gotestfmt/v2/cmd/gotestfmt@latest
+          go install gotest.tools/gotestsum@latest
           go install github.com/t-yuki/gocover-cobertura@latest
       - name: Run tests
         run: |
@@ -56,16 +56,17 @@ jobs:
           # Path prefixes from .github/coverage-exclude.txt (recursive)
           exclude="$(awk '/^[^#[:space:]]/ { print $1 }' .github/coverage-exclude.txt | paste -sd'|' -)"
           mapfile -t packages < <(go list ./... | grep -Ev "/(${exclude})(/|$)")
-          go test -race -json -v -coverprofile=coverage.txt "${packages[@]}" 2>&1 | tee /tmp/gotest.log | gotestfmt -hide=successful-tests,empty-packages
-
-      # Disabled for now, due to the giant size (and not being used)
-      # - name: Upload test log
-      #   uses: actions/upload-artifact@v2
-      #   if: always()
-      #   with:
-      #     name: test-log
-      #     path: /tmp/gotest.log
-      #     if-no-files-found: error
+          # One line per package; only expand failed test output. Full JSON kept for summaries.
+          gotestsum \
+            --format=pkgname-and-test-fails \
+            --format-hide-empty-pkg \
+            --hide-summary=skipped \
+            --jsonfile=/tmp/gotest.log \
+            -- \
+            -race -coverprofile=coverage.txt "${packages[@]}"
+      - name: Summarize test failures
+        if: failure()
+        run: python3 .github/scripts/summarize-test-failures.py /tmp/gotest.log >> "$GITHUB_STEP_SUMMARY"
 
       # Add coverage report to PRs
       - name: Convert go coverage to corbetura format
