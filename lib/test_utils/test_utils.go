@@ -23,14 +23,27 @@ import (
 // Set up database for testing
 func SetupServiceTest(assert *assert.Assertions) *gorm.DB {
 	gin.SetMode(gin.TestMode)
+	quietLogsInCI()
 	cfg := SetupConfig()
 
 	db := config.LoadDatabase(cfg, zap.NewNop().Sugar())
-	db.SetLogger(gorm.Logger{LogWriter: log.New(os.Stdout, "\r\n", 0)})
+	if os.Getenv("CI") == "" {
+		db.SetLogger(gorm.Logger{LogWriter: log.New(os.Stdout, "\r\n", 0)})
+	} else {
+		db.LogMode(false)
+	}
 	err := migrate.MigrateDB(db)
 	assert.NoError(err)
 
 	return db
+}
+
+func quietLogsInCI() {
+	if os.Getenv("CI") == "" {
+		return
+	}
+	gin.DefaultWriter = io.Discard
+	gin.DefaultErrorWriter = io.Discard
 }
 
 // Return test configuration values
