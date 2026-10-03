@@ -36,6 +36,9 @@ func TestCleanIsbn(t *testing.T) {
 	for _, testCase := range cases {
 		assert.Equal(testCase.cleanIsbn, CleanISBN(testCase.isbn))
 	}
+
+	// temporary deliberate fail to exercise CI test-results sticky comment remove before merge
+	assert.Equal("deliberate-ci-failure", CleanISBN("978-0131103627"))
 }
 
 func TestConvertIsbn10to13(t *testing.T) {
