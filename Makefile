@@ -89,6 +89,10 @@ job-ephmatch-update-dates:
  job-library-hours-update:
 	go build -tags jsoniter -o job-library-hours-update ./jobs/job_library_hours_update
 
+.PHONY: job-mobile-fetcher
+job-mobile-fetcher:
+	go build -tags=jsoniter -o job-mobile-fetcher ./jobs/mobile_fetcher/cmd
+
 ### Build definitions
 $(BINARY_NAME): $(BUILD_DEPS)
 	go build -tags=jsoniter -o $(BINARY_NAME) ./server/cmd
@@ -116,6 +120,7 @@ build-jobs:
 	go build -tags=jsoniter -o job-ephmatch-reset ./jobs/ephmatch_reset
 	go build -tags=jsoniter -o job-ephmatch_update_dates ./jobs/ephmatch_update_dates
 	go build -tags jsoniter -o job-library-hours-update ./jobs/library_hours_update/cmd
+	go build -tags=jsoniter -o job-mobile-fetcher ./jobs/mobile_fetcher/cmd
 
 .PHONY: build-jobs-prod-linux
 build-jobs-prod-linux:
@@ -133,6 +138,7 @@ build-jobs-prod-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-ephmatch-reset_linux ./jobs/ephmatch_reset
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-ephmatch_update_dates_linux ./jobs/ephmatch_update_dates
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-library-hours-update_linux ./jobs/library_hours_update/cmd
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-mobile-fetcher_linux ./jobs/mobile_fetcher/cmd
 
 ### Utility definitions
 .PHONY: clean

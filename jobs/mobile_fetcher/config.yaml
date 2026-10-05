@@ -1,0 +1,34 @@
+interval: 30s
+
+output_dir: /home/wso/static/mobile
+
+jobs:
+  - name: spinitron-spins
+    url: https://spinitron.com/api/spins
+    output: spins.json
+    headers:
+      Authorization: "Bearer ${SPINITRON_TOKEN}"
+
+  - name: spinitron-playlists
+    url: https://spinitron.com/api/playlists
+    output: playlists.json
+    headers:
+      Authorization: "Bearer ${SPINITRON_TOKEN}"
+
+  - name: spinitron-shows
+    url: https://spinitron.com/api/shows
+    output: shows.json
+    headers:
+      Authorization: "Bearer ${SPINITRON_TOKEN}"
+
+  - name: williams-record
+    url: https://williamsrecord.com/feed/
+    output: williams_record.rss
+
+  - name: library-hours
+    url: https://libcal.williams.edu/api_hours_today.php
+    output: library_hours_today.html
+
+  - name: daily-messages
+    url: https://events.williams.edu/wp-json/wms/events/v1/list/dm
+    output: daily_messages.html
