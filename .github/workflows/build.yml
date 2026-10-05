@@ -15,7 +15,7 @@ env:
 jobs:
   lint:
     name: Build and Test
-    runs-on: [self-hosted]
+    runs-on: [self-hosted] 
     permissions: write-all # fix PR comment failure
     steps:
       - uses: actions/checkout@v4
