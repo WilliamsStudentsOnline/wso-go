@@ -11,11 +11,11 @@ env:
   CGO_ENABLED: 1 # go-sqlite3 requires cgo (only used in tests)
   GOOS: linux
   GOARCH: amd64
-
+  PATH: /usr/local/bin:/usr/bin:/bin
 jobs:
   lint:
     name: Build and Test
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted] 
     permissions: write-all # fix PR comment failure
     steps:
       - uses: actions/checkout@v4
