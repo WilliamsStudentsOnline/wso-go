@@ -92,6 +92,10 @@ pipeline {
             sshPut remote: remote_dev, from: 'job-library-hours-update_linux', into: '/home/wsodev/wso-go/job-library-hours-update'
             sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/job-library-hours-update'
 
+            sshRemove remote: remote_dev, path: '/home/wsodev/wso-go/job-mobile-fetcher'
+            sshPut remote: remote_dev, from: 'job-mobile-fetcher_linux', into: '/home/wsodev/wso-go/job-mobile-fetcher'
+            sshCommand remote: remote_dev, command: 'chmod +x /home/wsodev/wso-go/job-mobile-fetcher'
+
             // Restart WSO-Go
             sshCommand remote: remote_dev, command: '/bin/systemctl restart WSO-Go', sudo: true
           }
@@ -205,8 +209,14 @@ pipeline {
                 sshPut remote: remote_dev, from: 'job-library-hours-update_linux', into: '/home/wso/wso/wso-backend/jobs/library-hours-update'
                 sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/library-hours-update'
 
+                sshRemove remote: remote_dev, path: '/home/wso/wso/wso-backend/jobs/mobile-fetcher'
+                sshPut remote: remote_dev, from: 'job-mobile-fetcher_linux', into: '/home/wso/wso/wso-backend/jobs/mobile-fetcher'
+                sshCommand remote: remote_dev, command: 'chmod +x /home/wso/wso/wso-backend/jobs/mobile-fetcher'
+
                 // Restart WSO-Go
                 sshCommand remote: remote_dev, command: '/bin/systemctl restart WSO-Go', sudo: true
+                // Restart mobile-fetcher if the unit is installed/running
+                sshCommand remote: remote_dev, command: '/bin/systemctl try-restart mobile-fetcher || true', sudo: true
               }
             }
             script {
