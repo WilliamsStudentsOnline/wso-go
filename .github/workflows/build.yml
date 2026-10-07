@@ -61,7 +61,7 @@ jobs:
           gotestsum \
             --format=pkgname-and-test-fails \
             --format-hide-empty-pkg \
-            --hide-summary=skipped \
+            --hide-summary=skipped,output \
             --jsonfile=/tmp/gotest.log \
             -- \
             -race -coverprofile=coverage.txt "${packages[@]}"

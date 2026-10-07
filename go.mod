@@ -4,11 +4,10 @@ go 1.25.0
 
 require (
 	github.com/PuerkitoBio/goquery v1.8.1
-	github.com/WilliamsStudentsOnline/gin-jwt/v2 v2.6.5
 	github.com/alecthomas/participle v0.7.1
+	github.com/appleboy/gin-jwt/v2 v2.9.2
 	github.com/brianvoe/gofakeit v3.18.0+incompatible
 	github.com/dcadenas/pagerank v0.0.0-20231224215204-32a14b9c24a7
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/disintegration/imaging v1.6.2
 	github.com/emicklei/dot v1.6.1
 	github.com/gin-contrib/cors v1.6.0
@@ -16,6 +15,7 @@ require (
 	github.com/go-ldap/ldap/v3 v3.4.6
 	github.com/go-mail/mail v2.3.1+incompatible
 	github.com/go-playground/validator/v10 v10.19.0
+	github.com/golang-jwt/jwt/v4 v4.5.2
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/feeds v1.1.2
 	github.com/iancoleman/strcase v0.3.0
@@ -75,7 +75,6 @@ require (
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-sql-driver/mysql v1.7.1 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
-	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
 	github.com/google/s2a-go v0.1.9 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.11 // indirect
 	github.com/googleapis/gax-go/v2 v2.17.0 // indirect
