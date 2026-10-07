@@ -22,8 +22,6 @@ jobs:
         with:
           # Needed so coverage comment can diff against the PR base
           fetch-depth: 0
-      # Self-hosted runner already keeps GOMODCACHE/GOCACHE on disk; the default
-      # setup-go cache tars ~800MB and uploads it every job for little benefit
       - uses: actions/setup-go@v4
         with:
           go-version-file: 'go.mod'
