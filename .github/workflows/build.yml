@@ -19,6 +19,9 @@ jobs:
     permissions: write-all # fix PR comment failure
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Needed so coverage comment can diff against the PR base
+          fetch-depth: 0
       - uses: actions/setup-go@v4
         with:
           go-version-file: 'go.mod'
@@ -98,12 +101,19 @@ jobs:
           hide_complexity: true
           indicators: false
           output: both
+      - name: Format Coverage PR Comment
+        if: always() && github.event_name == 'pull_request' && hashFiles('code-coverage-results.md') != ''
+        run: |
+          python3 .github/scripts/format-coverage-comment.py \
+            -i code-coverage-results.md \
+            -o code-coverage-comment.md \
+            --diff-range "origin/${{ github.base_ref }}...HEAD"
       - name: Add Coverage PR Comment
         uses: marocchino/sticky-pull-request-comment@v2
-        if: always() && github.event_name == 'pull_request' && hashFiles('code-coverage-results.md') != ''
+        if: always() && github.event_name == 'pull_request' && hashFiles('code-coverage-comment.md') != ''
         with:
           header: coverage
-          path: code-coverage-results.md
+          path: code-coverage-comment.md
 
       # Kill Redis containers
       - name: Stop Redis Container
