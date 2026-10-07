@@ -21,6 +21,7 @@ import (
 
 	// Services
 	adminService "github.com/WilliamsStudentsOnline/wso-go/services/admin"
+	authService "github.com/WilliamsStudentsOnline/wso-go/services/auth"
 	authAPIService "github.com/WilliamsStudentsOnline/wso-go/services/auth/api"
 	authIdentService "github.com/WilliamsStudentsOnline/wso-go/services/auth/identity"
 	authOldService "github.com/WilliamsStudentsOnline/wso-go/services/auth/old"
@@ -126,7 +127,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 	r.POST("/api/v2/auth/api/token", authIdentMiddleware.MiddlewareFunc(), authAPIMiddleware.LoginHandler)
 
 	// Allow API tokens to be refreshed (updated)
-	r.GET("/api/v2/auth/api/refresh", authAPIMiddleware.UpdateHandler)
+	r.GET("/api/v2/auth/api/refresh", authService.UpdateHandler(authAPIMiddleware, db))
 
 	// Token creation for old authentication (backwards compatible)
 	r.POST("/api/v2/auth/login", authOldMiddleware.LoginHandler)
@@ -161,7 +162,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 	{
 		// Authentication for refresh user & other auth commands for already logged in users
 		// THIS IS FOR OLD DEPRECATED AUTHENTICATION
-		authOldService.SetupRouter(v2.Group("/auth"), authOldMiddleware)
+		authOldService.SetupRouter(v2.Group("/auth"), authOldMiddleware, db)
 
 		// User Service
 		userGroup := v2.Group("/users")

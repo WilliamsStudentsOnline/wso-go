@@ -4,11 +4,10 @@ import (
 	"errors"
 	"time"
 
-	jwt "github.com/WilliamsStudentsOnline/gin-jwt/v2"
 	"github.com/WilliamsStudentsOnline/wso-go/config"
-	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/WilliamsStudentsOnline/wso-go/services/auth"
+	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
@@ -104,40 +103,6 @@ func LoadAuthMiddleware(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger)
 				return false
 			}
 			return true
-		},
-
-		// Update token calls this. It passes in identity data, like authorizor, and the gin
-		// context. From there, the function should work somewhat like payload func to generate
-		// a new payload.
-		UpdateClaims: func(claims jwt.MapClaims, c *gin.Context) (jwt.MapClaims, error) {
-			tokenLevel := auth.TokenLevel(claims["tokenLevel"].(float64))
-
-			payload := new(auth.AuthenticatorPayload)
-			payload.TokenLevel = tokenLevel
-
-			// Deal with special token-level data.
-			if tokenLevel == auth.TokenLevelOffCampus || tokenLevel == auth.TokenLevelOnCampus {
-				// If lower-level token, check if we must upgrade/downgrade the token's level
-				if auth.OnCampusIP(c.ClientIP()) {
-					payload.TokenLevel = auth.TokenLevelOnCampus
-				} else {
-					payload.TokenLevel = auth.TokenLevelOffCampus
-				}
-			} else if tokenLevel == auth.TokenLevelUser {
-				// If signed in token, get userID and find it in db.
-				userID, ok := claims["id"].(float64)
-				if !ok {
-					return nil, errors.New("could not find user id in claim")
-				}
-
-				payload.User = &models.User{}
-				err := db.First(payload.User, int(userID)).Error
-				if err != nil {
-					return nil, err
-				}
-			}
-
-			return genClaimsFunc(payload, auth.TokenTypeOld), nil
 		},
 
 		// TokenLookup is a string in the form of "<source>:<name>" that is used

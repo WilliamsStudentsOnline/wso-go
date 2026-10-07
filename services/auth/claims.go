@@ -3,10 +3,10 @@ package auth
 import (
 	"time"
 
-	jwt "github.com/WilliamsStudentsOnline/gin-jwt/v2"
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
+	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
 )

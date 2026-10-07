@@ -4,10 +4,10 @@ import (
 	"errors"
 	"time"
 
-	jwt "github.com/WilliamsStudentsOnline/gin-jwt/v2"
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/WilliamsStudentsOnline/wso-go/services/auth"
+	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
