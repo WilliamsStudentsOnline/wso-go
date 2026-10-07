@@ -50,6 +50,7 @@ import (
 // @contact.email wso-dev@wso.williams.edu
 
 // @host wso.williams.edu
+// @schemes https http
 // @BasePath /api/v2
 
 // @securityDefinitions.apikey Bearer
