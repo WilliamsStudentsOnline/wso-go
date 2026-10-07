@@ -38,12 +38,21 @@ func TestFetchSuccessWritesFile(t *testing.T) {
 		t.Fatalf("Authorization header = %q", sawAuth)
 	}
 
-	got, err := os.ReadFile(filepath.Join(outDir, "spins.json"))
+	path := filepath.Join(outDir, "spins.json")
+	got, err := os.ReadFile(path)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if string(got) != `{"ok":true}` {
 		t.Fatalf("file contents = %q", got)
+	}
+
+	info, err := os.Stat(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if mode := info.Mode().Perm(); mode != outputFileMode {
+		t.Fatalf("file mode = %04o, want %04o", mode, outputFileMode)
 	}
 }
 

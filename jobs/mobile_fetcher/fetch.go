@@ -13,6 +13,8 @@ import (
 const (
 	defaultHTTPTimeout = 20 * time.Second
 	maxErrorBodyBytes  = 512
+	// group-readable so nginx (same group) can serve the files
+	outputFileMode = 0o640
 )
 
 type Fetcher struct {
@@ -85,6 +87,10 @@ func atomicWrite(dest string, r io.Reader) error {
 	if _, err := io.Copy(tmp, r); err != nil {
 		_ = tmp.Close()
 		return fmt.Errorf("copy body: %w", err)
+	}
+	if err := tmp.Chmod(outputFileMode); err != nil {
+		_ = tmp.Close()
+		return fmt.Errorf("chmod temp file: %w", err)
 	}
 	if err := tmp.Close(); err != nil {
 		return fmt.Errorf("close temp file: %w", err)
