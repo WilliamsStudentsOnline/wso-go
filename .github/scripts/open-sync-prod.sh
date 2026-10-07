@@ -29,7 +29,6 @@ title="[DEPLOY] Sync production to master (${date_utc})"
 body="$(cat <<EOF
 > **Warning:** Merging this PR triggers a **live production deploy** that will affect all wso-go users.
 
-## What this does
 STATUS: \`production\` is ${behind} commit(s) behind, ${ahead} commit(s) ahead of \`master\`
 
 ## How to merge
