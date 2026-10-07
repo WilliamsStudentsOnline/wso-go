@@ -1,6 +1,7 @@
 package logging
 
 import (
+	"fmt"
 	"os"
 	"path"
 
@@ -48,6 +49,12 @@ func SetupLog(cfg *config.Config, logName string) (*zap.SugaredLogger, error) {
 		case "console":
 			cores = append(cores,
 				zapcore.NewCore(zapcore.NewConsoleEncoder(DefaultEncoderCfg()), os.Stdout, cfg.ParsedLogLevel()))
+		case "journal":
+			core, err := newJournalCore(cfg.ParsedLogLevel(), logName)
+			if err != nil {
+				return nil, fmt.Errorf("log format journal: %w", err)
+			}
+			cores = append(cores, core)
 		}
 	}
 
