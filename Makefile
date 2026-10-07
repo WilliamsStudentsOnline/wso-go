@@ -142,7 +142,6 @@ build-jobs-prod-linux:
 
 .PHONY: sync-prod-pr
 sync-prod-pr:
-	git fetch origin master production
 	bash .github/scripts/open-sync-prod-pr.sh
 
 ### Utility definitions
