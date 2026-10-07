@@ -61,7 +61,7 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Cou
 // @Accept json
 // @Produce json
 // @Param userID path uint true "UserID"
-// @Success 200 {object} services.CourseSelectionsString
+// @Success 200 {object} coursescheduler.CourseSelectionsString
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /course-selections/{userID} [get]
