@@ -24,23 +24,19 @@ git fetch origin master production
 behind="$(git rev-list --count origin/production..origin/master)"
 ahead="$(git rev-list --count origin/master..origin/production)"
 date_utc="$(date -u +%Y-%m-%d)"
-title="[PROD-SYNC] Sync production to master (${date_utc})"
+title="[DEPLOY] Sync production to master (${date_utc})"
 
 body="$(cat <<EOF
-> **Warning:** Merging this PR (rebase and merge only) updates \`production\` and triggers a **live production deploy** on the prod self-hosted runner. Do not merge until you intend to bounce prod.
+> **Warning:** Merging this PR triggers a **live production deploy** that will affect all wso-go users.
 
 ## What this does
-- Brings \`production\` up to current \`master\` (\`${behind}\` commits on master not in production; \`${ahead}\` commits on production not in master)
-- After rebase-and-merge, the Deploy workflow runs on the \`prod\` runner
+STATUS: \`production\` is ${behind} commit(s) behind, ${ahead} commit(s) ahead of \`master\`
 
 ## How to merge
-1. Wait for required checks (full CI on the prod runner)
-2. Get approval (\`@stamp-buddy\` or a reviewer)
-3. **Rebase and merge** only (keeps linear history / FF-style tip when production is behind master)
+1. Wait for required checks
+2. Get approval
+3. **Rebase and merge** the PR once everything lights up green
 4. Confirm the **Deploy to production** Actions run succeeds
-
-## If production is ahead of master
-Non-zero "ahead" means tips will not match after merge; rebase-and-merge still applies master on top of production. Investigate unexpected production-only commits before merging.
 EOF
 )"
 
