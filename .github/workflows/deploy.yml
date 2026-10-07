@@ -35,11 +35,11 @@ jobs:
         run: make build-jobs-prod-linux
 
       # Copy it to /opt/wso-go.
+      # TODO: deploy config files alongside WSO-Go.
       - name: Copy binaries to WSO-Go
         run: |
           set -euo pipefail
           cp job-*_linux /opt/wso-go
-          cp wso-backend_linux /opt/wso-go
-          # TODO: fix this later
-          # sudo systemctl restart WSO-Go
+          cp wso-backend_linux /opt/wso-go 
+          sudo systemctl restart WSO-Go
 
