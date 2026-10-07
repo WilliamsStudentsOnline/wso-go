@@ -11,11 +11,12 @@ env:
   CGO_ENABLED: 1 # go-sqlite3 requires cgo (only used in tests)
   GOOS: linux
   GOARCH: amd64
-  PATH: /usr/local/bin:/usr/bin:/bin
+
 jobs:
   lint:
     name: Build and Test
-    runs-on: [self-hosted] 
+    # Prod sync PRs re-run the suite on the prod self-hosted runner; everything else is hosted
+    runs-on: ${{ github.event_name == 'pull_request' && github.base_ref == 'production' && fromJSON('["self-hosted", "prod"]') || 'ubuntu-latest' }}
     permissions: write-all # fix PR comment failure
     steps:
       - uses: actions/checkout@v4
@@ -25,8 +26,11 @@ jobs:
       - uses: actions/setup-go@v4
         with:
           go-version-file: 'go.mod'
-          cache-dependency-path: "**/*.sum"
+          # Hosted runners benefit from the Actions cache; self-hosted already has module/build caches on disk
+          cache: ${{ github.event_name != 'pull_request' || github.base_ref != 'production' }}
       - run: go version
+      - name: Add Go bin to PATH
+        run: echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
 
       - name: Install Dependencies
         run: go get -v -t ./...
@@ -45,7 +49,7 @@ jobs:
       - name: Run Redis Container
         run: |
           docker run -d \
-            --name wso-redis-tests \
+            --name "wso-redis-tests-${{ github.run_id }}" \
             -p 6379:6379 \
             wso-redis
 
@@ -118,10 +122,10 @@ jobs:
       # Kill Redis containers
       - name: Stop Redis Container
         if: always()
-        run: docker stop wso-redis-tests
+        run: docker stop "wso-redis-tests-${{ github.run_id }}"
       - name: Remove Redis Container
         if: always()
-        run: docker rm wso-redis-tests
+        run: docker rm "wso-redis-tests-${{ github.run_id }}"
 
       - name: Fail job if tests failed
         if: always() && steps.tests.outcome != 'success'
