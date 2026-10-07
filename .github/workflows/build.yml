@@ -11,11 +11,12 @@ env:
   CGO_ENABLED: 1 # go-sqlite3 requires cgo (only used in tests)
   GOOS: linux
   GOARCH: amd64
+  PATH: /usr/local/bin:/usr/bin:/bin
 
 jobs:
   lint:
     name: Build and Test
-    # Prod sync PRs re-run the suite on the prod self-hosted runner; everything else is hosted
+    # only self-host CI when merging into prod
     runs-on: ${{ github.event_name == 'pull_request' && github.base_ref == 'production' && fromJSON('["self-hosted", "prod"]') || 'ubuntu-latest' }}
     permissions: write-all # fix PR comment failure
     steps:
@@ -26,7 +27,7 @@ jobs:
       - uses: actions/setup-go@v4
         with:
           go-version-file: 'go.mod'
-          # Hosted runners benefit from the Actions cache; self-hosted already has module/build caches on disk
+          # don't cache on self-hosted runners
           cache: ${{ github.event_name != 'pull_request' || github.base_ref != 'production' }}
       - run: go version
       - name: Add Go bin to PATH
