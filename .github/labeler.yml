@@ -1,0 +1,8 @@
+# Auto-label PRs based on changed files.
+# See https://github.com/actions/labeler
+
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+          - go.mod
+          - go.sum
