@@ -184,13 +184,32 @@ run-dev-redis: $(BINARY_NAME)
 	$(MAKE) docker-redis-dev
 	./$(BINARY_NAME) --development
 
+# Skip the same packages as CI (.github/coverage-exclude.txt)
+ifdef IGNORE_SKIPS
+TEST_PKGS = $(shell go list ./...)
+else
+HASH := \#
+TEST_SKIP_REGEX = $(shell awk '/^[^$(HASH)[:space:]]/ { print $$1 }' .github/coverage-exclude.txt | paste -sd'|' -)
+TEST_PKGS = $(shell go list ./... | grep -Ev '/($(TEST_SKIP_REGEX))(/|$$)')
+endif
+
+# CI=1 turns off gin and gorm logging in tests (see lib/test_utils)
+# gotestsum flags match CI (.github/workflows/build.yml)
+ifeq ($(shell command -v gotestsum 2>/dev/null),)
+run_tests = CI=1 go test $(1) $(TEST_PKGS)
+else
+run_tests = CI=1 gotestsum --format=pkgname-and-test-fails --format-hide-empty-pkg --hide-summary=skipped,output -- $(1) $(TEST_PKGS)
+endif
+
 .PHONY: test
 test:
-	go test -race ./...
+	@echo "Compiling and testing $(words $(TEST_PKGS)) packages"
+	@$(call run_tests,-race)
 
-.PHONY: fast-test
-fast-test:
-	go test ./...
+.PHONY: fast-test t
+fast-test t:
+	@echo "Compiling and testing $(words $(TEST_PKGS)) packages (fast)"
+	@$(call run_tests,)
 
 .PHONY: mod
 mod:
