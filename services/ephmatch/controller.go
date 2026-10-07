@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
+	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/pictures"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
@@ -41,6 +42,10 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 		cfg:            cfg,
 		pictureBackend: pb,
 	}
+}
+
+func (t *Controller) RespondGone(c *gin.Context) {
+	t.RespondAPIError(c, lib.ErrorEphmatchDeprecated)
 }
 
 type GetAvailabilityResp struct {
