@@ -140,6 +140,11 @@ build-jobs-prod-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-library-hours-update_linux ./jobs/library_hours_update/cmd
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-mobile-fetcher_linux ./jobs/mobile_fetcher/cmd
 
+.PHONY: sync-prod-pr
+sync-prod-pr:
+	git fetch origin master production
+	bash .github/scripts/open-sync-prod-pr.sh
+
 ### Utility definitions
 .PHONY: clean
 clean:
