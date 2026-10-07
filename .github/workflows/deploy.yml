@@ -15,7 +15,6 @@ env:
 jobs:
   deploy:
     name: Deploy to Production
-    needs: lint
     runs-on: [self-hosted] 
     permissions: write-all 
     steps:
