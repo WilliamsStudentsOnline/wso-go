@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
+	"os"
 	"strconv"
 	"testing"
 
@@ -13,6 +14,16 @@ import (
 	testify "github.com/stretchr/testify/assert"
 	"go.uber.org/zap/zaptest"
 )
+
+// Skip locally if redis isn't running (local dev only)
+func configureRedis(t *testing.T) {
+	t.Helper()
+	err := coursescheduler.ConfigureControllerForTest()
+	if err != nil && os.Getenv("GITHUB_ACTIONS") == "" {
+		t.Skipf("redis not reachable on localhost:6379 (try make docker-redis-dev): %v", err)
+	}
+	testify.NoError(t, err)
+}
 
 func TestCourseScheduler_Auth(t *testing.T) {
 	assert := testify.New(t)
@@ -25,8 +36,7 @@ func TestCourseScheduler_Auth(t *testing.T) {
 
 	cfg := utils.SetupConfig()
 	coursescheduler.SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
-	err := coursescheduler.ConfigureControllerForTest()
-	assert.NoError(err)
+	configureRedis(t)
 
 	params := coursescheduler.SelectionSetRequest{
 		Courses: "",
@@ -55,8 +65,7 @@ func TestCourseScheduler_RedisSet(t *testing.T) {
 
 	cfg := utils.SetupConfig()
 	coursescheduler.SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
-	err := coursescheduler.ConfigureControllerForTest()
-	assert.NoError(err)
+	configureRedis(t)
 
 	params := coursescheduler.SelectionSetRequest{
 		Courses: "CSCI;1046,CSCI;1056,STAT;1520,MATH;1392,SILP;1812,CSCI;3048,PHIL;3517,MATH;3547,PHIL;3522,SILP;3808",
@@ -80,8 +89,7 @@ func TestCourseScheduler_RedisGet(t *testing.T) {
 
 	cfg := utils.SetupConfig()
 	coursescheduler.SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
-	err := coursescheduler.ConfigureControllerForTest()
-	assert.NoError(err)
+	configureRedis(t)
 
 	// Runs the set test to ensure that a proper value is stored
 	params := coursescheduler.SelectionSetRequest{

@@ -198,7 +198,7 @@ endif
 ifeq ($(shell command -v gotestsum 2>/dev/null),)
 run_tests = CI=1 go test $(1) $(TEST_PKGS)
 else
-run_tests = CI=1 gotestsum --format=pkgname-and-test-fails --format-hide-empty-pkg --hide-summary=skipped,output -- $(1) $(TEST_PKGS)
+run_tests = CI=1 gotestsum --format=pkgname-and-test-fails --format-hide-empty-pkg --hide-summary=output -- $(1) $(TEST_PKGS)
 endif
 
 .PHONY: test
