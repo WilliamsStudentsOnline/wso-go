@@ -11384,7 +11384,7 @@ var SwaggerInfo = &swag.Spec{
 	Version:          "2.0.0",
 	Host:             "wso.williams.edu",
 	BasePath:         "/api/v2",
-	Schemes:          []string{},
+	Schemes:          []string{"https", "http"},
 	Title:            "WSO API",
 	Description:      "API for WSO services like factrak, facebook, dormtrak, course scheduler, and others.",
 	InfoInstanceName: "swagger",

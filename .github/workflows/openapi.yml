@@ -1,0 +1,62 @@
+name: OpenAPI
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  merge_group:
+
+env:
+  GO111MODULE: on
+
+jobs:
+  openapi:
+    name: Swag / Spectral / oasdiff
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v4
+        with:
+          go-version-file: "go.mod"
+          cache-dependency-path: "**/*.sum"
+
+      - name: Add Go bin to PATH
+        run: echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+      - name: Install swag
+        run: go install github.com/swaggo/swag/cmd/swag@v1.16.3
+
+      - name: Install goimports
+        run: go install golang.org/x/tools/cmd/goimports@latest
+
+      - name: Install oasdiff
+        # Pin: newer oasdiff releases need a newer Go than go.mod
+        run: go install github.com/tufin/oasdiff@v1.10.8
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Spectral
+        run: npm install -g @stoplight/spectral-cli@6.16.3
+
+      - name: Resolve OpenAPI base ref
+        id: base
+        run: |
+          set -euo pipefail
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "ref=origin/${{ github.base_ref }}" >> "$GITHUB_OUTPUT"
+          elif [[ "${{ github.event_name }}" == "merge_group" ]]; then
+            echo "ref=origin/master" >> "$GITHUB_OUTPUT"
+          else
+            # push to master: compare against previous commit's committed swagger
+            echo "ref=HEAD^" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check OpenAPI
+        env:
+          OPENAPI_BASE_REF: ${{ steps.base.outputs.ref }}
+        run: make check-openapi
