@@ -1,0 +1,1 @@
+/home/charlie/.cursor/AGENTS.md
