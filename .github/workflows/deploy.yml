@@ -1,0 +1,31 @@
+name: Deploy
+on:
+  push:
+    branches:
+      - master
+      - production
+
+# Placeholder until real CD is wired up (binaries, paths, restarts).
+# Jobs exist so we can verify self-hosted runners with the right labels.
+jobs:
+  deploy-dev:
+    name: Deploy to development
+    if: github.ref == 'refs/heads/master'
+    runs-on: [self-hosted, dev]
+    steps:
+      - name: Dummy deploy
+        run: |
+          set -euo pipefail
+          echo "dev deploy placeholder on $(hostname) (ref=${GITHUB_REF_NAME})"
+          echo "replace this job with a real deploy when CD is ready"
+
+  deploy-prod:
+    name: Deploy to production
+    if: github.ref == 'refs/heads/production'
+    runs-on: [self-hosted, prod]
+    steps:
+      - name: Dummy deploy
+        run: |
+          set -euo pipefail
+          echo "prod deploy placeholder on $(hostname) (ref=${GITHUB_REF_NAME})"
+          echo "replace this job with a real deploy when CD is ready"
