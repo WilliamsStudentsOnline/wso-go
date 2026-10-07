@@ -55,7 +55,7 @@ def packages_from_changed_files(files: list[str]) -> set[str]:
     return pkgs
 
 
-def git_changed_files(diff_range: str) -> list[str]:
+def git_changed_files(diff_range: str) -> list[str] | None:
     result = subprocess.run(
         ["git", "diff", "--name-only", diff_range],
         check=False,
@@ -64,7 +64,7 @@ def git_changed_files(diff_range: str) -> list[str]:
     )
     if result.returncode != 0:
         print(result.stderr or result.stdout, file=sys.stderr)
-        return []
+        return None
     return [ln.strip() for ln in result.stdout.splitlines() if ln.strip()]
 
 
@@ -129,6 +129,8 @@ def render_table(header: str, sep: list[str], rows: list[tuple[str, str]]) -> li
 def format_comment(
     text: str,
     touched_pkgs: set[str],
+    *,
+    changed_files_known: bool = False,
 ) -> str:
     preamble, header, sep, rows, summary = parse_coverage_md(text)
 
@@ -163,6 +165,9 @@ def format_comment(
     elif touched_pkgs:
         parts.append("_No coverage rows for packages touched by this PR._")
         parts.append("")
+    elif changed_files_known:
+        parts.append("_No Go packages changed in this PR._")
+        parts.append("")
     else:
         parts.append("_Could not determine packages touched by this PR._")
         parts.append("")
@@ -172,7 +177,7 @@ def format_comment(
         if not section_rows:
             continue
         parts.append("<details>")
-        parts.append(f"<summary>{name} ({len(section_rows)})</summary>")
+        parts.append(f"<summary><strong>{name} ({len(section_rows)})</strong></summary>")
         parts.append("")
         parts.extend(render_table(header, sep, section_rows))
         parts.append("")
@@ -217,15 +222,26 @@ def main() -> int:
         print(f"error: no coverage markdown at {in_path}", file=sys.stderr)
         return 1
 
+    changed_files_known = False
     if args.changed_files:
         changed = args.changed_files
+        changed_files_known = True
     elif args.diff_range:
-        changed = git_changed_files(args.diff_range)
+        changed_or_none = git_changed_files(args.diff_range)
+        if changed_or_none is None:
+            changed = []
+        else:
+            changed = changed_or_none
+            changed_files_known = True
     else:
         changed = []
 
     touched = packages_from_changed_files(changed)
-    body = format_comment(in_path.read_text(), touched)
+    body = format_comment(
+        in_path.read_text(),
+        touched,
+        changed_files_known=changed_files_known,
+    )
 
     out_path = Path(args.output) if args.output else in_path
     out_path.write_text(body)
