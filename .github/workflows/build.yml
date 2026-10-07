@@ -11,6 +11,8 @@ env:
   CGO_ENABLED: 1 # go-sqlite3 requires cgo (only used in tests)
   GOOS: linux
   GOARCH: amd64
+  # self-hosted runners leave PATH unset so jobs don't inherit other envs
+  PATH: /usr/local/bin:/usr/bin:/bin
 
 jobs:
   lint:
