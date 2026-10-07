@@ -7,6 +7,7 @@ require (
 	github.com/alecthomas/participle v0.7.1
 	github.com/appleboy/gin-jwt/v2 v2.9.2
 	github.com/brianvoe/gofakeit v3.18.0+incompatible
+	github.com/coreos/go-systemd/v22 v22.7.0
 	github.com/dcadenas/pagerank v0.0.0-20231224215204-32a14b9c24a7
 	github.com/disintegration/imaging v1.6.2
 	github.com/emicklei/dot v1.6.1
