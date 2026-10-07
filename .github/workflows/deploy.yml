@@ -1,0 +1,57 @@
+name: Deploy
+on:
+  push:
+    branches:
+      - master
+      - production
+
+env:
+  GO111MODULE: on
+  GOOS: linux
+  GOARCH: amd64
+  PATH: /usr/local/bin:/usr/bin:/bin
+
+jobs:
+  deploy-dev:
+    name: Deploy to development
+    if: github.ref == 'refs/heads/master'
+    runs-on: [self-hosted, dev]
+    steps:
+      - name: Dummy deploy
+        run: |
+          set -euo pipefail
+          echo "dev deploy placeholder on $(hostname) (ref=${GITHUB_REF_NAME})"
+          echo "replace this job with a real deploy when CD is ready"
+
+  deploy-prod:
+    name: Deploy to production
+    if: github.ref == 'refs/heads/production'
+    runs-on: [self-hosted, prod]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v4
+        with:
+          go-version-file: 'go.mod'
+          cache: false
+      - name: Build Server
+        run: make build-prod-linux
+      - name: Build Jobs
+        run: make build-jobs-prod-linux
+      # Copy it to /opt/wso-go.
+      # TODO: deploy config files alongside WSO-Go.
+      - name: Install binaries
+        run: |
+          set -euo pipefail
+          mkdir -p /opt/wso-go
+          cp wso-backend_linux /opt/wso-go/wso-backend_linux
+          cp job-*_linux /opt/wso-go/
+          chmod +x /opt/wso-go/wso-backend_linux /opt/wso-go/job-*_linux
+          sudo systemctl restart WSO-Go
+          sudo systemctl try-restart mobile-fetcher || true
+      - name: Health check
+        run: |
+          set -euo pipefail
+          curl -fsS --retry 5 --retry-delay 2 \
+            https://wso.williams.edu/api/v2/health-check \
+            | tee /tmp/health.json
+          python3 -c 'import json,sys; assert json.load(open("/tmp/health.json")).get("ok") is True'

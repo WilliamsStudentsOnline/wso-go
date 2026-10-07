@@ -47,3 +47,11 @@ SHELL="/bin/bash"
 
 # Create EphMatch dates. This is run on January 1st every year
 0 0 1 1 * /bin/bash -l -c '/home/wso/wso/wso-backend/jobs/ephmatch_update_dates -file /home/wso/wso/wso-backend/config.yaml >> /home/wso/wso/wso-backend/logs/ephmatch-update-dates-cron.log 2>&1'
+
+# Mobile static data fetcher (Spinitron / Record / library hours / daily messages)
+# This is a long-running systemd service, not a cron job. See prod_files/mobile-fetcher.service
+# One-time setup:
+#   cp jobs/mobile_fetcher/config.yaml /home/wso/wso/wso-backend/mobile-fetcher.yaml
+#   cp prod_files/mobile-fetcher.env.example /home/wso/wso/wso-backend/mobile-fetcher.env  # chmod 0600, set SPINITRON_TOKEN
+#   install unit + systemctl enable --now mobile-fetcher
+# Stop any old bash curl loop that wrote to /home/wso/static/mobile before enabling the unit

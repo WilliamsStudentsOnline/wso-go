@@ -89,6 +89,10 @@ job-ephmatch-update-dates:
  job-library-hours-update:
 	go build -tags jsoniter -o job-library-hours-update ./jobs/job_library_hours_update
 
+.PHONY: job-mobile-fetcher
+job-mobile-fetcher:
+	go build -tags=jsoniter -o job-mobile-fetcher ./jobs/mobile_fetcher/cmd
+
 ### Build definitions
 $(BINARY_NAME): $(BUILD_DEPS)
 	go build -tags=jsoniter -o $(BINARY_NAME) ./server/cmd
@@ -116,6 +120,7 @@ build-jobs:
 	go build -tags=jsoniter -o job-ephmatch-reset ./jobs/ephmatch_reset
 	go build -tags=jsoniter -o job-ephmatch_update_dates ./jobs/ephmatch_update_dates
 	go build -tags jsoniter -o job-library-hours-update ./jobs/library_hours_update/cmd
+	go build -tags=jsoniter -o job-mobile-fetcher ./jobs/mobile_fetcher/cmd
 
 .PHONY: build-jobs-prod-linux
 build-jobs-prod-linux:
@@ -133,6 +138,11 @@ build-jobs-prod-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-ephmatch-reset_linux ./jobs/ephmatch_reset
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-ephmatch_update_dates_linux ./jobs/ephmatch_update_dates
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-library-hours-update_linux ./jobs/library_hours_update/cmd
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-mobile-fetcher_linux ./jobs/mobile_fetcher/cmd
+
+.PHONY: sync-prod
+sync-prod:
+	bash .github/scripts/open-sync-prod.sh
 
 ### Utility definitions
 .PHONY: clean
@@ -178,13 +188,32 @@ run-dev-redis: $(BINARY_NAME)
 	$(MAKE) docker-redis-dev
 	./$(BINARY_NAME) --development
 
+# Skip the same packages as CI (.github/coverage-exclude.txt)
+ifdef IGNORE_SKIPS
+TEST_PKGS = $(shell go list ./...)
+else
+HASH := \#
+TEST_SKIP_REGEX = $(shell awk '/^[^$(HASH)[:space:]]/ { print $$1 }' .github/coverage-exclude.txt | paste -sd'|' -)
+TEST_PKGS = $(shell go list ./... | grep -Ev '/($(TEST_SKIP_REGEX))(/|$$)')
+endif
+
+# CI=1 turns off gin and gorm logging in tests (see lib/test_utils)
+# gotestsum flags match CI (.github/workflows/build.yml)
+ifeq ($(shell command -v gotestsum 2>/dev/null),)
+run_tests = CI=1 go test $(1) $(TEST_PKGS)
+else
+run_tests = CI=1 gotestsum --format=pkgname-and-test-fails --format-hide-empty-pkg --hide-summary=output -- $(1) $(TEST_PKGS)
+endif
+
 .PHONY: test
 test:
-	go test -race ./...
+	@echo "Compiling and testing $(words $(TEST_PKGS)) packages"
+	@$(call run_tests,-race)
 
-.PHONY: fast-test
-fast-test:
-	go test ./...
+.PHONY: fast-test t
+fast-test t:
+	@echo "Compiling and testing $(words $(TEST_PKGS)) packages (fast)"
+	@$(call run_tests,)
 
 .PHONY: mod
 mod:

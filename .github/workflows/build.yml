@@ -11,19 +11,27 @@ env:
   CGO_ENABLED: 1 # go-sqlite3 requires cgo (only used in tests)
   GOOS: linux
   GOARCH: amd64
+  PATH: /usr/local/bin:/usr/bin:/bin
 
 jobs:
   lint:
     name: Build and Test
-    runs-on: ubuntu-latest
+    # only self-host CI when merging into prod
+    runs-on: ${{ github.event_name == 'pull_request' && github.base_ref == 'production' && fromJSON('["self-hosted", "prod"]') || 'ubuntu-latest' }}
     permissions: write-all # fix PR comment failure
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Needed so coverage comment can diff against the PR base
+          fetch-depth: 0
       - uses: actions/setup-go@v4
         with:
           go-version-file: 'go.mod'
-          cache-dependency-path: "**/*.sum"
+          # don't cache on self-hosted runners
+          cache: ${{ github.event_name != 'pull_request' || github.base_ref != 'production' }}
       - run: go version
+      - name: Add Go bin to PATH
+        run: echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
 
       - name: Install Dependencies
         run: go get -v -t ./...
@@ -42,35 +50,53 @@ jobs:
       - name: Run Redis Container
         run: |
           docker run -d \
-            --name wso-redis-tests \
+            --name "wso-redis-tests-${{ github.run_id }}" \
             -p 6379:6379 \
             wso-redis
 
       - name: Set up test environment
         run: |
-          go install github.com/gotesttools/gotestfmt/v2/cmd/gotestfmt@latest
+          go install gotest.tools/gotestsum@latest
           go install github.com/t-yuki/gocover-cobertura@latest
       - name: Run tests
+        id: tests
+        continue-on-error: true
         run: |
           set -euo pipefail
           # Path prefixes from .github/coverage-exclude.txt (recursive)
           exclude="$(awk '/^[^#[:space:]]/ { print $1 }' .github/coverage-exclude.txt | paste -sd'|' -)"
           mapfile -t packages < <(go list ./... | grep -Ev "/(${exclude})(/|$)")
-          go test -race -json -v -coverprofile=coverage.txt "${packages[@]}" 2>&1 | tee /tmp/gotest.log | gotestfmt -hide=successful-tests,empty-packages
+          gotestsum \
+            --format=pkgname-and-test-fails \
+            --format-hide-empty-pkg \
+            --hide-summary=skipped,output \
+            --jsonfile=/tmp/gotest.log \
+            -- \
+            -race -coverprofile=coverage.txt "${packages[@]}"
 
-      # Disabled for now, due to the giant size (and not being used)
-      # - name: Upload test log
-      #   uses: actions/upload-artifact@v2
-      #   if: always()
-      #   with:
-      #     name: test-log
-      #     path: /tmp/gotest.log
-      #     if-no-files-found: error
+      - name: Write test results
+        if: always()
+        run: |
+          set -euo pipefail
+          if [[ "${{ steps.tests.outcome }}" == "success" ]]; then
+            python3 .github/scripts/summarize-test-failures.py --pass -o test-results.md
+          else
+            python3 .github/scripts/summarize-test-failures.py /tmp/gotest.log -o test-results.md
+          fi
+          cat test-results.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Add Test Results PR Comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        if: always() && github.event_name == 'pull_request'
+        with:
+          header: test-results
+          path: test-results.md
 
       # Add coverage report to PRs
       - name: Convert go coverage to corbetura format
+        if: always() && hashFiles('coverage.txt') != ''
         run: gocover-cobertura < coverage.txt > coverage.xml
       - name: Coverage Summary Report
+        if: always() && hashFiles('coverage.xml') != ''
         uses: irongut/CodeCoverageSummary@v1.3.0
         with:
           filename: coverage.xml
@@ -80,17 +106,28 @@ jobs:
           hide_complexity: true
           indicators: false
           output: both
+      - name: Format Coverage PR Comment
+        if: always() && github.event_name == 'pull_request' && hashFiles('code-coverage-results.md') != ''
+        run: |
+          python3 .github/scripts/format-coverage-comment.py \
+            -i code-coverage-results.md \
+            -o code-coverage-comment.md \
+            --diff-range "origin/${{ github.base_ref }}...HEAD"
       - name: Add Coverage PR Comment
         uses: marocchino/sticky-pull-request-comment@v2
-        if: github.event_name == 'pull_request'
+        if: always() && github.event_name == 'pull_request' && hashFiles('code-coverage-comment.md') != ''
         with:
-          recreate: true
-          path: code-coverage-results.md
+          header: coverage
+          path: code-coverage-comment.md
 
       # Kill Redis containers
       - name: Stop Redis Container
         if: always()
-        run: docker stop wso-redis-tests
+        run: docker stop "wso-redis-tests-${{ github.run_id }}"
       - name: Remove Redis Container
         if: always()
-        run: docker rm wso-redis-tests
+        run: docker rm "wso-redis-tests-${{ github.run_id }}"
+
+      - name: Fail job if tests failed
+        if: always() && steps.tests.outcome != 'success'
+        run: exit 1

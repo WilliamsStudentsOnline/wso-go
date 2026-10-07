@@ -1,0 +1,21 @@
+##### WSO Mobile Data Fetcher #####
+[Unit]
+Description=WSO Mobile Data Fetcher
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=wso
+Group=wso
+
+ExecStart=/home/wso/wso/wso-backend/jobs/mobile-fetcher \
+    -config /home/wso/wso/wso-backend/mobile-fetcher.yaml
+
+EnvironmentFile=/home/wso/wso/wso-backend/mobile-fetcher.env
+
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

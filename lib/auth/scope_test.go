@@ -4,8 +4,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	jwt "github.com/WilliamsStudentsOnline/gin-jwt/v2"
 	. "github.com/WilliamsStudentsOnline/wso-go/lib/auth"
+	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	testify "github.com/stretchr/testify/assert"
 )
