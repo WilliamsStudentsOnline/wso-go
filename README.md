@@ -15,7 +15,7 @@ Note: you must include a secrets file. So, run `cp config/secrets_example.yaml c
 
 ### Redis
 
-**NOTE**: As of November 2024, wso-go uses Redis for several non-critical database tables, such as saved classes in the course scheduler. For most cases, this is not important, but if you intend to develop for these features, deploy Redis with `make run-dev-redis`.
+**NOTE**: As of November 2024, wso-go uses Redis for several non-critical database tables, such as saved classes in the course scheduler. For most cases, this is not important, but if you intend to develop for these features, deploy Redis with `make run-dev-redis`. Local dev will skip tests that exercise Redis when it is not installed. Redis tests run on a throwaway DB (see `lib/redis_util/database_ids.go`).
 
 All data is lost when the command is re-run. For data persistence, edit the Makefile's definition of `docker-redis-dev` to use use the flag `-v /absolute/path/on/your/computer/:data` on the command `docker run` to dump data to a path of your choice.
 
@@ -51,10 +51,15 @@ Steps for a 10/10 development workflow:
 3. Write the code and create the tests.
     * Please follow this [helpful guide](https://github.com/golang/go/wiki/CodeReviewComments) on how to write commit-worthy Go code.
 4. Make a pull request and link your original issue.
-    * The pull request will be automatically tested on Jenkins. If it passes, you can just ignore it. However, if Jenkins fails and you want to see why, *you must be on the Williams network to access Jenkins*.
-5. After approval merge the pull request by squashing all of your commits into one.
+    * The pull request will be automatically tested, with results displayed in a pinned comment on your PR. More detailed logs are available under Actions.
+5. After approval, add the PR to the [merge queue](https://github.com/WilliamsStudentsOnline/wso-go/queue/master). The queue re-runs checks against `master` before automatically squashing your commits together and merging them.
 
 **CHANGES INFO:** Before committing any changes, run `make commit` to autoformat and update your code.
+
+### Testing
+- `make test`
+- `make t` / `make fast-test` (for faster local iteration)
+By default, local tests skip packages listed in `.github/coverage-exclude.txt`. Use `IGNORE_SKIPS=1` to run everything.
 
 ### Services
 This project uses microservices to define API endpoints. This is essentially the combination of a controller and a router. Look at the dormtrak service for a good example.
@@ -105,10 +110,9 @@ with our authentication.
 Analytics are available at port `:9092`!
 
 ## Authentication Flow
-*NOTE: THIS IS DEPRECATED*
 We use something called a [JWT](jwt.io), or JSON Web Token for the API. This allows us to keep sessions and verify user identities without cookies or database queries. It works like this:
-1. A user will request a token from the `auth/login` endpoint. They will pass in their login credentials, which will be checked with LDAP (not implemented yet).
-2. If the user is verified, the server will then pull their user from the DB and create a payload. This payload will consist of the user's ID and the scopes the user is allowed (e.g. if the user is a senior, they can go to ephcatch; if the user is an admin, they can do other queries; if the user is not signed in but on school wifi, they can be read only).
+1. A user will request a token from the `auth/login` endpoint. They will pass in their login credentials, which will be checked with LDAP.
+2. If the user is verified, the server will then pull their user from the DB and create a payload. This payload will consist of the user's ID and the scopes the user is allowed.
 3. The server will then take this payload and sign it with its secret key, before handing the JWT back to the user.
 4. The user now can add the header `Authorization: Bearer <JWT GOES HERE>` to any request and be authenticated and allowed to access other API endpoints (like `user`)
 5. The JWT has a timeout. After that timeout is over, the JWT becomes invalid and the user must sign in again.
