@@ -117,6 +117,7 @@ vendor/
 
 wso-go
 wso-backend
+wso-backend_linux
 
 config/secrets.yml
 config/secrets.yaml

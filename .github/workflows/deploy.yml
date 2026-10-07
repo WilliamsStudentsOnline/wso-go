@@ -1,0 +1,45 @@
+name: CI/CD Build and Test
+on:
+  push:
+    branches:
+      - production
+  pull_request:
+  merge_group:
+
+env:
+  GO111MODULE: on
+  CGO_ENABLED: 1
+  GOOS: linux
+  GOARCH: amd64
+  PATH: /usr/local/bin:/usr/bin:/bin
+jobs:
+  lint:
+    name: Deploy to Production
+    runs-on: [self-hosted] 
+    permissions: write-all 
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v4
+        with:
+          go-version-file: 'go.mod'
+          cache-dependency-path: "**/*.sum"
+      - run: go version
+
+      - name: Install Dependencies
+        run: go get -v -t ./...
+
+      # Note that Makefile temporarily sets CGO_ENABLED=0 for building
+      - name: Build Server
+        run: make build-prod-linux
+      - name: Build Jobs
+        run: make build-jobs-prod-linux
+
+      # Copy it to /opt/wso-go.
+      - name: Copy binaries to WSO-Go
+        run: |
+          set -euo pipefail
+          cp job-*_linux /opt/wso-go
+          cp wso-backend_linux /opt/wso-go
+          # TODO: fix this later
+          # sudo systemctl restart WSO-Go
+
