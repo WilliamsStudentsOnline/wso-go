@@ -9,9 +9,7 @@ import (
 	"gopkg.in/gormigrate.v1"
 )
 
-// List all historical gormigrate migrations. Frozen: new schema changes go through
-// Atlas SQL under db/atlas/migrations (see README / make atlas-diff).
-// Still used to bootstrap SQLite test databases via InitSchema.
+// Frozen gormigrate history (SQLite InitSchema only; new changes → make atlas-diff)
 var Migrations = []*gormigrate.Migration{
 	migrations.CreateUsers20190719211808,
 	migrations.CreateDepartments20190719212645,
@@ -60,8 +58,7 @@ var Migrations = []*gormigrate.Migration{
 
 var MigrationGormOptions = gormigrate.DefaultOptions
 
-// MigrateDB applies schema migrations.
-// MySQL uses Atlas-planned SQL (golang-migrate). SQLite (tests) uses gormigrate InitSchema.
+// MigrateDB: MySQL → Atlas SQL; SQLite → gormigrate InitSchema (tests)
 func MigrateDB(db *gorm.DB) error {
 	switch db.Dialect().GetName() {
 	case "mysql":
@@ -76,7 +73,6 @@ func MigrateDB(db *gorm.DB) error {
 func migrateSQLite(db *gorm.DB) error {
 	m := gormigrate.New(db, MigrationGormOptions, Migrations)
 
-	// Initializes the entire current schema. Used for the testing database.
 	m.InitSchema(func(tx *gorm.DB) error {
 		return AutoMigrateModels(tx)
 	})
@@ -84,7 +80,7 @@ func migrateSQLite(db *gorm.DB) error {
 	return m.Migrate()
 }
 
-// Gets last migration id from the gormigrate migrations table (SQLite / legacy).
+// Gets last migration id from LEGACY migrations table
 func LastMigration(opts *gormigrate.Options, db *gorm.DB) (string, error) {
 	rows, err := db.Table(opts.TableName).Select(opts.IDColumnName).Rows()
 	if err != nil {
@@ -113,8 +109,7 @@ func LastMigration(opts *gormigrate.Options, db *gorm.DB) (string, error) {
 	return migrationIDs[len(migrationIDs)-1], nil
 }
 
-// MigrationUpToDate reports whether the DB has all migrations applied.
-// MySQL checks Atlas/golang-migrate versions; SQLite checks the gormigrate table.
+// MigrationUpToDate: MySQL → Atlas versions; SQLite → gormigrate table
 func MigrationUpToDate(opts *gormigrate.Options, db *gorm.DB) (bool, error) {
 	if db.Dialect().GetName() == "mysql" {
 		return MySQLMigrationsUpToDate(db)

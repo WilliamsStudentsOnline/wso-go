@@ -24,7 +24,6 @@ jobs:
           version: latest
       - name: Validate migrations
         working-directory: db/atlas
-        # Community Edition: checksum + SQL replay (migrate lint is Pro-only)
         run: atlas migrate validate --env local --config file://atlas.hcl
 
   lint:

@@ -14,29 +14,28 @@ import (
 )
 
 //go:embed atlas/migrations/*.sql
-var atlasMigrationsFS embed.FS
+var migrationsFS embed.FS
 
-const atlasMigrationsPath = "atlas/migrations"
+const migrationsDir = "atlas/migrations"
 
-// baselineVersion is the first Atlas migration. Existing MySQL databases that
-// were created via gormigrate/AutoMigrate are stamped at this version without
-// re-running CREATE TABLE statements.
-const baselineVersion = uint(20261007235756)
+// LUCA (first atlas version)
+// (we were previously on gorm)
+const firstAtlasVersion = uint(20261007235756)
 
-// MigrateMySQL applies versioned SQL migrations (Atlas-planned, golang-migrate format).
+// MigrateMySQL applies embedded Atlas SQL via golang-migrate
 func MigrateMySQL(db *gorm.DB) error {
 	sqlDB := db.DB()
 	if sqlDB == nil {
 		return errors.New("mysql: underlying sql.DB is nil")
 	}
 
-	m, err := newMySQLMigrate(sqlDB)
+	m, err := newMigrate(sqlDB)
 	if err != nil {
 		return err
 	}
-	// Do not Close() — that closes the shared sql.DB owned by GORM.
+	// Don't Close — that closes GORM's sql.DB
 
-	if err := maybeStampBaseline(sqlDB, m); err != nil {
+	if err := stampLegacyIfNeeded(sqlDB, m); err != nil {
 		return err
 	}
 
@@ -46,10 +45,10 @@ func MigrateMySQL(db *gorm.DB) error {
 	return nil
 }
 
-// maybeStampBaseline marks the baseline migration as applied when the DB
-// already has application tables (legacy gormigrate/AutoMigrate) but no
-// golang-migrate version yet. Fresh empty databases skip this and run Up().
-func maybeStampBaseline(sqlDB *sql.DB, m *migrate.Migrate) error {
+// stampLegacyIfNeeded Force()s firstAtlasVersion when tables exist but
+// schema_migrations does not (pre-Atlas / gormigrate DBs)
+// Empty DBs skip this and run Up() instead
+func stampLegacyIfNeeded(sqlDB *sql.DB, m *migrate.Migrate) error {
 	_, _, err := m.Version()
 	if err == nil {
 		return nil
@@ -58,51 +57,52 @@ func maybeStampBaseline(sqlDB *sql.DB, m *migrate.Migrate) error {
 		return fmt.Errorf("atlas migrate version: %w", err)
 	}
 
-	var usersCount int
-	if err := sqlDB.QueryRow(`
+	var n int
+	err = sqlDB.QueryRow(`
 		SELECT COUNT(*)
 		FROM information_schema.tables
 		WHERE table_schema = DATABASE() AND table_name = 'users'
-	`).Scan(&usersCount); err != nil {
+	`).Scan(&n)
+	if err != nil {
 		return fmt.Errorf("atlas baseline probe: %w", err)
 	}
-	if usersCount == 0 {
+	if n == 0 {
 		return nil
 	}
 
-	if err := m.Force(int(baselineVersion)); err != nil {
-		return fmt.Errorf("atlas stamp baseline %d: %w", baselineVersion, err)
+	if err := m.Force(int(firstAtlasVersion)); err != nil {
+		return fmt.Errorf("atlas stamp baseline %d: %w", firstAtlasVersion, err)
 	}
 	return nil
 }
 
-func newMySQLMigrate(sqlDB *sql.DB) (*migrate.Migrate, error) {
-	source, err := iofs.New(atlasMigrationsFS, atlasMigrationsPath)
+func newMigrate(sqlDB *sql.DB) (*migrate.Migrate, error) {
+	src, err := iofs.New(migrationsFS, migrationsDir)
 	if err != nil {
 		return nil, fmt.Errorf("atlas migrations source: %w", err)
 	}
 
-	// Caller DSN must include multiStatements=true (see SetupMySQLConfig).
+	// DSN needs multiStatements=true (SetupMySQLConfig)
 	driver, err := mysql.WithInstance(sqlDB, &mysql.Config{})
 	if err != nil {
 		return nil, fmt.Errorf("atlas mysql driver: %w", err)
 	}
 
-	m, err := migrate.NewWithInstance("iofs", source, "mysql", driver)
+	m, err := migrate.NewWithInstance("iofs", src, "mysql", driver)
 	if err != nil {
 		return nil, fmt.Errorf("atlas migrate init: %w", err)
 	}
 	return m, nil
 }
 
-// MySQLMigrationsUpToDate reports whether all embedded Atlas migrations are applied.
+// MySQLMigrationsUpToDate is true when no pending Atlas migrations remain
 func MySQLMigrationsUpToDate(db *gorm.DB) (bool, error) {
 	sqlDB := db.DB()
 	if sqlDB == nil {
 		return false, errors.New("mysql: underlying sql.DB is nil")
 	}
 
-	m, err := newMySQLMigrate(sqlDB)
+	m, err := newMigrate(sqlDB)
 	if err != nil {
 		return false, err
 	}
@@ -118,11 +118,11 @@ func MySQLMigrationsUpToDate(db *gorm.DB) (bool, error) {
 		return false, fmt.Errorf("mysql migrations dirty at version %d", version)
 	}
 
-	source, err := iofs.New(atlasMigrationsFS, atlasMigrationsPath)
+	src, err := iofs.New(migrationsFS, migrationsDir)
 	if err != nil {
 		return false, err
 	}
-	_, err = source.Next(version)
+	_, err = src.Next(version)
 	if err != nil {
 		if errors.Is(err, fs.ErrNotExist) {
 			return true, nil

@@ -10,8 +10,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// Integration smoke tests against Compose MySQL. Skipped unless ATLAS_TEST_DSN is set.
-// Example: ATLAS_TEST_DSN='root:secret-mysql-password@tcp(127.0.0.1:3306)/wso_test?parseTime=true&multiStatements=true'
+// Opt-in MySQL smoke test (needs a real server; default `go test` stays on SQLite)
+// ATLAS_TEST_DSN='root:secret-mysql-password@tcp(127.0.0.1:3306)/wso_test?parseTime=true&multiStatements=true'
 func TestMigrateMySQLFreshAndStamp(t *testing.T) {
 	dsn := os.Getenv("ATLAS_TEST_DSN")
 	if dsn == "" {
@@ -29,10 +29,10 @@ func TestMigrateMySQLFreshAndStamp(t *testing.T) {
 	require.NoError(t, err)
 	assert.True(t, up)
 
-	// Second apply is a no-op.
+	// idempotent
 	require.NoError(t, MigrateDB(db))
 
-	// Legacy DB with tables but no schema_migrations: stamp baseline.
+	// pre-Atlas shape: tables present, no schema_migrations → stamp
 	require.NoError(t, db.Exec("DROP TABLE IF EXISTS schema_migrations").Error)
 	require.NoError(t, MigrateDB(db))
 	up, err = MigrationUpToDate(MigrationGormOptions, db)

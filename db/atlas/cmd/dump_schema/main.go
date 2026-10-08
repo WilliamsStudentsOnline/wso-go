@@ -1,5 +1,4 @@
-// dump_schema AutoMigrates the current GORM models into MySQL and prints
-// connection info. Used by make atlas-schema before `atlas schema inspect`.
+// used by `make atlas-schema`
 package main
 
 import (
@@ -27,9 +26,7 @@ func main() {
 	}
 	defer db.Close()
 
-	// Fresh desired-state DB: drop all tables then AutoMigrate current models.
-	// Must not use MigrateDB/Atlas apply — that would circularly define schema
-	// from migrations instead of from GORM models.
+	// fresh-start db
 	if err := dropAllTables(db); err != nil {
 		fmt.Fprintf(os.Stderr, "drop tables: %v\n", err)
 		os.Exit(1)

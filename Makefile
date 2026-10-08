@@ -220,8 +220,7 @@ mod:
 	go mod tidy
 	go mod download
 
-### Atlas / MySQL schema migrations
-# Requires: Docker, Atlas CLI (https://atlasgo.io/docs), Compose MySQL for schema dump.
+### Atlas (schema SQL under db/atlas/; needs Docker + atlas CLI)
 ATLAS_MYSQL_ROOT_PASSWORD ?= secret-mysql-password
 ATLAS_SCHEMA_DSN ?= root:$(ATLAS_MYSQL_ROOT_PASSWORD)@tcp(127.0.0.1:3306)/wso_atlas?parseTime=true&charset=utf8mb4&multiStatements=true
 ATLAS_SCHEMA_URL ?= mysql://root:$(ATLAS_MYSQL_ROOT_PASSWORD)@127.0.0.1:3306/wso_atlas
@@ -252,8 +251,6 @@ atlas-diff: atlas-schema
 .PHONY: atlas-lint
 atlas-lint:
 	@if [ -z "$(ATLAS)" ]; then echo "atlas CLI not found; install from https://atlasgo.io/docs"; exit 1; fi
-	# Community Edition: validate checksums + replay SQL on ephemeral MySQL.
-	# (atlas migrate lint is Pro-only as of Atlas v0.38+)
 	cd db/atlas && $(ATLAS) migrate validate --env local --config file://atlas.hcl
 
 ### Docker definitions

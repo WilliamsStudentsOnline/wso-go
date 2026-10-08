@@ -5,8 +5,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-// AutoMigrateModels creates/updates all current GORM models on db.
-// Used for SQLite test bootstrap and for regenerating Atlas desired-state schema.
+// AutoMigrateModels — SQLite tests + `make atlas-schema` desired-state dump
 func AutoMigrateModels(db *gorm.DB) error {
 	return db.AutoMigrate(
 		&models.User{},

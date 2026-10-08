@@ -1,4 +1,4 @@
-# Local infra for Atlas (and future make dev). Go API stays on the host.
+# Local deps (MySQL for Atlas / future make dev); API stays on the host
 services:
   mysql:
     image: mysql:8.0
