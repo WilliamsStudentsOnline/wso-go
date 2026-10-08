@@ -1,4 +1,4 @@
-# Compose MySQL for Atlas tooling; API stays on the host
+# Compose MySQL for Atlas tooling
 services:
   mysql:
     image: mysql:8.0
