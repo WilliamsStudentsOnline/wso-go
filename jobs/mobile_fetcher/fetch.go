@@ -13,8 +13,8 @@ import (
 const (
 	defaultHTTPTimeout = 20 * time.Second
 	maxErrorBodyBytes  = 512
-	// group-readable so nginx (same group) can serve the files
-	outputFileMode = 0o640
+	// group read/write so nginx (same group) can serve the files
+	outputFileMode = 0o660
 )
 
 type Fetcher struct {
