@@ -9,7 +9,7 @@ import (
 	"gopkg.in/gormigrate.v1"
 )
 
-// Frozen gormigrate history (SQLite InitSchema only; new changes → make atlas-diff)
+// LEGACY gormigrate history (SQLite InitSchema only; new changes → make atlas-diff)
 var Migrations = []*gormigrate.Migration{
 	migrations.CreateUsers20190719211808,
 	migrations.CreateDepartments20190719212645,
@@ -58,7 +58,6 @@ var Migrations = []*gormigrate.Migration{
 
 var MigrationGormOptions = gormigrate.DefaultOptions
 
-// MigrateDB: MySQL → Atlas SQL; SQLite → gormigrate InitSchema (tests)
 func MigrateDB(db *gorm.DB) error {
 	switch db.Dialect().GetName() {
 	case "mysql":
@@ -109,7 +108,7 @@ func LastMigration(opts *gormigrate.Options, db *gorm.DB) (string, error) {
 	return migrationIDs[len(migrationIDs)-1], nil
 }
 
-// MigrationUpToDate: MySQL → Atlas versions; SQLite → gormigrate table
+// MySQL → Atlas versions; SQLite → gormigrate table
 func MigrationUpToDate(opts *gormigrate.Options, db *gorm.DB) (bool, error) {
 	if db.Dialect().GetName() == "mysql" {
 		return MySQLMigrationsUpToDate(db)

@@ -32,7 +32,6 @@ func TestMigrateMySQLFreshAndStamp(t *testing.T) {
 	// idempotent
 	require.NoError(t, MigrateDB(db))
 
-	// pre-Atlas shape: tables present, no schema_migrations → stamp
 	require.NoError(t, db.Exec("DROP TABLE IF EXISTS schema_migrations").Error)
 	require.NoError(t, MigrateDB(db))
 	up, err = MigrationUpToDate(MigrationGormOptions, db)
