@@ -181,12 +181,34 @@ commit: jobs/dorms_update/cmd/data.go docs/docs.go fmt services/*/responses/*.go
 
 .PHONY: run-dev
 run-dev: $(BINARY_NAME)
+	@echo "deprecated: use make dev (Compose MySQL + Redis)"
 	./$(BINARY_NAME) --development
 
-.PHONY: run-dev-redis
-run-dev-redis: $(BINARY_NAME)
-	$(MAKE) docker-redis-dev
-	./$(BINARY_NAME) --development
+.PHONY: dev
+dev:
+	./scripts/devenv.sh up
+
+.PHONY: dev-down
+dev-down:
+	./scripts/devenv.sh down
+
+.PHONY: dev-reset
+dev-reset:
+	./scripts/devenv.sh reset
+
+.PHONY: dev-logs
+dev-logs:
+	./scripts/devenv.sh logs
+
+.PHONY: seed-dump
+seed-dump: atlas-mysql-up
+	docker exec wso-mysql mysql -uroot -p$(ATLAS_MYSQL_ROOT_PASSWORD) -e "DROP DATABASE IF EXISTS wso_seed; CREATE DATABASE wso_seed;"
+	go run ./db/seed/cmd/export_mysql_dump \
+		-sqlite db/development.db \
+		-dsn 'root:$(ATLAS_MYSQL_ROOT_PASSWORD)@tcp(127.0.0.1:3306)/wso_seed?parseTime=true&charset=utf8mb4&multiStatements=true' \
+		-out db/seed/development.sql
+	gzip -kf db/seed/development.sql
+	rm -f db/seed/development.sql
 
 # Skip the same packages as CI (.github/coverage-exclude.txt)
 ifdef IGNORE_SKIPS
@@ -277,11 +299,6 @@ docker-jobs-dev: docker-builder
 	docker build -t $(DOCKER_TAG)-jobs:dev-latest -f Dockerfile.release_jobs .
 
 .PHONY: docker-redis-dev
-# this thing below? you see that? that's a hack, and will delete the VM no matter what.
-# so be careful about running this if you like having state.
-# if you're here from the README, this is the part you want to edit.
 docker-redis-dev:
-	docker kill wso-redis-instance >/dev/null 2>&1 || true
-	docker remove wso-redis-instance >/dev/null 2>&1 || true
-	docker build -t wso-redis -f ./lib/redis_util/Redis.Dockerfile ./lib/redis_util
-	docker run --name wso-redis-instance -d -p 6379:6379 wso-redis
+	@echo "deprecated: redis is in docker-compose (make dev)"
+	docker compose up -d redis

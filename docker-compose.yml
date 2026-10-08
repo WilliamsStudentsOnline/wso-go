@@ -1,21 +1,39 @@
-# Compose MySQL for Atlas tooling
+# Compose MySQL + Redis for make dev
 services:
   mysql:
     image: mysql:8.0
     container_name: wso-mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: secret-mysql-password
-      MYSQL_DATABASE: wso
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-secret-mysql-password}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-wso}
     ports:
-      - "3306:3306"
+      - "${MYSQL_PORT:-3306}:3306"
     volumes:
       - wso_mysql_data:/var/lib/mysql
     healthcheck:
+      # Password must match MYSQL_ROOT_PASSWORD / config/secrets.yaml
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-psecret-mysql-password"]
       interval: 5s
       timeout: 5s
       retries: 20
 
+  redis:
+    image: redis:7
+    container_name: wso-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - wso_redis_data:/data
+      - ./lib/redis_util/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf", "--save", "300", "1", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
 volumes:
   wso_mysql_data:
+  wso_redis_data:
