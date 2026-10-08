@@ -22,7 +22,7 @@ const migrationsDir = "atlas/migrations"
 // (we were previously on gorm)
 const firstAtlasVersion = uint(20261007235756)
 
-// MigrateMySQL applies embedded Atlas SQL via golang-migrate
+// applies embedded Atlas SQL via golang-migrate
 func MigrateMySQL(db *gorm.DB) error {
 	sqlDB := db.DB()
 	if sqlDB == nil {
@@ -33,7 +33,7 @@ func MigrateMySQL(db *gorm.DB) error {
 	if err != nil {
 		return err
 	}
-	// Don't Close — that closes GORM's sql.DB
+	// don't close — that closes GORM's sql.DB
 
 	if err := stampLegacyIfNeeded(sqlDB, m); err != nil {
 		return err
@@ -45,9 +45,8 @@ func MigrateMySQL(db *gorm.DB) error {
 	return nil
 }
 
-// stampLegacyIfNeeded Force()s firstAtlasVersion when tables exist but
-// schema_migrations does not (pre-Atlas / gormigrate DBs)
-// Empty DBs skip this and run Up() instead
+// Force() firstAtlasVersion when tables exist but schema_migrations does not
+// (pre-Atlas / gormigrate DBs); empty DBs skip and run Up() instead
 func stampLegacyIfNeeded(sqlDB *sql.DB, m *migrate.Migrate) error {
 	_, _, err := m.Version()
 	if err == nil {
@@ -82,7 +81,6 @@ func newMigrate(sqlDB *sql.DB) (*migrate.Migrate, error) {
 		return nil, fmt.Errorf("atlas migrations source: %w", err)
 	}
 
-	// DSN needs multiStatements=true (SetupMySQLConfig)
 	driver, err := mysql.WithInstance(sqlDB, &mysql.Config{})
 	if err != nil {
 		return nil, fmt.Errorf("atlas mysql driver: %w", err)
@@ -95,7 +93,7 @@ func newMigrate(sqlDB *sql.DB) (*migrate.Migrate, error) {
 	return m, nil
 }
 
-// MySQLMigrationsUpToDate is true when no pending Atlas migrations remain
+// true when no pending Atlas migrations remain
 func MySQLMigrationsUpToDate(db *gorm.DB) (bool, error) {
 	sqlDB := db.DB()
 	if sqlDB == nil {
