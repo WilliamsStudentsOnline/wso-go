@@ -1,8 +1,8 @@
-// Atlas project config. Desired-state schema.sql is regenerated from GORM models
-// via `make atlas-schema` (AutoMigrate into a throwaway DB, then inspect).
+// Atlas project config
+// See `make atlas-schema`
 env "local" {
   src = "file://schema.sql"
-  // Ephemeral MySQL used by Atlas to replay/plan migrations.
+  // Throwaway MySQL for replay/planning (Atlas spins this up)
   dev = "docker://mysql/8/dev"
 
   migration {

@@ -53,7 +53,6 @@ func SetupMySQLConfig(cfg *Config) {
 	for key, val := range cfg.MySQLArgs {
 		qs.Add(key, val)
 	}
-	// golang-migrate applies multi-statement SQL migration files.
 	if qs.Get("multiStatements") == "" {
 		qs.Set("multiStatements", "true")
 	}
