@@ -26,6 +26,23 @@ else
 	$(warning $(GOIMPORTS_ERROR))
 endif
 
+# OpenAPI contract checks (swag freshness + Spectral + oasdiff). See .github/scripts/check-openapi.sh
+OPENAPI_BASE_REF ?= origin/master
+
+.PHONY: openapi-docs
+openapi-docs:
+ifndef SWAGGER
+	$(error swag not found; install with: go install github.com/swaggo/swag/cmd/swag@v1.16.3)
+endif
+	swag init -g server/router.go
+ifdef GOIMPORTS
+	goimports -w docs/docs.go
+endif
+
+.PHONY: check-openapi
+check-openapi:
+	OPENAPI_BASE_REF=$(OPENAPI_BASE_REF) .github/scripts/check-openapi.sh
+
 services/*/responses/%.go: services/*/responses/%.json
 	go run $(GIT_REPO)/lib/generate/service_responses/cmd -in $< -out $@
 

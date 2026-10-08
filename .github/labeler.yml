@@ -6,3 +6,13 @@ dependencies:
       - any-glob-to-any-file:
           - go.mod
           - go.sum
+
+codegen:
+  - changed-files:
+      - any-glob-to-any-file:
+          - docs/swagger.yaml
+          - docs/swagger.json
+          - docs/docs.go
+          - .spectral.yaml
+          - .github/scripts/check-openapi.sh
+          - .github/workflows/openapi.yml
