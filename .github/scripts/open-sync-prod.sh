@@ -30,7 +30,6 @@ body="$(cat <<EOF
 > **Warning:** Merging this PR triggers a **live production deploy** that will affect all WSO users.
 
 **STATUS:** \`production\` is ${behind} commit(s) behind, ${ahead} commit(s) ahead of \`master\`
-- If we are >0 commits _ahead_ of \`master\`, something may be wrong--contact an admin
 
 ## How to merge
 1. Wait for required checks
