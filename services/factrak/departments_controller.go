@@ -13,7 +13,7 @@ import (
 // ListDepartments godoc
 // @Summary List departments
 // @Description lists all departments
-// @ID factrak-list-departments
+// @ID listDepartments
 // @Tags factrak
 // @Accept  json
 // @Produce  json
@@ -37,7 +37,7 @@ func (t *Controller) ListDepartments(c *gin.Context) {
 // GetDepartment godoc
 // @Summary Get department
 // @Description get one department with areas of study preloaded
-// @ID factrak-get-department
+// @ID getDepartment
 // @Tags factrak
 // @Accept  json
 // @Produce  json
@@ -71,7 +71,7 @@ func (t *Controller) GetDepartment(c *gin.Context) {
 // ListDepartmentProfessors godoc
 // @Summary List department professors
 // @Description list one department's professors
-// @ID factrak-list-department-professors
+// @ID listDepartmentProfessors
 // @Tags factrak
 // @Accept  json
 // @Produce  json
@@ -118,7 +118,7 @@ func (t *Controller) ListDepartmentProfessors(c *gin.Context) {
 // ListDepartmentCourses godoc
 // @Summary List department courses
 // @Description list one department's courses
-// @ID factrak-list-department-courses
+// @ID listDepartmentCourses
 // @Tags factrak
 // @Accept  json
 // @Produce  json

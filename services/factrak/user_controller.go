@@ -14,7 +14,7 @@ import (
 // ListUserSurveys godoc
 // @Summary List user surveys
 // @Description list one user's surveys
-// @ID factrak-list-user-surveys
+// @ID listUserSurveys
 // @Tags factrak
 // @Accept  json
 // @Produce  json

@@ -251,7 +251,7 @@ type HealthCheckResponse struct {
 // HealthCheck godoc
 // @Summary Health check
 // @Description Check server health
-// @ID health-check
+// @ID getHealthCheck
 // @Tags health
 // @Accept  json
 // @Produce  json

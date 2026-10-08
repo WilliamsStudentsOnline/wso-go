@@ -20,7 +20,7 @@ import (
 // ListReviews godoc
 // @Summary List reviews
 // @Description lists all reviews
-// @ID dormtrak-list-reviews
+// @ID listReviews
 // @Tags dormtrak
 // @Accept  json
 // @Produce  json
@@ -67,7 +67,7 @@ func (t *Controller) ListReviews(c *gin.Context) {
 // GetReview godoc
 // @Summary Get review
 // @Description get one review
-// @ID dormtrak-get-review
+// @ID getReview
 // @Tags dormtrak
 // @Accept  json
 // @Produce  json
@@ -127,7 +127,7 @@ type ReviewCreateParams struct {
 // CreateReview godoc
 // @Summary Create review
 // @Description create a review
-// @ID dormtrak-create-review
+// @ID createReview
 // @Tags dormtrak
 // @Accept  json
 // @Produce  json
@@ -246,7 +246,7 @@ type ReviewUpdateParams struct {
 // UpdateReview godoc
 // @Summary Update review
 // @Description update a review's data
-// @ID dormtrak-update-review
+// @ID updateReview
 // @Tags dormtrak
 // @Accept  json
 // @Produce  json
@@ -324,7 +324,7 @@ func (t *Controller) UpdateReview(c *gin.Context) {
 // DeleteReview godoc
 // @Summary Delete review
 // @Description delete a review
-// @ID dormtrak-delete-review
+// @ID deleteReview
 // @Tags dormtrak
 // @Accept  json
 // @Produce  json
@@ -373,7 +373,7 @@ func (t *Controller) DeleteReview(c *gin.Context) {
 // UploadDormRoomPhoto godoc
 // @Summary Upload a dorm room photo by review and dorm room
 // @Description upload a dorm room review's photo. You may only upload rooms you have reviewed.
-// @ID upload-dorm-room-photo
+// @ID uploadReviewPhoto
 // @Tags dormtrak
 // @Accept  multipart/form-data
 // @Produce  json
@@ -450,7 +450,7 @@ func (t *Controller) UploadDormRoomPhoto(c *gin.Context) {
 // GetReviewPhotos godoc
 // @Summary Get dorm room photos by review
 // @Description gets file names to all photos uploaded to a dorm room by review
-// @ID dormtrak-get-review-photos
+// @ID getReviewPhotos
 // @Tags dormtrak
 // @Accept  json
 // @Produce  json

@@ -19,7 +19,7 @@ type DormRoomPhotoInfo struct {
 // GetRoomPhotos godoc
 // @Summary Get dorm room photos
 // @Description gets file names to all photos uploaded to a dorm room
-// @ID dormtrak-get-room-photos
+// @ID getRoomPhotos
 // @Tags dormtrak
 // @Accept  json
 // @Produce  json

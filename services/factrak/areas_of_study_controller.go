@@ -13,7 +13,7 @@ import (
 // ListAreasOfStudy godoc
 // @Summary List areas of study
 // @Description lists all areas of study
-// @ID factrak-list-areas-of-study
+// @ID listAreasOfStudy
 // @Tags factrak
 // @Accept  json
 // @Produce  json
@@ -49,7 +49,7 @@ func (t *Controller) ListAreasOfStudy(c *gin.Context) {
 // GetAreaOfStudy godoc
 // @Summary Get area of study
 // @Description get one area of study with department preload
-// @ID factrak-get-area-of-study
+// @ID getAreaOfStudy
 // @Tags factrak
 // @Accept  json
 // @Produce  json
@@ -83,7 +83,7 @@ func (t *Controller) GetAreaOfStudy(c *gin.Context) {
 // ListAreaOfStudyProfessors godoc
 // @Summary List area of study professors
 // @Description list one area of study's professors
-// @ID factrak-list-area-of-study-professors
+// @ID listAreaOfStudyProfessors
 // @Tags factrak
 // @Accept  json
 // @Produce  json
@@ -131,7 +131,7 @@ func (t *Controller) ListAreaOfStudyProfessors(c *gin.Context) {
 // @Summary List area of study courses
 // @Description list one area of study's courses and the course's professors.
 // @Description Please note: unlike other GetCourses endpoints, this one also returns a list of each courses professors.
-// @ID factrak-list-area-of-study-courses
+// @ID listAreaOfStudyCourses
 // @Tags factrak
 // @Accept  json
 // @Produce  json

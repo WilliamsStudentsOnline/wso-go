@@ -13,7 +13,7 @@ import (
 // ListProfiles godoc
 // @Summary List Ephmatch profiles
 // @Description lists all Ephmatch-eligible student profiles
-// @ID ephmatch-list-profiles
+// @ID listProfiles
 // @Tags ephmatch
 // @Accept  json
 // @Produce  json
@@ -78,7 +78,7 @@ func (t *Controller) ListProfiles(c *gin.Context) {
 // GetProfile godoc
 // @Summary Get Ephmatch profile
 // @Description gets one ephmatch-eligible user profile
-// @ID ephmatch-get-profile
+// @ID getProfile
 // @Tags ephmatch
 // @Accept  json
 // @Produce  json
@@ -169,7 +169,7 @@ const (
 // SetProfileRelation godoc
 // @Summary Set Ephmatch profile relation
 // @Description Sets the relation (like, dislike, nothing) between self and one ephmatch-eligible user profile
-// @ID ephmatch-set-profile-relation
+// @ID setProfileRelation
 // @Tags ephmatch
 // @Accept  json
 // @Produce  json

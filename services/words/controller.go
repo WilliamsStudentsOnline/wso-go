@@ -26,7 +26,7 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 // GetWords godoc
 // @Summary Get words
 // @Description gets three WSO words
-// @ID words-get-words
+// @ID getWords
 // @Tags words
 // @Accept  json
 // @Produce  json

@@ -56,7 +56,7 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Cou
 // GetCourseSelectionsByUser godoc
 // @Summary Get user course selections
 // @Description get courses selected by a user as a string of area of study and course ID
-// @ID courseSchedulerSelections-persist-get
+// @ID getSelections
 // @Tags course-scheduler
 // @Accept json
 // @Produce json
@@ -109,7 +109,7 @@ func (t *CourseSchedulerController) GetCourseSelectionsByUser(c *gin.Context) {
 // SetCourseSelectionsByUser godoc
 // @Summary Set user course selections
 // @Description set courses selected by a user as a string of area of study and course ID
-// @ID courseSchedulerSelections-persist-set
+// @ID setSelection
 // @Tags course-scheduler
 // @Accept json
 // @Produce json

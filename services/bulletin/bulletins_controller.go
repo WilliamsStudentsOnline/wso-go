@@ -15,7 +15,7 @@ import (
 // ListBulletins godoc
 // @Summary List bulletins
 // @Description lists all bulletins
-// @ID bulletins-list-bulletins
+// @ID listBulletins
 // @Tags bulletins
 // @Accept  json
 // @Produce  json
@@ -61,7 +61,7 @@ func (t *Controller) ListBulletins(c *gin.Context) {
 // GetBulletin godoc
 // @Summary Get bulletin
 // @Description Get bulletin by ID with user preloaded
-// @ID bulletins-get-bulletin
+// @ID getBulletin
 // @Tags bulletins
 // @Accept  json
 // @Produce  json
@@ -111,7 +111,7 @@ type CreateBulletinParams struct {
 // CreateBulletin godoc
 // @Summary Create bulletin
 // @Description Create a bulletin
-// @ID bulletins-create-bulletin
+// @ID createBulletin
 // @Tags bulletins
 // @Accept  json
 // @Produce  json
@@ -186,7 +186,7 @@ type UpdateBulletinParams struct {
 // UpdateBulletin godoc
 // @Summary Update bulletin
 // @Description Updates a bulletin
-// @ID bulletins-update-bulletin
+// @ID updateBulletin
 // @Tags bulletins
 // @Accept  json
 // @Produce  json
@@ -260,7 +260,7 @@ func (t *Controller) UpdateBulletin(c *gin.Context) {
 // DeleteBulletin godoc
 // @Summary Delete bulletin
 // @Description Deletes a bulletin
-// @ID bulletins-delete-bulletin
+// @ID deleteBulletin
 // @Tags bulletins
 // @Accept  json
 // @Produce  json

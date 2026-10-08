@@ -15,7 +15,7 @@ import (
 // GetSurveyAgreement godoc
 // @Summary Get survey agreement by self
 // @Description gets the agreement about a survey made by the self user
-// @ID factrak-get-agreement
+// @ID getSurveyAgreement
 // @Tags factrak
 // @Accept  json
 // @Produce  json
@@ -74,7 +74,7 @@ type AgreementCreateParams struct {
 // CreateSurveyAgreement godoc
 // @Summary Create survey agreement
 // @Description creates an agreement about a survey made by the self user
-// @ID factrak-create-agreement
+// @ID createSurveyAgreement
 // @Tags factrak
 // @Accept  json
 // @Produce  json
@@ -160,7 +160,7 @@ type AgreementUpdateParams struct {
 // UpdateSurveyAgreement godoc
 // @Summary Update survey agreement
 // @Description updates an agreement about a survey made by the self user
-// @ID factrak-update-agreement
+// @ID updateSurveyAgreement
 // @Tags factrak
 // @Accept  json
 // @Produce  json
@@ -237,7 +237,7 @@ func (t *Controller) UpdateAgreement(c *gin.Context) {
 // DeleteSurveyAgreement godoc
 // @Summary Delete survey agreement
 // @Description deletes an agreement about a survey made by the self user
-// @ID factrak-delete-agreement
+// @ID deleteSurveyAgreement
 // @Tags factrak
 // @Accept  json
 // @Produce  json

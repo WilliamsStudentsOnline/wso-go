@@ -9,7 +9,7 @@ import (
 // GetRankings godoc
 // @Summary Get rankings
 // @Description gets rankings of dorms by specific metrics.
-// @ID dormtrak-get-rankings
+// @ID getRankings
 // @Tags dormtrak
 // @Accept  json
 // @Produce  json

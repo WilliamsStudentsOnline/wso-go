@@ -15,7 +15,7 @@ import (
 // ListRides godoc
 // @Summary List rides
 // @Description lists all bulletin rides
-// @ID bulletins-list-rides
+// @ID listRides
 // @Tags bulletins
 // @Accept  json
 // @Produce  json
@@ -68,7 +68,7 @@ func (t *Controller) ListRides(c *gin.Context) {
 // GetRide godoc
 // @Summary Get ride
 // @Description Get bulletin ride by ID with user preloaded
-// @ID bulletins-get-ride
+// @ID getRide
 // @Tags bulletins
 // @Accept  json
 // @Produce  json
@@ -117,7 +117,7 @@ type CreateRideParams struct {
 // CreateRide godoc
 // @Summary Create ride
 // @Description Creates a ride
-// @ID bulletins-create-ride
+// @ID createRide
 // @Tags bulletins
 // @Accept  json
 // @Produce  json
@@ -180,7 +180,7 @@ type UpdateRideParams struct {
 // UpdateRide godoc
 // @Summary Update ride
 // @Description Updates a ride
-// @ID bulletins-update-ride
+// @ID updateRide
 // @Tags bulletins
 // @Accept  json
 // @Produce  json
@@ -259,7 +259,7 @@ func (t *Controller) UpdateRide(c *gin.Context) {
 // DeleteRide godoc
 // @Summary Delete ride
 // @Description Deletes a ride
-// @ID bulletins-delete-ride
+// @ID deleteRide
 // @Tags bulletins
 // @Accept  json
 // @Produce  json

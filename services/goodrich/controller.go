@@ -54,7 +54,7 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 // ListTimeSlots godoc
 // @Summary List time slots
 // @Description lists all time slots today
-// @ID goodrich-list-time-slots
+// @ID listTimeSlots
 // @Tags goodrich
 // @Accept  json
 // @Produce  json

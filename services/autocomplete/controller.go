@@ -30,7 +30,7 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 // AreaOfStudy godoc
 // @Summary Autocomplete area of study
 // @Description Given an input q, this autocompletes the area of study. Results are sorted by levenshtein distance.
-// @ID autocomplete-area-of-study
+// @ID autocompleteAreaOfStudy
 // @Tags autocomplete
 // @Accept  json
 // @Produce  json
@@ -47,7 +47,7 @@ func (t *Controller) AreaOfStudy(c *gin.Context) {
 // Course godoc
 // @Summary Autocomplete course
 // @Description Given an input q, this autocompletes the course. Results are sorted by levenshtein distance.
-// @ID autocomplete-course
+// @ID autocompleteCourse
 // @Tags autocomplete
 // @Accept  json
 // @Produce  json
@@ -64,7 +64,7 @@ func (t *Controller) Course(c *gin.Context) {
 // Professor godoc
 // @Summary Autocomplete professor
 // @Description Given an input q, this autocompletes the professor. Results are sorted by levenshtein distance.
-// @ID autocomplete-professor
+// @ID autocompleteProfessor
 // @Tags autocomplete
 // @Accept  json
 // @Produce  json
@@ -81,7 +81,7 @@ func (t *Controller) Professor(c *gin.Context) {
 // Tag godoc
 // @Summary Autocomplete tag
 // @Description Given an input q, this autocompletes the tag. Results are sorted by levenshtein distance.
-// @ID autocomplete-tag
+// @ID autocompleteTag
 // @Tags autocomplete
 // @Accept  json
 // @Produce  json
@@ -98,7 +98,7 @@ func (t *Controller) Tag(c *gin.Context) {
 // Factrak godoc
 // @Summary Autocomplete factrak professors and courses
 // @Description Given an input q, this autocompletes the professor or course. Results are sorted by levenshtein distance.
-// @ID autocomplete-factrak
+// @ID autocompleteFactrak
 // @Tags autocomplete
 // @Accept  json
 // @Produce  json

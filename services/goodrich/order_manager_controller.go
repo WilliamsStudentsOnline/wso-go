@@ -13,7 +13,7 @@ import (
 // ListOrders godoc
 // @Summary List orders
 // @Description lists all orders
-// @ID goodrich-list-orders
+// @ID listOrders
 // @Tags goodrich
 // @Accept  json
 // @Produce  json
@@ -49,7 +49,7 @@ func (t *Controller) ListOrders(c *gin.Context) {
 // GetOrder godoc
 // @Summary Get order
 // @Description gets an order
-// @ID goodrich-get-order
+// @ID getOrder
 // @Tags goodrich
 // @Accept  json
 // @Produce  json
@@ -88,7 +88,7 @@ type UpdateOrderParams struct {
 // UpdateOrder godoc
 // @Summary Update order
 // @Description updates an order
-// @ID goodrich-update-order
+// @ID updateOrder
 // @Tags goodrich
 // @Accept  json
 // @Produce  json

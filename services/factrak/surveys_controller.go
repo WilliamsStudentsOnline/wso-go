@@ -16,7 +16,7 @@ import (
 // List all surveys
 // @Summary List surveys
 // @Description lists all surveys where the professor is at Williams and the survey is current. Order by creation date.
-// @ID factrak-list-surveys
+// @ID listSurveys
 // @Tags factrak
 // @Accept  json
 // @Produce  json
@@ -77,7 +77,7 @@ func (t *Controller) ListSurveys(c *gin.Context) {
 // Get one survey
 // @Summary Get survey
 // @Description get one survey
-// @ID factrak-get-survey
+// @ID getSurvey
 // @Tags factrak
 // @Accept  json
 // @Produce  json
@@ -165,7 +165,7 @@ type SurveyCreateParams struct {
 
 // @Summary Create survey
 // @Description create a survey
-// @ID factrak-create-survey
+// @ID createSurvey
 // @Tags factrak
 // @Accept  json
 // @Produce  json
@@ -407,7 +407,7 @@ type SurveyUpdateParams struct {
 // Update survey data
 // @Summary Update survey
 // @Description update a survey's data
-// @ID factrak-update-survey
+// @ID updateSurvey
 // @Tags factrak
 // @Accept  json
 // @Produce  json
@@ -536,7 +536,7 @@ func (t *Controller) UpdateSurvey(c *gin.Context) {
 // Delete survey. Can either do this to self if a user, or to everything if admin
 // @Summary Delete survey
 // @Description delete a survey
-// @ID factrak-delete-survey
+// @ID deleteSurvey
 // @Tags factrak,factrak-admin,admin
 // @Accept  json
 // @Produce  json
@@ -609,7 +609,7 @@ func (t *Controller) DeleteSurvey(c *gin.Context) {
 // Flag survey for mods
 // @Summary Flag survey
 // @Description flag a survey for mods
-// @ID factrak-flag-survey
+// @ID flagSurvey
 // @Tags factrak
 // @Accept  json
 // @Produce  json

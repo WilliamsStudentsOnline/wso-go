@@ -12,7 +12,7 @@ import (
 // ListMenu godoc
 // @Summary List menu
 // @Description lists all menu items
-// @ID goodrich-list-menu
+// @ID listMenu
 // @Tags goodrich
 // @Accept  json
 // @Produce  json
@@ -55,7 +55,7 @@ type CreateMenuItemParams struct {
 // CreateMenuItem godoc
 // @Summary Create menu item
 // @Description creates a menu item
-// @ID goodrich-create-menu-item
+// @ID createMenuItem
 // @Tags goodrich
 // @Accept  json
 // @Produce  json
@@ -103,7 +103,7 @@ type UpdateMenuItemParams struct {
 // UpdateMenuItem godoc
 // @Summary Update menu item
 // @Description updates a menu item
-// @ID goodrich-update-menu-item
+// @ID updateMenuItem
 // @Tags goodrich
 // @Accept  json
 // @Produce  json

@@ -47,7 +47,7 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 // GetChatAuthToken godoc
 // @Summary Get Chat Auth JWT token
 // @Description gets auth JWT token of chat feature
-// @ID chat-get-auth-token
+// @ID getChatAuthToken
 // @Tags chat
 // @Accept  json
 // @Produce  json

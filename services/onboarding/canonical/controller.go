@@ -29,7 +29,7 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 // GetUserByUnix godoc
 // @Summary Gets a user
 // @Description Gets a user from their unix. Onboarding exercise.
-// @ID onboarding-canonical-get-user-by-unix
+// @ID getOnboardingCanonicalUser
 // @Tags onboarding
 // @Accept  json
 // @Produce  json
