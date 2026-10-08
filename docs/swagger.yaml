@@ -145,6 +145,11 @@ definitions:
       offer:
         type: boolean
     type: object
+  coursescheduler.CourseSelectionsString:
+    properties:
+      courses:
+        type: string
+    type: object
   dormtrak.DormRoomPhotoInfo:
     properties:
       dormRoomId:
@@ -3871,6 +3876,67 @@ paths:
       summary: Get Chat Auth JWT token
       tags:
       - chat
+  /course-selections/{userID}:
+    get:
+      consumes:
+      - application/json
+      description: get courses selected by a user as a string of area of study and
+        course ID
+      operationId: courseSchedulerSelections-persist-get
+      parameters:
+      - description: UserID
+        in: path
+        name: userID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/coursescheduler.CourseSelectionsString'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get user course selections
+      tags:
+      - course-scheduler
+    put:
+      consumes:
+      - application/json
+      description: set courses selected by a user as a string of area of study and
+        course ID
+      operationId: courseSchedulerSelections-persist-set
+      parameters:
+      - description: UserID
+        in: path
+        name: userID
+        required: true
+        type: integer
+      - description: Request body
+        in: body
+        name: courses
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Set user course selections
+      tags:
+      - course-scheduler
   /dormtrak/dorms:
     get:
       consumes:

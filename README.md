@@ -7,17 +7,23 @@ WSO-Go auto-generates API docs found on:
  - The WSO-DEV server (you need a VPN or to be on campus) here: http://wso-dev.williams.edu/api/docs/index.html
  - Locally here: http://localhost:8080/docs/index.html
 
-## Running Locally 
+## Running Locally
 
-To run the server, simply do `make run-dev` or `make && ./wso-backend --development`.
+Requires **Docker** (Compose) and a recent **Go** toolchain. The API binary runs on the host; MySQL + Redis run in Compose.
 
-Note: you must include a secrets file. So, run `cp config/secrets_example.yaml config/secrets.yaml` and edit the fields from there. You can also just set the environment variable `WSO_SECRET_JWT_SECRET_KEY=wso-jwt-development-secret`, which will work.
+```bash
+cp config/secrets_example.yaml config/secrets.yaml   # once; make dev will copy if missing
+make dev                                             # up deps, seed if empty, start API
+```
 
-### Redis
+- API / docs: http://localhost:8080/docs  
+- `make dev-down` — stop API + Compose (**keeps** volumes)  
+- `make dev-reset` — wipe volumes, re-seed, start fresh  
+- `make dev-logs` — API + Compose tails  
 
-**NOTE**: As of November 2024, wso-go uses Redis for several non-critical database tables, such as saved classes in the course scheduler. For most cases, this is not important, but if you intend to develop for these features, deploy Redis with `make run-dev-redis`. Local dev will skip tests that exercise Redis when it is not installed. Redis tests run on a throwaway DB (see `lib/redis_util/database_ids.go`).
+Seed data (`db/seed/development.sql.gz`) is imported only when MySQL has no `users` table. Known unixIDs with LDAP disabled: `student`, `admin`, `prof`, `staff`.
 
-All data is lost when the command is re-run. For data persistence, edit the Makefile's definition of `docker-redis-dev` to use use the flag `-v /absolute/path/on/your/computer/:data` on the command `docker run` to dump data to a path of your choice.
+Unit tests stay on SQLite and do **not** need Docker (`make test`). Redis-backed course-scheduler tests skip if Redis is not on `localhost:6379`.
 
 ### Grafana and Prometheus
 
@@ -138,9 +144,12 @@ We use something called a [JWT](jwt.io), or JSON Web Token for the API. This all
 
 - `config/` contains the server configuration library, logging library, secrets library, and various configurations
   - `environment/development.yml` is the local development configuration yaml
-- `db/` migration code (and dummy SQLite databases)
+- `db/` migration code
   - `atlas/` Atlas config, `schema.sql`, and versioned SQL migrations
+  - `seed/development.sql.gz` MySQL seed for `make dev`
   - `migrations/` frozen historical gormigrate migrations
+- `docker-compose.yml` local MySQL + Redis
+- `scripts/devenv.sh` `make dev` lifecycle
 - `docs/` swagger API docs to be compiled
 - `jobs/` cron job launching code and specific jobs to run on the server (e.g. update users from LDAP)
   - `dorms_update/data` dorm and dorm room data

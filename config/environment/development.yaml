@@ -1,8 +1,16 @@
 ---
 env: development
-secrets_file: config/secrets_example.yaml
-database_type: sqlite3
-sqlite_file: db/development.db
+secrets_file: config/secrets.yaml
+database_type: mysql
+mysql_user: root
+mysql_host: 127.0.0.1
+mysql_port: 3306
+mysql_database: wso
+mysql_args:
+  parseTime: "true"
+  charset: utf8mb4
+  multiStatements: "true"
+redis_addr: 127.0.0.1:6379
 jwt_realm: wso-go-dev
 port: 8080
 disable_ldap: true

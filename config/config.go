@@ -41,6 +41,8 @@ type Config struct {
 	MySQLUnix     bool              `yaml:"mysql_unix" envconfig:"mysql_unix"` // Use a unix connection rather than a TCP connection
 	// SQLite
 	SQLiteFile string `yaml:"sqlite_file" envconfig:"sqlite_file"`
+	// Redis (host:port); used by course scheduler selections etc.
+	RedisAddr string `yaml:"redis_addr" envconfig:"redis_addr"`
 
 	SlackWebhookURL string `yaml:"slack_webhook_url" envconfig:"slack_webhook_url"`
 
@@ -334,6 +336,10 @@ func SetupConfig(c *Config) error {
 	// Default to port 8080
 	if c.Port == 0 {
 		c.Port = 8080
+	}
+
+	if c.RedisAddr == "" {
+		c.RedisAddr = "127.0.0.1:6379"
 	}
 
 	if c.EnableTLS && (c.TLSKeyPath == "" || c.TLSCertPath == "") {

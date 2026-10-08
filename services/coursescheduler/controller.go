@@ -14,13 +14,12 @@ import (
 
 var client *redis_util.RedisClient
 
-func init() {
-	ConfigureClientForProd()
-}
-
-func ConfigureClientForProd() error {
+func ConfigureClient(addr string) error {
+	if addr == "" {
+		addr = "127.0.0.1:6379"
+	}
 	var err error
-	client, err = redis_util.SetupClient("localhost:6739", "", redis_util.CourseSchedulerSelectionsDatabaseID)
+	client, err = redis_util.SetupClient(addr, "", redis_util.CourseSchedulerSelectionsDatabaseID)
 	return err
 }
 
@@ -61,7 +60,7 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Cou
 // @Accept json
 // @Produce json
 // @Param userID path uint true "UserID"
-// @Success 200 {object} services.CourseSelectionsString
+// @Success 200 {object} CourseSelectionsString
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /course-selections/{userID} [get]

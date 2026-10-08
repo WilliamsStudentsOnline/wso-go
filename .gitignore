@@ -129,3 +129,8 @@ pics/
 AGENTS.md
 CLAUDE.md
 CURSOR.md
+
+# local devenv
+.devenv/
+.env
+
