@@ -129,3 +129,7 @@ pics/
 AGENTS.md
 CLAUDE.md
 CURSOR.md
+
+# OpenAPI CI artifacts
+openapi-results/
+openapi-comment.md

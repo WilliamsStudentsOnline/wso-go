@@ -13,6 +13,9 @@ jobs:
   openapi:
     name: Swag / Spectral / oasdiff
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -57,6 +60,26 @@ jobs:
           fi
 
       - name: Check OpenAPI
+        id: openapi
+        continue-on-error: true
         env:
           OPENAPI_BASE_REF: ${{ steps.base.outputs.ref }}
         run: make check-openapi
+
+      - name: OpenAPI summary
+        if: always()
+        run: |
+          if [[ -f openapi-comment.md ]]; then
+            cat openapi-comment.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Add OpenAPI PR Comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        if: always() && github.event_name == 'pull_request' && hashFiles('openapi-comment.md') != ''
+        with:
+          header: openapi
+          path: openapi-comment.md
+
+      - name: Fail job if OpenAPI checks failed
+        if: always() && steps.openapi.outcome != 'success'
+        run: exit 1
