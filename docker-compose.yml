@@ -1,0 +1,21 @@
+# Compose MySQL for Atlas tooling
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: wso-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: secret-mysql-password
+      MYSQL_DATABASE: wso
+    ports:
+      - "3306:3306"
+    volumes:
+      - wso_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-psecret-mysql-password"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  wso_mysql_data:

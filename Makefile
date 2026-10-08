@@ -220,6 +220,43 @@ mod:
 	go mod tidy
 	go mod download
 
+### Atlas — schema SQL in db/atlas/ (needs Docker + atlas CLI)
+ATLAS_MYSQL_ROOT_PASSWORD ?= secret-mysql-password
+ATLAS_SCHEMA_DSN ?= root:$(ATLAS_MYSQL_ROOT_PASSWORD)@tcp(127.0.0.1:3306)/wso_atlas?parseTime=true&charset=utf8mb4&multiStatements=true
+ATLAS_SCHEMA_URL ?= mysql://root:$(ATLAS_MYSQL_ROOT_PASSWORD)@127.0.0.1:3306/wso_atlas
+ATLAS := $(shell command -v atlas 2>/dev/null)
+
+# throwaway MySQL for schema dump / diff
+.PHONY: atlas-mysql-up
+atlas-mysql-up:
+	docker compose up -d mysql
+	@for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do \
+		h=$$(docker inspect --format='{{.State.Health.Status}}' wso-mysql 2>/dev/null || echo starting); \
+		[ "$$h" = "healthy" ] && break; \
+		sleep 2; \
+	done
+	docker exec wso-mysql mysql -uroot -p$(ATLAS_MYSQL_ROOT_PASSWORD) -e "CREATE DATABASE IF NOT EXISTS wso_atlas;"
+
+# regenerate db/atlas/schema.sql from current GORM models
+.PHONY: atlas-schema
+atlas-schema: atlas-mysql-up
+	go run ./db/atlas/cmd/dump_schema -dsn '$(ATLAS_SCHEMA_DSN)'
+	@if [ -z "$(ATLAS)" ]; then echo "atlas CLI not found; install from https://atlasgo.io/docs"; exit 1; fi
+	$(ATLAS) schema inspect --url '$(ATLAS_SCHEMA_URL)' --format '{{ sql . "  " }}' > db/atlas/schema.sql
+
+# plan a new migration: make atlas-diff name=<title>
+.PHONY: atlas-diff
+atlas-diff: atlas-schema
+	@if [ -z "$(ATLAS)" ]; then echo "atlas CLI not found; install from https://atlasgo.io/docs"; exit 1; fi
+	@name="$(name)"; if [ -z "$$name" ]; then echo "usage: make atlas-diff name=<migration_name>"; exit 1; fi
+	cd db/atlas && $(ATLAS) migrate diff "$$name" --env local --config file://atlas.hcl
+
+# checksum + replay SQL on ephemeral MySQL
+.PHONY: atlas-lint
+atlas-lint:
+	@if [ -z "$(ATLAS)" ]; then echo "atlas CLI not found; install from https://atlasgo.io/docs"; exit 1; fi
+	cd db/atlas && $(ATLAS) migrate validate --env local --config file://atlas.hcl
+
 ### Docker definitions
 .PHONY: docker-builder
 docker-builder:
