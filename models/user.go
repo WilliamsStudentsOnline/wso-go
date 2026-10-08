@@ -268,7 +268,7 @@ func (m *UserModel) generateSearchFieldsByUser(user User) (searchFields string, 
 	if user.DormRoomID != nil {
 		if user.DormRoom == nil {
 			var dormRoom DormRoom
-			err = m.DB.Preload("Dorm").First(&dormRoom, user.DormRoomID).Error
+			err = m.DB.Preload("Dorm").First(&dormRoom, *user.DormRoomID).Error
 			if err != nil {
 				return
 			}
@@ -286,7 +286,7 @@ func (m *UserModel) generateSearchFieldsByUser(user User) (searchFields string, 
 
 	if user.OfficeID != nil && user.Office == nil {
 		var office Office
-		err = m.DB.First(&office, user.OfficeID).Error
+		err = m.DB.First(&office, *user.OfficeID).Error
 		if err != nil {
 			return
 		}
