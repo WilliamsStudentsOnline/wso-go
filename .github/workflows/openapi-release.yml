@@ -1,0 +1,48 @@
+name: OpenAPI contract release
+
+# Cut a contract for clients with:
+#   git tag openapi-v2026.10.08 && git push origin openapi-v2026.10.08
+# Asset URL:
+#   https://github.com/WilliamsStudentsOnline/wso-go/releases/download/<tag>/openapi.yaml
+
+on:
+  push:
+    tags:
+      - "openapi-v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Attach openapi.yaml
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Stage release asset
+        run: |
+          set -euo pipefail
+          test -f docs/swagger.yaml
+          cp docs/swagger.yaml openapi.yaml
+          # handy for tools that prefer JSON
+          if [[ -f docs/swagger.json ]]; then
+            cp docs/swagger.json openapi.json
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            openapi.yaml
+            openapi.json
+          generate_release_notes: false
+          body: |
+            OpenAPI contract for WSO API clients.
+
+            - `openapi.yaml` — canonical (copy of `docs/swagger.yaml` at this tag)
+            - `openapi.json` — same spec as JSON
+
+            Clients should pin this tag (e.g. regenerate `wso-api-client` from the asset URL).
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
