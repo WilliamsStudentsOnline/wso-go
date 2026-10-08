@@ -2793,6 +2793,98 @@ const docTemplate = `{
                 }
             }
         },
+        "/course-selections/{userID}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "get courses selected by a user as a string of area of study and course ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "course-scheduler"
+                ],
+                "summary": "Get user course selections",
+                "operationId": "courseSchedulerSelections-persist-get",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "UserID",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/coursescheduler.CourseSelectionsString"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "set courses selected by a user as a string of area of study and course ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "course-scheduler"
+                ],
+                "summary": "Set user course selections",
+                "operationId": "courseSchedulerSelections-persist-set",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "UserID",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Request body",
+                        "name": "courses",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/dormtrak/dorms": {
             "get": {
                 "security": [
@@ -7488,6 +7580,9 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "health"
+                ],
                 "summary": "Health check",
                 "operationId": "health-check",
                 "responses": {
@@ -8478,6 +8573,14 @@ const docTemplate = `{
                 },
                 "offer": {
                     "type": "boolean"
+                }
+            }
+        },
+        "coursescheduler.CourseSelectionsString": {
+            "type": "object",
+            "properties": {
+                "courses": {
+                    "type": "string"
                 }
             }
         },

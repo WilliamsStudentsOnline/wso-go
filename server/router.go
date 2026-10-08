@@ -252,6 +252,7 @@ type HealthCheckResponse struct {
 // @Summary Health check
 // @Description Check server health
 // @ID health-check
+// @Tags health
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} server.HealthCheckResponse
