@@ -37,7 +37,7 @@ const docTemplate = `{
                     "auth-2.0"
                 ],
                 "summary": "Refresh API Token",
-                "operationId": "auth-api-update",
+                "operationId": "updateAPIToken",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -80,7 +80,7 @@ const docTemplate = `{
                     "auth-2.0"
                 ],
                 "summary": "Authenticate API Token",
-                "operationId": "auth-api-token",
+                "operationId": "getAPIToken",
                 "parameters": [
                     {
                         "type": "string",
@@ -132,7 +132,7 @@ const docTemplate = `{
                     "auth-2.0"
                 ],
                 "summary": "Authenticate Identity Token",
-                "operationId": "auth-identity-token",
+                "operationId": "getIdentityToken",
                 "parameters": [
                     {
                         "description": "Identity Credentials",
@@ -185,7 +185,7 @@ const docTemplate = `{
                     "auth"
                 ],
                 "summary": "Authenticate and Login",
-                "operationId": "auth-login",
+                "operationId": "loginV1",
                 "parameters": [
                     {
                         "description": "Login Parameters",
@@ -243,7 +243,7 @@ const docTemplate = `{
                     "auth"
                 ],
                 "summary": "Refresh Token",
-                "operationId": "auth-refresh",
+                "operationId": "refreshTokenV1",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -290,7 +290,7 @@ const docTemplate = `{
                     "auth"
                 ],
                 "summary": "Update Token",
-                "operationId": "auth-update",
+                "operationId": "updateTokenV1",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -337,7 +337,7 @@ const docTemplate = `{
                     "autocomplete"
                 ],
                 "summary": "Autocomplete area of study",
-                "operationId": "autocomplete-area-of-study",
+                "operationId": "autocompleteAreaOfStudy",
                 "parameters": [
                     {
                         "type": "string",
@@ -390,7 +390,7 @@ const docTemplate = `{
                     "autocomplete"
                 ],
                 "summary": "Autocomplete course",
-                "operationId": "autocomplete-course",
+                "operationId": "autocompleteCourse",
                 "parameters": [
                     {
                         "type": "string",
@@ -443,7 +443,7 @@ const docTemplate = `{
                     "autocomplete"
                 ],
                 "summary": "Autocomplete factrak professors and courses",
-                "operationId": "autocomplete-factrak",
+                "operationId": "autocompleteFactrak",
                 "parameters": [
                     {
                         "type": "string",
@@ -496,7 +496,7 @@ const docTemplate = `{
                     "autocomplete"
                 ],
                 "summary": "Autocomplete professor",
-                "operationId": "autocomplete-professor",
+                "operationId": "autocompleteProfessor",
                 "parameters": [
                     {
                         "type": "string",
@@ -549,7 +549,7 @@ const docTemplate = `{
                     "autocomplete"
                 ],
                 "summary": "Autocomplete tag",
-                "operationId": "autocomplete-tag",
+                "operationId": "autocompleteTag",
                 "parameters": [
                     {
                         "type": "string",
@@ -602,7 +602,7 @@ const docTemplate = `{
                     "books"
                 ],
                 "summary": "Get book by book id",
-                "operationId": "get-book",
+                "operationId": "getBook",
                 "parameters": [
                     {
                         "type": "integer",
@@ -652,7 +652,7 @@ const docTemplate = `{
                     "booktrak"
                 ],
                 "summary": "List books",
-                "operationId": "booktrak-list-books",
+                "operationId": "listBooks",
                 "parameters": [
                     {
                         "type": "integer",
@@ -720,7 +720,7 @@ const docTemplate = `{
                     "booktrak"
                 ],
                 "summary": "Create a book if it doesn't exist already",
-                "operationId": "booktrak-create-book",
+                "operationId": "createBook",
                 "parameters": [
                     {
                         "description": "Create Book Params",
@@ -778,7 +778,7 @@ const docTemplate = `{
                     "booktrak"
                 ],
                 "summary": "Update book",
-                "operationId": "booktrak-update-book",
+                "operationId": "updateBookCourses",
                 "parameters": [
                     {
                         "description": "Update Book Params",
@@ -843,7 +843,7 @@ const docTemplate = `{
                     "booktrak"
                 ],
                 "summary": "List book listings",
-                "operationId": "booktrak-list-book-listings",
+                "operationId": "listBookListings",
                 "parameters": [
                     {
                         "type": "integer",
@@ -959,7 +959,7 @@ const docTemplate = `{
                     "booktrak"
                 ],
                 "summary": "Create book listing",
-                "operationId": "booktrak-create-book-listing",
+                "operationId": "createBookListing",
                 "parameters": [
                     {
                         "description": "Create Book Listing Params",
@@ -1017,7 +1017,7 @@ const docTemplate = `{
                     "booktrak"
                 ],
                 "summary": "Update book listing",
-                "operationId": "booktrak-update-book-listing",
+                "operationId": "updateBookListing",
                 "parameters": [
                     {
                         "description": "Create Book Listing Params",
@@ -1094,7 +1094,7 @@ const docTemplate = `{
                     "admin"
                 ],
                 "summary": "Delete book listing",
-                "operationId": "booktrak-delete-book-listing",
+                "operationId": "deleteBookListing",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1156,7 +1156,7 @@ const docTemplate = `{
                     "bulletins"
                 ],
                 "summary": "List bulletins",
-                "operationId": "bulletins-list-bulletins",
+                "operationId": "listBulletins",
                 "parameters": [
                     {
                         "type": "string",
@@ -1234,7 +1234,7 @@ const docTemplate = `{
                     "bulletins"
                 ],
                 "summary": "Create bulletin",
-                "operationId": "bulletins-create-bulletin",
+                "operationId": "createBulletin",
                 "parameters": [
                     {
                         "description": "Create Bulletin Params",
@@ -1304,7 +1304,7 @@ const docTemplate = `{
                     "bulletins"
                 ],
                 "summary": "Get bulletin",
-                "operationId": "bulletins-get-bulletin",
+                "operationId": "getBulletin",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1358,7 +1358,7 @@ const docTemplate = `{
                     "bulletins"
                 ],
                 "summary": "Delete bulletin",
-                "operationId": "bulletins-delete-bulletin",
+                "operationId": "deleteBulletin",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1418,7 +1418,7 @@ const docTemplate = `{
                     "bulletins"
                 ],
                 "summary": "Update bulletin",
-                "operationId": "bulletins-update-bulletin",
+                "operationId": "updateBulletin",
                 "parameters": [
                     {
                         "description": "Update Bulletin Params",
@@ -1495,7 +1495,7 @@ const docTemplate = `{
                     "bulletins"
                 ],
                 "summary": "Delete discussion",
-                "operationId": "bulletins-delete-discussion",
+                "operationId": "deleteDiscussion",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1551,7 +1551,7 @@ const docTemplate = `{
                     "bulletins"
                 ],
                 "summary": "List discussions",
-                "operationId": "bulletins-list-discussions",
+                "operationId": "listDiscussions",
                 "parameters": [
                     {
                         "type": "string",
@@ -1623,7 +1623,7 @@ const docTemplate = `{
                     "bulletins"
                 ],
                 "summary": "Create discussion",
-                "operationId": "bulletins-create-discussion",
+                "operationId": "createDiscussion",
                 "parameters": [
                     {
                         "description": "Create Discussion Params",
@@ -1687,7 +1687,7 @@ const docTemplate = `{
                     "bulletins"
                 ],
                 "summary": "Get discussion",
-                "operationId": "bulletins-get-discussion",
+                "operationId": "getDiscussion",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1753,7 +1753,7 @@ const docTemplate = `{
                     "bulletins"
                 ],
                 "summary": "Get discussion posts",
-                "operationId": "bulletins-get-discussion-posts",
+                "operationId": "getDiscussionPosts",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1828,7 +1828,7 @@ const docTemplate = `{
                     "bulletins"
                 ],
                 "summary": "Create post",
-                "operationId": "bulletins-create-post",
+                "operationId": "createPost",
                 "parameters": [
                     {
                         "description": "Create Post Params",
@@ -1898,7 +1898,7 @@ const docTemplate = `{
                     "bulletins"
                 ],
                 "summary": "Get post",
-                "operationId": "bulletins-get-post",
+                "operationId": "getPost",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1952,7 +1952,7 @@ const docTemplate = `{
                     "bulletins"
                 ],
                 "summary": "Delete post",
-                "operationId": "bulletins-delete-post",
+                "operationId": "deletePost",
                 "parameters": [
                     {
                         "type": "integer",
@@ -2012,7 +2012,7 @@ const docTemplate = `{
                     "bulletins"
                 ],
                 "summary": "Update post",
-                "operationId": "bulletins-update-post",
+                "operationId": "updatePost",
                 "parameters": [
                     {
                         "description": "Update Post Params",
@@ -2083,7 +2083,7 @@ const docTemplate = `{
                     "bulletins"
                 ],
                 "summary": "List rides",
-                "operationId": "bulletins-list-rides",
+                "operationId": "listRides",
                 "parameters": [
                     {
                         "type": "string",
@@ -2161,7 +2161,7 @@ const docTemplate = `{
                     "bulletins"
                 ],
                 "summary": "Create ride",
-                "operationId": "bulletins-create-ride",
+                "operationId": "createRide",
                 "parameters": [
                     {
                         "description": "Create Ride Params",
@@ -2225,7 +2225,7 @@ const docTemplate = `{
                     "bulletins"
                 ],
                 "summary": "Get ride",
-                "operationId": "bulletins-get-ride",
+                "operationId": "getRide",
                 "parameters": [
                     {
                         "type": "integer",
@@ -2279,7 +2279,7 @@ const docTemplate = `{
                     "bulletins"
                 ],
                 "summary": "Delete ride",
-                "operationId": "bulletins-delete-ride",
+                "operationId": "deleteRide",
                 "parameters": [
                     {
                         "type": "integer",
@@ -2339,7 +2339,7 @@ const docTemplate = `{
                     "bulletins"
                 ],
                 "summary": "Update ride",
-                "operationId": "bulletins-update-ride",
+                "operationId": "updateRide",
                 "parameters": [
                     {
                         "description": "Update Ride Params",
@@ -2413,7 +2413,7 @@ const docTemplate = `{
                     "bulletins"
                 ],
                 "summary": "List announcement bulletins RSS",
-                "operationId": "bulletins-list-announcement-rss",
+                "operationId": "listAnnouncementRss",
                 "parameters": [
                     {
                         "type": "string",
@@ -2471,7 +2471,7 @@ const docTemplate = `{
                     "bulletins"
                 ],
                 "summary": "List discussion bulletins RSS",
-                "operationId": "bulletins-list-discussion-rss",
+                "operationId": "listDiscussionRss",
                 "parameters": [
                     {
                         "type": "string",
@@ -2523,7 +2523,7 @@ const docTemplate = `{
                     "bulletins"
                 ],
                 "summary": "List exchange bulletins RSS",
-                "operationId": "bulletins-list-exchange-rss",
+                "operationId": "listExchangeRss",
                 "parameters": [
                     {
                         "type": "string",
@@ -2581,7 +2581,7 @@ const docTemplate = `{
                     "bulletins"
                 ],
                 "summary": "List job bulletins RSS",
-                "operationId": "bulletins-list-job-rss",
+                "operationId": "listJobRss",
                 "parameters": [
                     {
                         "type": "string",
@@ -2639,7 +2639,7 @@ const docTemplate = `{
                     "bulletins"
                 ],
                 "summary": "List lost and found bulletins RSS",
-                "operationId": "bulletins-list-lostAndFound-rss",
+                "operationId": "listLostAndFoundRss",
                 "parameters": [
                     {
                         "type": "string",
@@ -2697,7 +2697,7 @@ const docTemplate = `{
                     "bulletins"
                 ],
                 "summary": "List ride bulletins RSS",
-                "operationId": "bulletins-list-ride-rss",
+                "operationId": "listRideRss",
                 "parameters": [
                     {
                         "type": "string",
@@ -2764,7 +2764,7 @@ const docTemplate = `{
                     "chat"
                 ],
                 "summary": "Get Chat Auth JWT token",
-                "operationId": "chat-get-auth-token",
+                "operationId": "getChatAuthToken",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -2811,7 +2811,7 @@ const docTemplate = `{
                     "course-scheduler"
                 ],
                 "summary": "Get user course selections",
-                "operationId": "courseSchedulerSelections-persist-get",
+                "operationId": "getSelections",
                 "parameters": [
                     {
                         "type": "integer",
@@ -2853,7 +2853,7 @@ const docTemplate = `{
                     "course-scheduler"
                 ],
                 "summary": "Set user course selections",
-                "operationId": "courseSchedulerSelections-persist-set",
+                "operationId": "setSelection",
                 "parameters": [
                     {
                         "type": "integer",
@@ -2903,7 +2903,7 @@ const docTemplate = `{
                     "dormtrak"
                 ],
                 "summary": "List dorms",
-                "operationId": "dormtrak-list-dorms",
+                "operationId": "listDorms",
                 "parameters": [
                     {
                         "type": "integer",
@@ -2971,7 +2971,7 @@ const docTemplate = `{
                     "dormtrak"
                 ],
                 "summary": "Get dorm",
-                "operationId": "dormtrak-get-dorm",
+                "operationId": "getDorm",
                 "parameters": [
                     {
                         "type": "integer",
@@ -3027,7 +3027,7 @@ const docTemplate = `{
                     "dormtrak"
                 ],
                 "summary": "Get dorm facts",
-                "operationId": "dormtrak-get-dorm-facts",
+                "operationId": "getDormFacts",
                 "parameters": [
                     {
                         "type": "integer",
@@ -3083,7 +3083,7 @@ const docTemplate = `{
                     "dormtrak"
                 ],
                 "summary": "Get dorm rooms",
-                "operationId": "dormtrak-get-dorm-rooms",
+                "operationId": "getDormRooms",
                 "parameters": [
                     {
                         "type": "integer",
@@ -3154,7 +3154,7 @@ const docTemplate = `{
                     "dormtrak"
                 ],
                 "summary": "List neighborhoods",
-                "operationId": "dormtrak-list-neighborhoods",
+                "operationId": "listNeighborhoods",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -3192,7 +3192,7 @@ const docTemplate = `{
                     "dormtrak"
                 ],
                 "summary": "Get neighborhood",
-                "operationId": "dormtrak-get-neighborhood",
+                "operationId": "getNeighborhood",
                 "parameters": [
                     {
                         "type": "integer",
@@ -3248,7 +3248,7 @@ const docTemplate = `{
                     "dormtrak"
                 ],
                 "summary": "Get neighborhood facts",
-                "operationId": "dormtrak-get-neighborhood-facts",
+                "operationId": "getNeighborhoodFacts",
                 "parameters": [
                     {
                         "type": "integer",
@@ -3304,7 +3304,7 @@ const docTemplate = `{
                     "dormtrak"
                 ],
                 "summary": "Get rankings",
-                "operationId": "dormtrak-get-rankings",
+                "operationId": "getRankings",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -3342,7 +3342,7 @@ const docTemplate = `{
                     "dormtrak"
                 ],
                 "summary": "List reviews",
-                "operationId": "dormtrak-list-reviews",
+                "operationId": "listReviews",
                 "parameters": [
                     {
                         "type": "integer",
@@ -3432,7 +3432,7 @@ const docTemplate = `{
                     "dormtrak"
                 ],
                 "summary": "Create review",
-                "operationId": "dormtrak-create-review",
+                "operationId": "createReview",
                 "parameters": [
                     {
                         "description": "Create Review Params",
@@ -3520,7 +3520,7 @@ const docTemplate = `{
                     "dormtrak"
                 ],
                 "summary": "Get review",
-                "operationId": "dormtrak-get-review",
+                "operationId": "getReview",
                 "parameters": [
                     {
                         "type": "integer",
@@ -3574,7 +3574,7 @@ const docTemplate = `{
                     "dormtrak"
                 ],
                 "summary": "Delete review",
-                "operationId": "dormtrak-delete-review",
+                "operationId": "deleteReview",
                 "parameters": [
                     {
                         "type": "integer",
@@ -3634,7 +3634,7 @@ const docTemplate = `{
                     "dormtrak"
                 ],
                 "summary": "Update review",
-                "operationId": "dormtrak-update-review",
+                "operationId": "updateReview",
                 "parameters": [
                     {
                         "description": "Update Review Params",
@@ -3711,7 +3711,7 @@ const docTemplate = `{
                     "dormtrak"
                 ],
                 "summary": "Upload a dorm room photo by review and dorm room",
-                "operationId": "upload-dorm-room-photo",
+                "operationId": "uploadReviewPhoto",
                 "parameters": [
                     {
                         "type": "integer",
@@ -3783,7 +3783,7 @@ const docTemplate = `{
                     "dormtrak"
                 ],
                 "summary": "Get dorm room photos by review",
-                "operationId": "dormtrak-get-review-photos",
+                "operationId": "getReviewPhotos",
                 "parameters": [
                     {
                         "type": "integer",
@@ -3842,7 +3842,7 @@ const docTemplate = `{
                     "dormtrak"
                 ],
                 "summary": "Get dorm room photos",
-                "operationId": "dormtrak-get-room-photos",
+                "operationId": "getRoomPhotos",
                 "parameters": [
                     {
                         "type": "integer",
@@ -3901,7 +3901,7 @@ const docTemplate = `{
                     "ephcatch"
                 ],
                 "summary": "List ephcatchers",
-                "operationId": "ephcatch-list-ephcatchers",
+                "operationId": "listEphcatchers",
                 "parameters": [
                     {
                         "type": "integer",
@@ -3969,7 +3969,7 @@ const docTemplate = `{
                     "ephcatch"
                 ],
                 "summary": "Get ephcatcher",
-                "operationId": "ephcatch-get-ephcatcher",
+                "operationId": "getEphcatcher",
                 "parameters": [
                     {
                         "type": "integer",
@@ -4025,7 +4025,7 @@ const docTemplate = `{
                     "ephcatch"
                 ],
                 "summary": "Like ephcatcher",
-                "operationId": "ephcatch-like-ephcatcher",
+                "operationId": "likeEphcatcher",
                 "parameters": [
                     {
                         "type": "integer",
@@ -4096,7 +4096,7 @@ const docTemplate = `{
                     "ephcatch"
                 ],
                 "summary": "Unlike ephcatcher",
-                "operationId": "ephcatch-unlike-ephcatcher",
+                "operationId": "unlikeEphcatcher",
                 "parameters": [
                     {
                         "type": "integer",
@@ -4149,7 +4149,7 @@ const docTemplate = `{
                     "ephcatch"
                 ],
                 "summary": "List matches",
-                "operationId": "ephcatch-list-matches",
+                "operationId": "listEphcatchMatches",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -4184,7 +4184,7 @@ const docTemplate = `{
                     "ephmatch"
                 ],
                 "summary": "Get availability",
-                "operationId": "ephmatch-get-availability",
+                "operationId": "getAvailability",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -4219,7 +4219,7 @@ const docTemplate = `{
                     "ephmatch"
                 ],
                 "summary": "List matches",
-                "operationId": "ephmatch-list-matches",
+                "operationId": "listMatches",
                 "parameters": [
                     {
                         "type": "array",
@@ -4269,7 +4269,7 @@ const docTemplate = `{
                     "ephmatch"
                 ],
                 "summary": "Count matches",
-                "operationId": "ephmatch-count-matches",
+                "operationId": "countMatches",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -4304,7 +4304,7 @@ const docTemplate = `{
                     "ephmatch"
                 ],
                 "summary": "Unmatches Ephmatch matched users",
-                "operationId": "ephmatch-unmatch",
+                "operationId": "unmatch",
                 "parameters": [
                     {
                         "type": "integer",
@@ -4369,7 +4369,7 @@ const docTemplate = `{
                     "ephmatch"
                 ],
                 "summary": "Get Ephmatch profile of self",
-                "operationId": "ephmatch-get-self-profile",
+                "operationId": "getSelfProfile",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -4414,7 +4414,7 @@ const docTemplate = `{
                     "ephmatch"
                 ],
                 "summary": "Create an Ephmatch profile",
-                "operationId": "ephmatch-create-profile",
+                "operationId": "createSelfProfile",
                 "parameters": [
                     {
                         "description": "Create Profile Params",
@@ -4476,7 +4476,7 @@ const docTemplate = `{
                     "ephmatch"
                 ],
                 "summary": "Delete profile",
-                "operationId": "ephmatch-delete-profile",
+                "operationId": "deleteSelfProfile",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -4521,7 +4521,7 @@ const docTemplate = `{
                     "ephmatch"
                 ],
                 "summary": "Update an Ephmatch profile",
-                "operationId": "ephmatch-update-profile",
+                "operationId": "updateSelfProfile",
                 "parameters": [
                     {
                         "description": "Update Profile Params",
@@ -4585,7 +4585,7 @@ const docTemplate = `{
                     "users"
                 ],
                 "summary": "Upload an ephmatch profile photo by user id",
-                "operationId": "upload-ephmatch-profile-photo",
+                "operationId": "uploadProfilePhoto",
                 "parameters": [
                     {
                         "type": "file",
@@ -4633,7 +4633,7 @@ const docTemplate = `{
                     "users"
                 ],
                 "summary": "Delete an ephmatch profile photo by user id",
-                "operationId": "delete-ephmatch-profile-photo",
+                "operationId": "deleteProfilePhoto",
                 "responses": {
                     "200": {
                         "description": "OK"
@@ -4677,7 +4677,7 @@ const docTemplate = `{
                     "ephmatch"
                 ],
                 "summary": "List Ephmatch profiles",
-                "operationId": "ephmatch-list-profiles",
+                "operationId": "listProfiles",
                 "parameters": [
                     {
                         "type": "string",
@@ -4751,7 +4751,7 @@ const docTemplate = `{
                     "ephmatch"
                 ],
                 "summary": "Get Ephmatch profile",
-                "operationId": "ephmatch-get-profile",
+                "operationId": "getProfile",
                 "parameters": [
                     {
                         "type": "integer",
@@ -4807,7 +4807,7 @@ const docTemplate = `{
                     "ephmatch"
                 ],
                 "summary": "Set Ephmatch profile relation",
-                "operationId": "ephmatch-set-profile-relation",
+                "operationId": "setProfileRelation",
                 "parameters": [
                     {
                         "type": "integer",
@@ -4892,7 +4892,7 @@ const docTemplate = `{
                     "admin"
                 ],
                 "summary": "List flagged surveys",
-                "operationId": "factrak-list-flagged-surveys",
+                "operationId": "listFlaggedSurveysAdmin",
                 "parameters": [
                     {
                         "type": "integer",
@@ -4986,7 +4986,7 @@ const docTemplate = `{
                     "admin"
                 ],
                 "summary": "Unflag survey",
-                "operationId": "factrak-unflag-survey",
+                "operationId": "unflagSurveyAdmin",
                 "parameters": [
                     {
                         "type": "integer",
@@ -5033,7 +5033,7 @@ const docTemplate = `{
                     "factrak"
                 ],
                 "summary": "List areas of study",
-                "operationId": "factrak-list-areas-of-study",
+                "operationId": "listAreasOfStudy",
                 "parameters": [
                     {
                         "type": "integer",
@@ -5101,7 +5101,7 @@ const docTemplate = `{
                     "factrak"
                 ],
                 "summary": "Get area of study",
-                "operationId": "factrak-get-area-of-study",
+                "operationId": "getAreaOfStudy",
                 "parameters": [
                     {
                         "type": "integer",
@@ -5157,7 +5157,7 @@ const docTemplate = `{
                     "factrak"
                 ],
                 "summary": "List area of study courses",
-                "operationId": "factrak-list-area-of-study-courses",
+                "operationId": "listAreaOfStudyCourses",
                 "deprecated": true,
                 "parameters": [
                     {
@@ -5217,7 +5217,7 @@ const docTemplate = `{
                     "factrak"
                 ],
                 "summary": "List area of study professors",
-                "operationId": "factrak-list-area-of-study-professors",
+                "operationId": "listAreaOfStudyProfessors",
                 "deprecated": true,
                 "parameters": [
                     {
@@ -5277,7 +5277,7 @@ const docTemplate = `{
                     "factrak"
                 ],
                 "summary": "List courses",
-                "operationId": "factrak-list-courses",
+                "operationId": "listCourses",
                 "parameters": [
                     {
                         "type": "integer",
@@ -5375,7 +5375,7 @@ const docTemplate = `{
                     "factrak"
                 ],
                 "summary": "Get course",
-                "operationId": "factrak-get-course",
+                "operationId": "getCourse",
                 "parameters": [
                     {
                         "type": "integer",
@@ -5437,7 +5437,7 @@ const docTemplate = `{
                     "factrak"
                 ],
                 "summary": "List course professors",
-                "operationId": "factrak-list-course-professors",
+                "operationId": "listCourseProfessors",
                 "deprecated": true,
                 "parameters": [
                     {
@@ -5497,7 +5497,7 @@ const docTemplate = `{
                     "factrak"
                 ],
                 "summary": "Get course ratings",
-                "operationId": "factrak-get-course-ratings",
+                "operationId": "getCourseRatings",
                 "parameters": [
                     {
                         "type": "integer",
@@ -5559,7 +5559,7 @@ const docTemplate = `{
                     "factrak"
                 ],
                 "summary": "List course surveys",
-                "operationId": "factrak-list-course-surveys",
+                "operationId": "listCourseSurveys",
                 "deprecated": true,
                 "parameters": [
                     {
@@ -5659,7 +5659,7 @@ const docTemplate = `{
                     "factrak"
                 ],
                 "summary": "List departments",
-                "operationId": "factrak-list-departments",
+                "operationId": "listDepartments",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -5697,7 +5697,7 @@ const docTemplate = `{
                     "factrak"
                 ],
                 "summary": "Get department",
-                "operationId": "factrak-get-department",
+                "operationId": "getDepartment",
                 "parameters": [
                     {
                         "type": "integer",
@@ -5753,7 +5753,7 @@ const docTemplate = `{
                     "factrak"
                 ],
                 "summary": "List department courses",
-                "operationId": "factrak-list-department-courses",
+                "operationId": "listDepartmentCourses",
                 "deprecated": true,
                 "parameters": [
                     {
@@ -5813,7 +5813,7 @@ const docTemplate = `{
                     "factrak"
                 ],
                 "summary": "List department professors",
-                "operationId": "factrak-list-department-professors",
+                "operationId": "listDepartmentProfessors",
                 "deprecated": true,
                 "parameters": [
                     {
@@ -5873,7 +5873,7 @@ const docTemplate = `{
                     "factrak"
                 ],
                 "summary": "List professors",
-                "operationId": "factrak-list-professors",
+                "operationId": "listProfessors",
                 "parameters": [
                     {
                         "type": "integer",
@@ -5971,7 +5971,7 @@ const docTemplate = `{
                     "factrak"
                 ],
                 "summary": "Get professor",
-                "operationId": "factrak-get-professor",
+                "operationId": "getProfessor",
                 "parameters": [
                     {
                         "type": "integer",
@@ -6033,7 +6033,7 @@ const docTemplate = `{
                     "factrak"
                 ],
                 "summary": "List professor courses",
-                "operationId": "factrak-list-professor-courses",
+                "operationId": "listProfessorCourses",
                 "deprecated": true,
                 "parameters": [
                     {
@@ -6093,7 +6093,7 @@ const docTemplate = `{
                     "factrak"
                 ],
                 "summary": "Get professor ratings",
-                "operationId": "factrak-get-professor-ratings",
+                "operationId": "getProfessorRatings",
                 "parameters": [
                     {
                         "type": "integer",
@@ -6161,7 +6161,7 @@ const docTemplate = `{
                     "factrak"
                 ],
                 "summary": "List professor surveys",
-                "operationId": "factrak-list-professor-surveys",
+                "operationId": "listProfessorSurveys",
                 "deprecated": true,
                 "parameters": [
                     {
@@ -6261,7 +6261,7 @@ const docTemplate = `{
                     "factrak"
                 ],
                 "summary": "List surveys",
-                "operationId": "factrak-list-surveys",
+                "operationId": "listSurveys",
                 "parameters": [
                     {
                         "type": "string",
@@ -6351,7 +6351,7 @@ const docTemplate = `{
                     "factrak"
                 ],
                 "summary": "Create survey",
-                "operationId": "factrak-create-survey",
+                "operationId": "createSurvey",
                 "parameters": [
                     {
                         "description": "Create Survey Params",
@@ -6457,7 +6457,7 @@ const docTemplate = `{
                     "factrak"
                 ],
                 "summary": "Get survey",
-                "operationId": "factrak-get-survey",
+                "operationId": "getSurvey",
                 "parameters": [
                     {
                         "type": "integer",
@@ -6519,7 +6519,7 @@ const docTemplate = `{
                     "admin"
                 ],
                 "summary": "Delete survey",
-                "operationId": "factrak-delete-survey",
+                "operationId": "deleteSurvey",
                 "parameters": [
                     {
                         "type": "integer",
@@ -6579,7 +6579,7 @@ const docTemplate = `{
                     "factrak"
                 ],
                 "summary": "Update survey",
-                "operationId": "factrak-update-survey",
+                "operationId": "updateSurvey",
                 "parameters": [
                     {
                         "description": "Update Survey Params",
@@ -6662,7 +6662,7 @@ const docTemplate = `{
                     "factrak"
                 ],
                 "summary": "Get survey agreement by self",
-                "operationId": "factrak-get-agreement",
+                "operationId": "getSurveyAgreement",
                 "parameters": [
                     {
                         "type": "integer",
@@ -6722,7 +6722,7 @@ const docTemplate = `{
                     "factrak"
                 ],
                 "summary": "Create survey agreement",
-                "operationId": "factrak-create-agreement",
+                "operationId": "createSurveyAgreement",
                 "parameters": [
                     {
                         "type": "integer",
@@ -6803,7 +6803,7 @@ const docTemplate = `{
                     "factrak"
                 ],
                 "summary": "Delete survey agreement",
-                "operationId": "factrak-delete-agreement",
+                "operationId": "deleteSurveyAgreement",
                 "parameters": [
                     {
                         "type": "integer",
@@ -6863,7 +6863,7 @@ const docTemplate = `{
                     "factrak"
                 ],
                 "summary": "Update survey agreement",
-                "operationId": "factrak-update-agreement",
+                "operationId": "updateSurveyAgreement",
                 "parameters": [
                     {
                         "type": "integer",
@@ -6940,7 +6940,7 @@ const docTemplate = `{
                     "factrak"
                 ],
                 "summary": "Flag survey",
-                "operationId": "factrak-flag-survey",
+                "operationId": "flagSurvey",
                 "parameters": [
                     {
                         "type": "integer",
@@ -6993,7 +6993,7 @@ const docTemplate = `{
                     "factrak"
                 ],
                 "summary": "List user surveys",
-                "operationId": "factrak-list-user-surveys",
+                "operationId": "listUserSurveys",
                 "deprecated": true,
                 "parameters": [
                     {
@@ -7099,7 +7099,7 @@ const docTemplate = `{
                     "goodrich"
                 ],
                 "summary": "List menu",
-                "operationId": "goodrich-list-menu",
+                "operationId": "listMenu",
                 "parameters": [
                     {
                         "type": "boolean",
@@ -7145,7 +7145,7 @@ const docTemplate = `{
                     "goodrich"
                 ],
                 "summary": "Update menu item",
-                "operationId": "goodrich-update-menu-item",
+                "operationId": "updateMenuItem",
                 "parameters": [
                     {
                         "description": "Update Menu Item Params",
@@ -7210,7 +7210,7 @@ const docTemplate = `{
                     "goodrich"
                 ],
                 "summary": "Get order lease",
-                "operationId": "goodrich-get-order-lease",
+                "operationId": "getOrderLease",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -7245,7 +7245,7 @@ const docTemplate = `{
                     "goodrich"
                 ],
                 "summary": "List orders",
-                "operationId": "goodrich-list-orders",
+                "operationId": "listOrders",
                 "parameters": [
                     {
                         "type": "integer",
@@ -7323,7 +7323,7 @@ const docTemplate = `{
                     "goodrich"
                 ],
                 "summary": "Create order",
-                "operationId": "goodrich-create-order",
+                "operationId": "createOrder",
                 "parameters": [
                     {
                         "description": "Create Order Params",
@@ -7369,7 +7369,7 @@ const docTemplate = `{
                     "goodrich"
                 ],
                 "summary": "Get order",
-                "operationId": "goodrich-get-order",
+                "operationId": "getOrder",
                 "parameters": [
                     {
                         "type": "integer",
@@ -7411,7 +7411,7 @@ const docTemplate = `{
                     "goodrich"
                 ],
                 "summary": "Update order",
-                "operationId": "goodrich-update-order",
+                "operationId": "updateOrder",
                 "parameters": [
                     {
                         "description": "Update Order Params",
@@ -7464,7 +7464,7 @@ const docTemplate = `{
                     "goodrich"
                 ],
                 "summary": "List time slots",
-                "operationId": "goodrich-list-time-slots",
+                "operationId": "listTimeSlots",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -7502,7 +7502,7 @@ const docTemplate = `{
                     "goodrich"
                 ],
                 "summary": "List user orders",
-                "operationId": "goodrich-list-user-orders",
+                "operationId": "listUserOrders",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -7540,7 +7540,7 @@ const docTemplate = `{
                     "goodrich"
                 ],
                 "summary": "Get user order",
-                "operationId": "goodrich-get-user-order",
+                "operationId": "getUserOrder",
                 "parameters": [
                     {
                         "type": "integer",
@@ -7584,7 +7584,7 @@ const docTemplate = `{
                     "health"
                 ],
                 "summary": "Health check",
-                "operationId": "health-check",
+                "operationId": "getHealthCheck",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -7613,7 +7613,7 @@ const docTemplate = `{
                     "booktrak"
                 ],
                 "summary": "Get book listing by book listing id",
-                "operationId": "get-book-listing",
+                "operationId": "getBookListing",
                 "parameters": [
                     {
                         "type": "integer",
@@ -7663,7 +7663,7 @@ const docTemplate = `{
                     "notification"
                 ],
                 "summary": "Create notification token",
-                "operationId": "notification-create-token",
+                "operationId": "createNotificationToken",
                 "parameters": [
                     {
                         "description": "Create Token Params",
@@ -7727,7 +7727,7 @@ const docTemplate = `{
                     "notification"
                 ],
                 "summary": "Get notification settings",
-                "operationId": "notification-get-settings",
+                "operationId": "getNotificationSettings",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -7772,7 +7772,7 @@ const docTemplate = `{
                     "notification"
                 ],
                 "summary": "Update notification settings",
-                "operationId": "notification-update-settings",
+                "operationId": "updateNotificationSettings",
                 "parameters": [
                     {
                         "description": "Update Settings Params",
@@ -7836,7 +7836,7 @@ const docTemplate = `{
                     "onboarding"
                 ],
                 "summary": "Gets a user",
-                "operationId": "onboarding-canonical-get-user-by-unix",
+                "operationId": "getOnboardingCanonicalUser",
                 "parameters": [
                     {
                         "type": "string",
@@ -7880,7 +7880,7 @@ const docTemplate = `{
                     "onboarding"
                 ],
                 "summary": "Gets a user",
-                "operationId": "onboarding-ks19-get-user-by-unix",
+                "operationId": "getOnboardingKs19User",
                 "parameters": [
                     {
                         "type": "string",
@@ -7924,7 +7924,7 @@ const docTemplate = `{
                     "onboarding"
                 ],
                 "summary": "Gets a user",
-                "operationId": "onboarding-mgb4-get-user-by-unix",
+                "operationId": "getOnboardingMgb4User",
                 "parameters": [
                     {
                         "type": "string",
@@ -7968,7 +7968,7 @@ const docTemplate = `{
                     "users"
                 ],
                 "summary": "List users",
-                "operationId": "list-users",
+                "operationId": "listUsers",
                 "parameters": [
                     {
                         "type": "integer",
@@ -8036,7 +8036,7 @@ const docTemplate = `{
                     "users"
                 ],
                 "summary": "Get user by user id",
-                "operationId": "get-user",
+                "operationId": "getUser",
                 "parameters": [
                     {
                         "type": "integer",
@@ -8102,7 +8102,7 @@ const docTemplate = `{
                     "users"
                 ],
                 "summary": "Update user by user id",
-                "operationId": "update-user",
+                "operationId": "updateUser",
                 "parameters": [
                     {
                         "type": "integer",
@@ -8179,7 +8179,7 @@ const docTemplate = `{
                     "users"
                 ],
                 "summary": "Upload a profile photo by user id",
-                "operationId": "upload-profile-photo",
+                "operationId": "updateUserPhoto",
                 "parameters": [
                     {
                         "type": "integer",
@@ -8251,7 +8251,7 @@ const docTemplate = `{
                     "users"
                 ],
                 "summary": "Update user tags by user id",
-                "operationId": "update-user-tags",
+                "operationId": "updateUserTags",
                 "parameters": [
                     {
                         "type": "integer",
@@ -8337,7 +8337,7 @@ const docTemplate = `{
                     "words"
                 ],
                 "summary": "Get words",
-                "operationId": "words-get-words",
+                "operationId": "getWords",
                 "responses": {
                     "200": {
                         "description": "OK",

@@ -18,7 +18,7 @@ type CreateBookListingParams struct {
 // CreateBookListing
 // @Summary Create book listing
 // @Description create a book listing
-// @ID booktrak-create-book-listing
+// @ID createBookListing
 // @Tags booktrak
 // @Accept  json
 // @Produce  json
@@ -75,7 +75,7 @@ func (t *Controller) CreateBookListing(c *gin.Context) {
 // UpdateBookListing
 // @Summary Update book listing
 // @Description update a book listing
-// @ID booktrak-update-book-listing
+// @ID updateBookListing
 // @Tags booktrak
 // @Accept  json
 // @Produce  json
@@ -161,7 +161,7 @@ type ListBookListingsParams struct {
 // ListBookListings godoc
 // @Summary List book listings
 // @Description lists all book listings
-// @ID booktrak-list-book-listings
+// @ID listBookListings
 // @Tags booktrak
 // @Accept  json
 // @Produce  json
@@ -210,7 +210,7 @@ func (t *Controller) ListBookListings(c *gin.Context) {
 // GetBookListing godoc
 // @Summary Get book listing by book listing id
 // @Description get a book listing by book listing id
-// @ID get-book-listing
+// @ID getBookListing
 // @Tags booktrak
 // @Accept  json
 // @Produce  json
@@ -240,7 +240,7 @@ func (t *Controller) GetBookListing(c *gin.Context) {
 // DeleteBookListing Delete book listing. Can either do this to self if a user, or to everything if admin
 // @Summary Delete book listing
 // @Description delete a book listing
-// @ID booktrak-delete-book-listing
+// @ID deleteBookListing
 // @Tags booktrak,booktrak-admin,admin
 // @Accept  json
 // @Produce  json

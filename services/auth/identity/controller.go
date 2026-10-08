@@ -124,7 +124,7 @@ func (t *Controller) Authenticator(c *gin.Context) (interface{}, error) {
 // AuthIdentityToken godoc
 // @Summary Authenticate Identity Token
 // @Description issues an Identity JWT given identity credentials.
-// @ID auth-identity-token
+// @ID getIdentityToken
 // @Tags auth, auth-2.0
 // @Accept  json
 // @Produce  json

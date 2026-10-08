@@ -39,7 +39,7 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 // ListLostAndFoundBulletins godoc
 // @Summary List lost and found bulletins RSS
 // @Description lists lost and found bulletins in RSS
-// @ID bulletins-list-lostAndFound-rss
+// @ID listLostAndFoundRss
 // @Tags bulletins
 // @Produce xml
 // @Param start query string false "Start Pagination (timestamp)"
@@ -57,7 +57,7 @@ func (t *Controller) ListLostAndFoundBulletins(c *gin.Context) {
 // ListJobBulletins godoc
 // @Summary List job bulletins RSS
 // @Description lists job bulletins in RSS
-// @ID bulletins-list-job-rss
+// @ID listJobRss
 // @Tags bulletins
 // @Produce xml
 // @Param start query string false "Start Pagination (timestamp)"
@@ -75,7 +75,7 @@ func (t *Controller) ListJobBulletins(c *gin.Context) {
 // ListExchangeBulletins godoc
 // @Summary List exchange bulletins RSS
 // @Description lists exchange bulletins in RSS
-// @ID bulletins-list-exchange-rss
+// @ID listExchangeRss
 // @Tags bulletins
 // @Produce xml
 // @Param start query string false "Start Pagination (timestamp)"
@@ -93,7 +93,7 @@ func (t *Controller) ListExchangeBulletins(c *gin.Context) {
 // ListAnnouncementBulletins godoc
 // @Summary List announcement bulletins RSS
 // @Description lists announcement bulletins in RSS
-// @ID bulletins-list-announcement-rss
+// @ID listAnnouncementRss
 // @Tags bulletins
 // @Produce xml
 // @Param start query string false "Start Pagination (timestamp)"
@@ -111,7 +111,7 @@ func (t *Controller) ListAnnouncementBulletins(c *gin.Context) {
 // ListRideBulletins godoc
 // @Summary List ride bulletins RSS
 // @Description lists ride bulletins in RSS
-// @ID bulletins-list-ride-rss
+// @ID listRideRss
 // @Tags bulletins
 // @Produce xml
 // @Param start query string false "Start Pagination (timestamp)"
@@ -192,7 +192,7 @@ func (t *Controller) ListRideBulletins(c *gin.Context) {
 // ListDiscussionBulletins godoc
 // @Summary List discussion bulletins RSS
 // @Description lists discussion bulletins in RSS
-// @ID bulletins-list-discussion-rss
+// @ID listDiscussionRss
 // @Tags bulletins
 // @Produce xml
 // @Param start query string false "Start Pagination (timestamp)"

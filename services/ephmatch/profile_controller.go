@@ -18,7 +18,7 @@ import (
 // GetSelfProfile godoc
 // @Summary Get Ephmatch profile of self
 // @Description gets self ephmatch profile even if deleted
-// @ID ephmatch-get-self-profile
+// @ID getSelfProfile
 // @Tags ephmatch
 // @Accept  json
 // @Produce  json
@@ -61,7 +61,7 @@ type ProfileCreateParams struct {
 // CreateProfile godoc
 // @Summary Create an Ephmatch profile
 // @Description creates self ephmatch profile
-// @ID ephmatch-create-profile
+// @ID createSelfProfile
 // @Tags ephmatch
 // @Accept  json
 // @Produce  json
@@ -170,7 +170,7 @@ type ProfileUpdateParams struct {
 // UpdateProfile godoc
 // @Summary Update an Ephmatch profile
 // @Description updates self's ephmatch profile. Profile must be created
-// @ID ephmatch-update-profile
+// @ID updateSelfProfile
 // @Tags ephmatch
 // @Accept  json
 // @Produce  json
@@ -265,7 +265,7 @@ func (t *Controller) UpdateProfile(c *gin.Context) {
 // DeleteProfile godoc
 // @Summary Delete profile
 // @Description delete self's ephmatch profile
-// @ID ephmatch-delete-profile
+// @ID deleteSelfProfile
 // @Tags ephmatch
 // @Accept  json
 // @Produce  json
@@ -308,7 +308,7 @@ func (t *Controller) DeleteProfile(c *gin.Context) {
 // UploadEphmatchProfilePhoto godoc
 // @Summary Upload an ephmatch profile photo by user id
 // @Description upload an ephmatch user's ephmatch profile photo by user id.
-// @ID upload-ephmatch-profile-photo
+// @ID uploadProfilePhoto
 // @Tags users
 // @Accept  multipart/form-data
 // @Produce  json
@@ -364,7 +364,7 @@ func (t *Controller) UploadEphmatchProfilePhoto(c *gin.Context) {
 // DeleteEphmatchProfilePhoto godoc
 // @Summary Delete an ephmatch profile photo by user id
 // @Description delete an ephmatch user's ephmatch profile photo by user id.
-// @ID delete-ephmatch-profile-photo
+// @ID deleteProfilePhoto
 // @Tags users
 // @Produce  json
 // @Success 200

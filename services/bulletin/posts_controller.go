@@ -15,7 +15,7 @@ import (
 // GetPost godoc
 // @Summary Get post
 // @Description Get post by ID with user, posts, and posts.user preloaded
-// @ID bulletins-get-post
+// @ID getPost
 // @Tags bulletins
 // @Accept  json
 // @Produce  json
@@ -69,7 +69,7 @@ type CreatePostParams struct {
 // CreatePost godoc
 // @Summary Create post
 // @Description Creates a post
-// @ID bulletins-create-post
+// @ID createPost
 // @Tags bulletins
 // @Accept  json
 // @Produce  json
@@ -141,7 +141,7 @@ type UpdatePostParams struct {
 // UpdatePost godoc
 // @Summary Update post
 // @Description Updates a post
-// @ID bulletins-update-post
+// @ID updatePost
 // @Tags bulletins
 // @Accept  json
 // @Produce  json
@@ -201,7 +201,7 @@ func (t *Controller) UpdatePost(c *gin.Context) {
 // DeletePost godoc
 // @Summary Delete post
 // @Description Deletes a post
-// @ID bulletins-delete-post
+// @ID deletePost
 // @Tags bulletins
 // @Accept  json
 // @Produce  json

@@ -10,7 +10,7 @@ import (
 // ListFlaggedSurveys godoc
 // @Summary List flagged surveys
 // @Description lists all surveys that are flagged
-// @ID factrak-list-flagged-surveys
+// @ID listFlaggedSurveysAdmin
 // @Tags factrak,factrak-admin,admin
 // @Accept  json
 // @Produce  json
@@ -57,7 +57,7 @@ func (t *Controller) ListFlaggedSurveys(c *gin.Context) {
 // UnflagSurvey godoc
 // @Summary Unflag survey
 // @Description unflags a flagged survey
-// @ID factrak-unflag-survey
+// @ID unflagSurveyAdmin
 // @Tags factrak,factrak-admin,admin
 // @Accept  json
 // @Produce  json

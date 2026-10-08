@@ -15,7 +15,7 @@ type TokenCreateParams struct {
 // CreateToken godoc
 // @Summary Create notification token
 // @Description creates self's notification token
-// @ID notification-create-token
+// @ID createNotificationToken
 // @Tags notification
 // @Accept  json
 // @Produce  json

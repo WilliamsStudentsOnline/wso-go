@@ -12,7 +12,7 @@ import (
 // ListEphcatchers godoc
 // @Summary List ephcatchers
 // @Description lists all Ephcatch-eligible students
-// @ID ephcatch-list-ephcatchers
+// @ID listEphcatchers
 // @Tags ephcatch
 // @Accept  json
 // @Produce  json
@@ -57,7 +57,7 @@ func (t *Controller) ListEphcatchers(c *gin.Context) {
 // GetEphcatcher godoc
 // @Summary Get ephcatcher
 // @Description gets one ephcatch-eligible user
-// @ID ephcatch-get-ephcatcher
+// @ID getEphcatcher
 // @Tags ephcatch
 // @Accept  json
 // @Produce  json
@@ -92,7 +92,7 @@ func (t *Controller) GetEphcatcher(c *gin.Context) {
 // LikeEphcatcher godoc
 // @Summary Like ephcatcher
 // @Description Likes one ephcatch-eligible user
-// @ID ephcatch-like-ephcatcher
+// @ID likeEphcatcher
 // @Tags ephcatch
 // @Accept  json
 // @Produce  json
@@ -154,7 +154,7 @@ func (t *Controller) LikeEphcatcher(c *gin.Context) {
 // UnlikeEphcatcher godoc
 // @Summary Unlike ephcatcher
 // @Description Removes a like from one ephcatch-eligible user
-// @ID ephcatch-unlike-ephcatcher
+// @ID unlikeEphcatcher
 // @Tags ephcatch
 // @Accept  json
 // @Produce  json

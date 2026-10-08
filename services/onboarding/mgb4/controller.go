@@ -30,7 +30,7 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 // GetUserByUnix godoc
 // @Summary Gets a user
 // @Description Gets a user from their unix. Onboarding exercise.
-// @ID onboarding-mgb4-get-user-by-unix
+// @ID getOnboardingMgb4User
 // @Tags onboarding
 // @Accept  json
 // @Produce  json

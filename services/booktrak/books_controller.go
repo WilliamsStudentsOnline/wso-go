@@ -17,7 +17,7 @@ type ListBooksParams struct {
 // ListBooks List all books
 // @Summary List books
 // @Description lists all books. Order by creation date.
-// @ID booktrak-list-books
+// @ID listBooks
 // @Tags booktrak
 // @Accept  json
 // @Produce  json
@@ -57,7 +57,7 @@ type CreateBookParams struct {
 // CreateBook
 // @Summary Create a book if it doesn't exist already
 // @Description create a book
-// @ID booktrak-create-book
+// @ID createBook
 // @Tags booktrak
 // @Accept  json
 // @Produce  json
@@ -141,7 +141,7 @@ type UpdateBookCoursesParams struct {
 // UpdateBookCourses Update book courses
 // @Summary Update book
 // @Description update a book's courses
-// @ID booktrak-update-book
+// @ID updateBookCourses
 // @Tags booktrak
 // @Accept  json
 // @Produce  json
@@ -179,7 +179,7 @@ func (t *Controller) UpdateBookCourses(c *gin.Context) {
 // GetBook Get book by id
 // @Summary Get book by book id
 // @Description get a book by book id
-// @ID get-book
+// @ID getBook
 // @Tags books
 // @Accept  json
 // @Produce  json

@@ -125,7 +125,7 @@ func (t *Controller) Authenticator(c *gin.Context) (interface{}, error) {
 // AuthLogin godoc
 // @Summary Authenticate and Login
 // @Description attempts to get a JWT by logging into server.
-// @ID auth-login
+// @ID loginV1
 // @Tags auth
 // @Accept  json
 // @Produce  json
@@ -140,7 +140,7 @@ func authLogin() {}
 // AuthUpdate godoc
 // @Summary Update Token
 // @description attempts to get a JWT by taking an existing JWT and updating the fields. This calls the db, so it will actually modify the token's payload.
-// @ID auth-update
+// @ID updateTokenV1
 // @Tags auth
 // @Accept  json
 // @Produce  json
@@ -155,7 +155,7 @@ func authUpdate() {}
 // AuthRefresh godoc
 // @Summary Refresh Token
 // @Description attempts to get a JWT by taking an existing JWT and refreshing it. This will not change the payload.
-// @ID auth-refresh
+// @ID refreshTokenV1
 // @Tags auth
 // @Accept  json
 // @Produce  json

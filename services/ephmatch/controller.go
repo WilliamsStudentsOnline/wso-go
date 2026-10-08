@@ -59,7 +59,7 @@ type GetAvailabilityResp struct {
 // GetAvailability godoc
 // @Summary Get availability
 // @Description gives data on Ephmatch availability
-// @ID ephmatch-get-availability
+// @ID getAvailability
 // @Tags ephmatch
 // @Produce  json
 // @Success 200 {object} ephmatch.GetAvailabilityResp

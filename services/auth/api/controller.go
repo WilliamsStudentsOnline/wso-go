@@ -50,7 +50,7 @@ func (t *Controller) Authenticator(c *gin.Context) (interface{}, error) {
 // AuthAPIToken godoc
 // @Summary Authenticate API Token
 // @Description issues an API JWT given an identity token.
-// @ID auth-api-token
+// @ID getAPIToken
 // @Tags auth, auth-2.0
 // @Accept  json
 // @Produce  json
@@ -65,7 +65,7 @@ func authAPIToken() {}
 // AuthAPIRefresh godoc
 // @Summary Refresh API Token
 // @description issues an API JWT by taking an existing API JWT and updating the fields. This calls the db, so it will actually modify the token's payload.
-// @ID auth-api-update
+// @ID updateAPIToken
 // @Tags auth, auth-2.0
 // @Accept  json
 // @Produce  json

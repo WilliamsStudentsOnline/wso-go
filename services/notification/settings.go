@@ -10,7 +10,7 @@ import (
 // GetSettings godoc
 // @Summary Get notification settings
 // @Description gets self's notification settings
-// @ID notification-get-settings
+// @ID getNotificationSettings
 // @Tags notification
 // @Accept  json
 // @Produce  json
@@ -43,7 +43,7 @@ type SettingsUpdateParams struct {
 // UpdateSettings godoc
 // @Summary Update notification settings
 // @Description updates (or creates if it does not exist) self's notification settings
-// @ID notification-update-settings
+// @ID updateNotificationSettings
 // @Tags notification
 // @Accept  json
 // @Produce  json

@@ -12,7 +12,7 @@ import (
 // ListNeighborhoods godoc
 // @Summary List neighborhoods
 // @Description lists all neighborhoods
-// @ID dormtrak-list-neighborhoods
+// @ID listNeighborhoods
 // @Tags dormtrak
 // @Accept  json
 // @Produce  json
@@ -35,7 +35,7 @@ func (t *Controller) ListNeighborhoods(c *gin.Context) {
 // GetNeighborhood godoc
 // @Summary Get neighborhood
 // @Description gets one neighborhood with dorms preloaded
-// @ID dormtrak-get-neighborhood
+// @ID getNeighborhood
 // @Tags dormtrak
 // @Accept  json
 // @Produce  json
@@ -68,7 +68,7 @@ func (t *Controller) GetNeighborhood(c *gin.Context) {
 // GetNeighborhoodFacts godoc
 // @Summary Get neighborhood facts
 // @Description gets neighborhood facts of one neighborhood.
-// @ID dormtrak-get-neighborhood-facts
+// @ID getNeighborhoodFacts
 // @Tags dormtrak
 // @Accept  json
 // @Produce  json

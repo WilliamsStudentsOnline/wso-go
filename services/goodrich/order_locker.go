@@ -17,7 +17,7 @@ type OrderLease struct {
 // GetOrderLease godoc
 // @Summary Get order lease
 // @Description gets a lease to be able to order
-// @ID goodrich-get-order-lease
+// @ID getOrderLease
 // @Tags goodrich
 // @Accept  json
 // @Produce  json

@@ -13,7 +13,7 @@ import (
 // ListCourses godoc
 // @Summary List courses
 // @Description lists all courses
-// @ID factrak-list-courses
+// @ID listCourses
 // @Tags factrak
 // @Accept  json
 // @Produce  json
@@ -61,7 +61,7 @@ func (t *Controller) ListCourses(c *gin.Context) {
 // @Summary Get course
 // @Description get one course with factrak surveys, area of study preloaded.
 // @Description May pass an optional "?professorID=XX" parameter to limit preload scope to a professor and a course.
-// @ID factrak-get-course
+// @ID getCourse
 // @Tags factrak
 // @Accept  json
 // @Produce  json
@@ -107,7 +107,7 @@ func (t *Controller) GetCourse(c *gin.Context) {
 // ListCourseSurveys godoc
 // @Summary List course surveys
 // @Description list one course's surveys
-// @ID factrak-list-course-surveys
+// @ID listCourseSurveys
 // @Tags factrak
 // @Accept  json
 // @Produce  json
@@ -172,7 +172,7 @@ func (t *Controller) ListCourseSurveys(c *gin.Context) {
 // List course's professors
 // @Summary List course professors
 // @Description list one course's professors
-// @ID factrak-list-course-professors
+// @ID listCourseProfessors
 // @Tags factrak
 // @Accept  json
 // @Produce  json
@@ -219,7 +219,7 @@ func (t *Controller) ListCourseProfessors(c *gin.Context) {
 // course and professor
 // @Summary Get course ratings
 // @Description get one course's ratings
-// @ID factrak-get-course-ratings
+// @ID getCourseRatings
 // @Tags factrak
 // @Accept  json
 // @Produce  json

@@ -14,7 +14,7 @@ import (
 // ListDiscussions godoc
 // @Summary List discussions
 // @Description lists all bulletin discussions
-// @ID bulletins-list-discussions
+// @ID listDiscussions
 // @Tags bulletins
 // @Accept  json
 // @Produce  json
@@ -59,7 +59,7 @@ func (t *Controller) ListDiscussions(c *gin.Context) {
 // GetDiscussion godoc
 // @Summary Get discussion
 // @Description Get discussion by ID with user, posts, and posts.user preloaded
-// @ID bulletins-get-discussion
+// @ID getDiscussion
 // @Tags bulletins
 // @Accept  json
 // @Produce  json
@@ -110,7 +110,7 @@ func (t *Controller) GetDiscussion(c *gin.Context) {
 // GetDiscussionPosts godoc
 // @Summary Get discussion posts
 // @Description gets all posts in a discussion
-// @ID bulletins-get-discussion-posts
+// @ID getDiscussionPosts
 // @Tags bulletins
 // @Accept  json
 // @Produce  json
@@ -172,7 +172,7 @@ type CreateDiscussionParams struct {
 // CreateDiscussion godoc
 // @Summary Create discussion
 // @Description Creates a discussion
-// @ID bulletins-create-discussion
+// @ID createDiscussion
 // @Tags bulletins
 // @Accept  json
 // @Produce  json
@@ -233,7 +233,7 @@ func (t *Controller) CreateDiscussion(c *gin.Context) {
 // DeleteDiscussion godoc
 // @Summary Delete discussion
 // @Description Deletes a discussion (must be admin)
-// @ID bulletins-delete-discussion
+// @ID deleteDiscussion
 // @Tags bulletins
 // @Accept  json
 // @Produce  json

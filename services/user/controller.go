@@ -52,7 +52,7 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 // @Summary List users
 // @Description Get all users that are visible and at williams.
 // @Description If you pass a search query (?q="blah"), you will get all users matching that search query
-// @ID list-users
+// @ID listUsers
 // @Tags users
 // @Accept  json
 // @Produce  json
@@ -132,7 +132,7 @@ func (t *Controller) ListUsers(c *gin.Context) {
 // GetUser godoc
 // @Summary Get user by user id
 // @Description get a user by user id that is visible and at williams. Also loads tags. Pass "me" if you want to get self
-// @ID get-user
+// @ID getUser
 // @Tags users
 // @Accept  json
 // @Produce  json
@@ -210,7 +210,7 @@ type UpdateUserParams struct {
 // UpdateUser godoc
 // @Summary Update user by user id
 // @Description updates a user by user id. You may only update yourself. You may pass "me" to get self as well.
-// @ID update-user
+// @ID updateUser
 // @Tags users
 // @Accept  json
 // @Produce  json
@@ -294,7 +294,7 @@ type UpdateUserTagsParams struct {
 // UpdateUserTags godoc
 // @Summary Update user tags by user id
 // @Description updates a user's tags by user id. You may only update yourself. You may pass "me" to get self as well.
-// @ID update-user-tags
+// @ID updateUserTags
 // @Tags users
 // @Accept  json
 // @Produce  json
@@ -346,7 +346,7 @@ func (t *Controller) UpdateUserTags(c *gin.Context) {
 // UploadProfilePhoto godoc
 // @Summary Upload a profile photo by user id
 // @Description upload a user's profile photo by user id. You may only update yourself. You may pass "me" to get self as well.
-// @ID upload-profile-photo
+// @ID updateUserPhoto
 // @Tags users
 // @Accept  multipart/form-data
 // @Produce  json

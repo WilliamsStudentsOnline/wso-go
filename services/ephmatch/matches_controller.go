@@ -16,7 +16,7 @@ import (
 // ListMatches godoc
 // @Summary List matches
 // @Description lists all Ephmatch-eligible students that user has matched with
-// @ID ephmatch-list-matches
+// @ID listMatches
 // @Tags ephmatch
 // @Accept  json
 // @Produce  json
@@ -69,7 +69,7 @@ type CountMatchesResponse struct {
 // CountMatches godoc
 // @Summary Count matches
 // @Description counts all Ephmatch-eligible students that user has matched with by unseen and total
-// @ID ephmatch-count-matches
+// @ID countMatches
 // @Tags ephmatch
 // @Accept  json
 // @Produce  json
@@ -101,7 +101,7 @@ func (t *Controller) CountMatches(c *gin.Context) {
 // Unmatch godoc
 // @Summary Unmatches Ephmatch matched users
 // @Description Removes the match (and sets the to-relation to none) of a specific matched pair
-// @ID ephmatch-unmatch
+// @ID unmatch
 // @Tags ephmatch
 // @Accept  json
 // @Produce  json

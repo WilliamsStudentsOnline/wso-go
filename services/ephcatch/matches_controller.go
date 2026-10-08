@@ -10,7 +10,7 @@ import (
 // ListMatches godoc
 // @Summary List matches
 // @Description lists all Ephcatch-eligible students that user has matched with
-// @ID ephcatch-list-matches
+// @ID listEphcatchMatches
 // @Tags ephcatch
 // @Accept  json
 // @Produce  json

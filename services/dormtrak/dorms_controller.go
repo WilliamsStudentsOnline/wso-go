@@ -12,7 +12,7 @@ import (
 // ListDorms godoc
 // @Summary List dorms
 // @Description lists all dorms
-// @ID dormtrak-list-dorms
+// @ID listDorms
 // @Tags dormtrak
 // @Accept  json
 // @Produce  json
@@ -51,7 +51,7 @@ func (t *Controller) ListDorms(c *gin.Context) {
 // GetDorm godoc
 // @Summary Get dorm
 // @Description gets one dorm with neighborhood and dorm rooms preloaded
-// @ID dormtrak-get-dorm
+// @ID getDorm
 // @Tags dormtrak
 // @Accept  json
 // @Produce  json
@@ -84,7 +84,7 @@ func (t *Controller) GetDorm(c *gin.Context) {
 // GetDormRooms godoc
 // @Summary Get dorm rooms
 // @Description gets dorm rooms of one dorm building
-// @ID dormtrak-get-dorm-rooms
+// @ID getDormRooms
 // @Tags dormtrak
 // @Accept  json
 // @Produce  json
@@ -143,7 +143,7 @@ func (t *Controller) GetDormRooms(c *gin.Context) {
 // GetDormFacts godoc
 // @Summary Get dorm facts
 // @Description gets dorm facts of one dorm building. Some of these facts are in GetDorm, while others are generated here.
-// @ID dormtrak-get-dorm-facts
+// @ID getDormFacts
 // @Tags dormtrak
 // @Accept  json
 // @Produce  json

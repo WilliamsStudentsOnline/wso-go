@@ -17,7 +17,7 @@ import (
 // ListUserOrders godoc
 // @Summary List user orders
 // @Description lists all user orders
-// @ID goodrich-list-user-orders
+// @ID listUserOrders
 // @Tags goodrich
 // @Accept  json
 // @Produce  json
@@ -41,7 +41,7 @@ func (t *Controller) ListUserOrders(c *gin.Context) {
 // GetUserOrder godoc
 // @Summary Get user order
 // @Description gets a user order
-// @ID goodrich-get-user-order
+// @ID getUserOrder
 // @Tags goodrich
 // @Accept  json
 // @Produce  json
@@ -92,7 +92,7 @@ type CreateOrderParams struct {
 // CreateOrder godoc
 // @Summary Create order
 // @Description creates an order
-// @ID goodrich-create-order
+// @ID createOrder
 // @Tags goodrich
 // @Accept  json
 // @Produce  json
