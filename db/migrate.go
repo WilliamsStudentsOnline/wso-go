@@ -1,14 +1,17 @@
 package db
 
 import (
+	"fmt"
+
 	"github.com/WilliamsStudentsOnline/wso-go/db/migrations"
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
-	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/jinzhu/gorm"
 	"gopkg.in/gormigrate.v1"
 )
 
-// List all migrations here.
+// List all historical gormigrate migrations. Frozen: new schema changes go through
+// Atlas SQL under db/atlas/migrations (see README / make atlas-diff).
+// Still used to bootstrap SQLite test databases via InitSchema.
 var Migrations = []*gormigrate.Migration{
 	migrations.CreateUsers20190719211808,
 	migrations.CreateDepartments20190719212645,
@@ -57,58 +60,31 @@ var Migrations = []*gormigrate.Migration{
 
 var MigrationGormOptions = gormigrate.DefaultOptions
 
+// MigrateDB applies schema migrations.
+// MySQL uses Atlas-planned SQL (golang-migrate). SQLite (tests) uses gormigrate InitSchema.
 func MigrateDB(db *gorm.DB) error {
-	// Create migrator
+	switch db.Dialect().GetName() {
+	case "mysql":
+		return MigrateMySQL(db)
+	case "sqlite3":
+		return migrateSQLite(db)
+	default:
+		return fmt.Errorf("unsupported dialect for migrations: %s", db.Dialect().GetName())
+	}
+}
+
+func migrateSQLite(db *gorm.DB) error {
 	m := gormigrate.New(db, MigrationGormOptions, Migrations)
 
-	// This initializes the entire current schema with all migrations up to day.
-	// Useful for starting the testing database.
-	// NOTE: If you create a model or a feature (ie foreign key, etc.) that would not be automatically included,
-	// please put it here for it to run.
+	// Initializes the entire current schema. Used for the testing database.
 	m.InitSchema(func(tx *gorm.DB) error {
-		err := tx.AutoMigrate(
-			// Put all current models here
-			&models.User{},
-			&models.Department{},
-			&models.Neighborhood{},
-			&models.Dorm{},
-			&models.DormRoom{},
-			&models.Office{},
-			&models.Bulletin{},
-			&models.Tag{},
-			&models.AreaOfStudy{},
-			&models.Course{},
-			&models.FactrakAgreement{},
-			&models.FactrakSurvey{},
-			&models.DormtrakReview{},
-			&models.Ephcatch{},
-			&models.BulletinRide{},
-			&models.Discussion{},
-			&models.Post{},
-			&models.EphmatchProfile{},
-			&models.EphmatchMatch{},
-			&models.EphmatchLike{},
-			&models.NotificationSettings{},
-			&models.NotificationToken{},
-			&models.GoodrichMenuItem{},
-			&models.GoodrichOrder{},
-			&models.EphmatchRelation{},
-			&models.BannedUser{},
-			&models.BookListing{},
-			&models.Book{},
-		).Error
-		if err != nil {
-			return err
-		}
-
-		// all other foreign keys...
-		return nil
+		return AutoMigrateModels(tx)
 	})
 
 	return m.Migrate()
 }
 
-// Gets last migration id from the migrations table
+// Gets last migration id from the gormigrate migrations table (SQLite / legacy).
 func LastMigration(opts *gormigrate.Options, db *gorm.DB) (string, error) {
 	rows, err := db.Table(opts.TableName).Select(opts.IDColumnName).Rows()
 	if err != nil {
@@ -122,7 +98,6 @@ func LastMigration(opts *gormigrate.Options, db *gorm.DB) (string, error) {
 		migrationID := struct {
 			ID string
 		}{}
-		// ScanRows scan a row into migrationID
 		err = db.ScanRows(rows, &migrationID)
 		if err != nil {
 			return "", err
@@ -138,8 +113,16 @@ func LastMigration(opts *gormigrate.Options, db *gorm.DB) (string, error) {
 	return migrationIDs[len(migrationIDs)-1], nil
 }
 
-// Gets last migration id from the migrations table
+// MigrationUpToDate reports whether the DB has all migrations applied.
+// MySQL checks Atlas/golang-migrate versions; SQLite checks the gormigrate table.
 func MigrationUpToDate(opts *gormigrate.Options, db *gorm.DB) (bool, error) {
+	if db.Dialect().GetName() == "mysql" {
+		return MySQLMigrationsUpToDate(db)
+	}
+	return gormigrateUpToDate(opts, db)
+}
+
+func gormigrateUpToDate(opts *gormigrate.Options, db *gorm.DB) (bool, error) {
 	var dbMigrationIDs []string
 
 	err := db.Table(opts.TableName).Pluck(opts.IDColumnName, &dbMigrationIDs).Error
