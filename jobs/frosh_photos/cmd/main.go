@@ -66,11 +66,12 @@ func main() {
 
 		// skip if photo already exists (e.g. if the user has already uploaded)
 		exists, existErr := pb.DoesUserPhotoExists(unix)
-		if exists {
-			log.Warnf("Skipping %s, already has photo.", unix)
-		}
 		if existErr != nil {
 			log.Warnf("%s error checking existence: %v", unix, existErr)
+			continue
+		}
+		if exists {
+			log.Warnf("Skipping %s, already has photo.", unix)
 			continue
 		}
 
