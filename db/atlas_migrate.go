@@ -46,7 +46,6 @@ func MigrateMySQL(db *gorm.DB) error {
 }
 
 // Force() firstAtlasVersion when tables exist but schema_migrations does not
-// (pre-Atlas / gormigrate DBs); empty DBs skip and run Up() instead
 func stampLegacyIfNeeded(sqlDB *sql.DB, m *migrate.Migrate) error {
 	_, _, err := m.Version()
 	if err == nil {

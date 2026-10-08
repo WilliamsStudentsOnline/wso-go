@@ -5,7 +5,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-// SQLite tests + `make atlas-schema` desired-state dump
+// SQLite tests and make atlas-schema
 func AutoMigrateModels(db *gorm.DB) error {
 	return db.AutoMigrate(
 		&models.User{},
