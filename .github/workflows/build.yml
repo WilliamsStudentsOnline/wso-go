@@ -14,6 +14,18 @@ env:
   PATH: /usr/local/bin:/usr/bin:/bin
 
 jobs:
+  atlas:
+    name: Atlas migrate lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ariga/setup-atlas@v0
+        with:
+          version: latest
+      - name: Validate migrations
+        working-directory: db/atlas
+        run: atlas migrate validate --env local --config file://atlas.hcl
+
   lint:
     name: Build and Test
     # only self-host CI when merging into prod

@@ -53,6 +53,9 @@ func SetupMySQLConfig(cfg *Config) {
 	for key, val := range cfg.MySQLArgs {
 		qs.Add(key, val)
 	}
+	if qs.Get("multiStatements") == "" {
+		qs.Set("multiStatements", "true")
+	}
 
 	var mysqlUrl string
 	if cfg.MySQLUnix {

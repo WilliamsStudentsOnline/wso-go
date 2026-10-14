@@ -6,3 +6,12 @@ dependencies:
       - any-glob-to-any-file:
           - go.mod
           - go.sum
+
+codegen:
+  - changed-files:
+      - any-glob-to-any-file:
+          - db/atlas/schema.sql
+          - db/atlas/migrations/**
+          - docs/docs.go
+          - docs/swagger.json
+          - docs/swagger.yaml
