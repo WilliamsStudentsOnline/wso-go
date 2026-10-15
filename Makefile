@@ -57,6 +57,10 @@ job-frosh-photos:
 job-user-csv-data:
 	go build -tags=jsoniter -o job-user-csv-data ./jobs/user_csv_data/cmd
 
+.PHONY: job-user-home-info
+job-user-home-info:
+	go build -tags=jsoniter -o job-user-home-info ./jobs/user_home_info/cmd
+
 .PHONY: job-dining-update
 job-dining-update:
 	go build -tags=jsoniter -o job-dining-update ./jobs/dining_update/cmd
@@ -112,6 +116,7 @@ build-jobs:
 	go build  -tags=jsoniter -o job-dorms-update ./jobs/dorms_update/cmd
 	go build  -tags=jsoniter -o job-frosh-photos ./jobs/frosh_photos/cmd
 	go build  -tags=jsoniter -o job-user-csv-data ./jobs/user_csv_data/cmd
+	go build  -tags=jsoniter -o job-user-home-info ./jobs/user_home_info/cmd
 	go build  -tags=jsoniter -o job-dining-update ./jobs/dining_update/cmd
 	go build  -tags=jsoniter -o job-schedule-notifs ./jobs/schedule_notifs/cmd
 	go build  -tags=jsoniter -o job-update-on-campus-semesters ./jobs/update_on_campus_semesters/cmd
@@ -130,6 +135,7 @@ build-jobs-prod-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-dorms-update_linux ./jobs/dorms_update/cmd
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-frosh-photos_linux ./jobs/frosh_photos/cmd
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-user-csv-data_linux ./jobs/user_csv_data/cmd
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-user-home-info_linux ./jobs/user_home_info/cmd
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-dining-update_linux ./jobs/dining_update/cmd
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-schedule-notifs_linux ./jobs/schedule_notifs/cmd
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-update-on-campus-semesters_linux ./jobs/update_on_campus_semesters/cmd
