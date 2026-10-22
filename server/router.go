@@ -236,10 +236,9 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 	}
 
 	// Require auth to access catalog with aggregated Factrak reviews
-	coursesFactrakFile := router.Group("/courses-factrak")
-	coursesFactrakFile.Use(auth.RequireScopes(auth.ScopeFactrakFull))
-	// Updated for the new server
-	coursesFactrakFile.StaticFS("/", http.Dir("/home/wso/static-auth"))
+	coursesFactrak := router.Group("")
+	coursesFactrak.Use(auth.RequireScopes(auth.ScopeFactrakFull))
+	coursesFactrak.StaticFile("/courses-factrak.json", "/opt/wso-go/static-auth/courses.json")
 
 	return r, nil
 }
