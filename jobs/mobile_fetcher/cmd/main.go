@@ -32,13 +32,17 @@ func main() {
 		log.Fatalf("create output dir: %v", err)
 	}
 
-	fetcher := mobile_fetcher.NewFetcher(cfg.OutputDir, nil)
+	own, err := cfg.ResolveOwnership()
+	if err != nil {
+		log.Fatalf("resolve ownership: %v", err)
+	}
+	fetcher := mobile_fetcher.NewFetcher(cfg.OutputDir, nil, own)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	log.Printf("mobile-fetcher starting: %d jobs, interval=%s, output=%s",
-		len(cfg.Jobs), cfg.Interval, cfg.OutputDir)
+	log.Printf("mobile-fetcher starting: %d jobs, interval=%s, output=%s, owner=%q group=%q",
+		len(cfg.Jobs), cfg.Interval, cfg.OutputDir, cfg.Owner, cfg.Group)
 
 	fetcher.FetchAll(cfg.Jobs)
 	if *once {

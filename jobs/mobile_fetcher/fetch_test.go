@@ -21,7 +21,7 @@ func TestFetchSuccessWritesFile(t *testing.T) {
 	defer srv.Close()
 
 	outDir := t.TempDir()
-	f := NewFetcher(outDir, srv.Client())
+	f := NewFetcher(outDir, srv.Client(), FileOwnership{UID: -1, GID: -1})
 
 	err := f.Fetch(Job{
 		Name:   "spins",
@@ -69,7 +69,7 @@ func TestFetchNon2xxKeepsExistingFile(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	f := NewFetcher(outDir, srv.Client())
+	f := NewFetcher(outDir, srv.Client(), FileOwnership{UID: -1, GID: -1})
 	err := f.Fetch(Job{Name: "spins", URL: srv.URL, Output: "spins.json"})
 	if err == nil {
 		t.Fatal("expected error for non-2xx")
@@ -111,7 +111,7 @@ func TestFetchIncompleteDownloadKeepsExistingFile(t *testing.T) {
 	}
 
 	client := &http.Client{Timeout: 2 * time.Second}
-	f := NewFetcher(outDir, client)
+	f := NewFetcher(outDir, client, FileOwnership{UID: -1, GID: -1})
 	err := f.Fetch(Job{Name: "spins", URL: srv.URL, Output: "spins.json"})
 	if err == nil {
 		t.Fatal("expected error for incomplete download")
@@ -140,7 +140,7 @@ func TestFetchAllContinuesAfterFailure(t *testing.T) {
 	defer srv.Close()
 
 	outDir := t.TempDir()
-	f := NewFetcher(outDir, srv.Client())
+	f := NewFetcher(outDir, srv.Client(), FileOwnership{UID: -1, GID: -1})
 	f.FetchAll([]Job{
 		{Name: "bad", URL: srv.URL + "/bad", Output: "bad.json"},
 		{Name: "good", URL: srv.URL + "/good", Output: "good.json"},

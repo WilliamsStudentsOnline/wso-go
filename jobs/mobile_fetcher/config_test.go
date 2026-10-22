@@ -101,6 +101,9 @@ func TestLoadBundledConfig(t *testing.T) {
 	if cfg.Interval != 30*time.Second {
 		t.Fatalf("interval = %v", cfg.Interval)
 	}
+	if cfg.Owner != "wso" || cfg.Group != "deploy" {
+		t.Fatalf("owner/group = %q/%q, want wso/deploy", cfg.Owner, cfg.Group)
+	}
 	if len(cfg.Jobs) != 6 {
 		t.Fatalf("expected 6 jobs, got %d", len(cfg.Jobs))
 	}
@@ -110,5 +113,16 @@ func TestLoadBundledConfig(t *testing.T) {
 				t.Fatalf("job %s Authorization = %q", job.Name, auth)
 			}
 		}
+	}
+}
+
+func TestResolveOwnershipUnknown(t *testing.T) {
+	cfg := &Config{Owner: "definitely-not-a-real-user-zz"}
+	if _, err := cfg.ResolveOwnership(); err == nil {
+		t.Fatal("expected error for unknown owner")
+	}
+	cfg = &Config{Group: "definitely-not-a-real-group-zz"}
+	if _, err := cfg.ResolveOwnership(); err == nil {
+		t.Fatal("expected error for unknown group")
 	}
 }

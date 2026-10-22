@@ -8,6 +8,7 @@ Wants=network-online.target
 Type=simple
 User=wso
 Group=wso
+SupplementaryGroups=deploy
 
 ExecStart=/home/wso/wso/wso-backend/jobs/mobile-fetcher \
     -config /home/wso/wso/wso-backend/mobile-fetcher.yaml
