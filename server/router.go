@@ -235,8 +235,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 		}
 	}
 
-	// Course scheduler fetches /courses-factrak.json with a Factrak-full token.
-	// File is written by catalog-update to /opt/wso-go/static-auth/courses.json.
+	// Require auth to access catalog with aggregated Factrak reviews
 	coursesFactrak := router.Group("")
 	coursesFactrak.Use(auth.RequireScopes(auth.ScopeFactrakFull))
 	coursesFactrak.StaticFile("/courses-factrak.json", "/opt/wso-go/static-auth/courses.json")
