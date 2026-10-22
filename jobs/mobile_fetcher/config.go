@@ -31,7 +31,7 @@ type Overrides struct {
 	Interval  time.Duration
 }
 
-// FileOwnership holds resolved uid/gid; -1 = unchanged.
+// -1 = unchanged
 type FileOwnership struct {
 	UID int
 	GID int
@@ -102,7 +102,7 @@ func (c *Config) ApplyOverrides(o Overrides) {
 	}
 }
 
-// ResolveOwnership maps owner/group names to ids; omitted fields stay -1.
+// owner/group -> ID; omitted = -1
 func (c *Config) ResolveOwnership() (FileOwnership, error) {
 	own := FileOwnership{UID: -1, GID: -1}
 	if c.Owner != "" {
