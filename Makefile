@@ -224,7 +224,6 @@ mod:
 	go mod tidy
 	go mod download
 
-### Atlas — schema SQL in db/atlas/ (needs Docker + atlas CLI)
 ATLAS_MYSQL_ROOT_PASSWORD ?= secret-mysql-password
 ATLAS_SCHEMA_DSN ?= root:$(ATLAS_MYSQL_ROOT_PASSWORD)@tcp(127.0.0.1:3306)/wso_atlas?parseTime=true&charset=utf8mb4&multiStatements=true
 ATLAS_SCHEMA_URL ?= mysql://root:$(ATLAS_MYSQL_ROOT_PASSWORD)@127.0.0.1:3306/wso_atlas
@@ -255,7 +254,7 @@ atlas-diff: atlas-schema
 	@name="$(name)"; if [ -z "$$name" ]; then echo "usage: make atlas-diff name=<migration_name>"; exit 1; fi
 	cd db/atlas && $(ATLAS) migrate diff "$$name" --env local --config file://atlas.hcl
 
-# checksum + replay SQL on ephemeral MySQL
+# checksum + replay on ephemeral MySQL
 .PHONY: atlas-lint
 atlas-lint:
 	@if [ -z "$(ATLAS)" ]; then echo "atlas CLI not found; install from https://atlasgo.io/docs"; exit 1; fi

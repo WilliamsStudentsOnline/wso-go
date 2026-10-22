@@ -19,7 +19,7 @@ func main() {
 	app.Name = "Migration Helper"
 	app.HideVersion = true
 	app.Action = runApp
-	app.Usage = "DEPRECATED gorm migrations generator — use make atlas-diff"
+	app.Usage = "DEPRECATED gorm migrations generator; use make atlas-diff"
 	app.HelpName = "migrate"
 
 	app.UsageText = "migrate [options] migration_title"

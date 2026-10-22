@@ -9,7 +9,7 @@ import (
 	"gopkg.in/gormigrate.v1"
 )
 
-// LEGACY gormigrate history (SQLite InitSchema only; new changes → make atlas-diff)
+// LEGACY gormigrate history
 var Migrations = []*gormigrate.Migration{
 	migrations.CreateUsers20190719211808,
 	migrations.CreateDepartments20190719212645,
@@ -108,7 +108,7 @@ func LastMigration(opts *gormigrate.Options, db *gorm.DB) (string, error) {
 	return migrationIDs[len(migrationIDs)-1], nil
 }
 
-// MySQL → Atlas versions; SQLite → gormigrate table
+// True if current: Atlas versions for MySQL, gormigrate table for SQLite
 func MigrationUpToDate(opts *gormigrate.Options, db *gorm.DB) (bool, error) {
 	if db.Dialect().GetName() == "mysql" {
 		return MySQLMigrationsUpToDate(db)

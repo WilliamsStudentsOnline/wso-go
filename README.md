@@ -93,19 +93,14 @@ The library (lib) folder contains tools that multiple other folders and files us
 
 ### Migrations
 
-MySQL schema changes are versioned SQL under `db/atlas/migrations/` (planned with [Atlas](https://atlasgo.io/), applied on boot with [golang-migrate](https://github.com/golang-migrate/migrate)).
+To generate a database migration:
 
-1. Edit GORM schema structs under `models/`.
-2. Install the Atlas CLI and ensure Docker is running.
-3. Regenerate desired schema and plan a migration:
+1. Edit GORM schema structs under `models/`
+2. Install the [Atlas CLI](https://atlasgo.io) and ensure Docker is running
+3. Regenerate desired schema and plan a migration with `make atlas-diff name=your_migration_name`
+4. Review the new `db/atlas/migrations/*.up.sql`. If it looks good, commit it alongside `atlas.sum` and `schema.sql`
 
-```bash
-make atlas-diff name=add_foo_column
-```
-
-4. Review the new `db/atlas/migrations/*.up.sql`, commit it (and `atlas.sum` / `schema.sql`).
-
-`make atlas-lint` validates migration checksums and replays SQL on ephemeral MySQL. CI runs the same check.
+Use `make atlas-lint` to validate migration checksums and replay SQL on an ephemeral db (note that CI will run the same check).
 
 Legacy Go files under `db/migrations/` are frozen (historical gormigrate); do not add new ones.
 
@@ -140,7 +135,7 @@ We use something called a [JWT](jwt.io), or JSON Web Token for the API. This all
   - `environment/development.yml` is the local development configuration yaml
 - `db/` migration code (and dummy SQLite databases)
   - `atlas/` Atlas config, `schema.sql`, and versioned SQL migrations
-  - `migrations/` frozen historical gormigrate migrations
+  - `migrations/` frozen historical gormigrate migrations (predating our migration to Atlas)
 - `docs/` swagger API docs to be compiled
 - `jobs/` cron job launching code and specific jobs to run on the server (e.g. update users from LDAP)
   - `dorms_update/data` dorm and dorm room data

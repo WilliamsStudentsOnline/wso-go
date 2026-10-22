@@ -2,7 +2,7 @@
 // See `make atlas-schema`
 env "local" {
   src = "file://schema.sql"
-  // Throwaway MySQL for replay/planning (Atlas spins this up)
+  // Throwaway MySQL for replay/planning
   dev = "docker://mysql/8/dev"
 
   migration {
