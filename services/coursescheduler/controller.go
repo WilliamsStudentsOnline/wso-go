@@ -14,13 +14,12 @@ import (
 
 var client *redis_util.RedisClient
 
-func init() {
-	ConfigureClientForProd()
-}
-
-func ConfigureClientForProd() error {
+func ConfigureClient(addr string) error {
+	if addr == "" {
+		addr = "127.0.0.1:6379"
+	}
 	var err error
-	client, err = redis_util.SetupClient("localhost:6739", "", redis_util.CourseSchedulerSelectionsDatabaseID)
+	client, err = redis_util.SetupClient(addr, "", redis_util.CourseSchedulerSelectionsDatabaseID)
 	return err
 }
 

@@ -20,7 +20,7 @@ func configureRedis(t *testing.T) {
 	t.Helper()
 	err := coursescheduler.ConfigureControllerForTest()
 	if err != nil && os.Getenv("GITHUB_ACTIONS") == "" {
-		t.Skipf("redis not reachable on localhost:6379 (try make docker-redis-dev): %v", err)
+		t.Skipf("redis not reachable on localhost:6379 (try make dev): %v", err)
 	}
 	testify.NoError(t, err)
 }
