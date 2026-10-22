@@ -2,8 +2,6 @@ interval: 30s
 
 output_dir: /home/wso/static/mobile
 
-# nginx is in group deploy (not github-runner), so outputs must be
-# deploy-group-readable. Owner stays the service account that writes them.
 owner: wso
 group: deploy
 

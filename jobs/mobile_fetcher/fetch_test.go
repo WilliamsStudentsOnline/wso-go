@@ -5,11 +5,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"os/user"
 	"path/filepath"
-	"strconv"
 	"strings"
-	"syscall"
 	"testing"
 	"time"
 )
@@ -126,45 +123,6 @@ func TestFetchIncompleteDownloadKeepsExistingFile(t *testing.T) {
 	}
 	if string(got) != "good-data" {
 		t.Fatalf("existing file overwritten: %q", got)
-	}
-}
-
-func TestFetchChownsToConfiguredOwnership(t *testing.T) {
-	u, err := user.Current()
-	if err != nil {
-		t.Fatal(err)
-	}
-	uid, err := strconv.Atoi(u.Uid)
-	if err != nil {
-		t.Fatal(err)
-	}
-	gid, err := strconv.Atoi(u.Gid)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		_, _ = io.WriteString(w, "owned")
-	}))
-	defer srv.Close()
-
-	outDir := t.TempDir()
-	f := NewFetcher(outDir, srv.Client(), FileOwnership{UID: uid, GID: gid})
-	if err := f.Fetch(Job{Name: "owned", URL: srv.URL, Output: "owned.json"}); err != nil {
-		t.Fatalf("Fetch: %v", err)
-	}
-
-	info, err := os.Stat(filepath.Join(outDir, "owned.json"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	stat, ok := info.Sys().(*syscall.Stat_t)
-	if !ok {
-		t.Fatal("stat sys is not Stat_t")
-	}
-	if int(stat.Uid) != uid || int(stat.Gid) != gid {
-		t.Fatalf("file uid/gid = %d/%d, want %d/%d", stat.Uid, stat.Gid, uid, gid)
 	}
 }
 

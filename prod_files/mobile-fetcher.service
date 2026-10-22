@@ -8,7 +8,6 @@ Wants=network-online.target
 Type=simple
 User=wso
 Group=wso
-# Needed so the process can chgrp outputs to deploy (nginx reads via deploy).
 SupplementaryGroups=deploy
 
 ExecStart=/home/wso/wso/wso-backend/jobs/mobile-fetcher \

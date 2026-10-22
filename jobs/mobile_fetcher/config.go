@@ -14,12 +14,9 @@ type Config struct {
 	Interval  time.Duration `yaml:"-"`
 	IntervalS string        `yaml:"interval"`
 	OutputDir string        `yaml:"output_dir"`
-	// Owner/Group are optional. When set, each written output file is
-	// chown'd so nginx (in group deploy) can read without sharing the
-	// github-runner group with the webserver.
-	Owner string `yaml:"owner"`
-	Group string `yaml:"group"`
-	Jobs  []Job  `yaml:"jobs"`
+	Owner     string        `yaml:"owner"`
+	Group     string        `yaml:"group"`
+	Jobs      []Job         `yaml:"jobs"`
 }
 
 type Job struct {
@@ -34,7 +31,7 @@ type Overrides struct {
 	Interval  time.Duration
 }
 
-// FileOwnership is a resolved uid/gid pair. A negative id means "leave unchanged".
+// FileOwnership holds resolved uid/gid; -1 = unchanged.
 type FileOwnership struct {
 	UID int
 	GID int
@@ -105,8 +102,7 @@ func (c *Config) ApplyOverrides(o Overrides) {
 	}
 }
 
-// ResolveOwnership looks up owner/group names from the config.
-// Empty owner or group leaves that id unchanged (-1).
+// ResolveOwnership maps owner/group names to ids; omitted fields stay -1.
 func (c *Config) ResolveOwnership() (FileOwnership, error) {
 	own := FileOwnership{UID: -1, GID: -1}
 	if c.Owner != "" {

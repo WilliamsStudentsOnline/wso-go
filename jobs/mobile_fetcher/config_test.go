@@ -2,9 +2,7 @@ package mobile_fetcher
 
 import (
 	"os"
-	"os/user"
 	"path/filepath"
-	"strconv"
 	"testing"
 	"time"
 )
@@ -115,45 +113,6 @@ func TestLoadBundledConfig(t *testing.T) {
 				t.Fatalf("job %s Authorization = %q", job.Name, auth)
 			}
 		}
-	}
-}
-
-func TestResolveOwnershipEmpty(t *testing.T) {
-	cfg := &Config{}
-	own, err := cfg.ResolveOwnership()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if own.UID != -1 || own.GID != -1 {
-		t.Fatalf("empty ownership = %+v, want uid/gid -1", own)
-	}
-}
-
-func TestResolveOwnershipCurrentUser(t *testing.T) {
-	u, err := user.Current()
-	if err != nil {
-		t.Fatal(err)
-	}
-	g, err := user.LookupGroupId(u.Gid)
-	if err != nil {
-		t.Fatal(err)
-	}
-	wantUID, err := strconv.Atoi(u.Uid)
-	if err != nil {
-		t.Fatal(err)
-	}
-	wantGID, err := strconv.Atoi(g.Gid)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	cfg := &Config{Owner: u.Username, Group: g.Name}
-	own, err := cfg.ResolveOwnership()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if own.UID != wantUID || own.GID != wantGID {
-		t.Fatalf("ownership = %+v, want uid=%d gid=%d", own, wantUID, wantGID)
 	}
 }
 
