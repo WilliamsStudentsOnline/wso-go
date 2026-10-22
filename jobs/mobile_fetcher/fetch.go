@@ -20,15 +20,17 @@ const (
 type Fetcher struct {
 	client    *http.Client
 	outputDir string
+	own       FileOwnership
 }
 
-func NewFetcher(outputDir string, client *http.Client) *Fetcher {
+func NewFetcher(outputDir string, client *http.Client, own FileOwnership) *Fetcher {
 	if client == nil {
 		client = &http.Client{Timeout: defaultHTTPTimeout}
 	}
 	return &Fetcher{
 		client:    client,
 		outputDir: outputDir,
+		own:       own,
 	}
 }
 
@@ -63,13 +65,13 @@ func (f *Fetcher) Fetch(job Job) error {
 	}
 
 	dest := filepath.Join(f.outputDir, job.Output)
-	if err := atomicWrite(dest, resp.Body); err != nil {
+	if err := atomicWrite(dest, resp.Body, f.own); err != nil {
 		return fmt.Errorf("write %s: %w", dest, err)
 	}
 	return nil
 }
 
-func atomicWrite(dest string, r io.Reader) error {
+func atomicWrite(dest string, r io.Reader, own FileOwnership) error {
 	dir := filepath.Dir(dest)
 	tmp, err := os.CreateTemp(dir, "."+filepath.Base(dest)+".tmp.*")
 	if err != nil {
@@ -94,6 +96,11 @@ func atomicWrite(dest string, r io.Reader) error {
 	}
 	if err := tmp.Close(); err != nil {
 		return fmt.Errorf("close temp file: %w", err)
+	}
+	if own.set() {
+		if err := os.Chown(tmpName, own.UID, own.GID); err != nil {
+			return fmt.Errorf("chown temp file: %w", err)
+		}
 	}
 	if err := os.Rename(tmpName, dest); err != nil {
 		return fmt.Errorf("rename temp file: %w", err)

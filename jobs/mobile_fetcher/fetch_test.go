@@ -5,8 +5,11 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"os/user"
 	"path/filepath"
+	"strconv"
 	"strings"
+	"syscall"
 	"testing"
 	"time"
 )
@@ -21,7 +24,7 @@ func TestFetchSuccessWritesFile(t *testing.T) {
 	defer srv.Close()
 
 	outDir := t.TempDir()
-	f := NewFetcher(outDir, srv.Client())
+	f := NewFetcher(outDir, srv.Client(), FileOwnership{UID: -1, GID: -1})
 
 	err := f.Fetch(Job{
 		Name:   "spins",
@@ -69,7 +72,7 @@ func TestFetchNon2xxKeepsExistingFile(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	f := NewFetcher(outDir, srv.Client())
+	f := NewFetcher(outDir, srv.Client(), FileOwnership{UID: -1, GID: -1})
 	err := f.Fetch(Job{Name: "spins", URL: srv.URL, Output: "spins.json"})
 	if err == nil {
 		t.Fatal("expected error for non-2xx")
@@ -111,7 +114,7 @@ func TestFetchIncompleteDownloadKeepsExistingFile(t *testing.T) {
 	}
 
 	client := &http.Client{Timeout: 2 * time.Second}
-	f := NewFetcher(outDir, client)
+	f := NewFetcher(outDir, client, FileOwnership{UID: -1, GID: -1})
 	err := f.Fetch(Job{Name: "spins", URL: srv.URL, Output: "spins.json"})
 	if err == nil {
 		t.Fatal("expected error for incomplete download")
@@ -123,6 +126,45 @@ func TestFetchIncompleteDownloadKeepsExistingFile(t *testing.T) {
 	}
 	if string(got) != "good-data" {
 		t.Fatalf("existing file overwritten: %q", got)
+	}
+}
+
+func TestFetchChownsToConfiguredOwnership(t *testing.T) {
+	u, err := user.Current()
+	if err != nil {
+		t.Fatal(err)
+	}
+	uid, err := strconv.Atoi(u.Uid)
+	if err != nil {
+		t.Fatal(err)
+	}
+	gid, err := strconv.Atoi(u.Gid)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = io.WriteString(w, "owned")
+	}))
+	defer srv.Close()
+
+	outDir := t.TempDir()
+	f := NewFetcher(outDir, srv.Client(), FileOwnership{UID: uid, GID: gid})
+	if err := f.Fetch(Job{Name: "owned", URL: srv.URL, Output: "owned.json"}); err != nil {
+		t.Fatalf("Fetch: %v", err)
+	}
+
+	info, err := os.Stat(filepath.Join(outDir, "owned.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	stat, ok := info.Sys().(*syscall.Stat_t)
+	if !ok {
+		t.Fatal("stat sys is not Stat_t")
+	}
+	if int(stat.Uid) != uid || int(stat.Gid) != gid {
+		t.Fatalf("file uid/gid = %d/%d, want %d/%d", stat.Uid, stat.Gid, uid, gid)
 	}
 }
 
@@ -140,7 +182,7 @@ func TestFetchAllContinuesAfterFailure(t *testing.T) {
 	defer srv.Close()
 
 	outDir := t.TempDir()
-	f := NewFetcher(outDir, srv.Client())
+	f := NewFetcher(outDir, srv.Client(), FileOwnership{UID: -1, GID: -1})
 	f.FetchAll([]Job{
 		{Name: "bad", URL: srv.URL + "/bad", Output: "bad.json"},
 		{Name: "good", URL: srv.URL + "/good", Output: "good.json"},

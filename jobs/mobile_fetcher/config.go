@@ -3,6 +3,8 @@ package mobile_fetcher
 import (
 	"fmt"
 	"os"
+	"os/user"
+	"strconv"
 	"time"
 
 	"gopkg.in/yaml.v3"
@@ -12,7 +14,12 @@ type Config struct {
 	Interval  time.Duration `yaml:"-"`
 	IntervalS string        `yaml:"interval"`
 	OutputDir string        `yaml:"output_dir"`
-	Jobs      []Job         `yaml:"jobs"`
+	// Owner/Group are optional. When set, each written output file is
+	// chown'd so nginx (in group deploy) can read without sharing the
+	// github-runner group with the webserver.
+	Owner string `yaml:"owner"`
+	Group string `yaml:"group"`
+	Jobs  []Job  `yaml:"jobs"`
 }
 
 type Job struct {
@@ -25,6 +32,12 @@ type Job struct {
 type Overrides struct {
 	OutputDir string
 	Interval  time.Duration
+}
+
+// FileOwnership is a resolved uid/gid pair. A negative id means "leave unchanged".
+type FileOwnership struct {
+	UID int
+	GID int
 }
 
 func LoadConfig(path string) (*Config, error) {
@@ -90,4 +103,53 @@ func (c *Config) ApplyOverrides(o Overrides) {
 		c.Interval = o.Interval
 		c.IntervalS = o.Interval.String()
 	}
+}
+
+// ResolveOwnership looks up owner/group names from the config.
+// Empty owner or group leaves that id unchanged (-1).
+func (c *Config) ResolveOwnership() (FileOwnership, error) {
+	own := FileOwnership{UID: -1, GID: -1}
+	if c.Owner != "" {
+		uid, err := lookupUID(c.Owner)
+		if err != nil {
+			return own, fmt.Errorf("config: owner %q: %w", c.Owner, err)
+		}
+		own.UID = uid
+	}
+	if c.Group != "" {
+		gid, err := lookupGID(c.Group)
+		if err != nil {
+			return own, fmt.Errorf("config: group %q: %w", c.Group, err)
+		}
+		own.GID = gid
+	}
+	return own, nil
+}
+
+func (o FileOwnership) set() bool {
+	return o.UID >= 0 || o.GID >= 0
+}
+
+func lookupUID(name string) (int, error) {
+	u, err := user.Lookup(name)
+	if err != nil {
+		return -1, err
+	}
+	uid, err := strconv.Atoi(u.Uid)
+	if err != nil {
+		return -1, fmt.Errorf("parse uid %q: %w", u.Uid, err)
+	}
+	return uid, nil
+}
+
+func lookupGID(name string) (int, error) {
+	g, err := user.LookupGroup(name)
+	if err != nil {
+		return -1, err
+	}
+	gid, err := strconv.Atoi(g.Gid)
+	if err != nil {
+		return -1, fmt.Errorf("parse gid %q: %w", g.Gid, err)
+	}
+	return gid, nil
 }
