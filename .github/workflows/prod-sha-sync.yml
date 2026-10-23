@@ -14,7 +14,6 @@ jobs:
     name: Push approved SHA to production
     runs-on: ubuntu-latest
     steps:
-      # Org secrets: PROD_SYNC_APP_ID, PROD_SYNC_PRIVATE_KEY (must be available to this repo)
       - uses: actions/create-github-app-token@v2
         id: app-token
         with:
