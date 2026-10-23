@@ -1,4 +1,4 @@
-name: Prod SHA sync
+name: Sync production to master
 on:
   push:
     branches:
@@ -14,6 +14,7 @@ jobs:
     name: Push approved SHA to production
     runs-on: ubuntu-latest
     steps:
+      # Org secrets: PROD_SYNC_APP_ID, PROD_SYNC_PRIVATE_KEY (must be available to this repo)
       - uses: actions/create-github-app-token@v2
         id: app-token
         with:
@@ -59,7 +60,7 @@ jobs:
           elif git merge-base --is-ancestor "$approved" "$prod"; then
             echo "kind=rollback"
           else
-            echo "error: production and approved SHA have diverged; refuse to push" >&2
+            echo "error: production and approved SHA have diverged; refused to push" >&2
             echo "clean history with a one-time force of production to a master SHA, then retry" >&2
             exit 1
           fi

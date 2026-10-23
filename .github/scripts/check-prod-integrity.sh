@@ -14,10 +14,10 @@ parse_approved() {
 
 if git cat-file -e "origin/master:config/prod-sha" 2>/dev/null; then
   approved="$(git show origin/master:config/prod-sha | parse_approved)"
-  approved_src="origin/master:config/prod-sha"
+  approved_src="REMOTE master:config/prod-sha"
 else
   approved="$(parse_approved <config/prod-sha)"
-  approved_src="local config/prod-sha (not on origin/master yet)"
+  approved_src="LOCAL config/prod-sha"
 fi
 
 if [[ ! "$approved" =~ ^[0-9a-f]{40}$ ]]; then
@@ -55,10 +55,10 @@ fi
 
 echo "MISMATCH: production does not match approved SHA"
 if git merge-base --is-ancestor "$prod" "$approved"; then
-  echo "note: production is behind approved (forward deploy pending or failed)"
+  echo "production < approved"
 elif git merge-base --is-ancestor "$approved" "$prod"; then
-  echo "note: production is ahead of approved"
+  echo "note: production > approved"
 else
-  echo "note: production and approved have diverged"
+  echo "production and approved SHAs have diverged"
 fi
 exit 1

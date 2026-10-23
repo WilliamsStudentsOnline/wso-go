@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 if ! command -v gh >/dev/null 2>&1; then
   echo "error: gh (GitHub CLI) is not installed or not on PATH" >&2
   echo "install: https://cli.github.com/ and run: gh auth login" >&2
@@ -19,7 +21,10 @@ if ! command -v git >/dev/null 2>&1; then
   exit 1
 fi
 
-git fetch origin master production
+# Status dump (same as make check-prod-integrity); do not fail the sync yet
+integrity_rc=0
+bash "${SCRIPT_DIR}/check-prod-integrity.sh" || integrity_rc=$?
+echo
 
 requested="${1:-}"
 if [[ -n "$requested" ]]; then
@@ -39,51 +44,49 @@ fi
 
 prod="$(git rev-parse origin/production)"
 short_approved="$(git rev-parse --short "$approved")"
-date_utc="$(date -u +%Y-%m-%d)"
 branch="prod-sha/${short_approved}"
 
+if [[ "$prod" == "$approved" ]]; then
+  echo "OK: production already at ${approved}; nothing to approve"
+  exit 0
+fi
+
 if git merge-base --is-ancestor "$prod" "$approved"; then
-  if [[ "$prod" == "$approved" ]]; then
-    kind="no-op (already on production)"
-  else
-    kind="forward"
-  fi
+  kind="forward"
 elif git merge-base --is-ancestor "$approved" "$prod"; then
   kind="rollback"
 else
-  kind="diverged (Action will refuse until production history is cleaned)"
+  echo "error: production and approved SHAs have diverged" >&2
+  echo "clean history with a one-time force of production to a master SHA, then retry" >&2
+  exit 1
 fi
 
-title="[DEPLOY] Approve production SHA ${short_approved} (${date_utc})"
+title="[DEPLOY] Approve production SHA ${short_approved}"
 
 body="$(cat <<EOF
-> **Warning:** Merging this PR approves a **live production deploy** of \`${approved}\`.
+> **Warning:** Merging this PR triggers a **live production deploy** that will affect all WSO users.
 
 **Approved SHA:** \`${approved}\`
-**Current production:** \`${prod}\`
-**Kind:** ${kind}
+**Operation:** ${kind}
 
-## How this works
-1. This PR only updates \`config/prod-sha\`
-2. Get review + required checks
-3. **Merge** into \`master\` (do not target \`production\` directly)
-4. The prod-sha-sync Action pushes that exact SHA to \`production\`
+## How to merge
+1. Wait for required checks
+2. Get approval
+3. Merge the PR once everything lights up green
+4. Confirm the **Sync production to master** Actions run succeeds
 5. Confirm the **Deploy to production** Actions run succeeds
 
 Closes WilliamsStudentsOnline/wso-go#391
 EOF
 )"
 
-# upsert branch with file change from current master
 git checkout -B "$branch" origin/master
 
 tmp="$(mktemp)"
 {
   cat <<'HDR'
-# Approved production deploy SHA for this repo.
-# Updated by `make sync-prod` (optional SHA arg) via a PR into master.
-# When that PR merges, Actions pushes this exact SHA to the production
-# branch (force-with-lease). Not "master tip at merge time."
+# Unless prod is in the middle of merging/deploying, it should have THIS head SHA
+# Update via `make sync-prod` (can pass in any SHA, for example if you need to roll back)
 # Do not edit by hand unless you know what you are doing.
 HDR
   echo "$approved"
