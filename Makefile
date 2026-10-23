@@ -242,24 +242,24 @@ atlas-schema: atlas-mysql-up
 	@if [ -z "$(ATLAS)" ]; then echo "atlas CLI not found; install from https://atlasgo.io/docs"; exit 1; fi
 	$(ATLAS) schema inspect --url '$(ATLAS_SCHEMA_URL)' --format '{{ sql . "  " }}' > db/atlas/schema.sql
 
-# plan a new migration: make atlas-diff name=<title>
-.PHONY: atlas-diff
-atlas-diff: atlas-schema
+# plan a new migration: make migrate name=<title>
+.PHONY: migrate
+migrate: atlas-schema
 	@if [ -z "$(ATLAS)" ]; then echo "atlas CLI not found; install from https://atlasgo.io/docs"; exit 1; fi
-	@name="$(name)"; if [ -z "$$name" ]; then echo "usage: make atlas-diff name=<migration_name>"; exit 1; fi
+	@name="$(name)"; if [ -z "$$name" ]; then echo "usage: make migrate name=<migration_name>"; exit 1; fi
 	cd db/atlas && $(ATLAS) migrate diff "$$name" --env local --config file://atlas.hcl
 
 # checksum + replay on ephemeral MySQL
-.PHONY: atlas-lint
-atlas-lint:
+.PHONY: check-migrations
+check-migrations:
 	@if [ -z "$(ATLAS)" ]; then echo "atlas CLI not found; install from https://atlasgo.io/docs"; exit 1; fi
 	@n=$$(ls db/atlas/migrations/*.up.sql 2>/dev/null | wc -l | tr -d ' '); \
 	if [ "$$n" -eq 0 ]; then \
-		echo "atlas-lint: no migrations detected"; \
+		echo "check-migrations: no migrations detected"; \
 		exit 0; \
 	fi; \
 	cd db/atlas && $(ATLAS) migrate validate --env local --config file://atlas.hcl; \
-	echo "atlas-lint: passed ($$n version$$([ $$n -eq 1 ] || echo s))"
+	echo "check-migrations: passed ($$n version$$([ $$n -eq 1 ] || echo s))"
 
 ### Docker definitions
 .PHONY: docker-builder

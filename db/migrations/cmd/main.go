@@ -13,13 +13,13 @@ import (
 )
 
 func main() {
-	fmt.Fprintln(os.Stderr, "DEPRECATED: gormigrate generators are frozen. Use `make atlas-diff name=<title>` instead.")
+	fmt.Fprintln(os.Stderr, "DEPRECATED: gormigrate generators are frozen. Use `make migrate name=<title>` instead.")
 	app := cli.NewApp()
 
 	app.Name = "Migration Helper"
 	app.HideVersion = true
 	app.Action = runApp
-	app.Usage = "DEPRECATED gorm migrations generator; use make atlas-diff"
+	app.Usage = "DEPRECATED gorm migrations generator; use make migrate"
 	app.HelpName = "migrate"
 
 	app.UsageText = "migrate [options] migration_title"
