@@ -28,16 +28,25 @@ def version_list(versions: list[str]) -> list[str]:
     return lines
 
 
+MAX_ERR_LINES = 20
+MAX_ERR_CHARS = 240
+
+
 def atlas_error_block(log: str) -> list[str]:
-    """Atlas CLI text with leading whitespace stripped; keep wording/order."""
+    """Atlas CLI text, trimmed for a short sticky-comment code block."""
     lines: list[str] = []
     for raw in log.splitlines():
         line = raw.strip()
-        if line:
-            lines.append(line)
+        if not line:
+            continue
+        if len(line) > MAX_ERR_CHARS:
+            line = line[: MAX_ERR_CHARS - 1] + "…"
+        lines.append(line)
     if not lines:
         return ["No atlas output captured."]
-    return lines[-80:]
+    if len(lines) > MAX_ERR_LINES:
+        return lines[-MAX_ERR_LINES:] + ["… (truncated)"]
+    return lines
 
 
 def render(*, outcome: str, versions: list[str], log: str) -> str | None:
