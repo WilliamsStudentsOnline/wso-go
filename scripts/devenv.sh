@@ -69,7 +69,7 @@ cleanup() {
 }
 
 cmd_down() {
-  echo "devenv: stopping containers (volumes kept)"
+  echo "devenv: stopping containers"
   "${COMPOSE[@]}" down
 }
 
