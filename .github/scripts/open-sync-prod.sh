@@ -51,12 +51,22 @@ fi
 
 if git merge-base --is-ancestor "$prod" "$approved"; then
   kind="forward"
+  range="${prod}..${approved}"
+  commits_label="Commits to deploy"
 elif git merge-base --is-ancestor "$approved" "$prod"; then
   kind="rollback"
+  range="${approved}..${prod}"
+  commits_label="Commits to roll back"
 else
   echo "error: production and approved SHAs have diverged" >&2
   echo "contact an admin; history will need to be cleaned with a force push" >&2
   exit 1
+fi
+
+commit_count="$(git rev-list --count "$range")"
+commit_list="$(git log --format='- `%h` %s' "$range")"
+if [[ -z "$commit_list" ]]; then
+  commit_list="_(none)_"
 fi
 
 title="[DEPLOY] Approve production SHA ${short_approved}"
@@ -66,6 +76,13 @@ body="$(cat <<EOF
 
 **Approved SHA:** \`${approved}\`
 **Operation:** ${kind}
+
+<details>
+<summary>${commits_label} (${commit_count})</summary>
+
+${commit_list}
+
+</details>
 
 ## How to merge
 1. Wait for required checks
