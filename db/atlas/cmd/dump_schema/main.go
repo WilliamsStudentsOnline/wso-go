@@ -36,8 +36,6 @@ func main() {
 		fmt.Fprintf(os.Stderr, "automigrate: %v\n", err)
 		os.Exit(1)
 	}
-
-	fmt.Println("ok")
 }
 
 func dropAllTables(db *gorm.DB) error {

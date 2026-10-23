@@ -98,7 +98,7 @@ Database migrations update (change, add, or--in rare cases--delete) the models t
 To generate a database migration:
 
 1. Edit GORM schema structs under `models/`
-2. Regenerate desired schema and plan a migration with `make migrate name=your_migration_name`
+2. Plan a migration with `make migrate name=<snake_case_name>` — `name=` is required (not a positional arg), e.g. `make migrate name=add_user_pronouns`
 3. Review the new `db/atlas/migrations/*.up.sql`. If it looks good, commit it alongside `atlas.sum` and `schema.sql`
 
 Use `make check-migrations` to validate migration checksums and replay SQL on an ephemeral db (note that CI will run the same check).

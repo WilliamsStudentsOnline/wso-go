@@ -236,22 +236,24 @@ DOCKER := $(shell command -v docker 2>/dev/null)
 .PHONY: atlas-mysql-up
 atlas-mysql-up:
 	@if [ -z "$(DOCKER)" ]; then echo "docker not found in PATH"; exit 1; fi
-	$(DOCKER) compose up -d --wait mysql
-	$(DOCKER) exec wso-mysql mysql -uroot -p$(ATLAS_MYSQL_ROOT_PASSWORD) -e "CREATE DATABASE IF NOT EXISTS wso_atlas;"
+	@$(DOCKER) compose --progress quiet up -d --wait --quiet-pull mysql
+	@$(DOCKER) exec -e MYSQL_PWD=$(ATLAS_MYSQL_ROOT_PASSWORD) wso-mysql \
+		mysql -uroot -e "CREATE DATABASE IF NOT EXISTS wso_atlas;"
 
 # regenerate db/atlas/schema.sql from current GORM models
 .PHONY: atlas-schema
 atlas-schema: atlas-mysql-up
-	go run ./db/atlas/cmd/dump_schema -dsn '$(ATLAS_SCHEMA_DSN)'
 	@if [ -z "$(ATLAS)" ]; then echo "atlas CLI not found; install from https://atlasgo.io/docs"; exit 1; fi
-	$(ATLAS) schema inspect --url '$(ATLAS_SCHEMA_URL)' --format '{{ sql . "  " }}' > db/atlas/schema.sql
+	@go run ./db/atlas/cmd/dump_schema -dsn '$(ATLAS_SCHEMA_DSN)'
+	@$(ATLAS) schema inspect --url '$(ATLAS_SCHEMA_URL)' --format '{{ sql . "  " }}' -o db/atlas/schema.sql
 
-# plan a new migration: make migrate name=<title>
+# plan a new migration: make migrate name=<snake_case_name>
 .PHONY: migrate
-migrate: atlas-schema
+migrate:
 	@if [ -z "$(ATLAS)" ]; then echo "atlas CLI not found; install from https://atlasgo.io/docs"; exit 1; fi
-	@name="$(name)"; if [ -z "$$name" ]; then echo "usage: make migrate name=<migration_name>"; exit 1; fi
-	cd db/atlas && $(ATLAS) migrate diff "$$name" --env local --config file://atlas.hcl
+	@if [ -z "$(name)" ]; then echo "usage: make migrate name=<migration_name>"; exit 1; fi
+	@$(MAKE) --no-print-directory atlas-schema
+	@cd db/atlas && $(ATLAS) migrate diff "$(name)" --env local --config file://atlas.hcl
 
 # checksum + replay on ephemeral MySQL
 .PHONY: check-migrations
