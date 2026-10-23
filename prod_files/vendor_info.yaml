@@ -186,6 +186,7 @@ mission:
         open: 11:30am
         close: 1:30pm
         display_name: "brunch"
+        nutrislice_menu_type: brunch
       dinner:
         open: 4:30pm
         close: 6:30pm
@@ -213,59 +214,79 @@ lees-snack-bar:
   hours:
     monday:
       breakfast:
-        open: 8:00am
-        close: 10:00am
+        open: 7:30am
+        close: 10:30am
       lunch:
-        open: 1:00pm
+        open: 11:30am
         close: 2:00pm
       mid-day:
         open: 2:00pm
         close: 5:00pm
         display_name: "midday"
+      dinner:
+        open: 5:30pm
+        close: 8:00pm
+        nutrislice_menu_type: lee-dinner
     tuesday:
       breakfast:
-        open: 8:00am
-        close: 10:00am
+        open: 7:30am
+        close: 10:30am
       lunch:
-        open: 1:00pm
+        open: 11:30am
         close: 2:00pm
       mid-day:
         open: 2:00pm
         close: 5:00pm
         display_name: "midday"
+      dinner:
+        open: 5:30pm
+        close: 8:00pm
+        nutrislice_menu_type: lee-dinner
     wednesday:
       breakfast:
-        open: 8:00am
-        close: 10:00am
+        open: 7:30am
+        close: 10:30am
       lunch:
-        open: 1:00pm
+        open: 11:30am
         close: 2:00pm
       mid-day:
         open: 2:00pm
         close: 5:00pm
         display_name: "midday"
+      dinner:
+        open: 5:30pm
+        close: 8:00pm
+        nutrislice_menu_type: lee-dinner
     thursday:
       breakfast:
-        open: 8:00am
-        close: 10:00am
+        open: 7:30am
+        close: 10:30am
       lunch:
-        open: 1:00pm
+        open: 11:30am
         close: 2:00pm
       mid-day:
         open: 2:00pm
         close: 5:00pm
         display_name: "midday"
+      dinner:
+        open: 5:30pm
+        close: 8:00pm
+        nutrislice_menu_type: lee-dinner
     friday:
       breakfast:
-        open: 8:00am
-        close: 10:00am
+        open: 7:30am
+        close: 10:30am
       lunch:
-        open: 1:00pm
+        open: 11:30am
         close: 2:00pm
       mid-day:
         open: 2:00pm
         close: 5:00pm
         display_name: "midday"
+      dinner:
+        open: 5:30pm
+        close: 8:00pm
+        nutrislice_menu_type: lee-dinner
 82-grill:
   name: "82 Grill"
   nutrislice_slug: "82-grill"
@@ -276,39 +297,49 @@ lees-snack-bar:
       lunch:
         open: 11:00am
         close: 3:00pm
+        nutrislice_menu_type: 82-grill-lunch
     tuesday:
       lunch:
         open: 11:00am
         close: 3:00pm
+        nutrislice_menu_type: 82-grill-lunch
     wednesday:
       lunch:
         open: 11:00am
         close: 3:00pm
+        nutrislice_menu_type: 82-grill-lunch
       dinner:
         open: 4:00pm
         close: 8:00pm
+        nutrislice_menu_type: 82-grill-dinner
     thursday:
       lunch:
         open: 11:00am
         close: 3:00pm
+        nutrislice_menu_type: 82-grill-lunch
       dinner:
         open: 4:00pm
         close: 8:00pm
+        nutrislice_menu_type: 82-grill-dinner
     friday:
       lunch:
         open: 11:00am
         close: 3:00pm
+        nutrislice_menu_type: 82-grill-lunch
       dinner:
         open: 4:00pm
         close: 8:00pm
+        nutrislice_menu_type: 82-grill-dinner
     saturday:
       dinner:
         open: 4:00pm
         close: 8:00pm
+        nutrislice_menu_type: 82-grill-dinner
     sunday:
       dinner:
         open: 4:00pm
         close: 8:00pm
+        nutrislice_menu_type: 82-grill-dinner
 fresh-n-go:
   name: Fresh-N-Go
   nutrislice_slug: "fresh-n-go"
@@ -378,40 +409,110 @@ eco-cafe:
   nutrislice_slug: "eco-cafe"
   operating: true
   online_order: true
-  hours: 
+  hours:
     monday:
       breakfast:
         open: 7:30am
         close: 10:30am
       lunch:
-        open: 11:00am
+        open: 11:30am
         close: 2:00pm
     tuesday:
       breakfast:
         open: 7:30am
         close: 10:30am
       lunch:
-        open: 11:00am
+        open: 11:30am
         close: 2:00pm
     wednesday:
       breakfast:
         open: 7:30am
         close: 10:30am
       lunch:
-        open: 11:00am
+        open: 11:30am
         close: 2:00pm
     thursday:
       breakfast:
         open: 7:30am
         close: 10:30am
       lunch:
-        open: 11:00am
+        open: 11:30am
         close: 2:00pm
     friday:
       breakfast:
         open: 7:30am
         close: 10:30am
       lunch:
-        open: 11:00am
+        open: 11:30am
         close: 2:00pm
-      
+
+clean-cuisine:
+  name: "Clean Cuisine"
+  nutrislice_slug: "paresky-clean-cuisine"
+  operating: true
+  online_order: false
+  hours:
+    monday:
+      breakfast:
+        open: 7:30am
+        close: 10:30am
+      lunch:
+        open: 11:30am
+        close: 2:00pm
+      dinner:
+        open: 5:00pm
+        close: 8:00pm
+    tuesday:
+      breakfast:
+        open: 7:30am
+        close: 10:30am
+      lunch:
+        open: 11:30am
+        close: 2:00pm
+      dinner:
+        open: 5:00pm
+        close: 8:00pm
+    wednesday:
+      breakfast:
+        open: 7:30am
+        close: 10:30am
+      lunch:
+        open: 11:30am
+        close: 2:00pm
+      dinner:
+        open: 5:00pm
+        close: 8:00pm
+    thursday:
+      breakfast:
+        open: 7:30am
+        close: 10:30am
+      lunch:
+        open: 11:30am
+        close: 2:00pm
+      dinner:
+        open: 5:00pm
+        close: 8:00pm
+    friday:
+      breakfast:
+        open: 7:30am
+        close: 10:30am
+      lunch:
+        open: 11:30am
+        close: 2:00pm
+      dinner:
+        open: 5:00pm
+        close: 8:00pm
+    saturday:
+      lunch:
+        open: 11:30am
+        close: 2:00pm
+      dinner:
+        open: 5:00pm
+        close: 8:00pm
+    sunday:
+      lunch:
+        open: 11:30am
+        close: 2:00pm
+      dinner:
+        open: 5:00pm
+        close: 8:00pm
