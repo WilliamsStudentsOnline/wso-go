@@ -21,9 +21,8 @@ if ! command -v git >/dev/null 2>&1; then
   exit 1
 fi
 
-# Status dump (same as make check-prod-integrity); do not fail the sync yet
-integrity_rc=0
-bash "${SCRIPT_DIR}/check-prod-integrity.sh" || integrity_rc=$?
+# Status dump (same as make check-prod-integrity); classify below
+bash "${SCRIPT_DIR}/check-prod-integrity.sh" || true
 echo
 
 requested="${1:-}"
