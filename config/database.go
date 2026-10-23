@@ -53,8 +53,7 @@ func SetupMySQLConfig(cfg *Config) {
 	for key, val := range cfg.MySQLArgs {
 		qs.Add(key, val)
 	}
-	// golang-migrate runs each *.up.sql as one script; MySQL needs this to allow
-	// multiple statements per migration file.
+	// allow multiple statements per migration file for MySQL w/ golang-migrate
 	if qs.Get("multiStatements") == "" {
 		qs.Set("multiStatements", "true")
 	}
