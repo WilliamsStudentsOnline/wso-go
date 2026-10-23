@@ -1,0 +1,68 @@
+name: Sync production to master
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - config/prod-sha
+
+permissions:
+  contents: read
+
+jobs:
+  sync-production:
+    name: Push approved SHA to production
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/create-github-app-token@v2
+        id: app-token
+        with:
+          app-id: ${{ secrets.PROD_SYNC_APP_ID }}
+          private-key: ${{ secrets.PROD_SYNC_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Push config/prod-sha to production
+        env:
+          TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          set -euo pipefail
+          approved="$(grep -v '^[[:space:]]*#' config/prod-sha | grep -v '^[[:space:]]*$' | head -1 | tr -d '[:space:]')"
+          if [[ ! "$approved" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "error: config/prod-sha must contain one full 40-char SHA (got: ${approved:-empty})" >&2
+            exit 1
+          fi
+          if ! git cat-file -e "${approved}^{commit}"; then
+            echo "error: ${approved} is not a commit in this repo" >&2
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor "$approved" origin/master; then
+            echo "error: ${approved} is not reachable from origin/master" >&2
+            exit 1
+          fi
+
+          git fetch origin production
+          prod="$(git rev-parse origin/production)"
+          echo "approved=${approved}"
+          echo "production=${prod}"
+
+          if [[ "$prod" == "$approved" ]]; then
+            echo "production already at ${approved}; nothing to push"
+            exit 0
+          fi
+
+          if git merge-base --is-ancestor "$prod" "$approved"; then
+            echo "operation=forward"
+          elif git merge-base --is-ancestor "$approved" "$prod"; then
+            echo "operation=rollback"
+          else
+            echo "error: production and approved SHAs have diverged; refused to push" >&2
+            echo "contact an admin; history will need to be cleaned with a force push" >&2
+            exit 1
+          fi
+
+          remote="https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push --force-with-lease="refs/heads/production:${prod}" "$remote" "${approved}:refs/heads/production"
