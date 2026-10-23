@@ -1,0 +1,6 @@
+# Approved production deploy SHA for this repo.
+# Updated by `make sync-prod` (optional SHA arg) via a PR into master.
+# When that PR merges, Actions pushes this exact SHA to the production
+# branch (force-with-lease). Not "master tip at merge time."
+# Do not edit by hand unless you know what you are doing.
+ae7e5f3d254db58972ee9684f54c27b2f556ccbd
