@@ -50,17 +50,17 @@ jobs:
           echo "production=${prod}"
 
           if [[ "$prod" == "$approved" ]]; then
-            echo "production already at approved SHA; nothing to push"
+            echo "production already at ${approved}; nothing to push"
             exit 0
           fi
 
           if git merge-base --is-ancestor "$prod" "$approved"; then
-            echo "kind=forward"
+            echo "operation=forward"
           elif git merge-base --is-ancestor "$approved" "$prod"; then
-            echo "kind=rollback"
+            echo "operation=rollback"
           else
-            echo "error: production and approved SHA have diverged; refused to push" >&2
-            echo "clean history with a one-time force of production to a master SHA, then retry" >&2
+            echo "error: production and approved SHAs have diverged; refused to push" >&2
+            echo "contact an admin; history will need to be cleaned with a force push" >&2
             exit 1
           fi
 

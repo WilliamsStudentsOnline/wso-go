@@ -21,7 +21,8 @@ else
 fi
 
 if [[ ! "$approved" =~ ^[0-9a-f]{40}$ ]]; then
-  echo "error: approved SHA missing or invalid in ${approved_src} (got: ${approved:-empty})" >&2
+  echo "error: approved SHA missing or invalid in ${approved_src}" >&2
+  echo "got: ${approved:-empty}" >&2
   exit 1
 fi
 

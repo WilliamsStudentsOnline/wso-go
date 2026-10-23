@@ -21,7 +21,6 @@ if ! command -v git >/dev/null 2>&1; then
   exit 1
 fi
 
-# Status dump (same as make check-prod-integrity); classify below
 bash "${SCRIPT_DIR}/check-prod-integrity.sh" || true
 echo
 
@@ -46,7 +45,7 @@ short_approved="$(git rev-parse --short "$approved")"
 branch="prod-sha/${short_approved}"
 
 if [[ "$prod" == "$approved" ]]; then
-  echo "OK: production already at ${approved}; nothing to approve"
+  echo "production already at ${approved}; nothing to approve"
   exit 0
 fi
 
@@ -56,7 +55,7 @@ elif git merge-base --is-ancestor "$approved" "$prod"; then
   kind="rollback"
 else
   echo "error: production and approved SHAs have diverged" >&2
-  echo "clean history with a one-time force of production to a master SHA, then retry" >&2
+  echo "contact an admin; history will need to be cleaned with a force push" >&2
   exit 1
 fi
 
@@ -74,8 +73,6 @@ body="$(cat <<EOF
 3. Merge the PR once everything lights up green
 4. Confirm the **Sync production to master** Actions run succeeds
 5. Confirm the **Deploy to production** Actions run succeeds
-
-Closes WilliamsStudentsOnline/wso-go#391
 EOF
 )"
 
@@ -85,6 +82,7 @@ tmp="$(mktemp)"
 {
   cat <<'HDR'
 # Unless prod is in the middle of merging/deploying, it should have THIS head SHA
+# If it doesn't, check that you're reading this file off of remote master
 # Update via `make sync-prod` (can pass in any SHA, for example if you need to roll back)
 # Do not edit by hand unless you know what you are doing.
 HDR
