@@ -228,12 +228,16 @@ ATLAS_MYSQL_ROOT_PASSWORD ?= secret-mysql-password
 ATLAS_SCHEMA_DSN ?= root:$(ATLAS_MYSQL_ROOT_PASSWORD)@tcp(127.0.0.1:3306)/wso_atlas?parseTime=true&charset=utf8mb4&multiStatements=true
 ATLAS_SCHEMA_URL ?= mysql://root:$(ATLAS_MYSQL_ROOT_PASSWORD)@127.0.0.1:3306/wso_atlas
 ATLAS := $(shell command -v atlas 2>/dev/null)
+# Resolve via shell: GNU make's direct-exec PATH search will try a *directory*
+# named docker (e.g. emsdk/docker) and fail with "Permission denied".
+DOCKER := $(shell command -v docker 2>/dev/null)
 
 # throwaway MySQL for schema dump / diff
 .PHONY: atlas-mysql-up
 atlas-mysql-up:
-	docker compose up -d --wait mysql
-	docker exec wso-mysql mysql -uroot -p$(ATLAS_MYSQL_ROOT_PASSWORD) -e "CREATE DATABASE IF NOT EXISTS wso_atlas;"
+	@if [ -z "$(DOCKER)" ]; then echo "docker not found in PATH"; exit 1; fi
+	$(DOCKER) compose up -d --wait mysql
+	$(DOCKER) exec wso-mysql mysql -uroot -p$(ATLAS_MYSQL_ROOT_PASSWORD) -e "CREATE DATABASE IF NOT EXISTS wso_atlas;"
 
 # regenerate db/atlas/schema.sql from current GORM models
 .PHONY: atlas-schema
@@ -264,28 +268,30 @@ check-migrations:
 ### Docker definitions
 .PHONY: docker-builder
 docker-builder:
-	docker build -t $(DOCKER_TAG)/builder -f Dockerfile.builder .
-	docker build -t $(DOCKER_TAG)/builder-cert -f Dockerfile.cert .
+	@if [ -z "$(DOCKER)" ]; then echo "docker not found in PATH"; exit 1; fi
+	$(DOCKER) build -t $(DOCKER_TAG)/builder -f Dockerfile.builder .
+	$(DOCKER) build -t $(DOCKER_TAG)/builder-cert -f Dockerfile.cert .
 
 .PHONY: docker-dev
 docker-dev: docker-builder
-	docker build -t $(DOCKER_TAG):dev-latest -f Dockerfile.release .
-	docker build -t $(DOCKER_TAG)-jobs:dev-latest -f Dockerfile.release_jobs .
+	$(DOCKER) build -t $(DOCKER_TAG):dev-latest -f Dockerfile.release .
+	$(DOCKER) build -t $(DOCKER_TAG)-jobs:dev-latest -f Dockerfile.release_jobs .
 
 .PHONY: docker-rel-dev
 docker-rel-dev: docker-builder
-	docker build -t $(DOCKER_TAG):dev-latest -f Dockerfile.release .
+	$(DOCKER) build -t $(DOCKER_TAG):dev-latest -f Dockerfile.release .
 
 .PHONY: docker-jobs-dev
 docker-jobs-dev: docker-builder
-	docker build -t $(DOCKER_TAG)-jobs:dev-latest -f Dockerfile.release_jobs .
+	$(DOCKER) build -t $(DOCKER_TAG)-jobs:dev-latest -f Dockerfile.release_jobs .
 
 .PHONY: docker-redis-dev
 # this thing below? you see that? that's a hack, and will delete the VM no matter what.
 # so be careful about running this if you like having state.
 # if you're here from the README, this is the part you want to edit.
 docker-redis-dev:
-	docker kill wso-redis-instance >/dev/null 2>&1 || true
-	docker remove wso-redis-instance >/dev/null 2>&1 || true
-	docker build -t wso-redis -f ./lib/redis_util/Redis.Dockerfile ./lib/redis_util
-	docker run --name wso-redis-instance -d -p 6379:6379 wso-redis
+	@if [ -z "$(DOCKER)" ]; then echo "docker not found in PATH"; exit 1; fi
+	$(DOCKER) kill wso-redis-instance >/dev/null 2>&1 || true
+	$(DOCKER) remove wso-redis-instance >/dev/null 2>&1 || true
+	$(DOCKER) build -t wso-redis -f ./lib/redis_util/Redis.Dockerfile ./lib/redis_util
+	$(DOCKER) run --name wso-redis-instance -d -p 6379:6379 wso-redis
