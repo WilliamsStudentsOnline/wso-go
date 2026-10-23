@@ -26,7 +26,7 @@ prereq() {
   docker info >/dev/null 2>&1 || die "docker daemon not running"
   docker compose version >/dev/null 2>&1 || die "docker compose plugin required"
   if [[ ! -f config/secrets.yaml ]]; then
-    die "missing config/secrets.yaml — run: cp config/secrets_example.yaml config/secrets.yaml"
+    die "missing config/secrets.yaml; run: cp config/secrets_example.yaml config/secrets.yaml"
   fi
 }
 

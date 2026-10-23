@@ -11,7 +11,7 @@ WSO-Go auto-generates API docs found on:
 
 Local development needs [Docker](https://docs.docker.com/get-docker/).
 
-If you have not done so already, create a secrets file:
+If you have not done so already, create a secrets file (and edit as necessary):
 
 `cp config/secrets_example.yaml config/secrets.yaml`
 
@@ -19,7 +19,7 @@ Then:
 
 `make dev`
 
-`make dev` runs MySQL in the background and serves our API in the foreground, with hot reloading. See auto-generated API docs at http://localhost:8080/docs.
+This command runs MySQL in the background and serves our API in the foreground, with hot reloading. See auto-generated API docs at http://localhost:8080/docs.
 
 Database states will persist throughout local dev; use `make dev-reset` to wipe them. If something gets stuck, try `make dev-down && make dev`.
 
@@ -30,9 +30,6 @@ wso-go can be run with Grafana and Prometheus to improve the quality and accessi
 Once you have these packages installed, you can optionally install the Grafana config files to your system Grafana directory by running `grafana-install` as root in the `prod_files/` directory. To run them alongside wso-go, run the command `make run-with-analytics`. This should autostart the servers. Grafana is accessible on port 9093 through a browser, and Prometheus is configured to run on port 9095. To login to Grafana for the first time, use the username `admin` and the password `admin`. All files will be found in the `prod_files/` directory. Please change the values in `run-analytics.sh` when you use this in production. 
 
 Alternatively, if you're running wso-go on a Linux system, you can install the systemd service files and edit the values to run Grafana and Prometheus. This is how it is actually done in production.
-
-### Current Go Version: 1.21
-It is worth noting that you should install Go via the official site, not a package repository like `apt-get` or `brew`, which often have outdated versions. You can find info on how to install Go [here](https://golang.org/doc/install).
 
 ## Onboarding 
 

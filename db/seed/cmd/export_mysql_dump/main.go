@@ -6,7 +6,6 @@
 //     -dsn 'root:secret-mysql-password@tcp(127.0.0.1:3306)/wso_seed?parseTime=true&multiStatements=true' \
 //     -out db/seed/development.sql
 //   gzip -f db/seed/development.sql
-//
 package main
 
 import (
