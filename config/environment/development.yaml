@@ -12,3 +12,4 @@ hostname: localhost
 jwt_identity_timeout_hours: 4272
 jwt_api_timeout_hours: 168
 log_formats: ['console']
+redis_addr: 127.0.0.1:6379
