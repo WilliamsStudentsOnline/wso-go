@@ -1,0 +1,5 @@
+# Unless prod is in the middle of merging/deploying, it should have THIS head SHA
+# If it doesn't, check that you're reading this file off of remote master
+# Update via `make sync-prod` (can pass in any SHA, for example if you need to roll back)
+# Do not edit by hand unless you know what you are doing.
+ae7e5f3d254db58972ee9684f54c27b2f556ccbd
