@@ -184,8 +184,22 @@ endef
 commit: jobs/dorms_update/cmd/data.go docs/docs.go fmt services/*/responses/*.go
 
 .PHONY: run-dev
-run-dev: $(BINARY_NAME)
-	./$(BINARY_NAME) --development
+run-dev: dev
+
+AIR_VERSION ?= v1.67.0
+
+.PHONY: dev
+dev:
+	AIR_VERSION=$(AIR_VERSION) ./scripts/devenv.sh up
+
+.PHONY: dev-down
+dev-down:
+	@./scripts/devenv.sh down
+
+.PHONY: dev-reset
+dev-reset:
+	@./scripts/devenv.sh reset
+
 
 # Skip the same packages as CI (.github/coverage-exclude.txt)
 ifdef IGNORE_SKIPS

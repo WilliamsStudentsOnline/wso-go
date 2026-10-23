@@ -11,15 +11,17 @@ WSO-Go auto-generates API docs found on:
 
 Local development needs [Docker](https://docs.docker.com/get-docker/).
 
-To run the server, simply do `make run-dev` or `make && ./wso-backend --development`.
+If you have not done so already, create a secrets file (and edit as necessary):
 
-Note: you must include a secrets file. So, run `cp config/secrets_example.yaml config/secrets.yaml` and edit the fields from there. You can also just set the environment variable `WSO_SECRET_JWT_SECRET_KEY=wso-jwt-development-secret`, which will work.
+`cp config/secrets_example.yaml config/secrets.yaml`
 
-### Redis
+Then:
 
-**NOTE**: As of November 2024, wso-go uses Redis for several non-critical database tables, such as saved classes in the course scheduler. For most cases, this is not important, but if you intend to develop for these features, deploy Redis with `make run-dev-redis`. Local dev will skip tests that exercise Redis when it is not installed. Redis tests run on a throwaway DB (see `lib/redis_util/database_ids.go`).
+`make dev`
 
-All data is lost when the command is re-run. For data persistence, edit the Makefile's definition of `docker-redis-dev` to use use the flag `-v /absolute/path/on/your/computer/:data` on the command `docker run` to dump data to a path of your choice.
+This command runs MySQL and Redis in the background and serves our API in the foreground, with hot reloading. See auto-generated API docs at http://localhost:8080/docs.
+
+Database states will persist throughout local dev; use `make dev-reset` to wipe them. If something gets stuck, try `make dev-down && make dev`.
 
 ### Grafana and Prometheus
 
@@ -28,9 +30,6 @@ wso-go can be run with Grafana and Prometheus to improve the quality and accessi
 Once you have these packages installed, you can optionally install the Grafana config files to your system Grafana directory by running `grafana-install` as root in the `prod_files/` directory. To run them alongside wso-go, run the command `make run-with-analytics`. This should autostart the servers. Grafana is accessible on port 9093 through a browser, and Prometheus is configured to run on port 9095. To login to Grafana for the first time, use the username `admin` and the password `admin`. All files will be found in the `prod_files/` directory. Please change the values in `run-analytics.sh` when you use this in production. 
 
 Alternatively, if you're running wso-go on a Linux system, you can install the systemd service files and edit the values to run Grafana and Prometheus. This is how it is actually done in production.
-
-### Current Go Version: 1.21
-It is worth noting that you should install Go via the official site, not a package repository like `apt-get` or `brew`, which often have outdated versions. You can find info on how to install Go [here](https://golang.org/doc/install).
 
 ## Onboarding 
 
@@ -136,8 +135,9 @@ We use something called a [JWT](jwt.io), or JSON Web Token for the API. This all
 
 - `config/` contains the server configuration library, logging library, secrets library, and various configurations
   - `environment/development.yml` is the local development configuration yaml
-- `db/` migration code (and dummy SQLite databases)
+- `db/` migration code
   - `atlas/` Atlas config, `schema.sql`, and versioned SQL migrations
+  - `seed/development.sql.gz` Seeded database for local dev
   - `migrations/` frozen historical gormigrate migrations (predating our migration to Atlas)
 - `docs/` swagger API docs to be compiled
 - `jobs/` cron job launching code and specific jobs to run on the server (e.g. update users from LDAP)

@@ -12,6 +12,7 @@ services:
     volumes:
       - wso_mysql_data:/var/lib/mysql
     healthcheck:
+      # Password must match MYSQL_ROOT_PASSWORD in config/secrets.yaml
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-psecret-mysql-password"]
       interval: 5s
       timeout: 5s

@@ -1,0 +1,17 @@
+# Support hot reloading go
+root = "."
+tmp_dir = "tmp"
+
+[build]
+  cmd = "go build -tags=jsoniter -o ./tmp/wso-backend ./server/cmd"
+  entrypoint = ["./tmp/wso-backend", "--development"]
+  delay = 500
+  exclude_dir = ["tmp", "docs", "vendor", "pics", "prod_files", ".git", "db/atlas", "db/seed", "db/migrations"]
+  exclude_regex = ["_test\\.go"]
+  include_ext = ["go"]
+  kill_delay = "2s"
+  send_interrupt = true
+  stop_on_error = true
+
+[misc]
+  clean_on_exit = true
