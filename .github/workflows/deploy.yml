@@ -37,17 +37,61 @@ jobs:
         run: make build-prod-linux
       - name: Build Jobs
         run: make build-jobs-prod-linux
-      # Copy it to /opt/wso-go.
+      # Copy binaries to /opt/wso-go (atomic mv to avoid text-file-busy).
       # TODO: deploy config files alongside WSO-Go.
+      # One-time host setup for the jobs system (not repeated every deploy):
+      #   sudo cp prod_files/polkit/50-wso-jobs.rules /etc/polkit-1/rules.d/
+      #   sudo cp prod_files/journald/wso-jobs.conf /etc/systemd/journald.conf.d/
+      #   sudo cp prod_files/tmpfiles.d/wso-jobs.conf /etc/tmpfiles.d/
+      #   sudo systemd-tmpfiles --create /etc/tmpfiles.d/wso-jobs.conf
+      #   sudo usermod -aG systemd-journal wso
+      #   sudo systemctl restart polkit systemd-journald
       - name: Install binaries
         run: |
           set -euo pipefail
           mkdir -p /opt/wso-go
-          cp wso-backend_linux /opt/wso-go/wso-backend_linux
-          cp job-*_linux /opt/wso-go/
-          chmod +x /opt/wso-go/wso-backend_linux /opt/wso-go/job-*_linux
+
+          # Atomic replace: copy to .new then mv so running jobs aren't
+          # disrupted by "text file busy".
+          install_bin() {
+            local src="$1" dst="$2"
+            cp "$src" "${dst}.new"
+            chmod +x "${dst}.new"
+            mv "${dst}.new" "$dst"
+          }
+
+          install_bin wso-backend_linux /opt/wso-go/wso-backend_linux
+          install_bin wso-jobctl_linux /opt/wso-go/wso-jobctl_linux
+          for f in job-*_linux; do
+            install_bin "$f" "/opt/wso-go/$f"
+          done
+
           sudo systemctl restart WSO-Go
           sudo systemctl try-restart mobile-fetcher || true
+      - name: Sync job systemd units
+        run: |
+          set -euo pipefail
+
+          # Timers enabled before this deploy (may be pruned by gen-units).
+          mapfile -t old_timers < <(
+            systemctl list-unit-files 'wso-job-*.timer' --no-legend 2>/dev/null \
+              | awk '{print $1}' || true
+          )
+
+          sudo /opt/wso-go/wso-jobctl_linux gen-units -out /etc/systemd/system
+          sudo systemctl daemon-reload
+
+          shopt -s nullglob
+          for timer in /etc/systemd/system/wso-job-*.timer; do
+            sudo systemctl enable --now "$(basename "$timer")"
+          done
+
+          for t in "${old_timers[@]+"${old_timers[@]}"}"; do
+            if [ ! -f "/etc/systemd/system/$t" ]; then
+              sudo systemctl disable --now "$t" 2>/dev/null || true
+              sudo systemctl reset-failed "$t" 2>/dev/null || true
+            fi
+          done
       - name: Health check
         run: |
           set -euo pipefail
