@@ -8,82 +8,62 @@ import re
 import sys
 from pathlib import Path
 
-SUM_LINE = re.compile(r"^L(\d+):\s*(.+)$")
+SUM_LINE = re.compile(r"^L\d+:\s*(.+)$")
 
 
-def list_versions(migrations_dir: Path) -> list[str]:
-    """Return sorted golang-migrate version names from *.up.sql files."""
+def migration_count(migrations_dir: Path) -> int:
     if not migrations_dir.is_dir():
-        return []
-    versions: list[str] = []
-    for path in sorted(migrations_dir.glob("*.up.sql")):
-        # 20261007235756_baseline.up.sql → 20261007235756_baseline
-        versions.append(path.name.removesuffix(".up.sql"))
-    return versions
+        return 0
+    return len(list(migrations_dir.glob("*.up.sql")))
 
 
-def version_list(versions: list[str]) -> list[str]:
-    n = len(versions)
-    show = versions if n <= 20 else versions[:10]
-    lines = [f"- `{v}`" for v in show]
-    if n > 20:
-        lines.append(f"- …and {n - 10} more")
-    return lines
-
-
-def clean_error(log: str) -> list[str]:
-    """Normalize atlas CLI noise into short, readable lines."""
-    lines: list[str] = []
+def clean_error(log: str) -> str:
+    """Collapse atlas CLI noise into one short error message."""
+    detail = ""
+    err = ""
+    other: list[str] = []
     for raw in log.splitlines():
         line = raw.strip()
         if not line:
             continue
-        m = SUM_LINE.match(line)
-        if m:
-            # Atlas "L2:" = line N in atlas.sum
-            lines.append(f"atlas.sum line {m.group(1)}: {m.group(2)}")
-            continue
-        # Drop the redundant banner; keep the actionable bits
         if line.startswith("You have a checksum error"):
             continue
         if line.startswith("Please check your migration files"):
-            lines.append("Run `atlas migrate hash` to update atlas.sum.")
+            continue
+        m = SUM_LINE.match(line)
+        if m:
+            detail = m.group(1)
             continue
         if line.startswith("Error: "):
-            lines.append(line.removeprefix("Error: "))
+            err = line.removeprefix("Error: ")
             continue
-        lines.append(line)
-    return lines[-40:]
+        other.append(line)
+
+    if err and detail:
+        return f"{err}: {detail}"
+    if err:
+        return err
+    if detail:
+        return detail
+    if other:
+        return "\n".join(other[-40:])
+    return "No atlas output captured."
 
 
-def render(*, outcome: str, versions: list[str], log: str) -> str | None:
+def render(*, outcome: str, count: int, log: str) -> str | None:
     """Return sticky-comment markdown, or None to skip the comment."""
-    n = len(versions)
-
-    if outcome == "success" and n == 0:
+    if outcome == "success" and count == 0:
         return None
 
     parts = ["## Migration Status\n"]
-
     if outcome != "success":
-        parts.append(
-            f"❌ Migrations failed (**{n}** version{'s' if n != 1 else ''})\n"
-        )
-        if versions:
-            parts.extend(version_list(versions))
-            parts.append("")
-        err = clean_error(log)
-        if err:
-            parts.append("```")
-            parts.extend(err)
-            parts.append("```\n")
-        else:
-            parts.append("_No atlas output captured._\n")
+        parts.append("❌ Failed\n")
+        parts.append("```")
+        parts.append(clean_error(log))
+        parts.append("```\n")
         return "\n".join(parts)
 
-    parts.append(f"✅ Migrations passed (**{n}** version{'s' if n != 1 else ''})\n")
-    parts.extend(version_list(versions))
-    parts.append("")
+    parts.append("✅ Passed\n")
     return "\n".join(parts)
 
 
@@ -122,11 +102,10 @@ def main() -> int:
     if args.log is not None and args.log.is_file():
         log = args.log.read_text(errors="replace")
 
-    versions = list_versions(args.migrations_dir)
-    body = render(outcome=args.outcome, versions=versions, log=log)
+    count = migration_count(args.migrations_dir)
+    body = render(outcome=args.outcome, count=count, log=log)
 
     if body is None:
-        # Job log / step summary only; skip sticky comment
         sys.stdout.write("No migrations detected\n")
         if args.output:
             Path(args.output).unlink(missing_ok=True)

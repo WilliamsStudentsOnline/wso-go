@@ -260,11 +260,11 @@ atlas-lint:
 	@if [ -z "$(ATLAS)" ]; then echo "atlas CLI not found; install from https://atlasgo.io/docs"; exit 1; fi
 	@n=$$(ls db/atlas/migrations/*.up.sql 2>/dev/null | wc -l | tr -d ' '); \
 	if [ "$$n" -eq 0 ]; then \
-		echo "atlas-lint: no migrations detected (db/atlas/migrations/*.up.sql)"; \
+		echo "atlas-lint: no migrations detected"; \
 		exit 0; \
 	fi; \
 	cd db/atlas && $(ATLAS) migrate validate --env local --config file://atlas.hcl; \
-	echo "atlas-lint: migrations passed ($$n version$$([ $$n -eq 1 ] || echo s))"
+	echo "atlas-lint: passed"
 
 ### Docker definitions
 .PHONY: docker-builder
