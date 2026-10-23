@@ -1,4 +1,4 @@
-# Compose MySQL for Atlas tooling
+# Compose MySQL (Atlas tooling) + Redis (course scheduler / local deps)
 services:
   mysql:
     image: mysql:8.0
@@ -17,5 +17,22 @@ services:
       timeout: 5s
       retries: 20
 
+  redis:
+    image: redis:7
+    container_name: wso-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - wso_redis_data:/data
+      - ./lib/redis_util/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf", "--save", "300", "1", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
 volumes:
   wso_mysql_data:
+  wso_redis_data:

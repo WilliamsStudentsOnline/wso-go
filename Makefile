@@ -189,7 +189,7 @@ run-dev: $(BINARY_NAME)
 
 .PHONY: run-dev-redis
 run-dev-redis: $(BINARY_NAME)
-	$(MAKE) docker-redis-dev
+	docker compose up -d --wait redis
 	./$(BINARY_NAME) --development
 
 # Skip the same packages as CI (.github/coverage-exclude.txt)
@@ -284,14 +284,3 @@ docker-rel-dev: docker-builder
 .PHONY: docker-jobs-dev
 docker-jobs-dev: docker-builder
 	$(DOCKER) build -t $(DOCKER_TAG)-jobs:dev-latest -f Dockerfile.release_jobs .
-
-.PHONY: docker-redis-dev
-# this thing below? you see that? that's a hack, and will delete the VM no matter what.
-# so be careful about running this if you like having state.
-# if you're here from the README, this is the part you want to edit.
-docker-redis-dev:
-	@if [ -z "$(DOCKER)" ]; then echo "docker not found in PATH"; exit 1; fi
-	$(DOCKER) kill wso-redis-instance >/dev/null 2>&1 || true
-	$(DOCKER) remove wso-redis-instance >/dev/null 2>&1 || true
-	$(DOCKER) build -t wso-redis -f ./lib/redis_util/Redis.Dockerfile ./lib/redis_util
-	$(DOCKER) run --name wso-redis-instance -d -p 6379:6379 wso-redis
