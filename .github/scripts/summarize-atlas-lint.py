@@ -40,9 +40,6 @@ def render(*, outcome: str, versions: list[str], log: str) -> str:
 
     if n == 0:
         parts.append("ℹ️ No migrations detected\n")
-        parts.append(
-            "_`db/atlas/migrations/` has no `*.up.sql` files; nothing to validate._\n"
-        )
         return "\n".join(parts)
 
     parts.append(f"✅ Migrations passed (**{n}** version{'s' if n != 1 else ''})\n")
