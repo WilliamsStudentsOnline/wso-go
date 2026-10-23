@@ -32,7 +32,8 @@ jobs:
         run: |
           set -o pipefail
           atlas migrate validate --env local --config file://atlas.hcl 2>&1 | tee /tmp/atlas-validate.log
-      - name: Write atlas results
+      - name: Write migration status
+        id: summary
         if: always()
         run: |
           set -euo pipefail
@@ -40,13 +41,15 @@ jobs:
             --outcome "${{ steps.validate.outcome }}" \
             --migrations-dir db/atlas/migrations \
             --log /tmp/atlas-validate.log \
-            -o atlas-results.md
-          cat atlas-results.md >> "$GITHUB_STEP_SUMMARY"
-      - name: Add Atlas Results PR Comment
+            --github-output "$GITHUB_OUTPUT" \
+            -o atlas-results.md \
+            | tee /tmp/atlas-summary.md
+          cat /tmp/atlas-summary.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Add Migration Status PR Comment
         uses: marocchino/sticky-pull-request-comment@v2
-        if: always() && github.event_name == 'pull_request'
+        if: always() && github.event_name == 'pull_request' && steps.summary.outputs.comment == 'true'
         with:
-          header: atlas-lint
+          header: migration-status
           path: atlas-results.md
       - name: Fail job if validate failed
         if: always() && steps.validate.outcome != 'success'

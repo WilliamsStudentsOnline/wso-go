@@ -4,8 +4,11 @@
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 from pathlib import Path
+
+SUM_LINE = re.compile(r"^L(\d+):\s*(.+)$")
 
 
 def list_versions(migrations_dir: Path) -> list[str]:
@@ -19,35 +22,67 @@ def list_versions(migrations_dir: Path) -> list[str]:
     return versions
 
 
-def render(*, outcome: str, versions: list[str], log: str) -> str:
+def version_list(versions: list[str]) -> list[str]:
     n = len(versions)
-    parts = ["## Atlas\n"]
+    show = versions if n <= 20 else versions[:10]
+    lines = [f"- `{v}`" for v in show]
+    if n > 20:
+        lines.append(f"- …and {n - 10} more")
+    return lines
+
+
+def clean_error(log: str) -> list[str]:
+    """Normalize atlas CLI noise into short, readable lines."""
+    lines: list[str] = []
+    for raw in log.splitlines():
+        line = raw.strip()
+        if not line:
+            continue
+        m = SUM_LINE.match(line)
+        if m:
+            # Atlas "L2:" = line N in atlas.sum
+            lines.append(f"atlas.sum line {m.group(1)}: {m.group(2)}")
+            continue
+        # Drop the redundant banner; keep the actionable bits
+        if line.startswith("You have a checksum error"):
+            continue
+        if line.startswith("Please check your migration files"):
+            lines.append("Run `atlas migrate hash` to update atlas.sum.")
+            continue
+        if line.startswith("Error: "):
+            lines.append(line.removeprefix("Error: "))
+            continue
+        lines.append(line)
+    return lines[-40:]
+
+
+def render(*, outcome: str, versions: list[str], log: str) -> str | None:
+    """Return sticky-comment markdown, or None to skip the comment."""
+    n = len(versions)
+
+    if outcome == "success" and n == 0:
+        return None
+
+    parts = ["## Migration Status\n"]
 
     if outcome != "success":
-        parts.append("❌ **Migration validation failed**\n")
-        if n == 0:
-            parts.append("_No `*.up.sql` migrations found under `db/atlas/migrations/`._\n")
-        else:
-            parts.append(f"Checked **{n}** migration(s).\n")
-        trimmed = log.strip()
-        if trimmed:
+        parts.append(
+            f"❌ Migrations failed (**{n}** version{'s' if n != 1 else ''})\n"
+        )
+        if versions:
+            parts.extend(version_list(versions))
+            parts.append("")
+        err = clean_error(log)
+        if err:
             parts.append("```")
-            parts.extend(trimmed.splitlines()[-80:])
+            parts.extend(err)
             parts.append("```\n")
         else:
             parts.append("_No atlas output captured._\n")
         return "\n".join(parts)
 
-    if n == 0:
-        parts.append("ℹ️ No migrations detected\n")
-        return "\n".join(parts)
-
     parts.append(f"✅ Migrations passed (**{n}** version{'s' if n != 1 else ''})\n")
-    show = versions if n <= 20 else versions[:10]
-    for v in show:
-        parts.append(f"- `{v}`")
-    if n > 20:
-        parts.append(f"- …and {n - 10} more")
+    parts.extend(version_list(versions))
     parts.append("")
     return "\n".join(parts)
 
@@ -74,7 +109,12 @@ def main() -> int:
     parser.add_argument(
         "-o",
         "--output",
-        help="Write markdown here (also printed to stdout)",
+        help="Write sticky-comment markdown here (omit file when skipping comment)",
+    )
+    parser.add_argument(
+        "--github-output",
+        type=Path,
+        help="Append comment=true/false for workflow gating",
     )
     args = parser.parse_args()
 
@@ -82,14 +122,25 @@ def main() -> int:
     if args.log is not None and args.log.is_file():
         log = args.log.read_text(errors="replace")
 
-    body = render(
-        outcome=args.outcome,
-        versions=list_versions(args.migrations_dir),
-        log=log,
-    )
+    versions = list_versions(args.migrations_dir)
+    body = render(outcome=args.outcome, versions=versions, log=log)
+
+    if body is None:
+        # Job log / step summary only; skip sticky comment
+        sys.stdout.write("No migrations detected\n")
+        if args.output:
+            Path(args.output).unlink(missing_ok=True)
+        if args.github_output:
+            with args.github_output.open("a") as f:
+                f.write("comment=false\n")
+        return 0
+
     sys.stdout.write(body)
     if args.output:
         Path(args.output).write_text(body)
+    if args.github_output:
+        with args.github_output.open("a") as f:
+            f.write("comment=true\n")
     return 0
 
 
