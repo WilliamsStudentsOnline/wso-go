@@ -194,11 +194,11 @@ dev:
 
 .PHONY: dev-down
 dev-down:
-	./scripts/devenv.sh down
+	@./scripts/devenv.sh down
 
 .PHONY: dev-reset
 dev-reset:
-	./scripts/devenv.sh reset
+	@./scripts/devenv.sh reset
 
 
 # Skip the same packages as CI (.github/coverage-exclude.txt)
