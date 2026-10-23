@@ -7,7 +7,9 @@ WSO-Go auto-generates API docs found on:
  - The WSO-DEV server (you need a VPN or to be on campus) here: http://wso-dev.williams.edu/api/docs/index.html
  - Locally here: http://localhost:8080/docs/index.html
 
-## Running Locally 
+## Running Locally
+
+Local development needs [Docker](https://docs.docker.com/get-docker/).
 
 To run the server, simply do `make run-dev` or `make && ./wso-backend --development`.
 
@@ -92,7 +94,18 @@ For Models:
 The library (lib) folder contains tools that multiple other folders and files use. No file in the lib folder should import any code from another place in this repo (external places are fine though).
 
 ### Migrations
-To generate a database migration, run the command `go run db/migrations/cmd/main.go -m <ModelName> -t <table_name> <migration_title>`
+
+Database migrations update (change, add, or--in rare cases--delete) the models that represent user data on our site. Working with migrations requires the [Atlas CLI](https://atlasgo.io).
+
+To generate a database migration:
+
+1. Edit GORM schema structs under `models/`
+2. Plan a migration with `make migrate name=<snake_case_name>` — `name=` is required (not a positional arg), e.g. `make migrate name=add_user_pronouns`
+3. Review the new `db/atlas/migrations/*.up.sql`. If it looks good, commit it alongside `atlas.sum` and `schema.sql`
+
+Use `make check-migrations` to validate migration checksums and replay SQL on an ephemeral db (note that CI will run the same check).
+
+Legacy Go files under `db/migrations/` are frozen (historical gormigrate); do not add new ones.
 
 ### Config
 The config folder contains all of the configuration & secrets parsers. It also sets up the database and does necessary middleware.
@@ -124,7 +137,8 @@ We use something called a [JWT](jwt.io), or JSON Web Token for the API. This all
 - `config/` contains the server configuration library, logging library, secrets library, and various configurations
   - `environment/development.yml` is the local development configuration yaml
 - `db/` migration code (and dummy SQLite databases)
-  - `migrations/` specific database migrations
+  - `atlas/` Atlas config, `schema.sql`, and versioned SQL migrations
+  - `migrations/` frozen historical gormigrate migrations (predating our migration to Atlas)
 - `docs/` swagger API docs to be compiled
 - `jobs/` cron job launching code and specific jobs to run on the server (e.g. update users from LDAP)
   - `dorms_update/data` dorm and dorm room data

@@ -53,6 +53,10 @@ func SetupMySQLConfig(cfg *Config) {
 	for key, val := range cfg.MySQLArgs {
 		qs.Add(key, val)
 	}
+	// allow multiple statements per migration file for MySQL w/ golang-migrate
+	if qs.Get("multiStatements") == "" {
+		qs.Set("multiStatements", "true")
+	}
 
 	var mysqlUrl string
 	if cfg.MySQLUnix {
