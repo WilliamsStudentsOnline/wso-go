@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Write a concise Atlas migrate validate summary (CI sticky comment + logs)."""
 
 from __future__ import annotations
 
@@ -7,16 +6,16 @@ import argparse
 import sys
 from pathlib import Path
 
+MAX_ERR_LINES = 20
+MAX_ERR_CHARS = 240
+
 
 def list_versions(migrations_dir: Path) -> list[str]:
-    """Return sorted migration version names from *.up.sql files."""
     if not migrations_dir.is_dir():
         return []
-    versions: list[str] = []
-    for path in sorted(migrations_dir.glob("*.up.sql")):
-        # 20261007235756_baseline.up.sql → 20261007235756_baseline
-        versions.append(path.name.removesuffix(".up.sql"))
-    return versions
+    return sorted(
+        p.name.removesuffix(".up.sql") for p in migrations_dir.glob("*.up.sql")
+    )
 
 
 def version_list(versions: list[str]) -> list[str]:
@@ -28,12 +27,7 @@ def version_list(versions: list[str]) -> list[str]:
     return lines
 
 
-MAX_ERR_LINES = 20
-MAX_ERR_CHARS = 240
-
-
 def atlas_error_block(log: str) -> list[str]:
-    """Atlas CLI text, trimmed for a short sticky-comment code block."""
     lines: list[str] = []
     for raw in log.splitlines():
         line = raw.strip()
@@ -50,9 +44,7 @@ def atlas_error_block(log: str) -> list[str]:
 
 
 def render(*, outcome: str, versions: list[str], log: str) -> str | None:
-    """Return sticky-comment markdown, or None to skip the comment."""
     n = len(versions)
-
     if outcome == "success" and n == 0:
         return None
 
@@ -76,42 +68,27 @@ def render(*, outcome: str, versions: list[str], log: str) -> str | None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
+    p = argparse.ArgumentParser()
+    p.add_argument(
         "--outcome",
         required=True,
         choices=("success", "failure", "cancelled", "skipped"),
-        help="GitHub step outcome for atlas migrate validate",
     )
-    parser.add_argument(
-        "--migrations-dir",
-        type=Path,
-        default=Path("db/atlas/migrations"),
-        help="Path to golang-migrate SQL directory",
-    )
-    parser.add_argument(
-        "--log",
-        type=Path,
-        help="Captured atlas stdout/stderr (used on failure)",
-    )
-    parser.add_argument(
-        "-o",
-        "--output",
-        help="Write sticky-comment markdown here (omit file when skipping comment)",
-    )
-    parser.add_argument(
-        "--github-output",
-        type=Path,
-        help="Append comment=true/false for workflow gating",
-    )
-    args = parser.parse_args()
+    p.add_argument("--migrations-dir", type=Path, default=Path("db/atlas/migrations"))
+    p.add_argument("--log", type=Path)
+    p.add_argument("-o", "--output")
+    p.add_argument("--github-output", type=Path)
+    args = p.parse_args()
 
     log = ""
     if args.log is not None and args.log.is_file():
         log = args.log.read_text(errors="replace")
 
-    versions = list_versions(args.migrations_dir)
-    body = render(outcome=args.outcome, versions=versions, log=log)
+    body = render(
+        outcome=args.outcome,
+        versions=list_versions(args.migrations_dir),
+        log=log,
+    )
 
     if body is None:
         sys.stdout.write("No migrations detected\n")

@@ -15,7 +15,7 @@ env:
 
 jobs:
   atlas:
-    name: Atlas migrate lint
+    name: Migration checker
     runs-on: ubuntu-latest
     permissions:
       contents: read

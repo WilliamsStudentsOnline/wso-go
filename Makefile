@@ -232,12 +232,7 @@ ATLAS := $(shell command -v atlas 2>/dev/null)
 # throwaway MySQL for schema dump / diff
 .PHONY: atlas-mysql-up
 atlas-mysql-up:
-	docker compose up -d mysql
-	@for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do \
-		h=$$(docker inspect --format='{{.State.Health.Status}}' wso-mysql 2>/dev/null || echo starting); \
-		[ "$$h" = "healthy" ] && break; \
-		sleep 2; \
-	done
+	docker compose up -d --wait mysql
 	docker exec wso-mysql mysql -uroot -p$(ATLAS_MYSQL_ROOT_PASSWORD) -e "CREATE DATABASE IF NOT EXISTS wso_atlas;"
 
 # regenerate db/atlas/schema.sql from current GORM models

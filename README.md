@@ -93,12 +93,13 @@ The library (lib) folder contains tools that multiple other folders and files us
 
 ### Migrations
 
+Database migrations update (change, add, or--in rare cases--delete) the models that represent user data on our site. Working with migrations requires Docker and the [Atlas CLI](https://atlasgo.io).
+
 To generate a database migration:
 
 1. Edit GORM schema structs under `models/`
-2. Install the [Atlas CLI](https://atlasgo.io) and ensure Docker is running
-3. Regenerate desired schema and plan a migration with `make atlas-diff name=your_migration_name`
-4. Review the new `db/atlas/migrations/*.up.sql`. If it looks good, commit it alongside `atlas.sum` and `schema.sql`
+2. Regenerate desired schema and plan a migration with `make atlas-diff name=your_migration_name`
+3. Review the new `db/atlas/migrations/*.up.sql`. If it looks good, commit it alongside `atlas.sum` and `schema.sql`
 
 Use `make atlas-lint` to validate migration checksums and replay SQL on an ephemeral db (note that CI will run the same check).
 

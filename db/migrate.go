@@ -108,7 +108,7 @@ func LastMigration(opts *gormigrate.Options, db *gorm.DB) (string, error) {
 	return migrationIDs[len(migrationIDs)-1], nil
 }
 
-// True if current: Atlas versions for MySQL, gormigrate table for SQLite
+// Check Atlas versions for MySQL and gormigrate table for SQLite
 func MigrationUpToDate(opts *gormigrate.Options, db *gorm.DB) (bool, error) {
 	if db.Dialect().GetName() == "mysql" {
 		return MySQLMigrationsUpToDate(db)
