@@ -228,11 +228,9 @@ ATLAS_MYSQL_ROOT_PASSWORD ?= secret-mysql-password
 ATLAS_SCHEMA_DSN ?= root:$(ATLAS_MYSQL_ROOT_PASSWORD)@tcp(127.0.0.1:3306)/wso_atlas?parseTime=true&charset=utf8mb4&multiStatements=true
 ATLAS_SCHEMA_URL ?= mysql://root:$(ATLAS_MYSQL_ROOT_PASSWORD)@127.0.0.1:3306/wso_atlas
 ATLAS := $(shell command -v atlas 2>/dev/null)
-# Resolve via shell: GNU make's direct-exec PATH search will try a *directory*
-# named docker (e.g. emsdk/docker) and fail with "Permission denied".
 DOCKER := $(shell command -v docker 2>/dev/null)
 
-# throwaway MySQL for schema dump / diff
+# throwaway MySQL for schema dump / diff (internal use)
 .PHONY: atlas-mysql-up
 atlas-mysql-up:
 	@if [ -z "$(DOCKER)" ]; then echo "docker not found in PATH"; exit 1; fi
@@ -240,7 +238,7 @@ atlas-mysql-up:
 	@$(DOCKER) exec -e MYSQL_PWD=$(ATLAS_MYSQL_ROOT_PASSWORD) wso-mysql \
 		mysql -uroot -e "CREATE DATABASE IF NOT EXISTS wso_atlas;"
 
-# regenerate db/atlas/schema.sql from current GORM models
+# regenerate db/atlas/schema.sql from current GORM models (internal use)
 .PHONY: atlas-schema
 atlas-schema: atlas-mysql-up
 	@if [ -z "$(ATLAS)" ]; then echo "atlas CLI not found; install from https://atlasgo.io/docs"; exit 1; fi
