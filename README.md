@@ -19,7 +19,7 @@ Then:
 
 `make dev`
 
-This command runs MySQL in the background and serves our API in the foreground, with hot reloading. See auto-generated API docs at http://localhost:8080/docs.
+This command runs MySQL and Redis in the background and serves our API in the foreground, with hot reloading. See auto-generated API docs at http://localhost:8080/docs.
 
 Database states will persist throughout local dev; use `make dev-reset` to wipe them. If something gets stuck, try `make dev-down && make dev`.
 
