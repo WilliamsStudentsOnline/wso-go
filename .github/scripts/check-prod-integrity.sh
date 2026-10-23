@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+ci=0
+if [[ "${1:-}" == "--ci" ]]; then
+  ci=1
+fi
+
 if ! command -v git >/dev/null 2>&1; then
   echo "error: git is not installed or not on PATH" >&2
   exit 1
@@ -28,25 +33,36 @@ fi
 
 prod="$(git rev-parse origin/production)"
 master="$(git rev-parse origin/master)"
+head_sha="$(git rev-parse HEAD)"
 
 fmt_commit() {
   local sha="$1"
   local label="$2"
   echo "${label}:"
-  echo "  sha:       ${sha}"
-  echo "  short:     $(git rev-parse --short "$sha")"
-  echo "  committed: $(git show -s --format='%ci (%cr)' "$sha")"
-  echo "  author:    $(git show -s --format='%an <%ae>' "$sha")"
-  echo "  subject:   $(git show -s --format='%s' "$sha")"
+  echo "  $(git rev-parse --short "$sha")  $(git show -s --format='%ci (%cr)' "$sha")"
+  echo "  $(git show -s --format='%an <%ae>' "$sha")"
+  echo "  $(git show -s --format='%s' "$sha")"
 }
 
 echo "approved source: ${approved_src}"
 echo
 fmt_commit "$approved" "approved"
 echo
-fmt_commit "$prod" "production (origin/production)"
+fmt_commit "$prod" "production"
 echo
-fmt_commit "$master" "master (origin/master)"
+fmt_commit "$master" "master"
+
+if [[ "$ci" -eq 0 ]]; then
+  echo
+  fmt_commit "$head_sha" "local HEAD"
+  if [[ -f config/prod-sha ]]; then
+    local_approved="$(parse_approved <config/prod-sha)"
+    if [[ "$local_approved" =~ ^[0-9a-f]{40}$ ]] && [[ "$local_approved" != "$approved" ]]; then
+      echo
+      fmt_commit "$local_approved" "local config/prod-sha (differs from remote)"
+    fi
+  fi
+fi
 
 echo
 if [[ "$prod" == "$approved" ]]; then
