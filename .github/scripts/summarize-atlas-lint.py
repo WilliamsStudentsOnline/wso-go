@@ -4,66 +4,65 @@
 from __future__ import annotations
 
 import argparse
-import re
 import sys
 from pathlib import Path
 
-SUM_LINE = re.compile(r"^L\d+:\s*(.+)$")
 
-
-def migration_count(migrations_dir: Path) -> int:
+def list_versions(migrations_dir: Path) -> list[str]:
+    """Return sorted migration version names from *.up.sql files."""
     if not migrations_dir.is_dir():
-        return 0
-    return len(list(migrations_dir.glob("*.up.sql")))
+        return []
+    versions: list[str] = []
+    for path in sorted(migrations_dir.glob("*.up.sql")):
+        # 20261007235756_baseline.up.sql → 20261007235756_baseline
+        versions.append(path.name.removesuffix(".up.sql"))
+    return versions
 
 
-def clean_error(log: str) -> str:
-    """Collapse atlas CLI noise into one short error message."""
-    detail = ""
-    err = ""
-    other: list[str] = []
+def version_list(versions: list[str]) -> list[str]:
+    n = len(versions)
+    show = versions if n <= 20 else versions[:10]
+    lines = [f"- `{v}`" for v in show]
+    if n > 20:
+        lines.append(f"- …and {n - 10} more")
+    return lines
+
+
+def atlas_error_block(log: str) -> list[str]:
+    """Atlas CLI text with leading whitespace stripped; keep wording/order."""
+    lines: list[str] = []
     for raw in log.splitlines():
         line = raw.strip()
-        if not line:
-            continue
-        if line.startswith("You have a checksum error"):
-            continue
-        if line.startswith("Please check your migration files"):
-            continue
-        m = SUM_LINE.match(line)
-        if m:
-            detail = m.group(1)
-            continue
-        if line.startswith("Error: "):
-            err = line.removeprefix("Error: ")
-            continue
-        other.append(line)
-
-    if err and detail:
-        return f"{err}: {detail}"
-    if err:
-        return err
-    if detail:
-        return detail
-    if other:
-        return "\n".join(other[-40:])
-    return "No atlas output captured."
+        if line:
+            lines.append(line)
+    if not lines:
+        return ["No atlas output captured."]
+    return lines[-80:]
 
 
-def render(*, outcome: str, count: int, log: str) -> str | None:
+def render(*, outcome: str, versions: list[str], log: str) -> str | None:
     """Return sticky-comment markdown, or None to skip the comment."""
-    if outcome == "success" and count == 0:
+    n = len(versions)
+
+    if outcome == "success" and n == 0:
         return None
 
     parts = ["## Migration Status\n"]
+    label = "version" if n == 1 else "versions"
+
     if outcome != "success":
-        parts.append("❌ Failed\n")
+        parts.append(f"❌ Failed (**{n}** {label})\n")
+        if versions:
+            parts.extend(version_list(versions))
+            parts.append("")
         parts.append("```")
-        parts.append(clean_error(log))
+        parts.extend(atlas_error_block(log))
         parts.append("```\n")
         return "\n".join(parts)
 
-    parts.append("✅ Passed\n")
+    parts.append(f"✅ Passed (**{n}** {label})\n")
+    parts.extend(version_list(versions))
+    parts.append("")
     return "\n".join(parts)
 
 
@@ -102,8 +101,8 @@ def main() -> int:
     if args.log is not None and args.log.is_file():
         log = args.log.read_text(errors="replace")
 
-    count = migration_count(args.migrations_dir)
-    body = render(outcome=args.outcome, count=count, log=log)
+    versions = list_versions(args.migrations_dir)
+    body = render(outcome=args.outcome, versions=versions, log=log)
 
     if body is None:
         sys.stdout.write("No migrations detected\n")

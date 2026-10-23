@@ -264,7 +264,7 @@ atlas-lint:
 		exit 0; \
 	fi; \
 	cd db/atlas && $(ATLAS) migrate validate --env local --config file://atlas.hcl; \
-	echo "atlas-lint: passed"
+	echo "atlas-lint: passed ($$n version$$([ $$n -eq 1 ] || echo s))"
 
 ### Docker definitions
 .PHONY: docker-builder
