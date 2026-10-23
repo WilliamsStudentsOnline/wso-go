@@ -236,7 +236,7 @@ DOCKER := $(shell command -v docker 2>/dev/null)
 .PHONY: atlas-mysql-up
 atlas-mysql-up:
 	@if [ -z "$(DOCKER)" ]; then echo "docker not found in PATH"; exit 1; fi
-	@$(DOCKER) compose --progress quiet up -d --wait --quiet-pull mysql
+	@$(DOCKER) compose up -d --wait mysql
 	@$(DOCKER) exec -e MYSQL_PWD=$(ATLAS_MYSQL_ROOT_PASSWORD) wso-mysql \
 		mysql -uroot -e "CREATE DATABASE IF NOT EXISTS wso_atlas;"
 
