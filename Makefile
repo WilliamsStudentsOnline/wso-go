@@ -142,7 +142,11 @@ build-jobs-prod-linux:
 
 .PHONY: sync-prod
 sync-prod:
-	bash .github/scripts/open-sync-prod.sh
+	bash .github/scripts/open-sync-prod.sh $(SHA)
+
+.PHONY: check-prod-integrity
+check-prod-integrity:
+	bash .github/scripts/check-prod-integrity.sh
 
 ### Utility definitions
 .PHONY: clean
