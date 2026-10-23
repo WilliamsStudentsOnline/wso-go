@@ -1,4 +1,4 @@
-# Compose MySQL (Atlas tooling) + Redis (course scheduler / local deps)
+# for local dev
 services:
   mysql:
     image: mysql:8.0

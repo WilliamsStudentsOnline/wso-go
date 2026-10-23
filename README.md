@@ -17,7 +17,9 @@ Note: you must include a secrets file. So, run `cp config/secrets_example.yaml c
 
 ### Redis
 
-**NOTE**: As of November 2024, wso-go uses Redis for several non-critical database tables, such as saved classes in the course scheduler. For most cases, this is not important, but if you intend to develop for these features, start Redis with `docker compose up -d redis` (or `make run-dev-redis` to start Redis and the API). Local tests that need Redis skip when nothing is listening on `:6379`. Redis tests use a throwaway DB (see `lib/redis_util/database_ids.go`).
+**NOTE**: As of November 2024, wso-go uses Redis for several non-critical database tables, such as saved classes in the course scheduler. For most cases, this is not important, but if you intend to develop for these features, deploy Redis with `make run-dev-redis`. Local dev will skip tests that exercise Redis when it is not installed. Redis tests run on a throwaway DB (see `lib/redis_util/database_ids.go`).
+
+All data is lost when the command is re-run. For data persistence, edit the Makefile's definition of `docker-redis-dev` to use use the flag `-v /absolute/path/on/your/computer/:data` on the command `docker run` to dump data to a path of your choice.
 
 ### Grafana and Prometheus
 

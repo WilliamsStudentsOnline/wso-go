@@ -187,11 +187,6 @@ commit: jobs/dorms_update/cmd/data.go docs/docs.go fmt services/*/responses/*.go
 run-dev: $(BINARY_NAME)
 	./$(BINARY_NAME) --development
 
-.PHONY: run-dev-redis
-run-dev-redis: $(BINARY_NAME)
-	docker compose up -d --wait redis
-	./$(BINARY_NAME) --development
-
 # Skip the same packages as CI (.github/coverage-exclude.txt)
 ifdef IGNORE_SKIPS
 TEST_PKGS = $(shell go list ./...)
