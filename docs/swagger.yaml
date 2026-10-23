@@ -7497,6 +7497,9 @@ paths:
       summary: Get words
       tags:
       - words
+schemes:
+- https
+- http
 securityDefinitions:
   Bearer:
     in: header
