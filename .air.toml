@@ -3,9 +3,8 @@ root = "."
 tmp_dir = "tmp"
 
 [build]
-  bin = "./tmp/wso-backend"
   cmd = "go build -tags=jsoniter -o ./tmp/wso-backend ./server/cmd"
-  full_bin = "./tmp/wso-backend --development"
+  entrypoint = ["./tmp/wso-backend", "--development"]
   delay = 500
   exclude_dir = ["tmp", "docs", "vendor", "pics", "prod_files", ".git", "db/atlas", "db/seed", "db/migrations"]
   exclude_regex = ["_test\\.go"]
