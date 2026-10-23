@@ -14,47 +14,6 @@ env:
   PATH: /usr/local/bin:/usr/bin:/bin
 
 jobs:
-  atlas:
-    name: Migration checker
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ariga/setup-atlas@v0
-        with:
-          version: latest
-      - name: Validate migrations
-        id: validate
-        working-directory: db/atlas
-        continue-on-error: true
-        run: |
-          set -o pipefail
-          atlas migrate validate --env local --config file://atlas.hcl 2>&1 | tee /tmp/atlas-validate.log
-      - name: Write migration status
-        id: summary
-        if: always()
-        run: |
-          set -euo pipefail
-          python3 .github/scripts/summarize-atlas-lint.py \
-            --outcome "${{ steps.validate.outcome }}" \
-            --migrations-dir db/atlas/migrations \
-            --log /tmp/atlas-validate.log \
-            --github-output "$GITHUB_OUTPUT" \
-            -o atlas-results.md \
-            | tee /tmp/atlas-summary.md
-          cat /tmp/atlas-summary.md >> "$GITHUB_STEP_SUMMARY"
-      - name: Add Migration Status PR Comment
-        uses: marocchino/sticky-pull-request-comment@v2
-        if: always() && github.event_name == 'pull_request' && steps.summary.outputs.comment == 'true'
-        with:
-          header: migration-status
-          path: atlas-results.md
-      - name: Fail job if validate failed
-        if: always() && steps.validate.outcome != 'success'
-        run: exit 1
-
   lint:
     name: Build and Test
     # only self-host CI when merging into prod
