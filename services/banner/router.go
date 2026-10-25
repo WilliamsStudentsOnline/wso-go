@@ -17,14 +17,12 @@ func ensureClient(cfg *config.Config, log *zap.SugaredLogger) {
 	}
 }
 
-// SetupPublicRouter mounts the unauthenticated GET banner route.
 func SetupPublicRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) {
 	ensureClient(cfg, log)
 	c := NewController(db, cfg, log)
 	r.GET("", c.GetBanner)
 }
 
-// SetupAdminRouter mounts the admin-only POST banner route.
 func SetupAdminRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) {
 	ensureClient(cfg, log)
 	c := NewController(db, cfg, log)

@@ -9,6 +9,8 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
+const DefaultRedisAddr = "127.0.0.1:6379"
+
 var ErrRedisClientNotConfigured error = errors.New("no redis client configured")
 
 type RedisClient struct {
@@ -41,7 +43,7 @@ func SetupClient(url string, password string, databaseID int) (*RedisClient, err
 
 // Connect to a Redis database for testing
 func SetupRedisClientForTest() (*RedisClient, error) {
-	return SetupClient("localhost:6379", "", TestDatabaseID)
+	return SetupClient(DefaultRedisAddr, "", TestDatabaseID)
 }
 
 // Wrappers for Get/Set

@@ -18,7 +18,7 @@ var client *redis_util.RedisClient
 
 func ConfigureClient(addr string) error {
 	if addr == "" {
-		addr = "127.0.0.1:6379"
+		addr = redis_util.DefaultRedisAddr
 	}
 	var err error
 	client, err = redis_util.SetupClient(addr, "", redis_util.BannerDatabaseID)
@@ -35,15 +35,12 @@ type Controller struct {
 	services.BaseController
 }
 
-// Banner types from https://github.com/WilliamsStudentsOnline/wso-go/issues/81
 const (
 	BannerTypeEmergency   = "emergency"
 	BannerTypePinned      = "pinned"
 	BannerTypeDismissible = "dismissible"
 )
 
-// Banner matches the homepage join-header fields in wso-react Homepage.tsx.
-// Visible controls whether the banner is shown; type/text/link/sub describe the notice.
 type Banner struct {
 	Visible bool   `json:"visible"`
 	Type    string `json:"type" binding:"omitempty,oneof=emergency pinned dismissible"`
@@ -60,7 +57,7 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 
 // GetBanner godoc
 // @Summary Get homepage banner
-// @Description get the current homepage join-header banner (public)
+// @Description get the contents and visibility of the banner displayed on the homepage
 // @ID getBanner
 // @Tags banner
 // @Accept json
@@ -100,7 +97,7 @@ func (t *Controller) GetBanner(c *gin.Context) {
 
 // SetBanner godoc
 // @Summary Set homepage banner
-// @Description set the homepage join-header banner (admin only). Set visible=false to hide.
+// @Description set the contents and visibility of the banner displayed on the homepage
 // @ID setBanner
 // @Tags banner
 // @Accept json

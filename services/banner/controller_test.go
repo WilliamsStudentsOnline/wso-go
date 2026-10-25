@@ -39,9 +39,9 @@ func TestBanner_PostRequiresAdmin(t *testing.T) {
 	params := banner.Banner{
 		Visible: true,
 		Type:    banner.BannerTypePinned,
-		Text:    "WSO Wants Your Art!",
-		Link:    "https://wso.williams.edu/bulletins/announcement/9234",
-		Sub:     "Click for info",
+		Text:    "banner title",
+		Link:    "https://example.com/banner",
+		Sub:     "banner subtitle",
 	}
 	payload, err := json.Marshal(params)
 	assert.NoError(err)
@@ -54,7 +54,6 @@ func TestBanner_PostRequiresAdmin(t *testing.T) {
 func TestBanner_GetIsPublic(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	// No admin scope — GET should still succeed
 	router := utils.SetupRouter()
 	cfg := utils.SetupConfig()
 	log := zaptest.NewLogger(t).Sugar()
@@ -86,9 +85,9 @@ func TestBanner_RedisSetAndGet(t *testing.T) {
 	params := banner.Banner{
 		Visible: true,
 		Type:    banner.BannerTypePinned,
-		Text:    "WSO Wants Your Art!",
-		Link:    "https://wso.williams.edu/bulletins/announcement/9234",
-		Sub:     "Click for info",
+		Text:    "banner title",
+		Link:    "https://example.com/banner",
+		Sub:     "banner subtitle",
 	}
 	payload, err := json.Marshal(params)
 	assert.NoError(err)

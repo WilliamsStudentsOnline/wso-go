@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/WilliamsStudentsOnline/wso-go/lib/redis_util"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/search"
 	"github.com/gin-gonic/gin"
 	"github.com/imdario/mergo"
@@ -339,7 +340,7 @@ func SetupConfig(c *Config) error {
 	}
 
 	if c.RedisAddr == "" {
-		c.RedisAddr = "127.0.0.1:6379"
+		c.RedisAddr = redis_util.DefaultRedisAddr
 	}
 
 	if c.EnableTLS && (c.TLSKeyPath == "" || c.TLSCertPath == "") {

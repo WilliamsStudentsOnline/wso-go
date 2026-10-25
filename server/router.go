@@ -137,7 +137,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 	// Initialize words endpoint
 	wordsService.SetupRouter(r.Group("/api/v2/words"), db, cfg, log.Named("words"))
 
-	// Homepage banner (public GET; POST is mounted under authenticated routes below)
+	// Initialize public banner endpoint
 	bannerService.SetupPublicRouter(r.Group("/api/v2/banner"), db, cfg, log.Named("banner"))
 
 	// Run API docs if it is enabled
@@ -179,7 +179,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 		adminGroup.Use(auth.RequireScopes(auth.ScopeAdminAll))
 		adminService.SetupRouter(adminGroup, db, cfg, log.Named("admin"))
 
-		// Homepage banner (admin POST; GET is public above)
+		// Homepage banner updates
 		bannerService.SetupAdminRouter(v2.Group("/banner"), db, cfg, log.Named("banner"))
 
 		// Factrak Service
