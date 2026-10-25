@@ -128,9 +128,7 @@ make publish-api
 
 This creates and pushes a tagged release `openapi-vYYYY.MM.DD` (suffixed for multiple changes in the same day). This step is only needed when you wish to update the published API for downstream consumers.
 
-Artifacts: `https://github.com/WilliamsStudentsOnline/wso-go/releases/download/openapi-vYYYY.MM.DD/openapi.yaml`
-
-<!-- TODO: document api-client + consumer update steps once those workflows land -->
+Artifacts are available at: `https://github.com/WilliamsStudentsOnline/wso-go/releases/download/openapi-vYYYY.MM.DD/openapi.yaml`
 
 ### Grafana
 Analytics are available at port `:9092`!
