@@ -2465,7 +2465,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: get the current homepage join-header banner (public)
+      description: get the contents and visibility of the banner displayed on the
+        homepage
       operationId: getBanner
       produces:
       - application/json
@@ -2484,8 +2485,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: set the homepage join-header banner (admin only). Set visible=false
-        to hide.
+      description: set the contents and visibility of the banner displayed on the
+        homepage
       operationId: setBanner
       parameters:
       - description: Banner fields

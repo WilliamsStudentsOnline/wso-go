@@ -584,7 +584,7 @@
         },
         "/banner": {
             "get": {
-                "description": "get the current homepage join-header banner (public)",
+                "description": "get the contents and visibility of the banner displayed on the homepage",
                 "consumes": [
                     "application/json"
                 ],
@@ -617,7 +617,7 @@
                         "Bearer": []
                     }
                 ],
-                "description": "set the homepage join-header banner (admin only). Set visible=false to hide.",
+                "description": "set the contents and visibility of the banner displayed on the homepage",
                 "consumes": [
                     "application/json"
                 ],
