@@ -26,6 +26,7 @@ import (
 	authIdentService "github.com/WilliamsStudentsOnline/wso-go/services/auth/identity"
 	authOldService "github.com/WilliamsStudentsOnline/wso-go/services/auth/old"
 	autocompleteService "github.com/WilliamsStudentsOnline/wso-go/services/autocomplete"
+	bannerService "github.com/WilliamsStudentsOnline/wso-go/services/banner"
 
 	booktrakService "github.com/WilliamsStudentsOnline/wso-go/services/booktrak"
 	bulletinService "github.com/WilliamsStudentsOnline/wso-go/services/bulletin"
@@ -136,6 +137,9 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 	// Initialize words endpoint
 	wordsService.SetupRouter(r.Group("/api/v2/words"), db, cfg, log.Named("words"))
 
+	// Homepage banner (public GET; POST is mounted under authenticated routes below)
+	bannerService.SetupPublicRouter(r.Group("/api/v2/banner"), db, cfg, log.Named("banner"))
+
 	// Run API docs if it is enabled
 	// NOTE: This currently requires no JWT to access.
 	if cfg.EnableAPIDocs {
@@ -174,6 +178,9 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 		adminGroup := v2.Group("/admin")
 		adminGroup.Use(auth.RequireScopes(auth.ScopeAdminAll))
 		adminService.SetupRouter(adminGroup, db, cfg, log.Named("admin"))
+
+		// Homepage banner (admin POST; GET is public above)
+		bannerService.SetupAdminRouter(v2.Group("/banner"), db, cfg, log.Named("banner"))
 
 		// Factrak Service
 		factrakGroup := v2.Group("/factrak")

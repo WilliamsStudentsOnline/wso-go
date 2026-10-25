@@ -70,3 +70,7 @@ func (client *RedisClient) SetWithExpiration(ctx context.Context, key string, va
 func GetUserSelectionStr(userID uint) string {
 	return "user-selection:" + strconv.FormatUint(uint64(userID), 10)
 }
+
+func GetHomepageBannerKey() string {
+	return "homepage:banner"
+}
