@@ -17,3 +17,7 @@ codegen:
           - docs/swagger.yaml
           - .github/scripts/publish-api.sh
           - .github/workflows/openapi-release.yml
+          - .spectral.yaml
+          - .github/scripts/check-openapi.sh
+          - .github/scripts/format-openapi-comment.py
+          - .github/workflows/openapi.yml

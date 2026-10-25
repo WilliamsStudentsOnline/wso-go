@@ -133,3 +133,7 @@ CURSOR.md
 # local dev
 tmp/
 .env
+
+# OpenAPI CI artifacts
+openapi-results/
+openapi-comment.md
