@@ -1,7 +1,6 @@
-name: OpenAPI contract release
+name: API contract release
 
-# Cut a contract for clients with:
-#   git tag openapi-v2026.10.08 && git push origin openapi-v2026.10.08
+# Triggered by openapi-v* tags. Prefer a workflow_dispatch publisher that creates the dated tag.
 # Asset URL:
 #   https://github.com/WilliamsStudentsOnline/wso-go/releases/download/<tag>/openapi.yaml
 
@@ -25,7 +24,6 @@ jobs:
           set -euo pipefail
           test -f docs/swagger.yaml
           cp docs/swagger.yaml openapi.yaml
-          # handy for tools that prefer JSON
           if [[ -f docs/swagger.json ]]; then
             cp docs/swagger.json openapi.json
           fi
@@ -38,11 +36,11 @@ jobs:
             openapi.json
           generate_release_notes: false
           body: |
-            OpenAPI contract for WSO API clients.
+            Published API contract for downstream clients (web, mobile).
 
-            - `openapi.yaml` — canonical (copy of `docs/swagger.yaml` at this tag)
+            - `openapi.yaml` — canonical (`docs/swagger.yaml` at this tag)
             - `openapi.json` — same spec as JSON
 
-            Clients should pin this tag (e.g. regenerate `wso-api-client` from the asset URL).
+            Consumers regenerate from this release; pinning the tag avoids drifting with master.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

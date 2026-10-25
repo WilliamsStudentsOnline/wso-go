@@ -118,20 +118,18 @@ API Endpoints are documented at `localhost:8080/docs`, and in the director `docs
 look at controller comments for any endpoint info. Don't use the provided query tools, bc they don't play nice 
 with our authentication.
 
-### OpenAPI contract releases
+### API updates
 
-To publish a pinned contract for API clients (TS/iOS codegen), tag master (or the commit whose `docs/swagger.yaml` you want) and push:
+To make API changes (e.g. new/deleted endpoints, permission changes, or changes to input/output schemas) available to downstream consumers (e.g. web, mobile), you must publish the API contract. To do this, run:
 
 ```bash
 git tag openapi-v2026.10.08
 git push origin openapi-v2026.10.08
 ```
 
-GitHub Actions attaches `openapi.yaml` (and `openapi.json`) to the release. Download URL:
+This step is not needed for most PRs, and can include multiple unrelated API updates. The generated artifacts are available at
 
-`https://github.com/WilliamsStudentsOnline/wso-go/releases/download/openapi-v2026.10.08/openapi.yaml`
-
-Only cut these when clients should regenerate — not on every master merge.
+`https://github.com/WilliamsStudentsOnline/wso-go/releases/download/openapi-vYYYY.MM.DD/openapi.yaml` (or .json)
 
 ### Grafana
 Analytics are available at port `:9092`!
