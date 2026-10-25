@@ -33,8 +33,8 @@ def freshness_line(status_path: Path) -> str:
         return "❓ Docs freshness: not run"
     status = status_path.read_text().strip()
     if status == "pass":
-        return "✅ Docs in sync with swag"
-    return "❌ Docs out of date — run `make api` and commit"
+        return "✅ API documentation is in sync!"
+    return "❌ API documentation is out of date: run `make api`, commit, and re-push"
 
 
 def breaking_section(status_path: Path, report_path: Path, base_ref: str) -> list[str]:
@@ -90,9 +90,8 @@ def publish_nudge(*, has_api_delta: bool) -> list[str]:
         return []
     return [
         "",
-        "> Downstream clients will not see these API changes until someone publishes "
-        "the contract from the commit you want (`make publish-api` on that commit, "
-        "usually `master` after merge).",
+        "> **NOTE:** Downstream clients will not see these API changes yet! "
+        "See README for next steps.",
     ]
 
 
