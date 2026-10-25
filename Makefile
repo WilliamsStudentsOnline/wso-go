@@ -26,7 +26,7 @@ else
 	$(warning $(GOIMPORTS_ERROR))
 endif
 
-# Publish origin/master contract (must be on clean master == origin/master)
+# Publish docs/swagger.yaml as a GitHub Release asset (openapi-vYYYY.MM.DD[-N])
 .PHONY: publish-api
 publish-api:
 	.github/scripts/publish-api.sh

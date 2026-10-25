@@ -19,7 +19,7 @@ if [[ -n "$(git status --porcelain)" ]]; then
 fi
 
 if [[ ! -f docs/swagger.yaml ]]; then
-  echo "error: docs/swagger.yaml missing — run make api and commit on master first" >&2
+  echo "error: docs/swagger.yaml missing. this should not happen!" >&2
   exit 1
 fi
 
