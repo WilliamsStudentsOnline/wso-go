@@ -55,14 +55,14 @@ def breaking_section(status_path: Path, report_path: Path, base_ref: str) -> lis
     return lines
 
 
-def changelog_section(changelog_json: Path, *, breaking_ok: bool) -> list[str]:
+def changelog_section(changelog_json: Path, *, breaking_ok: bool) -> tuple[list[str], bool]:
     data = load_json(changelog_json)
     if data is None:
-        return []
+        return [], False
     if not data:
         if breaking_ok:
-            return ["", "_No API changelog vs base._"]
-        return []
+            return ["", "_No API changelog vs base._"], False
+        return [], False
 
     lines = [
         "",
@@ -82,7 +82,18 @@ def changelog_section(changelog_json: Path, *, breaking_ok: bool) -> list[str]:
     if len(data) > 40:
         lines.append(f"- …and {len(data) - 40} more")
     lines.extend(["", "</details>"])
-    return lines
+    return lines, True
+
+
+def publish_nudge(*, has_api_delta: bool) -> list[str]:
+    if not has_api_delta:
+        return []
+    return [
+        "",
+        "> Downstream clients will not see these API changes until someone publishes "
+        "the contract from the commit you want (`make publish-api` on that commit, "
+        "usually `master` after merge).",
+    ]
 
 
 def render(results_dir: Path, base_ref: str) -> str:
@@ -90,6 +101,12 @@ def render(results_dir: Path, base_ref: str) -> str:
     status_path = results_dir / "breaking.status"
     if status_path.is_file():
         breaking_status = status_path.read_text().strip()
+
+    changelog_lines, has_changelog = changelog_section(
+        results_dir / "changelog.json",
+        breaking_ok=breaking_status == "pass",
+    )
+    has_api_delta = has_changelog or (breaking_status == "fail")
 
     parts = [
         "## OpenAPI",
@@ -104,12 +121,8 @@ def render(results_dir: Path, base_ref: str) -> str:
             base_ref,
         )
     )
-    parts.extend(
-        changelog_section(
-            results_dir / "changelog.json",
-            breaking_ok=breaking_status == "pass",
-        )
-    )
+    parts.extend(changelog_lines)
+    parts.extend(publish_nudge(has_api_delta=has_api_delta))
     parts.append("")
     return "\n".join(parts)
 
