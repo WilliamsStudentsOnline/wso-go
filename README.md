@@ -118,6 +118,18 @@ API Endpoints are documented at `localhost:8080/docs`, and in the director `docs
 look at controller comments for any endpoint info. Don't use the provided query tools, bc they don't play nice 
 with our authentication.
 
+### API updates
+
+To make API changes (e.g. new/deleted endpoints, permission changes, or changes to input/output schemas) available to downstream consumers (e.g. web, mobile), you must publish the API contract from the commit you want clients to see (usually `master`):
+
+```bash
+make publish-api
+```
+
+This creates and pushes a tagged release `openapi-vYYYY.MM.DD` (suffixed for multiple changes in the same day). This step is only needed when you wish to update the published API for downstream consumers.
+
+Artifacts are available at: `https://github.com/WilliamsStudentsOnline/wso-go/releases/download/openapi-vYYYY.MM.DD/openapi.yaml`
+
 ### Grafana
 Analytics are available at port `:9092`!
 

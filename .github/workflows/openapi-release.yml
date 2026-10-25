@@ -1,0 +1,44 @@
+name: API contract release
+
+# Triggered by openapi-v* tags from `make publish-api`
+
+on:
+  push:
+    tags:
+      - "openapi-v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Attach openapi.yaml
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Stage release asset
+        run: |
+          set -euo pipefail
+          test -f docs/swagger.yaml
+          cp docs/swagger.yaml openapi.yaml
+          if [[ -f docs/swagger.json ]]; then
+            cp docs/swagger.json openapi.json
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            openapi.yaml
+            openapi.json
+          generate_release_notes: false
+          body: |
+            Published API contract for downstream clients (web, mobile).
+
+            - `openapi.yaml` — canonical (`docs/swagger.yaml` at this tag)
+            - `openapi.json` — same spec as JSON
+
+            Consumers regenerate from this release; pinning the tag avoids drifting with master.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

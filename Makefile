@@ -26,6 +26,11 @@ else
 	$(warning $(GOIMPORTS_ERROR))
 endif
 
+# Publish docs/swagger.yaml as a GitHub Release asset (openapi-vYYYY.MM.DD[-N])
+.PHONY: publish-api
+publish-api:
+	.github/scripts/publish-api.sh
+
 services/*/responses/%.go: services/*/responses/%.json
 	go run $(GIT_REPO)/lib/generate/service_responses/cmd -in $< -out $@
 

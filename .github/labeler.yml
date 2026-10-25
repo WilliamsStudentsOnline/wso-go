@@ -15,3 +15,5 @@ codegen:
           - docs/docs.go
           - docs/swagger.json
           - docs/swagger.yaml
+          - .github/scripts/publish-api.sh
+          - .github/workflows/openapi-release.yml
