@@ -16,6 +16,23 @@ definitions:
       value:
         type: string
     type: object
+  banner.Banner:
+    properties:
+      link:
+        type: string
+      sub:
+        type: string
+      text:
+        type: string
+      type:
+        enum:
+        - emergency
+        - pinned
+        - dismissible
+        type: string
+      visible:
+        type: boolean
+    type: object
   booktrak.CreateBookListingParams:
     properties:
       bookID:
@@ -2444,6 +2461,59 @@ paths:
       summary: Autocomplete tag
       tags:
       - autocomplete
+  /banner:
+    get:
+      consumes:
+      - application/json
+      description: get the current homepage join-header banner (public)
+      operationId: getBanner
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/banner.Banner'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      summary: Get homepage banner
+      tags:
+      - banner
+    post:
+      consumes:
+      - application/json
+      description: set the homepage join-header banner (admin only). Set visible=false
+        to hide.
+      operationId: setBanner
+      parameters:
+      - description: Banner fields
+        in: body
+        name: banner
+        required: true
+        schema:
+          $ref: '#/definitions/banner.Banner'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/banner.Banner'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Set homepage banner
+      tags:
+      - banner
   /books/{bookID}:
     get:
       consumes:
