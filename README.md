@@ -126,9 +126,11 @@ To make API changes (e.g. new/deleted endpoints, permission changes, or changes 
 make publish-api
 ```
 
-That tags `openapi-vYYYY.MM.DD` (or `-2`, `-3`, … if you publish again the same day) and pushes it. CI attaches `openapi.yaml` / `openapi.json` to the GitHub Release. This step is not needed for most PRs, and one publish can cover multiple unrelated API updates.
+This creates and pushes a tagged release `openapi-vYYYY.MM.DD` (suffixed for multiple changes in the same day). This step is only needed when you wish to update the published API for downstream consumers.
 
 Artifacts: `https://github.com/WilliamsStudentsOnline/wso-go/releases/download/openapi-vYYYY.MM.DD/openapi.yaml`
+
+<!-- TODO: document api-client + consumer update steps once those workflows land -->
 
 ### Grafana
 Analytics are available at port `:9092`!
