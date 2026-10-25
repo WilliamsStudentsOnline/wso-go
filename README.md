@@ -120,7 +120,7 @@ with our authentication.
 
 ### API updates
 
-To make API changes (e.g. new/deleted endpoints, permission changes, or changes to input/output schemas) available to downstream consumers (e.g. web, mobile), you must publish the API contract from the commit you want clients to see (usually `master`):
+To make API changes (e.g. new/deleted endpoints, permission changes, or changes to input/output schemas) available to downstream consumers (e.g. web, mobile), merge them to `master`, then on a clean local up-to-date `master` run:
 
 ```bash
 make publish-api
