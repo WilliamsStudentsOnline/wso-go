@@ -16,8 +16,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Stage release asset
+      - uses: actions/setup-go@v4
+        with:
+          go-version-file: "go.mod"
+          cache-dependency-path: "**/*.sum"
+
+      - name: Add Go bin to PATH
+        run: echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+      - name: Install oasdiff
+        run: go install github.com/tufin/oasdiff@v1.10.8
+
+      - name: Stage release asset + release notes
+        id: notes
         run: |
           set -euo pipefail
           test -f docs/swagger.yaml
@@ -26,6 +40,79 @@ jobs:
             cp docs/swagger.json openapi.json
           fi
 
+          tag="${GITHUB_REF_NAME}"
+          sha="$(git rev-parse --short HEAD)"
+
+          # previous openapi-v* tag (by version sort), if any
+          prev="$(git tag -l 'openapi-v*' --sort=-v:refname | grep -vxF "$tag" | head -n1 || true)"
+
+          {
+            echo "## API contract \`${tag}\`"
+            echo
+            echo "Commit: \`${sha}\` on master"
+            echo
+            echo "Artifacts: \`openapi.yaml\`, \`openapi.json\`"
+            echo
+          } > release-body.md
+
+          if [[ -z "$prev" ]]; then
+            {
+              echo "_Initial published contract (no previous \`openapi-v*\` tag to diff)._"
+              echo
+            } >> release-body.md
+          else
+            mkdir -p /tmp/oas
+            if git cat-file -e "${prev}:docs/swagger.yaml" 2>/dev/null; then
+              git show "${prev}:docs/swagger.yaml" > /tmp/oas/base.yaml
+            else
+              echo "_Could not load docs/swagger.yaml from ${prev}; skipping diff._" >> release-body.md
+              prev=""
+            fi
+          fi
+
+          if [[ -n "$prev" ]]; then
+            {
+              echo "### Changes since \`${prev}\`"
+              echo
+            } >> release-body.md
+
+            set +e
+            oasdiff breaking /tmp/oas/base.yaml openapi.yaml --fail-on ERR --format text \
+              > /tmp/oas/breaking.txt 2>&1
+            breaking_rc=$?
+            oasdiff changelog /tmp/oas/base.yaml openapi.yaml --format text \
+              > /tmp/oas/changelog.txt 2>&1
+            set -e
+
+            if [[ "$breaking_rc" -eq 0 ]]; then
+              echo "**Breaking:** none" >> release-body.md
+            else
+              echo "**Breaking:**" >> release-body.md
+              echo '```' >> release-body.md
+              head -c 8000 /tmp/oas/breaking.txt >> release-body.md
+              echo >> release-body.md
+              echo '```' >> release-body.md
+            fi
+            echo >> release-body.md
+
+            if [[ -s /tmp/oas/changelog.txt ]]; then
+              echo "**Changelog:**" >> release-body.md
+              echo '```' >> release-body.md
+              head -c 12000 /tmp/oas/changelog.txt >> release-body.md
+              echo >> release-body.md
+              echo '```' >> release-body.md
+            else
+              echo "_No changelog entries from oasdiff._" >> release-body.md
+            fi
+            echo >> release-body.md
+          fi
+
+          {
+            echo "Clients: regenerate from this release (\`wso-api-client\` codegen workflow, or \`python3 scripts/generate.py --tag ${tag}\`)."
+          } >> release-body.md
+
+          cat release-body.md
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -33,12 +120,6 @@ jobs:
             openapi.yaml
             openapi.json
           generate_release_notes: false
-          body: |
-            Published API contract for downstream clients (web, mobile).
-
-            - `openapi.yaml` — canonical (`docs/swagger.yaml` at this tag)
-            - `openapi.json` — same spec as JSON
-
-            Consumers regenerate from this release; pinning the tag avoids drifting with master.
+          body_path: release-body.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
