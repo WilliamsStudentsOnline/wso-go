@@ -1,6 +1,6 @@
 name: API contract release
 
-# Triggered by openapi-v* tags. Prefer a workflow_dispatch publisher that creates the dated tag.
+# Triggered by openapi-v* tags from `make publish-api` (dated tag + push).
 # Asset URL:
 #   https://github.com/WilliamsStudentsOnline/wso-go/releases/download/<tag>/openapi.yaml
 

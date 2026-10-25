@@ -120,16 +120,15 @@ with our authentication.
 
 ### API updates
 
-To make API changes (e.g. new/deleted endpoints, permission changes, or changes to input/output schemas) available to downstream consumers (e.g. web, mobile), you must publish the API contract. To do this, run:
+To make API changes (e.g. new/deleted endpoints, permission changes, or changes to input/output schemas) available to downstream consumers (e.g. web, mobile), you must publish the API contract from the commit you want clients to see (usually `master`):
 
 ```bash
-git tag openapi-v2026.10.08
-git push origin openapi-v2026.10.08
+make publish-api
 ```
 
-This step is not needed for most PRs, and can include multiple unrelated API updates. The generated artifacts are available at
+That tags `openapi-vYYYY.MM.DD` (or `-2`, `-3`, … if you publish again the same day) and pushes it. CI attaches `openapi.yaml` / `openapi.json` to the GitHub Release. This step is not needed for most PRs, and one publish can cover multiple unrelated API updates.
 
-`https://github.com/WilliamsStudentsOnline/wso-go/releases/download/openapi-vYYYY.MM.DD/openapi.yaml` (or .json)
+Artifacts: `https://github.com/WilliamsStudentsOnline/wso-go/releases/download/openapi-vYYYY.MM.DD/openapi.yaml`
 
 ### Grafana
 Analytics are available at port `:9092`!
