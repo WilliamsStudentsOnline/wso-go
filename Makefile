@@ -31,11 +31,11 @@ endif
 publish-api:
 	.github/scripts/publish-api.sh
 
-# OpenAPI contract checks (swag freshness + Spectral + oasdiff). See .github/scripts/check-openapi.sh
+# API contract: make api (regen) / make check-api (swag freshness + Spectral + oasdiff)
 OPENAPI_BASE_REF ?= origin/master
 
-.PHONY: openapi-docs
-openapi-docs:
+.PHONY: api
+api:
 ifndef SWAGGER
 	$(error swag not found; install with: go install github.com/swaggo/swag/cmd/swag@v1.16.3)
 endif
@@ -44,8 +44,8 @@ ifdef GOIMPORTS
 	goimports -w docs/docs.go
 endif
 
-.PHONY: check-openapi
-check-openapi:
+.PHONY: check-api
+check-api:
 	OPENAPI_BASE_REF=$(OPENAPI_BASE_REF) .github/scripts/check-openapi.sh
 
 services/*/responses/%.go: services/*/responses/%.json

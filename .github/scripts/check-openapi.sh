@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Regenerate OpenAPI via swag, lint with Spectral, and oasdiff against a base ref.
-# Writes openapi-results/ + openapi-comment.md for the sticky PR comment.
+# Regenerate OpenAPI via swag, lint with Spectral, and oasdiff against a base ref
+# Writes openapi-results/ + openapi-comment.md for the sticky PR comment
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -43,7 +43,7 @@ fi
 if ! diff -q "$SNAP_DIR/swagger.yaml" docs/swagger.yaml >/dev/null \
   || ! diff -q "$SNAP_DIR/swagger.json" docs/swagger.json >/dev/null \
   || ! diff -q "$SNAP_DIR/docs.go" docs/docs.go >/dev/null; then
-  echo "error: docs/ is out of date relative to swag. Run: make openapi-docs && commit the result" >&2
+  echo "error: docs/ is out of date relative to swag. Run: make api && commit the result" >&2
   diff -u "$SNAP_DIR/swagger.yaml" docs/swagger.yaml | head -n 100 || true
   cp "$SNAP_DIR/swagger.yaml" "$SNAP_DIR/swagger.json" "$SNAP_DIR/docs.go" docs/
   echo fail >"$RESULTS_DIR/freshness.status"

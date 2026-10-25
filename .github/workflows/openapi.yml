@@ -64,7 +64,7 @@ jobs:
         continue-on-error: true
         env:
           OPENAPI_BASE_REF: ${{ steps.base.outputs.ref }}
-        run: make check-openapi
+        run: make check-api
 
       - name: OpenAPI summary
         if: always()

@@ -34,7 +34,7 @@ def freshness_line(status_path: Path) -> str:
     status = status_path.read_text().strip()
     if status == "pass":
         return "✅ Docs in sync with swag"
-    return "❌ Docs out of date — run `make openapi-docs` and commit"
+    return "❌ Docs out of date — run `make api` and commit"
 
 
 def breaking_section(status_path: Path, report_path: Path, base_ref: str) -> list[str]:
@@ -70,7 +70,6 @@ def changelog_section(changelog_json: Path, *, breaking_ok: bool) -> list[str]:
         f"<summary><strong>Changelog ({len(data)})</strong></summary>",
         "",
     ]
-    # Prefer compact bullets; cap length so the sticky comment stays readable
     for item in data[:40]:
         level = {0: "error", 1: "warn", 2: "info", 3: "info"}.get(
             item.get("level"), "info"
