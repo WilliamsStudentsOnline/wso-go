@@ -189,7 +189,8 @@ var (
 	ErrorBookDoesNotMatchOnlineData = NewAPIError(2252, "book does not match online data")
 	ErrorBookCourseNotFound         = NewAPIError(2253, "passed courses don't all exist")
 
-	// 23** are Course Scheduler errors
+	// 23** are errors for Redis-based services
 	ErrorRedisClientNotConfigured        = NewAPIError(2300, "redis client not configured, is redis running locally?")
 	ErrorCourseSchedulerSelectionStrconv = NewAPIError(2310, "unable to assert course scheduler selection as string")
+	ErrorBannerUnmarshal                 = NewAPIError(2320, "unable to unmarshal banner from redis")
 )

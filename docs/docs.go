@@ -584,6 +584,86 @@ const docTemplate = `{
                 }
             }
         },
+        "/banner": {
+            "get": {
+                "description": "get the contents and visibility of the banner displayed on the homepage",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "banner"
+                ],
+                "summary": "Get homepage banner",
+                "operationId": "getBanner",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/banner.Banner"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "set the contents and visibility of the banner displayed on the homepage",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "banner"
+                ],
+                "summary": "Set homepage banner",
+                "operationId": "setBanner",
+                "parameters": [
+                    {
+                        "description": "Banner fields",
+                        "name": "banner",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/banner.Banner"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/banner.Banner"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/books/{bookID}": {
             "get": {
                 "security": [
@@ -8378,6 +8458,31 @@ const docTemplate = `{
                 },
                 "value": {
                     "type": "string"
+                }
+            }
+        },
+        "banner.Banner": {
+            "type": "object",
+            "properties": {
+                "link": {
+                    "type": "string"
+                },
+                "sub": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "emergency",
+                        "pinned",
+                        "dismissible"
+                    ]
+                },
+                "visible": {
+                    "type": "boolean"
                 }
             }
         },

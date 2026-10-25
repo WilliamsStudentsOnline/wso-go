@@ -16,7 +16,7 @@ var client *redis_util.RedisClient
 
 func ConfigureClient(addr string) error {
 	if addr == "" {
-		addr = "127.0.0.1:6379"
+		addr = redis_util.DefaultRedisAddr
 	}
 	var err error
 	client, err = redis_util.SetupClient(addr, "", redis_util.CourseSchedulerSelectionsDatabaseID)
