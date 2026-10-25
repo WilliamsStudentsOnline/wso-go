@@ -15,12 +15,19 @@ def load_json(path: Path):
     return json.loads(path.read_text())
 
 
-def spectral_line(spectral_json: Path) -> str:
+def spectral_stats(spectral_json: Path) -> tuple[int, int]:
     data = load_json(spectral_json)
     if data is None:
-        return "❓ Spectral: not run"
+        return -1, -1
     errors = sum(1 for x in data if x.get("severity") == 0)
     warnings = sum(1 for x in data if x.get("severity") == 1)
+    return errors, warnings
+
+
+def spectral_line(spectral_json: Path) -> str:
+    errors, warnings = spectral_stats(spectral_json)
+    if errors < 0:
+        return "❓ Spectral: not run"
     if errors:
         return f"❌ Spectral: **{errors} error(s)**, {warnings} warning(s)"
     if warnings:
@@ -45,23 +52,26 @@ def breaking_section(status_path: Path, report_path: Path, base_ref: str) -> lis
     report = report_path.read_text().strip() if report_path.is_file() else ""
     if status == "pass":
         lines.append(f"✅ No breaking changes vs `{base_ref}`")
-    else:
-        lines.append(f"❌ Breaking changes vs `{base_ref}`")
+    elif status == "allowed":
+        lines.append(
+            f"⚠️ Breaking changes vs `{base_ref}` "
+            f"(allowed via `allow-breaking-changes`)"
+        )
         if report:
-            lines.append("")
-            lines.append("```")
-            lines.append(report[:6000])
-            lines.append("```")
+            lines.extend(["", "```", report[:6000], "```"])
+    else:
+        lines.append(
+            f"❌ Breaking changes vs `{base_ref}`; "
+            f"use `allow-breaking-changes` to force these through"
+        )
+        if report:
+            lines.extend(["", "```", report[:6000], "```"])
     return lines
 
 
-def changelog_section(changelog_json: Path, *, breaking_ok: bool) -> tuple[list[str], bool]:
+def changelog_section(changelog_json: Path) -> tuple[list[str], bool]:
     data = load_json(changelog_json)
-    if data is None:
-        return [], False
-    if not data:
-        if breaking_ok:
-            return ["", "_No API changelog vs base._"], False
+    if data is None or not data:
         return [], False
 
     lines = [
@@ -95,17 +105,44 @@ def publish_nudge(*, has_api_delta: bool) -> list[str]:
     ]
 
 
-def render(results_dir: Path, base_ref: str) -> str:
+def should_post_comment(
+    *,
+    freshness: str,
+    spectral_errors: int,
+    breaking: str,
+    has_changelog: bool,
+) -> bool:
+    if freshness and freshness != "pass":
+        return True
+    if spectral_errors > 0:
+        return True
+    if breaking in ("fail", "allowed"):
+        return True
+    return has_changelog
+
+
+def render(results_dir: Path, base_ref: str) -> tuple[str, bool]:
+    freshness = ""
+    freshness_path = results_dir / "freshness.status"
+    if freshness_path.is_file():
+        freshness = freshness_path.read_text().strip()
+
     breaking_status = ""
     status_path = results_dir / "breaking.status"
     if status_path.is_file():
         breaking_status = status_path.read_text().strip()
 
-    changelog_lines, has_changelog = changelog_section(
-        results_dir / "changelog.json",
-        breaking_ok=breaking_status == "pass",
-    )
-    has_api_delta = has_changelog or (breaking_status == "fail")
+    spectral_errors, _ = spectral_stats(results_dir / "spectral.json")
+    changelog_lines, has_changelog = changelog_section(results_dir / "changelog.json")
+    has_api_delta = has_changelog or breaking_status in ("fail", "allowed")
+
+    if not should_post_comment(
+        freshness=freshness,
+        spectral_errors=max(spectral_errors, 0),
+        breaking=breaking_status,
+        has_changelog=has_changelog,
+    ):
+        return "", False
 
     parts = [
         "## OpenAPI",
@@ -123,7 +160,7 @@ def render(results_dir: Path, base_ref: str) -> str:
     parts.extend(changelog_lines)
     parts.extend(publish_nudge(has_api_delta=has_api_delta))
     parts.append("")
-    return "\n".join(parts)
+    return "\n".join(parts), True
 
 
 def main() -> int:
@@ -141,10 +178,18 @@ def main() -> int:
     parser.add_argument("-o", "--output", type=Path, help="Write markdown here")
     args = parser.parse_args()
 
-    body = render(args.results_dir, args.base_ref)
-    sys.stdout.write(body)
+    body, post = render(args.results_dir, args.base_ref)
     if args.output:
-        args.output.write_text(body)
+        if post:
+            args.output.write_text(body)
+        elif args.output.is_file():
+            args.output.unlink()
+        post_flag = args.results_dir / "comment.post"
+        post_flag.write_text("yes\n" if post else "no\n")
+    if post:
+        sys.stdout.write(body)
+    else:
+        sys.stdout.write("(no OpenAPI sticky — no API changelog or check failures)\n")
     return 0
 
 

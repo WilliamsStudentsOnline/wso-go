@@ -4,6 +4,7 @@ on:
     branches:
       - master
   pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
   merge_group:
 
 env:
@@ -12,6 +13,11 @@ env:
 jobs:
   openapi:
     name: Swag / Spectral / oasdiff
+    # Re-run when allow-breaking-changes is added/removed; ignore other label events
+    if: >
+      github.event_name != 'pull_request' ||
+      (github.event.action != 'labeled' && github.event.action != 'unlabeled') ||
+      github.event.label.name == 'allow-breaking-changes'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -64,6 +70,8 @@ jobs:
         continue-on-error: true
         env:
           OPENAPI_BASE_REF: ${{ steps.base.outputs.ref }}
+          # true when PR (or merge queue PR) has the allow-breaking-changes label
+          ALLOW_BREAKING_CHANGES: ${{ contains(join(github.event.pull_request.labels.*.name, ','), 'allow-breaking-changes') }}
         run: make check-api
 
       - name: OpenAPI summary
@@ -75,10 +83,24 @@ jobs:
 
       - name: Add OpenAPI PR Comment
         uses: marocchino/sticky-pull-request-comment@v2
-        if: always() && github.event_name == 'pull_request' && hashFiles('openapi-comment.md') != ''
+        if: >
+          always() &&
+          github.event_name == 'pull_request' &&
+          hashFiles('openapi-comment.md') != ''
         with:
           header: openapi
           path: openapi-comment.md
+
+      - name: Remove OpenAPI PR Comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        if: >
+          always() &&
+          github.event_name == 'pull_request' &&
+          hashFiles('openapi-comment.md') == '' &&
+          hashFiles('openapi-results/comment.post') != ''
+        with:
+          header: openapi
+          delete: true
 
       - name: Fail job if OpenAPI checks failed
         if: always() && steps.openapi.outcome != 'success'

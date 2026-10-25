@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 # Regenerate OpenAPI via swag, lint with Spectral, and oasdiff against a base ref
 # Writes openapi-results/ + openapi-comment.md for the sticky PR comment
+# Breaking failures are waived when ALLOW_BREAKING_CHANGES=1 (PR label allow-breaking-changes)
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
 OPENAPI_BASE_REF="${OPENAPI_BASE_REF:-origin/master}"
-SKIP_DIFF="${SKIP_OPENAPI_DIFF:-0}"
+ALLOW_BREAKING="${ALLOW_BREAKING_CHANGES:-0}"
 RESULTS_DIR="${OPENAPI_RESULTS_DIR:-openapi-results}"
 COMMENT_OUT="${OPENAPI_COMMENT_OUT:-openapi-comment.md}"
 
@@ -29,6 +30,7 @@ trap cleanup EXIT
 
 rm -rf "$RESULTS_DIR"
 mkdir -p "$RESULTS_DIR"
+rm -f "$COMMENT_OUT"
 failed=0
 
 echo "==> freshness check (docs must match swag output)"
@@ -68,42 +70,39 @@ if [[ "$spectral_rc" -ne 0 ]]; then
   spectral lint docs/swagger.yaml --ruleset .spectral.yaml --fail-severity=error || true
 fi
 
-if [[ "$SKIP_DIFF" == "1" ]]; then
-  echo "==> oasdiff skipped (SKIP_OPENAPI_DIFF=1)"
-  echo pass >"$RESULTS_DIR/breaking.status"
+echo "==> oasdiff vs ${OPENAPI_BASE_REF}"
+BASE_DIR="$(mktemp -d)"
+
+if ! git cat-file -e "${OPENAPI_BASE_REF}:docs/swagger.yaml" 2>/dev/null; then
+  echo "error: ${OPENAPI_BASE_REF}:docs/swagger.yaml not found (fetch the base ref?)" >&2
+  echo fail >"$RESULTS_DIR/breaking.status"
+  echo "base ref missing: ${OPENAPI_BASE_REF}" >"$RESULTS_DIR/breaking.txt"
   echo '[]' >"$RESULTS_DIR/changelog.json"
+  failed=1
 else
-  echo "==> oasdiff vs ${OPENAPI_BASE_REF}"
-  BASE_DIR="$(mktemp -d)"
+  git show "${OPENAPI_BASE_REF}:docs/swagger.yaml" >"$BASE_DIR/base.yaml"
 
-  if ! git cat-file -e "${OPENAPI_BASE_REF}:docs/swagger.yaml" 2>/dev/null; then
-    echo "error: ${OPENAPI_BASE_REF}:docs/swagger.yaml not found (fetch the base ref?)" >&2
-    echo fail >"$RESULTS_DIR/breaking.status"
-    echo "base ref missing: ${OPENAPI_BASE_REF}" >"$RESULTS_DIR/breaking.txt"
-    echo '[]' >"$RESULTS_DIR/changelog.json"
-    failed=1
+  set +e
+  oasdiff breaking "$BASE_DIR/base.yaml" docs/swagger.yaml --fail-on ERR --format text \
+    >"$RESULTS_DIR/breaking.txt" 2>&1
+  breaking_rc=$?
+  set -e
+  if [[ "$breaking_rc" -eq 0 ]]; then
+    echo pass >"$RESULTS_DIR/breaking.status"
+  elif [[ "$ALLOW_BREAKING" == "1" || "$ALLOW_BREAKING" == "true" ]]; then
+    echo "==> breaking changes waived (allow-breaking-changes)"
+    echo allowed >"$RESULTS_DIR/breaking.status"
   else
-    git show "${OPENAPI_BASE_REF}:docs/swagger.yaml" >"$BASE_DIR/base.yaml"
+    echo fail >"$RESULTS_DIR/breaking.status"
+    failed=1
+  fi
 
-    set +e
-    oasdiff breaking "$BASE_DIR/base.yaml" docs/swagger.yaml --fail-on ERR --format text \
-      >"$RESULTS_DIR/breaking.txt" 2>&1
-    breaking_rc=$?
-    set -e
-    if [[ "$breaking_rc" -eq 0 ]]; then
-      echo pass >"$RESULTS_DIR/breaking.status"
-    else
-      echo fail >"$RESULTS_DIR/breaking.status"
-      failed=1
-    fi
-
-    set +e
-    oasdiff changelog "$BASE_DIR/base.yaml" docs/swagger.yaml --format json \
-      >"$RESULTS_DIR/changelog.json" 2>/dev/null
-    set -e
-    if [[ ! -s "$RESULTS_DIR/changelog.json" ]]; then
-      echo '[]' >"$RESULTS_DIR/changelog.json"
-    fi
+  set +e
+  oasdiff changelog "$BASE_DIR/base.yaml" docs/swagger.yaml --format json \
+    >"$RESULTS_DIR/changelog.json" 2>/dev/null
+  set -e
+  if [[ ! -s "$RESULTS_DIR/changelog.json" ]]; then
+    echo '[]' >"$RESULTS_DIR/changelog.json"
   fi
 fi
 
@@ -112,8 +111,10 @@ python3 .github/scripts/format-openapi-comment.py \
   --base-ref "$OPENAPI_BASE_REF" \
   -o "$COMMENT_OUT"
 
-echo "==> wrote $COMMENT_OUT"
-cat "$COMMENT_OUT"
+echo "==> comment.post=$(tr -d '\n' <"$RESULTS_DIR/comment.post" 2>/dev/null || echo '?')"
+if [[ -f "$COMMENT_OUT" ]]; then
+  cat "$COMMENT_OUT"
+fi
 
 if [[ "$failed" -ne 0 ]]; then
   echo "==> openapi checks failed" >&2
