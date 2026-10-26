@@ -308,7 +308,9 @@ const docTemplate = `{
                     {
                         "enum": [
                             "FACTRAK_REVIEW",
-                            "NEW_USER_TAG"
+                            "NEW_USER_TAG",
+                            "BOARD_THREAD_REVIEW",
+                            "BOARD_POST_REVIEW"
                         ],
                         "type": "string",
                         "description": "Filter by task type",
@@ -1302,6 +1304,65 @@ const docTemplate = `{
                 }
             }
         },
+        "/board/replies/{replyID}/flag": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "creates a BOARD_POST_REVIEW moderator task for the post",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "board"
+                ],
+                "summary": "Flag a board reply",
+                "operationId": "flagBoardReply",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Reply ID",
+                        "name": "replyID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/board/threads": {
             "get": {
                 "security": [
@@ -1520,6 +1581,65 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.BoardThread"
+                        }
+                    }
+                }
+            }
+        },
+        "/board/threads/{threadID}/flag": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "creates a BOARD_THREAD_REVIEW moderator task for the thread",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "board"
+                ],
+                "summary": "Flag a board thread",
+                "operationId": "flagBoardThread",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Thread ID",
+                        "name": "threadID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     }
                 }
@@ -11786,12 +11906,16 @@ const docTemplate = `{
             "enum": [
                 "",
                 "FACTRAK_REVIEW",
-                "NEW_USER_TAG"
+                "NEW_USER_TAG",
+                "BOARD_THREAD_REVIEW",
+                "BOARD_POST_REVIEW"
             ],
             "x-enum-varnames": [
                 "ModeratorTaskTypeUndefined",
                 "ModeratorTaskTypeFactrakReview",
-                "ModeratorTaskTypeNewUserTag"
+                "ModeratorTaskTypeNewUserTag",
+                "ModeratorTaskTypeBoardThreadReview",
+                "ModeratorTaskTypeBoardPostReview"
             ]
         },
         "models.Neighborhood": {
