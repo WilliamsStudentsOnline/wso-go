@@ -26,12 +26,20 @@ type GetAllModeratorTasksOptions struct {
 	TaskReference *string            `json:"taskReference" form:"taskReference"`
 	// leave empty to filter only open tasks
 	ResolvedAt *time.Time `json:"resolvedAt" form:"resolvedAt"`
+	// omit or taskReference to group siblings; createdAt for newest-first
+	OrderBy string `json:"orderBy" form:"orderBy" enums:",taskReference,createdAt"`
 
 	Preload []string `json:"preload" form:"preload[]" enums:",requestingUser,resolvedByUser"`
 }
 
 func (o *GetAllModeratorTasksOptions) Order(db *gorm.DB) *gorm.DB {
-	return db.Order("moderator_tasks.created_at DESC", true)
+	switch o.OrderBy {
+	case "createdAt":
+		return db.Order("moderator_tasks.created_at DESC", true)
+	default:
+		// taskReference (default): keep same-subject rows adjacent
+		return db.Order("moderator_tasks.task_reference ASC, moderator_tasks.created_at ASC", true)
+	}
 }
 
 func (o *GetAllModeratorTasksOptions) Paginate(db *gorm.DB) *gorm.DB {
@@ -107,7 +115,8 @@ func (m *ModeratorTaskModel) GetAllTasks(tasks *[]*ModeratorTask, opts *GetAllMo
 		db = opts.Paginate(db)
 		db = opts.Run(db)
 	} else {
-		db = db.Where("moderator_tasks.resolved_at IS NULL").Order("moderator_tasks.created_at DESC", true)
+		db = db.Where("moderator_tasks.resolved_at IS NULL").
+			Order("moderator_tasks.task_reference ASC, moderator_tasks.created_at ASC", true)
 	}
 	return db.Find(tasks).Error
 }

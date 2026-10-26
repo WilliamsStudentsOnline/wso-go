@@ -108,6 +108,32 @@ func TestModeratorTaskModel_SoftDeleteOpenTasksByTaskReference(t *testing.T) {
 	assert.Equal(1, count)
 }
 
+func TestModeratorTaskModel_GetAllTasks_OrderBy(t *testing.T) {
+	assert := assert.New(t)
+	db := utils.SetupServiceTest(assert)
+	m := NewModeratorTaskModel(db, zap.NewNop().Sugar())
+
+	uid := uint(1)
+	older, err := NewFactrakReviewTask(&uid, 2)
+	require.NoError(t, err)
+	require.NoError(t, m.CreateTask(older))
+	newer, err := NewFactrakReviewTask(&uid, 1)
+	require.NoError(t, err)
+	require.NoError(t, m.CreateTask(newer))
+
+	var byRef []*ModeratorTask
+	require.NoError(t, m.GetAllTasks(&byRef, &GetAllModeratorTasksOptions{}))
+	require.Len(t, byRef, 2)
+	assert.Equal(newer.ID, byRef[0].ID)
+	assert.Equal(older.ID, byRef[1].ID)
+
+	var byCreated []*ModeratorTask
+	require.NoError(t, m.GetAllTasks(&byCreated, &GetAllModeratorTasksOptions{OrderBy: "createdAt"}))
+	require.Len(t, byCreated, 2)
+	assert.Equal(newer.ID, byCreated[0].ID)
+	assert.Equal(older.ID, byCreated[1].ID)
+}
+
 func TestModeratorTaskModel_GetAllTasks_DefaultsToOpen(t *testing.T) {
 	assert := assert.New(t)
 	db := utils.SetupServiceTest(assert)
