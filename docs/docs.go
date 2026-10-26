@@ -18,64 +18,75 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/admin/feedback": {
+        "/admin/jobs": {
             "get": {
                 "security": [
                     {
                         "Bearer": []
                     }
                 ],
-                "description": "list feedback submissions for admin review",
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "list registered batch jobs and next timer elapse when available",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "admin",
-                    "feedback"
+                    "admin-jobs"
                 ],
-                "summary": "List feedback",
-                "operationId": "listFeedback",
+                "summary": "List batch jobs",
+                "operationId": "listAdminJobs",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/admin.jobInfo"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/jobs/runs": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "list job run history with optional filters",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin-jobs"
+                ],
+                "summary": "List job runs",
+                "operationId": "listAdminJobRuns",
                 "parameters": [
                     {
-                        "enum": [
-                            "none",
-                            "priority_low",
-                            "priority_med",
-                            "priority_high",
-                            "resolved",
-                            "dismissed"
-                        ],
                         "type": "string",
-                        "description": "Filter by priority",
-                        "name": "priority",
+                        "description": "job name",
+                        "name": "job",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "run status",
+                        "name": "status",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "Offset pagination",
-                        "name": "offset",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Limit pagination",
+                        "default": 50,
+                        "description": "max rows",
                         "name": "limit",
-                        "in": "query"
-                    },
-                    {
-                        "type": "array",
-                        "items": {
-                            "enum": [
-                                "user"
-                            ],
-                            "type": "string"
-                        },
-                        "collectionFormat": "csv",
-                        "description": "Preload",
-                        "name": "preload",
                         "in": "query"
                     }
                 ],
@@ -85,18 +96,12 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Feedback"
+                                "$ref": "#/definitions/models.JobRun"
                             }
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -104,53 +109,35 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/feedback/{feedbackID}": {
+        "/admin/jobs/runs/{id}": {
             "get": {
                 "security": [
                     {
                         "Bearer": []
                     }
                 ],
-                "description": "get a single feedback submission by id",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "admin",
-                    "feedback"
+                    "admin-jobs"
                 ],
-                "summary": "Get feedback",
-                "operationId": "getFeedback",
+                "summary": "Get a job run",
+                "operationId": "getAdminJobRun",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Feedback ID",
-                        "name": "feedbackID",
+                        "description": "run id",
+                        "name": "id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "type": "array",
-                        "items": {
-                            "enum": [
-                                "user"
-                            ],
-                            "type": "string"
-                        },
-                        "collectionFormat": "csv",
-                        "description": "Preload",
-                        "name": "preload",
-                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Feedback"
+                            "$ref": "#/definitions/models.JobRun"
                         }
                     },
                     "404": {
@@ -158,39 +145,31 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
                     }
                 }
-            },
-            "delete": {
+            }
+        },
+        "/admin/jobs/runs/{id}/cancel": {
+            "post": {
                 "security": [
                     {
                         "Bearer": []
                     }
                 ],
-                "description": "soft-delete a feedback submission",
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "cancel a pending run or stop a running one",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "admin",
-                    "feedback"
+                    "admin-jobs"
                 ],
-                "summary": "Delete feedback",
-                "operationId": "deleteFeedback",
+                "summary": "Cancel a job run",
+                "operationId": "cancelAdminJobRun",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Feedback ID",
-                        "name": "feedbackID",
+                        "description": "run id",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -199,68 +178,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "integer"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    }
-                }
-            },
-            "patch": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "update admin notes, priority, or linked issue",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "admin",
-                    "feedback"
-                ],
-                "summary": "Update feedback",
-                "operationId": "updateFeedback",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Feedback ID",
-                        "name": "feedbackID",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Update",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/feedback.UpdateFeedbackParams"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.Feedback"
+                            "$ref": "#/definitions/models.JobRun"
                         }
                     },
                     "400": {
@@ -268,15 +186,95 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
+                    }
+                }
+            }
+        },
+        "/admin/jobs/runs/{id}/logs": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "admin-jobs"
+                ],
+                "summary": "Get job run logs",
+                "operationId": "getAdminJobRunLogs",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "run id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
+                    }
+                }
+            }
+        },
+        "/admin/jobs/{name}/runs": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "JSON body or multipart (params JSON + optional file). Queues if the job is already running.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin-jobs"
+                ],
+                "summary": "Enqueue or schedule a job run",
+                "operationId": "createAdminJobRun",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "job name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    {
+                        "description": "JSON params",
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/admin.createJobRunRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.JobRun"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -7587,58 +7585,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/feedback": {
-            "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "submit site feedback",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "feedback"
-                ],
-                "summary": "Create feedback",
-                "operationId": "createFeedback",
-                "parameters": [
-                    {
-                        "description": "Feedback",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/feedback.CreateFeedbackParams"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/models.Feedback"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/goodrich/menu": {
             "get": {
                 "security": [
@@ -8701,7 +8647,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/responses.GetUserResponseUser"
+                            "$ref": "#/definitions/models.User"
                         }
                     },
                     "404": {
@@ -9064,6 +9010,46 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.ModeratorTaskResolution"
                         }
                     ]
+                }
+            }
+        },
+        "admin.createJobRunRequest": {
+            "type": "object",
+            "properties": {
+                "params": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "runAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "admin.jobInfo": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "hasActiveRun": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "nextRunAt": {
+                    "type": "string"
+                },
+                "params": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/registry.Param"
+                    }
+                },
+                "schedule": {
+                    "$ref": "#/definitions/registry.Schedule"
                 }
             }
         },
@@ -9738,40 +9724,6 @@ const docTemplate = `{
                 },
                 "wouldTakeAnother": {
                     "type": "boolean"
-                }
-            }
-        },
-        "feedback.CreateFeedbackParams": {
-            "type": "object",
-            "required": [
-                "notes"
-            ],
-            "properties": {
-                "notes": {
-                    "type": "string"
-                },
-                "preferredName": {
-                    "type": "string"
-                },
-                "url": {
-                    "type": "string"
-                },
-                "userID": {
-                    "type": "integer"
-                }
-            }
-        },
-        "feedback.UpdateFeedbackParams": {
-            "type": "object",
-            "properties": {
-                "adminNotes": {
-                    "type": "string"
-                },
-                "issue": {
-                    "type": "string"
-                },
-                "priority": {
-                    "$ref": "#/definitions/models.FeedbackPriority"
                 }
             }
         },
@@ -10984,72 +10936,6 @@ const docTemplate = `{
                 }
             }
         },
-        "models.Feedback": {
-            "type": "object",
-            "properties": {
-                "adminNotes": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "issue": {
-                    "type": "string"
-                },
-                "notes": {
-                    "type": "string"
-                },
-                "preferredName": {
-                    "type": "string"
-                },
-                "priority": {
-                    "enum": [
-                        "",
-                        "none",
-                        "priority_low",
-                        "priority_med",
-                        "priority_high",
-                        "resolved",
-                        "dismissed"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.FeedbackPriority"
-                        }
-                    ]
-                },
-                "url": {
-                    "type": "string"
-                },
-                "user": {
-                    "$ref": "#/definitions/models.User"
-                },
-                "userID": {
-                    "type": "integer"
-                }
-            }
-        },
-        "models.FeedbackPriority": {
-            "type": "string",
-            "enum": [
-                "",
-                "none",
-                "priority_low",
-                "priority_med",
-                "priority_high",
-                "resolved",
-                "dismissed"
-            ],
-            "x-enum-varnames": [
-                "FeedbackPriorityUndefined",
-                "FeedbackPriorityNone",
-                "FeedbackPriorityLow",
-                "FeedbackPriorityMed",
-                "FeedbackPriorityHigh",
-                "FeedbackPriorityResolved",
-                "FeedbackPriorityDismissed"
-            ]
-        },
         "models.GoodrichMenuItem": {
             "type": "object",
             "properties": {
@@ -11193,6 +11079,63 @@ const docTemplate = `{
                 "GoodrichPaymentMethodSwipePlusCash",
                 "GoodrichPaymentMethodSwipePlusCreditCard"
             ]
+        },
+        "models.JobRun": {
+            "type": "object",
+            "properties": {
+                "args": {
+                    "description": "JSON object of param name -\u003e value (file params store path only while pending)",
+                    "type": "string"
+                },
+                "exitStatus": {
+                    "type": "integer"
+                },
+                "finishedAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "inputFileName": {
+                    "type": "string"
+                },
+                "inputSha256": {
+                    "type": "string"
+                },
+                "invocationID": {
+                    "type": "string"
+                },
+                "jobName": {
+                    "type": "string"
+                },
+                "logPath": {
+                    "type": "string"
+                },
+                "runAt": {
+                    "description": "When the run should start (pending scheduled); nil means ASAP / already started",
+                    "type": "string"
+                },
+                "startedAt": {
+                    "type": "string"
+                },
+                "status": {
+                    "description": "pending | running | succeeded | failed | canceled | lost",
+                    "type": "string"
+                },
+                "trigger": {
+                    "description": "timer | manual | scheduled",
+                    "type": "string"
+                },
+                "triggeredByUser": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "triggeredByUserID": {
+                    "type": "integer"
+                },
+                "unitName": {
+                    "type": "string"
+                }
+            }
         },
         "models.ListingType": {
             "type": "string",
@@ -11560,9 +11503,6 @@ const docTemplate = `{
                 "pronoun": {
                     "type": "string"
                 },
-                "pronounOverride": {
-                    "type": "string"
-                },
                 "suBox": {
                     "type": "string"
                 },
@@ -11643,6 +11583,64 @@ const docTemplate = `{
                 "useIP": {
                     "description": "If true, will authenticate based on IP. Will return either off-campus or on-campus token",
                     "type": "boolean"
+                }
+            }
+        },
+        "registry.Param": {
+            "type": "object",
+            "properties": {
+                "default": {
+                    "description": "used when the value is omitted; empty means no default",
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "enumValues": {
+                    "description": "required when Type is ParamEnum",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "name": {
+                    "description": "flag name without leading dashes, e.g. \"file\"",
+                    "type": "string"
+                },
+                "required": {
+                    "type": "boolean"
+                },
+                "type": {
+                    "description": "string, bool, enum, or file",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/registry.ParamType"
+                        }
+                    ]
+                }
+            }
+        },
+        "registry.ParamType": {
+            "type": "string",
+            "enum": [
+                "string",
+                "bool",
+                "enum",
+                "file"
+            ],
+            "x-enum-varnames": [
+                "ParamString",
+                "ParamBool",
+                "ParamEnum",
+                "ParamFile"
+            ]
+        },
+        "registry.Schedule": {
+            "type": "object",
+            "properties": {
+                "onCalendar": {
+                    "description": "e.g. \"*-*-* 01:00:00\"",
+                    "type": "string"
                 }
             }
         },
@@ -11810,9 +11808,6 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "pronoun": {
-                    "type": "string"
-                },
-                "pronounOverride": {
                     "type": "string"
                 },
                 "suBox": {
@@ -12126,9 +12121,6 @@ const docTemplate = `{
                 "pronoun": {
                     "type": "string"
                 },
-                "pronounOverride": {
-                    "type": "string"
-                },
                 "suBox": {
                     "type": "string"
                 },
@@ -12234,9 +12226,6 @@ const docTemplate = `{
                 },
                 "optOutEphcatch": {
                     "type": "boolean"
-                },
-                "pronounOverride": {
-                    "type": "string"
                 },
                 "visible": {
                     "type": "boolean"
