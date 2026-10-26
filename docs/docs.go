@@ -8475,7 +8475,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "creates a NEW_USER_TAG or DELETE_USER_TAG moderator task for yourself (max 3 open tag requests)",
+                "description": "request to create or delete a user tag",
                 "consumes": [
                     "application/json"
                 ],
