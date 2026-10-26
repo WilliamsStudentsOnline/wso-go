@@ -2,7 +2,6 @@ package admin
 
 import (
 	"encoding/json"
-	"strconv"
 	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
@@ -14,12 +13,12 @@ import (
 
 // ListTasks godoc
 // @Summary List moderator tasks
-// @Description lists moderator tasks
+// @Description lists moderator tasks grouped by taskReference
 // @ID listModeratorTasks
 // @Tags admin,moderator
 // @Accept json
 // @Produce json
-// @Param taskType query string false "Filter by task type" Enums(FACTRAK_REVIEW)
+// @Param taskType query string false "Filter by task type" Enums(FACTRAK_REVIEW,NEW_USER_TAG,DELETE_USER_TAG)
 // @Param resolvedAt query string false "Omit for open tasks only; set any time to list resolved tasks"
 // @Param taskReference query string false "Filter by task reference"
 // @Param offset query int false "Offset pagination"
@@ -52,7 +51,7 @@ func (t *Controller) ListTasks(c *gin.Context) {
 
 	groups := groupTasks(tasks)
 	for _, g := range groups {
-		if err := t.attachContext(g); err != nil {
+		if err := t.attachGroupContext(g); err != nil {
 			t.Log.Warnw("task context enrich failed", "taskReference", g.TaskReference, "err", err)
 		}
 	}
@@ -69,7 +68,7 @@ func (t *Controller) ListTasks(c *gin.Context) {
 // @Produce json
 // @Param taskID path uint true "Task ID"
 // @Param preload query []string false "Preload" Enums(requestingUser,resolvedByUser)
-// @Success 200 {object} admin.ModeratorTaskGroup
+// @Success 200 {object} admin.ModeratorTaskResponse
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -90,64 +89,25 @@ func (t *Controller) GetTask(c *gin.Context) {
 		return
 	}
 
-	group := &ModeratorTaskGroup{
-		TaskReference: task.TaskReference,
-		TaskType:      task.TaskType,
-		Tasks:         []*ModeratorTaskResponse{taskToResponse(&task)},
-	}
-	if err := t.attachContext(group); err != nil {
-		t.Log.Warnw("task context enrich failed", "taskReference", group.TaskReference, "err", err)
+	resp := taskToResponse(&task)
+	ctx, err := t.contextForTask(task.TaskType, task.TaskFields)
+	if err != nil {
+		t.Log.Warnw("task context enrich failed", "taskID", task.ID, "err", err)
+	} else {
+		resp.Context = ctx
 	}
 
-	t.RespondOK(c, group)
+	t.RespondOK(c, resp)
 }
 
-// GetTaskReference godoc
-// @Summary Compute moderator task reference
-// @Description returns task-specific identifier for which object the task is referring to so we can group requests from multiple users
-// @ID getModeratorTaskReference
+// ResolveTasks godoc
+// @Summary Resolve moderator tasks
+// @Description approve or reject all open tasks that share this task's reference
+// @ID resolveModeratorTasks
 // @Tags admin,moderator
 // @Accept json
 // @Produce json
-// @Param taskType query string true "Task type" Enums(FACTRAK_REVIEW)
-// @Param id query []int true "Identifying id(s) for the reference"
-// @Success 200 {object} admin.TaskReferenceResponse
-// @Failure 400 {object} services.BaseErrorResponse
-// @Security Bearer
-// @Router /admin/tasks/task-reference [get]
-func (t *Controller) GetTaskReference(c *gin.Context) {
-	taskType := models.ModeratorTaskType(c.Query("taskType"))
-	if err := taskType.Validate(); err != nil {
-		t.RespondAPIError(c, lib.ErrorModeratorTaskInvalidType)
-		return
-	}
-
-	rawIDs := c.QueryArray("id")
-	if len(rawIDs) == 0 {
-		t.RespondAPIError(c, lib.ErrorModeratorTaskInvalidReference)
-		return
-	}
-	ids := make([]uint, len(rawIDs))
-	for i, raw := range rawIDs {
-		id, err := strconv.ParseUint(raw, 10, 64)
-		if err != nil || id == 0 {
-			t.RespondAPIError(c, lib.ErrorModeratorTaskInvalidReference)
-			return
-		}
-		ids[i] = uint(id)
-	}
-
-	t.RespondOK(c, TaskReferenceResponse{TaskReference: models.TaskReference(taskType, ids...)})
-}
-
-// ResolveTasksByReference godoc
-// @Summary Resolve moderator tasks by reference
-// @Description approve or reject all open tasks sharing a taskReference with an optional side effect
-// @ID resolveModeratorTasksByReference
-// @Tags admin,moderator
-// @Accept json
-// @Produce json
-// @Param taskReference path string true "Task reference"
+// @Param taskID path uint true "Task ID"
 // @Param body body admin.ResolveTasksBody true "Resolution"
 // @Success 200 {object} admin.ModeratorTaskGroup
 // @Failure 400 {object} services.BaseErrorResponse
@@ -155,11 +115,11 @@ func (t *Controller) GetTaskReference(c *gin.Context) {
 // @Failure 409 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
-// @Router /admin/tasks/by-reference/{taskReference}/resolve [post]
-func (t *Controller) ResolveTasksByReference(c *gin.Context) {
-	taskReference := c.Param("taskReference")
-	if taskReference == "" {
-		t.RespondAPIError(c, lib.ErrorModeratorTaskInvalidReference)
+// @Router /admin/tasks/{taskID}/resolve [post]
+func (t *Controller) ResolveTasks(c *gin.Context) {
+	taskID, err := services.GetUIntParam(c, "taskID")
+	if err != nil {
+		t.RespondError(c, err)
 		return
 	}
 
@@ -174,6 +134,13 @@ func (t *Controller) ResolveTasksByReference(c *gin.Context) {
 		return
 	}
 
+	var seed models.ModeratorTask
+	if err := t.moderatorTaskModel.GetTaskByID(taskID, &seed); err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	taskReference := seed.TaskReference
 	var open []*models.ModeratorTask
 	if err := t.moderatorTaskModel.GetOpenTasksByTaskReference(taskReference, &open); err != nil {
 		t.RespondError(c, err)
@@ -188,6 +155,7 @@ func (t *Controller) ResolveTasksByReference(c *gin.Context) {
 	taskType := open[0].TaskType
 
 	t.Log.Infow("moderator resolve requested",
+		"taskID", taskID,
 		"taskReference", taskReference,
 		"taskType", taskType,
 		"resolution", body.Resolution,
@@ -198,6 +166,7 @@ func (t *Controller) ResolveTasksByReference(c *gin.Context) {
 	if body.Resolution == models.ModeratorTaskResolutionApproved {
 		if err := t.applyApproveSideEffect(c, taskType, open[0]); err != nil {
 			t.Log.Warnw("moderator approve side effect failed",
+				"taskID", taskID,
 				"taskReference", taskReference,
 				"taskType", taskType,
 				"actorUserID", actorID,
@@ -216,6 +185,7 @@ func (t *Controller) ResolveTasksByReference(c *gin.Context) {
 	}
 
 	t.Log.Infow("moderator resolve completed",
+		"taskID", taskID,
 		"taskReference", taskReference,
 		"taskType", taskType,
 		"resolution", body.Resolution,
@@ -241,79 +211,79 @@ func (t *Controller) ResolveTasksByReference(c *gin.Context) {
 	} else {
 		group = &ModeratorTaskGroup{TaskReference: taskReference, TaskType: taskType, Tasks: []*ModeratorTaskResponse{}}
 	}
-	_ = t.attachContext(group)
+	_ = t.attachGroupContext(group)
 
 	t.RespondOK(c, group)
 }
 
-// DiscardTasksByReference godoc
-// @Summary Discard open moderator tasks by reference
-// @Description soft-deletes all open tasks for a taskReference
-// @ID discardModeratorTasksByReference
+// DeleteTask godoc
+// @Summary Delete moderator task
+// @Description soft-deletes a single moderator task by id
+// @ID deleteModeratorTask
 // @Tags admin,moderator
 // @Accept json
 // @Produce json
-// @Param taskReference path string true "Task reference"
-// @Success 200 {object} map[string]int64
+// @Param taskID path uint true "Task ID"
+// @Success 200 {object} map[string]uint
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
-// @Router /admin/tasks/by-reference/{taskReference} [delete]
-func (t *Controller) DiscardTasksByReference(c *gin.Context) {
-	taskReference := c.Param("taskReference")
-	if taskReference == "" {
-		t.RespondAPIError(c, lib.ErrorModeratorTaskInvalidReference)
-		return
-	}
-
-	actorID := services.GetUserID(c)
-	n, err := t.moderatorTaskModel.SoftDeleteOpenTasksByTaskReference(taskReference)
+// @Router /admin/tasks/{taskID} [delete]
+func (t *Controller) DeleteTask(c *gin.Context) {
+	taskID, err := services.GetUIntParam(c, "taskID")
 	if err != nil {
 		t.RespondError(c, err)
 		return
 	}
-	if n == 0 {
-		t.RespondAPIError(c, lib.ErrorModeratorTaskNoOpenTasks)
+
+	if err := t.moderatorTaskModel.SoftDeleteTaskByID(taskID); err != nil {
+		t.RespondError(c, err)
 		return
 	}
 
-	t.Log.Infow("moderator tasks discarded",
-		"taskReference", taskReference,
-		"actorUserID", actorID,
-		"rowsDeleted", n,
+	t.Log.Infow("moderator task deleted",
+		"taskID", taskID,
+		"actorUserID", services.GetUserID(c),
 	)
 
-	t.RespondOK(c, gin.H{"discarded": n})
+	t.RespondOK(c, gin.H{"deleted": taskID})
 }
 
-func (t *Controller) attachContext(group *ModeratorTaskGroup) error {
-	switch group.TaskType {
+func (t *Controller) attachGroupContext(group *ModeratorTaskGroup) error {
+	if len(group.Tasks) == 0 {
+		return nil
+	}
+	raw, err := json.Marshal(group.Tasks[0].TaskFields)
+	if err != nil {
+		return err
+	}
+	ctx, err := t.contextForTask(group.TaskType, string(raw))
+	if err != nil {
+		return err
+	}
+	group.Context = ctx
+	return nil
+}
+
+func (t *Controller) contextForTask(taskType models.ModeratorTaskType, taskFieldsJSON string) (interface{}, error) {
+	switch taskType {
 	case models.ModeratorTaskTypeFactrakReview:
-		if len(group.Tasks) == 0 {
-			return nil
-		}
-		raw, err := json.Marshal(group.Tasks[0].TaskFields)
+		fields, err := models.DecodeFactrakReviewFields(taskFieldsJSON)
 		if err != nil {
-			return err
-		}
-		fields, err := models.DecodeFactrakReviewFields(string(raw))
-		if err != nil {
-			return err
+			return nil, err
 		}
 		var survey models.FactrakSurvey
 		err = t.surveyModel.GetSurveyByID(fields.FactrakSurveyID, &survey)
 		if err != nil {
 			if gorm.IsRecordNotFoundError(err) {
-				group.Context = FactrakReviewTaskContext{Survey: nil}
-				return nil
+				return FactrakReviewTaskContext{Survey: nil}, nil
 			}
-			return err
+			return nil, err
 		}
 		anonymizeSurveyAuthor(&survey)
-		group.Context = FactrakReviewTaskContext{Survey: &survey}
-		return nil
+		return FactrakReviewTaskContext{Survey: &survey}, nil
 	default:
-		return nil
+		return nil, nil
 	}
 }
 

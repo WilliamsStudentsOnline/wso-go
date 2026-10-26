@@ -14,6 +14,7 @@ definitions:
     type: object
   admin.ModeratorTaskResponse:
     properties:
+      context: {}
       createdAt:
         type: string
       id:
@@ -50,11 +51,6 @@ definitions:
         - REJECTED
     required:
     - resolution
-    type: object
-  admin.TaskReferenceResponse:
-    properties:
-      taskReference:
-        type: string
     type: object
   auth.AuthResponse:
     properties:
@@ -2164,12 +2160,14 @@ paths:
     get:
       consumes:
       - application/json
-      description: lists moderator tasks
+      description: lists moderator tasks grouped by taskReference
       operationId: listModeratorTasks
       parameters:
       - description: Filter by task type
         enum:
         - FACTRAK_REVIEW
+        - NEW_USER_TAG
+        - DELETE_USER_TAG
         in: query
         name: taskType
         type: string
@@ -2223,6 +2221,40 @@ paths:
       - admin
       - moderator
   /admin/tasks/{taskID}:
+    delete:
+      consumes:
+      - application/json
+      description: soft-deletes a single moderator task by id
+      operationId: deleteModeratorTask
+      parameters:
+      - description: Task ID
+        in: path
+        name: taskID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Delete moderator task
+      tags:
+      - admin
+      - moderator
     get:
       consumes:
       - application/json
@@ -2250,7 +2282,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/admin.ModeratorTaskGroup'
+            $ref: '#/definitions/admin.ModeratorTaskResponse'
         "404":
           description: Not Found
           schema:
@@ -2265,54 +2297,18 @@ paths:
       tags:
       - admin
       - moderator
-  /admin/tasks/by-reference/{taskReference}:
-    delete:
-      consumes:
-      - application/json
-      description: soft-deletes all open tasks for a taskReference
-      operationId: discardModeratorTasksByReference
-      parameters:
-      - description: Task reference
-        in: path
-        name: taskReference
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: integer
-            type: object
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-      security:
-      - Bearer: []
-      summary: Discard open moderator tasks by reference
-      tags:
-      - admin
-      - moderator
-  /admin/tasks/by-reference/{taskReference}/resolve:
+  /admin/tasks/{taskID}/resolve:
     post:
       consumes:
       - application/json
-      description: approve or reject all open tasks sharing a taskReference with an
-        optional side effect
-      operationId: resolveModeratorTasksByReference
+      description: approve or reject all open tasks that share this task's reference
+      operationId: resolveModeratorTasks
       parameters:
-      - description: Task reference
+      - description: Task ID
         in: path
-        name: taskReference
+        name: taskID
         required: true
-        type: string
+        type: integer
       - description: Resolution
         in: body
         name: body
@@ -2344,47 +2340,7 @@ paths:
             $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
-      summary: Resolve moderator tasks by reference
-      tags:
-      - admin
-      - moderator
-  /admin/tasks/task-reference:
-    get:
-      consumes:
-      - application/json
-      description: returns task-specific identifier for which object the task is referring
-        to so we can group requests from multiple users
-      operationId: getModeratorTaskReference
-      parameters:
-      - description: Task type
-        enum:
-        - FACTRAK_REVIEW
-        in: query
-        name: taskType
-        required: true
-        type: string
-      - collectionFormat: csv
-        description: Identifying id(s) for the reference
-        in: query
-        items:
-          type: integer
-        name: id
-        required: true
-        type: array
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/admin.TaskReferenceResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-      security:
-      - Bearer: []
-      summary: Compute moderator task reference
+      summary: Resolve moderator tasks
       tags:
       - admin
       - moderator

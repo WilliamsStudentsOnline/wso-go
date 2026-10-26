@@ -20,6 +20,7 @@ type ModeratorTaskResponse struct {
 	Resolution       *models.ModeratorTaskResolution `json:"resolution"`
 	ResolvedByUserID *uint                           `json:"resolvedByUserID"`
 	ResolvedByUser   *models.User                    `json:"resolvedByUser,omitempty"`
+	Context          interface{}                     `json:"context,omitempty"`
 }
 
 type ModeratorTaskGroup struct {
@@ -35,10 +36,6 @@ type FactrakReviewTaskContext struct {
 
 type ResolveTasksBody struct {
 	Resolution models.ModeratorTaskResolution `json:"resolution" binding:"required" enums:"APPROVED,REJECTED"`
-}
-
-type TaskReferenceResponse struct {
-	TaskReference string `json:"taskReference"`
 }
 
 func taskToResponse(t *models.ModeratorTask) *ModeratorTaskResponse {

@@ -12,9 +12,9 @@ import (
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	. "github.com/WilliamsStudentsOnline/wso-go/services/admin"
+	"github.com/jinzhu/gorm"
 	testify "github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/jinzhu/gorm"
 	"go.uber.org/zap/zaptest"
 )
 
@@ -74,9 +74,17 @@ func TestListAndResolveFactrakTasks(t *testing.T) {
 	assert.Equal(float64(0), surveyJSON["userID"])
 	assert.Equal("bad review", surveyJSON["comment"])
 
+	w, err = utils.DoHTTPReq(env.Router, http.MethodGet, fmt.Sprintf("/tasks/%d", task.ID), nil)
+	assert.NoError(err)
+	resp = utils.GetGoodResp(assert, w)
+	var one ModeratorTaskResponse
+	assert.NoError(json.Unmarshal(resp.Data, &one))
+	assert.Equal(task.ID, one.ID)
+	assert.NotNil(one.Context)
+
 	body, _ := json.Marshal(ResolveTasksBody{Resolution: models.ModeratorTaskResolutionApproved})
 	w, err = utils.DoHTTPReq(env.Router, http.MethodPost,
-		fmt.Sprintf("/tasks/by-reference/%s/resolve", task.TaskReference), bytes.NewReader(body))
+		fmt.Sprintf("/tasks/%d/resolve", task.ID), bytes.NewReader(body))
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w.Code)
 
@@ -90,7 +98,7 @@ func TestListAndResolveFactrakTasks(t *testing.T) {
 	assert.Equal(models.ModeratorTaskResolutionApproved, *resolved.Resolution)
 }
 
-func TestResolveAlreadyGoneOffersDiscard(t *testing.T) {
+func TestResolveAlreadyGoneThenDelete(t *testing.T) {
 	assert, env := setupAdminTasks(t)
 
 	uid := uint(3)
@@ -100,12 +108,11 @@ func TestResolveAlreadyGoneOffersDiscard(t *testing.T) {
 
 	body, _ := json.Marshal(ResolveTasksBody{Resolution: models.ModeratorTaskResolutionApproved})
 	w, err := utils.DoHTTPReq(env.Router, http.MethodPost,
-		fmt.Sprintf("/tasks/by-reference/%s/resolve", task.TaskReference), bytes.NewReader(body))
+		fmt.Sprintf("/tasks/%d/resolve", task.ID), bytes.NewReader(body))
 	assert.NoError(err)
 	utils.CheckRespError(assert, w, lib.ErrorModeratorTaskSubjectGone)
 
-	w, err = utils.DoHTTPReq(env.Router, http.MethodDelete,
-		fmt.Sprintf("/tasks/by-reference/%s", task.TaskReference), nil)
+	w, err = utils.DoHTTPReq(env.Router, http.MethodDelete, fmt.Sprintf("/tasks/%d", task.ID), nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w.Code)
 
@@ -114,12 +121,29 @@ func TestResolveAlreadyGoneOffersDiscard(t *testing.T) {
 	assert.Zero(count)
 }
 
-func TestGetTaskReference(t *testing.T) {
+func TestResolveAppliesToSharedReference(t *testing.T) {
 	assert, env := setupAdminTasks(t)
-	w, err := utils.DoHTTPReq(env.Router, http.MethodGet, "/tasks/task-reference?taskType=FACTRAK_REVIEW&id=42", nil)
+	survey := seedFactrakSurvey(t, env.DB, "flagged twice")
+
+	uid1, uid2 := uint(1), uint(2)
+	t1, err := models.NewFactrakReviewTask(&uid1, survey.ID)
+	require.NoError(t, err)
+	t2, err := models.NewFactrakReviewTask(&uid2, survey.ID)
+	require.NoError(t, err)
+	require.NoError(t, env.DB.Create(t1).Error)
+	require.NoError(t, env.DB.Create(t2).Error)
+
+	body, _ := json.Marshal(ResolveTasksBody{Resolution: models.ModeratorTaskResolutionRejected})
+	w, err := utils.DoHTTPReq(env.Router, http.MethodPost,
+		fmt.Sprintf("/tasks/%d/resolve", t1.ID), bytes.NewReader(body))
 	assert.NoError(err)
-	resp := utils.GetGoodResp(assert, w)
-	var out TaskReferenceResponse
-	assert.NoError(json.Unmarshal(resp.Data, &out))
-	assert.Equal("FACTRAK_REVIEW:42", out.TaskReference)
+	assert.Equal(http.StatusOK, w.Code)
+
+	var resolved []*models.ModeratorTask
+	assert.NoError(env.DB.Where("task_reference = ?", t1.TaskReference).Find(&resolved).Error)
+	require.Len(t, resolved, 2)
+	for _, task := range resolved {
+		require.NotNil(t, task.ResolvedAt)
+		assert.Equal(models.ModeratorTaskResolutionRejected, *task.Resolution)
+	}
 }

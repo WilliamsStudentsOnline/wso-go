@@ -25,7 +25,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "lists moderator tasks",
+                "description": "lists moderator tasks grouped by taskReference",
                 "consumes": [
                     "application/json"
                 ],
@@ -41,7 +41,9 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "enum": [
-                            "FACTRAK_REVIEW"
+                            "FACTRAK_REVIEW",
+                            "NEW_USER_TAG",
+                            "DELETE_USER_TAG"
                         ],
                         "type": "string",
                         "description": "Filter by task type",
@@ -112,191 +114,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/tasks/by-reference/{taskReference}": {
-            "delete": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "soft-deletes all open tasks for a taskReference",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "admin",
-                    "moderator"
-                ],
-                "summary": "Discard open moderator tasks by reference",
-                "operationId": "discardModeratorTasksByReference",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Task reference",
-                        "name": "taskReference",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "integer"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/admin/tasks/by-reference/{taskReference}/resolve": {
-            "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "approve or reject all open tasks sharing a taskReference with an optional side effect",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "admin",
-                    "moderator"
-                ],
-                "summary": "Resolve moderator tasks by reference",
-                "operationId": "resolveModeratorTasksByReference",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Task reference",
-                        "name": "taskReference",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Resolution",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/admin.ResolveTasksBody"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/admin.ModeratorTaskGroup"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/admin/tasks/task-reference": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "returns task-specific identifier for which object the task is referring to so we can group requests from multiple users",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "admin",
-                    "moderator"
-                ],
-                "summary": "Compute moderator task reference",
-                "operationId": "getModeratorTaskReference",
-                "parameters": [
-                    {
-                        "enum": [
-                            "FACTRAK_REVIEW"
-                        ],
-                        "type": "string",
-                        "description": "Task type",
-                        "name": "taskType",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "array",
-                        "items": {
-                            "type": "integer"
-                        },
-                        "collectionFormat": "csv",
-                        "description": "Identifying id(s) for the reference",
-                        "name": "id",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/admin.TaskReferenceResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/admin/tasks/{taskID}": {
             "get": {
                 "security": [
@@ -344,11 +161,135 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin.ModeratorTaskGroup"
+                            "$ref": "#/definitions/admin.ModeratorTaskResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "soft-deletes a single moderator task by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin",
+                    "moderator"
+                ],
+                "summary": "Delete moderator task",
+                "operationId": "deleteModeratorTask",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Task ID",
+                        "name": "taskID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/tasks/{taskID}/resolve": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "approve or reject all open tasks that share this task's reference",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin",
+                    "moderator"
+                ],
+                "summary": "Resolve moderator tasks",
+                "operationId": "resolveModeratorTasks",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Task ID",
+                        "name": "taskID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Resolution",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/admin.ResolveTasksBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin.ModeratorTaskGroup"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -8801,6 +8742,7 @@ const docTemplate = `{
         "admin.ModeratorTaskResponse": {
             "type": "object",
             "properties": {
+                "context": {},
                 "createdAt": {
                     "type": "string"
                 },
@@ -8856,14 +8798,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.ModeratorTaskResolution"
                         }
                     ]
-                }
-            }
-        },
-        "admin.TaskReferenceResponse": {
-            "type": "object",
-            "properties": {
-                "taskReference": {
-                    "type": "string"
                 }
             }
         },
