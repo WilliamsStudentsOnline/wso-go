@@ -115,3 +115,12 @@ func TestValidateUnitDeps(t *testing.T) {
 	j.Wants = []string{"not-a-unit"}
 	assert.Error(t, j.Validate())
 }
+
+func TestDefaultHasPilotJobs(t *testing.T) {
+	_, ok := Default().Get("user-home-info")
+	assert.True(t, ok)
+	j, ok := Default().Get("library-hours-update")
+	assert.True(t, ok)
+	assert.NotNil(t, j.Schedule)
+}
+}
