@@ -19,4 +19,4 @@ CREATE TABLE `moderator_tasks` (
   INDEX `index_moderator_tasks_on_task_reference` (`task_reference`),
   INDEX `index_moderator_tasks_on_task_type` (`task_type`),
   INDEX `index_moderator_tasks_on_task_type_task_reference_resolved_at` (`task_type`, `task_reference`, `resolved_at`)
-) CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
