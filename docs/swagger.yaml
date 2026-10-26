@@ -1464,13 +1464,11 @@ definitions:
     - ""
     - FACTRAK_REVIEW
     - NEW_USER_TAG
-    - DELETE_USER_TAG
     type: string
     x-enum-varnames:
     - ModeratorTaskTypeUndefined
     - ModeratorTaskTypeFactrakReview
     - ModeratorTaskTypeNewUserTag
-    - ModeratorTaskTypeDeleteUserTag
   models.Neighborhood:
     properties:
       dorms:
@@ -2166,7 +2164,6 @@ paths:
         enum:
         - FACTRAK_REVIEW
         - NEW_USER_TAG
-        - DELETE_USER_TAG
         in: query
         name: taskType
         type: string

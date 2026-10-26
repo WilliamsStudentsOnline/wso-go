@@ -18,7 +18,7 @@ import (
 // @Tags admin,moderator
 // @Accept json
 // @Produce json
-// @Param taskType query string false "Filter by task type" Enums(FACTRAK_REVIEW,NEW_USER_TAG,DELETE_USER_TAG)
+// @Param taskType query string false "Filter by task type" Enums(FACTRAK_REVIEW,NEW_USER_TAG)
 // @Param resolvedAt query string false "Omit for open tasks only; set any time to list resolved tasks"
 // @Param taskReference query string false "Filter by task reference"
 // @Param orderBy query string false "Sort order; default taskReference" Enums(taskReference,createdAt)
