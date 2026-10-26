@@ -45,16 +45,14 @@ func TestCreateTagRequest_EnforcesOpenLimit(t *testing.T) {
 	utils.CheckRespError(assert, w, lib.ErrorModeratorTaskTagRequestLimit)
 }
 
-func TestCreateTagRequest_RejectsIfUserAlreadyHasTag(t *testing.T) {
+func TestCreateTagRequest_RejectsExistingTag(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 	cfg := utils.SetupConfig()
 
 	user := models.User{Type: models.UserTypeStudent, Name: "Stu", UnixID: "stu"}
 	require.NoError(t, db.Create(&user).Error)
-	tag := models.Tag{Name: "WSO"}
-	require.NoError(t, db.Create(&tag).Error)
-	require.NoError(t, db.Model(&user).Association("Tags").Append(&tag).Error)
+	require.NoError(t, db.Create(&models.Tag{Name: "WSO"}).Error)
 
 	router := utils.SetupRouter(auth.ScopeUsers, auth.ScopeWriteSelf)
 	utils.AddUserContexts(router, user.ID)
@@ -63,26 +61,7 @@ func TestCreateTagRequest_RejectsIfUserAlreadyHasTag(t *testing.T) {
 	body, _ := json.Marshal(CreateTagRequestParams{TagName: "WSO"})
 	w, err := utils.DoHTTPReq(router, http.MethodPost, fmt.Sprintf("/%d/tag-requests", user.ID), bytes.NewReader(body))
 	require.NoError(t, err)
-	utils.CheckRespError(assert, w, lib.ErrorUserAlreadyHasTag)
-}
-
-func TestCreateTagRequest_AllowsExistingTagNameUserLacks(t *testing.T) {
-	assert := testify.New(t)
-	db := utils.SetupServiceTest(assert)
-	cfg := utils.SetupConfig()
-
-	user := models.User{Type: models.UserTypeStudent, Name: "Stu", UnixID: "stu"}
-	require.NoError(t, db.Create(&user).Error)
-	require.NoError(t, db.Create(&models.Tag{Name: "Climbing Club"}).Error)
-
-	router := utils.SetupRouter(auth.ScopeUsers, auth.ScopeWriteSelf)
-	utils.AddUserContexts(router, user.ID)
-	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
-
-	body, _ := json.Marshal(CreateTagRequestParams{TagName: "Climbing Club"})
-	w, err := utils.DoHTTPReq(router, http.MethodPost, fmt.Sprintf("/%d/tag-requests", user.ID), bytes.NewReader(body))
-	require.NoError(t, err)
-	assert.Equal(http.StatusOK, w.Code)
+	utils.CheckRespError(assert, w, lib.ErrorUserTagAlreadyExists)
 }
 
 func TestCreateTagRequest_ApproveCreatesAndAddsTag(t *testing.T) {
@@ -128,7 +107,7 @@ func TestCreateTagRequest_ApproveCreatesAndAddsTag(t *testing.T) {
 	assert.Equal(tagName, u.Tags[0].Name)
 }
 
-func TestCreateTagRequest_DuplicateOpenName(t *testing.T) {
+func TestCreateTagRequest_DuplicateOpenNameSameUser(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 	cfg := utils.SetupConfig()
@@ -148,4 +127,32 @@ func TestCreateTagRequest_DuplicateOpenName(t *testing.T) {
 	w, err = utils.DoHTTPReq(router, http.MethodPost, fmt.Sprintf("/%d/tag-requests", user.ID), bytes.NewReader(body))
 	require.NoError(t, err)
 	utils.CheckRespError(assert, w, lib.ErrorModeratorTaskTagRequestOpen)
+}
+
+func TestCreateTagRequest_OtherUserCanRequestSameName(t *testing.T) {
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+	cfg := utils.SetupConfig()
+
+	userA := models.User{Type: models.UserTypeStudent, Name: "A", UnixID: "usera"}
+	userB := models.User{Type: models.UserTypeStudent, Name: "B", UnixID: "userb"}
+	require.NoError(t, db.Create(&userA).Error)
+	require.NoError(t, db.Create(&userB).Error)
+
+	routerA := utils.SetupRouter(auth.ScopeUsers, auth.ScopeWriteSelf)
+	utils.AddUserContexts(routerA, userA.ID)
+	SetupRouter(routerA, db, cfg, zaptest.NewLogger(t).Sugar())
+
+	routerB := utils.SetupRouter(auth.ScopeUsers, auth.ScopeWriteSelf)
+	utils.AddUserContexts(routerB, userB.ID)
+	SetupRouter(routerB, db, cfg, zaptest.NewLogger(t).Sugar())
+
+	body, _ := json.Marshal(CreateTagRequestParams{TagName: "Shared New Club"})
+	w, err := utils.DoHTTPReq(routerA, http.MethodPost, fmt.Sprintf("/%d/tag-requests", userA.ID), bytes.NewReader(body))
+	require.NoError(t, err)
+	assert.Equal(http.StatusOK, w.Code)
+
+	w, err = utils.DoHTTPReq(routerB, http.MethodPost, fmt.Sprintf("/%d/tag-requests", userB.ID), bytes.NewReader(body))
+	require.NoError(t, err)
+	assert.Equal(http.StatusOK, w.Code)
 }

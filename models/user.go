@@ -158,15 +158,6 @@ func (m *UserModel) UpdateUser(user *User) (err error) {
 	return
 }
 
-func (m *UserModel) UserHasTagName(userID uint, tagName string) (bool, error) {
-	var count int
-	err := m.DB.Table("tags_users").
-		Joins("JOIN tags ON tags.id = tags_users.tag_id AND tags.deleted_at IS NULL").
-		Where("tags_users.user_id = ? AND tags.name = ?", userID, tagName).
-		Count(&count).Error
-	return count > 0, err
-}
-
 func (m *UserModel) AddUserTag(userID, tagID uint) error {
 	user := new(User)
 	if err := m.DB.First(user, userID).Error; err != nil {

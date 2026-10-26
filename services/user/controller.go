@@ -361,7 +361,7 @@ type CreateTagRequestParams struct {
 // @Param body body user.CreateTagRequestParams true "Tag request"
 // @Success 200 {object} map[string]interface{}
 // @Failure 1331 {object} services.BaseErrorResponse "must be self"
-// @Failure 1408 {object} services.BaseErrorResponse "user already has this tag"
+// @Failure 1408 {object} services.BaseErrorResponse "tag already exists"
 // @Failure 1409 {object} services.BaseErrorResponse "tag name is required"
 // @Failure 2405 {object} services.BaseErrorResponse "too many open user tag moderator requests"
 // @Failure 2406 {object} services.BaseErrorResponse "open tag request already exists for this name"
@@ -391,13 +391,14 @@ func (t *Controller) CreateTagRequest(c *gin.Context) {
 		return
 	}
 
-	hasTag, err := t.userModel.UserHasTagName(userID, tagName)
-	if err != nil {
-		t.RespondError(c, err)
+	var existing models.Tag
+	err = t.tagModel.GetTagByName(tagName, &existing)
+	if err == nil {
+		t.RespondAPIError(c, lib.ErrorUserTagAlreadyExists)
 		return
 	}
-	if hasTag {
-		t.RespondAPIError(c, lib.ErrorUserAlreadyHasTag)
+	if !gorm.IsRecordNotFoundError(err) {
+		t.RespondError(c, err)
 		return
 	}
 

@@ -8514,7 +8514,7 @@ const docTemplate = `{
                         }
                     },
                     "1408": {
-                        "description": "user already has this tag",
+                        "description": "tag already exists",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
