@@ -264,6 +264,17 @@ func (t *Controller) contextForTask(taskType models.ModeratorTaskType, taskField
 		}
 		anonymizeSurveyAuthor(&survey)
 		return FactrakReviewTaskContext{Survey: &survey}, nil
+	case models.ModeratorTaskTypeNewUserTag, models.ModeratorTaskTypeDeleteUserTag:
+		fields, err := models.DecodeUserTagFields(taskFieldsJSON)
+		if err != nil {
+			return nil, err
+		}
+		ctx := UserTagTaskContext{TargetUserID: fields.TargetUserID, TagID: fields.TagID}
+		var tag models.Tag
+		if err := t.tagModel.GetTagByID(fields.TagID, &tag); err == nil {
+			ctx.Tag = &tag
+		}
+		return ctx, nil
 	default:
 		return nil, nil
 	}
@@ -273,6 +284,10 @@ func (t *Controller) applyApproveSideEffect(c *gin.Context, taskType models.Mode
 	switch taskType {
 	case models.ModeratorTaskTypeFactrakReview:
 		return t.approveFactrakReview(c, sample)
+	case models.ModeratorTaskTypeNewUserTag:
+		return t.approveNewUserTag(sample)
+	case models.ModeratorTaskTypeDeleteUserTag:
+		return t.approveDeleteUserTag(sample)
 	default:
 		return lib.ErrorModeratorTaskInvalidType
 	}
@@ -313,6 +328,44 @@ func (t *Controller) approveFactrakReview(c *gin.Context, sample *models.Moderat
 		"surveyID", fields.FactrakSurveyID,
 		"taskReference", sample.TaskReference,
 		"actorUserID", services.GetUserID(c),
+	)
+	return nil
+}
+
+func (t *Controller) approveNewUserTag(sample *models.ModeratorTask) error {
+	fields, err := models.DecodeUserTagFields(sample.TaskFields)
+	if err != nil {
+		return err
+	}
+	if err := t.userModel.AddUserTag(fields.TargetUserID, fields.TagID); err != nil {
+		if gorm.IsRecordNotFoundError(err) || err == lib.ErrorInvalidUserTag {
+			return lib.ErrorModeratorTaskSubjectGone
+		}
+		return err
+	}
+	t.Log.Infow("user tag added via moderator approve",
+		"targetUserID", fields.TargetUserID,
+		"tagID", fields.TagID,
+		"taskReference", sample.TaskReference,
+	)
+	return nil
+}
+
+func (t *Controller) approveDeleteUserTag(sample *models.ModeratorTask) error {
+	fields, err := models.DecodeUserTagFields(sample.TaskFields)
+	if err != nil {
+		return err
+	}
+	if err := t.userModel.RemoveUserTag(fields.TargetUserID, fields.TagID); err != nil {
+		if gorm.IsRecordNotFoundError(err) || err == lib.ErrorInvalidUserTag {
+			return lib.ErrorModeratorTaskSubjectGone
+		}
+		return err
+	}
+	t.Log.Infow("user tag removed via moderator approve",
+		"targetUserID", fields.TargetUserID,
+		"tagID", fields.TagID,
+		"taskReference", sample.TaskReference,
 	)
 	return nil
 }

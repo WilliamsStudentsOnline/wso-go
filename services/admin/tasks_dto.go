@@ -27,6 +27,12 @@ type FactrakReviewTaskContext struct {
 	Survey *models.FactrakSurvey `json:"survey,omitempty"`
 }
 
+type UserTagTaskContext struct {
+	TargetUserID uint        `json:"targetUserID"`
+	TagID        uint        `json:"tagID"`
+	Tag          *models.Tag `json:"tag,omitempty"`
+}
+
 type ResolveTasksBody struct {
 	Resolution models.ModeratorTaskResolution `json:"resolution" binding:"required" enums:"APPROVED,REJECTED"`
 }

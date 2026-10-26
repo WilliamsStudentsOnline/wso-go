@@ -15,3 +15,7 @@ func NewTagModel(db *gorm.DB, log *zap.SugaredLogger) *TagModel {
 		BaseModel: NewBaseModel(db, log),
 	}
 }
+
+func (m *TagModel) GetTagByID(id uint, tag *Tag) error {
+	return m.DB.First(tag, id).Error
+}
