@@ -69,7 +69,6 @@ func IsScopeAdmin(c *gin.Context) bool {
 	return auth.HasScope(c, auth.ScopeAdminAll, auth.ScopeFactrakAdmin)
 }
 
-// sets Flagged from whether the viewer already has an open FACTRAK_REVIEW for each survey
 func (t *Controller) populateClientFlags(userID uint, surveys ...*models.FactrakSurvey) error {
 	if userID == 0 || len(surveys) == 0 {
 		return nil

@@ -265,7 +265,6 @@ func (m *ModeratorTaskModel) HasOpenTaskForRequester(requestingUserID uint, task
 	return count > 0, err
 }
 
-// OpenFactrakReviewSurveyIDs returns survey IDs among candidates that this user has an open FACTRAK_REVIEW for
 func (m *ModeratorTaskModel) OpenFactrakReviewSurveyIDs(requestingUserID uint, surveyIDs []uint) (map[uint]bool, error) {
 	out := make(map[uint]bool, len(surveyIDs))
 	if requestingUserID == 0 || len(surveyIDs) == 0 {
