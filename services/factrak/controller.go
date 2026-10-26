@@ -21,25 +21,26 @@ type Controller struct {
 	courseModel      *models.CourseModel
 	departmentModel  *models.DepartmentModel
 	areaOfStudyModel *models.AreaOfStudyModel
-	agreementModel   *models.FactrakAgreementModel
-	surveyModel      *models.FactrakSurveyModel
-	studentModel     *models.StudentModel
-	factrakSearch    search.SearchFactrak
+	agreementModel     *models.FactrakAgreementModel
+	surveyModel        *models.FactrakSurveyModel
+	studentModel       *models.StudentModel
+	moderatorTaskModel *models.ModeratorTaskModel
+	factrakSearch      search.SearchFactrak
 }
 
-// Construct a new user controller
 func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Controller {
 	return &Controller{
-		BaseController:   services.BaseController{Log: log},
-		professorModel:   models.NewProfessorModel(db, log),
-		userModel:        models.NewUserModel(db, log),
-		courseModel:      models.NewCourseModel(db, log),
-		departmentModel:  models.NewDepartmentModel(db, log),
-		areaOfStudyModel: models.NewAreaOfStudyModel(db, log),
-		agreementModel:   models.NewFactrakAgreementModel(db, log),
-		surveyModel:      models.NewFactrakSurveyModel(db, log),
-		studentModel:     models.NewStudentModel(db, log),
-		factrakSearch:    search.NewSearchFactrak(db, cfg, log),
+		BaseController:     services.BaseController{Log: log},
+		professorModel:     models.NewProfessorModel(db, log),
+		userModel:          models.NewUserModel(db, log),
+		courseModel:        models.NewCourseModel(db, log),
+		departmentModel:    models.NewDepartmentModel(db, log),
+		areaOfStudyModel:   models.NewAreaOfStudyModel(db, log),
+		agreementModel:     models.NewFactrakAgreementModel(db, log),
+		surveyModel:        models.NewFactrakSurveyModel(db, log),
+		studentModel:       models.NewStudentModel(db, log),
+		moderatorTaskModel: models.NewModeratorTaskModel(db, log),
+		factrakSearch:      search.NewSearchFactrak(db, cfg, log),
 	}
 }
 

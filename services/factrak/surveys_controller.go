@@ -627,7 +627,6 @@ func (t *Controller) FlagSurvey(c *gin.Context) {
 		return
 	}
 
-	// Ensure survey exists
 	exists, err := t.surveyModel.DoesSurveyExist(surveyID)
 	if err != nil {
 		t.RespondError(c, err)
@@ -638,13 +637,23 @@ func (t *Controller) FlagSurvey(c *gin.Context) {
 		return
 	}
 
-	// Do db flag
-	err = t.surveyModel.SetSurveyFlag(surveyID, true)
+	userID := services.GetUserID(c)
+	task, err := models.NewFactrakReviewTask(&userID, surveyID)
 	if err != nil {
 		t.RespondError(c, err)
 		return
 	}
+	if err := t.moderatorTaskModel.CreateTask(task); err != nil {
+		t.RespondError(c, err)
+		return
+	}
 
-	// We know user is owner, so don't need to delete user fields
+	t.Log.Infow("factrak survey flagged as moderator task",
+		"surveyID", surveyID,
+		"taskID", task.ID,
+		"taskReference", task.TaskReference,
+		"requestingUserID", userID,
+	)
+
 	t.RespondOK(c, nil)
 }

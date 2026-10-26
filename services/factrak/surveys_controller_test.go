@@ -978,12 +978,12 @@ func TestController_FlagSurvey(t *testing.T) {
 	respData := utils.GetHTTPDataResp(assert, w.Body.Bytes())
 	assert.Nil(respData.Error)
 
-	// Check to make sure it updated in the db
-	// Assert for database entry
-	var surveyInDB models.FactrakSurvey
-	assert.NoError(db.First(&surveyInDB, survey.ID).Error)
-	// Assertions
-	assert.True(surveyInDB.Flagged)
+	var tasks []*models.ModeratorTask
+	assert.NoError(db.Find(&tasks).Error)
+	assert.Len(tasks, 1)
+	assert.Equal(models.ModeratorTaskTypeFactrakReview, tasks[0].TaskType)
+	assert.Equal(models.TaskReference(models.ModeratorTaskTypeFactrakReview, survey.ID), tasks[0].TaskReference)
+	assert.Equal(s1.ID, *tasks[0].RequestingUserID)
 }
 
 func generateSurveyTestComment() string {
