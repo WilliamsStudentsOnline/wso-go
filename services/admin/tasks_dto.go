@@ -29,7 +29,8 @@ type FactrakReviewTaskContext struct {
 
 type UserTagTaskContext struct {
 	TargetUserID uint        `json:"targetUserID"`
-	TagID        uint        `json:"tagID"`
+	TagName      string      `json:"tagName,omitempty"`
+	TagID        uint        `json:"tagID,omitempty"`
 	Tag          *models.Tag `json:"tag,omitempty"`
 }
 

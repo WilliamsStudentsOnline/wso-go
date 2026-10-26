@@ -19,3 +19,15 @@ func NewTagModel(db *gorm.DB, log *zap.SugaredLogger) *TagModel {
 func (m *TagModel) GetTagByID(id uint, tag *Tag) error {
 	return m.DB.First(tag, id).Error
 }
+
+func (m *TagModel) GetTagByName(name string, tag *Tag) error {
+	return m.DB.Where("name = ?", name).First(tag).Error
+}
+
+func (m *TagModel) FirstOrCreateByName(name string) (*Tag, error) {
+	tag := &Tag{Name: name}
+	if err := m.DB.Where(Tag{Name: name}).FirstOrCreate(tag).Error; err != nil {
+		return nil, err
+	}
+	return tag, nil
+}

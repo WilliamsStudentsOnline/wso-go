@@ -30,31 +30,41 @@ func TestCreateTagRequest_EnforcesOpenLimit(t *testing.T) {
 	utils.AddUserContexts(router, user.ID)
 	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
-	tags := []models.Tag{{Name: "Alpha"}, {Name: "Beta"}, {Name: "Gamma"}, {Name: "Delta"}}
-	for i := range tags {
-		require.NoError(t, db.Create(&tags[i]).Error)
-	}
-
 	for i := 0; i < models.MaxOpenUserTagTasksPerRequester; i++ {
 		body, _ := json.Marshal(CreateTagRequestParams{
-			TaskType: models.ModeratorTaskTypeNewUserTag,
-			TagID:    tags[i].ID,
+			TagName: fmt.Sprintf("New Club %d", i),
 		})
 		w, err := utils.DoHTTPReq(router, http.MethodPost, fmt.Sprintf("/%d/tag-requests", user.ID), bytes.NewReader(body))
 		require.NoError(t, err)
 		assert.Equal(http.StatusOK, w.Code)
 	}
 
-	body, _ := json.Marshal(CreateTagRequestParams{
-		TaskType: models.ModeratorTaskTypeNewUserTag,
-		TagID:    tags[3].ID,
-	})
+	body, _ := json.Marshal(CreateTagRequestParams{TagName: "Another Club"})
 	w, err := utils.DoHTTPReq(router, http.MethodPost, fmt.Sprintf("/%d/tag-requests", user.ID), bytes.NewReader(body))
 	require.NoError(t, err)
 	utils.CheckRespError(assert, w, lib.ErrorModeratorTaskTagRequestLimit)
 }
 
-func TestCreateTagRequest_ApproveAddsTag(t *testing.T) {
+func TestCreateTagRequest_RejectsExistingTag(t *testing.T) {
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+	cfg := utils.SetupConfig()
+
+	user := models.User{Type: models.UserTypeStudent, Name: "Stu", UnixID: "stu"}
+	require.NoError(t, db.Create(&user).Error)
+	require.NoError(t, db.Create(&models.Tag{Name: "WSO"}).Error)
+
+	router := utils.SetupRouter(auth.ScopeUsers, auth.ScopeWriteSelf)
+	utils.AddUserContexts(router, user.ID)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+
+	body, _ := json.Marshal(CreateTagRequestParams{TagName: "WSO"})
+	w, err := utils.DoHTTPReq(router, http.MethodPost, fmt.Sprintf("/%d/tag-requests", user.ID), bytes.NewReader(body))
+	require.NoError(t, err)
+	utils.CheckRespError(assert, w, lib.ErrorUserTagAlreadyExists)
+}
+
+func TestCreateTagRequest_ApproveCreatesAndAddsTag(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
 	cfg := utils.SetupConfig()
@@ -66,13 +76,8 @@ func TestCreateTagRequest_ApproveAddsTag(t *testing.T) {
 	utils.AddUserContexts(router, user.ID)
 	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
 
-	tag := models.Tag{Name: "WSO"}
-	require.NoError(t, db.Create(&tag).Error)
-
-	body, _ := json.Marshal(CreateTagRequestParams{
-		TaskType: models.ModeratorTaskTypeNewUserTag,
-		TagID:    tag.ID,
-	})
+	const tagName = "Brand New Org"
+	body, _ := json.Marshal(CreateTagRequestParams{TagName: tagName})
 	w, err := utils.DoHTTPReq(router, http.MethodPost, fmt.Sprintf("/%d/tag-requests", user.ID), bytes.NewReader(body))
 	require.NoError(t, err)
 	assert.Equal(http.StatusOK, w.Code)
@@ -84,7 +89,7 @@ func TestCreateTagRequest_ApproveAddsTag(t *testing.T) {
 	var task models.ModeratorTask
 	require.NoError(t, db.Where("task_type = ? AND task_reference = ?",
 		models.ModeratorTaskTypeNewUserTag,
-		models.TaskReference(models.ModeratorTaskTypeNewUserTag, user.ID, tag.ID),
+		models.UserTagNameTaskReference(user.ID, tagName),
 	).First(&task).Error)
 
 	resolveBody, _ := json.Marshal(admin.ResolveTasksBody{Resolution: models.ModeratorTaskResolutionApproved})
@@ -93,8 +98,33 @@ func TestCreateTagRequest_ApproveAddsTag(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(http.StatusOK, w.Code)
 
+	var tag models.Tag
+	require.NoError(t, db.Where("name = ?", tagName).First(&tag).Error)
+
 	var u models.User
 	require.NoError(t, db.Preload("Tags").First(&u, user.ID).Error)
 	require.Len(t, u.Tags, 1)
-	assert.Equal(tag.Name, u.Tags[0].Name)
+	assert.Equal(tagName, u.Tags[0].Name)
+}
+
+func TestCreateTagRequest_DuplicateOpenName(t *testing.T) {
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+	cfg := utils.SetupConfig()
+
+	user := models.User{Type: models.UserTypeStudent, Name: "Stu", UnixID: "stu"}
+	require.NoError(t, db.Create(&user).Error)
+
+	router := utils.SetupRouter(auth.ScopeUsers, auth.ScopeWriteSelf)
+	utils.AddUserContexts(router, user.ID)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+
+	body, _ := json.Marshal(CreateTagRequestParams{TagName: "Pending Club"})
+	w, err := utils.DoHTTPReq(router, http.MethodPost, fmt.Sprintf("/%d/tag-requests", user.ID), bytes.NewReader(body))
+	require.NoError(t, err)
+	assert.Equal(http.StatusOK, w.Code)
+
+	w, err = utils.DoHTTPReq(router, http.MethodPost, fmt.Sprintf("/%d/tag-requests", user.ID), bytes.NewReader(body))
+	require.NoError(t, err)
+	utils.CheckRespError(assert, w, lib.ErrorModeratorTaskTagRequestOpen)
 }

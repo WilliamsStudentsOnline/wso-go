@@ -34,8 +34,10 @@ type FactrakReviewTaskFields struct {
 }
 
 type UserTagTaskFields struct {
-	TargetUserID uint `json:"targetUserID"`
-	TagID        uint `json:"tagID"`
+	TargetUserID uint   `json:"targetUserID"`
+	TagName      string `json:"tagName"`
+	// TagID kept for legacy DELETE_USER_TAG tasks created before name-based NEW requests
+	TagID uint `json:"tagID,omitempty"`
 }
 
 type ModeratorTask struct {

@@ -1,9 +1,11 @@
 package models
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
-	"fmt"
+	"strings"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -222,23 +224,28 @@ func DecodeUserTagFields(taskFieldsJSON string) (*UserTagTaskFields, error) {
 	return &fields, nil
 }
 
-func NewUserTagTask(taskType ModeratorTaskType, requestingUserID *uint, targetUserID, tagID uint) (*ModeratorTask, error) {
-	if !taskType.IsUserTagTask() {
-		return nil, fmt.Errorf("not a user tag task type: %s", taskType)
+// NewUserTagNameTask queues NEW_USER_TAG for a tag name that does not exist yet
+func NewUserTagNameTask(requestingUserID *uint, targetUserID uint, tagName string) (*ModeratorTask, error) {
+	tagName = strings.TrimSpace(tagName)
+	if targetUserID == 0 || tagName == "" {
+		return nil, errors.New("targetUserID and tagName are required")
 	}
-	if targetUserID == 0 || tagID == 0 {
-		return nil, errors.New("targetUserID and tagID are required")
-	}
-	fields, err := EncodeTaskFields(UserTagTaskFields{TargetUserID: targetUserID, TagID: tagID})
+	fields, err := EncodeTaskFields(UserTagTaskFields{TargetUserID: targetUserID, TagName: tagName})
 	if err != nil {
 		return nil, err
 	}
 	return &ModeratorTask{
 		RequestingUserID: requestingUserID,
-		TaskType:         taskType,
+		TaskType:         ModeratorTaskTypeNewUserTag,
 		TaskFields:       fields,
-		TaskReference:    TaskReference(taskType, targetUserID, tagID),
+		TaskReference:    UserTagNameTaskReference(targetUserID, tagName),
 	}, nil
+}
+
+// UserTagNameTaskReference groups open NEW_USER_TAG requests by user + normalized name
+func UserTagNameTaskReference(targetUserID uint, tagName string) string {
+	sum := sha256.Sum256([]byte(strings.ToLower(strings.TrimSpace(tagName))))
+	return TaskReference(ModeratorTaskTypeNewUserTag, targetUserID) + ":" + hex.EncodeToString(sum[:8])
 }
 
 func (m *ModeratorTaskModel) CountOpenTasksForRequester(requestingUserID uint, taskTypes ...ModeratorTaskType) (int, error) {

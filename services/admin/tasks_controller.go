@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"strings"
 	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
@@ -269,10 +270,19 @@ func (t *Controller) contextForTask(taskType models.ModeratorTaskType, taskField
 		if err != nil {
 			return nil, err
 		}
-		ctx := UserTagTaskContext{TargetUserID: fields.TargetUserID, TagID: fields.TagID}
-		var tag models.Tag
-		if err := t.tagModel.GetTagByID(fields.TagID, &tag); err == nil {
-			ctx.Tag = &tag
+		ctx := UserTagTaskContext{
+			TargetUserID: fields.TargetUserID,
+			TagName:      fields.TagName,
+			TagID:        fields.TagID,
+		}
+		if fields.TagID != 0 {
+			var tag models.Tag
+			if err := t.tagModel.GetTagByID(fields.TagID, &tag); err == nil {
+				ctx.Tag = &tag
+				if ctx.TagName == "" {
+					ctx.TagName = tag.Name
+				}
+			}
 		}
 		return ctx, nil
 	default:
@@ -337,15 +347,25 @@ func (t *Controller) approveNewUserTag(sample *models.ModeratorTask) error {
 	if err != nil {
 		return err
 	}
-	if err := t.userModel.AddUserTag(fields.TargetUserID, fields.TagID); err != nil {
+	tagName := strings.TrimSpace(fields.TagName)
+	if tagName == "" {
+		return lib.ErrorUserTagNameRequired
+	}
+
+	tag, err := t.tagModel.FirstOrCreateByName(tagName)
+	if err != nil {
+		return err
+	}
+	if err := t.userModel.AddUserTag(fields.TargetUserID, tag.ID); err != nil {
 		if gorm.IsRecordNotFoundError(err) || err == lib.ErrorInvalidUserTag {
 			return lib.ErrorModeratorTaskSubjectGone
 		}
 		return err
 	}
-	t.Log.Infow("user tag added via moderator approve",
+	t.Log.Infow("user tag created and added via moderator approve",
 		"targetUserID", fields.TargetUserID,
-		"tagID", fields.TagID,
+		"tagID", tag.ID,
+		"tagName", tag.Name,
 		"taskReference", sample.TaskReference,
 	)
 	return nil

@@ -2112,17 +2112,10 @@ definitions:
     type: object
   user.CreateTagRequestParams:
     properties:
-      tagID:
-        type: integer
-      taskType:
-        allOf:
-        - $ref: '#/definitions/models.ModeratorTaskType'
-        enum:
-        - NEW_USER_TAG
-        - DELETE_USER_TAG
+      tagName:
+        type: string
     required:
-    - tagID
-    - taskType
+    - tagName
     type: object
   user.UpdateUserParams:
     properties:
@@ -7672,7 +7665,9 @@ paths:
     post:
       consumes:
       - application/json
-      description: request to create or delete a user tag
+      description: request a brand-new tag name (not already in the tags table). Existing
+        tags are added via PUT /users/{id}/tags. On moderator approve, the tag is
+        created and attached to the requester.
       operationId: createUserTagRequest
       parameters:
       - description: User ID
@@ -7706,17 +7701,25 @@ paths:
           description: must be self
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "1406":
-          description: invalid user tag
+        "1408":
+          description: tag already exists
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "1409":
+          description: tag name is required
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "2405":
           description: too many open user tag moderator requests
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
+        "2406":
+          description: open tag request already exists for this name
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
-      summary: Request a user tag add or delete
+      summary: Request creation of a new user tag
       tags:
       - users
       - moderator
