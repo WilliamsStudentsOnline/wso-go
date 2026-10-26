@@ -1,5 +1,61 @@
 basePath: /api/v2
 definitions:
+  admin.ModeratorTaskDTO:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: integer
+      requestingUser:
+        $ref: '#/definitions/models.User'
+      requestingUserID:
+        type: integer
+      resolution:
+        $ref: '#/definitions/models.ModeratorTaskResolution'
+      resolvedAt:
+        type: string
+      resolvedByUser:
+        $ref: '#/definitions/models.User'
+      resolvedByUserID:
+        type: integer
+      subjectKey:
+        type: string
+      taskFields:
+        additionalProperties: true
+        type: object
+      taskType:
+        $ref: '#/definitions/models.ModeratorTaskType'
+      updatedAt:
+        type: string
+    type: object
+  admin.ModeratorTaskGroupDTO:
+    properties:
+      context: {}
+      subjectKey:
+        type: string
+      taskType:
+        $ref: '#/definitions/models.ModeratorTaskType'
+      tasks:
+        items:
+          $ref: '#/definitions/admin.ModeratorTaskDTO'
+        type: array
+    type: object
+  admin.ResolveTasksBody:
+    properties:
+      resolution:
+        allOf:
+        - $ref: '#/definitions/models.ModeratorTaskResolution'
+        enum:
+        - APPROVED
+        - REJECTED
+    required:
+    - resolution
+    type: object
+  admin.SubjectKeyResponse:
+    properties:
+      subjectKey:
+        type: string
+    type: object
   auth.AuthResponse:
     properties:
       expire:
@@ -1409,6 +1465,24 @@ definitions:
     - ListingTypeUndefined
     - ListingTypeBuy
     - ListingTypeSell
+  models.ModeratorTaskResolution:
+    enum:
+    - ""
+    - APPROVED
+    - REJECTED
+    type: string
+    x-enum-varnames:
+    - ModeratorTaskResolutionUndefined
+    - ModeratorTaskResolutionApproved
+    - ModeratorTaskResolutionRejected
+  models.ModeratorTaskType:
+    enum:
+    - ""
+    - FACTRAK_REVIEW
+    type: string
+    x-enum-varnames:
+    - ModeratorTaskTypeUndefined
+    - ModeratorTaskTypeFactrakReview
   models.Neighborhood:
     properties:
       dorms:
@@ -2086,6 +2160,231 @@ info:
   title: WSO API
   version: 2.0.0
 paths:
+  /admin/tasks:
+    get:
+      consumes:
+      - application/json
+      description: 'lists moderator tasks grouped by subjectKey (default: open only)'
+      operationId: listModeratorTasks
+      parameters:
+      - description: Filter by task type
+        enum:
+        - FACTRAK_REVIEW
+        in: query
+        name: taskType
+        type: string
+      - description: If true, closed tasks; if false/omitted, open tasks
+        in: query
+        name: resolved
+        type: boolean
+      - description: Filter by subject key
+        in: query
+        name: subjectKey
+        type: string
+      - description: Offset pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit pagination
+        in: query
+        name: limit
+        type: integer
+      - collectionFormat: csv
+        description: Preload
+        in: query
+        items:
+          enum:
+          - requestingUser
+          - resolvedByUser
+          type: string
+        name: preload
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/admin.ModeratorTaskGroupDTO'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: List moderator tasks
+      tags:
+      - admin
+      - moderator
+  /admin/tasks/{taskID}:
+    get:
+      consumes:
+      - application/json
+      description: get a single moderator task by id with enrich-on-read context
+      operationId: getModeratorTask
+      parameters:
+      - description: Task ID
+        in: path
+        name: taskID
+        required: true
+        type: integer
+      - collectionFormat: csv
+        description: Preload
+        in: query
+        items:
+          enum:
+          - requestingUser
+          - resolvedByUser
+          type: string
+        name: preload
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin.ModeratorTaskGroupDTO'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get moderator task
+      tags:
+      - admin
+      - moderator
+  /admin/tasks/by-subject/{subjectKey}:
+    delete:
+      consumes:
+      - application/json
+      description: soft-deletes all open tasks for a subjectKey (cleanup when subject
+        is already gone)
+      operationId: discardModeratorTasksBySubject
+      parameters:
+      - description: Subject key
+        in: path
+        name: subjectKey
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Discard open moderator tasks by subject
+      tags:
+      - admin
+      - moderator
+  /admin/tasks/by-subject/{subjectKey}/resolve:
+    post:
+      consumes:
+      - application/json
+      description: approve or reject all open tasks sharing a subjectKey; approve
+        runs the type-specific side effect once
+      operationId: resolveModeratorTasksBySubject
+      parameters:
+      - description: Subject key (e.g. factrak_survey:123)
+        in: path
+        name: subjectKey
+        required: true
+        type: string
+      - description: Resolution
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.ResolveTasksBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin.ModeratorTaskGroupDTO'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "409":
+          description: subject already gone — discard open tasks
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Resolve moderator tasks by subject
+      tags:
+      - admin
+      - moderator
+  /admin/tasks/subject-key:
+    get:
+      consumes:
+      - application/json
+      description: returns the canonical subjectKey for a task type and its identifying
+        fields
+      operationId: getModeratorTaskSubjectKey
+      parameters:
+      - description: Task type
+        enum:
+        - FACTRAK_REVIEW
+        in: query
+        name: taskType
+        required: true
+        type: string
+      - description: Factrak survey ID (required for FACTRAK_REVIEW)
+        in: query
+        name: factrakSurveyID
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin.SubjectKeyResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Compute moderator task subject key
+      tags:
+      - admin
+      - moderator
   /auth/api/refresh:
     get:
       consumes:

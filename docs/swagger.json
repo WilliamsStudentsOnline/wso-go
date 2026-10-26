@@ -16,6 +16,345 @@
     "host": "wso.williams.edu",
     "basePath": "/api/v2",
     "paths": {
+        "/admin/tasks": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "lists moderator tasks grouped by subjectKey (default: open only)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin",
+                    "moderator"
+                ],
+                "summary": "List moderator tasks",
+                "operationId": "listModeratorTasks",
+                "parameters": [
+                    {
+                        "enum": [
+                            "FACTRAK_REVIEW"
+                        ],
+                        "type": "string",
+                        "description": "Filter by task type",
+                        "name": "taskType",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "If true, closed tasks; if false/omitted, open tasks",
+                        "name": "resolved",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by subject key",
+                        "name": "subjectKey",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit pagination",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "enum": [
+                                "requestingUser",
+                                "resolvedByUser"
+                            ],
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Preload",
+                        "name": "preload",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/admin.ModeratorTaskGroupDTO"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/tasks/by-subject/{subjectKey}": {
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "soft-deletes all open tasks for a subjectKey (cleanup when subject is already gone)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin",
+                    "moderator"
+                ],
+                "summary": "Discard open moderator tasks by subject",
+                "operationId": "discardModeratorTasksBySubject",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Subject key",
+                        "name": "subjectKey",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/tasks/by-subject/{subjectKey}/resolve": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "approve or reject all open tasks sharing a subjectKey; approve runs the type-specific side effect once",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin",
+                    "moderator"
+                ],
+                "summary": "Resolve moderator tasks by subject",
+                "operationId": "resolveModeratorTasksBySubject",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Subject key (e.g. factrak_survey:123)",
+                        "name": "subjectKey",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Resolution",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/admin.ResolveTasksBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin.ModeratorTaskGroupDTO"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "subject already gone — discard open tasks",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/tasks/subject-key": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "returns the canonical subjectKey for a task type and its identifying fields",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin",
+                    "moderator"
+                ],
+                "summary": "Compute moderator task subject key",
+                "operationId": "getModeratorTaskSubjectKey",
+                "parameters": [
+                    {
+                        "enum": [
+                            "FACTRAK_REVIEW"
+                        ],
+                        "type": "string",
+                        "description": "Task type",
+                        "name": "taskType",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Factrak survey ID (required for FACTRAK_REVIEW)",
+                        "name": "factrakSurveyID",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin.SubjectKeyResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/tasks/{taskID}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "get a single moderator task by id with enrich-on-read context",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin",
+                    "moderator"
+                ],
+                "summary": "Get moderator task",
+                "operationId": "getModeratorTask",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Task ID",
+                        "name": "taskID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "enum": [
+                                "requestingUser",
+                                "resolvedByUser"
+                            ],
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Preload",
+                        "name": "preload",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin.ModeratorTaskGroupDTO"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/api/refresh": {
             "get": {
                 "security": [
@@ -8434,6 +8773,93 @@
         }
     },
     "definitions": {
+        "admin.ModeratorTaskDTO": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "requestingUser": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "requestingUserID": {
+                    "type": "integer"
+                },
+                "resolution": {
+                    "$ref": "#/definitions/models.ModeratorTaskResolution"
+                },
+                "resolvedAt": {
+                    "type": "string"
+                },
+                "resolvedByUser": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "resolvedByUserID": {
+                    "type": "integer"
+                },
+                "subjectKey": {
+                    "type": "string"
+                },
+                "taskFields": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "taskType": {
+                    "$ref": "#/definitions/models.ModeratorTaskType"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "admin.ModeratorTaskGroupDTO": {
+            "type": "object",
+            "properties": {
+                "context": {},
+                "subjectKey": {
+                    "type": "string"
+                },
+                "taskType": {
+                    "$ref": "#/definitions/models.ModeratorTaskType"
+                },
+                "tasks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/admin.ModeratorTaskDTO"
+                    }
+                }
+            }
+        },
+        "admin.ResolveTasksBody": {
+            "type": "object",
+            "required": [
+                "resolution"
+            ],
+            "properties": {
+                "resolution": {
+                    "enum": [
+                        "APPROVED",
+                        "REJECTED"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.ModeratorTaskResolution"
+                        }
+                    ]
+                }
+            }
+        },
+        "admin.SubjectKeyResponse": {
+            "type": "object",
+            "properties": {
+                "subjectKey": {
+                    "type": "string"
+                }
+            }
+        },
         "auth.AuthResponse": {
             "type": "object",
             "properties": {
@@ -10472,6 +10898,30 @@
                 "ListingTypeUndefined",
                 "ListingTypeBuy",
                 "ListingTypeSell"
+            ]
+        },
+        "models.ModeratorTaskResolution": {
+            "type": "string",
+            "enum": [
+                "",
+                "APPROVED",
+                "REJECTED"
+            ],
+            "x-enum-varnames": [
+                "ModeratorTaskResolutionUndefined",
+                "ModeratorTaskResolutionApproved",
+                "ModeratorTaskResolutionRejected"
+            ]
+        },
+        "models.ModeratorTaskType": {
+            "type": "string",
+            "enum": [
+                "",
+                "FACTRAK_REVIEW"
+            ],
+            "x-enum-varnames": [
+                "ModeratorTaskTypeUndefined",
+                "ModeratorTaskTypeFactrakReview"
             ]
         },
         "models.Neighborhood": {

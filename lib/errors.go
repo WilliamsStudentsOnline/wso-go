@@ -193,4 +193,11 @@ var (
 	ErrorRedisClientNotConfigured        = NewAPIError(2300, "redis client not configured, is redis running locally?")
 	ErrorCourseSchedulerSelectionStrconv = NewAPIError(2310, "unable to assert course scheduler selection as string")
 	ErrorBannerUnmarshal                 = NewAPIError(2320, "unable to unmarshal banner from redis")
+
+	// 24** are errors for the moderator console
+	ErrorModeratorTaskInvalidType       = NewAPIError(2400, "invalid moderator task type")
+	ErrorModeratorTaskInvalidResolution = NewAPIError(2401, "invalid moderator task resolution")
+	ErrorModeratorTaskNoOpenTasks       = NewAPIErrorWithHTTP(2402, http.StatusNotFound, "no open moderator tasks for subject")
+	ErrorModeratorTaskSubjectGone       = NewAPIErrorWithHTTP(2403, http.StatusConflict, "moderator task subject is already gone; discard the open tasks")
+	ErrorModeratorTaskInvalidSubjectKey = NewAPIError(2404, "invalid or incomplete subject key parameters")
 )
