@@ -105,7 +105,7 @@ var (
 	ErrorUserIDNoParse           = NewAPIError(1405, "user id could not be parsed")
 	ErrorInvalidUserTag          = NewAPIError(1406, "invalid user tag")
 	ErrorUserInvalidCampusStatus = NewAPIError(1407, "user campus status is invalid")
-	ErrorUserTagAlreadyExists    = NewAPIError(1408, "tag already exists")
+	ErrorUserAlreadyHasTag       = NewAPIError(1408, "user already has this tag")
 	ErrorUserTagNameRequired     = NewAPIError(1409, "tag name is required")
 
 	// 15** are factrak errors

@@ -265,7 +265,7 @@ func (t *Controller) contextForTask(taskType models.ModeratorTaskType, taskField
 		}
 		anonymizeSurveyAuthor(&survey)
 		return FactrakReviewTaskContext{Survey: &survey}, nil
-	case models.ModeratorTaskTypeNewUserTag, models.ModeratorTaskTypeDeleteUserTag:
+	case models.ModeratorTaskTypeNewUserTag:
 		fields, err := models.DecodeUserTagFields(taskFieldsJSON)
 		if err != nil {
 			return nil, err
@@ -273,15 +273,11 @@ func (t *Controller) contextForTask(taskType models.ModeratorTaskType, taskField
 		ctx := UserTagTaskContext{
 			TargetUserID: fields.TargetUserID,
 			TagName:      fields.TagName,
-			TagID:        fields.TagID,
 		}
-		if fields.TagID != 0 {
+		if fields.TagName != "" {
 			var tag models.Tag
-			if err := t.tagModel.GetTagByID(fields.TagID, &tag); err == nil {
+			if err := t.tagModel.GetTagByName(fields.TagName, &tag); err == nil {
 				ctx.Tag = &tag
-				if ctx.TagName == "" {
-					ctx.TagName = tag.Name
-				}
 			}
 		}
 		return ctx, nil
@@ -296,8 +292,6 @@ func (t *Controller) applyApproveSideEffect(c *gin.Context, taskType models.Mode
 		return t.approveFactrakReview(c, sample)
 	case models.ModeratorTaskTypeNewUserTag:
 		return t.approveNewUserTag(sample)
-	case models.ModeratorTaskTypeDeleteUserTag:
-		return t.approveDeleteUserTag(sample)
 	default:
 		return lib.ErrorModeratorTaskInvalidType
 	}
@@ -366,25 +360,6 @@ func (t *Controller) approveNewUserTag(sample *models.ModeratorTask) error {
 		"targetUserID", fields.TargetUserID,
 		"tagID", tag.ID,
 		"tagName", tag.Name,
-		"taskReference", sample.TaskReference,
-	)
-	return nil
-}
-
-func (t *Controller) approveDeleteUserTag(sample *models.ModeratorTask) error {
-	fields, err := models.DecodeUserTagFields(sample.TaskFields)
-	if err != nil {
-		return err
-	}
-	if err := t.userModel.RemoveUserTag(fields.TargetUserID, fields.TagID); err != nil {
-		if gorm.IsRecordNotFoundError(err) || err == lib.ErrorInvalidUserTag {
-			return lib.ErrorModeratorTaskSubjectGone
-		}
-		return err
-	}
-	t.Log.Infow("user tag removed via moderator approve",
-		"targetUserID", fields.TargetUserID,
-		"tagID", fields.TagID,
 		"taskReference", sample.TaskReference,
 	)
 	return nil

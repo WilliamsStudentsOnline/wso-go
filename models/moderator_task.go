@@ -224,7 +224,6 @@ func DecodeUserTagFields(taskFieldsJSON string) (*UserTagTaskFields, error) {
 	return &fields, nil
 }
 
-// NewUserTagNameTask queues NEW_USER_TAG for a tag name that does not exist yet
 func NewUserTagNameTask(requestingUserID *uint, targetUserID uint, tagName string) (*ModeratorTask, error) {
 	tagName = strings.TrimSpace(tagName)
 	if targetUserID == 0 || tagName == "" {
@@ -242,7 +241,6 @@ func NewUserTagNameTask(requestingUserID *uint, targetUserID uint, tagName strin
 	}, nil
 }
 
-// UserTagNameTaskReference groups open NEW_USER_TAG requests by user + normalized name
 func UserTagNameTaskReference(targetUserID uint, tagName string) string {
 	sum := sha256.Sum256([]byte(strings.ToLower(strings.TrimSpace(tagName))))
 	return TaskReference(ModeratorTaskTypeNewUserTag, targetUserID) + ":" + hex.EncodeToString(sum[:8])

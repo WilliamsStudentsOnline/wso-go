@@ -351,8 +351,8 @@ type CreateTagRequestParams struct {
 }
 
 // CreateTagRequest godoc
-// @Summary Request creation of a new user tag
-// @Description request a brand-new tag name (not already in the tags table). Existing tags are added via PUT /users/{id}/tags. On moderator approve, the tag is created and attached to the requester.
+// @Summary Request a user tag
+// @Description queues NEW_USER_TAG for tagName; approve creates the tag if needed and attaches it
 // @ID createUserTagRequest
 // @Tags users,moderator
 // @Accept json
@@ -361,7 +361,7 @@ type CreateTagRequestParams struct {
 // @Param body body user.CreateTagRequestParams true "Tag request"
 // @Success 200 {object} map[string]interface{}
 // @Failure 1331 {object} services.BaseErrorResponse "must be self"
-// @Failure 1408 {object} services.BaseErrorResponse "tag already exists"
+// @Failure 1408 {object} services.BaseErrorResponse "user already has this tag"
 // @Failure 1409 {object} services.BaseErrorResponse "tag name is required"
 // @Failure 2405 {object} services.BaseErrorResponse "too many open user tag moderator requests"
 // @Failure 2406 {object} services.BaseErrorResponse "open tag request already exists for this name"
@@ -391,14 +391,13 @@ func (t *Controller) CreateTagRequest(c *gin.Context) {
 		return
 	}
 
-	var existing models.Tag
-	err = t.tagModel.GetTagByName(tagName, &existing)
-	if err == nil {
-		t.RespondAPIError(c, lib.ErrorUserTagAlreadyExists)
+	hasTag, err := t.userModel.UserHasTagName(userID, tagName)
+	if err != nil {
+		t.RespondError(c, err)
 		return
 	}
-	if !gorm.IsRecordNotFoundError(err) {
-		t.RespondError(c, err)
+	if hasTag {
+		t.RespondAPIError(c, lib.ErrorUserAlreadyHasTag)
 		return
 	}
 

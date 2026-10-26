@@ -8475,7 +8475,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "request a brand-new tag name (not already in the tags table). Existing tags are added via PUT /users/{id}/tags. On moderator approve, the tag is created and attached to the requester.",
+                "description": "queues NEW_USER_TAG for tagName; approve creates the tag if needed and attaches it",
                 "consumes": [
                     "application/json"
                 ],
@@ -8486,7 +8486,7 @@ const docTemplate = `{
                     "users",
                     "moderator"
                 ],
-                "summary": "Request creation of a new user tag",
+                "summary": "Request a user tag",
                 "operationId": "createUserTagRequest",
                 "parameters": [
                     {
@@ -8514,7 +8514,7 @@ const docTemplate = `{
                         }
                     },
                     "1408": {
-                        "description": "tag already exists",
+                        "description": "user already has this tag",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
