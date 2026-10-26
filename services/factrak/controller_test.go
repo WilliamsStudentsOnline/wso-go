@@ -6,6 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/WilliamsStudentsOnline/wso-go/lib"
+
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
@@ -55,12 +57,12 @@ func TestRemoveUserIDFromSurveys(t *testing.T) {
 		{UserID: selfID, User: &self, Comment: "s6"},
 	}
 	expected := []*models.FactrakSurvey{
-		{UserID: 0, User: nil, Comment: "s1"},
-		{UserID: 0, User: nil, Comment: "s2"},
-		{UserID: selfID, User: &self, Comment: "s3"},
-		{UserID: 0, User: nil, Comment: "s4"},
-		{UserID: 0, User: nil, Comment: "s5"},
-		{UserID: selfID, User: &self, Comment: "s6"},
+		{UserID: 0, User: nil, Comment: "s1", Editable: lib.FalsePtr()},
+		{UserID: 0, User: nil, Comment: "s2", Editable: lib.FalsePtr()},
+		{UserID: selfID, User: &self, Comment: "s3", Editable: lib.TruePtr()},
+		{UserID: 0, User: nil, Comment: "s4", Editable: lib.FalsePtr()},
+		{UserID: 0, User: nil, Comment: "s5", Editable: lib.FalsePtr()},
+		{UserID: selfID, User: &self, Comment: "s6", Editable: lib.TruePtr()},
 	}
 
 	RemoveUserIDFromSurveys(ctx, surveys)

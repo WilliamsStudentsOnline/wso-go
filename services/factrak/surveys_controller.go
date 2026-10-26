@@ -125,10 +125,13 @@ func (t *Controller) GetSurvey(c *gin.Context) {
 		return
 	}
 
-	// Remove user info unless self, admin, or admin factrak
+	// Remove user info unless self, admin, or admin factrak & mark editable flag
 	if !auth.CheckIDIsSelf(c, survey.UserID) && !auth.HasScope(c, auth.ScopeAdminAll, auth.ScopeFactrakAdmin) {
 		survey.UserID = 0
 		survey.User = nil
+		survey.Editable = lib.FalsePtr()
+	} else {
+		survey.Editable = lib.TruePtr()
 	}
 
 	t.RespondOK(c, survey)

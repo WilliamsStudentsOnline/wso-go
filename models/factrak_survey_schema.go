@@ -62,6 +62,10 @@ type FactrakSurvey struct {
 	// True means user agreed, false means user disagreed, and null/missing means user does not have any
 	// agreement/disagreement.
 	ClientAgreement *bool `gorm:"-" json:"clientAgreement,omitempty"`
+
+	// true if the user can edit this review, false if otherwise.
+	// This field is not stored in gorm but is automatically generated on return
+	Editable *bool `gorm:"-" json:"editable"`
 }
 
 func (*FactrakSurvey) TableName() string {
