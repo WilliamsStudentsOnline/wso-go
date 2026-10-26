@@ -214,4 +214,5 @@ var (
 	ErrorBoardTypeImmutable           = NewAPIError(2412, "thread type cannot be changed")
 	ErrorBoardThreadNotFound          = NewAPIErrorWithHTTP(2413, http.StatusNotFound, "board thread cannot be found")
 	ErrorBoardPostNotFound            = NewAPIErrorWithHTTP(2414, http.StatusNotFound, "board post cannot be found")
+	ErrorBoardCannotFlagSelf          = NewAPIErrorWithHTTP(2415, http.StatusForbidden, "cannot flag your own content")
 )
