@@ -147,15 +147,6 @@ var (
 	ErrorBulletinRideDateInPast = NewAPIError(1841, "date cannot be in past")
 	ErrorDiscussionNotFound     = NewAPIErrorWithHTTP(1850, http.StatusNotFound, "discussion cannot be found")
 
-	// 24** are board errors
-	ErrorBoardInvalidType      = NewAPIError(2430, "invalid board thread type")
-	ErrorBoardInvalidDates     = NewAPIError(2431, "startsAt cannot be after endsAt")
-	ErrorBoardRepliesDisabled  = NewAPIErrorWithHTTP(2432, http.StatusForbidden, "replies are disabled on this thread")
-	ErrorBoardRideInformationRequired = NewAPIError(2435, "ride threads require offeringRide, source, and destination")
-	ErrorBoardTypeImmutable    = NewAPIError(2436, "thread type cannot be changed")
-	ErrorBoardThreadNotFound   = NewAPIErrorWithHTTP(2450, http.StatusNotFound, "board thread cannot be found")
-	ErrorBoardPostNotFound     = NewAPIErrorWithHTTP(2451, http.StatusNotFound, "board post cannot be found")
-
 	// 19** are ephmatch errors
 	ErrorEphmatchDeprecated = NewAPIErrorWithHTTP(1900, http.StatusGone, "ephmatch api is deprecated")
 
@@ -214,4 +205,14 @@ var (
 	ErrorModeratorTaskTagRequestLimit   = NewAPIError(2405, "too many open user tag task requests")
 	ErrorModeratorTaskTagRequestOpen    = NewAPIError(2406, "open tag request already exists for this name")
 	ErrorModeratorTaskFactrakFlagOpen   = NewAPIError(2407, "open factrak flag already exists for this survey")
+
+	// 243* / 245* are board errors
+	ErrorBoardInvalidType             = NewAPIError(2430, "invalid board thread type")
+	ErrorBoardInvalidDates            = NewAPIError(2431, "startsAt cannot be after endsAt")
+	ErrorBoardRepliesDisabled         = NewAPIErrorWithHTTP(2432, http.StatusForbidden, "replies are disabled on this thread")
+	ErrorBoardCannotFlagSelf          = NewAPIErrorWithHTTP(2433, http.StatusForbidden, "cannot flag your own content")
+	ErrorBoardRideInformationRequired = NewAPIError(2435, "ride threads require offeringRide, source, and destination")
+	ErrorBoardTypeImmutable           = NewAPIError(2436, "thread type cannot be changed")
+	ErrorBoardThreadNotFound          = NewAPIErrorWithHTTP(2450, http.StatusNotFound, "board thread cannot be found")
+	ErrorBoardPostNotFound            = NewAPIErrorWithHTTP(2451, http.StatusNotFound, "board post cannot be found")
 )

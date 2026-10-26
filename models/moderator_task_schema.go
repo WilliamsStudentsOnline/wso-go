@@ -12,9 +12,11 @@ import (
 type ModeratorTaskType string
 
 const (
-	ModeratorTaskTypeUndefined     ModeratorTaskType = ""
-	ModeratorTaskTypeFactrakReview ModeratorTaskType = "FACTRAK_REVIEW"
-	ModeratorTaskTypeNewUserTag    ModeratorTaskType = "NEW_USER_TAG"
+	ModeratorTaskTypeUndefined         ModeratorTaskType = ""
+	ModeratorTaskTypeFactrakReview     ModeratorTaskType = "FACTRAK_REVIEW"
+	ModeratorTaskTypeNewUserTag        ModeratorTaskType = "NEW_USER_TAG"
+	ModeratorTaskTypeBoardThreadReview ModeratorTaskType = "BOARD_THREAD_REVIEW"
+	ModeratorTaskTypeBoardPostReview   ModeratorTaskType = "BOARD_POST_REVIEW"
 )
 
 const MaxOpenUserTagTasksPerRequester = 3
@@ -34,6 +36,14 @@ type FactrakReviewTaskFields struct {
 type UserTagTaskFields struct {
 	TargetUserID uint   `json:"targetUserID"`
 	TagName      string `json:"tagName"`
+}
+
+type BoardThreadReviewTaskFields struct {
+	BoardThreadID uint `json:"boardThreadID"`
+}
+
+type BoardPostReviewTaskFields struct {
+	BoardPostID uint `json:"boardPostID"`
 }
 
 type ModeratorTask struct {
@@ -73,7 +83,8 @@ func (t *ModeratorTaskType) UnmarshalJSON(b []byte) error {
 		return err
 	}
 	switch *t {
-	case ModeratorTaskTypeUndefined, ModeratorTaskTypeFactrakReview, ModeratorTaskTypeNewUserTag:
+	case ModeratorTaskTypeUndefined, ModeratorTaskTypeFactrakReview, ModeratorTaskTypeNewUserTag,
+		ModeratorTaskTypeBoardThreadReview, ModeratorTaskTypeBoardPostReview:
 		return nil
 	}
 	return errors.New("invalid moderator task type")
@@ -94,13 +105,18 @@ func (r *ModeratorTaskResolution) UnmarshalJSON(b []byte) error {
 
 func (t ModeratorTaskType) Validate() error {
 	switch t {
-	case ModeratorTaskTypeFactrakReview, ModeratorTaskTypeNewUserTag:
+	case ModeratorTaskTypeFactrakReview, ModeratorTaskTypeNewUserTag,
+		ModeratorTaskTypeBoardThreadReview, ModeratorTaskTypeBoardPostReview:
 		return nil
 	case ModeratorTaskTypeUndefined:
 		return errors.New("task type is required")
 	default:
 		return fmt.Errorf("unknown task type: %s", t)
 	}
+}
+
+func (t ModeratorTaskType) IsBoardReviewTask() bool {
+	return t == ModeratorTaskTypeBoardThreadReview || t == ModeratorTaskTypeBoardPostReview
 }
 
 func (t ModeratorTaskType) IsUserTagTask() bool {
