@@ -18,7 +18,6 @@ const (
 	ModeratorTaskTypeDeleteUserTag  ModeratorTaskType = "DELETE_USER_TAG"
 )
 
-// MaxOpenUserTagTasksPerRequester caps concurrent open NEW/DELETE user-tag requests per user
 const MaxOpenUserTagTasksPerRequester = 3
 
 type ModeratorTaskResolution string
@@ -34,8 +33,8 @@ type FactrakReviewTaskFields struct {
 }
 
 type UserTagTaskFields struct {
-	TargetUserID uint `json:"targetUserID"`
-	TagID        uint `json:"tagID"`
+	TargetUserID uint   `json:"targetUserID"`
+	TagName      string `json:"tagName"`
 }
 
 type ModeratorTask struct {
@@ -106,5 +105,5 @@ func (t ModeratorTaskType) Validate() error {
 }
 
 func (t ModeratorTaskType) IsUserTagTask() bool {
-	return t == ModeratorTaskTypeNewUserTag || t == ModeratorTaskTypeDeleteUserTag
+	return t == ModeratorTaskTypeNewUserTag
 }

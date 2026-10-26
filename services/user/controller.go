@@ -6,6 +6,7 @@ import (
 	_ "image/jpeg"
 	_ "image/png"
 	"net/http"
+	"strings"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
@@ -346,13 +347,12 @@ func (t *Controller) UpdateUserTags(c *gin.Context) {
 }
 
 type CreateTagRequestParams struct {
-	TaskType models.ModeratorTaskType `json:"taskType" binding:"required" enums:"NEW_USER_TAG,DELETE_USER_TAG"`
-	TagID    uint                     `json:"tagID" binding:"required"`
+	TagName string `json:"tagName" binding:"required"`
 }
 
 // CreateTagRequest godoc
-// @Summary Request a user tag add or delete
-// @Description request to create or delete a user tag
+// @Summary Request a user tag
+// @Description request to create a new user tag
 // @ID createUserTagRequest
 // @Tags users,moderator
 // @Accept json
@@ -361,8 +361,10 @@ type CreateTagRequestParams struct {
 // @Param body body user.CreateTagRequestParams true "Tag request"
 // @Success 200 {object} map[string]interface{}
 // @Failure 1331 {object} services.BaseErrorResponse "must be self"
-// @Failure 1406 {object} services.BaseErrorResponse "invalid user tag"
+// @Failure 1408 {object} services.BaseErrorResponse "tag already exists"
+// @Failure 1409 {object} services.BaseErrorResponse "tag name is required"
 // @Failure 2405 {object} services.BaseErrorResponse "too many open user tag moderator requests"
+// @Failure 2406 {object} services.BaseErrorResponse "open tag request already exists for this name"
 // @Failure 400 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -383,17 +385,19 @@ func (t *Controller) CreateTagRequest(c *gin.Context) {
 		t.RespondBadBind(c, err)
 		return
 	}
-	if !params.TaskType.IsUserTagTask() {
-		t.RespondAPIError(c, lib.ErrorModeratorTaskInvalidType)
+	tagName := strings.TrimSpace(params.TagName)
+	if tagName == "" {
+		t.RespondAPIError(c, lib.ErrorUserTagNameRequired)
 		return
 	}
 
-	var tag models.Tag
-	if err := t.tagModel.GetTagByID(params.TagID, &tag); err != nil {
-		if gorm.IsRecordNotFoundError(err) {
-			t.RespondAPIError(c, lib.ErrorInvalidUserTag)
-			return
-		}
+	var existing models.Tag
+	err = t.tagModel.GetTagByName(tagName, &existing)
+	if err == nil {
+		t.RespondAPIError(c, lib.ErrorUserTagAlreadyExists)
+		return
+	}
+	if !gorm.IsRecordNotFoundError(err) {
 		t.RespondError(c, err)
 		return
 	}
@@ -401,7 +405,6 @@ func (t *Controller) CreateTagRequest(c *gin.Context) {
 	openCount, err := t.moderatorTaskModel.CountOpenTasksForRequester(
 		userID,
 		models.ModeratorTaskTypeNewUserTag,
-		models.ModeratorTaskTypeDeleteUserTag,
 	)
 	if err != nil {
 		t.RespondError(c, err)
@@ -412,8 +415,19 @@ func (t *Controller) CreateTagRequest(c *gin.Context) {
 		return
 	}
 
+	ref := models.UserTagNameTaskReference(userID, tagName)
+	var openForName []*models.ModeratorTask
+	if err := t.moderatorTaskModel.GetOpenTasksByTaskReference(ref, &openForName); err != nil {
+		t.RespondError(c, err)
+		return
+	}
+	if len(openForName) > 0 {
+		t.RespondAPIError(c, lib.ErrorModeratorTaskTagRequestOpen)
+		return
+	}
+
 	reqUID := userID
-	task, err := models.NewUserTagTask(params.TaskType, &reqUID, userID, params.TagID)
+	task, err := models.NewUserTagNameTask(&reqUID, userID, tagName)
 	if err != nil {
 		t.RespondError(c, err)
 		return
@@ -428,14 +442,14 @@ func (t *Controller) CreateTagRequest(c *gin.Context) {
 		"taskType", task.TaskType,
 		"taskReference", task.TaskReference,
 		"requestingUserID", userID,
-		"tagID", params.TagID,
+		"tagName", tagName,
 	)
 
 	t.RespondOK(c, gin.H{
-		"id":         task.ID,
-		"taskType":   task.TaskType,
+		"id":            task.ID,
+		"taskType":      task.TaskType,
 		"taskReference": task.TaskReference,
-		"tagID":      params.TagID,
+		"tagName":       tagName,
 	})
 }
 

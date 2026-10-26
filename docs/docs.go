@@ -8475,7 +8475,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "request to create or delete a user tag",
+                "description": "request to create a new user tag",
                 "consumes": [
                     "application/json"
                 ],
@@ -8486,7 +8486,7 @@ const docTemplate = `{
                     "users",
                     "moderator"
                 ],
-                "summary": "Request a user tag add or delete",
+                "summary": "Request a user tag",
                 "operationId": "createUserTagRequest",
                 "parameters": [
                     {
@@ -8513,8 +8513,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "1406": {
-                        "description": "invalid user tag",
+                    "1408": {
+                        "description": "tag already exists",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "1409": {
+                        "description": "tag name is required",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -8528,6 +8534,12 @@ const docTemplate = `{
                     },
                     "2405": {
                         "description": "too many open user tag moderator requests",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "2406": {
+                        "description": "open tag request already exists for this name",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -11758,23 +11770,11 @@ const docTemplate = `{
         "user.CreateTagRequestParams": {
             "type": "object",
             "required": [
-                "tagID",
-                "taskType"
+                "tagName"
             ],
             "properties": {
-                "tagID": {
-                    "type": "integer"
-                },
-                "taskType": {
-                    "enum": [
-                        "NEW_USER_TAG",
-                        "DELETE_USER_TAG"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.ModeratorTaskType"
-                        }
-                    ]
+                "tagName": {
+                    "type": "string"
                 }
             }
         },

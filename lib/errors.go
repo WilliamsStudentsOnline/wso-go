@@ -105,6 +105,8 @@ var (
 	ErrorUserIDNoParse           = NewAPIError(1405, "user id could not be parsed")
 	ErrorInvalidUserTag          = NewAPIError(1406, "invalid user tag")
 	ErrorUserInvalidCampusStatus = NewAPIError(1407, "user campus status is invalid")
+	ErrorUserTagAlreadyExists    = NewAPIError(1408, "tag already exists")
+	ErrorUserTagNameRequired     = NewAPIError(1409, "tag name is required")
 
 	// 15** are factrak errors
 	// Create/Update errors
@@ -201,4 +203,5 @@ var (
 	ErrorModeratorTaskSubjectGone       = NewAPIErrorWithHTTP(2403, http.StatusConflict, "task subject is already gone")
 	ErrorModeratorTaskInvalidReference  = NewAPIError(2404, "invalid or incomplete task reference parameters")
 	ErrorModeratorTaskTagRequestLimit   = NewAPIError(2405, "too many open user tag task requests")
+	ErrorModeratorTaskTagRequestOpen    = NewAPIError(2406, "open tag request already exists for this name")
 )
