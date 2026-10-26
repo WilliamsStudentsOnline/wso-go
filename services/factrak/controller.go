@@ -69,6 +69,29 @@ func IsScopeAdmin(c *gin.Context) bool {
 	return auth.HasScope(c, auth.ScopeAdminAll, auth.ScopeFactrakAdmin)
 }
 
+func (t *Controller) populateClientFlags(userID uint, surveys ...*models.FactrakSurvey) error {
+	if userID == 0 || len(surveys) == 0 {
+		return nil
+	}
+	ids := make([]uint, 0, len(surveys))
+	for _, s := range surveys {
+		if s != nil && s.ID > 0 {
+			ids = append(ids, s.ID)
+		}
+	}
+	flagged, err := t.moderatorTaskModel.OpenFactrakReviewSurveyIDs(userID, ids)
+	if err != nil {
+		return err
+	}
+	for _, s := range surveys {
+		if s == nil {
+			continue
+		}
+		s.Flagged = flagged[s.ID]
+	}
+	return nil
+}
+
 // Get specified query ID (eg courseID). If it does not exist, return nil. If there is an error, abort.
 // Be sure to check if the context has been aborted after calling this.
 func (t *Controller) getQueryID(c *gin.Context, key string) *uint {

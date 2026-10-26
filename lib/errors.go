@@ -204,4 +204,5 @@ var (
 	ErrorModeratorTaskInvalidReference  = NewAPIError(2404, "invalid or incomplete task reference parameters")
 	ErrorModeratorTaskTagRequestLimit   = NewAPIError(2405, "too many open user tag task requests")
 	ErrorModeratorTaskTagRequestOpen    = NewAPIError(2406, "open tag request already exists for this name")
+	ErrorModeratorTaskFactrakFlagOpen   = NewAPIError(2407, "open factrak flag already exists for this survey")
 )

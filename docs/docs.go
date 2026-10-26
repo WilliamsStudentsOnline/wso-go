@@ -7189,6 +7189,12 @@ const docTemplate = `{
                     "200": {
                         "description": "OK"
                     },
+                    "2407": {
+                        "description": "open factrak flag already exists for this survey",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
