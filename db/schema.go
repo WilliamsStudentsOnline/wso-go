@@ -35,5 +35,6 @@ func AutoMigrateModels(db *gorm.DB) error {
 		&models.BannedUser{},
 		&models.BookListing{},
 		&models.Book{},
+		&models.ModeratorTask{},
 	).Error
 }
