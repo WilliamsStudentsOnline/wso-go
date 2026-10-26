@@ -1,7 +1,7 @@
 # for local dev
 services:
   mysql:
-    image: mysql:8.0
+    image: mariadb:10.11
     container_name: wso-mysql
     restart: unless-stopped
     environment:
