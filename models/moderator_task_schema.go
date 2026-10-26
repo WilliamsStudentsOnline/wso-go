@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
+	"strings"
 	"time"
 )
 
-// ModeratorTaskType is an extensible string enum for moderator console work items.
 type ModeratorTaskType string
 
 const (
@@ -15,7 +16,6 @@ const (
 	ModeratorTaskTypeFactrakReview ModeratorTaskType = "FACTRAK_REVIEW"
 )
 
-// ModeratorTaskResolution is set when a task group is closed.
 type ModeratorTaskResolution string
 
 const (
@@ -24,12 +24,10 @@ const (
 	ModeratorTaskResolutionRejected  ModeratorTaskResolution = "REJECTED"
 )
 
-// FactrakReviewTaskFields is the task_fields payload for FACTRAK_REVIEW.
 type FactrakReviewTaskFields struct {
 	FactrakSurveyID uint `json:"factrakSurveyID"`
 }
 
-// ModeratorTask is a single moderation request (one row per flag/report).
 type ModeratorTask struct {
 	BaseSchema
 
@@ -39,7 +37,7 @@ type ModeratorTask struct {
 	TaskType   ModeratorTaskType `gorm:"index:index_moderator_tasks_on_task_type;not null" json:"taskType" enums:",FACTRAK_REVIEW"`
 	TaskFields string            `gorm:"column:task_fields;type:text;not null" json:"-"`
 
-	// SubjectKey groups related open tasks (e.g. factrak_survey:123). Set at create.
+	// SubjectKey groups related open tasks: "{TASK_TYPE}:{id}" or "{TASK_TYPE}:{id}:{id}"
 	SubjectKey string `gorm:"index:index_moderator_tasks_on_subject_key;not null" json:"subjectKey"`
 
 	ResolvedAt       *time.Time               `gorm:"index:index_moderator_tasks_on_resolved_at" json:"resolvedAt"`
@@ -52,28 +50,14 @@ func (*ModeratorTask) TableName() string {
 	return "moderator_tasks"
 }
 
-// SubjectKeyForFactrakSurvey returns the canonical subject_key for a Factrak survey.
-func SubjectKeyForFactrakSurvey(surveyID uint) string {
-	return fmt.Sprintf("factrak_survey:%d", surveyID)
-}
-
-// SubjectKeyForTaskType builds a subject_key from task type + fields JSON.
-func SubjectKeyForTaskType(taskType ModeratorTaskType, fieldsJSON string) (string, error) {
-	switch taskType {
-	case ModeratorTaskTypeFactrakReview:
-		var fields FactrakReviewTaskFields
-		if err := json.Unmarshal([]byte(fieldsJSON), &fields); err != nil {
-			return "", err
-		}
-		if fields.FactrakSurveyID == 0 {
-			return "", errors.New("factrakSurveyID is required")
-		}
-		return SubjectKeyForFactrakSurvey(fields.FactrakSurveyID), nil
-	case ModeratorTaskTypeUndefined:
-		return "", errors.New("task type is required")
-	default:
-		return "", fmt.Errorf("unknown task type: %s", taskType)
+// SubjectKey builds a grouping key from task type and one or more identifying ids
+func SubjectKey(taskType ModeratorTaskType, ids ...uint) string {
+	parts := make([]string, 0, 1+len(ids))
+	parts = append(parts, string(taskType))
+	for _, id := range ids {
+		parts = append(parts, strconv.FormatUint(uint64(id), 10))
 	}
+	return strings.Join(parts, ":")
 }
 
 func (t *ModeratorTaskType) UnmarshalJSON(b []byte) error {
@@ -100,4 +84,15 @@ func (r *ModeratorTaskResolution) UnmarshalJSON(b []byte) error {
 		return nil
 	}
 	return errors.New("invalid moderator task resolution")
+}
+
+func (t ModeratorTaskType) Validate() error {
+	switch t {
+	case ModeratorTaskTypeFactrakReview:
+		return nil
+	case ModeratorTaskTypeUndefined:
+		return errors.New("task type is required")
+	default:
+		return fmt.Errorf("unknown task type: %s", t)
+	}
 }
