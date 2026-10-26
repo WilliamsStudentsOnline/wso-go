@@ -8475,7 +8475,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "queues NEW_USER_TAG for tagName; approve creates the tag if needed and attaches it",
+                "description": "request to create a new user tag",
                 "consumes": [
                     "application/json"
                 ],
