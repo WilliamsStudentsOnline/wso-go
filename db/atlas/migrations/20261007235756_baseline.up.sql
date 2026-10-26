@@ -11,7 +11,7 @@ CREATE TABLE `areas_of_study` (
   UNIQUE INDEX `abbrev` (`abbrev`),
   INDEX `idx_areas_of_study_deleted_at` (`deleted_at`),
   UNIQUE INDEX `name` (`name`)
-) CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- create "banned_users" table
 CREATE TABLE `banned_users` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -29,7 +29,7 @@ CREATE TABLE `banned_users` (
   PRIMARY KEY (`id`),
   INDEX `idx_banned_users_deleted_at` (`deleted_at`),
   INDEX `index_banned_users_on_user_id` (`user_id`)
-) CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- create "book_listings" table
 CREATE TABLE `book_listings` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -45,7 +45,7 @@ CREATE TABLE `book_listings` (
   INDEX `idx_book_listings_deleted_at` (`deleted_at`),
   INDEX `index_book_listings_on_book_id` (`book_id`),
   INDEX `index_book_listings_on_user_id` (`user_id`)
-) CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- create "books" table
 CREATE TABLE `books` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -61,7 +61,7 @@ CREATE TABLE `books` (
   `image_link` longtext NULL,
   PRIMARY KEY (`id`),
   INDEX `idx_books_deleted_at` (`deleted_at`)
-) CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- create "bulletin_rides" table
 CREATE TABLE `bulletin_rides` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -76,7 +76,7 @@ CREATE TABLE `bulletin_rides` (
   `user_id` int unsigned NULL,
   PRIMARY KEY (`id`),
   INDEX `idx_bulletin_rides_deleted_at` (`deleted_at`)
-) CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- create "bulletins" table
 CREATE TABLE `bulletins` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -93,13 +93,13 @@ CREATE TABLE `bulletins` (
   PRIMARY KEY (`id`),
   INDEX `idx_bulletins_deleted_at` (`deleted_at`),
   INDEX `index_bulletins_on_type` (`type`)
-) CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- create "course_book" table
 CREATE TABLE `course_book` (
   `course_id` int unsigned NOT NULL,
   `book_id` int unsigned NOT NULL,
   PRIMARY KEY (`course_id`, `book_id`)
-) CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- create "courses" table
 CREATE TABLE `courses` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -110,7 +110,7 @@ CREATE TABLE `courses` (
   `area_of_study_id` int unsigned NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `idx_courses_deleted_at` (`deleted_at`)
-) CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- create "departments" table
 CREATE TABLE `departments` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -120,7 +120,7 @@ CREATE TABLE `departments` (
   `name` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `idx_departments_deleted_at` (`deleted_at`)
-) CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- create "discussions" table
 CREATE TABLE `discussions` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -134,7 +134,7 @@ CREATE TABLE `discussions` (
   PRIMARY KEY (`id`),
   INDEX `idx_discussions_deleted_at` (`deleted_at`),
   INDEX `index_discussions_on_user_id` (`user_id`)
-) CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- create "dorm_rooms" table
 CREATE TABLE `dorm_rooms` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -163,7 +163,7 @@ CREATE TABLE `dorm_rooms` (
   PRIMARY KEY (`id`),
   INDEX `idx_dorm_rooms_deleted_at` (`deleted_at`),
   INDEX `index_dorm_rooms_on_dorm_id` (`dorm_id`)
-) CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- create "dorms" table
 CREATE TABLE `dorms` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -192,7 +192,7 @@ CREATE TABLE `dorms` (
   `satisfaction` double NULL,
   PRIMARY KEY (`id`),
   INDEX `idx_dorms_deleted_at` (`deleted_at`)
-) CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- create "dormtrak_reviews" table
 CREATE TABLE `dormtrak_reviews` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -220,7 +220,7 @@ CREATE TABLE `dormtrak_reviews` (
   INDEX `idx_dormtrak_reviews_deleted_at` (`deleted_at`),
   INDEX `index_dormtrak_reviews_on_dorm_room_id` (`dorm_room_id`),
   INDEX `index_dormtrak_reviews_on_user_id` (`user_id`)
-) CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- create "ephcatches" table
 CREATE TABLE `ephcatches` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -232,7 +232,7 @@ CREATE TABLE `ephcatches` (
   `other_id` int unsigned NULL,
   PRIMARY KEY (`id`),
   INDEX `idx_ephcatches_deleted_at` (`deleted_at`)
-) CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- create "ephmatch_likes" table
 CREATE TABLE `ephmatch_likes` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -245,7 +245,7 @@ CREATE TABLE `ephmatch_likes` (
   INDEX `idx_ephmatch_likes_deleted_at` (`deleted_at`),
   INDEX `index_ephmatch_likes_on_liked_id` (`liked_id`),
   INDEX `index_ephmatch_likes_on_user_id` (`user_id`)
-) CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- create "ephmatch_matches" table
 CREATE TABLE `ephmatch_matches` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -260,7 +260,7 @@ CREATE TABLE `ephmatch_matches` (
   INDEX `idx_ephmatch_matches_deleted_at` (`deleted_at`),
   INDEX `index_ephmatch_matches_on_user_a_id` (`user_a_id`),
   INDEX `index_ephmatch_matches_on_user_b_id` (`user_b_id`)
-) CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- create "ephmatch_profiles" table
 CREATE TABLE `ephmatch_profiles` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -280,7 +280,7 @@ CREATE TABLE `ephmatch_profiles` (
   PRIMARY KEY (`id`),
   INDEX `idx_ephmatch_profiles_deleted_at` (`deleted_at`),
   INDEX `index_ephmatch_profiles_on_user_id` (`user_id`)
-) CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- create "ephmatch_relations" table
 CREATE TABLE `ephmatch_relations` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -294,7 +294,7 @@ CREATE TABLE `ephmatch_relations` (
   INDEX `idx_ephmatch_relations_deleted_at` (`deleted_at`),
   INDEX `index_ephmatch_relations_on_other_id` (`other_id`),
   INDEX `index_ephmatch_relations_on_user_id` (`user_id`)
-) CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- create "factrak_agreements" table
 CREATE TABLE `factrak_agreements` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -308,7 +308,7 @@ CREATE TABLE `factrak_agreements` (
   INDEX `idx_factrak_agreements_deleted_at` (`deleted_at`),
   INDEX `index_factrak_agreements_on_factrak_survey_id` (`factrak_survey_id`),
   INDEX `index_factrak_agreements_on_user_id` (`user_id`)
-) CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- create "factrak_surveys" table
 CREATE TABLE `factrak_surveys` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -338,7 +338,7 @@ CREATE TABLE `factrak_surveys` (
   INDEX `index_factrak_surveys_on_course_id` (`course_id`),
   INDEX `index_factrak_surveys_on_professor_id` (`professor_id`),
   INDEX `index_factrak_surveys_on_user_id` (`user_id`)
-) CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- create "goodrich_menu_items" table
 CREATE TABLE `goodrich_menu_items` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -355,7 +355,7 @@ CREATE TABLE `goodrich_menu_items` (
   `quantity` int NULL,
   PRIMARY KEY (`id`),
   INDEX `idx_goodrich_menu_items_deleted_at` (`deleted_at`)
-) CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- create "goodrich_orders" table
 CREATE TABLE `goodrich_orders` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -376,7 +376,7 @@ CREATE TABLE `goodrich_orders` (
   `user_id` int unsigned NULL,
   PRIMARY KEY (`id`),
   INDEX `idx_goodrich_orders_deleted_at` (`deleted_at`)
-) CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- create "neighborhoods" table
 CREATE TABLE `neighborhoods` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -387,7 +387,7 @@ CREATE TABLE `neighborhoods` (
   `trakked` bool NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`),
   INDEX `idx_neighborhoods_deleted_at` (`deleted_at`)
-) CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- create "notification_settings" table
 CREATE TABLE `notification_settings` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -400,7 +400,7 @@ CREATE TABLE `notification_settings` (
   PRIMARY KEY (`id`),
   INDEX `idx_notification_settings_deleted_at` (`deleted_at`),
   INDEX `index_notification_settings_on_user_id` (`user_id`)
-) CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- create "notification_tokens" table
 CREATE TABLE `notification_tokens` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -413,7 +413,7 @@ CREATE TABLE `notification_tokens` (
   PRIMARY KEY (`id`),
   INDEX `idx_notification_tokens_deleted_at` (`deleted_at`),
   INDEX `index_notification_tokens_on_user_id` (`user_id`)
-) CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- create "offices" table
 CREATE TABLE `offices` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -424,7 +424,7 @@ CREATE TABLE `offices` (
   PRIMARY KEY (`id`),
   INDEX `idx_offices_deleted_at` (`deleted_at`),
   UNIQUE INDEX `number` (`number`)
-) CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- create "posts" table
 CREATE TABLE `posts` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -439,7 +439,7 @@ CREATE TABLE `posts` (
   INDEX `idx_posts_deleted_at` (`deleted_at`),
   INDEX `index_posts_on_discussion_id` (`discussion_id`),
   INDEX `index_posts_on_user_id` (`user_id`)
-) CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- create "tags" table
 CREATE TABLE `tags` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -450,19 +450,19 @@ CREATE TABLE `tags` (
   PRIMARY KEY (`id`),
   INDEX `idx_tags_deleted_at` (`deleted_at`),
   UNIQUE INDEX `name` (`name`)
-) CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- create "tags_users" table
 CREATE TABLE `tags_users` (
   `user_id` int unsigned NOT NULL,
   `tag_id` int unsigned NOT NULL,
   PRIMARY KEY (`user_id`, `tag_id`)
-) CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- create "user_areaOfStudy" table
 CREATE TABLE `user_areaOfStudy` (
   `user_id` int unsigned NOT NULL,
   `area_of_study_id` int unsigned NOT NULL,
   PRIMARY KEY (`user_id`, `area_of_study_id`)
-) CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- create "users" table
 CREATE TABLE `users` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -511,4 +511,4 @@ CREATE TABLE `users` (
   INDEX `idx_users_deleted_at` (`deleted_at`),
   INDEX `index_rooms_on_dorm_room_id` (`dorm_room_id`),
   UNIQUE INDEX `unix_id` (`unix_id`)
-) CHARSET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
