@@ -18,15 +18,14 @@ func NewModeratorTaskModel(db *gorm.DB, log *zap.SugaredLogger) *ModeratorTaskMo
 	}
 }
 
-// GetAllModeratorTasksOptions filters/paginates moderator_tasks
-// Resolved nil defaults to open only (resolved_at IS NULL)
 type GetAllModeratorTasksOptions struct {
 	Offset *uint `json:"offset" form:"offset"`
 	Limit  *uint `json:"limit" form:"limit"`
 
-	TaskType   *ModeratorTaskType `json:"taskType" form:"taskType" enums:",FACTRAK_REVIEW"`
-	SubjectKey *string            `json:"subjectKey" form:"subjectKey"`
-	Resolved   *bool              `json:"resolved" form:"resolved"`
+	TaskType      *ModeratorTaskType `json:"taskType" form:"taskType" enums:",FACTRAK_REVIEW"`
+	TaskReference *string            `json:"taskReference" form:"taskReference"`
+	// leave empty to filter only open tasks
+	ResolvedAt *time.Time `json:"resolvedAt" form:"resolvedAt"`
 
 	Preload []string `json:"preload" form:"preload[]" enums:",requestingUser,resolvedByUser"`
 }
@@ -67,15 +66,10 @@ func (o *GetAllModeratorTasksOptions) Run(db *gorm.DB) *gorm.DB {
 	if o.TaskType != nil {
 		db = m.withTaskType(*o.TaskType)(db)
 	}
-	if o.SubjectKey != nil {
-		db = m.withSubjectKey(*o.SubjectKey)(db)
+	if o.TaskReference != nil {
+		db = m.withTaskReference(*o.TaskReference)(db)
 	}
-
-	wantResolved := false
-	if o.Resolved != nil {
-		wantResolved = *o.Resolved
-	}
-	return m.withResolved(wantResolved)(db)
+	return m.withResolvedAt(o.ResolvedAt)(db)
 }
 
 func (m *ModeratorTaskModel) preloadRequestingUser(db *gorm.DB) *gorm.DB {
@@ -92,18 +86,18 @@ func (m *ModeratorTaskModel) withTaskType(taskType ModeratorTaskType) func(*gorm
 	}
 }
 
-func (m *ModeratorTaskModel) withSubjectKey(subjectKey string) func(*gorm.DB) *gorm.DB {
+func (m *ModeratorTaskModel) withTaskReference(taskReference string) func(*gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Where("moderator_tasks.subject_key = ?", subjectKey)
+		return db.Where("moderator_tasks.task_reference = ?", taskReference)
 	}
 }
 
-func (m *ModeratorTaskModel) withResolved(resolved bool) func(*gorm.DB) *gorm.DB {
+func (m *ModeratorTaskModel) withResolvedAt(resolvedAt *time.Time) func(*gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		if resolved {
-			return db.Where("moderator_tasks.resolved_at IS NOT NULL")
+		if resolvedAt == nil {
+			return db.Where("moderator_tasks.resolved_at IS NULL")
 		}
-		return db.Where("moderator_tasks.resolved_at IS NULL")
+		return db.Where("moderator_tasks.resolved_at IS NOT NULL")
 	}
 }
 
@@ -134,12 +128,10 @@ func (m *ModeratorTaskModel) GetTaskByID(id uint, task *ModeratorTask, preload .
 	return opts.Preloader(m.DB).First(task, id).Error
 }
 
-func (m *ModeratorTaskModel) GetOpenTasksBySubjectKey(subjectKey string, tasks *[]*ModeratorTask, preload ...string) error {
-	falseVal := false
+func (m *ModeratorTaskModel) GetOpenTasksByTaskReference(taskReference string, tasks *[]*ModeratorTask, preload ...string) error {
 	opts := &GetAllModeratorTasksOptions{
-		SubjectKey: &subjectKey,
-		Resolved:   &falseVal,
-		Preload:    preload,
+		TaskReference: &taskReference,
+		Preload:       preload,
 	}
 	return opts.Run(m.DB).Order("moderator_tasks.created_at ASC", true).Find(tasks).Error
 }
@@ -148,14 +140,14 @@ func (m *ModeratorTaskModel) CreateTask(task *ModeratorTask) error {
 	return m.DB.Create(task).Error
 }
 
-func (m *ModeratorTaskModel) ResolveOpenTasksBySubjectKey(
-	subjectKey string,
+func (m *ModeratorTaskModel) ResolveOpenTasksByTaskReference(
+	taskReference string,
 	resolution ModeratorTaskResolution,
 	resolvedByUserID uint,
 	resolvedAt time.Time,
 ) (int64, error) {
 	res := m.DB.Model(&ModeratorTask{}).
-		Where("subject_key = ? AND resolved_at IS NULL", subjectKey).
+		Where("task_reference = ? AND resolved_at IS NULL", taskReference).
 		Updates(map[string]interface{}{
 			"resolved_at":         resolvedAt,
 			"resolution":          resolution,
@@ -164,9 +156,9 @@ func (m *ModeratorTaskModel) ResolveOpenTasksBySubjectKey(
 	return res.RowsAffected, res.Error
 }
 
-func (m *ModeratorTaskModel) SoftDeleteOpenTasksBySubjectKey(subjectKey string) (int64, error) {
+func (m *ModeratorTaskModel) SoftDeleteOpenTasksByTaskReference(taskReference string) (int64, error) {
 	res := m.DB.
-		Where("subject_key = ? AND resolved_at IS NULL", subjectKey).
+		Where("task_reference = ? AND resolved_at IS NULL", taskReference).
 		Delete(&ModeratorTask{})
 	return res.RowsAffected, res.Error
 }
@@ -196,6 +188,6 @@ func NewFactrakReviewTask(requestingUserID *uint, surveyID uint) (*ModeratorTask
 		RequestingUserID: requestingUserID,
 		TaskType:         ModeratorTaskTypeFactrakReview,
 		TaskFields:       fields,
-		SubjectKey:       SubjectKey(ModeratorTaskTypeFactrakReview, surveyID),
+		TaskReference:    TaskReference(ModeratorTaskTypeFactrakReview, surveyID),
 	}, nil
 }

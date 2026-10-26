@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func TestModeratorTaskModel_ResolveOpenTasksBySubjectKey(t *testing.T) {
+func TestModeratorTaskModel_ResolveOpenTasksByTaskReference(t *testing.T) {
 	assert := assert.New(t)
 	db := utils.SetupServiceTest(assert)
 	m := NewModeratorTaskModel(db, zap.NewNop().Sugar())
@@ -27,8 +27,8 @@ func TestModeratorTaskModel_ResolveOpenTasksBySubjectKey(t *testing.T) {
 	require.NoError(t, m.CreateTask(t2))
 	require.NoError(t, m.CreateTask(other))
 
-	n, err := m.ResolveOpenTasksBySubjectKey(
-		SubjectKey(ModeratorTaskTypeFactrakReview, 10),
+	n, err := m.ResolveOpenTasksByTaskReference(
+		TaskReference(ModeratorTaskTypeFactrakReview, 10),
 		ModeratorTaskResolutionApproved,
 		99,
 		time.Now().UTC(),
@@ -42,11 +42,11 @@ func TestModeratorTaskModel_ResolveOpenTasksBySubjectKey(t *testing.T) {
 	assert.Equal(other.ID, open[0].ID)
 
 	var resolved []*ModeratorTask
-	trueVal := true
-	key := SubjectKey(ModeratorTaskTypeFactrakReview, 10)
+	anyTime := time.Now().UTC()
+	key := TaskReference(ModeratorTaskTypeFactrakReview, 10)
 	require.NoError(t, m.GetAllTasks(&resolved, &GetAllModeratorTasksOptions{
-		SubjectKey: &key,
-		Resolved:   &trueVal,
+		TaskReference: &key,
+		ResolvedAt:    &anyTime,
 	}))
 	require.Len(t, resolved, 2)
 	for _, task := range resolved {
@@ -56,7 +56,7 @@ func TestModeratorTaskModel_ResolveOpenTasksBySubjectKey(t *testing.T) {
 	}
 }
 
-func TestModeratorTaskModel_SoftDeleteOpenTasksBySubjectKey(t *testing.T) {
+func TestModeratorTaskModel_SoftDeleteOpenTasksByTaskReference(t *testing.T) {
 	assert := assert.New(t)
 	db := utils.SetupServiceTest(assert)
 	m := NewModeratorTaskModel(db, zap.NewNop().Sugar())
@@ -70,7 +70,7 @@ func TestModeratorTaskModel_SoftDeleteOpenTasksBySubjectKey(t *testing.T) {
 	require.NoError(t, err)
 	require.NoError(t, m.CreateTask(keep))
 
-	n, err := m.SoftDeleteOpenTasksBySubjectKey(SubjectKey(ModeratorTaskTypeFactrakReview, 20))
+	n, err := m.SoftDeleteOpenTasksByTaskReference(TaskReference(ModeratorTaskTypeFactrakReview, 20))
 	require.NoError(t, err)
 	assert.Equal(int64(1), n)
 
@@ -82,4 +82,54 @@ func TestModeratorTaskModel_SoftDeleteOpenTasksBySubjectKey(t *testing.T) {
 	var count int
 	assert.NoError(db.Unscoped().Model(&ModeratorTask{}).Where("id = ?", task.ID).Count(&count).Error)
 	assert.Equal(1, count)
+}
+
+func TestModeratorTaskModel_GetAllTasks_DefaultsToOpen(t *testing.T) {
+	assert := assert.New(t)
+	db := utils.SetupServiceTest(assert)
+	m := NewModeratorTaskModel(db, zap.NewNop().Sugar())
+
+	uid := uint(1)
+	openTask, err := NewFactrakReviewTask(&uid, 1)
+	require.NoError(t, err)
+	require.NoError(t, m.CreateTask(openTask))
+
+	closedTask, err := NewFactrakReviewTask(&uid, 2)
+	require.NoError(t, err)
+	require.NoError(t, m.CreateTask(closedTask))
+	_, err = m.ResolveOpenTasksByTaskReference(
+		closedTask.TaskReference,
+		ModeratorTaskResolutionRejected,
+		7,
+		time.Now().UTC(),
+	)
+	require.NoError(t, err)
+
+	var open []*ModeratorTask
+	require.NoError(t, m.GetAllTasks(&open, &GetAllModeratorTasksOptions{}))
+	require.Len(t, open, 1)
+	assert.Equal(openTask.ID, open[0].ID)
+
+	count, err := m.CountAllTasks(&GetAllModeratorTasksOptions{})
+	require.NoError(t, err)
+	assert.Equal(1, count)
+}
+
+func TestModeratorTaskModel_GetOpenTasksByTaskReference(t *testing.T) {
+	assert := assert.New(t)
+	db := utils.SetupServiceTest(assert)
+	m := NewModeratorTaskModel(db, zap.NewNop().Sugar())
+
+	uid := uint(1)
+	a, err := NewFactrakReviewTask(&uid, 3)
+	require.NoError(t, err)
+	b, err := NewFactrakReviewTask(&uid, 3)
+	require.NoError(t, err)
+	require.NoError(t, m.CreateTask(a))
+	require.NoError(t, m.CreateTask(b))
+
+	var tasks []*ModeratorTask
+	require.NoError(t, m.GetOpenTasksByTaskReference(TaskReference(ModeratorTaskTypeFactrakReview, 3), &tasks))
+	require.Len(t, tasks, 2)
+	assert.True(tasks[0].CreatedAt.Before(tasks[1].CreatedAt) || tasks[0].CreatedAt.Equal(tasks[1].CreatedAt))
 }
