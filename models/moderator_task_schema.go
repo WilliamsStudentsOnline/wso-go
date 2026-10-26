@@ -37,8 +37,7 @@ type ModeratorTask struct {
 	TaskType   ModeratorTaskType `gorm:"index:index_moderator_tasks_on_task_type;not null" json:"taskType" enums:",FACTRAK_REVIEW"`
 	TaskFields string            `gorm:"column:task_fields;type:text;not null" json:"-"`
 
-	// SubjectKey groups related open tasks: "{TASK_TYPE}:{id}" or "{TASK_TYPE}:{id}:{id}"
-	SubjectKey string `gorm:"index:index_moderator_tasks_on_subject_key;not null" json:"subjectKey"`
+	TaskReference string `gorm:"column:task_reference;index:index_moderator_tasks_on_task_reference;not null" json:"taskReference"`
 
 	ResolvedAt       *time.Time               `gorm:"index:index_moderator_tasks_on_resolved_at" json:"resolvedAt"`
 	Resolution       *ModeratorTaskResolution `json:"resolution" enums:",APPROVED,REJECTED"`
@@ -50,8 +49,7 @@ func (*ModeratorTask) TableName() string {
 	return "moderator_tasks"
 }
 
-// SubjectKey builds a grouping key from task type and one or more identifying ids
-func SubjectKey(taskType ModeratorTaskType, ids ...uint) string {
+func TaskReference(taskType ModeratorTaskType, ids ...uint) string {
 	parts := make([]string, 0, 1+len(ids))
 	parts = append(parts, string(taskType))
 	for _, id := range ids {
