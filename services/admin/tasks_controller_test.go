@@ -64,7 +64,7 @@ func TestListAndResolveFactrakTasks(t *testing.T) {
 	var groups []*ModeratorTaskGroupDTO
 	assert.NoError(json.Unmarshal(resp.Data, &groups))
 	require.Len(t, groups, 1)
-	assert.Equal(models.SubjectKeyForFactrakSurvey(survey.ID), groups[0].SubjectKey)
+	assert.Equal(models.SubjectKey(models.ModeratorTaskTypeFactrakReview, survey.ID), groups[0].SubjectKey)
 	require.Len(t, groups[0].Tasks, 1)
 
 	var raw []map[string]interface{}
@@ -116,10 +116,10 @@ func TestResolveAlreadyGoneOffersDiscard(t *testing.T) {
 
 func TestGetSubjectKey(t *testing.T) {
 	assert, env := setupAdminTasks(t)
-	w, err := utils.DoHTTPReq(env.Router, http.MethodGet, "/tasks/subject-key?taskType=FACTRAK_REVIEW&factrakSurveyID=42", nil)
+	w, err := utils.DoHTTPReq(env.Router, http.MethodGet, "/tasks/subject-key?taskType=FACTRAK_REVIEW&id=42", nil)
 	assert.NoError(err)
 	resp := utils.GetGoodResp(assert, w)
 	var out SubjectKeyResponse
 	assert.NoError(json.Unmarshal(resp.Data, &out))
-	assert.Equal("factrak_survey:42", out.SubjectKey)
+	assert.Equal("FACTRAK_REVIEW:42", out.SubjectKey)
 }

@@ -2309,7 +2309,7 @@ paths:
         runs the type-specific side effect once
       operationId: resolveModeratorTasksBySubject
       parameters:
-      - description: Subject key (e.g. factrak_survey:123)
+      - description: Subject key (e.g. FACTRAK_REVIEW:123)
         in: path
         name: subjectKey
         required: true
@@ -2353,8 +2353,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: returns the canonical subjectKey for a task type and its identifying
-        fields
+      description: returns SubjectKey(taskType, id...) — pass identifying ids as repeated
+        id query params
       operationId: getModeratorTaskSubjectKey
       parameters:
       - description: Task type
@@ -2364,10 +2364,14 @@ paths:
         name: taskType
         required: true
         type: string
-      - description: Factrak survey ID (required for FACTRAK_REVIEW)
+      - collectionFormat: csv
+        description: Identifying id(s) for the subject
         in: query
-        name: factrakSurveyID
-        type: integer
+        items:
+          type: integer
+        name: id
+        required: true
+        type: array
       produces:
       - application/json
       responses:

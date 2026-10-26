@@ -2,6 +2,7 @@ package admin
 
 import (
 	"encoding/json"
+	"strconv"
 	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
@@ -103,30 +104,40 @@ func (t *Controller) GetTask(c *gin.Context) {
 
 // GetSubjectKey godoc
 // @Summary Compute moderator task subject key
-// @Description returns the canonical subjectKey for a task type and its identifying fields
+// @Description returns SubjectKey(taskType, id...) — pass identifying ids as repeated id query params
 // @ID getModeratorTaskSubjectKey
 // @Tags admin,moderator
 // @Accept json
 // @Produce json
 // @Param taskType query string true "Task type" Enums(FACTRAK_REVIEW)
-// @Param factrakSurveyID query int false "Factrak survey ID (required for FACTRAK_REVIEW)"
+// @Param id query []int true "Identifying id(s) for the subject"
 // @Success 200 {object} admin.SubjectKeyResponse
 // @Failure 400 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /admin/tasks/subject-key [get]
 func (t *Controller) GetSubjectKey(c *gin.Context) {
 	taskType := models.ModeratorTaskType(c.Query("taskType"))
-	switch taskType {
-	case models.ModeratorTaskTypeFactrakReview:
-		surveyID, err := services.GetUIntQuery(c, "factrakSurveyID")
-		if err != nil || surveyID == 0 {
+	if err := taskType.Validate(); err != nil {
+		t.RespondAPIError(c, lib.ErrorModeratorTaskInvalidType)
+		return
+	}
+
+	rawIDs := c.QueryArray("id")
+	if len(rawIDs) == 0 {
+		t.RespondAPIError(c, lib.ErrorModeratorTaskInvalidSubjectKey)
+		return
+	}
+	ids := make([]uint, len(rawIDs))
+	for i, raw := range rawIDs {
+		id, err := strconv.ParseUint(raw, 10, 64)
+		if err != nil || id == 0 {
 			t.RespondAPIError(c, lib.ErrorModeratorTaskInvalidSubjectKey)
 			return
 		}
-		t.RespondOK(c, SubjectKeyResponse{SubjectKey: models.SubjectKeyForFactrakSurvey(surveyID)})
-	default:
-		t.RespondAPIError(c, lib.ErrorModeratorTaskInvalidType)
+		ids[i] = uint(id)
 	}
+
+	t.RespondOK(c, SubjectKeyResponse{SubjectKey: models.SubjectKey(taskType, ids...)})
 }
 
 // ResolveTasksBySubject godoc
@@ -136,7 +147,7 @@ func (t *Controller) GetSubjectKey(c *gin.Context) {
 // @Tags admin,moderator
 // @Accept json
 // @Produce json
-// @Param subjectKey path string true "Subject key (e.g. factrak_survey:123)"
+// @Param subjectKey path string true "Subject key (e.g. FACTRAK_REVIEW:123)"
 // @Param body body admin.ResolveTasksBody true "Resolution"
 // @Success 200 {object} admin.ModeratorTaskGroupDTO
 // @Failure 400 {object} services.BaseErrorResponse

@@ -189,7 +189,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Subject key (e.g. factrak_survey:123)",
+                        "description": "Subject key (e.g. FACTRAK_REVIEW:123)",
                         "name": "subjectKey",
                         "in": "path",
                         "required": true
@@ -245,7 +245,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "returns the canonical subjectKey for a task type and its identifying fields",
+                "description": "returns SubjectKey(taskType, id...) — pass identifying ids as repeated id query params",
                 "consumes": [
                     "application/json"
                 ],
@@ -270,10 +270,15 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "integer",
-                        "description": "Factrak survey ID (required for FACTRAK_REVIEW)",
-                        "name": "factrakSurveyID",
-                        "in": "query"
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Identifying id(s) for the subject",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
