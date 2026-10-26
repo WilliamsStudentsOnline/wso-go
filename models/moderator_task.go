@@ -18,18 +18,16 @@ func NewModeratorTaskModel(db *gorm.DB, log *zap.SugaredLogger) *ModeratorTaskMo
 	}
 }
 
-// GetAllModeratorTasksOptions filters/paginates moderator_tasks.
-// When Resolved is nil, only open tasks (resolved_at IS NULL) are returned.
+// GetAllModeratorTasksOptions filters/paginates moderator_tasks
+// Resolved nil defaults to open only (resolved_at IS NULL)
 type GetAllModeratorTasksOptions struct {
 	Offset *uint `json:"offset" form:"offset"`
 	Limit  *uint `json:"limit" form:"limit"`
 
 	TaskType   *ModeratorTaskType `json:"taskType" form:"taskType" enums:",FACTRAK_REVIEW"`
 	SubjectKey *string            `json:"subjectKey" form:"subjectKey"`
-	// Resolved: nil = open only (inbox default); false = open; true = closed
-	Resolved *bool `json:"resolved" form:"resolved"`
+	Resolved   *bool              `json:"resolved" form:"resolved"`
 
-	// Preloading: requestingUser, resolvedByUser
 	Preload []string `json:"preload" form:"preload[]" enums:",requestingUser,resolvedByUser"`
 }
 
@@ -73,14 +71,11 @@ func (o *GetAllModeratorTasksOptions) Run(db *gorm.DB) *gorm.DB {
 		db = m.withSubjectKey(*o.SubjectKey)(db)
 	}
 
-	// Default: open tasks only
 	wantResolved := false
 	if o.Resolved != nil {
 		wantResolved = *o.Resolved
 	}
-	db = m.withResolved(wantResolved)(db)
-
-	return db
+	return m.withResolved(wantResolved)(db)
 }
 
 func (m *ModeratorTaskModel) preloadRequestingUser(db *gorm.DB) *gorm.DB {
@@ -136,28 +131,23 @@ func (m *ModeratorTaskModel) CountAllTasks(opts *GetAllModeratorTasksOptions) (c
 
 func (m *ModeratorTaskModel) GetTaskByID(id uint, task *ModeratorTask, preload ...string) error {
 	opts := &GetAllModeratorTasksOptions{Preload: preload}
-	db := opts.Preloader(m.DB)
-	return db.First(task, id).Error
+	return opts.Preloader(m.DB).First(task, id).Error
 }
 
 func (m *ModeratorTaskModel) GetOpenTasksBySubjectKey(subjectKey string, tasks *[]*ModeratorTask, preload ...string) error {
+	falseVal := false
 	opts := &GetAllModeratorTasksOptions{
 		SubjectKey: &subjectKey,
+		Resolved:   &falseVal,
 		Preload:    preload,
 	}
-	falseVal := false
-	opts.Resolved = &falseVal
-	db := opts.Run(m.DB).Order("moderator_tasks.created_at ASC", true)
-	return db.Find(tasks).Error
+	return opts.Run(m.DB).Order("moderator_tasks.created_at ASC", true).Find(tasks).Error
 }
 
-// CreateTask inserts a new open moderator task. SubjectKey must already be set.
 func (m *ModeratorTaskModel) CreateTask(task *ModeratorTask) error {
 	return m.DB.Create(task).Error
 }
 
-// ResolveOpenTasksBySubjectKey stamps all open tasks for the subject with the same resolution.
-// Returns the number of rows updated.
 func (m *ModeratorTaskModel) ResolveOpenTasksBySubjectKey(
 	subjectKey string,
 	resolution ModeratorTaskResolution,
@@ -174,7 +164,6 @@ func (m *ModeratorTaskModel) ResolveOpenTasksBySubjectKey(
 	return res.RowsAffected, res.Error
 }
 
-// SoftDeleteOpenTasksBySubjectKey discards open tasks for a subject (soft-delete).
 func (m *ModeratorTaskModel) SoftDeleteOpenTasksBySubjectKey(subjectKey string) (int64, error) {
 	res := m.DB.
 		Where("subject_key = ? AND resolved_at IS NULL", subjectKey).
@@ -182,7 +171,6 @@ func (m *ModeratorTaskModel) SoftDeleteOpenTasksBySubjectKey(subjectKey string) 
 	return res.RowsAffected, res.Error
 }
 
-// EncodeTaskFields marshals typed fields into the task_fields JSON column value.
 func EncodeTaskFields(fields interface{}) (string, error) {
 	b, err := json.Marshal(fields)
 	if err != nil {
@@ -191,7 +179,6 @@ func EncodeTaskFields(fields interface{}) (string, error) {
 	return string(b), nil
 }
 
-// DecodeFactrakReviewFields unmarshals FACTRAK_REVIEW task_fields.
 func DecodeFactrakReviewFields(taskFieldsJSON string) (*FactrakReviewTaskFields, error) {
 	var fields FactrakReviewTaskFields
 	if err := json.Unmarshal([]byte(taskFieldsJSON), &fields); err != nil {
@@ -200,7 +187,6 @@ func DecodeFactrakReviewFields(taskFieldsJSON string) (*FactrakReviewTaskFields,
 	return &fields, nil
 }
 
-// NewFactrakReviewTask builds an open FACTRAK_REVIEW task row.
 func NewFactrakReviewTask(requestingUserID *uint, surveyID uint) (*ModeratorTask, error) {
 	fields, err := EncodeTaskFields(FactrakReviewTaskFields{FactrakSurveyID: surveyID})
 	if err != nil {
@@ -210,6 +196,6 @@ func NewFactrakReviewTask(requestingUserID *uint, surveyID uint) (*ModeratorTask
 		RequestingUserID: requestingUserID,
 		TaskType:         ModeratorTaskTypeFactrakReview,
 		TaskFields:       fields,
-		SubjectKey:       SubjectKeyForFactrakSurvey(surveyID),
+		SubjectKey:       SubjectKey(ModeratorTaskTypeFactrakReview, surveyID),
 	}, nil
 }

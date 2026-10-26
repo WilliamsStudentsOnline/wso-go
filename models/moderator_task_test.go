@@ -1,37 +1,85 @@
-package models
+package models_test
 
 import (
 	"testing"
+	"time"
 
+	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
+	. "github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
 )
 
-func TestSubjectKeyForFactrakSurvey(t *testing.T) {
-	assert.Equal(t, "factrak_survey:42", SubjectKeyForFactrakSurvey(42))
+func TestModeratorTaskModel_ResolveOpenTasksBySubjectKey(t *testing.T) {
+	assert := assert.New(t)
+	db := utils.SetupServiceTest(assert)
+	m := NewModeratorTaskModel(db, zap.NewNop().Sugar())
+
+	uid1, uid2 := uint(1), uint(2)
+	t1, err := NewFactrakReviewTask(&uid1, 10)
+	require.NoError(t, err)
+	t2, err := NewFactrakReviewTask(&uid2, 10)
+	require.NoError(t, err)
+	other, err := NewFactrakReviewTask(&uid1, 11)
+	require.NoError(t, err)
+	require.NoError(t, m.CreateTask(t1))
+	require.NoError(t, m.CreateTask(t2))
+	require.NoError(t, m.CreateTask(other))
+
+	n, err := m.ResolveOpenTasksBySubjectKey(
+		SubjectKey(ModeratorTaskTypeFactrakReview, 10),
+		ModeratorTaskResolutionApproved,
+		99,
+		time.Now().UTC(),
+	)
+	require.NoError(t, err)
+	assert.Equal(int64(2), n)
+
+	var open []*ModeratorTask
+	require.NoError(t, m.GetAllTasks(&open, nil))
+	require.Len(t, open, 1)
+	assert.Equal(other.ID, open[0].ID)
+
+	var resolved []*ModeratorTask
+	trueVal := true
+	key := SubjectKey(ModeratorTaskTypeFactrakReview, 10)
+	require.NoError(t, m.GetAllTasks(&resolved, &GetAllModeratorTasksOptions{
+		SubjectKey: &key,
+		Resolved:   &trueVal,
+	}))
+	require.Len(t, resolved, 2)
+	for _, task := range resolved {
+		require.NotNil(t, task.ResolvedAt)
+		assert.Equal(ModeratorTaskResolutionApproved, *task.Resolution)
+		assert.Equal(uint(99), *task.ResolvedByUserID)
+	}
 }
 
-func TestSubjectKeyForTaskType(t *testing.T) {
-	key, err := SubjectKeyForTaskType(ModeratorTaskTypeFactrakReview, `{"factrakSurveyID":7}`)
+func TestModeratorTaskModel_SoftDeleteOpenTasksBySubjectKey(t *testing.T) {
+	assert := assert.New(t)
+	db := utils.SetupServiceTest(assert)
+	m := NewModeratorTaskModel(db, zap.NewNop().Sugar())
+
+	uid := uint(5)
+	task, err := NewFactrakReviewTask(&uid, 20)
 	require.NoError(t, err)
-	assert.Equal(t, "factrak_survey:7", key)
+	require.NoError(t, m.CreateTask(task))
 
-	_, err = SubjectKeyForTaskType(ModeratorTaskTypeFactrakReview, `{}`)
-	assert.Error(t, err)
-
-	_, err = SubjectKeyForTaskType(ModeratorTaskTypeUndefined, `{}`)
-	assert.Error(t, err)
-}
-
-func TestNewFactrakReviewTask(t *testing.T) {
-	uid := uint(9)
-	task, err := NewFactrakReviewTask(&uid, 3)
+	keep, err := NewFactrakReviewTask(&uid, 21)
 	require.NoError(t, err)
-	assert.Equal(t, ModeratorTaskTypeFactrakReview, task.TaskType)
-	assert.Equal(t, "factrak_survey:3", task.SubjectKey)
-	assert.Equal(t, &uid, task.RequestingUserID)
+	require.NoError(t, m.CreateTask(keep))
 
-	fields, err := DecodeFactrakReviewFields(task.TaskFields)
+	n, err := m.SoftDeleteOpenTasksBySubjectKey(SubjectKey(ModeratorTaskTypeFactrakReview, 20))
 	require.NoError(t, err)
-	assert.Equal(t, uint(3), fields.FactrakSurveyID)
+	assert.Equal(int64(1), n)
+
+	var open []*ModeratorTask
+	require.NoError(t, m.GetAllTasks(&open, nil))
+	require.Len(t, open, 1)
+	assert.Equal(keep.ID, open[0].ID)
+
+	var count int
+	assert.NoError(db.Unscoped().Model(&ModeratorTask{}).Where("id = ?", task.ID).Count(&count).Error)
+	assert.Equal(1, count)
 }
