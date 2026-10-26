@@ -377,6 +377,34 @@ CREATE TABLE `goodrich_orders` (
   PRIMARY KEY (`id`),
   INDEX `idx_goodrich_orders_deleted_at` (`deleted_at`)
 ) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- Create "job_runs" table
+CREATE TABLE `job_runs` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime NULL,
+  `updated_at` datetime NULL,
+  `deleted_at` datetime NULL,
+  `job_name` varchar(128) NOT NULL,
+  `trigger` varchar(32) NOT NULL,
+  `triggered_by_user_id` int unsigned NULL,
+  `args` longtext NULL,
+  `input_file_name` varchar(255) NULL,
+  `input_sha256` varchar(64) NULL,
+  `status` varchar(32) NOT NULL,
+  `run_at` datetime NULL,
+  `started_at` datetime NULL,
+  `finished_at` datetime NULL,
+  `exit_status` int NULL,
+  `invocation_id` varchar(64) NULL,
+  `unit_name` varchar(128) NULL,
+  `log_path` varchar(512) NULL,
+  PRIMARY KEY (`id`),
+  INDEX `idx_job_runs_deleted_at` (`deleted_at`),
+  INDEX `idx_job_runs_invocation_id` (`invocation_id`),
+  INDEX `idx_job_runs_job_name` (`job_name`),
+  INDEX `idx_job_runs_run_at` (`run_at`),
+  INDEX `idx_job_runs_status` (`status`),
+  INDEX `idx_job_runs_triggered_by_user_id` (`triggered_by_user_id`)
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- Create "moderator_tasks" table
 CREATE TABLE `moderator_tasks` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -396,8 +424,7 @@ CREATE TABLE `moderator_tasks` (
   INDEX `index_moderator_tasks_on_resolved_at` (`resolved_at`),
   INDEX `index_moderator_tasks_on_resolved_by_user_id` (`resolved_by_user_id`),
   INDEX `index_moderator_tasks_on_task_reference` (`task_reference`),
-  INDEX `index_moderator_tasks_on_task_type` (`task_type`),
-  INDEX `index_moderator_tasks_on_task_type_task_reference_resolved_at` (`task_type`, `task_reference`, `resolved_at`)
+  INDEX `index_moderator_tasks_on_task_type` (`task_type`)
 ) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- Create "feedback" table
 CREATE TABLE `feedback` (
