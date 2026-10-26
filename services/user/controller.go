@@ -352,7 +352,7 @@ type CreateTagRequestParams struct {
 
 // CreateTagRequest godoc
 // @Summary Request a user tag add or delete
-// @Description creates a NEW_USER_TAG or DELETE_USER_TAG moderator task for yourself (max 3 open tag requests)
+// @Description request to create or delete a user tag
 // @ID createUserTagRequest
 // @Tags users,moderator
 // @Accept json
