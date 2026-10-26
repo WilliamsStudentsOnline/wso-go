@@ -256,3 +256,40 @@ func (m *ModeratorTaskModel) CountOpenTasksForRequester(requestingUserID uint, t
 	err := db.Count(&count).Error
 	return count, err
 }
+
+func (m *ModeratorTaskModel) HasOpenTaskForRequester(requestingUserID uint, taskReference string) (bool, error) {
+	var count int
+	err := m.DB.Model(&ModeratorTask{}).
+		Where("requesting_user_id = ? AND task_reference = ? AND resolved_at IS NULL", requestingUserID, taskReference).
+		Count(&count).Error
+	return count > 0, err
+}
+
+// OpenFactrakReviewSurveyIDs returns survey IDs among candidates that this user has an open FACTRAK_REVIEW for
+func (m *ModeratorTaskModel) OpenFactrakReviewSurveyIDs(requestingUserID uint, surveyIDs []uint) (map[uint]bool, error) {
+	out := make(map[uint]bool, len(surveyIDs))
+	if requestingUserID == 0 || len(surveyIDs) == 0 {
+		return out, nil
+	}
+	refs := make([]string, 0, len(surveyIDs))
+	refToID := make(map[string]uint, len(surveyIDs))
+	for _, id := range surveyIDs {
+		ref := TaskReference(ModeratorTaskTypeFactrakReview, id)
+		refs = append(refs, ref)
+		refToID[ref] = id
+	}
+	var openRefs []string
+	err := m.DB.Model(&ModeratorTask{}).
+		Where("requesting_user_id = ? AND task_type = ? AND resolved_at IS NULL AND task_reference IN (?)",
+			requestingUserID, ModeratorTaskTypeFactrakReview, refs).
+		Pluck("task_reference", &openRefs).Error
+	if err != nil {
+		return out, err
+	}
+	for _, ref := range openRefs {
+		if id, ok := refToID[ref]; ok {
+			out[id] = true
+		}
+	}
+	return out, nil
+}

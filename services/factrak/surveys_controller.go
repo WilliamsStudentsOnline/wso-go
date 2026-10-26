@@ -71,6 +71,11 @@ func (t *Controller) ListSurveys(c *gin.Context) {
 
 	RemoveUserIDFromSurveys(c, surveys)
 
+	if err := t.populateClientFlags(userID, surveys...); err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
 	t.RespondOK(c, surveys)
 }
 
@@ -121,6 +126,11 @@ func (t *Controller) GetSurvey(c *gin.Context) {
 	userID := services.GetUserID(c)
 	err = t.surveyModel.PopulateClientAgreement(userID, &survey)
 	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	if err := t.populateClientFlags(userID, &survey); err != nil {
 		t.RespondError(c, err)
 		return
 	}
@@ -615,6 +625,7 @@ func (t *Controller) DeleteSurvey(c *gin.Context) {
 // @Produce  json
 // @Param surveyID path uint true "Survey ID"
 // @Success 200
+// @Failure 2407 {object} services.BaseErrorResponse "open factrak flag already exists for this survey"
 // @Failure 400 {object} services.BaseErrorResponse
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
@@ -638,6 +649,17 @@ func (t *Controller) FlagSurvey(c *gin.Context) {
 	}
 
 	userID := services.GetUserID(c)
+	ref := models.TaskReference(models.ModeratorTaskTypeFactrakReview, surveyID)
+	already, err := t.moderatorTaskModel.HasOpenTaskForRequester(userID, ref)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+	if already {
+		t.RespondError(c, lib.ErrorModeratorTaskFactrakFlagOpen)
+		return
+	}
+
 	task, err := models.NewFactrakReviewTask(&userID, surveyID)
 	if err != nil {
 		t.RespondError(c, err)

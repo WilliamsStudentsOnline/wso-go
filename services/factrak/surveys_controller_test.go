@@ -984,6 +984,13 @@ func TestController_FlagSurvey(t *testing.T) {
 	assert.Equal(models.ModeratorTaskTypeFactrakReview, tasks[0].TaskType)
 	assert.Equal(models.TaskReference(models.ModeratorTaskTypeFactrakReview, survey.ID), tasks[0].TaskReference)
 	assert.Equal(s1.ID, *tasks[0].RequestingUserID)
+
+	// Test 3: same user cannot flag twice while open
+	w, err = utils.DoHTTPReq(router, http.MethodPost, fmt.Sprintf("/surveys/%d/flag", survey.ID), nil)
+	assert.NoError(err)
+	utils.CheckRespError(assert, w, lib.ErrorModeratorTaskFactrakFlagOpen)
+	assert.NoError(db.Find(&tasks).Error)
+	assert.Len(tasks, 1)
 }
 
 func generateSurveyTestComment() string {
