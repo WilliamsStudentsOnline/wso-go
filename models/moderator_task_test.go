@@ -6,6 +6,7 @@ import (
 
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	. "github.com/WilliamsStudentsOnline/wso-go/models"
+	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
@@ -54,6 +55,29 @@ func TestModeratorTaskModel_ResolveOpenTasksByTaskReference(t *testing.T) {
 		assert.Equal(ModeratorTaskResolutionApproved, *task.Resolution)
 		assert.Equal(uint(99), *task.ResolvedByUserID)
 	}
+}
+
+func TestModeratorTaskModel_SoftDeleteTaskByID(t *testing.T) {
+	assert := assert.New(t)
+	db := utils.SetupServiceTest(assert)
+	m := NewModeratorTaskModel(db, zap.NewNop().Sugar())
+
+	uid := uint(5)
+	task, err := NewFactrakReviewTask(&uid, 20)
+	require.NoError(t, err)
+	require.NoError(t, m.CreateTask(task))
+
+	keep, err := NewFactrakReviewTask(&uid, 21)
+	require.NoError(t, err)
+	require.NoError(t, m.CreateTask(keep))
+
+	require.NoError(t, m.SoftDeleteTaskByID(task.ID))
+	assert.True(gorm.IsRecordNotFoundError(m.SoftDeleteTaskByID(task.ID)))
+
+	var open []*ModeratorTask
+	require.NoError(t, m.GetAllTasks(&open, nil))
+	require.Len(t, open, 1)
+	assert.Equal(keep.ID, open[0].ID)
 }
 
 func TestModeratorTaskModel_SoftDeleteOpenTasksByTaskReference(t *testing.T) {

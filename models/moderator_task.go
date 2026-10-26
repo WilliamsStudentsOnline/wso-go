@@ -163,6 +163,17 @@ func (m *ModeratorTaskModel) SoftDeleteOpenTasksByTaskReference(taskReference st
 	return res.RowsAffected, res.Error
 }
 
+func (m *ModeratorTaskModel) SoftDeleteTaskByID(id uint) error {
+	res := m.DB.Where("id = ?", id).Delete(&ModeratorTask{})
+	if res.Error != nil {
+		return res.Error
+	}
+	if res.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return nil
+}
+
 func EncodeTaskFields(fields interface{}) (string, error) {
 	b, err := json.Marshal(fields)
 	if err != nil {
