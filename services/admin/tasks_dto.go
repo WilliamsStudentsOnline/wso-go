@@ -23,13 +23,6 @@ type ModeratorTaskResponse struct {
 	Context          interface{}                     `json:"context,omitempty"`
 }
 
-type ModeratorTaskGroup struct {
-	TaskReference string                   `json:"taskReference"`
-	TaskType      models.ModeratorTaskType `json:"taskType"`
-	Tasks         []*ModeratorTaskResponse `json:"tasks"`
-	Context       interface{}              `json:"context,omitempty"`
-}
-
 type FactrakReviewTaskContext struct {
 	Survey *models.FactrakSurvey `json:"survey,omitempty"`
 }
@@ -57,31 +50,6 @@ func taskToResponse(t *models.ModeratorTask) *ModeratorTaskResponse {
 		ResolvedByUserID: t.ResolvedByUserID,
 		ResolvedByUser:   t.ResolvedByUser,
 	}
-}
-
-func groupTasks(tasks []*models.ModeratorTask) []*ModeratorTaskGroup {
-	order := make([]string, 0)
-	byKey := map[string]*ModeratorTaskGroup{}
-
-	for _, t := range tasks {
-		g, ok := byKey[t.TaskReference]
-		if !ok {
-			g = &ModeratorTaskGroup{
-				TaskReference: t.TaskReference,
-				TaskType:      t.TaskType,
-				Tasks:         []*ModeratorTaskResponse{},
-			}
-			byKey[t.TaskReference] = g
-			order = append(order, t.TaskReference)
-		}
-		g.Tasks = append(g.Tasks, taskToResponse(t))
-	}
-
-	out := make([]*ModeratorTaskGroup, 0, len(order))
-	for _, key := range order {
-		out = append(out, byKey[key])
-	}
-	return out
 }
 
 func anonymizeSurveyAuthor(survey *models.FactrakSurvey) {

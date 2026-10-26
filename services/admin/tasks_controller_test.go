@@ -61,11 +61,10 @@ func TestListAndResolveFactrakTasks(t *testing.T) {
 	assert.NoError(err)
 	resp := utils.GetGoodResp(assert, w)
 
-	var groups []*ModeratorTaskGroup
-	assert.NoError(json.Unmarshal(resp.Data, &groups))
-	require.Len(t, groups, 1)
-	assert.Equal(models.TaskReference(models.ModeratorTaskTypeFactrakReview, survey.ID), groups[0].TaskReference)
-	require.Len(t, groups[0].Tasks, 1)
+	var listed []*ModeratorTaskResponse
+	assert.NoError(json.Unmarshal(resp.Data, &listed))
+	require.Len(t, listed, 1)
+	assert.Equal(models.TaskReference(models.ModeratorTaskTypeFactrakReview, survey.ID), listed[0].TaskReference)
 
 	var raw []map[string]interface{}
 	assert.NoError(json.Unmarshal(resp.Data, &raw))

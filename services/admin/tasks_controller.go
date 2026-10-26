@@ -1,7 +1,6 @@
 package admin
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
@@ -13,7 +12,7 @@ import (
 
 // ListTasks godoc
 // @Summary List moderator tasks
-// @Description lists moderator tasks grouped by taskReference
+// @Description lists moderator tasks
 // @ID listModeratorTasks
 // @Tags admin,moderator
 // @Accept json
@@ -21,10 +20,11 @@ import (
 // @Param taskType query string false "Filter by task type" Enums(FACTRAK_REVIEW,NEW_USER_TAG,DELETE_USER_TAG)
 // @Param resolvedAt query string false "Omit for open tasks only; set any time to list resolved tasks"
 // @Param taskReference query string false "Filter by task reference"
+// @Param orderBy query string false "Sort order; default taskReference" Enums(taskReference,createdAt)
 // @Param offset query int false "Offset pagination"
 // @Param limit query int false "Limit pagination"
 // @Param preload query []string false "Preload" Enums(requestingUser,resolvedByUser)
-// @Success 200 {array} admin.ModeratorTaskGroup
+// @Success 200 {array} admin.ModeratorTaskResponse
 // @Failure 400 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -49,14 +49,7 @@ func (t *Controller) ListTasks(c *gin.Context) {
 	}
 	t.SetPaginationTotal(c, count)
 
-	groups := groupTasks(tasks)
-	for _, g := range groups {
-		if err := t.attachGroupContext(g); err != nil {
-			t.Log.Warnw("task context enrich failed", "taskReference", g.TaskReference, "err", err)
-		}
-	}
-
-	t.RespondOK(c, groups)
+	t.RespondOK(c, t.tasksToResponses(tasks))
 }
 
 // GetTask godoc
@@ -89,15 +82,8 @@ func (t *Controller) GetTask(c *gin.Context) {
 		return
 	}
 
-	resp := taskToResponse(&task)
-	ctx, err := t.contextForTask(task.TaskType, task.TaskFields)
-	if err != nil {
-		t.Log.Warnw("task context enrich failed", "taskID", task.ID, "err", err)
-	} else {
-		resp.Context = ctx
-	}
-
-	t.RespondOK(c, resp)
+	resps := t.tasksToResponses([]*models.ModeratorTask{&task})
+	t.RespondOK(c, resps[0])
 }
 
 // ResolveTasks godoc
@@ -109,7 +95,7 @@ func (t *Controller) GetTask(c *gin.Context) {
 // @Produce json
 // @Param taskID path uint true "Task ID"
 // @Param body body admin.ResolveTasksBody true "Resolution"
-// @Success 200 {object} admin.ModeratorTaskGroup
+// @Success 200 {array} admin.ModeratorTaskResponse
 // @Failure 400 {object} services.BaseErrorResponse
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 409 {object} services.BaseErrorResponse
@@ -204,16 +190,7 @@ func (t *Controller) ResolveTasks(c *gin.Context) {
 		return
 	}
 
-	groups := groupTasks(updated)
-	var group *ModeratorTaskGroup
-	if len(groups) > 0 {
-		group = groups[0]
-	} else {
-		group = &ModeratorTaskGroup{TaskReference: taskReference, TaskType: taskType, Tasks: []*ModeratorTaskResponse{}}
-	}
-	_ = t.attachGroupContext(group)
-
-	t.RespondOK(c, group)
+	t.RespondOK(c, t.tasksToResponses(updated))
 }
 
 // DeleteTask godoc
@@ -249,20 +226,25 @@ func (t *Controller) DeleteTask(c *gin.Context) {
 	t.RespondOK(c, gin.H{"deleted": taskID})
 }
 
-func (t *Controller) attachGroupContext(group *ModeratorTaskGroup) error {
-	if len(group.Tasks) == 0 {
-		return nil
+func (t *Controller) tasksToResponses(tasks []*models.ModeratorTask) []*ModeratorTaskResponse {
+	out := make([]*ModeratorTaskResponse, 0, len(tasks))
+	ctxByRef := map[string]interface{}{}
+	for _, task := range tasks {
+		resp := taskToResponse(task)
+		if ctx, ok := ctxByRef[task.TaskReference]; ok {
+			resp.Context = ctx
+		} else {
+			ctx, err := t.contextForTask(task.TaskType, task.TaskFields)
+			if err != nil {
+				t.Log.Warnw("task context enrich failed", "taskID", task.ID, "err", err)
+			} else {
+				ctxByRef[task.TaskReference] = ctx
+				resp.Context = ctx
+			}
+		}
+		out = append(out, resp)
 	}
-	raw, err := json.Marshal(group.Tasks[0].TaskFields)
-	if err != nil {
-		return err
-	}
-	ctx, err := t.contextForTask(group.TaskType, string(raw))
-	if err != nil {
-		return err
-	}
-	group.Context = ctx
-	return nil
+	return out
 }
 
 func (t *Controller) contextForTask(taskType models.ModeratorTaskType, taskFieldsJSON string) (interface{}, error) {

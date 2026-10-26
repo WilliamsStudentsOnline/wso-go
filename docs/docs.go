@@ -25,7 +25,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "lists moderator tasks grouped by taskReference",
+                "description": "lists moderator tasks",
                 "consumes": [
                     "application/json"
                 ],
@@ -63,6 +63,16 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "enum": [
+                            "taskReference",
+                            "createdAt"
+                        ],
+                        "type": "string",
+                        "description": "Sort order; default taskReference",
+                        "name": "orderBy",
+                        "in": "query"
+                    },
+                    {
                         "type": "integer",
                         "description": "Offset pagination",
                         "name": "offset",
@@ -95,7 +105,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/admin.ModeratorTaskGroup"
+                                "$ref": "#/definitions/admin.ModeratorTaskResponse"
                             }
                         }
                     },
@@ -273,7 +283,10 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin.ModeratorTaskGroup"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/admin.ModeratorTaskResponse"
+                            }
                         }
                     },
                     "400": {
@@ -8721,24 +8734,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "admin.ModeratorTaskGroup": {
-            "type": "object",
-            "properties": {
-                "context": {},
-                "taskReference": {
-                    "type": "string"
-                },
-                "taskType": {
-                    "$ref": "#/definitions/models.ModeratorTaskType"
-                },
-                "tasks": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/admin.ModeratorTaskResponse"
-                    }
-                }
-            }
-        },
         "admin.ModeratorTaskResponse": {
             "type": "object",
             "properties": {

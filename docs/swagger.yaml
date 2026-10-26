@@ -1,17 +1,5 @@
 basePath: /api/v2
 definitions:
-  admin.ModeratorTaskGroup:
-    properties:
-      context: {}
-      taskReference:
-        type: string
-      taskType:
-        $ref: '#/definitions/models.ModeratorTaskType'
-      tasks:
-        items:
-          $ref: '#/definitions/admin.ModeratorTaskResponse'
-        type: array
-    type: object
   admin.ModeratorTaskResponse:
     properties:
       context: {}
@@ -2160,7 +2148,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: lists moderator tasks grouped by taskReference
+      description: lists moderator tasks
       operationId: listModeratorTasks
       parameters:
       - description: Filter by task type
@@ -2178,6 +2166,13 @@ paths:
       - description: Filter by task reference
         in: query
         name: taskReference
+        type: string
+      - description: Sort order; default taskReference
+        enum:
+        - taskReference
+        - createdAt
+        in: query
+        name: orderBy
         type: string
       - description: Offset pagination
         in: query
@@ -2204,7 +2199,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/admin.ModeratorTaskGroup'
+              $ref: '#/definitions/admin.ModeratorTaskResponse'
             type: array
         "400":
           description: Bad Request
@@ -2321,7 +2316,9 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/admin.ModeratorTaskGroup'
+            items:
+              $ref: '#/definitions/admin.ModeratorTaskResponse'
+            type: array
         "400":
           description: Bad Request
           schema:
