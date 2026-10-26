@@ -12,10 +12,9 @@ import (
 type ModeratorTaskType string
 
 const (
-	ModeratorTaskTypeUndefined      ModeratorTaskType = ""
-	ModeratorTaskTypeFactrakReview  ModeratorTaskType = "FACTRAK_REVIEW"
-	ModeratorTaskTypeNewUserTag     ModeratorTaskType = "NEW_USER_TAG"
-	ModeratorTaskTypeDeleteUserTag  ModeratorTaskType = "DELETE_USER_TAG"
+	ModeratorTaskTypeUndefined     ModeratorTaskType = ""
+	ModeratorTaskTypeFactrakReview ModeratorTaskType = "FACTRAK_REVIEW"
+	ModeratorTaskTypeNewUserTag    ModeratorTaskType = "NEW_USER_TAG"
 )
 
 const MaxOpenUserTagTasksPerRequester = 3
@@ -43,7 +42,7 @@ type ModeratorTask struct {
 	RequestingUserID *uint `gorm:"index:index_moderator_tasks_on_requesting_user_id" json:"requestingUserID"`
 	RequestingUser   *User `json:"requestingUser,omitempty"`
 
-	TaskType   ModeratorTaskType `gorm:"index:index_moderator_tasks_on_task_type;not null" json:"taskType" enums:",FACTRAK_REVIEW,NEW_USER_TAG,DELETE_USER_TAG"`
+	TaskType   ModeratorTaskType `gorm:"index:index_moderator_tasks_on_task_type;not null" json:"taskType" enums:",FACTRAK_REVIEW,NEW_USER_TAG"`
 	TaskFields string            `gorm:"column:task_fields;type:text;not null" json:"-"`
 
 	TaskReference string `gorm:"column:task_reference;index:index_moderator_tasks_on_task_reference;not null" json:"taskReference"`
@@ -74,7 +73,7 @@ func (t *ModeratorTaskType) UnmarshalJSON(b []byte) error {
 		return err
 	}
 	switch *t {
-	case ModeratorTaskTypeUndefined, ModeratorTaskTypeFactrakReview, ModeratorTaskTypeNewUserTag, ModeratorTaskTypeDeleteUserTag:
+	case ModeratorTaskTypeUndefined, ModeratorTaskTypeFactrakReview, ModeratorTaskTypeNewUserTag:
 		return nil
 	}
 	return errors.New("invalid moderator task type")
@@ -95,7 +94,7 @@ func (r *ModeratorTaskResolution) UnmarshalJSON(b []byte) error {
 
 func (t ModeratorTaskType) Validate() error {
 	switch t {
-	case ModeratorTaskTypeFactrakReview, ModeratorTaskTypeNewUserTag, ModeratorTaskTypeDeleteUserTag:
+	case ModeratorTaskTypeFactrakReview, ModeratorTaskTypeNewUserTag:
 		return nil
 	case ModeratorTaskTypeUndefined:
 		return errors.New("task type is required")

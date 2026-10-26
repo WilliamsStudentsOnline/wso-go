@@ -42,8 +42,7 @@ const docTemplate = `{
                     {
                         "enum": [
                             "FACTRAK_REVIEW",
-                            "NEW_USER_TAG",
-                            "DELETE_USER_TAG"
+                            "NEW_USER_TAG"
                         ],
                         "type": "string",
                         "description": "Filter by task type",
@@ -10808,14 +10807,12 @@ const docTemplate = `{
             "enum": [
                 "",
                 "FACTRAK_REVIEW",
-                "NEW_USER_TAG",
-                "DELETE_USER_TAG"
+                "NEW_USER_TAG"
             ],
             "x-enum-varnames": [
                 "ModeratorTaskTypeUndefined",
                 "ModeratorTaskTypeFactrakReview",
-                "ModeratorTaskTypeNewUserTag",
-                "ModeratorTaskTypeDeleteUserTag"
+                "ModeratorTaskTypeNewUserTag"
             ]
         },
         "models.Neighborhood": {
