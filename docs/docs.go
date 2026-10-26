@@ -18,6 +18,304 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/admin/tasks": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "lists moderator tasks",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin",
+                    "moderator"
+                ],
+                "summary": "List moderator tasks",
+                "operationId": "listModeratorTasks",
+                "parameters": [
+                    {
+                        "enum": [
+                            "FACTRAK_REVIEW",
+                            "NEW_USER_TAG",
+                            "DELETE_USER_TAG"
+                        ],
+                        "type": "string",
+                        "description": "Filter by task type",
+                        "name": "taskType",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Omit for open tasks only; set any time to list resolved tasks",
+                        "name": "resolvedAt",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by task reference",
+                        "name": "taskReference",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "taskReference",
+                            "createdAt"
+                        ],
+                        "type": "string",
+                        "description": "Sort order; default taskReference",
+                        "name": "orderBy",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit pagination",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "enum": [
+                                "requestingUser",
+                                "resolvedByUser"
+                            ],
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Preload",
+                        "name": "preload",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/admin.ModeratorTaskResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/tasks/{taskID}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "get a single moderator task by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin",
+                    "moderator"
+                ],
+                "summary": "Get moderator task",
+                "operationId": "getModeratorTask",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Task ID",
+                        "name": "taskID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "enum": [
+                                "requestingUser",
+                                "resolvedByUser"
+                            ],
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Preload",
+                        "name": "preload",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin.ModeratorTaskResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "soft-deletes a single moderator task by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin",
+                    "moderator"
+                ],
+                "summary": "Delete moderator task",
+                "operationId": "deleteModeratorTask",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Task ID",
+                        "name": "taskID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/tasks/{taskID}/resolve": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "approve or reject all open tasks that share this task's reference",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin",
+                    "moderator"
+                ],
+                "summary": "Resolve moderator tasks",
+                "operationId": "resolveModeratorTasks",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Task ID",
+                        "name": "taskID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Resolution",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/admin.ResolveTasksBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/admin.ModeratorTaskResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/api/refresh": {
             "get": {
                 "security": [
@@ -8436,6 +8734,68 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "admin.ModeratorTaskResponse": {
+            "type": "object",
+            "properties": {
+                "context": {},
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "requestingUser": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "requestingUserID": {
+                    "type": "integer"
+                },
+                "resolution": {
+                    "$ref": "#/definitions/models.ModeratorTaskResolution"
+                },
+                "resolvedAt": {
+                    "type": "string"
+                },
+                "resolvedByUser": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "resolvedByUserID": {
+                    "type": "integer"
+                },
+                "taskFields": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "taskReference": {
+                    "type": "string"
+                },
+                "taskType": {
+                    "$ref": "#/definitions/models.ModeratorTaskType"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "admin.ResolveTasksBody": {
+            "type": "object",
+            "required": [
+                "resolution"
+            ],
+            "properties": {
+                "resolution": {
+                    "enum": [
+                        "APPROVED",
+                        "REJECTED"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.ModeratorTaskResolution"
+                        }
+                    ]
+                }
+            }
+        },
         "auth.AuthResponse": {
             "type": "object",
             "properties": {
@@ -10474,6 +10834,30 @@ const docTemplate = `{
                 "ListingTypeUndefined",
                 "ListingTypeBuy",
                 "ListingTypeSell"
+            ]
+        },
+        "models.ModeratorTaskResolution": {
+            "type": "string",
+            "enum": [
+                "",
+                "APPROVED",
+                "REJECTED"
+            ],
+            "x-enum-varnames": [
+                "ModeratorTaskResolutionUndefined",
+                "ModeratorTaskResolutionApproved",
+                "ModeratorTaskResolutionRejected"
+            ]
+        },
+        "models.ModeratorTaskType": {
+            "type": "string",
+            "enum": [
+                "",
+                "FACTRAK_REVIEW"
+            ],
+            "x-enum-varnames": [
+                "ModeratorTaskTypeUndefined",
+                "ModeratorTaskTypeFactrakReview"
             ]
         },
         "models.Neighborhood": {

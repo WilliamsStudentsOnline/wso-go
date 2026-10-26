@@ -10,17 +10,20 @@ import (
 
 type Controller struct {
 	services.BaseController
-	userModel    *models.UserModel
-	studentModel *models.StudentModel
-	cfg          *config.Config
+	userModel          *models.UserModel
+	studentModel       *models.StudentModel
+	moderatorTaskModel *models.ModeratorTaskModel
+	surveyModel        *models.FactrakSurveyModel
+	cfg                *config.Config
 }
 
-// Construct a new user controller
 func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Controller {
 	return &Controller{
-		BaseController: services.BaseController{Log: log},
-		userModel:      models.NewUserModel(db, log),
-		studentModel:   models.NewStudentModel(db, log),
-		cfg:            cfg,
+		BaseController:     services.BaseController{Log: log},
+		userModel:          models.NewUserModel(db, log),
+		studentModel:       models.NewStudentModel(db, log),
+		moderatorTaskModel: models.NewModeratorTaskModel(db, log),
+		surveyModel:        models.NewFactrakSurveyModel(db, log),
+		cfg:                cfg,
 	}
 }

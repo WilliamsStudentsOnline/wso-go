@@ -1,5 +1,45 @@
 basePath: /api/v2
 definitions:
+  admin.ModeratorTaskResponse:
+    properties:
+      context: {}
+      createdAt:
+        type: string
+      id:
+        type: integer
+      requestingUser:
+        $ref: '#/definitions/models.User'
+      requestingUserID:
+        type: integer
+      resolution:
+        $ref: '#/definitions/models.ModeratorTaskResolution'
+      resolvedAt:
+        type: string
+      resolvedByUser:
+        $ref: '#/definitions/models.User'
+      resolvedByUserID:
+        type: integer
+      taskFields:
+        additionalProperties: true
+        type: object
+      taskReference:
+        type: string
+      taskType:
+        $ref: '#/definitions/models.ModeratorTaskType'
+      updatedAt:
+        type: string
+    type: object
+  admin.ResolveTasksBody:
+    properties:
+      resolution:
+        allOf:
+        - $ref: '#/definitions/models.ModeratorTaskResolution'
+        enum:
+        - APPROVED
+        - REJECTED
+    required:
+    - resolution
+    type: object
   auth.AuthResponse:
     properties:
       expire:
@@ -1409,6 +1449,24 @@ definitions:
     - ListingTypeUndefined
     - ListingTypeBuy
     - ListingTypeSell
+  models.ModeratorTaskResolution:
+    enum:
+    - ""
+    - APPROVED
+    - REJECTED
+    type: string
+    x-enum-varnames:
+    - ModeratorTaskResolutionUndefined
+    - ModeratorTaskResolutionApproved
+    - ModeratorTaskResolutionRejected
+  models.ModeratorTaskType:
+    enum:
+    - ""
+    - FACTRAK_REVIEW
+    type: string
+    x-enum-varnames:
+    - ModeratorTaskTypeUndefined
+    - ModeratorTaskTypeFactrakReview
   models.Neighborhood:
     properties:
       dorms:
@@ -2086,6 +2144,203 @@ info:
   title: WSO API
   version: 2.0.0
 paths:
+  /admin/tasks:
+    get:
+      consumes:
+      - application/json
+      description: lists moderator tasks
+      operationId: listModeratorTasks
+      parameters:
+      - description: Filter by task type
+        enum:
+        - FACTRAK_REVIEW
+        - NEW_USER_TAG
+        - DELETE_USER_TAG
+        in: query
+        name: taskType
+        type: string
+      - description: Omit for open tasks only; set any time to list resolved tasks
+        in: query
+        name: resolvedAt
+        type: string
+      - description: Filter by task reference
+        in: query
+        name: taskReference
+        type: string
+      - description: Sort order; default taskReference
+        enum:
+        - taskReference
+        - createdAt
+        in: query
+        name: orderBy
+        type: string
+      - description: Offset pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit pagination
+        in: query
+        name: limit
+        type: integer
+      - collectionFormat: csv
+        description: Preload
+        in: query
+        items:
+          enum:
+          - requestingUser
+          - resolvedByUser
+          type: string
+        name: preload
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/admin.ModeratorTaskResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: List moderator tasks
+      tags:
+      - admin
+      - moderator
+  /admin/tasks/{taskID}:
+    delete:
+      consumes:
+      - application/json
+      description: soft-deletes a single moderator task by id
+      operationId: deleteModeratorTask
+      parameters:
+      - description: Task ID
+        in: path
+        name: taskID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Delete moderator task
+      tags:
+      - admin
+      - moderator
+    get:
+      consumes:
+      - application/json
+      description: get a single moderator task by id
+      operationId: getModeratorTask
+      parameters:
+      - description: Task ID
+        in: path
+        name: taskID
+        required: true
+        type: integer
+      - collectionFormat: csv
+        description: Preload
+        in: query
+        items:
+          enum:
+          - requestingUser
+          - resolvedByUser
+          type: string
+        name: preload
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/admin.ModeratorTaskResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get moderator task
+      tags:
+      - admin
+      - moderator
+  /admin/tasks/{taskID}/resolve:
+    post:
+      consumes:
+      - application/json
+      description: approve or reject all open tasks that share this task's reference
+      operationId: resolveModeratorTasks
+      parameters:
+      - description: Task ID
+        in: path
+        name: taskID
+        required: true
+        type: integer
+      - description: Resolution
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/admin.ResolveTasksBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/admin.ModeratorTaskResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Resolve moderator tasks
+      tags:
+      - admin
+      - moderator
   /auth/api/refresh:
     get:
       consumes:
