@@ -98,9 +98,5 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	full.PATCH("/surveys/:surveyID/agreement", c.UpdateAgreement)  // Edit agreement (either make it agree or disagree)
 	full.DELETE("/surveys/:surveyID/agreement", c.DeleteAgreement) // Delete agreement
 
-	// put these in factrak admin endpoint:
-	admin := r.Group("/admin")
-	admin.Use(auth.RequireScopes(auth.ScopeFactrakAdmin, auth.ScopeAdminAll))
-	admin.GET("/surveys", c.ListFlaggedSurveys)             // Get flagged surveys
-	admin.DELETE("/surveys/:surveyID/flag", c.UnflagSurvey) // Remove survey flag
+	// Factrak review moderation lives under /api/v2/admin/tasks (FACTRAK_REVIEW)
 }
