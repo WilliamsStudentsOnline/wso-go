@@ -1,6 +1,18 @@
 basePath: /api/v2
 definitions:
-  admin.ModeratorTaskDTO:
+  admin.ModeratorTaskGroup:
+    properties:
+      context: {}
+      taskReference:
+        type: string
+      taskType:
+        $ref: '#/definitions/models.ModeratorTaskType'
+      tasks:
+        items:
+          $ref: '#/definitions/admin.ModeratorTaskResponse'
+        type: array
+    type: object
+  admin.ModeratorTaskResponse:
     properties:
       createdAt:
         type: string
@@ -18,27 +30,15 @@ definitions:
         $ref: '#/definitions/models.User'
       resolvedByUserID:
         type: integer
-      subjectKey:
-        type: string
       taskFields:
         additionalProperties: true
         type: object
+      taskReference:
+        type: string
       taskType:
         $ref: '#/definitions/models.ModeratorTaskType'
       updatedAt:
         type: string
-    type: object
-  admin.ModeratorTaskGroupDTO:
-    properties:
-      context: {}
-      subjectKey:
-        type: string
-      taskType:
-        $ref: '#/definitions/models.ModeratorTaskType'
-      tasks:
-        items:
-          $ref: '#/definitions/admin.ModeratorTaskDTO'
-        type: array
     type: object
   admin.ResolveTasksBody:
     properties:
@@ -51,9 +51,9 @@ definitions:
     required:
     - resolution
     type: object
-  admin.SubjectKeyResponse:
+  admin.TaskReferenceResponse:
     properties:
-      subjectKey:
+      taskReference:
         type: string
     type: object
   auth.AuthResponse:
@@ -2164,7 +2164,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: 'lists moderator tasks grouped by subjectKey (default: open only)'
+      description: lists moderator tasks
       operationId: listModeratorTasks
       parameters:
       - description: Filter by task type
@@ -2173,13 +2173,13 @@ paths:
         in: query
         name: taskType
         type: string
-      - description: If true, closed tasks; if false/omitted, open tasks
+      - description: Omit for open tasks only; set any time to list resolved tasks
         in: query
-        name: resolved
-        type: boolean
-      - description: Filter by subject key
+        name: resolvedAt
+        type: string
+      - description: Filter by task reference
         in: query
-        name: subjectKey
+        name: taskReference
         type: string
       - description: Offset pagination
         in: query
@@ -2206,7 +2206,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/admin.ModeratorTaskGroupDTO'
+              $ref: '#/definitions/admin.ModeratorTaskGroup'
             type: array
         "400":
           description: Bad Request
@@ -2226,7 +2226,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: get a single moderator task by id with enrich-on-read context
+      description: get a single moderator task by id
       operationId: getModeratorTask
       parameters:
       - description: Task ID
@@ -2250,7 +2250,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/admin.ModeratorTaskGroupDTO'
+            $ref: '#/definitions/admin.ModeratorTaskGroup'
         "404":
           description: Not Found
           schema:
@@ -2265,17 +2265,16 @@ paths:
       tags:
       - admin
       - moderator
-  /admin/tasks/by-subject/{subjectKey}:
+  /admin/tasks/by-reference/{taskReference}:
     delete:
       consumes:
       - application/json
-      description: soft-deletes all open tasks for a subjectKey (cleanup when subject
-        is already gone)
-      operationId: discardModeratorTasksBySubject
+      description: soft-deletes all open tasks for a taskReference
+      operationId: discardModeratorTasksByReference
       parameters:
-      - description: Subject key
+      - description: Task reference
         in: path
-        name: subjectKey
+        name: taskReference
         required: true
         type: string
       produces:
@@ -2297,21 +2296,21 @@ paths:
             $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
-      summary: Discard open moderator tasks by subject
+      summary: Discard open moderator tasks by reference
       tags:
       - admin
       - moderator
-  /admin/tasks/by-subject/{subjectKey}/resolve:
+  /admin/tasks/by-reference/{taskReference}/resolve:
     post:
       consumes:
       - application/json
-      description: approve or reject all open tasks sharing a subjectKey; approve
-        runs the type-specific side effect once
-      operationId: resolveModeratorTasksBySubject
+      description: approve or reject all open tasks sharing a taskReference with an
+        optional side effect
+      operationId: resolveModeratorTasksByReference
       parameters:
-      - description: Subject key (e.g. FACTRAK_REVIEW:123)
+      - description: Task reference
         in: path
-        name: subjectKey
+        name: taskReference
         required: true
         type: string
       - description: Resolution
@@ -2326,7 +2325,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/admin.ModeratorTaskGroupDTO'
+            $ref: '#/definitions/admin.ModeratorTaskGroup'
         "400":
           description: Bad Request
           schema:
@@ -2336,7 +2335,7 @@ paths:
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "409":
-          description: subject already gone — discard open tasks
+          description: Conflict
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "500":
@@ -2345,17 +2344,17 @@ paths:
             $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
-      summary: Resolve moderator tasks by subject
+      summary: Resolve moderator tasks by reference
       tags:
       - admin
       - moderator
-  /admin/tasks/subject-key:
+  /admin/tasks/task-reference:
     get:
       consumes:
       - application/json
-      description: returns SubjectKey(taskType, id...) — pass identifying ids as repeated
-        id query params
-      operationId: getModeratorTaskSubjectKey
+      description: returns task-specific identifier for which object the task is referring
+        to so we can group requests from multiple users
+      operationId: getModeratorTaskReference
       parameters:
       - description: Task type
         enum:
@@ -2365,7 +2364,7 @@ paths:
         required: true
         type: string
       - collectionFormat: csv
-        description: Identifying id(s) for the subject
+        description: Identifying id(s) for the reference
         in: query
         items:
           type: integer
@@ -2378,14 +2377,14 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/admin.SubjectKeyResponse'
+            $ref: '#/definitions/admin.TaskReferenceResponse'
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
-      summary: Compute moderator task subject key
+      summary: Compute moderator task reference
       tags:
       - admin
       - moderator

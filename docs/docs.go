@@ -25,7 +25,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "lists moderator tasks grouped by subjectKey (default: open only)",
+                "description": "lists moderator tasks",
                 "consumes": [
                     "application/json"
                 ],
@@ -49,15 +49,15 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
-                        "type": "boolean",
-                        "description": "If true, closed tasks; if false/omitted, open tasks",
-                        "name": "resolved",
+                        "type": "string",
+                        "description": "Omit for open tasks only; set any time to list resolved tasks",
+                        "name": "resolvedAt",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Filter by subject key",
-                        "name": "subjectKey",
+                        "description": "Filter by task reference",
+                        "name": "taskReference",
                         "in": "query"
                     },
                     {
@@ -93,7 +93,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/admin.ModeratorTaskGroupDTO"
+                                "$ref": "#/definitions/admin.ModeratorTaskGroup"
                             }
                         }
                     },
@@ -112,14 +112,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/tasks/by-subject/{subjectKey}": {
+        "/admin/tasks/by-reference/{taskReference}": {
             "delete": {
                 "security": [
                     {
                         "Bearer": []
                     }
                 ],
-                "description": "soft-deletes all open tasks for a subjectKey (cleanup when subject is already gone)",
+                "description": "soft-deletes all open tasks for a taskReference",
                 "consumes": [
                     "application/json"
                 ],
@@ -130,13 +130,13 @@ const docTemplate = `{
                     "admin",
                     "moderator"
                 ],
-                "summary": "Discard open moderator tasks by subject",
-                "operationId": "discardModeratorTasksBySubject",
+                "summary": "Discard open moderator tasks by reference",
+                "operationId": "discardModeratorTasksByReference",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Subject key",
-                        "name": "subjectKey",
+                        "description": "Task reference",
+                        "name": "taskReference",
                         "in": "path",
                         "required": true
                     }
@@ -166,14 +166,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/tasks/by-subject/{subjectKey}/resolve": {
+        "/admin/tasks/by-reference/{taskReference}/resolve": {
             "post": {
                 "security": [
                     {
                         "Bearer": []
                     }
                 ],
-                "description": "approve or reject all open tasks sharing a subjectKey; approve runs the type-specific side effect once",
+                "description": "approve or reject all open tasks sharing a taskReference with an optional side effect",
                 "consumes": [
                     "application/json"
                 ],
@@ -184,13 +184,13 @@ const docTemplate = `{
                     "admin",
                     "moderator"
                 ],
-                "summary": "Resolve moderator tasks by subject",
-                "operationId": "resolveModeratorTasksBySubject",
+                "summary": "Resolve moderator tasks by reference",
+                "operationId": "resolveModeratorTasksByReference",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Subject key (e.g. FACTRAK_REVIEW:123)",
-                        "name": "subjectKey",
+                        "description": "Task reference",
+                        "name": "taskReference",
                         "in": "path",
                         "required": true
                     },
@@ -208,7 +208,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin.ModeratorTaskGroupDTO"
+                            "$ref": "#/definitions/admin.ModeratorTaskGroup"
                         }
                     },
                     "400": {
@@ -224,7 +224,7 @@ const docTemplate = `{
                         }
                     },
                     "409": {
-                        "description": "subject already gone — discard open tasks",
+                        "description": "Conflict",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -238,14 +238,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/tasks/subject-key": {
+        "/admin/tasks/task-reference": {
             "get": {
                 "security": [
                     {
                         "Bearer": []
                     }
                 ],
-                "description": "returns SubjectKey(taskType, id...) — pass identifying ids as repeated id query params",
+                "description": "returns task-specific identifier for which object the task is referring to so we can group requests from multiple users",
                 "consumes": [
                     "application/json"
                 ],
@@ -256,8 +256,8 @@ const docTemplate = `{
                     "admin",
                     "moderator"
                 ],
-                "summary": "Compute moderator task subject key",
-                "operationId": "getModeratorTaskSubjectKey",
+                "summary": "Compute moderator task reference",
+                "operationId": "getModeratorTaskReference",
                 "parameters": [
                     {
                         "enum": [
@@ -275,7 +275,7 @@ const docTemplate = `{
                             "type": "integer"
                         },
                         "collectionFormat": "csv",
-                        "description": "Identifying id(s) for the subject",
+                        "description": "Identifying id(s) for the reference",
                         "name": "id",
                         "in": "query",
                         "required": true
@@ -285,7 +285,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin.SubjectKeyResponse"
+                            "$ref": "#/definitions/admin.TaskReferenceResponse"
                         }
                     },
                     "400": {
@@ -304,7 +304,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "get a single moderator task by id with enrich-on-read context",
+                "description": "get a single moderator task by id",
                 "consumes": [
                     "application/json"
                 ],
@@ -344,7 +344,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/admin.ModeratorTaskGroupDTO"
+                            "$ref": "#/definitions/admin.ModeratorTaskGroup"
                         }
                     },
                     "404": {
@@ -8780,7 +8780,25 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "admin.ModeratorTaskDTO": {
+        "admin.ModeratorTaskGroup": {
+            "type": "object",
+            "properties": {
+                "context": {},
+                "taskReference": {
+                    "type": "string"
+                },
+                "taskType": {
+                    "$ref": "#/definitions/models.ModeratorTaskType"
+                },
+                "tasks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/admin.ModeratorTaskResponse"
+                    }
+                }
+            }
+        },
+        "admin.ModeratorTaskResponse": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -8807,36 +8825,18 @@ const docTemplate = `{
                 "resolvedByUserID": {
                     "type": "integer"
                 },
-                "subjectKey": {
-                    "type": "string"
-                },
                 "taskFields": {
                     "type": "object",
                     "additionalProperties": true
+                },
+                "taskReference": {
+                    "type": "string"
                 },
                 "taskType": {
                     "$ref": "#/definitions/models.ModeratorTaskType"
                 },
                 "updatedAt": {
                     "type": "string"
-                }
-            }
-        },
-        "admin.ModeratorTaskGroupDTO": {
-            "type": "object",
-            "properties": {
-                "context": {},
-                "subjectKey": {
-                    "type": "string"
-                },
-                "taskType": {
-                    "$ref": "#/definitions/models.ModeratorTaskType"
-                },
-                "tasks": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/admin.ModeratorTaskDTO"
-                    }
                 }
             }
         },
@@ -8859,10 +8859,10 @@ const docTemplate = `{
                 }
             }
         },
-        "admin.SubjectKeyResponse": {
+        "admin.TaskReferenceResponse": {
             "type": "object",
             "properties": {
-                "subjectKey": {
+                "taskReference": {
                     "type": "string"
                 }
             }

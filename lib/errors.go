@@ -195,9 +195,9 @@ var (
 	ErrorBannerUnmarshal                 = NewAPIError(2320, "unable to unmarshal banner from redis")
 
 	// 24** are errors for the moderator console
-	ErrorModeratorTaskInvalidType       = NewAPIError(2400, "invalid moderator task type")
-	ErrorModeratorTaskInvalidResolution = NewAPIError(2401, "invalid moderator task resolution")
-	ErrorModeratorTaskNoOpenTasks       = NewAPIErrorWithHTTP(2402, http.StatusNotFound, "no open moderator tasks for subject")
-	ErrorModeratorTaskSubjectGone       = NewAPIErrorWithHTTP(2403, http.StatusConflict, "moderator task subject is already gone; discard the open tasks")
-	ErrorModeratorTaskInvalidSubjectKey = NewAPIError(2404, "invalid or incomplete subject key parameters")
+	ErrorModeratorTaskInvalidType        = NewAPIError(2400, "invalid task type")
+	ErrorModeratorTaskInvalidResolution  = NewAPIError(2401, "invalid task resolution")
+	ErrorModeratorTaskNoOpenTasks        = NewAPIErrorWithHTTP(2402, http.StatusNotFound, "no open tasks for task reference")
+	ErrorModeratorTaskSubjectGone        = NewAPIErrorWithHTTP(2403, http.StatusConflict, "task subject is already gone")
+	ErrorModeratorTaskInvalidReference   = NewAPIError(2404, "invalid or incomplete task reference parameters")
 )

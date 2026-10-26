@@ -10,10 +10,9 @@ import (
 func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) {
 	c := NewController(db, cfg, log)
 
-	// Register static paths before :taskID
-	r.GET("/tasks/subject-key", c.GetSubjectKey)
+	r.GET("/tasks/task-reference", c.GetTaskReference)
 	r.GET("/tasks", c.ListTasks)
 	r.GET("/tasks/:taskID", c.GetTask)
-	r.POST("/tasks/by-subject/:subjectKey/resolve", c.ResolveTasksBySubject)
-	r.DELETE("/tasks/by-subject/:subjectKey", c.DiscardTasksBySubject)
+	r.POST("/tasks/by-reference/:taskReference/resolve", c.ResolveTasksByReference)
+	r.DELETE("/tasks/by-reference/:taskReference", c.DiscardTasksByReference)
 }

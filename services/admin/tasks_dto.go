@@ -7,8 +7,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 )
 
-// ModeratorTaskDTO is the API shape for a single moderator_tasks row.
-type ModeratorTaskDTO struct {
+type ModeratorTaskResponse struct {
 	ID               uint                            `json:"id"`
 	CreatedAt        time.Time                       `json:"createdAt"`
 	UpdatedAt        time.Time                       `json:"updatedAt"`
@@ -16,43 +15,38 @@ type ModeratorTaskDTO struct {
 	RequestingUser   *models.User                    `json:"requestingUser,omitempty"`
 	TaskType         models.ModeratorTaskType        `json:"taskType"`
 	TaskFields       map[string]interface{}          `json:"taskFields"`
-	SubjectKey       string                          `json:"subjectKey"`
+	TaskReference    string                          `json:"taskReference"`
 	ResolvedAt       *time.Time                      `json:"resolvedAt"`
 	Resolution       *models.ModeratorTaskResolution `json:"resolution"`
 	ResolvedByUserID *uint                           `json:"resolvedByUserID"`
 	ResolvedByUser   *models.User                    `json:"resolvedByUser,omitempty"`
 }
 
-// ModeratorTaskGroupDTO groups open/closed flags that share a subject_key.
-type ModeratorTaskGroupDTO struct {
-	SubjectKey string                 `json:"subjectKey"`
-	TaskType   models.ModeratorTaskType `json:"taskType"`
-	Tasks      []*ModeratorTaskDTO    `json:"tasks"`
-	Context    interface{}            `json:"context,omitempty"`
+type ModeratorTaskGroup struct {
+	TaskReference string                   `json:"taskReference"`
+	TaskType      models.ModeratorTaskType `json:"taskType"`
+	Tasks         []*ModeratorTaskResponse `json:"tasks"`
+	Context       interface{}              `json:"context,omitempty"`
 }
 
-// FactrakReviewTaskContext is enrich-on-read context for FACTRAK_REVIEW groups.
-// Survey author identity is cleared (anonymous).
 type FactrakReviewTaskContext struct {
 	Survey *models.FactrakSurvey `json:"survey,omitempty"`
 }
 
-// ResolveTasksBody is the body for POST .../resolve.
 type ResolveTasksBody struct {
 	Resolution models.ModeratorTaskResolution `json:"resolution" binding:"required" enums:"APPROVED,REJECTED"`
 }
 
-// SubjectKeyResponse is returned by GET /tasks/subject-key.
-type SubjectKeyResponse struct {
-	SubjectKey string `json:"subjectKey"`
+type TaskReferenceResponse struct {
+	TaskReference string `json:"taskReference"`
 }
 
-func taskToDTO(t *models.ModeratorTask) *ModeratorTaskDTO {
+func taskToResponse(t *models.ModeratorTask) *ModeratorTaskResponse {
 	fields := map[string]interface{}{}
 	if t.TaskFields != "" {
 		_ = json.Unmarshal([]byte(t.TaskFields), &fields)
 	}
-	return &ModeratorTaskDTO{
+	return &ModeratorTaskResponse{
 		ID:               t.ID,
 		CreatedAt:        t.CreatedAt,
 		UpdatedAt:        t.UpdatedAt,
@@ -60,7 +54,7 @@ func taskToDTO(t *models.ModeratorTask) *ModeratorTaskDTO {
 		RequestingUser:   t.RequestingUser,
 		TaskType:         t.TaskType,
 		TaskFields:       fields,
-		SubjectKey:       t.SubjectKey,
+		TaskReference:    t.TaskReference,
 		ResolvedAt:       t.ResolvedAt,
 		Resolution:       t.Resolution,
 		ResolvedByUserID: t.ResolvedByUserID,
@@ -68,25 +62,25 @@ func taskToDTO(t *models.ModeratorTask) *ModeratorTaskDTO {
 	}
 }
 
-func groupTasks(tasks []*models.ModeratorTask) []*ModeratorTaskGroupDTO {
+func groupTasks(tasks []*models.ModeratorTask) []*ModeratorTaskGroup {
 	order := make([]string, 0)
-	byKey := map[string]*ModeratorTaskGroupDTO{}
+	byKey := map[string]*ModeratorTaskGroup{}
 
 	for _, t := range tasks {
-		g, ok := byKey[t.SubjectKey]
+		g, ok := byKey[t.TaskReference]
 		if !ok {
-			g = &ModeratorTaskGroupDTO{
-				SubjectKey: t.SubjectKey,
-				TaskType:   t.TaskType,
-				Tasks:      []*ModeratorTaskDTO{},
+			g = &ModeratorTaskGroup{
+				TaskReference: t.TaskReference,
+				TaskType:      t.TaskType,
+				Tasks:         []*ModeratorTaskResponse{},
 			}
-			byKey[t.SubjectKey] = g
-			order = append(order, t.SubjectKey)
+			byKey[t.TaskReference] = g
+			order = append(order, t.TaskReference)
 		}
-		g.Tasks = append(g.Tasks, taskToDTO(t))
+		g.Tasks = append(g.Tasks, taskToResponse(t))
 	}
 
-	out := make([]*ModeratorTaskGroupDTO, 0, len(order))
+	out := make([]*ModeratorTaskGroup, 0, len(order))
 	for _, key := range order {
 		out = append(out, byKey[key])
 	}

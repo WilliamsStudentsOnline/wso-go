@@ -61,10 +61,10 @@ func TestListAndResolveFactrakTasks(t *testing.T) {
 	assert.NoError(err)
 	resp := utils.GetGoodResp(assert, w)
 
-	var groups []*ModeratorTaskGroupDTO
+	var groups []*ModeratorTaskGroup
 	assert.NoError(json.Unmarshal(resp.Data, &groups))
 	require.Len(t, groups, 1)
-	assert.Equal(models.SubjectKey(models.ModeratorTaskTypeFactrakReview, survey.ID), groups[0].SubjectKey)
+	assert.Equal(models.TaskReference(models.ModeratorTaskTypeFactrakReview, survey.ID), groups[0].TaskReference)
 	require.Len(t, groups[0].Tasks, 1)
 
 	var raw []map[string]interface{}
@@ -76,7 +76,7 @@ func TestListAndResolveFactrakTasks(t *testing.T) {
 
 	body, _ := json.Marshal(ResolveTasksBody{Resolution: models.ModeratorTaskResolutionApproved})
 	w, err = utils.DoHTTPReq(env.Router, http.MethodPost,
-		fmt.Sprintf("/tasks/by-subject/%s/resolve", task.SubjectKey), bytes.NewReader(body))
+		fmt.Sprintf("/tasks/by-reference/%s/resolve", task.TaskReference), bytes.NewReader(body))
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w.Code)
 
@@ -100,12 +100,12 @@ func TestResolveAlreadyGoneOffersDiscard(t *testing.T) {
 
 	body, _ := json.Marshal(ResolveTasksBody{Resolution: models.ModeratorTaskResolutionApproved})
 	w, err := utils.DoHTTPReq(env.Router, http.MethodPost,
-		fmt.Sprintf("/tasks/by-subject/%s/resolve", task.SubjectKey), bytes.NewReader(body))
+		fmt.Sprintf("/tasks/by-reference/%s/resolve", task.TaskReference), bytes.NewReader(body))
 	assert.NoError(err)
 	utils.CheckRespError(assert, w, lib.ErrorModeratorTaskSubjectGone)
 
 	w, err = utils.DoHTTPReq(env.Router, http.MethodDelete,
-		fmt.Sprintf("/tasks/by-subject/%s", task.SubjectKey), nil)
+		fmt.Sprintf("/tasks/by-reference/%s", task.TaskReference), nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w.Code)
 
@@ -114,12 +114,12 @@ func TestResolveAlreadyGoneOffersDiscard(t *testing.T) {
 	assert.Zero(count)
 }
 
-func TestGetSubjectKey(t *testing.T) {
+func TestGetTaskReference(t *testing.T) {
 	assert, env := setupAdminTasks(t)
-	w, err := utils.DoHTTPReq(env.Router, http.MethodGet, "/tasks/subject-key?taskType=FACTRAK_REVIEW&id=42", nil)
+	w, err := utils.DoHTTPReq(env.Router, http.MethodGet, "/tasks/task-reference?taskType=FACTRAK_REVIEW&id=42", nil)
 	assert.NoError(err)
 	resp := utils.GetGoodResp(assert, w)
-	var out SubjectKeyResponse
+	var out TaskReferenceResponse
 	assert.NoError(json.Unmarshal(resp.Data, &out))
-	assert.Equal("FACTRAK_REVIEW:42", out.SubjectKey)
+	assert.Equal("FACTRAK_REVIEW:42", out.TaskReference)
 }
