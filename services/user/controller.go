@@ -24,12 +24,13 @@ import (
 
 type Controller struct {
 	services.BaseController
-	userModel      *models.UserModel
-	userSearch     search.SearchUsers
-	pictureBackend pictures.PictureBackend
+	userModel          *models.UserModel
+	tagModel           *models.TagModel
+	moderatorTaskModel *models.ModeratorTaskModel
+	userSearch         search.SearchUsers
+	pictureBackend     pictures.PictureBackend
 }
 
-// Construct a new user controller
 func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Controller {
 	pb, err := pictures.NewPictureBackend(cfg, log)
 	if err != nil {
@@ -39,10 +40,12 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 	}
 
 	return &Controller{
-		BaseController: services.BaseController{Log: log},
-		userModel:      models.NewUserModel(db, log),
-		userSearch:     search.NewSearchUsers(db, cfg, log),
-		pictureBackend: pb,
+		BaseController:     services.BaseController{Log: log},
+		userModel:          models.NewUserModel(db, log),
+		tagModel:           models.NewTagModel(db, log),
+		moderatorTaskModel: models.NewModeratorTaskModel(db, log),
+		userSearch:         search.NewSearchUsers(db, cfg, log),
+		pictureBackend:     pb,
 	}
 }
 
@@ -339,8 +342,101 @@ func (t *Controller) UpdateUserTags(c *gin.Context) {
 		return
 	}
 
-	// Return nothing
 	t.RespondOK(c, nil)
+}
+
+type CreateTagRequestParams struct {
+	TaskType models.ModeratorTaskType `json:"taskType" binding:"required" enums:"NEW_USER_TAG,DELETE_USER_TAG"`
+	TagID    uint                     `json:"tagID" binding:"required"`
+}
+
+// CreateTagRequest godoc
+// @Summary Request a user tag add or delete
+// @Description creates a NEW_USER_TAG or DELETE_USER_TAG moderator task for yourself (max 3 open tag requests)
+// @ID createUserTagRequest
+// @Tags users,moderator
+// @Accept json
+// @Produce json
+// @Param userID path uint true "User ID"
+// @Param body body user.CreateTagRequestParams true "Tag request"
+// @Success 200 {object} map[string]interface{}
+// @Failure 1331 {object} services.BaseErrorResponse "must be self"
+// @Failure 1406 {object} services.BaseErrorResponse "invalid user tag"
+// @Failure 2405 {object} services.BaseErrorResponse "too many open user tag moderator requests"
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
+// @Security Bearer
+// @Router /users/{userID}/tag-requests [post]
+func (t *Controller) CreateTagRequest(c *gin.Context) {
+	userID, err := getUserIDParamOrSelf(c)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+	if userID != services.GetUserID(c) {
+		t.RespondError(c, lib.ErrorMustBeSelf)
+		return
+	}
+
+	var params CreateTagRequestParams
+	if err := c.ShouldBindJSON(&params); err != nil {
+		t.RespondBadBind(c, err)
+		return
+	}
+	if !params.TaskType.IsUserTagTask() {
+		t.RespondAPIError(c, lib.ErrorModeratorTaskInvalidType)
+		return
+	}
+
+	var tag models.Tag
+	if err := t.tagModel.GetTagByID(params.TagID, &tag); err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			t.RespondAPIError(c, lib.ErrorInvalidUserTag)
+			return
+		}
+		t.RespondError(c, err)
+		return
+	}
+
+	openCount, err := t.moderatorTaskModel.CountOpenTasksForRequester(
+		userID,
+		models.ModeratorTaskTypeNewUserTag,
+		models.ModeratorTaskTypeDeleteUserTag,
+	)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+	if openCount >= models.MaxOpenUserTagTasksPerRequester {
+		t.RespondAPIError(c, lib.ErrorModeratorTaskTagRequestLimit)
+		return
+	}
+
+	reqUID := userID
+	task, err := models.NewUserTagTask(params.TaskType, &reqUID, userID, params.TagID)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+	if err := t.moderatorTaskModel.CreateTask(task); err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	t.Log.Infow("user tag moderator request created",
+		"taskID", task.ID,
+		"taskType", task.TaskType,
+		"taskReference", task.TaskReference,
+		"requestingUserID", userID,
+		"tagID", params.TagID,
+	)
+
+	t.RespondOK(c, gin.H{
+		"id":         task.ID,
+		"taskType":   task.TaskType,
+		"taskReference": task.TaskReference,
+		"tagID":      params.TagID,
+	})
 }
 
 // UploadProfilePhoto godoc

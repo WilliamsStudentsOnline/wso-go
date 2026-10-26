@@ -1463,10 +1463,14 @@ definitions:
     enum:
     - ""
     - FACTRAK_REVIEW
+    - NEW_USER_TAG
+    - DELETE_USER_TAG
     type: string
     x-enum-varnames:
     - ModeratorTaskTypeUndefined
     - ModeratorTaskTypeFactrakReview
+    - ModeratorTaskTypeNewUserTag
+    - ModeratorTaskTypeDeleteUserTag
   models.Neighborhood:
     properties:
       dorms:
@@ -2105,6 +2109,20 @@ definitions:
         type: array
       message:
         type: string
+    type: object
+  user.CreateTagRequestParams:
+    properties:
+      tagID:
+        type: integer
+      taskType:
+        allOf:
+        - $ref: '#/definitions/models.ModeratorTaskType'
+        enum:
+        - NEW_USER_TAG
+        - DELETE_USER_TAG
+    required:
+    - tagID
+    - taskType
     type: object
   user.UpdateUserParams:
     properties:
@@ -7650,6 +7668,59 @@ paths:
       summary: Upload a profile photo by user id
       tags:
       - users
+  /users/{userID}/tag-requests:
+    post:
+      consumes:
+      - application/json
+      description: creates a NEW_USER_TAG or DELETE_USER_TAG moderator task for yourself
+        (max 3 open tag requests)
+      operationId: createUserTagRequest
+      parameters:
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: integer
+      - description: Tag request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/user.CreateTagRequestParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "1331":
+          description: must be self
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "1406":
+          description: invalid user tag
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "2405":
+          description: too many open user tag moderator requests
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Request a user tag add or delete
+      tags:
+      - users
+      - moderator
   /users/{userID}/tags:
     put:
       consumes:

@@ -17,5 +17,6 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	r.GET("/:userID", c.GetUser)
 	writer.PATCH("/:userID", c.UpdateUser)
 	writer.PUT("/:userID/tags", c.UpdateUserTags)
+	writer.POST("/:userID/tag-requests", c.CreateTagRequest)
 	writer.PUT("/:userID/photo", c.UploadProfilePhoto)
 }

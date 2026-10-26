@@ -8468,6 +8468,85 @@ const docTemplate = `{
                 }
             }
         },
+        "/users/{userID}/tag-requests": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "creates a NEW_USER_TAG or DELETE_USER_TAG moderator task for yourself (max 3 open tag requests)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users",
+                    "moderator"
+                ],
+                "summary": "Request a user tag add or delete",
+                "operationId": "createUserTagRequest",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Tag request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/user.CreateTagRequestParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "1331": {
+                        "description": "must be self",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "1406": {
+                        "description": "invalid user tag",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "2405": {
+                        "description": "too many open user tag moderator requests",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users/{userID}/tags": {
             "put": {
                 "security": [
@@ -10710,11 +10789,15 @@ const docTemplate = `{
             "type": "string",
             "enum": [
                 "",
-                "FACTRAK_REVIEW"
+                "FACTRAK_REVIEW",
+                "NEW_USER_TAG",
+                "DELETE_USER_TAG"
             ],
             "x-enum-varnames": [
                 "ModeratorTaskTypeUndefined",
-                "ModeratorTaskTypeFactrakReview"
+                "ModeratorTaskTypeFactrakReview",
+                "ModeratorTaskTypeNewUserTag",
+                "ModeratorTaskTypeDeleteUserTag"
             ]
         },
         "models.Neighborhood": {
@@ -11669,6 +11752,29 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string"
+                }
+            }
+        },
+        "user.CreateTagRequestParams": {
+            "type": "object",
+            "required": [
+                "tagID",
+                "taskType"
+            ],
+            "properties": {
+                "tagID": {
+                    "type": "integer"
+                },
+                "taskType": {
+                    "enum": [
+                        "NEW_USER_TAG",
+                        "DELETE_USER_TAG"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.ModeratorTaskType"
+                        }
+                    ]
                 }
             }
         },

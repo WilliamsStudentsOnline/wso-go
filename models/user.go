@@ -158,6 +158,42 @@ func (m *UserModel) UpdateUser(user *User) (err error) {
 	return
 }
 
+func (m *UserModel) AddUserTag(userID, tagID uint) error {
+	user := new(User)
+	if err := m.DB.First(user, userID).Error; err != nil {
+		return err
+	}
+	tag := new(Tag)
+	if err := m.DB.First(tag, tagID).Error; err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			return lib.ErrorInvalidUserTag
+		}
+		return err
+	}
+	if err := m.DB.Model(user).Association("Tags").Append(tag).Error; err != nil {
+		return err
+	}
+	return m.PopulateSearchFields(userID)
+}
+
+func (m *UserModel) RemoveUserTag(userID, tagID uint) error {
+	user := new(User)
+	if err := m.DB.First(user, userID).Error; err != nil {
+		return err
+	}
+	tag := new(Tag)
+	if err := m.DB.First(tag, tagID).Error; err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			return lib.ErrorInvalidUserTag
+		}
+		return err
+	}
+	if err := m.DB.Model(user).Association("Tags").Delete(tag).Error; err != nil {
+		return err
+	}
+	return m.PopulateSearchFields(userID)
+}
+
 func (m *UserModel) UpdateUserTags(id uint, tags []string) (err error) {
 	// Get user
 	user := new(User)
