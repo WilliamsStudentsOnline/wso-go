@@ -651,7 +651,7 @@ func (t *Controller) FlagSurvey(c *gin.Context) {
 	t.Log.Infow("factrak survey flagged as moderator task",
 		"surveyID", surveyID,
 		"taskID", task.ID,
-		"subjectKey", task.SubjectKey,
+		"taskReference", task.TaskReference,
 		"requestingUserID", userID,
 	)
 

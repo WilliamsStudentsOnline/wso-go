@@ -982,7 +982,7 @@ func TestController_FlagSurvey(t *testing.T) {
 	assert.NoError(db.Find(&tasks).Error)
 	assert.Len(tasks, 1)
 	assert.Equal(models.ModeratorTaskTypeFactrakReview, tasks[0].TaskType)
-	assert.Equal(models.SubjectKey(models.ModeratorTaskTypeFactrakReview, survey.ID), tasks[0].SubjectKey)
+	assert.Equal(models.TaskReference(models.ModeratorTaskTypeFactrakReview, survey.ID), tasks[0].TaskReference)
 	assert.Equal(s1.ID, *tasks[0].RequestingUserID)
 }
 
