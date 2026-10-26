@@ -2,6 +2,8 @@ package models
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -22,7 +24,7 @@ type GetAllModeratorTasksOptions struct {
 	Offset *uint `json:"offset" form:"offset"`
 	Limit  *uint `json:"limit" form:"limit"`
 
-	TaskType      *ModeratorTaskType `json:"taskType" form:"taskType" enums:",FACTRAK_REVIEW"`
+	TaskType      *ModeratorTaskType `json:"taskType" form:"taskType" enums:",FACTRAK_REVIEW,NEW_USER_TAG,DELETE_USER_TAG"`
 	TaskReference *string            `json:"taskReference" form:"taskReference"`
 	// leave empty to filter only open tasks
 	ResolvedAt *time.Time `json:"resolvedAt" form:"resolvedAt"`
@@ -210,4 +212,42 @@ func NewFactrakReviewTask(requestingUserID *uint, surveyID uint) (*ModeratorTask
 		TaskFields:       fields,
 		TaskReference:    TaskReference(ModeratorTaskTypeFactrakReview, surveyID),
 	}, nil
+}
+
+func DecodeUserTagFields(taskFieldsJSON string) (*UserTagTaskFields, error) {
+	var fields UserTagTaskFields
+	if err := json.Unmarshal([]byte(taskFieldsJSON), &fields); err != nil {
+		return nil, err
+	}
+	return &fields, nil
+}
+
+func NewUserTagTask(taskType ModeratorTaskType, requestingUserID *uint, targetUserID, tagID uint) (*ModeratorTask, error) {
+	if !taskType.IsUserTagTask() {
+		return nil, fmt.Errorf("not a user tag task type: %s", taskType)
+	}
+	if targetUserID == 0 || tagID == 0 {
+		return nil, errors.New("targetUserID and tagID are required")
+	}
+	fields, err := EncodeTaskFields(UserTagTaskFields{TargetUserID: targetUserID, TagID: tagID})
+	if err != nil {
+		return nil, err
+	}
+	return &ModeratorTask{
+		RequestingUserID: requestingUserID,
+		TaskType:         taskType,
+		TaskFields:       fields,
+		TaskReference:    TaskReference(taskType, targetUserID, tagID),
+	}, nil
+}
+
+func (m *ModeratorTaskModel) CountOpenTasksForRequester(requestingUserID uint, taskTypes ...ModeratorTaskType) (int, error) {
+	db := m.DB.Model(&ModeratorTask{}).
+		Where("requesting_user_id = ? AND resolved_at IS NULL", requestingUserID)
+	if len(taskTypes) > 0 {
+		db = db.Where("task_type IN (?)", taskTypes)
+	}
+	var count int
+	err := db.Count(&count).Error
+	return count, err
 }
