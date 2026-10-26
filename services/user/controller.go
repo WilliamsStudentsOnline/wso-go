@@ -352,7 +352,7 @@ type CreateTagRequestParams struct {
 
 // CreateTagRequest godoc
 // @Summary Request a user tag
-// @Description queues NEW_USER_TAG for tagName; approve creates the tag if needed and attaches it
+// @Description request to create a new user tag
 // @ID createUserTagRequest
 // @Tags users,moderator
 // @Accept json
