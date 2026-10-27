@@ -1,9 +1,4 @@
-/* Allow the wso user to manage only wso-job-* systemd units.
- *
- * Install:
- *   sudo cp prod_files/polkit/50-wso-jobs.rules /etc/polkit-1/rules.d/
- *   sudo systemctl restart polkit
- */
+/* wso may manage wso-job-* units only; see HOST_JOBS.md */
 polkit.addRule(function (action, subject) {
     if (subject.user !== "wso") {
         return;
