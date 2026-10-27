@@ -7,7 +7,6 @@ import (
 	"strings"
 )
 
-// Expected TSV header from registrar WSO info dumps (e.g. Classes_of_YY_YY_WSO_Info.txt).
 var expectedHeader = []string{
 	"EMAIL_ADDR",
 	"SUBOX",
@@ -19,7 +18,6 @@ var expectedHeader = []string{
 	"POSTAL",
 }
 
-// Record is one row of registrar WSO student info.
 type Record struct {
 	UnixID      string
 	Email       string
@@ -32,7 +30,7 @@ type Record struct {
 	HomeZip     string
 }
 
-// ParseTSV reads a tab-separated registrar dump with the expected header.
+// ParseTSV reads a tab-separated registrar WSO info dump
 func ParseTSV(r io.Reader) ([]Record, error) {
 	reader := csv.NewReader(r)
 	reader.Comma = '\t'
@@ -49,7 +47,7 @@ func ParseTSV(r io.Reader) ([]Record, error) {
 	}
 
 	var records []Record
-	line := 1 // header consumed
+	line := 1
 	for {
 		row, err := reader.Read()
 		if err == io.EOF {
@@ -76,7 +74,7 @@ func validateHeader(header []string) error {
 	}
 	for i, want := range expectedHeader {
 		got := strings.TrimSpace(header[i])
-		// Tolerate UTF-8 BOM on the first column.
+		// strip UTF-8 BOM on first column
 		got = strings.TrimPrefix(got, "\ufeff")
 		if !strings.EqualFold(got, want) {
 			return fmt.Errorf("header column %d: expected %q, got %q", i, want, got)
