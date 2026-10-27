@@ -137,3 +137,5 @@ tmp/
 # OpenAPI CI artifacts
 openapi-results/
 openapi-comment.md
+db/*.db
+catalog-archive/
