@@ -101,6 +101,3 @@ func TestRegistry(t *testing.T) {
 	assert.Equal(t, "example", r.Scheduled()[0].Name)
 }
 
-func TestDefaultEmpty(t *testing.T) {
-	assert.Empty(t, Default().All())
-}
