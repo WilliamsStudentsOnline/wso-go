@@ -18,4 +18,6 @@ const (
 	BoardBackfillSourceDiscussions   = "discussions"
 	BoardBackfillSourceBulletins     = "bulletins"
 	BoardBackfillSourceBulletinRides = "bulletin_rides"
+	// Posts store the board_posts.id in ThreadID (no separate post_id column)
+	BoardBackfillSourcePosts = "posts"
 )

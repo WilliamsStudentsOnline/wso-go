@@ -170,6 +170,7 @@ func (t *Controller) CreateBulletin(c *gin.Context) {
 		t.RespondError(c, err)
 		return
 	}
+	t.boardBridge.AfterCreateBulletin(&bulletin)
 
 	t.RespondCreated(c, bulletin)
 }
@@ -251,6 +252,7 @@ func (t *Controller) UpdateBulletin(c *gin.Context) {
 		t.RespondError(c, err)
 		return
 	}
+	t.boardBridge.AfterUpdateBulletin(&bulletin)
 
 	// Return update bulletin
 	t.RespondOK(c, bulletin)
@@ -302,6 +304,7 @@ func (t *Controller) DeleteBulletin(c *gin.Context) {
 		t.RespondError(c, err)
 		return
 	}
+	t.boardBridge.AfterDeleteBulletin(&bulletin)
 
 	t.RespondOK(c, bulletin)
 }
