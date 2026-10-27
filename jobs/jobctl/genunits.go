@@ -22,7 +22,11 @@ After=network-online.target
 Type=oneshot
 User={{.User}}
 Group={{.Group}}
+Environment=WSO_JOB_NAME={{.Name}}
+Environment=WSO_JOB_UNIT={{.ServiceFile}}
+ExecStartPre={{.Jobctl}} record-start -config {{.ConfigPath}}
 ExecStart={{.ExecStart}}
+ExecStopPost={{.Jobctl}} record-finish -config {{.ConfigPath}}
 {{if .RuntimeMaxSec}}RuntimeMaxSec={{.RuntimeMaxSec}}
 {{end}}{{if .MemoryMax}}MemoryMax={{.MemoryMax}}
 {{end}}
@@ -50,7 +54,10 @@ type serviceData struct {
 	Description   string
 	User          string
 	Group         string
+	ServiceFile   string
 	ExecStart     string
+	Jobctl        string
+	ConfigPath    string
 	RuntimeMaxSec int
 	MemoryMax     string
 }
@@ -90,7 +97,10 @@ func GenUnits(r *registry.Registry, outDir string) error {
 			Description:   j.Description,
 			User:          j.EffectiveUser(),
 			Group:         j.EffectiveGroup(),
+			ServiceFile:   svcName,
 			ExecStart:     execStart,
+			Jobctl:        JobctlBinary,
+			ConfigPath:    DefaultConfigPath,
 			RuntimeMaxSec: j.RuntimeMaxSec,
 			MemoryMax:     j.MemoryMax,
 		})
