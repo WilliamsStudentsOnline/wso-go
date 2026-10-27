@@ -129,6 +129,7 @@ func (t *Controller) CreatePost(c *gin.Context) {
 		t.RespondError(c, err)
 		return
 	}
+	t.boardBridge.AfterCreatePost(&post)
 
 	t.RespondCreated(c, post)
 }
@@ -194,6 +195,7 @@ func (t *Controller) UpdatePost(c *gin.Context) {
 		t.RespondError(c, err)
 		return
 	}
+	t.boardBridge.AfterUpdatePost(&post)
 
 	t.RespondOK(c, post)
 }
@@ -236,11 +238,21 @@ func (t *Controller) DeletePost(c *gin.Context) {
 		return
 	}
 
+	var remaining int
+	if err := t.postModel.DB.Model(&models.Post{}).
+		Where("discussion_id = ?", post.DiscussionID).
+		Count(&remaining).Error; err != nil {
+		t.RespondError(c, err)
+		return
+	}
+	discussionAlsoDeleted := remaining <= 1
+
 	err = t.postModel.DeletePost(&post)
 	if err != nil {
 		t.RespondError(c, err)
 		return
 	}
+	t.boardBridge.AfterDeletePost(&post, discussionAlsoDeleted)
 
 	t.RespondOK(c, post)
 }

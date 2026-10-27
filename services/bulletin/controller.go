@@ -6,6 +6,7 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/sanitize"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
+	"github.com/WilliamsStudentsOnline/wso-go/services/bulletin/boardbridge"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
@@ -19,6 +20,7 @@ type Controller struct {
 	discussionModel *models.DiscussionModel
 	postModel       *models.PostModel
 	userModel       *models.UserModel
+	boardBridge     *boardbridge.Bridge
 }
 
 // NewController constructs a new user controller
@@ -30,6 +32,7 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 		discussionModel: models.NewDiscussionModel(db, log),
 		postModel:       models.NewPostModel(db, log),
 		userModel:       models.NewUserModel(db, log),
+		boardBridge:     boardbridge.New(db, log),
 	}
 }
 
