@@ -10,19 +10,16 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-// EnqueueOpts controls creating a job run.
 type EnqueueOpts struct {
 	JobName           string
 	Values            map[string]string
-	Trigger           string // manual | scheduled
+	Trigger           string
 	TriggeredByUserID *uint
-	RunAt             *time.Time // nil = ASAP
+	RunAt             *time.Time
 	InputFileName     *string
 	InputSHA256       *string
 }
 
-// Enqueue creates a pending job_runs row. If the run is due and nothing is
-// already running for that job, it starts immediately via systemd.
 func Enqueue(db *gorm.DB, sd *Systemd, r *registry.Registry, opts EnqueueOpts) (*models.JobRun, error) {
 	j, ok := r.Get(opts.JobName)
 	if !ok {
@@ -69,7 +66,6 @@ func Enqueue(db *gorm.DB, sd *Systemd, r *registry.Registry, opts EnqueueOpts) (
 	return &run, nil
 }
 
-// DispatchDue starts due pending runs when their job has no active run.
 func DispatchDue(db *gorm.DB, sd *Systemd, r *registry.Registry) (started int, err error) {
 	now := time.Now().UTC()
 	var pending []models.JobRun
@@ -125,7 +121,6 @@ func DispatchDue(db *gorm.DB, sd *Systemd, r *registry.Registry) (started int, e
 	return started, nil
 }
 
-// Cancel stops a running unit or marks a pending run canceled.
 func Cancel(db *gorm.DB, sd *Systemd, runID uint) (*models.JobRun, error) {
 	var run models.JobRun
 	if err := db.First(&run, runID).Error; err != nil {
@@ -175,7 +170,7 @@ func tryStart(db *gorm.DB, sd *Systemd, j registry.Job, run *models.JobRun, args
 		return err
 	}
 	if active {
-		return nil // stay pending — queued
+		return nil
 	}
 	if sd == nil {
 		return fmt.Errorf("systemd client required to start runs")
@@ -185,15 +180,10 @@ func tryStart(db *gorm.DB, sd *Systemd, j registry.Job, run *models.JobRun, args
 	if err != nil {
 		return err
 	}
-	now := time.Now().UTC()
-	if err := db.Model(run).Updates(map[string]interface{}{
-		"unit_name": unitName,
-		// status stays pending until record-start flips it to running
-	}).Error; err != nil {
+	if err := db.Model(run).Update("unit_name", unitName).Error; err != nil {
 		return err
 	}
 	run.UnitName = &unitName
-	_ = now
 	return nil
 }
 
