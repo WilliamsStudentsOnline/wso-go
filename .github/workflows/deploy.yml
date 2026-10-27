@@ -26,22 +26,14 @@ jobs:
         run: make build-prod-linux
       - name: Build Jobs
         run: make build-jobs-prod-linux
-      # Copy binaries to /opt/wso-go (atomic mv to avoid text-file-busy).
       # TODO: deploy config files alongside WSO-Go.
-      # One-time host setup for the jobs system (not repeated every deploy):
-      #   sudo cp prod_files/polkit/50-wso-jobs.rules /etc/polkit-1/rules.d/
-      #   sudo cp prod_files/journald/wso-jobs.conf /etc/systemd/journald.conf.d/
-      #   sudo cp prod_files/tmpfiles.d/wso-jobs.conf /etc/tmpfiles.d/
-      #   sudo systemd-tmpfiles --create /etc/tmpfiles.d/wso-jobs.conf
-      #   sudo usermod -aG systemd-journal wso
-      #   sudo systemctl restart polkit systemd-journald
+      # One-time jobs host setup: prod_files/HOST_JOBS.md
       - name: Install binaries
         run: |
           set -euo pipefail
           mkdir -p /opt/wso-go
 
-          # Atomic replace: copy to .new then mv so running jobs aren't
-          # disrupted by "text file busy".
+          # install_bin: .new + mv to avoid text file busy
           install_bin() {
             local src="$1" dst="$2"
             cp "$src" "${dst}.new"
@@ -95,22 +87,14 @@ jobs:
         run: make build-prod-linux
       - name: Build Jobs
         run: make build-jobs-prod-linux
-      # Copy binaries to /opt/wso-go (atomic mv to avoid text-file-busy).
       # TODO: deploy config files alongside WSO-Go.
-      # One-time host setup for the jobs system (not repeated every deploy):
-      #   sudo cp prod_files/polkit/50-wso-jobs.rules /etc/polkit-1/rules.d/
-      #   sudo cp prod_files/journald/wso-jobs.conf /etc/systemd/journald.conf.d/
-      #   sudo cp prod_files/tmpfiles.d/wso-jobs.conf /etc/tmpfiles.d/
-      #   sudo systemd-tmpfiles --create /etc/tmpfiles.d/wso-jobs.conf
-      #   sudo usermod -aG systemd-journal wso
-      #   sudo systemctl restart polkit systemd-journald
+      # One-time jobs host setup: prod_files/HOST_JOBS.md
       - name: Install binaries
         run: |
           set -euo pipefail
           mkdir -p /opt/wso-go
 
-          # Atomic replace: copy to .new then mv so running jobs aren't
-          # disrupted by "text file busy".
+          # install_bin: .new + mv to avoid text file busy
           install_bin() {
             local src="$1" dst="$2"
             cp "$src" "${dst}.new"
