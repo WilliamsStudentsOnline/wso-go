@@ -208,7 +208,8 @@ func (t *Controller) GetJobRunLogs(c *gin.Context) {
 // @Router /admin/jobs/{name}/runs [post]
 func (t *Controller) CreateJobRun(c *gin.Context) {
 	name := c.Param("name")
-	j, ok := registry.Default().Get(name)
+	reg := registry.Default()
+	j, ok := reg.Get(name)
 	if !ok {
 		t.RespondAPIError(c, lib.ErrorRecordNotFound)
 		return
@@ -270,7 +271,7 @@ func (t *Controller) CreateJobRun(c *gin.Context) {
 	}
 	defer sd.Close()
 
-	run, err := jobctl.Enqueue(t.db, sd, registry.Default(), jobctl.EnqueueOpts{
+	run, err := jobctl.Enqueue(t.db, sd, reg, jobctl.EnqueueOpts{
 		JobName:           name,
 		Values:            values,
 		TriggeredByUserID: &userID,
