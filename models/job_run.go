@@ -31,7 +31,6 @@ func (m *JobRunModel) FindByInvocationID(invocationID string) (*JobRun, error) {
 	return &run, nil
 }
 
-// HasActiveRun reports whether jobName has a running row (concurrency gate).
 func (m *JobRunModel) HasActiveRun(jobName string) (bool, error) {
 	var n int
 	err := m.DB.Model(&JobRun{}).
