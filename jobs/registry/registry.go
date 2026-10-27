@@ -1,4 +1,4 @@
-// Package registry describes batch jobs for the systemd-based jobs system.
+// Package registry is the catalog of batch jobs for wso-jobctl
 package registry
 
 import (
@@ -7,10 +7,8 @@ import (
 	"strings"
 )
 
-// InstallDir is where CD installs job binaries on the prod host.
 const InstallDir = "/opt/wso-go"
 
-// ParamType is the kind of CLI flag a job accepts.
 type ParamType string
 
 const (
@@ -20,51 +18,43 @@ const (
 	ParamFile   ParamType = "file"
 )
 
-// Param is a typed CLI flag the admin console (or jobctl) may supply.
 type Param struct {
-	Name        string    // flag name without leading dashes, e.g. "file"
-	Type        ParamType // string, bool, enum, or file
+	Name        string
+	Type        ParamType
 	Required    bool
-	Default     string   // used when the value is omitted; empty means no default
+	Default     string
 	Description string
-	EnumValues  []string // required when Type is ParamEnum
+	EnumValues  []string
 }
 
-// Schedule is a systemd OnCalendar expression for recurring runs.
-// Nil Schedule means the job is manual / one-off only.
 type Schedule struct {
-	OnCalendar string // e.g. "*-*-* 01:00:00"
+	OnCalendar string
 }
 
-// Job is one batch job the host can run.
 type Job struct {
 	Name          string
 	Description   string
-	Binary        string // absolute path to the binary on the host
+	Binary        string
 	Params        []Param
-	Schedule      *Schedule // nil = no timer
-	RuntimeMaxSec int       // 0 = systemd default
-	MemoryMax     string    // e.g. "512M"; empty = systemd default
-	User          string    // empty defaults to "wso"
-	Group         string    // empty defaults to "wso"
+	Schedule      *Schedule
+	RuntimeMaxSec int
+	MemoryMax     string
+	User          string
+	Group         string
 }
 
-// UnitName is the systemd unit basename for this job (without .service/.timer).
 func (j Job) UnitName() string {
 	return "wso-job-" + j.Name
 }
 
-// ServiceFile is the systemd service unit filename.
 func (j Job) ServiceFile() string {
 	return j.UnitName() + ".service"
 }
 
-// TimerFile is the systemd timer unit filename.
 func (j Job) TimerFile() string {
 	return j.UnitName() + ".timer"
 }
 
-// EffectiveUser returns the systemd User=, defaulting to wso.
 func (j Job) EffectiveUser() string {
 	if j.User == "" {
 		return "wso"
@@ -72,7 +62,6 @@ func (j Job) EffectiveUser() string {
 	return j.User
 }
 
-// EffectiveGroup returns the systemd Group=, defaulting to wso.
 func (j Job) EffectiveGroup() string {
 	if j.Group == "" {
 		return "wso"
@@ -80,7 +69,6 @@ func (j Job) EffectiveGroup() string {
 	return j.Group
 }
 
-// ParamByName returns the param with the given name, if any.
 func (j Job) ParamByName(name string) (Param, bool) {
 	for _, p := range j.Params {
 		if p.Name == name {
@@ -90,9 +78,6 @@ func (j Job) ParamByName(name string) (Param, bool) {
 	return Param{}, false
 }
 
-// BuildArgs turns a map of param name -> value into argv for the job binary.
-// Missing optional params use Default when set. Unknown names and invalid
-// values are errors. Bool values accept "true"/"false" (case-insensitive).
 func (j Job) BuildArgs(values map[string]string) ([]string, error) {
 	if values == nil {
 		values = map[string]string{}
@@ -141,7 +126,6 @@ func (j Job) BuildArgs(values map[string]string) ([]string, error) {
 	return args, nil
 }
 
-// Validate checks that a Job is well-formed before registration.
 func (j Job) Validate() error {
 	if j.Name == "" {
 		return fmt.Errorf("job name is required")
@@ -179,17 +163,14 @@ func (j Job) Validate() error {
 	return nil
 }
 
-// Registry is the set of known jobs.
 type Registry struct {
 	jobs map[string]Job
 }
 
-// New returns an empty registry.
 func New() *Registry {
 	return &Registry{jobs: map[string]Job{}}
 }
 
-// Register adds a job. Names must be unique.
 func (r *Registry) Register(j Job) error {
 	if err := j.Validate(); err != nil {
 		return err
@@ -201,13 +182,11 @@ func (r *Registry) Register(j Job) error {
 	return nil
 }
 
-// Get returns a job by name.
 func (r *Registry) Get(name string) (Job, bool) {
 	j, ok := r.jobs[name]
 	return j, ok
 }
 
-// All returns all jobs sorted by name.
 func (r *Registry) All() []Job {
 	out := make([]Job, 0, len(r.jobs))
 	for _, j := range r.jobs {
@@ -217,7 +196,6 @@ func (r *Registry) All() []Job {
 	return out
 }
 
-// Scheduled returns jobs that have a recurring schedule, sorted by name.
 func (r *Registry) Scheduled() []Job {
 	var out []Job
 	for _, j := range r.jobs {
@@ -229,7 +207,6 @@ func (r *Registry) Scheduled() []Job {
 	return out
 }
 
-// Default is the process-wide registry. Later layers register jobs into it.
 func Default() *Registry {
 	return defaultRegistry
 }
