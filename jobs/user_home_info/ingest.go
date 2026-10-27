@@ -8,16 +8,13 @@ import (
 	"go.uber.org/zap"
 )
 
-// Stats summarizes an ingest run.
 type Stats struct {
 	Updated  int
 	NotFound int
 	Skipped  int
 }
 
-// IngestRecords updates existing users from registrar WSO info rows.
-// Only non-empty fields are written (blanks do not clear existing values).
-// DORM is not mapped to off_campus.
+// IngestRecords updates existing users from registrar rows; only non-empty fields; DORM is not mapped to off_campus
 func IngestRecords(db *gorm.DB, userModel *models.UserModel, log *zap.SugaredLogger, records []Record) (Stats, error) {
 	var stats Stats
 
