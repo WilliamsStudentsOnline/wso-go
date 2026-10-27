@@ -11,12 +11,10 @@ import (
 	godbus "github.com/godbus/dbus/v5"
 )
 
-// Systemd talks to the system bus for job units.
 type Systemd struct {
 	conn *dbus.Conn
 }
 
-// NewSystemd opens a system-bus connection to systemd.
 func NewSystemd() (*Systemd, error) {
 	conn, err := dbus.NewSystemConnection()
 	if err != nil {
@@ -25,15 +23,12 @@ func NewSystemd() (*Systemd, error) {
 	return &Systemd{conn: conn}, nil
 }
 
-// Close closes the dbus connection.
 func (s *Systemd) Close() {
 	if s != nil && s.conn != nil {
 		s.conn.Close()
 	}
 }
 
-// StartJobRun starts a transient oneshot unit for a registered job + run id.
-// ExecStart is always registry.Binary plus BuildArgs output — never a free-form command.
 func (s *Systemd) StartJobRun(j registry.Job, runID uint, args []string) (unitName string, err error) {
 	if err := j.Validate(); err != nil {
 		return "", err
@@ -86,7 +81,6 @@ func (s *Systemd) StartJobRun(j registry.Job, runID uint, args []string) (unitNa
 	}
 }
 
-// StopUnit stops a running unit (e.g. cancel).
 func (s *Systemd) StopUnit(unitName string) error {
 	if !strings.HasPrefix(unitName, "wso-job-") || !strings.HasSuffix(unitName, ".service") {
 		return fmt.Errorf("refusing to stop unit %q", unitName)
@@ -104,7 +98,6 @@ func (s *Systemd) StopUnit(unitName string) error {
 	}
 }
 
-// TimerNextElapse returns the next elapse time for a job timer, if present.
 func (s *Systemd) TimerNextElapse(jobName string) (*time.Time, error) {
 	unit := "wso-job-" + jobName + ".timer"
 	props, err := s.conn.GetUnitTypeProperties(unit, "Timer")
@@ -119,23 +112,19 @@ func (s *Systemd) TimerNextElapse(jobName string) (*time.Time, error) {
 	if !ok || usec == 0 || usec == ^uint64(0) {
 		return nil, nil
 	}
-	// systemd realtime usec since unix epoch
 	t := time.Unix(0, int64(usec)*1000).UTC()
 	return &t, nil
 }
 
-// TransientUnitName builds the transient unit name for a run.
 func TransientUnitName(jobName string, runID uint) string {
 	return fmt.Sprintf("wso-job-%s-r%d.service", jobName, runID)
 }
 
-// ValidTransientUnitName checks the unit name matches the expected pattern for jobName.
 func ValidTransientUnitName(unitName, jobName string) bool {
 	prefix := "wso-job-" + jobName + "-r"
 	return strings.HasPrefix(unitName, prefix) && strings.HasSuffix(unitName, ".service")
 }
 
-// mirrors go-systemd's unexported execStart dbus shape
 type execCmd struct {
 	Path             string
 	Args             []string
