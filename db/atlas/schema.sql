@@ -117,6 +117,18 @@ CREATE TABLE `course_listings` (
   INDEX `idx_course_listings_deleted_at` (`deleted_at`),
   UNIQUE INDEX `idx_course_listings_identity` (`course_canonical_id`, `subject`, `number`, `letter`)
 ) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- Create "course_subject_aliases" table
+CREATE TABLE `course_subject_aliases` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime NULL,
+  `updated_at` datetime NULL,
+  `deleted_at` datetime NULL,
+  `factrak_abbrev` varchar(16) NOT NULL,
+  `catalog_subject` varchar(16) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `factrak_abbrev` (`factrak_abbrev`),
+  INDEX `idx_course_subject_aliases_deleted_at` (`deleted_at`)
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- Create "courses" table
 CREATE TABLE `courses` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -348,6 +360,8 @@ CREATE TABLE `factrak_surveys` (
   `user_id` int unsigned NOT NULL,
   `professor_id` int unsigned NOT NULL,
   `course_id` int unsigned NOT NULL,
+  `canonical_course_id` int unsigned NULL,
+  `offering_id` int unsigned NULL,
   `would_recommend_course` bool NULL,
   `course_workload` int NULL,
   `course_stimulating` int NULL,
@@ -365,7 +379,9 @@ CREATE TABLE `factrak_surveys` (
   `course_format` varchar(255) NULL,
   PRIMARY KEY (`id`),
   INDEX `idx_factrak_surveys_deleted_at` (`deleted_at`),
+  INDEX `index_factrak_surveys_on_canonical_course_id` (`canonical_course_id`),
   INDEX `index_factrak_surveys_on_course_id` (`course_id`),
+  INDEX `index_factrak_surveys_on_offering_id` (`offering_id`),
   INDEX `index_factrak_surveys_on_professor_id` (`professor_id`),
   INDEX `index_factrak_surveys_on_user_id` (`user_id`)
 ) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;

@@ -1,4 +1,5 @@
-h1:joALYJTS04KJHVuxFWE3jOnV8hNXpxW0AYCPAyRlxRU=
+h1:NviGnz0I8YA9nlhqhBgQXDW5GOJ2K6o69T56J56Q6G8=
 20261007235756_baseline.up.sql h1:Kmw4SweP0Aq6KlzT+VIDWQbg6ciJQrA4FhwGY6M1PZ0=
 20261026053754_create_moderator_tasks.up.sql h1:8w76fayR9zvi+VurrNkuh5mqEaKUdKceqM/HFT8G63c=
 20261027230709_create_catalog_tables.up.sql h1:qqMhYhMPpTAUz2u7UiFwUtkQEwyjSvY3CSjgCPnkAHc=
+20261027230842_factrak_catalog_backfill.up.sql h1:N834pPCCli+1d35cypB7ujAf9rImbJQNYkcY8w0wXC0=
