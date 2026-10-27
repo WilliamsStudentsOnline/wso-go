@@ -166,6 +166,7 @@ func (t *Controller) CreateRide(c *gin.Context) {
 		t.RespondError(c, err)
 		return
 	}
+	t.boardBridge.AfterCreateRide(&ride)
 
 	t.RespondCreated(c, ride)
 }
@@ -250,6 +251,7 @@ func (t *Controller) UpdateRide(c *gin.Context) {
 		t.RespondError(c, err)
 		return
 	}
+	t.boardBridge.AfterUpdateRide(&ride)
 
 	// Return update ride
 	t.RespondOK(c, ride)
@@ -301,6 +303,7 @@ func (t *Controller) DeleteRide(c *gin.Context) {
 		t.RespondError(c, err)
 		return
 	}
+	t.boardBridge.AfterDeleteRide(&ride)
 
 	t.RespondOK(c, ride)
 }
