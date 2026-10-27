@@ -13,8 +13,6 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-// RecordStart marks a job run as running. If WSO_JOB_RUN_ID is set, updates
-// that pending row; otherwise creates a new timer-triggered row.
 func RecordStart(db *gorm.DB) error {
 	jobName := os.Getenv("WSO_JOB_NAME")
 	if jobName == "" {
@@ -65,7 +63,6 @@ func RecordStart(db *gorm.DB) error {
 	return db.Create(&run).Error
 }
 
-// RecordFinish finalizes a run and copies journal output to LogDir.
 func RecordFinish(db *gorm.DB) error {
 	jobName := os.Getenv("WSO_JOB_NAME")
 	invocationID := os.Getenv("INVOCATION_ID")
@@ -87,7 +84,6 @@ func RecordFinish(db *gorm.DB) error {
 	} else if invocationID != "" {
 		err = db.Where("invocation_id = ?", invocationID).Order("id desc").First(&run).Error
 		if gorm.IsRecordNotFoundError(err) && jobName != "" {
-			// race: start hook may have failed; create a row so we still capture finish
 			now := time.Now().UTC()
 			run = models.JobRun{
 				JobName:      jobName,
@@ -139,7 +135,6 @@ func RecordFinish(db *gorm.DB) error {
 	}
 	if invocationID != "" {
 		if copyErr := copyJournalToFile(invocationID, logPath); copyErr != nil {
-			// still finalize the row; leave log_path unset on copy failure
 			logPath = ""
 			fmt.Fprintf(os.Stderr, "jobctl record-finish: journal copy: %v\n", copyErr)
 		}
