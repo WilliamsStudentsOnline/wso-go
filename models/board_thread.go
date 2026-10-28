@@ -24,7 +24,9 @@ func NewBoardThreadModel(db *gorm.DB, log *zap.SugaredLogger) *BoardThreadModel 
 type GetBoardThreadsOptions struct {
 	// Cursor pagination: opaque "sortValue|id" from a previous page
 	Cursor *string `json:"cursor" form:"cursor"`
-	Limit  *uint   `json:"limit" form:"limit"`
+	// Offset pagination (preferred for page dropdowns). Ignored when Cursor is set.
+	Offset *uint `json:"offset" form:"offset"`
+	Limit  *uint `json:"limit" form:"limit"`
 
 	// Sort: activity (default), created, startsAt
 	Sort string `json:"sort" form:"sort"`
@@ -86,6 +88,8 @@ func (o *GetBoardThreadsOptions) Paginate(db *gorm.DB) *gorm.DB {
 				)
 			}
 		}
+	} else if o.Offset != nil {
+		db = db.Offset(*o.Offset)
 	}
 	if o.Limit != nil {
 		db = db.Limit(*o.Limit)
