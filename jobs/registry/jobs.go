@@ -8,7 +8,7 @@ func init() {
 		Params: []Param{
 			{Name: "file", Type: ParamFile, Required: true, Description: "path to registrar TSV"},
 			{Name: "console", Type: ParamBool, Description: "also log to console"},
-			{Name: "config", Type: ParamString, Default: "/opt/wso-go/config.yaml"},
+			{Name: "config", Type: ParamString, Default: "/opt/wso-go/static/wso-backend-config.yaml"},
 		},
 	})
 	mustRegister(Job{
