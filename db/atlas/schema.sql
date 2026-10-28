@@ -519,6 +519,7 @@ CREATE TABLE `users` (
   `office_id` int unsigned NULL,
   `dorm_room_id` int unsigned NULL,
   `pronoun` varchar(255) NULL,
+  `pronoun_override` varchar(255) NULL,
   `at_williams` bool NOT NULL DEFAULT 1,
   `off_cycle` bool NOT NULL DEFAULT 0,
   `factrak_survey_deficit` int NULL,

@@ -108,7 +108,7 @@ func ConvertListMatchesResponseMatchedUser(m *models.User) *ListMatchesResponseM
 	r.Name = m.Name
 	r.Nickname = m.Nickname
 	r.OffCycle = m.OffCycle
-	r.Pronoun = m.Pronoun
+	r.Pronoun = m.EffectivePronoun()
 	r.Tags = make([]*ListMatchesResponseTag, len(m.Tags))
 	for i := range m.Tags {
 		r.Tags[i] = ConvertListMatchesResponseTag(m.Tags[i])

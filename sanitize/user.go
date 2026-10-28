@@ -42,6 +42,9 @@ func User(user *models.User, ctx *gin.Context) {
 
 	// Williams ID
 	user.WilliamsID = ""
+
+	user.Pronoun = user.EffectivePronoun()
+	user.PronounOverride = nil
 }
 
 // Sanitize multiple users using the gin context.

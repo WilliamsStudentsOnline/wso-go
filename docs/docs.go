@@ -8383,7 +8383,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/responses.GetUserResponseUser"
                         }
                     },
                     "404": {
@@ -11142,6 +11142,9 @@ const docTemplate = `{
                 "pronoun": {
                     "type": "string"
                 },
+                "pronounOverride": {
+                    "type": "string"
+                },
                 "suBox": {
                     "type": "string"
                 },
@@ -11389,6 +11392,9 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "pronoun": {
+                    "type": "string"
+                },
+                "pronounOverride": {
                     "type": "string"
                 },
                 "suBox": {
@@ -11702,6 +11708,9 @@ const docTemplate = `{
                 "pronoun": {
                     "type": "string"
                 },
+                "pronounOverride": {
+                    "type": "string"
+                },
                 "suBox": {
                     "type": "string"
                 },
@@ -11807,6 +11816,9 @@ const docTemplate = `{
                 },
                 "optOutEphcatch": {
                     "type": "boolean"
+                },
+                "pronounOverride": {
+                    "type": "string"
                 },
                 "visible": {
                     "type": "boolean"

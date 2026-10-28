@@ -115,6 +115,9 @@
         "pronoun": {
           "type": "string"
         },
+        "pronounOverride": {
+          "type": "string"
+        },
         "atWilliams": {
           "type": "boolean",
           "goPtr": true

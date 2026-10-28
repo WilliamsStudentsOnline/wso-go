@@ -200,15 +200,16 @@ func (t *Controller) GetUser(c *gin.Context) {
 }
 
 type UpdateUserParams struct {
-	Visible                   *bool   `json:"visible"`
-	DormVisible               *bool   `json:"dormVisible"`
-	HomeVisible               *bool   `json:"homeVisible"`
-	OffCycle                  *bool   `json:"offCycle"`
-	HasAcceptedFactrakPolicy  *bool   `json:"hasAcceptedFactrakPolicy"`
-	HasAcceptedDormtrakPolicy *bool   `json:"hasAcceptedDormtrakPolicy"`
-	Nickname                  *string `json:"nickname"`
-	OptOutEphcatch            *bool   `json:"optOutEphcatch"`
-	CampusStatus              *string `json:"campusStatus"`
+	Visible                   *bool              `json:"visible"`
+	DormVisible               *bool              `json:"dormVisible"`
+	HomeVisible               *bool              `json:"homeVisible"`
+	OffCycle                  *bool              `json:"offCycle"`
+	HasAcceptedFactrakPolicy  *bool              `json:"hasAcceptedFactrakPolicy"`
+	HasAcceptedDormtrakPolicy *bool              `json:"hasAcceptedDormtrakPolicy"`
+	Nickname                  *string            `json:"nickname"`
+	OptOutEphcatch            *bool              `json:"optOutEphcatch"`
+	CampusStatus              *string            `json:"campusStatus"`
+	PronounOverride           lib.OptionalString `json:"pronounOverride" swaggertype:"string"`
 }
 
 // UpdateUser godoc
@@ -220,7 +221,7 @@ type UpdateUserParams struct {
 // @Produce  json
 // @Param userID path uint true "User ID"
 // @Param updateParams body user.UpdateUserParams true "Update User Parameters"
-// @Success 200 {object} models.User
+// @Success 200 {object} responses.GetUserResponseUser
 // @Failure 1405 {object} services.BaseErrorResponse "user id could not be parsed"
 // @Failure 1331 {object} services.BaseErrorResponse "must be self"
 // @Failure 1100 {object} services.BaseErrorResponse "could not parse malformed request data"
@@ -268,6 +269,9 @@ func (t *Controller) UpdateUser(c *gin.Context) {
 	user.Nickname = lib.StrPtrDefaults(updateData.Nickname, user.Nickname)
 	user.OptOutEphcatch = lib.BoolPtrDefaults(updateData.OptOutEphcatch, user.OptOutEphcatch)
 	user.CampusStatus = lib.StrPtrDefaults(updateData.CampusStatus, user.CampusStatus)
+	if updateData.PronounOverride.Set {
+		user.PronounOverride = updateData.PronounOverride.Value
+	}
 
 	// Error if bad campus status
 	if user.CampusStatus != nil && *user.CampusStatus != "" && !models.ValidateCampusStatus(*user.CampusStatus) {
@@ -287,8 +291,8 @@ func (t *Controller) UpdateUser(c *gin.Context) {
 		t.SetUpdateToken(c)
 	}
 
-	// Return updated user
-	t.RespondOK(c, user)
+	sanitize.User(&user, c)
+	t.RespondOK(c, responses.ConvertGetUserResponse(&user))
 }
 
 type UpdateUserTagsParams struct {

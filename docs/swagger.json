@@ -8381,7 +8381,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/responses.GetUserResponseUser"
                         }
                     },
                     "404": {
@@ -11140,6 +11140,9 @@
                 "pronoun": {
                     "type": "string"
                 },
+                "pronounOverride": {
+                    "type": "string"
+                },
                 "suBox": {
                     "type": "string"
                 },
@@ -11387,6 +11390,9 @@
                     "type": "boolean"
                 },
                 "pronoun": {
+                    "type": "string"
+                },
+                "pronounOverride": {
                     "type": "string"
                 },
                 "suBox": {
@@ -11700,6 +11706,9 @@
                 "pronoun": {
                     "type": "string"
                 },
+                "pronounOverride": {
+                    "type": "string"
+                },
                 "suBox": {
                     "type": "string"
                 },
@@ -11805,6 +11814,9 @@
                 },
                 "optOutEphcatch": {
                     "type": "boolean"
+                },
+                "pronounOverride": {
+                    "type": "string"
                 },
                 "visible": {
                     "type": "boolean"
