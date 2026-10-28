@@ -47,16 +47,16 @@ func main() {
 		},
 		{
 			Name:      "run",
-			Usage:     "enqueue a job run (starts now if idle, else queues)",
+			Usage:     "enqueue a job run, starting now if idle else queueing",
 			ArgsUsage: "<job-name>",
 			Flags: append(configFlag(),
 				cli.StringSliceFlag{
 					Name:  "set",
-					Usage: "param=value (repeatable)",
+					Usage: "param=value, repeatable",
 				},
 				cli.StringFlag{
 					Name:  "run-at",
-					Usage: "RFC3339 time to run (optional; queues until then)",
+					Usage: "optional RFC3339 run time; queues until then",
 				},
 			),
 			Action: runJob,
