@@ -1,4 +1,4 @@
-/* wso may manage wso-job-* units only; see HOST_JOBS.md */
+/* wso may manage wso-job-* units only */
 polkit.addRule(function (action, subject) {
     if (subject.user !== "wso") {
         return;

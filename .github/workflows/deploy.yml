@@ -27,13 +27,11 @@ jobs:
       - name: Build Jobs
         run: make build-jobs-prod-linux
       # TODO: deploy config files alongside WSO-Go.
-      # One-time jobs host setup: prod_files/HOST_JOBS.md
       - name: Install binaries
         run: |
           set -euo pipefail
           mkdir -p /opt/wso-go
 
-          # install_bin: .new + mv to avoid text file busy
           install_bin() {
             local src="$1" dst="$2"
             cp "$src" "${dst}.new"
@@ -88,13 +86,11 @@ jobs:
       - name: Build Jobs
         run: make build-jobs-prod-linux
       # TODO: deploy config files alongside WSO-Go.
-      # One-time jobs host setup: prod_files/HOST_JOBS.md
       - name: Install binaries
         run: |
           set -euo pipefail
           mkdir -p /opt/wso-go
 
-          # install_bin: .new + mv to avoid text file busy
           install_bin() {
             local src="$1" dst="$2"
             cp "$src" "${dst}.new"
