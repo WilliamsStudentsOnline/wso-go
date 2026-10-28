@@ -47,7 +47,7 @@ func main() {
 		},
 		{
 			Name:      "run",
-			Usage:     "enqueue a job run, starting now if idle else queueing",
+			Usage:     "enqueue a job run",
 			ArgsUsage: "<job-name>",
 			Flags: append(configFlag(),
 				cli.StringSliceFlag{
@@ -63,7 +63,7 @@ func main() {
 		},
 		{
 			Name:  "dispatch",
-			Usage: "start due pending runs that are not blocked by an active run",
+			Usage: "start pending runs",
 			Flags: configFlag(),
 			Action: dispatch,
 		},
