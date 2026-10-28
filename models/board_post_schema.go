@@ -1,8 +1,12 @@
 package models
 
+import "time"
+
 // BoardPost is a post within a board thread (OP or reply)
 type BoardPost struct {
 	BaseSchema
+	// Shadows BaseSchema.CreatedAt so it is serialized (BaseSchema uses json:"-").
+	CreatedAt time.Time `json:"createdAt"`
 
 	ThreadID uint         `gorm:"index:index_board_posts_on_thread_id;not null" json:"threadID"`
 	Thread   *BoardThread `json:"thread,omitempty"`

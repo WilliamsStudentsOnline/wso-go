@@ -15,6 +15,8 @@ const (
 // BoardThread is a unified campus board thread (discussions, listings, rides, etc.)
 type BoardThread struct {
 	BaseSchema
+	// Shadows BaseSchema.CreatedAt so it is serialized (BaseSchema uses json:"-").
+	CreatedAt time.Time `json:"createdAt"`
 
 	Type  string `gorm:"index:index_board_threads_on_type;not null" json:"type"`
 	Title string `gorm:"not null" json:"title"`
