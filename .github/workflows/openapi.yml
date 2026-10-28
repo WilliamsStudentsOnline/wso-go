@@ -23,11 +23,11 @@ jobs:
       contents: read
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-go@v4
+      - uses: actions/setup-go@v7
         with:
           go-version-file: "go.mod"
           cache-dependency-path: "**/*.sum"
@@ -45,7 +45,7 @@ jobs:
         # Pin: newer oasdiff releases need a newer Go than go.mod
         run: go install github.com/tufin/oasdiff@v1.10.8
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: "20"
 
@@ -82,7 +82,7 @@ jobs:
           fi
 
       - name: Add OpenAPI PR Comment
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@v3
         continue-on-error: true
         if: >
           always() &&
@@ -93,7 +93,7 @@ jobs:
           path: openapi-comment.md
 
       - name: Remove OpenAPI PR Comment
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@v3
         continue-on-error: true
         if: >
           always() &&

@@ -17,8 +17,8 @@ jobs:
     if: github.ref == 'refs/heads/master'
     runs-on: [self-hosted, dev]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
         with:
           go-version-file: 'go.mod'
           cache: false
@@ -43,8 +43,8 @@ jobs:
     if: github.ref == 'refs/heads/production'
     runs-on: [self-hosted, prod]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
         with:
           go-version-file: 'go.mod'
           cache: false
