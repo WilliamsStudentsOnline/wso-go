@@ -41,6 +41,9 @@ type Job struct {
 	MemoryMax     string
 	User          string
 	Group         string
+	After    []string
+	Requires []string
+	Wants    []string
 }
 
 func (j Job) UnitName() string {
@@ -136,6 +139,20 @@ func (j Job) Validate() error {
 	if j.Binary == "" {
 		return fmt.Errorf("job %s: binary is required", j.Name)
 	}
+	for _, list := range []struct {
+		kind string
+		units []string
+	}{
+		{"After", j.After},
+		{"Requires", j.Requires},
+		{"Wants", j.Wants},
+	} {
+		for _, u := range list.units {
+			if err := validateUnitDep(u); err != nil {
+				return fmt.Errorf("job %s: %s: %w", j.Name, list.kind, err)
+			}
+		}
+	}
 	if j.Schedule != nil && j.Schedule.OnCalendar == "" {
 		return fmt.Errorf("job %s: schedule OnCalendar is empty", j.Name)
 	}
@@ -212,6 +229,20 @@ func Default() *Registry {
 }
 
 var defaultRegistry = New()
+
+func validateUnitDep(unit string) error {
+	if unit == "" {
+		return fmt.Errorf("empty unit name")
+	}
+	if strings.ContainsAny(unit, " 	
+/") || strings.Contains(unit, "..") {
+		return fmt.Errorf("invalid unit name %q", unit)
+	}
+	if !strings.HasSuffix(unit, ".service") && !strings.HasSuffix(unit, ".target") && !strings.HasSuffix(unit, ".socket") {
+		return fmt.Errorf("unit %q must be a .service, .target, or .socket", unit)
+	}
+	return nil
+}
 
 func parseBool(s string) (bool, error) {
 	switch strings.ToLower(s) {
