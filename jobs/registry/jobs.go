@@ -1,5 +1,7 @@
 package registry
 
+var needsMariaDB = []string{"mariadb.service"}
+
 func init() {
 	mustRegister(Job{
 		Name:        "user-home-info",
@@ -10,6 +12,8 @@ func init() {
 			{Name: "console", Type: ParamBool, Description: "also log to console"},
 			{Name: "config", Type: ParamString, Default: "/opt/wso-go/static/wso-backend-config.yaml"},
 		},
+		Requires: needsMariaDB,
+		After:    needsMariaDB,
 	})
 	mustRegister(Job{
 		Name:        "library-hours-update",
