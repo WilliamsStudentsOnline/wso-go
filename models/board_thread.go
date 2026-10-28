@@ -96,8 +96,9 @@ func (o *GetBoardThreadsOptions) Paginate(db *gorm.DB) *gorm.DB {
 }
 
 func (o *GetBoardThreadsOptions) Preloader(db *gorm.DB) *gorm.DB {
+	// Default list payload includes author + ride info for feed rows.
 	if o.Preload == nil {
-		return db
+		return db.Preload("User").Preload("RideInformation")
 	}
 	if stringsContains(o.Preload, "user") {
 		db = db.Preload("User")
