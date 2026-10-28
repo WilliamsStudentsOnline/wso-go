@@ -1227,10 +1227,16 @@
         },
         "/board/replies/{replyID}": {
             "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "tags": [
                     "board"
                 ],
                 "summary": "Delete a reply (OP delete cascades to thread)",
+                "operationId": "deleteBoardReply",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1250,6 +1256,11 @@
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -1260,6 +1271,7 @@
                     "board"
                 ],
                 "summary": "Update a reply",
+                "operationId": "updateBoardReply",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1290,6 +1302,11 @@
         },
         "/board/threads": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -1297,6 +1314,7 @@
                     "board"
                 ],
                 "summary": "List board threads",
+                "operationId": "listBoardThreads",
                 "parameters": [
                     {
                         "type": "string",
@@ -1361,6 +1379,11 @@
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -1371,6 +1394,7 @@
                     "board"
                 ],
                 "summary": "Create board thread",
+                "operationId": "createBoardThread",
                 "parameters": [
                     {
                         "description": "Create params",
@@ -1394,6 +1418,11 @@
         },
         "/board/threads/{threadID}": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -1401,6 +1430,7 @@
                     "board"
                 ],
                 "summary": "Get board thread",
+                "operationId": "getBoardThread",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1420,10 +1450,16 @@
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "tags": [
                     "board"
                 ],
                 "summary": "Delete board thread",
+                "operationId": "deleteBoardThread",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1443,6 +1479,11 @@
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -1453,6 +1494,7 @@
                     "board"
                 ],
                 "summary": "Update board thread",
+                "operationId": "updateBoardThread",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1483,6 +1525,11 @@
         },
         "/board/threads/{threadID}/replies": {
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -1493,6 +1540,7 @@
                     "board"
                 ],
                 "summary": "Create a reply on a thread",
+                "operationId": "createBoardReply",
                 "parameters": [
                     {
                         "type": "integer",

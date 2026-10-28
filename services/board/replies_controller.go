@@ -16,12 +16,14 @@ type CreateReplyParams struct {
 
 // CreateReply godoc
 // @Summary Create a reply on a thread
+// @ID createBoardReply
 // @Tags board
 // @Accept json
 // @Produce json
 // @Param threadID path uint true "Thread ID"
 // @Param body body CreateReplyParams true "Reply content"
 // @Success 201 {object} models.BoardPost
+// @Security Bearer
 // @Router /board/threads/{threadID}/replies [post]
 func (t *Controller) CreateReply(c *gin.Context) {
 	userID := services.GetUserID(c)
@@ -81,12 +83,14 @@ type UpdateReplyParams struct {
 
 // UpdateReply godoc
 // @Summary Update a reply
+// @ID updateBoardReply
 // @Tags board
 // @Accept json
 // @Produce json
 // @Param replyID path uint true "Reply ID"
 // @Param body body UpdateReplyParams true "Update params"
 // @Success 200 {object} models.BoardPost
+// @Security Bearer
 // @Router /board/replies/{replyID} [patch]
 func (t *Controller) UpdateReply(c *gin.Context) {
 	replyID, err := services.GetUIntParam(c, "replyID")
@@ -127,9 +131,11 @@ func (t *Controller) UpdateReply(c *gin.Context) {
 
 // DeleteReply godoc
 // @Summary Delete a reply (OP delete cascades to thread)
+// @ID deleteBoardReply
 // @Tags board
 // @Param replyID path uint true "Reply ID"
 // @Success 200 {object} models.BoardPost
+// @Security Bearer
 // @Router /board/replies/{replyID} [delete]
 func (t *Controller) DeleteReply(c *gin.Context) {
 	replyID, err := services.GetUIntParam(c, "replyID")

@@ -3177,6 +3177,7 @@ paths:
       - banner
   /board/replies/{replyID}:
     delete:
+      operationId: deleteBoardReply
       parameters:
       - description: Reply ID
         in: path
@@ -3188,12 +3189,15 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.BoardPost'
+      security:
+      - Bearer: []
       summary: Delete a reply (OP delete cascades to thread)
       tags:
       - board
     patch:
       consumes:
       - application/json
+      operationId: updateBoardReply
       parameters:
       - description: Reply ID
         in: path
@@ -3213,11 +3217,14 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.BoardPost'
+      security:
+      - Bearer: []
       summary: Update a reply
       tags:
       - board
   /board/threads:
     get:
+      operationId: listBoardThreads
       parameters:
       - description: Cursor pagination
         in: query
@@ -3261,12 +3268,15 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/board.listThreadsResponse'
+      security:
+      - Bearer: []
       summary: List board threads
       tags:
       - board
     post:
       consumes:
       - application/json
+      operationId: createBoardThread
       parameters:
       - description: Create params
         in: body
@@ -3281,11 +3291,14 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/models.BoardThread'
+      security:
+      - Bearer: []
       summary: Create board thread
       tags:
       - board
   /board/threads/{threadID}:
     delete:
+      operationId: deleteBoardThread
       parameters:
       - description: Thread ID
         in: path
@@ -3297,10 +3310,13 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.BoardThread'
+      security:
+      - Bearer: []
       summary: Delete board thread
       tags:
       - board
     get:
+      operationId: getBoardThread
       parameters:
       - description: Thread ID
         in: path
@@ -3314,12 +3330,15 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.BoardThread'
+      security:
+      - Bearer: []
       summary: Get board thread
       tags:
       - board
     patch:
       consumes:
       - application/json
+      operationId: updateBoardThread
       parameters:
       - description: Thread ID
         in: path
@@ -3339,6 +3358,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.BoardThread'
+      security:
+      - Bearer: []
       summary: Update board thread
       tags:
       - board
@@ -3346,6 +3367,7 @@ paths:
     post:
       consumes:
       - application/json
+      operationId: createBoardReply
       parameters:
       - description: Thread ID
         in: path
@@ -3365,6 +3387,8 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/models.BoardPost'
+      security:
+      - Bearer: []
       summary: Create a reply on a thread
       tags:
       - board
