@@ -268,15 +268,16 @@ func migrateBulletins(db *gorm.DB, log *zap.SugaredLogger) (migrated, skipped in
 
 func mapBulletinType(t string) string {
 	switch t {
-	case models.BulletinTypeAnnouncement:
+	case models.BulletinTypeAnnouncement, "Announcement":
 		return models.BoardThreadTypeAnnouncement
-	case models.BulletinTypeJob:
+	case models.BulletinTypeJob, "Job":
 		return models.BoardThreadTypeJob
-	case models.BulletinTypeExchange:
+	case models.BulletinTypeExchange, "Exchange":
 		return models.BoardThreadTypeExchange
-	case models.BulletinTypeLostAndFound:
+	case models.BulletinTypeLostAndFound, "LostFound", "LostAndFound":
 		return models.BoardThreadTypeLostAndFound
 	default:
+		// Legacy seed sometimes stored rides as bulletin rows; real rides live in bulletin_rides.
 		return ""
 	}
 }
