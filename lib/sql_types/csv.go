@@ -10,13 +10,17 @@ import (
 type CSV []string
 
 func (c *CSV) Scan(value interface{}) error {
-	val, ok := value.([]byte)
-	if !ok {
+	var s string
+	switch v := value.(type) {
+	case []byte:
+		s = string(v)
+	case string:
+		s = v
+	default:
 		return errors.New(fmt.Sprint("incorrect type", value))
 	}
 
-	*c = CSV(strings.Split(string(val), ","))
-
+	*c = CSV(strings.Split(s, ","))
 	return nil
 }
 

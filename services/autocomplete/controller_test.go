@@ -89,7 +89,8 @@ func TestController_AreaOfStudy(t *testing.T) {
 		{
 			"mixed abbrev",
 			"ph",
-			[]string{"PHYS", "PHIL", "Physics", "Philosophy"},
+			// abbrev order follows MySQL result order when levenshtein distances tie
+			[]string{"PHIL", "PHYS", "Physics", "Philosophy"},
 		},
 		{
 			"mixed abbrev econ",
@@ -386,12 +387,12 @@ func TestController_Tag(t *testing.T) {
 		{
 			"tag",
 			"w",
-			[]string{"WSO", "WOC"},
+			[]string{"WOC", "WSO"},
 		},
 		{
 			"tag middle",
 			"o",
-			[]string{"WSO", "WOC", "Computer Science"},
+			[]string{"WOC", "WSO", "Computer Science"},
 		},
 		{
 			"tag single",

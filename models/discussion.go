@@ -33,7 +33,7 @@ type GetAllDiscussionsOptions struct {
 }
 
 func (o *GetAllDiscussionsOptions) Order(db *gorm.DB) *gorm.DB {
-	return db.Order("discussions.last_active desc", true)
+	return db.Order("discussions.last_active desc, discussions.id desc", true)
 }
 
 // Pagination starts at most recent and goes down from there
@@ -85,7 +85,7 @@ func (o *GetAllDiscussionsOptions) Post(db *gorm.DB, d []*Discussion) error {
 			p := Post{}
 			err := db.New().Model(&Post{}).
 				Where("discussion_id = ?", d[i].ID).
-				Order("created_at desc").
+				Order("created_at desc, id desc").
 				Preload("User").
 				First(&p).Error
 			// Only really error iff it is not a 404 error, otherwise just ignore it

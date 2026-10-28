@@ -55,8 +55,15 @@ Steps for a 10/10 development workflow:
 6. (optional) After extensive testing on [wso-dev.williams.edu](wso-dev.williams.edu), when you feel your changes are ready for the broader Williams user base, run `make sync-prod` to open a `[DEPLOY]` PR. By default, this will synchronize prod to the latest commit on remote master, though you can also point it to a different commit SHA (e.g. for rollbacks). To deploy to prod, we update a file which essentially points to the version of WSO that will be live on our main server. Note that this process may also pull in unrelated changes; as a result, you may find that admins mostly end up doing this step for you.
 
 ### Testing
-- `make test`
-- `make t` / `make fast-test` (for faster local iteration)
+
+```bash
+make itest
+```
+
+Starts an isolated test MariaDB on port **3307** (`docker-compose.test.yml`, project `wso-test` — separate from `make dev`'s MySQL on 3306), then runs `gotestsum --watch`. On save, the package you edited is re-tested; press `a` for all packages, `r` to rerun. Leave with Ctrl+C; the test DB stays up for faster reruns. `make dev-down` / `make dev-reset` also stop (and wipe, for reset) the test MariaDB.
+
+- `make itest-race` — one-shot run with `-race` (closer to CI)
+- `make test` / `make t` / `make fast-test` — deprecated; use `itest`
 
 By default, local tests skip packages listed in `.github/coverage-exclude.txt`. Use `IGNORE_SKIPS=1` to run everything (this may lead to some failures, as packages are skipped intentionally).
 

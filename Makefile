@@ -231,12 +231,13 @@ TEST_MYSQL_PORT ?= 3307
 .PHONY: _test-mysql-up
 _test-mysql-up:
 	@if [ -z "$(DOCKER)" ]; then echo "docker not found in PATH"; exit 1; fi
-	@$(TEST_COMPOSE) up -d --wait
+	@$(DOCKER) compose -p wso-test -f docker-compose.test.yml up -d --wait
 
 .PHONY: _test-mysql-down
 _test-mysql-down:
-	@$(TEST_COMPOSE) down
-	@docker rm -f wso-mysql-test >/dev/null 2>&1 || true
+	@if [ -z "$(DOCKER)" ]; then echo "docker not found in PATH"; exit 1; fi
+	@$(DOCKER) compose -p wso-test -f docker-compose.test.yml down
+	@$(DOCKER) rm -f wso-mysql-test >/dev/null 2>&1 || true
 
 # Skip the same packages as CI (.github/coverage-exclude.txt)
 ifdef IGNORE_SKIPS
@@ -247,23 +248,45 @@ TEST_SKIP_REGEX = $(shell awk '/^[^$(HASH)[:space:]]/ { print $$1 }' .github/cov
 TEST_PKGS = $(shell go list ./... | grep -Ev '/($(TEST_SKIP_REGEX))(/|$$)')
 endif
 
+# Test DSN for MariaDB on :3307 (docker-compose.test.yml / project wso-test)
+export WSO_TEST_MYSQL_HOST ?= $(TEST_MYSQL_HOST)
+export WSO_TEST_MYSQL_PORT ?= $(TEST_MYSQL_PORT)
+export WSO_TEST_MYSQL_USER ?= root
+export WSO_TEST_MYSQL_PASSWORD ?= $(TEST_MYSQL_ROOT_PASSWORD)
+
+GOTESTSUM_VERSION ?= latest
+
 # CI=1 turns off gin and gorm logging in tests (see lib/test_utils)
 # gotestsum flags match CI (.github/workflows/build.yml)
-ifeq ($(shell command -v gotestsum 2>/dev/null),)
-run_tests = CI=1 go test $(1) $(TEST_PKGS)
-else
+ensure_gotestsum = \
+	if ! command -v gotestsum >/dev/null 2>&1; then \
+		echo "installing gotestsum..."; \
+		go install gotest.tools/gotestsum@$(GOTESTSUM_VERSION); \
+	fi
+
 run_tests = CI=1 gotestsum --format=pkgname-and-test-fails --format-hide-empty-pkg --hide-summary=output -- $(1) $(TEST_PKGS)
-endif
+
+.PHONY: itest
+itest: _test-mysql-up
+	@$(ensure_gotestsum)
+	@echo "Watching $(words $(TEST_PKGS)) packages (gotestsum --watch; a=all, r=rerun)"
+	@CI=1 gotestsum --watch --format=pkgname-and-test-fails --format-hide-empty-pkg --hide-summary=output -- $(TEST_PKGS)
+
+.PHONY: itest-race
+itest-race: _test-mysql-up
+	@$(ensure_gotestsum)
+	@echo "Compiling and testing $(words $(TEST_PKGS)) packages (-race)"
+	@$(call run_tests,-race)
 
 .PHONY: test
 test:
-	@echo "Compiling and testing $(words $(TEST_PKGS)) packages"
-	@$(call run_tests,-race)
+	@echo "make test is deprecated; use \`make itest\` (watch) or \`make itest-race\`" >&2
+	@exit 1
 
 .PHONY: fast-test t
 fast-test t:
-	@echo "Compiling and testing $(words $(TEST_PKGS)) packages (fast)"
-	@$(call run_tests,)
+	@echo "make $@ is deprecated; use \`make itest\`" >&2
+	@exit 1
 
 .PHONY: mod
 mod:

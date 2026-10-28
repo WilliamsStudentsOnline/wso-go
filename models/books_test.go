@@ -144,7 +144,7 @@ func TestBookModel_CreateBook(t *testing.T) {
 
 	var count int
 	assert.NoError(m.CreateBook(&book))
-	assert.NoError(db.Model(&Book{}).Where("books.isbn == 9780131103627").Count(&count).Error)
+	assert.NoError(db.Model(&Book{}).Where("books.isbn = ?", "9780131103627").Count(&count).Error)
 	assert.Equal(1, count)
 
 }

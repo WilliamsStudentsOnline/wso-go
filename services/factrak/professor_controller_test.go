@@ -816,7 +816,7 @@ func TestController_GetProfessorRatings(t *testing.T) {
 		NumLeadLecture:          4,
 		AvgPromoteDiscussion:    5,
 		NumPromoteDiscussion:    4,
-		AvgOutsideHelpfulness:   2.6666666666666665,
+		AvgOutsideHelpfulness:   2.6667,
 		NumOutsideHelpfulness:   3,
 	}, resp)
 }

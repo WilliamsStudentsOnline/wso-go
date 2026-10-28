@@ -90,12 +90,14 @@ func TestFactrakSurveyModel_GetSurveyRatingsByProfessorOrCourse(t *testing.T) {
 	var res FactrakSurveyAvgRatings
 	assert.NoError(m.GetSurveyRatingsByProfessorOrCourse(&prof.ID, nil, nil, &res))
 
-	assert.Equal(float64(2)/float64(3), res.AvgWouldRecommendCourse)
-	assert.Equal(float64(5+5+4)/float64(3), res.AvgCourseWorkload)
-	assert.Equal(float64(3+1+6)/float64(3), res.AvgCourseStimulating)
-	assert.Equal(float64(1)/float64(3), res.AvgWouldTakeAnother)
-	assert.Equal(float64(7+1+6)/float64(3), res.AvgApproachability)
-	assert.Equal(float64(2+4+4)/float64(3), res.AvgLeadLecture)
-	assert.Equal(float64(5+2+5)/float64(3), res.AvgPromoteDiscussion)
-	assert.Equal(float64(6+6+2)/float64(3), res.AvgOutsideHelpfulness)
+	// MySQL AVG returns slightly different float64 rounding than SQLite
+	const delta = 1e-3
+	assert.InDelta(float64(2)/float64(3), res.AvgWouldRecommendCourse, delta)
+	assert.InDelta(float64(5+5+4)/float64(3), res.AvgCourseWorkload, delta)
+	assert.InDelta(float64(3+1+6)/float64(3), res.AvgCourseStimulating, delta)
+	assert.InDelta(float64(1)/float64(3), res.AvgWouldTakeAnother, delta)
+	assert.InDelta(float64(7+1+6)/float64(3), res.AvgApproachability, delta)
+	assert.InDelta(float64(2+4+4)/float64(3), res.AvgLeadLecture, delta)
+	assert.InDelta(float64(5+2+5)/float64(3), res.AvgPromoteDiscussion, delta)
+	assert.InDelta(float64(6+6+2)/float64(3), res.AvgOutsideHelpfulness, delta)
 }
