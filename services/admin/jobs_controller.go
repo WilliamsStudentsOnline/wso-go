@@ -195,7 +195,7 @@ func (t *Controller) GetJobRunLogs(c *gin.Context) {
 
 // CreateJobRun godoc
 // @Summary Enqueue or schedule a job run
-// @Description JSON body or multipart (params JSON + optional file). Queues if the job is already running.
+// @Description enqueue via JSON or multipart with optional file; queues when the job is already running
 // @ID createAdminJobRun
 // @Tags admin-jobs
 // @Accept json

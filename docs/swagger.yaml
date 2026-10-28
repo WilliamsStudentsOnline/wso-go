@@ -530,6 +530,28 @@ definitions:
       wouldTakeAnother:
         type: boolean
     type: object
+  feedback.CreateFeedbackParams:
+    properties:
+      notes:
+        type: string
+      preferredName:
+        type: string
+      url:
+        type: string
+      userID:
+        type: integer
+    required:
+    - notes
+    type: object
+  feedback.UpdateFeedbackParams:
+    properties:
+      adminNotes:
+        type: string
+      issue:
+        type: string
+      priority:
+        $ref: '#/definitions/models.FeedbackPriority'
+    type: object
   goodrich.CreateOrderParams:
     properties:
       comboDeal:
@@ -1358,6 +1380,54 @@ definitions:
       numWouldTakeAnother:
         type: integer
     type: object
+  models.Feedback:
+    properties:
+      adminNotes:
+        type: string
+      id:
+        type: integer
+      issue:
+        type: string
+      notes:
+        type: string
+      preferredName:
+        type: string
+      priority:
+        allOf:
+        - $ref: '#/definitions/models.FeedbackPriority'
+        enum:
+        - ""
+        - none
+        - priority_low
+        - priority_med
+        - priority_high
+        - resolved
+        - dismissed
+      url:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+      userID:
+        type: integer
+    type: object
+  models.FeedbackPriority:
+    enum:
+    - ""
+    - none
+    - priority_low
+    - priority_med
+    - priority_high
+    - resolved
+    - dismissed
+    type: string
+    x-enum-varnames:
+    - FeedbackPriorityUndefined
+    - FeedbackPriorityNone
+    - FeedbackPriorityLow
+    - FeedbackPriorityMed
+    - FeedbackPriorityHigh
+    - FeedbackPriorityResolved
+    - FeedbackPriorityDismissed
   models.GoodrichMenuItem:
     properties:
       available:
@@ -1468,8 +1538,6 @@ definitions:
   models.JobRun:
     properties:
       args:
-        description: JSON object of param name -> value (file params store path only
-          while pending)
         type: string
       exitStatus:
         type: integer
@@ -1488,16 +1556,12 @@ definitions:
       logPath:
         type: string
       runAt:
-        description: When the run should start (pending scheduled); nil means ASAP
-          / already started
         type: string
       startedAt:
         type: string
       status:
-        description: pending | running | succeeded | failed | canceled | lost
         type: string
       trigger:
-        description: timer | manual | scheduled
         type: string
       triggeredByUser:
         $ref: '#/definitions/models.User'
@@ -1761,6 +1825,8 @@ definitions:
         type: boolean
       pronoun:
         type: string
+      pronounOverride:
+        type: string
       suBox:
         type: string
       tags:
@@ -1821,24 +1887,19 @@ definitions:
   registry.Param:
     properties:
       default:
-        description: used when the value is omitted; empty means no default
         type: string
       description:
         type: string
       enumValues:
-        description: required when Type is ParamEnum
         items:
           type: string
         type: array
       name:
-        description: flag name without leading dashes, e.g. "file"
         type: string
       required:
         type: boolean
       type:
-        allOf:
-        - $ref: '#/definitions/registry.ParamType'
-        description: string, bool, enum, or file
+        $ref: '#/definitions/registry.ParamType'
     type: object
   registry.ParamType:
     enum:
@@ -1855,7 +1916,6 @@ definitions:
   registry.Schedule:
     properties:
       onCalendar:
-        description: e.g. "*-*-* 01:00:00"
         type: string
     type: object
   responses.GetUserResponseDepartment:
@@ -1966,6 +2026,8 @@ definitions:
       optOutEphcatch:
         type: boolean
       pronoun:
+        type: string
+      pronounOverride:
         type: string
       suBox:
         type: string
@@ -2171,6 +2233,8 @@ definitions:
         type: boolean
       pronoun:
         type: string
+      pronounOverride:
+        type: string
       suBox:
         type: string
       tags:
@@ -2240,6 +2304,8 @@ definitions:
         type: boolean
       optOutEphcatch:
         type: boolean
+      pronounOverride:
+        type: string
       visible:
         type: boolean
     type: object
@@ -2260,6 +2326,182 @@ info:
   title: WSO API
   version: 2.0.0
 paths:
+  /admin/feedback:
+    get:
+      consumes:
+      - application/json
+      description: list feedback submissions for admin review
+      operationId: listFeedback
+      parameters:
+      - description: Filter by priority
+        enum:
+        - none
+        - priority_low
+        - priority_med
+        - priority_high
+        - resolved
+        - dismissed
+        in: query
+        name: priority
+        type: string
+      - description: Offset pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit pagination
+        in: query
+        name: limit
+        type: integer
+      - collectionFormat: csv
+        description: Preload
+        in: query
+        items:
+          enum:
+          - user
+          type: string
+        name: preload
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Feedback'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: List feedback
+      tags:
+      - admin
+      - feedback
+  /admin/feedback/{feedbackID}:
+    delete:
+      consumes:
+      - application/json
+      description: soft-delete a feedback submission
+      operationId: deleteFeedback
+      parameters:
+      - description: Feedback ID
+        in: path
+        name: feedbackID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Delete feedback
+      tags:
+      - admin
+      - feedback
+    get:
+      consumes:
+      - application/json
+      description: get a single feedback submission by id
+      operationId: getFeedback
+      parameters:
+      - description: Feedback ID
+        in: path
+        name: feedbackID
+        required: true
+        type: integer
+      - collectionFormat: csv
+        description: Preload
+        in: query
+        items:
+          enum:
+          - user
+          type: string
+        name: preload
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Feedback'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get feedback
+      tags:
+      - admin
+      - feedback
+    patch:
+      consumes:
+      - application/json
+      description: update admin notes, priority, or linked issue
+      operationId: updateFeedback
+      parameters:
+      - description: Feedback ID
+        in: path
+        name: feedbackID
+        required: true
+        type: integer
+      - description: Update
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/feedback.UpdateFeedbackParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Feedback'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Update feedback
+      tags:
+      - admin
+      - feedback
   /admin/jobs:
     get:
       description: list registered batch jobs and next timer elapse when available
@@ -2286,8 +2528,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: JSON body or multipart (params JSON + optional file). Queues if
-        the job is already running.
+      description: enqueue via JSON or multipart with optional file; queues when the
+        job is already running
       operationId: createAdminJobRun
       parameters:
       - description: job name
@@ -7193,6 +7435,39 @@ paths:
       summary: List user surveys
       tags:
       - factrak
+  /feedback:
+    post:
+      consumes:
+      - application/json
+      description: submit site feedback
+      operationId: createFeedback
+      parameters:
+      - description: Feedback
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/feedback.CreateFeedbackParams'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Feedback'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Create feedback
+      tags:
+      - feedback
   /goodrich/menu:
     get:
       consumes:
@@ -7863,7 +8138,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.User'
+            $ref: '#/definitions/responses.GetUserResponseUser'
         "404":
           description: Not Found
           schema:
