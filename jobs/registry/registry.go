@@ -41,9 +41,9 @@ type Job struct {
 	MemoryMax     string
 	User          string
 	Group         string
-	After    []string
-	Requires []string
-	Wants    []string
+	After         []string
+	Requires      []string
+	Wants         []string
 }
 
 func (j Job) UnitName() string {
@@ -140,7 +140,7 @@ func (j Job) Validate() error {
 		return fmt.Errorf("job %s: binary is required", j.Name)
 	}
 	for _, list := range []struct {
-		kind string
+		kind  string
 		units []string
 	}{
 		{"After", j.After},
@@ -234,8 +234,7 @@ func validateUnitDep(unit string) error {
 	if unit == "" {
 		return fmt.Errorf("empty unit name")
 	}
-	if strings.ContainsAny(unit, " 	
-/") || strings.Contains(unit, "..") {
+	if strings.ContainsAny(unit, " \t\n/") || strings.Contains(unit, "..") {
 		return fmt.Errorf("invalid unit name %q", unit)
 	}
 	if !strings.HasSuffix(unit, ".service") && !strings.HasSuffix(unit, ".target") && !strings.HasSuffix(unit, ".socket") {
