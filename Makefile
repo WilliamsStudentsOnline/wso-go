@@ -268,7 +268,9 @@ run_tests = CI=1 gotestsum $(GOTESTSUM_FMT) -- $(1) $(TEST_PKGS)
 .PHONY: itest
 itest: _test-mysql-up
 	@$(ensure_gotestsum)
-	@CI=1 gotestsum --watch $(GOTESTSUM_FMT) -- $(TEST_PKGS)
+	@CI=1 gotestsum --watch $(GOTESTSUM_FMT) \
+		--packages="$(TEST_PKGS)" \
+		--raw-command -- ./scripts/gotest-filtered.sh
 
 .PHONY: itest-race
 itest-race: _test-mysql-up
