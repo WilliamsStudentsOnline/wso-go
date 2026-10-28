@@ -6,6 +6,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
 COMPOSE=(docker compose)
+TEST_COMPOSE=(docker compose -p wso-test -f docker-compose.test.yml)
 MYSQL_PASSWORD="${MYSQL_ROOT_PASSWORD:-secret-mysql-password}"
 MYSQL_DATABASE="${MYSQL_DATABASE:-wso}"
 SEED_SQL="${SEED_SQL:-$ROOT/db/seed/development.sql.gz}"
@@ -18,6 +19,17 @@ die() { echo "devenv: $*" >&2; exit 1; }
 
 need() {
   command -v "$1" >/dev/null 2>&1 || die "missing '$1'"
+}
+
+# Stop the test MariaDB project (port 3307). docker only — no pkill.
+stop_test_mysql() {
+  local wipe="${1:-}"
+  if [[ "$wipe" == "wipe" ]]; then
+    "${TEST_COMPOSE[@]}" down -v >/dev/null 2>&1 || true
+  else
+    "${TEST_COMPOSE[@]}" down >/dev/null 2>&1 || true
+  fi
+  docker rm -f wso-mysql-test >/dev/null 2>&1 || true
 }
 
 prereq() {
@@ -66,16 +78,19 @@ cleanup() {
 
   echo "devenv: stopped"
   "${COMPOSE[@]}" down >/dev/null 2>&1 || true
+  stop_test_mysql
 }
 
 cmd_down() {
   echo "devenv: stopping containers"
   "${COMPOSE[@]}" down
+  stop_test_mysql
 }
 
 cmd_reset() {
   echo "devenv: stopping containers and deleting volumes"
   "${COMPOSE[@]}" down -v
+  stop_test_mysql wipe
 }
 
 cmd_up() {

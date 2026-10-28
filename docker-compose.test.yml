@@ -1,0 +1,20 @@
+# Ephemeral MariaDB for tests only (project wso-test, host port 3307).
+# Independent of docker-compose.yml so make dev / Ctrl+C do not share a server,
+# but devenv down/reset also tear this project down.
+services:
+  mysql:
+    image: mariadb:10.11
+    container_name: wso-mysql-test
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: secret-mysql-password
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-psecret-mysql-password"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
