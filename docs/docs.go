@@ -18,6 +18,272 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/admin/feedback": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "list feedback submissions for admin review",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin",
+                    "feedback"
+                ],
+                "summary": "List feedback",
+                "operationId": "listFeedback",
+                "parameters": [
+                    {
+                        "enum": [
+                            "none",
+                            "priority_low",
+                            "priority_med",
+                            "priority_high",
+                            "resolved",
+                            "dismissed"
+                        ],
+                        "type": "string",
+                        "description": "Filter by priority",
+                        "name": "priority",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit pagination",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "enum": [
+                                "user"
+                            ],
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Preload",
+                        "name": "preload",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Feedback"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/feedback/{feedbackID}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "get a single feedback submission by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin",
+                    "feedback"
+                ],
+                "summary": "Get feedback",
+                "operationId": "getFeedback",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Feedback ID",
+                        "name": "feedbackID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "enum": [
+                                "user"
+                            ],
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Preload",
+                        "name": "preload",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Feedback"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "soft-delete a feedback submission",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin",
+                    "feedback"
+                ],
+                "summary": "Delete feedback",
+                "operationId": "deleteFeedback",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Feedback ID",
+                        "name": "feedbackID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "update admin notes, priority, or linked issue",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin",
+                    "feedback"
+                ],
+                "summary": "Update feedback",
+                "operationId": "updateFeedback",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Feedback ID",
+                        "name": "feedbackID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/feedback.UpdateFeedbackParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Feedback"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/tasks": {
             "get": {
                 "security": [
@@ -7321,6 +7587,58 @@ const docTemplate = `{
                 }
             }
         },
+        "/feedback": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "submit site feedback",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "feedback"
+                ],
+                "summary": "Create feedback",
+                "operationId": "createFeedback",
+                "parameters": [
+                    {
+                        "description": "Feedback",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/feedback.CreateFeedbackParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.Feedback"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/goodrich/menu": {
             "get": {
                 "security": [
@@ -9423,6 +9741,40 @@ const docTemplate = `{
                 }
             }
         },
+        "feedback.CreateFeedbackParams": {
+            "type": "object",
+            "required": [
+                "notes"
+            ],
+            "properties": {
+                "notes": {
+                    "type": "string"
+                },
+                "preferredName": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "userID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "feedback.UpdateFeedbackParams": {
+            "type": "object",
+            "properties": {
+                "adminNotes": {
+                    "type": "string"
+                },
+                "issue": {
+                    "type": "string"
+                },
+                "priority": {
+                    "$ref": "#/definitions/models.FeedbackPriority"
+                }
+            }
+        },
         "goodrich.CreateOrderParams": {
             "type": "object",
             "properties": {
@@ -10631,6 +10983,72 @@ const docTemplate = `{
                     "type": "integer"
                 }
             }
+        },
+        "models.Feedback": {
+            "type": "object",
+            "properties": {
+                "adminNotes": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "issue": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "preferredName": {
+                    "type": "string"
+                },
+                "priority": {
+                    "enum": [
+                        "",
+                        "none",
+                        "priority_low",
+                        "priority_med",
+                        "priority_high",
+                        "resolved",
+                        "dismissed"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.FeedbackPriority"
+                        }
+                    ]
+                },
+                "url": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "userID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.FeedbackPriority": {
+            "type": "string",
+            "enum": [
+                "",
+                "none",
+                "priority_low",
+                "priority_med",
+                "priority_high",
+                "resolved",
+                "dismissed"
+            ],
+            "x-enum-varnames": [
+                "FeedbackPriorityUndefined",
+                "FeedbackPriorityNone",
+                "FeedbackPriorityLow",
+                "FeedbackPriorityMed",
+                "FeedbackPriorityHigh",
+                "FeedbackPriorityResolved",
+                "FeedbackPriorityDismissed"
+            ]
         },
         "models.GoodrichMenuItem": {
             "type": "object",
