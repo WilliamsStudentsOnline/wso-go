@@ -33,25 +33,13 @@ func main() {
 		{
 			Name:  "record-start",
 			Usage: "mark a job run as started",
-			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name:  "config",
-					Value: jobctl.DefaultConfigPath,
-					Usage: "path to config.yaml",
-				},
-			},
+			Flags: configFlag(),
 			Action: recordStart,
 		},
 		{
 			Name:  "record-finish",
 			Usage: "mark a job run as finished and copy logs",
-			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name:  "config",
-					Value: jobctl.DefaultConfigPath,
-					Usage: "path to config.yaml",
-				},
-			},
+			Flags: configFlag(),
 			Action: recordFinish,
 		},
 	}
@@ -59,6 +47,16 @@ func main() {
 	if err := app.Run(os.Args); err != nil {
 		fmt.Fprintln(os.Stderr, "Error:", err.Error())
 		os.Exit(1)
+	}
+}
+
+func configFlag() []cli.Flag {
+	return []cli.Flag{
+		cli.StringFlag{
+			Name:  "config",
+			Value: jobctl.DefaultConfigPath,
+			Usage: "path to config.yaml",
+		},
 	}
 }
 
