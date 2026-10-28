@@ -26,8 +26,8 @@ jobs:
       contents: read
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: ariga/setup-atlas@v0
+      - uses: actions/checkout@v7
+      - uses: ariga/setup-atlas@v0.3
         with:
           version: latest
       - name: Validate migrations
@@ -51,7 +51,7 @@ jobs:
             | tee /tmp/atlas-summary.md
           cat /tmp/atlas-summary.md >> "$GITHUB_STEP_SUMMARY"
       - name: Add Migration Status PR Comment
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@v3
         if: always() && github.event_name == 'pull_request' && steps.summary.outputs.comment == 'true'
         with:
           header: migration-status
