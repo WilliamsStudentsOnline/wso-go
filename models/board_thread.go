@@ -96,9 +96,11 @@ func (o *GetBoardThreadsOptions) Paginate(db *gorm.DB) *gorm.DB {
 }
 
 func (o *GetBoardThreadsOptions) Preloader(db *gorm.DB) *gorm.DB {
-	// Default list payload includes author + ride info for feed rows.
+	// Default list payload: author, ride info, and OP post (for body preview).
 	if o.Preload == nil {
-		return db.Preload("User").Preload("RideInformation")
+		return db.Preload("User").Preload("RideInformation").Preload("Posts", func(db *gorm.DB) *gorm.DB {
+			return db.Where("board_posts.is_op = ?", true)
+		})
 	}
 	if stringsContains(o.Preload, "user") {
 		db = db.Preload("User")
@@ -206,7 +208,15 @@ func (m *BoardThreadModel) GetThreads(threads *[]*BoardThread, opts *GetBoardThr
 	if opts != nil {
 		db = opts.Run(db)
 	}
-	return db.Find(threads).Error
+	if err := db.Find(threads).Error; err != nil {
+		return err
+	}
+	for _, t := range *threads {
+		hydrateThreadBody(t)
+		// List responses only need Body; drop posts to keep payload small.
+		t.Posts = nil
+	}
+	return nil
 }
 
 func (m *BoardThreadModel) CountThreads(opts *GetBoardThreadsOptions) (int, error) {
