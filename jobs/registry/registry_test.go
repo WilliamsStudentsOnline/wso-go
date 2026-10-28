@@ -101,3 +101,17 @@ func TestRegistry(t *testing.T) {
 	assert.Equal(t, "example", r.Scheduled()[0].Name)
 }
 
+func TestValidateUnitDeps(t *testing.T) {
+	j := sampleJob()
+	j.Requires = []string{"mysql.service"}
+	j.After = []string{"network-online.target"}
+	require.NoError(t, j.Validate())
+
+	j = sampleJob()
+	j.Requires = []string{"../evil.service"}
+	assert.Error(t, j.Validate())
+
+	j = sampleJob()
+	j.Wants = []string{"not-a-unit"}
+	assert.Error(t, j.Validate())
+}
