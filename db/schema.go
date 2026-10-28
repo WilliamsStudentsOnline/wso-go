@@ -36,5 +36,6 @@ func AutoMigrateModels(db *gorm.DB) error {
 		&models.BookListing{},
 		&models.Book{},
 		&models.ModeratorTask{},
+		&models.Feedback{},
 	).Error
 }
