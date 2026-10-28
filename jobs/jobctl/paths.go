@@ -1,7 +1,7 @@
 package jobctl
 
 const (
-	DefaultConfigPath = "/opt/wso-go/config.yaml"
+	DefaultConfigPath = "/opt/wso-go/static/wso-backend-config.yaml"
 	JobctlBinary      = "/opt/wso-go/wso-jobctl_linux"
 )
 
