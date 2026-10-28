@@ -5,8 +5,6 @@ import "time"
 // BoardPost is a post within a board thread (OP or reply)
 type BoardPost struct {
 	BaseSchema
-	// Shadows BaseSchema.CreatedAt so it is serialized (BaseSchema uses json:"-").
-	CreatedAt time.Time `json:"createdAt"`
 
 	ThreadID uint         `gorm:"index:index_board_posts_on_thread_id;not null" json:"threadID"`
 	Thread   *BoardThread `json:"thread,omitempty"`
@@ -15,8 +13,11 @@ type BoardPost struct {
 	User       *User  `json:"user,omitempty"`
 	ExUserName string `json:"exUserName"`
 
-	Content   string `gorm:"size:65535;not null" json:"content"`
-	IsOP      *bool  `gorm:"column:is_op;DEFAULT:false;not null" json:"isOP"`
+	Content string `gorm:"size:65535;not null" json:"content"`
+	IsOP    *bool  `gorm:"column:is_op;DEFAULT:false;not null" json:"isOP"`
+
+	// Mirrors BaseSchema.CreatedAt for JSON (BaseSchema uses json:"-").
+	CreatedTime time.Time `gorm:"-" json:"createdAt"`
 }
 
 func (*BoardPost) TableName() string {
@@ -27,4 +28,9 @@ func NewBoardPostByID(id uint) *BoardPost {
 	return &BoardPost{
 		BaseSchema: BaseSchema{ID: id},
 	}
+}
+
+func (p *BoardPost) AfterFind() (err error) {
+	p.CreatedTime = p.CreatedAt
+	return
 }

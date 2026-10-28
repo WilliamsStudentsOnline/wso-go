@@ -15,8 +15,6 @@ const (
 // BoardThread is a unified campus board thread (discussions, listings, rides, etc.)
 type BoardThread struct {
 	BaseSchema
-	// Shadows BaseSchema.CreatedAt so it is serialized (BaseSchema uses json:"-").
-	CreatedAt time.Time `json:"createdAt"`
 
 	Type  string `gorm:"index:index_board_threads_on_type;not null" json:"type"`
 	Title string `gorm:"not null" json:"title"`
@@ -37,6 +35,9 @@ type BoardThread struct {
 	Posts            []*BoardPost           `gorm:"foreignkey:ThreadID;association_foreignkey:ID" json:"posts,omitempty"`
 	RideInformation  *BoardRideInformation  `gorm:"foreignkey:ThreadID;association_foreignkey:ID" json:"ride,omitempty"`
 	Body             string                 `gorm:"-" json:"body,omitempty"` // hydrated from OP for API convenience
+
+	// Mirrors BaseSchema.CreatedAt for JSON (BaseSchema uses json:"-").
+	CreatedTime time.Time `gorm:"-" json:"createdAt"`
 }
 
 func (*BoardThread) TableName() string {
@@ -54,6 +55,11 @@ func (t *BoardThread) BeforeCreate() error {
 		t.LastActive = time.Now()
 	}
 	return nil
+}
+
+func (t *BoardThread) AfterFind() (err error) {
+	t.CreatedTime = t.CreatedAt
+	return
 }
 
 func IsValidBoardThreadType(typ string) bool {
