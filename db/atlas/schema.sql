@@ -424,7 +424,8 @@ CREATE TABLE `moderator_tasks` (
   INDEX `index_moderator_tasks_on_resolved_at` (`resolved_at`),
   INDEX `index_moderator_tasks_on_resolved_by_user_id` (`resolved_by_user_id`),
   INDEX `index_moderator_tasks_on_task_reference` (`task_reference`),
-  INDEX `index_moderator_tasks_on_task_type` (`task_type`)
+  INDEX `index_moderator_tasks_on_task_type` (`task_type`),
+  INDEX `index_moderator_tasks_on_task_type_task_reference_resolved_at` (`task_type`, `task_reference`, `resolved_at`)
 ) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- Create "feedback" table
 CREATE TABLE `feedback` (
