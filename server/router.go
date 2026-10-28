@@ -36,6 +36,7 @@ import (
 	ephcatchService "github.com/WilliamsStudentsOnline/wso-go/services/ephcatch"
 	ephmatchService "github.com/WilliamsStudentsOnline/wso-go/services/ephmatch"
 	factrakService "github.com/WilliamsStudentsOnline/wso-go/services/factrak"
+	feedbackService "github.com/WilliamsStudentsOnline/wso-go/services/feedback"
 	goodrichService "github.com/WilliamsStudentsOnline/wso-go/services/goodrich"
 	notificationService "github.com/WilliamsStudentsOnline/wso-go/services/notification"
 	onboardingService "github.com/WilliamsStudentsOnline/wso-go/services/onboarding"
@@ -178,9 +179,14 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 		adminGroup := v2.Group("/admin")
 		adminGroup.Use(auth.RequireScopes(auth.ScopeAdminAll))
 		adminService.SetupRouter(adminGroup, db, cfg, log.Named("admin"))
+		feedbackService.SetupAdminRouter(adminGroup.Group("/feedback"), db, cfg, log.Named("feedback"))
 
 		// Homepage banner updates
 		bannerService.SetupAdminRouter(v2.Group("/banner"), db, cfg, log.Named("banner"))
+
+		// Feedback (user submit)
+		feedbackGroup := v2.Group("/feedback")
+		feedbackService.SetupRouter(feedbackGroup, db, cfg, log.Named("feedback"))
 
 		// Factrak Service
 		factrakGroup := v2.Group("/factrak")
