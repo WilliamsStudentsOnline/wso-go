@@ -55,7 +55,13 @@ func (t *Controller) ListThreads(c *gin.Context) {
 	sanitizeThreads(c, threads)
 
 	resp := listThreadsResponse{Threads: threads}
-	if len(threads) > 0 {
+	limit := 50
+	if params.Limit != nil {
+		limit = int(*params.Limit)
+	}
+	// Only emit a next cursor when this page was full — otherwise clients
+	// walk onto an empty trailing page.
+	if len(threads) == limit {
 		sort := params.Sort
 		if sort == "" {
 			sort = "activity"
