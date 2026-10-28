@@ -6,4 +6,4 @@ After=network-online.target
 Type=oneshot
 User=wso
 Group=wso
-ExecStart=/opt/wso-go/wso-jobctl_linux dispatch -config /opt/wso-go/config.yaml
+ExecStart=/opt/wso-go/wso-jobctl_linux dispatch -config /opt/wso-go/static/wso-backend-config.yaml
