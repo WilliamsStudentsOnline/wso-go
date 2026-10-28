@@ -15,7 +15,6 @@ const (
 	JobStatusLost      = "lost"
 )
 
-// JobRun Schema
 type JobRun struct {
 	BaseSchema
 
