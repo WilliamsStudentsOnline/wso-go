@@ -67,13 +67,14 @@ The model struct (e.g. `user.go` or `UserModel{}`) is the database adapter for t
 
 ### Migrations
 
-Changing, adding, or (in rare cases) deleting a model requires an accompanying migration Working with migrations requires the [Atlas CLI](https://atlasgo.io).
+Changing, adding, or (in rare cases) deleting a model requires an accompanying migration. Working with migrations requires the [Atlas CLI](https://atlasgo.io).
 
 To generate a database migration:
 
 1. Edit GORM schema structs under `models/`
-2. Generate your migration with `make migrate name=<your_migration_name>`
-3. Review the new `db/atlas/migrations/*.up.sql`. If it looks good, commit it alongside `atlas.sum` and `schema.sql`
+2. For new models, register them in `db/schema.go`
+3. Generate your migration with `make migrate name=<your_migration_name>`
+4. Review the new `db/atlas/migrations/*.up.sql`. If it looks good, commit it alongside `atlas.sum` and `schema.sql`
 
 Use `make check-migrations` to validate migration checksums and replay SQL on an ephemeral db (note that CI will run the same check).
 
