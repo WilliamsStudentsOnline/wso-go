@@ -32,7 +32,7 @@ func main() {
 		},
 		{
 			Name:  "record-start",
-			Usage: "mark a job run as started (ExecStartPre hook)",
+			Usage: "mark a job run as started",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "config",
@@ -44,7 +44,7 @@ func main() {
 		},
 		{
 			Name:  "record-finish",
-			Usage: "mark a job run as finished and copy logs (ExecStopPost hook)",
+			Usage: "mark a job run as finished and copy logs",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "config",
