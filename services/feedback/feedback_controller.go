@@ -10,7 +10,7 @@ import (
 
 // CreateFeedback godoc
 // @Summary Create feedback
-// @Description submit site feedback; omit userID to stay uncontactable
+// @Description submit site feedback
 // @ID createFeedback
 // @Tags feedback
 // @Accept json
