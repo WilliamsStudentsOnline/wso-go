@@ -18,13 +18,20 @@ def list_versions(migrations_dir: Path) -> list[str]:
     )
 
 
-def version_list(versions: list[str]) -> list[str]:
+def version_details(versions: list[str]) -> list[str]:
+    if not versions:
+        return []
     n = len(versions)
-    show = versions if n <= 20 else versions[:10]
-    lines = [f"- `{v}`" for v in show]
-    if n > 20:
-        lines.append(f"- …and {n - 10} more")
-    return lines
+    label = "version" if n == 1 else "versions"
+    return [
+        "<details>",
+        f"<summary><strong>All {label} ({n})</strong></summary>",
+        "",
+        *[f"- `{v}`" for v in versions],
+        "",
+        "</details>",
+        "",
+    ]
 
 
 def atlas_error_block(log: str) -> list[str]:
@@ -53,17 +60,14 @@ def render(*, outcome: str, versions: list[str], log: str) -> str | None:
 
     if outcome != "success":
         parts.append(f"❌ Failed (**{n}** {label})\n")
-        if versions:
-            parts.extend(version_list(versions))
-            parts.append("")
         parts.append("```")
         parts.extend(atlas_error_block(log))
         parts.append("```\n")
+        parts.extend(version_details(versions))
         return "\n".join(parts)
 
     parts.append(f"✅ Passed (**{n}** {label})\n")
-    parts.extend(version_list(versions))
-    parts.append("")
+    parts.extend(version_details(versions))
     return "\n".join(parts)
 
 
