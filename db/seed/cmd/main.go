@@ -10,55 +10,46 @@ import (
 )
 
 func main() {
-	/* Flags */
 	var configPath string
 	var model string
 	var n int
 	var disableMigrationCheck bool
 
-	// Command-line flags
-	// Note: these can be overridden by env vars
 	flag.StringVar(&configPath, "config", "", "path to config file")
-	flag.StringVar(&model, "model", "", "model (eg user, ephmatch, ephmatch_profile)")
-	flag.IntVar(&n, "n", 0, "number of models to generate")
-	flag.BoolVar(&disableMigrationCheck, "disable-migration-check", false, "don't check for outdated migrations")
-
+	flag.StringVar(&model, "model", "all", "model: all | user | board | ephmatch | ephmatch_profile | dorm")
+	flag.IntVar(&n, "n", 0, "number of models to generate (0 = seeder default)")
+	flag.BoolVar(&disableMigrationCheck, "disable-migration-check", false, "deprecated: migrate always runs before seed")
 	flag.Parse()
+	_ = disableMigrationCheck
 
-	/* Config */
 	cfg, err := config.LoadConfig(configPath)
 	if err != nil {
 		panic("Config Error: " + err.Error())
 	}
 
-	/* Logging */
 	log, err := logging.SetupLog(cfg, "seed")
 	if err != nil {
 		panic("Log Setup Error: " + err.Error())
-		return
 	}
 	defer log.Sync()
 
-	/* DATABASE */
 	db := config.LoadDatabase(cfg, log)
 	defer config.CloseDatabase(db, log)
 
-	/* Database Migrations */
-	// NOTE: Job will not migrate anything; will fail if db is not updated on migrations
-	dbUpToDate, err := migrate.MigrationUpToDate(migrate.MigrationGormOptions, db)
-	if err != nil {
-		log.Fatal("Migration Checking Error: " + err.Error())
-	}
-
-	if !dbUpToDate {
-		if disableMigrationCheck {
-			log.Warnf("Database migrations are not up to date")
-		} else {
-			log.Fatalf("Database migrations are not up to date")
-		}
+	// Schema first, then data — same order as devenv (empty → migrate → seed).
+	if err := migrate.MigrateDB(db); err != nil {
+		log.Fatal("Migration Error: " + err.Error())
 	}
 
 	switch model {
+	case "all", "":
+		err = seeder.Development(db)
+	case "user", "users":
+		err = seeder.Users(n, db)
+	case "board":
+		err = seeder.BoardThreads(n, db)
+	case "dorm", "dorms":
+		err = seeder.Dorms(n, db)
 	case "ephmatch_profile":
 		err = seeder.EphmatchProfiles(n, db)
 	case "ephmatch":

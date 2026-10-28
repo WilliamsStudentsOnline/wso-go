@@ -150,7 +150,7 @@ Analytics are served at port `:9092`!
   - `environment/development.yml` is the local development configuration yaml
 - `db/` contains migration code
   - `atlas/` Atlas config, `schema.sql`, and versioned SQL migrations
-  - `seed/development.sql.gz` Seeded database for local dev
+  - `seed/` Synthetic local-dev seeders (`go run ./db/seed/cmd`); devenv runs migrate then seed on an empty DB
   - `migrations/` frozen historical gormigrate migrations (predating our migration to Atlas)
 - `docs/` contains swagger API docs (generated for you, do not hand edit!)
 - `jobs/` contains cron job launching code and specific jobs to run on the server (e.g. update users from LDAP)

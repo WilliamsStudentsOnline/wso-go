@@ -8,8 +8,8 @@ cd "$ROOT"
 COMPOSE=(docker compose)
 MYSQL_PASSWORD="${MYSQL_ROOT_PASSWORD:-secret-mysql-password}"
 MYSQL_DATABASE="${MYSQL_DATABASE:-wso}"
-SEED_SQL="${SEED_SQL:-$ROOT/db/seed/development.sql.gz}"
 AIR_VERSION="${AIR_VERSION:-v1.67.0}"
+DEV_CONFIG="${DEV_CONFIG:-config/environment/development.yaml}"
 
 CLEANING=0
 AIR_PID=""
@@ -30,39 +30,27 @@ prereq() {
   fi
 }
 
-db_has_users_table() {
-  docker exec wso-mysql mysql -uroot -p"$MYSQL_PASSWORD" -N -e \
+# Returns 0 when the users table exists and has at least one row.
+db_has_seed_data() {
+  local count
+  count="$(docker exec wso-mysql mysql -uroot -p"$MYSQL_PASSWORD" -N -e \
     "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='${MYSQL_DATABASE}' AND table_name='users';" \
-    2>/dev/null | tr -d '\r' | grep -qx '1'
+    2>/dev/null | tr -d '\r' || true)"
+  [[ "$count" == "1" ]] || return 1
+  count="$(docker exec wso-mysql mysql -uroot -p"$MYSQL_PASSWORD" -N -e \
+    "SELECT COUNT(*) FROM \`${MYSQL_DATABASE}\`.users;" \
+    2>/dev/null | tr -d '\r' || true)"
+  [[ -n "$count" && "$count" -gt 0 ]]
 }
 
-# MySQL 8 dumps use utf8mb4_0900_*; MariaDB 10.11 rejects those.
-# Rewrite to the server collation from docker-compose (utf8mb4_unicode_ci).
-rewrite_mysql8_collations() {
-  sed -E 's/utf8mb4_0900_[A-Za-z0-9_]+/utf8mb4_unicode_ci/g'
-}
-
-import_seed_sql() {
-  local src="$1"
-  echo "devenv: importing seed from $src"
-  case "$src" in
-    *.gz)
-      gunzip -c "$src" | rewrite_mysql8_collations \
-        | docker exec -i wso-mysql mysql -uroot -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE"
-      ;;
-    *)
-      rewrite_mysql8_collations <"$src" \
-        | docker exec -i wso-mysql mysql -uroot -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE"
-      ;;
-  esac
-}
-
-import_seed_if_empty() {
-  if db_has_users_table; then
+# empty DB → migrate → synthetic seed (see db/seed/seeder).
+seed_if_empty() {
+  if db_has_seed_data; then
+    echo "devenv: database already seeded"
     return 0
   fi
-  [[ -f "$SEED_SQL" ]] || die "seed missing at $SEED_SQL"
-  import_seed_sql "$SEED_SQL"
+  echo "devenv: migrate + seed (empty → migrate → seed)"
+  go run ./db/seed/cmd -config "$DEV_CONFIG" -model all
 }
 
 cleanup() {
@@ -101,7 +89,7 @@ cmd_up() {
   echo "devenv: starting background services"
   "${COMPOSE[@]}" up -d --wait
 
-  import_seed_if_empty
+  seed_if_empty
 
   trap cleanup EXIT INT TERM
   echo "devenv: starting API! Ctrl+C to stop"
