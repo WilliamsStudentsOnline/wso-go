@@ -1,4 +1,3 @@
-# dispatch due pending job_runs; one-time install in HOST_JOBS.md
 [Unit]
 Description=WSO jobs dispatch (start due pending runs)
 After=network-online.target
