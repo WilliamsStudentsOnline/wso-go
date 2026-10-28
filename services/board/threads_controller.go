@@ -18,6 +18,7 @@ type listThreadsResponse struct {
 
 // ListThreads godoc
 // @Summary List board threads
+// @ID listBoardThreads
 // @Tags board
 // @Produce json
 // @Param cursor query string false "Cursor pagination"
@@ -29,6 +30,7 @@ type listThreadsResponse struct {
 // @Param offeringRide query bool false "Filter rides by offeringRide"
 // @Param userID query int false "Filter by author"
 // @Success 200 {object} listThreadsResponse
+// @Security Bearer
 // @Router /board/threads [get]
 func (t *Controller) ListThreads(c *gin.Context) {
 	params := models.GetBoardThreadsOptions{}
@@ -66,10 +68,12 @@ func (t *Controller) ListThreads(c *gin.Context) {
 
 // GetThread godoc
 // @Summary Get board thread
+// @ID getBoardThread
 // @Tags board
 // @Produce json
 // @Param threadID path uint true "Thread ID"
 // @Success 200 {object} models.BoardThread
+// @Security Bearer
 // @Router /board/threads/{threadID} [get]
 func (t *Controller) GetThread(c *gin.Context) {
 	threadID, err := services.GetUIntParam(c, "threadID")
@@ -110,11 +114,13 @@ type CreateThreadParams struct {
 
 // CreateThread godoc
 // @Summary Create board thread
+// @ID createBoardThread
 // @Tags board
 // @Accept json
 // @Produce json
 // @Param body body CreateThreadParams true "Create params"
 // @Success 201 {object} models.BoardThread
+// @Security Bearer
 // @Router /board/threads [post]
 func (t *Controller) CreateThread(c *gin.Context) {
 	userID := services.GetUserID(c)
@@ -197,12 +203,14 @@ type UpdateThreadParams struct {
 
 // UpdateThread godoc
 // @Summary Update board thread
+// @ID updateBoardThread
 // @Tags board
 // @Accept json
 // @Produce json
 // @Param threadID path uint true "Thread ID"
 // @Param body body UpdateThreadParams true "Update params"
 // @Success 200 {object} models.BoardThread
+// @Security Bearer
 // @Router /board/threads/{threadID} [patch]
 func (t *Controller) UpdateThread(c *gin.Context) {
 	userID := services.GetUserID(c)
@@ -296,9 +304,11 @@ func (t *Controller) UpdateThread(c *gin.Context) {
 
 // DeleteThread godoc
 // @Summary Delete board thread
+// @ID deleteBoardThread
 // @Tags board
 // @Param threadID path uint true "Thread ID"
 // @Success 200 {object} models.BoardThread
+// @Security Bearer
 // @Router /board/threads/{threadID} [delete]
 func (t *Controller) DeleteThread(c *gin.Context) {
 	threadID, err := services.GetUIntParam(c, "threadID")
