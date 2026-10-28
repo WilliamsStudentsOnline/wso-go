@@ -31,20 +31,10 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p /opt/wso-go
-
-          install_bin() {
-            local src="$1" dst="$2"
-            cp "$src" "${dst}.new"
-            chmod +x "${dst}.new"
-            mv "${dst}.new" "$dst"
-          }
-
-          install_bin wso-backend_linux /opt/wso-go/wso-backend_linux
-          install_bin wso-jobctl_linux /opt/wso-go/wso-jobctl_linux
-          for f in job-*_linux; do
-            install_bin "$f" "/opt/wso-go/$f"
-          done
-
+          cp wso-backend_linux /opt/wso-go/wso-backend_linux
+          cp wso-jobctl_linux /opt/wso-go/wso-jobctl_linux
+          cp job-*_linux /opt/wso-go/
+          chmod +x /opt/wso-go/wso-backend_linux /opt/wso-go/wso-jobctl_linux /opt/wso-go/job-*_linux
           sudo systemctl restart WSO-Go
           sudo systemctl try-restart WSO-Mobile || true
       - name: Sync job systemd units
@@ -90,20 +80,10 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p /opt/wso-go
-
-          install_bin() {
-            local src="$1" dst="$2"
-            cp "$src" "${dst}.new"
-            chmod +x "${dst}.new"
-            mv "${dst}.new" "$dst"
-          }
-
-          install_bin wso-backend_linux /opt/wso-go/wso-backend_linux
-          install_bin wso-jobctl_linux /opt/wso-go/wso-jobctl_linux
-          for f in job-*_linux; do
-            install_bin "$f" "/opt/wso-go/$f"
-          done
-
+          cp wso-backend_linux /opt/wso-go/wso-backend_linux
+          cp wso-jobctl_linux /opt/wso-go/wso-jobctl_linux
+          cp job-*_linux /opt/wso-go/
+          chmod +x /opt/wso-go/wso-backend_linux /opt/wso-go/wso-jobctl_linux /opt/wso-go/job-*_linux
           sudo systemctl restart WSO-Go
           sudo systemctl try-restart WSO-Mobile || true
       - name: Sync job systemd units
