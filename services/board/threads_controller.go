@@ -22,6 +22,7 @@ type listThreadsResponse struct {
 // @Tags board
 // @Produce json
 // @Param cursor query string false "Cursor pagination"
+// @Param offset query int false "Offset pagination"
 // @Param limit query int false "Limit"
 // @Param sort query string false "activity|created|startsAt"
 // @Param includeNull query bool false "Include null startsAt when sorting by startsAt"
