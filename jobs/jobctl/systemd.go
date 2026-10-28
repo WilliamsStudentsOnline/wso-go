@@ -107,6 +107,24 @@ func (s *Systemd) StopUnit(unitName string) error {
 	}
 }
 
+func (s *Systemd) TimerNextElapse(jobName string) (*time.Time, error) {
+	unit := "wso-job-" + jobName + ".timer"
+	props, err := s.conn.GetUnitTypeProperties(unit, "Timer")
+	if err != nil {
+		return nil, err
+	}
+	raw, ok := props["NextElapseUSecRealtime"]
+	if !ok {
+		return nil, nil
+	}
+	usec, ok := raw.(uint64)
+	if !ok || usec == 0 || usec == ^uint64(0) {
+		return nil, nil
+	}
+	t := time.Unix(0, int64(usec)*1000).UTC()
+	return &t, nil
+}
+
 func TransientUnitName(jobName string, runID uint) string {
 	return fmt.Sprintf("wso-job-%s-r%d.service", jobName, runID)
 }
