@@ -103,14 +103,14 @@ func (m *FeedbackModel) CreateFeedback(item *Feedback) error {
 }
 
 func (m *FeedbackModel) UpdateFeedback(id uint, updates map[string]interface{}) error {
-	res := m.DB.Model(&Feedback{}).Where("id = ?", id).Updates(updates)
-	if res.Error != nil {
-		return res.Error
+	var existing Feedback
+	if err := m.DB.First(&existing, id).Error; err != nil {
+		return err
 	}
-	if res.RowsAffected == 0 {
-		return gorm.ErrRecordNotFound
+	if len(updates) == 0 {
+		return nil
 	}
-	return nil
+	return m.DB.Model(&existing).Updates(updates).Error
 }
 
 func (m *FeedbackModel) SoftDeleteFeedbackByID(id uint) error {
