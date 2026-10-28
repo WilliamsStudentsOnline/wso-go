@@ -1493,10 +1493,16 @@ const docTemplate = `{
         },
         "/board/replies/{replyID}": {
             "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "tags": [
                     "board"
                 ],
                 "summary": "Delete a reply (OP delete cascades to thread)",
+                "operationId": "deleteBoardReply",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1516,6 +1522,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -1526,6 +1537,7 @@ const docTemplate = `{
                     "board"
                 ],
                 "summary": "Update a reply",
+                "operationId": "updateBoardReply",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1556,6 +1568,11 @@ const docTemplate = `{
         },
         "/board/threads": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -1563,6 +1580,7 @@ const docTemplate = `{
                     "board"
                 ],
                 "summary": "List board threads",
+                "operationId": "listBoardThreads",
                 "parameters": [
                     {
                         "type": "string",
@@ -1627,6 +1645,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -1637,6 +1660,7 @@ const docTemplate = `{
                     "board"
                 ],
                 "summary": "Create board thread",
+                "operationId": "createBoardThread",
                 "parameters": [
                     {
                         "description": "Create params",
@@ -1660,6 +1684,11 @@ const docTemplate = `{
         },
         "/board/threads/{threadID}": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -1667,6 +1696,7 @@ const docTemplate = `{
                     "board"
                 ],
                 "summary": "Get board thread",
+                "operationId": "getBoardThread",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1686,10 +1716,16 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "tags": [
                     "board"
                 ],
                 "summary": "Delete board thread",
+                "operationId": "deleteBoardThread",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1709,6 +1745,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -1719,6 +1760,7 @@ const docTemplate = `{
                     "board"
                 ],
                 "summary": "Update board thread",
+                "operationId": "updateBoardThread",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1749,6 +1791,11 @@ const docTemplate = `{
         },
         "/board/threads/{threadID}/replies": {
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -1759,6 +1806,7 @@ const docTemplate = `{
                     "board"
                 ],
                 "summary": "Create a reply on a thread",
+                "operationId": "createBoardReply",
                 "parameters": [
                     {
                         "type": "integer",
