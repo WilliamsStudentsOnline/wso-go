@@ -65,8 +65,9 @@ type User struct {
 	DormRoomID *uint     `gorm:"index:index_rooms_on_dorm_room_id" json:"dormRoomID"`
 	DormRoom   *DormRoom `json:"dormRoom,omitempty"`
 
-	Pronoun              *string `json:"pronoun"`
-	AtWilliams           *bool   `gorm:"DEFAULT:true;not null" json:"atWilliams"`
+	Pronoun         *string `json:"pronoun"`
+	PronounOverride *string `json:"pronounOverride"`
+	AtWilliams      *bool   `gorm:"DEFAULT:true;not null" json:"atWilliams"`
 	OffCycle             *bool   `gorm:"DEFAULT:false;not null" json:"offCycle"`
 	FactrakSurveyDeficit *int    `json:"factrakSurveyDeficit"`
 	OnCampusSemesters    int     `gorm:"DEFAULT:0;not null" json:"onCampusSemester"` // used to calculate number of factrack surveys needed
@@ -132,6 +133,13 @@ func NewUserWithID(userID uint) User {
 			ID: userID,
 		},
 	}
+}
+
+func (u *User) EffectivePronoun() *string {
+	if u.PronounOverride != nil {
+		return u.PronounOverride
+	}
+	return u.Pronoun
 }
 
 func (u *User) IsStudent() bool {

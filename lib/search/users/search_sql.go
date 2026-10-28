@@ -263,7 +263,7 @@ func (t *astTraverser) parseField(field *search.Field) (ignore bool) {
 		t.query.WriteString("users.type = ?")
 		t.vals = append(t.vals, fieldValue)
 	case "pronoun":
-		t.query.WriteString("users.pronoun = ?")
+		t.query.WriteString("COALESCE(users.pronoun_override, users.pronoun) = ?")
 		t.vals = append(t.vals, fieldValue)
 	default:
 		ignore = true

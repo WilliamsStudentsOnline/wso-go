@@ -385,3 +385,97 @@ func TestController_UpdateUser(t *testing.T) {
 	// Status is okay
 	assert.Equal(http.StatusForbidden, w.Code)
 }
+
+func TestController_UpdateUserPronounOverride(t *testing.T) {
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+
+	source := "he/him"
+	u1 := models.User{
+		Name:        "Test 1",
+		UnixID:      "u1",
+		Visible:     lib.BoolToPtr(true),
+		AtWilliams:  lib.BoolToPtr(true),
+		DormVisible: lib.BoolToPtr(true),
+		Pronoun:     &source,
+	}
+	u2 := models.User{
+		Name:            "Test 2",
+		UnixID:          "u2",
+		Visible:         lib.BoolToPtr(true),
+		AtWilliams:      lib.BoolToPtr(true),
+		DormVisible:     lib.BoolToPtr(true),
+		Pronoun:         lib.StrToPtr("she/her"),
+		PronounOverride: lib.StrToPtr("they/them"),
+	}
+	assert.NoError(db.Create(&u1).Create(&u2).Error)
+
+	router := utils.SetupRouter(auth.ScopeUsers, auth.ScopeWriteSelf)
+	utils.AddUserContexts(router, u1.ID)
+	cfg := utils.SetupConfig()
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+
+	setData, err := json.Marshal(map[string]interface{}{
+		"pronounOverride": "they/them",
+	})
+	assert.NoError(err)
+
+	w, err := utils.DoHTTPReq(router, http.MethodPatch, "/me", bytes.NewBuffer(setData))
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+
+	resp := utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	assert.Nil(resp.Error)
+	var patchUser models.User
+	assert.NoError(json.Unmarshal(resp.Data, &patchUser))
+	assert.Equal("they/them", *patchUser.Pronoun)
+	assert.Equal("they/them", *patchUser.PronounOverride)
+
+	var dbUser models.User
+	assert.NoError(db.First(&dbUser, u1.ID).Error)
+	assert.Equal("he/him", *dbUser.Pronoun)
+	assert.Equal("they/them", *dbUser.PronounOverride)
+
+	w, err = utils.DoHTTPReq(router, http.MethodGet, "/me", nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+	resp = utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	var selfUser models.User
+	assert.NoError(json.Unmarshal(resp.Data, &selfUser))
+	assert.Equal("they/them", *selfUser.Pronoun)
+	assert.Equal("they/them", *selfUser.PronounOverride)
+
+	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/%d", u2.ID), nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+	resp = utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	var otherUser models.User
+	assert.NoError(json.Unmarshal(resp.Data, &otherUser))
+	assert.Equal("they/them", *otherUser.Pronoun)
+	assert.Nil(otherUser.PronounOverride)
+
+	clearData, err := json.Marshal(map[string]interface{}{
+		"pronounOverride": nil,
+	})
+	assert.NoError(err)
+	w, err = utils.DoHTTPReq(router, http.MethodPatch, "/me", bytes.NewBuffer(clearData))
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+	resp = utils.GetHTTPDataResp(assert, w.Body.Bytes())
+	var cleared models.User
+	assert.NoError(json.Unmarshal(resp.Data, &cleared))
+	assert.Equal("he/him", *cleared.Pronoun)
+	assert.Nil(cleared.PronounOverride)
+
+	assert.NoError(db.First(&dbUser, u1.ID).Error)
+	assert.Equal("he/him", *dbUser.Pronoun)
+	assert.Nil(dbUser.PronounOverride)
+
+	forbidData, err := json.Marshal(map[string]interface{}{
+		"pronounOverride": "xe/xem",
+	})
+	assert.NoError(err)
+	w, err = utils.DoHTTPReq(router, http.MethodPatch, fmt.Sprintf("/%d", u2.ID), bytes.NewBuffer(forbidData))
+	assert.NoError(err)
+	assert.Equal(http.StatusForbidden, w.Code)
+}

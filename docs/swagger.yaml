@@ -1694,6 +1694,8 @@ definitions:
         type: boolean
       pronoun:
         type: string
+      pronounOverride:
+        type: string
       suBox:
         type: string
       tags:
@@ -1859,6 +1861,8 @@ definitions:
       optOutEphcatch:
         type: boolean
       pronoun:
+        type: string
+      pronounOverride:
         type: string
       suBox:
         type: string
@@ -2064,6 +2068,8 @@ definitions:
         type: boolean
       pronoun:
         type: string
+      pronounOverride:
+        type: string
       suBox:
         type: string
       tags:
@@ -2133,6 +2139,8 @@ definitions:
         type: boolean
       optOutEphcatch:
         type: boolean
+      pronounOverride:
+        type: string
       visible:
         type: boolean
     type: object
@@ -7588,7 +7596,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.User'
+            $ref: '#/definitions/responses.GetUserResponseUser'
         "404":
           description: Not Found
           schema:

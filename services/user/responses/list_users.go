@@ -146,6 +146,7 @@ type ListUsersResponseUser struct {
 	OfficeID                  *uint                        `json:"officeID"`
 	OptOutEphcatch            *bool                        `json:"optOutEphcatch"`
 	Pronoun                   *string                      `json:"pronoun"`
+	PronounOverride           *string                      `json:"pronounOverride"`
 	SuBox                     *string                      `json:"suBox"`
 	Tags                      []*ListUsersResponseTag      `json:"tags,omitempty"`
 	Title                     *string                      `json:"title"`
@@ -194,7 +195,8 @@ func ConvertListUsersResponseUser(m *models.User) *ListUsersResponseUser {
 	r.Office = ConvertListUsersResponseOffice(m.Office)
 	r.OfficeID = m.OfficeID
 	r.OptOutEphcatch = m.OptOutEphcatch
-	r.Pronoun = m.Pronoun
+	r.Pronoun = m.EffectivePronoun()
+	r.PronounOverride = m.PronounOverride
 	r.SuBox = m.SUBox
 	r.Tags = make([]*ListUsersResponseTag, len(m.Tags))
 	for i := range m.Tags {
