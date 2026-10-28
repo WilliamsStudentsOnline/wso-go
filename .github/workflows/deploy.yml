@@ -26,8 +26,8 @@ jobs:
         run: make build-prod-linux
       - name: Build Jobs
         run: make build-jobs-prod-linux
-      # TODO: deploy config files alongside WSO-Go.
       # Copy it to /opt/wso-go.
+      # TODO: deploy config files alongside WSO-Go.
       - name: Install binaries
         run: |
           set -euo pipefail
@@ -76,8 +76,8 @@ jobs:
         run: make build-prod-linux
       - name: Build Jobs
         run: make build-jobs-prod-linux
-      # TODO: deploy config files alongside WSO-Go.
       # Copy it to /opt/wso-go.
+      # TODO: deploy config files alongside WSO-Go.
       - name: Install binaries
         run: |
           set -euo pipefail
