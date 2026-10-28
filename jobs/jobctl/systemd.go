@@ -55,6 +55,15 @@ func (s *Systemd) StartJobRun(j registry.Job, runID uint, args []string) (unitNa
 			"WSO_JOB_UNIT=" + unitName,
 		})},
 	}
+	if after := append([]string{"network-online.target"}, j.After...); len(after) > 0 {
+		props = append(props, dbus.PropAfter(after...))
+	}
+	if len(j.Requires) > 0 {
+		props = append(props, dbus.PropRequires(j.Requires...))
+	}
+	if len(j.Wants) > 0 {
+		props = append(props, dbus.PropWants(j.Wants...))
+	}
 	if j.RuntimeMaxSec > 0 {
 		props = append(props, dbus.Property{
 			Name:  "RuntimeMaxUSec",
