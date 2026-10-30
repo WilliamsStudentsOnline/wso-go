@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-# go test wrapper for gotestsum --raw-command / --watch.
-# Replaces ./... (what gotestsum's `a` key sends) with the coverage-exclude package list.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -29,14 +27,12 @@ for arg in "$@"; do
   fi
 done
 
-# gotestsum --watch with no package args, or `a`, should still hit the filtered set
 if [[ "$replaced" -eq 0 ]]; then
   has_pkg=0
   for arg in "${args[@]}"; do
     case "$arg" in
       -* | "") ;;
       *)
-        # rough: anything that looks like a package path / pattern
         if [[ "$arg" == ./* || "$arg" == github.com/* ]]; then
           has_pkg=1
           break

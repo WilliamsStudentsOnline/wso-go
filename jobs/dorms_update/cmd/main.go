@@ -75,7 +75,7 @@ func main() {
 
 	/* Database Migrations */
 	// NOTE: Job will not migrate anything; will fail if db is not updated on migrations
-	dbUpToDate, err := migrate.MigrationUpToDate(migrate.MigrationGormOptions, db)
+	dbUpToDate, err := migrate.MigrationUpToDate(db)
 	if err != nil {
 		log.Fatal("Migration Checking Error: " + err.Error())
 	}

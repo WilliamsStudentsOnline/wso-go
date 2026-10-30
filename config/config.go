@@ -317,7 +317,7 @@ func SetupConfig(c *Config) error {
 	case "mysql":
 		SetupMySQLConfig(c)
 	default:
-		return fmt.Errorf("unsupported database_type %q (mysql only)", c.DatabaseType)
+		return fmt.Errorf("unsupported database_type %q", c.DatabaseType)
 	}
 
 	// Default to SearchBackendSQL

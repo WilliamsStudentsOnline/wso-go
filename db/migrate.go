@@ -8,7 +8,7 @@ import (
 	"gopkg.in/gormigrate.v1"
 )
 
-// LEGACY gormigrate history (frozen; MySQL uses Atlas via MigrateMySQL)
+// LEGACY gormigrate history
 var Migrations = []*gormigrate.Migration{
 	migrations.CreateUsers20190719211808,
 	migrations.CreateDepartments20190719212645,
@@ -55,18 +55,14 @@ var Migrations = []*gormigrate.Migration{
 	migrations.CreateBooks20221230032200,
 }
 
-var MigrationGormOptions = gormigrate.DefaultOptions
-
 func MigrateDB(db *gorm.DB) error {
 	if db.Dialect().GetName() != "mysql" {
-		return fmt.Errorf("unsupported dialect for migrations: %s (mysql only)", db.Dialect().GetName())
+		return fmt.Errorf("unsupported dialect for migrations: %s", db.Dialect().GetName())
 	}
 	return MigrateMySQL(db)
 }
 
-// Check Atlas migration version (opts kept for call-site compatibility)
-func MigrationUpToDate(opts *gormigrate.Options, db *gorm.DB) (bool, error) {
-	_ = opts
+func MigrationUpToDate(db *gorm.DB) (bool, error) {
 	if db.Dialect().GetName() != "mysql" {
 		return false, fmt.Errorf("unsupported dialect for MigrationUpToDate: %s", db.Dialect().GetName())
 	}
