@@ -15,6 +15,8 @@ type Controller struct {
 	tagModel           *models.TagModel
 	moderatorTaskModel *models.ModeratorTaskModel
 	surveyModel        *models.FactrakSurveyModel
+	boardThreadModel   *models.BoardThreadModel
+	boardPostModel     *models.BoardPostModel
 	cfg                *config.Config
 }
 
@@ -26,6 +28,8 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 		tagModel:           models.NewTagModel(db, log),
 		moderatorTaskModel: models.NewModeratorTaskModel(db, log),
 		surveyModel:        models.NewFactrakSurveyModel(db, log),
+		boardThreadModel:   models.NewBoardThreadModel(db, log),
+		boardPostModel:     models.NewBoardPostModel(db, log),
 		cfg:                cfg,
 	}
 }

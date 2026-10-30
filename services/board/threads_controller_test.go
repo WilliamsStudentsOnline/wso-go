@@ -187,6 +187,50 @@ func TestBoard_TypeImmutable(t *testing.T) {
 	utils.CheckRespError(assert, w, lib.ErrorBoardTypeImmutable)
 }
 
+func TestBoard_FlagThread(t *testing.T) {
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+	cfg := utils.SetupConfig()
+
+	author := models.User{Type: models.UserTypeStudent, UnixID: "author", Name: "Author"}
+	reporter := models.User{Type: models.UserTypeStudent, UnixID: "reporter", Name: "Reporter"}
+	assert.NoError(db.Create(&author).Error)
+	assert.NoError(db.Create(&reporter).Error)
+
+	authorRouter := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf, auth.ScopeBulletinWrite, auth.ScopeUsers)
+	utils.AddUserContexts(authorRouter, author.ID)
+	SetupRouter(authorRouter, db, cfg, zaptest.NewLogger(t).Sugar())
+
+	body, _ := json.Marshal(CreateThreadParams{
+		Type:  models.BoardThreadTypeDiscussion,
+		Title: "Flag me",
+		Body:  "content",
+	})
+	w, err := utils.DoHTTPReq(authorRouter, http.MethodPost, "/threads", bytes.NewReader(body))
+	assert.NoError(err)
+	var created models.BoardThread
+	assert.NoError(json.Unmarshal(utils.GetHTTPDataResp(assert, w.Body.Bytes()).Data, &created))
+
+	w, err = utils.DoHTTPReq(authorRouter, http.MethodPost, fmt.Sprintf("/threads/%d/flag", created.ID), nil)
+	assert.NoError(err)
+	utils.CheckRespError(assert, w, lib.ErrorBoardCannotFlagSelf)
+
+	reporterRouter := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf, auth.ScopeBulletinWrite, auth.ScopeUsers)
+	utils.AddUserContexts(reporterRouter, reporter.ID)
+	SetupRouter(reporterRouter, db, cfg, zaptest.NewLogger(t).Sugar())
+
+	w, err = utils.DoHTTPReq(reporterRouter, http.MethodPost, fmt.Sprintf("/threads/%d/flag", created.ID), nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+
+	var tasks []*models.ModeratorTask
+	assert.NoError(db.Find(&tasks).Error)
+	assert.Len(tasks, 1)
+	assert.Equal(models.ModeratorTaskTypeBoardThreadReview, tasks[0].TaskType)
+	assert.Equal(models.TaskReference(models.ModeratorTaskTypeBoardThreadReview, created.ID), tasks[0].TaskReference)
+	assert.Equal(reporter.ID, *tasks[0].RequestingUserID)
+}
+
 func TestBoard_FeedExcludesFutureAndExpired(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)

@@ -1677,11 +1677,15 @@ definitions:
     - ""
     - FACTRAK_REVIEW
     - NEW_USER_TAG
+    - BOARD_THREAD_REVIEW
+    - BOARD_POST_REVIEW
     type: string
     x-enum-varnames:
     - ModeratorTaskTypeUndefined
     - ModeratorTaskTypeFactrakReview
     - ModeratorTaskTypeNewUserTag
+    - ModeratorTaskTypeBoardThreadReview
+    - ModeratorTaskTypeBoardPostReview
   models.Neighborhood:
     properties:
       dorms:
@@ -2561,6 +2565,8 @@ paths:
         enum:
         - FACTRAK_REVIEW
         - NEW_USER_TAG
+        - BOARD_THREAD_REVIEW
+        - BOARD_POST_REVIEW
         in: query
         name: taskType
         type: string
@@ -3222,6 +3228,44 @@ paths:
       summary: Update a reply
       tags:
       - board
+  /board/replies/{replyID}/flag:
+    post:
+      consumes:
+      - application/json
+      description: creates a BOARD_POST_REVIEW moderator task for the post
+      operationId: flagBoardReply
+      parameters:
+      - description: Reply ID
+        in: path
+        name: replyID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Flag a board reply
+      tags:
+      - board
   /board/threads:
     get:
       operationId: listBoardThreads
@@ -3361,6 +3405,44 @@ paths:
       security:
       - Bearer: []
       summary: Update board thread
+      tags:
+      - board
+  /board/threads/{threadID}/flag:
+    post:
+      consumes:
+      - application/json
+      description: creates a BOARD_THREAD_REVIEW moderator task for the thread
+      operationId: flagBoardThread
+      parameters:
+      - description: Thread ID
+        in: path
+        name: threadID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Flag a board thread
       tags:
       - board
   /board/threads/{threadID}/replies:

@@ -26,7 +26,7 @@ type GetAllModeratorTasksOptions struct {
 	Offset *uint `json:"offset" form:"offset"`
 	Limit  *uint `json:"limit" form:"limit"`
 
-	TaskType      *ModeratorTaskType `json:"taskType" form:"taskType" enums:",FACTRAK_REVIEW,NEW_USER_TAG"`
+	TaskType      *ModeratorTaskType `json:"taskType" form:"taskType" enums:",FACTRAK_REVIEW,NEW_USER_TAG,BOARD_THREAD_REVIEW,BOARD_POST_REVIEW"`
 	TaskReference *string            `json:"taskReference" form:"taskReference"`
 	// leave empty to filter only open tasks
 	ResolvedAt *time.Time `json:"resolvedAt" form:"resolvedAt"`
@@ -291,4 +291,52 @@ func (m *ModeratorTaskModel) OpenFactrakReviewSurveyIDs(requestingUserID uint, s
 		}
 	}
 	return out, nil
+}
+
+func DecodeBoardThreadReviewFields(taskFieldsJSON string) (*BoardThreadReviewTaskFields, error) {
+	var fields BoardThreadReviewTaskFields
+	if err := json.Unmarshal([]byte(taskFieldsJSON), &fields); err != nil {
+		return nil, err
+	}
+	return &fields, nil
+}
+
+func NewBoardThreadReviewTask(requestingUserID *uint, threadID uint) (*ModeratorTask, error) {
+	if threadID == 0 {
+		return nil, errors.New("boardThreadID is required")
+	}
+	fields, err := EncodeTaskFields(BoardThreadReviewTaskFields{BoardThreadID: threadID})
+	if err != nil {
+		return nil, err
+	}
+	return &ModeratorTask{
+		RequestingUserID: requestingUserID,
+		TaskType:         ModeratorTaskTypeBoardThreadReview,
+		TaskFields:       fields,
+		TaskReference:    TaskReference(ModeratorTaskTypeBoardThreadReview, threadID),
+	}, nil
+}
+
+func DecodeBoardPostReviewFields(taskFieldsJSON string) (*BoardPostReviewTaskFields, error) {
+	var fields BoardPostReviewTaskFields
+	if err := json.Unmarshal([]byte(taskFieldsJSON), &fields); err != nil {
+		return nil, err
+	}
+	return &fields, nil
+}
+
+func NewBoardPostReviewTask(requestingUserID *uint, postID uint) (*ModeratorTask, error) {
+	if postID == 0 {
+		return nil, errors.New("boardPostID is required")
+	}
+	fields, err := EncodeTaskFields(BoardPostReviewTaskFields{BoardPostID: postID})
+	if err != nil {
+		return nil, err
+	}
+	return &ModeratorTask{
+		RequestingUserID: requestingUserID,
+		TaskType:         ModeratorTaskTypeBoardPostReview,
+		TaskFields:       fields,
+		TaskReference:    TaskReference(ModeratorTaskTypeBoardPostReview, postID),
+	}, nil
 }

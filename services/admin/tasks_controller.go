@@ -18,7 +18,7 @@ import (
 // @Tags admin,moderator
 // @Accept json
 // @Produce json
-// @Param taskType query string false "Filter by task type" Enums(FACTRAK_REVIEW,NEW_USER_TAG)
+// @Param taskType query string false "Filter by task type" Enums(FACTRAK_REVIEW,NEW_USER_TAG,BOARD_THREAD_REVIEW,BOARD_POST_REVIEW)
 // @Param resolvedAt query string false "Omit for open tasks only; set any time to list resolved tasks"
 // @Param taskReference query string false "Filter by task reference"
 // @Param orderBy query string false "Sort order; default taskReference" Enums(taskReference,createdAt)
@@ -281,6 +281,34 @@ func (t *Controller) contextForTask(taskType models.ModeratorTaskType, taskField
 			}
 		}
 		return ctx, nil
+	case models.ModeratorTaskTypeBoardThreadReview:
+		fields, err := models.DecodeBoardThreadReviewFields(taskFieldsJSON)
+		if err != nil {
+			return nil, err
+		}
+		var thread models.BoardThread
+		err = t.boardThreadModel.GetThreadByID(fields.BoardThreadID, &thread, nil)
+		if err != nil {
+			if gorm.IsRecordNotFoundError(err) {
+				return BoardThreadReviewTaskContext{Thread: nil}, nil
+			}
+			return nil, err
+		}
+		return BoardThreadReviewTaskContext{Thread: &thread}, nil
+	case models.ModeratorTaskTypeBoardPostReview:
+		fields, err := models.DecodeBoardPostReviewFields(taskFieldsJSON)
+		if err != nil {
+			return nil, err
+		}
+		var post models.BoardPost
+		err = t.boardPostModel.GetPostByID(fields.BoardPostID, &post)
+		if err != nil {
+			if gorm.IsRecordNotFoundError(err) {
+				return BoardPostReviewTaskContext{Post: nil}, nil
+			}
+			return nil, err
+		}
+		return BoardPostReviewTaskContext{Post: &post}, nil
 	default:
 		return nil, nil
 	}
@@ -292,6 +320,10 @@ func (t *Controller) applyApproveSideEffect(c *gin.Context, taskType models.Mode
 		return t.approveFactrakReview(c, sample)
 	case models.ModeratorTaskTypeNewUserTag:
 		return t.approveNewUserTag(sample)
+	case models.ModeratorTaskTypeBoardThreadReview:
+		return t.approveBoardThreadReview(c, sample)
+	case models.ModeratorTaskTypeBoardPostReview:
+		return t.approveBoardPostReview(c, sample)
 	default:
 		return lib.ErrorModeratorTaskInvalidType
 	}
@@ -361,6 +393,58 @@ func (t *Controller) approveNewUserTag(sample *models.ModeratorTask) error {
 		"tagID", tag.ID,
 		"tagName", tag.Name,
 		"taskReference", sample.TaskReference,
+	)
+	return nil
+}
+
+func (t *Controller) approveBoardThreadReview(c *gin.Context, sample *models.ModeratorTask) error {
+	fields, err := models.DecodeBoardThreadReviewFields(sample.TaskFields)
+	if err != nil {
+		return err
+	}
+
+	var thread models.BoardThread
+	if err := t.boardThreadModel.GetThreadByID(fields.BoardThreadID, &thread, nil); err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			return lib.ErrorModeratorTaskSubjectGone
+		}
+		return err
+	}
+
+	if err := t.boardThreadModel.DeleteThread(&thread); err != nil {
+		return err
+	}
+
+	t.Log.Infow("board thread deleted via moderator approve",
+		"threadID", fields.BoardThreadID,
+		"taskReference", sample.TaskReference,
+		"actorUserID", services.GetUserID(c),
+	)
+	return nil
+}
+
+func (t *Controller) approveBoardPostReview(c *gin.Context, sample *models.ModeratorTask) error {
+	fields, err := models.DecodeBoardPostReviewFields(sample.TaskFields)
+	if err != nil {
+		return err
+	}
+
+	var post models.BoardPost
+	if err := t.boardPostModel.GetPostByID(fields.BoardPostID, &post); err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			return lib.ErrorModeratorTaskSubjectGone
+		}
+		return err
+	}
+
+	if err := t.boardPostModel.DeletePost(&post); err != nil {
+		return err
+	}
+
+	t.Log.Infow("board post deleted via moderator approve",
+		"postID", fields.BoardPostID,
+		"taskReference", sample.TaskReference,
+		"actorUserID", services.GetUserID(c),
 	)
 	return nil
 }
