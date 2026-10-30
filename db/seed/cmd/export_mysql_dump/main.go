@@ -1,11 +1,10 @@
-// Use this to rebuild db/seed/development.sql.gz from db/development.db.
-// (if you know what you are doing)
+// Deprecated: local devenv seeds via Go fabs (db/seed/seeder) after migrate.
+// Kept for one-off dump experiments only.
 // Usage:
 //   go run ./db/seed/cmd/export_mysql_dump \
 //     -sqlite db/development.db \
 //     -dsn 'root:secret-mysql-password@tcp(127.0.0.1:3306)/wso_seed?parseTime=true&multiStatements=true' \
-//     -out db/seed/development.sql
-//   gzip -f db/seed/development.sql
+//     -out /tmp/wso-seed.sql
 package main
 
 import (
