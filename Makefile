@@ -239,13 +239,15 @@ _test-mysql-down:
 	@$(DOCKER) compose -p wso-test -f docker-compose.test.yml down
 	@$(DOCKER) rm -f wso-mysql-test >/dev/null 2>&1 || true
 
+# Relative paths so gotestsum --watch can fsnotify them (import paths are not dirs)
+GO_MODULE = $(shell go list -m)
 # Skip the same packages as CI (.github/coverage-exclude.txt)
 ifdef IGNORE_SKIPS
-TEST_PKGS = $(shell go list ./...)
+TEST_PKGS = $(shell go list ./... | sed 's|^$(GO_MODULE)|.|')
 else
 HASH := \#
 TEST_SKIP_REGEX = $(shell awk '/^[^$(HASH)[:space:]]/ { print $$1 }' .github/coverage-exclude.txt | paste -sd'|' -)
-TEST_PKGS = $(shell go list ./... | grep -Ev '/($(TEST_SKIP_REGEX))(/|$$)')
+TEST_PKGS = $(shell go list ./... | grep -Ev '/($(TEST_SKIP_REGEX))(/|$$)' | sed 's|^$(GO_MODULE)|.|')
 endif
 
 export WSO_TEST_MYSQL_HOST ?= $(TEST_MYSQL_HOST)
