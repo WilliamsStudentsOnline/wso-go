@@ -1,0 +1,25 @@
+# local dev tests only
+# but still torn down by `make dev-down`/`make dev-reset`
+services:
+  mysql:
+    image: mariadb:10.11
+    container_name: wso-mysql-test
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: secret-mysql-password
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "3307:3306"
+    volumes:
+      - wso-mysql-test-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+      start_period: 5s
+
+volumes:
+  wso-mysql-test-data:

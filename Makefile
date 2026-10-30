@@ -222,6 +222,21 @@ dev-down:
 dev-reset:
 	@./scripts/devenv.sh reset
 
+# tests for local dev
+TEST_COMPOSE = docker compose -p wso-test -f docker-compose.test.yml
+TEST_MYSQL_ROOT_PASSWORD ?= secret-mysql-password
+TEST_MYSQL_HOST ?= 127.0.0.1
+TEST_MYSQL_PORT ?= 3307
+
+.PHONY: _test-mysql-up
+_test-mysql-up:
+	@if [ -z "$(DOCKER)" ]; then echo "docker not found in PATH"; exit 1; fi
+	@$(TEST_COMPOSE) up -d --wait
+
+.PHONY: _test-mysql-down
+_test-mysql-down:
+	@$(TEST_COMPOSE) down
+	@docker rm -f wso-mysql-test >/dev/null 2>&1 || true
 
 # Skip the same packages as CI (.github/coverage-exclude.txt)
 ifdef IGNORE_SKIPS
