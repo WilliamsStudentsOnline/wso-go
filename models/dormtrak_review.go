@@ -98,7 +98,6 @@ type GetAllDormtrakReviewsOptions struct {
 }
 
 func (o *GetAllDormtrakReviewsOptions) Order(db *gorm.DB) *gorm.DB {
-	// id tiebreak: MySQL datetime is second-precision so same-second inserts need a stable order
 	return db.Order("dormtrak_reviews.created_at desc, dormtrak_reviews.id desc", true)
 }
 

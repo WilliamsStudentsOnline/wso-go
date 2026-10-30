@@ -93,13 +93,6 @@ func ensureTestMySQL() error {
 			return
 		}
 
-		// Atlas uses datetime (second precision); widen to datetime(6) in tests so
-		// cursor pagination / created_at ordering match GORM's time.Time like SQLite did
-		if err := upgradeDateTimePrecision(db); err != nil {
-			testMySQLErr = err
-			return
-		}
-
 		tables, err := listAppTables(db)
 		if err != nil {
 			testMySQLErr = err
@@ -108,40 +101,6 @@ func ensureTestMySQL() error {
 		testTableNames = tables
 	})
 	return testMySQLErr
-}
-
-func upgradeDateTimePrecision(db *gorm.DB) error {
-	rows, err := db.Raw(`
-		SELECT table_name, column_name
-		FROM information_schema.columns
-		WHERE table_schema = DATABASE()
-		  AND data_type = 'datetime'
-	`).Rows()
-	if err != nil {
-		return fmt.Errorf("list datetime columns: %w", err)
-	}
-	defer rows.Close()
-
-	type col struct{ table, name string }
-	var cols []col
-	for rows.Next() {
-		var c col
-		if err := rows.Scan(&c.table, &c.name); err != nil {
-			return err
-		}
-		cols = append(cols, c)
-	}
-	if err := rows.Err(); err != nil {
-		return err
-	}
-
-	for _, c := range cols {
-		q := fmt.Sprintf("ALTER TABLE `%s` MODIFY `%s` datetime(6)", c.table, c.name)
-		if err := db.Exec(q).Error; err != nil {
-			return fmt.Errorf("%s: %w", q, err)
-		}
-	}
-	return nil
 }
 
 func listAppTables(db *gorm.DB) ([]string, error) {
@@ -202,7 +161,6 @@ func SetupServiceTest(assert *assert.Assertions) *gorm.DB {
 	return db
 }
 
-// SetupServiceDB is SetupServiceTest without testify (examples / one-offs)
 func SetupServiceDB() (*gorm.DB, error) {
 	gin.SetMode(gin.TestMode)
 	quietLogsInCI()

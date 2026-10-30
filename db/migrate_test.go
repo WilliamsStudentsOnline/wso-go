@@ -19,7 +19,7 @@ func envOr(key, fallback string) string {
 	return fallback
 }
 
-// Uses the shared test MariaDB but avoids importing lib/test_utils (import cycle with db).
+// use shared db while avoiding circular import error
 func TestMigrateMySQLUpToDate(t *testing.T) {
 	assert := assert.New(t)
 

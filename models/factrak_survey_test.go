@@ -90,7 +90,7 @@ func TestFactrakSurveyModel_GetSurveyRatingsByProfessorOrCourse(t *testing.T) {
 	var res FactrakSurveyAvgRatings
 	assert.NoError(m.GetSurveyRatingsByProfessorOrCourse(&prof.ID, nil, nil, &res))
 
-	// MySQL AVG returns slightly different float64 rounding than SQLite
+	// floating point errs
 	const delta = 1e-3
 	assert.InDelta(float64(2)/float64(3), res.AvgWouldRecommendCourse, delta)
 	assert.InDelta(float64(5+5+4)/float64(3), res.AvgCourseWorkload, delta)

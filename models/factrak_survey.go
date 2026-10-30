@@ -53,7 +53,6 @@ type GetAllFactrakSurveysOptions struct {
 }
 
 func (o *GetAllFactrakSurveysOptions) Order(db *gorm.DB) *gorm.DB {
-	// id tiebreak: MySQL datetime is second-precision so same-second inserts need a stable order
 	return db.Order("factrak_surveys.created_at desc, factrak_surveys.id desc", true)
 }
 

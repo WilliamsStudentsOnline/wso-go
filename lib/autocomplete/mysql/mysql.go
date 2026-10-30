@@ -265,7 +265,6 @@ func sortByDistance(q string, entries []autocomplete.ACEntry) {
 		}
 	}
 
-	// Sort by distance; Value tiebreak keeps order stable across MySQL/SQLite result orders
 	sort.SliceStable(dists, func(i, j int) bool {
 		if dists[i].dist != dists[j].dist {
 			return dists[i].dist < dists[j].dist

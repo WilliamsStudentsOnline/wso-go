@@ -56,11 +56,13 @@ Steps for a 10/10 development workflow:
 
 ### Testing
 
+Run tests interactively with
+
 ```bash
 make itest
 ```
 
-Starts an isolated test MariaDB on port **3307** (`docker-compose.test.yml`, project `wso-test` — separate from `make dev`'s MySQL on 3306), then runs `gotestsum --watch`. On save, the package you edited is re-tested; press `a` for all packages, `r` to rerun. Leave with Ctrl+C; the test DB stays up for faster reruns. `make dev-down` / `make dev-reset` also stop (and wipe, for reset) the test MariaDB.
+Will start an interactive test runner using a separate DB. Tests hot-reload and automatically run on code you recently edited. Press `a` to run all tests. Tear down background DB with `make dev-down` (note this may disrupt your locally running server).
 
 - `make itest-race` — one-shot run with `-race` (closer to CI)
 - `make test` / `make t` / `make fast-test` — deprecated; use `itest`
