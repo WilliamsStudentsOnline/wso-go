@@ -8,7 +8,7 @@ on:
 
 env:
   GO111MODULE: on
-  CGO_ENABLED: 1 # go-sqlite3 still linked until purge layer drops it
+  # Builds force CGO_ENABLED=0 in the Makefile; tests leave cgo on for -race
   GOOS: linux
   GOARCH: amd64
   PATH: /usr/local/bin:/usr/bin:/bin

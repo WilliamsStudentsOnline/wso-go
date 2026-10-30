@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/WilliamsStudentsOnline/wso-go/db/migrations"
-	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/jinzhu/gorm"
 	"gopkg.in/gormigrate.v1"
 )
@@ -56,91 +55,16 @@ var Migrations = []*gormigrate.Migration{
 	migrations.CreateBooks20221230032200,
 }
 
-var MigrationGormOptions = gormigrate.DefaultOptions
-
 func MigrateDB(db *gorm.DB) error {
-	switch db.Dialect().GetName() {
-	case "mysql":
-		return MigrateMySQL(db)
-	case "sqlite3":
-		return migrateSQLite(db)
-	default:
+	if db.Dialect().GetName() != "mysql" {
 		return fmt.Errorf("unsupported dialect for migrations: %s", db.Dialect().GetName())
 	}
+	return MigrateMySQL(db)
 }
 
-func migrateSQLite(db *gorm.DB) error {
-	m := gormigrate.New(db, MigrationGormOptions, Migrations)
-
-	m.InitSchema(func(tx *gorm.DB) error {
-		return AutoMigrateModels(tx)
-	})
-
-	return m.Migrate()
-}
-
-// Gets last migration id from LEGACY migrations table
-func LastMigration(opts *gormigrate.Options, db *gorm.DB) (string, error) {
-	rows, err := db.Table(opts.TableName).Select(opts.IDColumnName).Rows()
-	if err != nil {
-		return "", err
+func MigrationUpToDate(db *gorm.DB) (bool, error) {
+	if db.Dialect().GetName() != "mysql" {
+		return false, fmt.Errorf("unsupported dialect for MigrationUpToDate: %s", db.Dialect().GetName())
 	}
-	defer rows.Close()
-
-	var migrationIDs []string
-
-	for rows.Next() {
-		migrationID := struct {
-			ID string
-		}{}
-		err = db.ScanRows(rows, &migrationID)
-		if err != nil {
-			return "", err
-		}
-
-		migrationIDs = append(migrationIDs, migrationID.ID)
-	}
-
-	if len(migrationIDs) == 0 {
-		return "", nil
-	}
-
-	return migrationIDs[len(migrationIDs)-1], nil
-}
-
-// Check Atlas versions for MySQL and gormigrate table for SQLite
-func MigrationUpToDate(opts *gormigrate.Options, db *gorm.DB) (bool, error) {
-	if db.Dialect().GetName() == "mysql" {
-		return MySQLMigrationsUpToDate(db)
-	}
-	return gormigrateUpToDate(opts, db)
-}
-
-func gormigrateUpToDate(opts *gormigrate.Options, db *gorm.DB) (bool, error) {
-	var dbMigrationIDs []string
-
-	err := db.Table(opts.TableName).Pluck(opts.IDColumnName, &dbMigrationIDs).Error
-	if err != nil {
-		return false, err
-	}
-
-	goMigrations := make([]string, len(Migrations)+1)
-	for i := range Migrations {
-		goMigrations[i] = Migrations[i].ID
-	}
-	goMigrations[len(goMigrations)-1] = "SCHEMA_INIT"
-
-	for i := range dbMigrationIDs {
-		if !lib.StringsContains(goMigrations, dbMigrationIDs[i]) {
-			return false, nil
-		}
-	}
-
-	for i := range goMigrations {
-		if !lib.StringsContains(dbMigrationIDs, goMigrations[i]) {
-			return false, nil
-		}
-	}
-
-	return true, nil
+	return MySQLMigrationsUpToDate(db)
 }

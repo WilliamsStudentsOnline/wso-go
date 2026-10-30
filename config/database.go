@@ -7,7 +7,6 @@ import (
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"go.uber.org/zap"
 )
 
@@ -72,16 +71,6 @@ func SetupMySQLConfig(cfg *Config) {
 		cfg.MySQLDatabase,
 		qs.Encode(),
 	)
-}
-
-// This function sets up the database arguments for MySQL in the config file
-func SetupSQLiteConfig(cfg *Config) {
-	// If database arguments already set, use those
-	if cfg.DatabaseArgs != "" {
-		return
-	}
-
-	cfg.DatabaseArgs = cfg.SQLiteFile
 }
 
 type DBLogger struct {

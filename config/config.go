@@ -31,7 +31,7 @@ type Config struct {
 
 	/* Database */
 	DatabaseType string `yaml:"database_type" envconfig:"database_type"`
-	// This overrides any specific arguments passed for MySQL or SQLite
+	// This overrides any specific arguments passed for MySQL
 	DatabaseArgs string `yaml:"database_args" envconfig:"database_args"`
 	// MySQL (some are in the secrets yml)
 	MySQLUser     string            `yaml:"mysql_user" envconfig:"mysql_user"`
@@ -40,8 +40,6 @@ type Config struct {
 	MySQLDatabase string            `yaml:"mysql_database" envconfig:"mysql_database"`
 	MySQLArgs     map[string]string `yaml:"mysql_args" envconfig:"mysql_args"`
 	MySQLUnix     bool              `yaml:"mysql_unix" envconfig:"mysql_unix"` // Use a unix connection rather than a TCP connection
-	// SQLite
-	SQLiteFile string `yaml:"sqlite_file" envconfig:"sqlite_file"`
 	// Redis (host:port)
 	RedisAddr string `yaml:"redis_addr" envconfig:"redis_addr"`
 
@@ -318,11 +316,8 @@ func SetupConfig(c *Config) error {
 	switch c.DatabaseType {
 	case "mysql":
 		SetupMySQLConfig(c)
-	case "sqlite3":
-		SetupSQLiteConfig(c)
-	case "sqlite":
-		c.DatabaseType = "sqlite3"
-		SetupSQLiteConfig(c)
+	default:
+		return fmt.Errorf("unsupported database_type %q", c.DatabaseType)
 	}
 
 	// Default to SearchBackendSQL
