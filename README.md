@@ -55,8 +55,17 @@ Steps for a 10/10 development workflow:
 6. (optional) After extensive testing on [wso-dev.williams.edu](wso-dev.williams.edu), when you feel your changes are ready for the broader Williams user base, run `make sync-prod` to open a `[DEPLOY]` PR. By default, this will synchronize prod to the latest commit on remote master, though you can also point it to a different commit SHA (e.g. for rollbacks). To deploy to prod, we update a file which essentially points to the version of WSO that will be live on our main server. Note that this process may also pull in unrelated changes; as a result, you may find that admins mostly end up doing this step for you.
 
 ### Testing
-- `make test`
-- `make t` / `make fast-test` (for faster local iteration)
+
+Run tests interactively with
+
+```bash
+make itest
+```
+
+Will start an interactive test runner using a separate DB. Tests hot-reload and automatically run on code you recently edited. Press `a` to run all tests. Tear down background DB with `make dev-down` (note this may disrupt your locally running server).
+
+- `make itest-race` — one-shot run with `-race` (closer to CI)
+- `make test` / `make t` / `make fast-test` — deprecated; use `itest`
 
 By default, local tests skip packages listed in `.github/coverage-exclude.txt`. Use `IGNORE_SKIPS=1` to run everything (this may lead to some failures, as packages are skipped intentionally).
 

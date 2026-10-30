@@ -107,7 +107,10 @@ func TestController_ListReviews(t *testing.T) {
 		},
 	}
 
+	// Distinct seconds so start= cursor pagination matches prod datetime precision
+	base := time.Now().UTC().Truncate(time.Second).Add(-time.Duration(len(reviews)) * time.Second)
 	for i := range reviews {
+		reviews[i].CreatedAt = base.Add(time.Duration(i) * time.Second)
 		assert.NoError(db.Create(&reviews[i]).Error)
 	}
 

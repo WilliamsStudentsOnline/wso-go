@@ -3,43 +3,17 @@ package models_test
 import (
 	"testing"
 
-	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
+	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	. "github.com/WilliamsStudentsOnline/wso-go/models"
-	"github.com/jinzhu/gorm"
 	testify "github.com/stretchr/testify/assert"
-	"go.uber.org/zap"
 	"go.uber.org/zap/zaptest"
 )
 
 func TestProfessorModel_GetProfessorsByAreaOfStudy(t *testing.T) {
 	assert := testify.New(t)
-
-	cfg := &config.Config{
-		Env:          "test",
-		GinMode:      "test",
-		JWTRealm:     "wso-go-test",
-		DatabaseType: "sqlite3",
-		DatabaseArgs: ":memory:",
-		Secrets: &config.Secrets{
-			JWTSecretKey: "wso-jwt-test-secret",
-		},
-	}
-
+	db := utils.SetupServiceTest(assert)
 	log := zaptest.NewLogger(t).Sugar()
-
-	db := config.LoadDatabase(cfg, log)
-	db.SetLogger(gorm.Logger{LogWriter: zap.NewStdLog(log.Desugar())})
-	db.LogMode(true)
-	err := db.AutoMigrate(
-		User{},
-		Department{},
-		Course{},
-		AreaOfStudy{},
-		FactrakSurvey{},
-		FactrakAgreement{},
-	).Error
-	assert.NoError(err)
 
 	// Insert test user into db
 	p1 := User{
@@ -114,7 +88,7 @@ func TestProfessorModel_GetProfessorsByAreaOfStudy(t *testing.T) {
 	m := NewProfessorModel(db, log)
 	var resProfs []*User
 	areaID := d1.AreasOfStudy[0].ID
-	err = m.GetProfessorsByAreaOfStudy(areaID, &resProfs)
+	err := m.GetProfessorsByAreaOfStudy(areaID, &resProfs)
 	assert.NoError(err)
 
 	assert.Len(resProfs, 2)

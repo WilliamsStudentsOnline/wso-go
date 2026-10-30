@@ -39,7 +39,7 @@ type GetAllModeratorTasksOptions struct {
 func (o *GetAllModeratorTasksOptions) Order(db *gorm.DB) *gorm.DB {
 	switch o.OrderBy {
 	case "createdAt":
-		return db.Order("moderator_tasks.created_at DESC", true)
+		return db.Order("moderator_tasks.created_at DESC, moderator_tasks.id DESC", true)
 	default:
 		// taskReference (default): keep same-subject rows adjacent
 		return db.Order("moderator_tasks.task_reference ASC, moderator_tasks.created_at ASC", true)

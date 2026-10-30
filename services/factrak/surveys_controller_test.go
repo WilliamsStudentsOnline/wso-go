@@ -251,8 +251,11 @@ func TestController_ListSurveys2(t *testing.T) {
 		},
 	}
 
+	// Distinct seconds so start= cursor pagination matches prod datetime precision
+	base := time.Now().UTC().Truncate(time.Second).Add(-time.Duration(len(surveys)) * time.Second)
 	for i := range surveys {
 		surveys[i].Comment = generateSurveyTestComment()
+		surveys[i].CreatedAt = base.Add(time.Duration(i) * time.Second)
 		assert.NoError(db.Create(surveys[i]).Error)
 	}
 

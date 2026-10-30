@@ -98,7 +98,7 @@ type GetAllDormtrakReviewsOptions struct {
 }
 
 func (o *GetAllDormtrakReviewsOptions) Order(db *gorm.DB) *gorm.DB {
-	return db.Order("dormtrak_reviews.created_at desc", true)
+	return db.Order("dormtrak_reviews.created_at desc, dormtrak_reviews.id desc", true)
 }
 
 // Pagination starts at most recent and goes down from there
@@ -192,7 +192,7 @@ func (m *DormtrakReviewModel) scopeDefault(db *gorm.DB) *gorm.DB {
 }
 
 func (*DormtrakReviewModel) scopeOrderDefault(db *gorm.DB) *gorm.DB {
-	return db.Order("dormtrak_reviews.created_at desc")
+	return db.Order("dormtrak_reviews.created_at desc, dormtrak_reviews.id desc")
 }
 
 func (*DormtrakReviewModel) scopeCommented(db *gorm.DB) *gorm.DB {

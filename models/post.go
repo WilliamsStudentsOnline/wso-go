@@ -30,7 +30,7 @@ type GetPostsByDiscussionOptions struct {
 }
 
 func (p *GetPostsByDiscussionOptions) Order(db *gorm.DB) *gorm.DB {
-	return db.Order("posts.created_at desc", true)
+	return db.Order("posts.created_at desc, posts.id desc", true)
 }
 
 // Pagination starts at most recent and goes down from there
@@ -126,7 +126,7 @@ func (m *PostModel) DeletePost(p *Post) (err error) {
 	err = m.DB.
 		Where("posts.discussion_id = ?", p.DiscussionID).
 		Not("posts.id = ?", p.ID).
-		Order("posts.created_at desc").
+		Order("posts.created_at desc, posts.id desc").
 		First(&recentPost).Error
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		return

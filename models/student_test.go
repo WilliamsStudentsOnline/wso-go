@@ -1,14 +1,13 @@
-package models
+package models_test
 
 import (
 	"testing"
 	"time"
 
-	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
-	"github.com/jinzhu/gorm"
+	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
+	. "github.com/WilliamsStudentsOnline/wso-go/models"
 	testify "github.com/stretchr/testify/assert"
-	"go.uber.org/zap"
 	"go.uber.org/zap/zaptest"
 )
 
@@ -21,31 +20,9 @@ func (c testClock) Now() time.Time {
 }
 
 func TestStudentModel_UpdateFactrakSurveyDeficit(t *testing.T) {
-	cfg := &config.Config{
-		Env:          "test",
-		GinMode:      "test",
-		JWTRealm:     "wso-go-test",
-		DatabaseType: "sqlite3",
-		DatabaseArgs: ":memory:",
-		Secrets: &config.Secrets{
-			JWTSecretKey: "wso-jwt-test-secret",
-		},
-	}
-
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
 	log := zaptest.NewLogger(t).Sugar()
-
-	db := config.LoadDatabase(cfg, log)
-	db.SetLogger(gorm.Logger{LogWriter: zap.NewStdLog(log.Desugar())})
-	db.LogMode(true)
-	err := db.AutoMigrate(
-		User{},
-		Department{},
-		Course{},
-		AreaOfStudy{},
-		FactrakSurvey{},
-		FactrakAgreement{},
-	).Error
-	testify.NoError(t, err)
 
 	fsM := NewFactrakSurveyModel(db, log)
 

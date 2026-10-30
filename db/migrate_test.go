@@ -1,77 +1,56 @@
-package db
+package db_test
 
 import (
+	"fmt"
+	"os"
+	"strconv"
 	"testing"
 
-	"gopkg.in/gormigrate.v1"
-
+	migrate "github.com/WilliamsStudentsOnline/wso-go/db"
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestLastMigration(t *testing.T) {
-	db, err := gorm.Open("sqlite3", ":memory:")
-	assert.NoError(t, err)
+func envOr(key, fallback string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return fallback
+}
 
-	db.LogMode(true)
+// use shared db while avoiding circular import error
+func TestMigrateMySQLUpToDate(t *testing.T) {
+	assert := assert.New(t)
 
-	migrationID := "201608301430"
+	host := envOr("WSO_TEST_MYSQL_HOST", "127.0.0.1")
+	user := envOr("WSO_TEST_MYSQL_USER", "root")
+	pass := envOr("WSO_TEST_MYSQL_PASSWORD", "secret-mysql-password")
+	port, err := strconv.Atoi(envOr("WSO_TEST_MYSQL_PORT", "3307"))
+	assert.NoError(err)
 
-	// Copied this from documentation. Example stuff.
-	m := gormigrate.New(db, gormigrate.DefaultOptions, []*gormigrate.Migration{
-		// create persons table
-		{
-			ID: "201608301400",
-			Migrate: func(tx *gorm.DB) error {
-				// it's a good pratice to copy the struct inside the function,
-				// so side effects are prevented if the original struct changes during the time
-				type Person struct {
-					gorm.Model
-					Name string
-				}
-				return tx.AutoMigrate(&Person{}).Error
-			},
-			Rollback: func(tx *gorm.DB) error {
-				return tx.DropTable("people").Error
-			},
-		},
-		// add age column to persons
-		{
-			ID: "201608301415",
-			Migrate: func(tx *gorm.DB) error {
-				// when table already exists, it just adds fields as columns
-				type Person struct {
-					Age int
-				}
-				return tx.AutoMigrate(&Person{}).Error
-			},
-			Rollback: func(tx *gorm.DB) error {
-				return tx.Table("people").DropColumn("age").Error
-			},
-		},
-		// add pets table
-		{
-			ID: migrationID,
-			Migrate: func(tx *gorm.DB) error {
-				type Pet struct {
-					gorm.Model
-					Name     string
-					PersonID int
-				}
-				return tx.AutoMigrate(&Pet{}).Error
-			},
-			Rollback: func(tx *gorm.DB) error {
-				return tx.DropTable("pets").Error
-			},
-		},
-	})
+	dbName := fmt.Sprintf("wso_migrate_test_%d", os.Getpid())
+	rootDSN := fmt.Sprintf("%s:%s@tcp(%s:%d)/?parseTime=true&charset=utf8mb4&multiStatements=true",
+		user, pass, host, port)
 
-	err = m.Migrate()
-	assert.NoError(t, err)
+	root, err := gorm.Open("mysql", rootDSN)
+	if err != nil {
+		t.Fatalf("test MariaDB unreachable at %s:%d (run `make itest`): %v", host, port, err)
+	}
+	defer root.Close()
 
-	currMigrationID, err := LastMigration(gormigrate.DefaultOptions, db)
-	assert.NoError(t, err)
+	assert.NoError(root.Exec(fmt.Sprintf("CREATE DATABASE `%s`", dbName)).Error)
+	defer root.Exec(fmt.Sprintf("DROP DATABASE IF EXISTS `%s`", dbName))
 
-	assert.Equal(t, migrationID, currMigrationID)
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true&charset=utf8mb4&multiStatements=true",
+		user, pass, host, port, dbName)
+	db, err := gorm.Open("mysql", dsn)
+	assert.NoError(err)
+	defer db.Close()
+
+	assert.NoError(migrate.MigrateDB(db))
+
+	ok, err := migrate.MySQLMigrationsUpToDate(db)
+	assert.NoError(err)
+	assert.True(ok)
 }

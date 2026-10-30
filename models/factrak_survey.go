@@ -53,7 +53,7 @@ type GetAllFactrakSurveysOptions struct {
 }
 
 func (o *GetAllFactrakSurveysOptions) Order(db *gorm.DB) *gorm.DB {
-	return db.Order("factrak_surveys.created_at desc", true)
+	return db.Order("factrak_surveys.created_at desc, factrak_surveys.id desc", true)
 }
 
 // Pagination starts at most recent and goes down from there
@@ -412,7 +412,7 @@ func (m *FactrakSurveyModel) scopeDefault(db *gorm.DB) *gorm.DB {
 }
 
 func (*FactrakSurveyModel) scopeOrderDefault(db *gorm.DB) *gorm.DB {
-	return db.Order("factrak_surveys.created_at desc")
+	return db.Order("factrak_surveys.created_at desc, factrak_surveys.id desc")
 }
 
 func (*FactrakSurveyModel) withProfessorID(profID uint) func(db *gorm.DB) *gorm.DB {
@@ -457,7 +457,7 @@ type FactrakSurveyPaginator struct {
 }
 
 func (p *FactrakSurveyPaginator) Order(db *gorm.DB) *gorm.DB {
-	return db.Order("factrak_surveys.created_at desc")
+	return db.Order("factrak_surveys.created_at desc, factrak_surveys.id desc")
 }
 
 // Pagination starts at most recent and goes down from there

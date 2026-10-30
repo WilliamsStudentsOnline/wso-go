@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/WilliamsStudentsOnline/wso-go/config"
-	migrate "github.com/WilliamsStudentsOnline/wso-go/db"
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	. "github.com/WilliamsStudentsOnline/wso-go/models"
@@ -85,31 +83,11 @@ func TestUserModel_PopulateSearchFields(t *testing.T) {
 }
 
 func ExampleUserModel_LDAPLookup() {
-	cfg := &config.Config{
-		Env:          "test",
-		GinMode:      "test",
-		JWTRealm:     "wso-go-test",
-		DatabaseType: "sqlite3",
-		DatabaseArgs: ":memory:",
-		Secrets: &config.Secrets{
-			JWTSecretKey: "wso-jwt-test-secret",
-		},
-	}
-
-	db := config.LoadDatabase(cfg, zap.S())
-	db.LogMode(true)
-	err := db.AutoMigrate(
-		User{},
-		Department{},
-		Neighborhood{},
-		Dorm{},
-		DormRoom{},
-		Office{},
-		Bulletin{},
-	).Error
+	db, err := utils.SetupServiceDB()
 	if err != nil {
 		panic(err)
 	}
+	cfg := utils.SetupConfig()
 
 	userModel := NewUserModel(db, zap.S())
 
@@ -159,12 +137,11 @@ func TestUserModel_DoesUserExist(t *testing.T) {
 }
 
 func BenchmarkUserModel_DoesUserExist(b *testing.B) {
-	cfg := utils.SetupConfig()
-
+	db, err := utils.SetupServiceDB()
+	if err != nil {
+		b.Fatal(err)
+	}
 	log := zaptest.NewLogger(b).Sugar()
-
-	db := config.LoadDatabase(cfg, log)
-	_ = migrate.MigrateDB(db)
 
 	db.Create(&User{
 		Type:   UserTypeStudent,

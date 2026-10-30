@@ -265,9 +265,11 @@ func sortByDistance(q string, entries []autocomplete.ACEntry) {
 		}
 	}
 
-	// Sort
-	sort.Slice(dists, func(i, j int) bool {
-		return dists[i].dist < dists[j].dist
+	sort.SliceStable(dists, func(i, j int) bool {
+		if dists[i].dist != dists[j].dist {
+			return dists[i].dist < dists[j].dist
+		}
+		return dists[i].val.Value < dists[j].val.Value
 	})
 
 	// Copy the sorted list into the original list of resulting strings

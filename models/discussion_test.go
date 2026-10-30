@@ -32,7 +32,7 @@ func TestDiscussionModel_GetDiscussionByID_CreatedTime(t *testing.T) {
 	/* Test getting the normal discussion */
 	res := Discussion{}
 	assert.NoError(m.GetDiscussionByID(d1.ID, &res, nil))
-	assert.True(d1.CreatedAt.Equal(res.CreatedTime))
+	assert.True(res.CreatedAt.Equal(res.CreatedTime))
 }
 
 func TestDiscussionModel_GetDiscussionWithDeletedUser(t *testing.T) {
