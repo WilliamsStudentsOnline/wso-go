@@ -10543,6 +10543,10 @@ const docTemplate = `{
                 "content": {
                     "type": "string"
                 },
+                "createdAt": {
+                    "description": "Shadows BaseSchema.CreatedAt so it is serialized (BaseSchema uses json:\"-\").",
+                    "type": "string"
+                },
                 "exUserName": {
                     "type": "string"
                 },
@@ -10594,6 +10598,10 @@ const docTemplate = `{
             "properties": {
                 "body": {
                     "description": "hydrated from OP for API convenience",
+                    "type": "string"
+                },
+                "createdAt": {
+                    "description": "Shadows BaseSchema.CreatedAt so it is serialized (BaseSchema uses json:\"-\").",
                     "type": "string"
                 },
                 "endsAt": {
