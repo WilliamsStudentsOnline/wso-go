@@ -21,7 +21,6 @@ need() {
   command -v "$1" >/dev/null 2>&1 || die "missing '$1'"
 }
 
-# Stop the test MariaDB project (port 3307). docker only — no pkill.
 stop_test_mysql() {
   local wipe="${1:-}"
   if [[ "$wipe" == "wipe" ]]; then

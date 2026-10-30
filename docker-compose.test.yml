@@ -1,6 +1,5 @@
-# Ephemeral MariaDB for tests only (project wso-test, host port 3307).
-# Independent of docker-compose.yml so make dev / Ctrl+C do not share a server,
-# but devenv down/reset also tear this project down.
+# local dev tests only
+# but still torn down by `make dev-down`/`make dev-reset`
 services:
   mysql:
     image: mariadb:10.11
@@ -13,8 +12,14 @@ services:
       - --collation-server=utf8mb4_unicode_ci
     ports:
       - "3307:3306"
+    volumes:
+      - wso-mysql-test-data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-psecret-mysql-password"]
-      interval: 5s
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 2s
       timeout: 5s
-      retries: 20
+      retries: 30
+      start_period: 5s
+
+volumes:
+  wso-mysql-test-data:

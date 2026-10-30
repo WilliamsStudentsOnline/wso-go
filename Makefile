@@ -222,8 +222,7 @@ dev-down:
 dev-reset:
 	@./scripts/devenv.sh reset
 
-# Test MariaDB (docker-compose.test.yml, project wso-test, host :3307).
-# Internal helpers for itest/CI — not a public workflow on their own.
+# tests for local dev
 TEST_COMPOSE = docker compose -p wso-test -f docker-compose.test.yml
 TEST_MYSQL_ROOT_PASSWORD ?= secret-mysql-password
 TEST_MYSQL_HOST ?= 127.0.0.1
