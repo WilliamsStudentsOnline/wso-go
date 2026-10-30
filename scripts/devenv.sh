@@ -36,16 +36,33 @@ db_has_users_table() {
     2>/dev/null | tr -d '\r' | grep -qx '1'
 }
 
+# MySQL 8 dumps use utf8mb4_0900_*; MariaDB 10.11 rejects those.
+# Rewrite to the server collation from docker-compose (utf8mb4_unicode_ci).
+rewrite_mysql8_collations() {
+  sed -E 's/utf8mb4_0900_[A-Za-z0-9_]+/utf8mb4_unicode_ci/g'
+}
+
+import_seed_sql() {
+  local src="$1"
+  echo "devenv: importing seed from $src"
+  case "$src" in
+    *.gz)
+      gunzip -c "$src" | rewrite_mysql8_collations \
+        | docker exec -i wso-mysql mysql -uroot -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE"
+      ;;
+    *)
+      rewrite_mysql8_collations <"$src" \
+        | docker exec -i wso-mysql mysql -uroot -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE"
+      ;;
+  esac
+}
+
 import_seed_if_empty() {
   if db_has_users_table; then
     return 0
   fi
   [[ -f "$SEED_SQL" ]] || die "seed missing at $SEED_SQL"
-  echo "devenv: importing seed"
-  case "$SEED_SQL" in
-    *.gz) gunzip -c "$SEED_SQL" | docker exec -i wso-mysql mysql -uroot -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" ;;
-    *) docker exec -i wso-mysql mysql -uroot -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" <"$SEED_SQL" ;;
-  esac
+  import_seed_sql "$SEED_SQL"
 }
 
 cleanup() {
