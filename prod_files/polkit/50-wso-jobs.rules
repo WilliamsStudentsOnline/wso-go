@@ -1,0 +1,18 @@
+/* wso may manage wso-job-* units only */
+polkit.addRule(function (action, subject) {
+    if (subject.user !== "wso") {
+        return;
+    }
+    var unitActions = [
+        "org.freedesktop.systemd1.manage-units",
+        "org.freedesktop.systemd1.manage-unit-files",
+        "org.freedesktop.systemd1.reload-daemon"
+    ];
+    if (unitActions.indexOf(action.id) === -1) {
+        return;
+    }
+    var unit = action.lookup("unit");
+    if (unit && unit.indexOf("wso-job-") === 0) {
+        return polkit.Result.YES;
+    }
+});
