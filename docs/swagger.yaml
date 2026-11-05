@@ -40,6 +40,32 @@ definitions:
     required:
     - resolution
     type: object
+  admin.createJobRunRequest:
+    properties:
+      params:
+        additionalProperties:
+          type: string
+        type: object
+      runAt:
+        type: string
+    type: object
+  admin.jobInfo:
+    properties:
+      description:
+        type: string
+      hasActiveRun:
+        type: boolean
+      name:
+        type: string
+      nextRunAt:
+        type: string
+      params:
+        items:
+          $ref: '#/definitions/registry.Param'
+        type: array
+      schedule:
+        $ref: '#/definitions/registry.Schedule'
+    type: object
   auth.AuthResponse:
     properties:
       expire:
@@ -1509,6 +1535,41 @@ definitions:
     - GoodrichPaymentMethodCash
     - GoodrichPaymentMethodSwipePlusCash
     - GoodrichPaymentMethodSwipePlusCreditCard
+  models.JobRun:
+    properties:
+      args:
+        type: string
+      exitStatus:
+        type: integer
+      finishedAt:
+        type: string
+      id:
+        type: integer
+      inputFileName:
+        type: string
+      inputSha256:
+        type: string
+      invocationID:
+        type: string
+      jobName:
+        type: string
+      logPath:
+        type: string
+      runAt:
+        type: string
+      startedAt:
+        type: string
+      status:
+        type: string
+      trigger:
+        type: string
+      triggeredByUser:
+        $ref: '#/definitions/models.User'
+      triggeredByUserID:
+        type: integer
+      unitName:
+        type: string
+    type: object
   models.ListingType:
     enum:
     - ""
@@ -1822,6 +1883,40 @@ definitions:
         description: If true, will authenticate based on IP. Will return either off-campus
           or on-campus token
         type: boolean
+    type: object
+  registry.Param:
+    properties:
+      default:
+        type: string
+      description:
+        type: string
+      enumValues:
+        items:
+          type: string
+        type: array
+      name:
+        type: string
+      required:
+        type: boolean
+      type:
+        $ref: '#/definitions/registry.ParamType'
+    type: object
+  registry.ParamType:
+    enum:
+    - string
+    - bool
+    - enum
+    - file
+    type: string
+    x-enum-varnames:
+    - ParamString
+    - ParamBool
+    - ParamEnum
+    - ParamFile
+  registry.Schedule:
+    properties:
+      onCalendar:
+        type: string
     type: object
   responses.GetUserResponseDepartment:
     properties:
@@ -2407,6 +2502,174 @@ paths:
       tags:
       - admin
       - feedback
+  /admin/jobs:
+    get:
+      description: list registered batch jobs and next timer elapse when available
+      operationId: listAdminJobs
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/admin.jobInfo'
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: List batch jobs
+      tags:
+      - admin-jobs
+  /admin/jobs/{name}/runs:
+    post:
+      consumes:
+      - application/json
+      description: enqueue via JSON or multipart with optional file; queues when the
+        job is already running
+      operationId: createAdminJobRun
+      parameters:
+      - description: job name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: JSON params
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/admin.createJobRunRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.JobRun'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Enqueue or schedule a job run
+      tags:
+      - admin-jobs
+  /admin/jobs/runs:
+    get:
+      description: list job run history with optional filters
+      operationId: listAdminJobRuns
+      parameters:
+      - description: job name
+        in: query
+        name: job
+        type: string
+      - description: run status
+        in: query
+        name: status
+        type: string
+      - default: 50
+        description: max rows
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.JobRun'
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: List job runs
+      tags:
+      - admin-jobs
+  /admin/jobs/runs/{id}:
+    get:
+      operationId: getAdminJobRun
+      parameters:
+      - description: run id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.JobRun'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get a job run
+      tags:
+      - admin-jobs
+  /admin/jobs/runs/{id}/cancel:
+    post:
+      description: cancel a pending run or stop a running one
+      operationId: cancelAdminJobRun
+      parameters:
+      - description: run id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.JobRun'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Cancel a job run
+      tags:
+      - admin-jobs
+  /admin/jobs/runs/{id}/logs:
+    get:
+      operationId: getAdminJobRunLogs
+      parameters:
+      - description: run id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get job run logs
+      tags:
+      - admin-jobs
   /admin/tasks:
     get:
       consumes:
