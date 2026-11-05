@@ -5,25 +5,18 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/WilliamsStudentsOnline/wso-go/config"
+	"github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"go.uber.org/zap"
 )
 
 func setupRecordDB(t *testing.T) *gorm.DB {
 	t.Helper()
-	cfg := &config.Config{
-		Env:          "test",
-		DatabaseType: "sqlite3",
-		DatabaseArgs: ":memory:",
-		Secrets:      &config.Secrets{},
-	}
-	db := config.LoadDatabase(cfg, zap.NewNop().Sugar())
-	require.NoError(t, db.AutoMigrate(&models.JobRun{}).Error)
-	t.Cleanup(func() { config.CloseDatabase(db, zap.NewNop().Sugar()) })
+	db, err := test_utils.SetupServiceDB()
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = db.Close() })
 	return db
 }
 
