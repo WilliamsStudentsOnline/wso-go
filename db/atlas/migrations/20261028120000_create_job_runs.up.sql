@@ -1,0 +1,28 @@
+-- create "job_runs" table
+CREATE TABLE `job_runs` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime NULL,
+  `updated_at` datetime NULL,
+  `deleted_at` datetime NULL,
+  `job_name` varchar(128) NOT NULL,
+  `trigger` varchar(32) NOT NULL,
+  `triggered_by_user_id` int unsigned NULL,
+  `args` longtext NULL,
+  `input_file_name` varchar(255) NULL,
+  `input_sha256` varchar(64) NULL,
+  `status` varchar(32) NOT NULL,
+  `run_at` datetime NULL,
+  `started_at` datetime NULL,
+  `finished_at` datetime NULL,
+  `exit_status` int NULL,
+  `invocation_id` varchar(64) NULL,
+  `unit_name` varchar(128) NULL,
+  `log_path` varchar(512) NULL,
+  PRIMARY KEY (`id`),
+  INDEX `idx_job_runs_deleted_at` (`deleted_at`),
+  INDEX `idx_job_runs_invocation_id` (`invocation_id`),
+  INDEX `idx_job_runs_job_name` (`job_name`),
+  INDEX `idx_job_runs_run_at` (`run_at`),
+  INDEX `idx_job_runs_status` (`status`),
+  INDEX `idx_job_runs_triggered_by_user_id` (`triggered_by_user_id`)
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
