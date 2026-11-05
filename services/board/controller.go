@@ -14,17 +14,19 @@ import (
 // Controller for the board service
 type Controller struct {
 	services.BaseController
-	threadModel *models.BoardThreadModel
-	postModel   *models.BoardPostModel
-	userModel   *models.UserModel
+	threadModel        *models.BoardThreadModel
+	postModel          *models.BoardPostModel
+	userModel          *models.UserModel
+	moderatorTaskModel *models.ModeratorTaskModel
 }
 
 func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Controller {
 	return &Controller{
-		BaseController: services.BaseController{Log: log},
-		threadModel:    models.NewBoardThreadModel(db, log),
-		postModel:      models.NewBoardPostModel(db, log),
-		userModel:      models.NewUserModel(db, log),
+		BaseController:     services.BaseController{Log: log},
+		threadModel:        models.NewBoardThreadModel(db, log),
+		postModel:          models.NewBoardPostModel(db, log),
+		userModel:          models.NewUserModel(db, log),
+		moderatorTaskModel: models.NewModeratorTaskModel(db, log),
 	}
 }
 
