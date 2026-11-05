@@ -100,7 +100,7 @@ func init() {
 		Binary:      InstallDir + "/job-dining-update_linux",
 		Params: []Param{
 			{Name: "outdir", Type: ParamString, Default: "/home/wso/wso/static/dining"},
-			{Name: "vi", Type: ParamString, Default: "/opt/wso-go/vendor_info.yaml"},
+			{Name: "vi", Type: ParamString, Default: "/opt/wso-go/static/vendor_info.yaml"},
 			{Name: "today", Type: ParamString},
 			{Name: "force", Type: ParamBool},
 			{Name: "date", Type: ParamString},
