@@ -32,7 +32,6 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p /opt/wso-go
-          # jobs (user wso) write zap logs here; runner keeps wso-backend.log via deploy group
           mkdir -p /opt/wso-go/logs
           sudo chown wso:deploy /opt/wso-go/logs
           sudo chmod 2775 /opt/wso-go/logs
@@ -45,7 +44,6 @@ jobs:
               *) sudo chown wso:deploy "$f" ;;
             esac
           done
-          # catalog-update defaults write under here
           sudo mkdir -p /home/wso/wso/static /home/wso/wso/static-auth
           sudo chown wso:wso /home/wso/wso /home/wso/wso/static /home/wso/wso/static-auth
           cp wso-backend_linux /opt/wso-go/wso-backend_linux
@@ -98,7 +96,6 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p /opt/wso-go
-          # jobs (user wso) write zap logs here; runner keeps wso-backend.log via deploy group
           mkdir -p /opt/wso-go/logs
           sudo chown wso:deploy /opt/wso-go/logs
           sudo chmod 2775 /opt/wso-go/logs
@@ -111,7 +108,6 @@ jobs:
               *) sudo chown wso:deploy "$f" ;;
             esac
           done
-          # catalog-update defaults write under here
           sudo mkdir -p /home/wso/wso/static /home/wso/wso/static-auth
           sudo chown wso:wso /home/wso/wso /home/wso/wso/static /home/wso/wso/static-auth
           cp wso-backend_linux /opt/wso-go/wso-backend_linux
