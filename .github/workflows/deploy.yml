@@ -33,19 +33,6 @@ jobs:
           set -euo pipefail
           mkdir -p /opt/wso-go
           mkdir -p /opt/wso-go/logs
-          sudo chown wso:deploy /opt/wso-go/logs
-          sudo chmod 2775 /opt/wso-go/logs
-          shopt -s nullglob
-          for f in /opt/wso-go/logs/*.log; do
-            sudo chgrp deploy "$f"
-            sudo chmod 664 "$f"
-            case "$(basename "$f")" in
-              wso-backend.log) sudo chown github-runner:deploy "$f" ;;
-              *) sudo chown wso:deploy "$f" ;;
-            esac
-          done
-          sudo mkdir -p /home/wso/wso/static /home/wso/wso/static-auth
-          sudo chown wso:wso /home/wso/wso /home/wso/wso/static /home/wso/wso/static-auth
           cp wso-backend_linux /opt/wso-go/wso-backend_linux
           cp wso-jobctl_linux /opt/wso-go/wso-jobctl_linux
           cp job-*_linux /opt/wso-go/
@@ -97,19 +84,6 @@ jobs:
           set -euo pipefail
           mkdir -p /opt/wso-go
           mkdir -p /opt/wso-go/logs
-          sudo chown wso:deploy /opt/wso-go/logs
-          sudo chmod 2775 /opt/wso-go/logs
-          shopt -s nullglob
-          for f in /opt/wso-go/logs/*.log; do
-            sudo chgrp deploy "$f"
-            sudo chmod 664 "$f"
-            case "$(basename "$f")" in
-              wso-backend.log) sudo chown github-runner:deploy "$f" ;;
-              *) sudo chown wso:deploy "$f" ;;
-            esac
-          done
-          sudo mkdir -p /home/wso/wso/static /home/wso/wso/static-auth
-          sudo chown wso:wso /home/wso/wso /home/wso/wso/static /home/wso/wso/static-auth
           cp wso-backend_linux /opt/wso-go/wso-backend_linux
           cp wso-jobctl_linux /opt/wso-go/wso-jobctl_linux
           cp job-*_linux /opt/wso-go/
