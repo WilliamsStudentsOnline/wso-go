@@ -10195,6 +10195,64 @@ const docTemplate = `{
                 }
             }
         },
+        "models.CourseCanonical": {
+            "type": "object",
+            "properties": {
+                "crseID": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "listings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.CourseListing"
+                    }
+                },
+                "offerings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Offering"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.CourseListing": {
+            "type": "object",
+            "properties": {
+                "courseCanonical": {
+                    "$ref": "#/definitions/models.CourseCanonical"
+                },
+                "courseCanonicalID": {
+                    "type": "integer"
+                },
+                "firstValidYear": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "lastValidYear": {
+                    "type": "integer"
+                },
+                "letter": {
+                    "type": "string"
+                },
+                "number": {
+                    "type": "integer"
+                },
+                "subject": {
+                    "type": "string"
+                }
+            }
+        },
         "models.Department": {
             "type": "object",
             "properties": {
@@ -10840,6 +10898,13 @@ const docTemplate = `{
                 "approachability": {
                     "type": "integer"
                 },
+                "canonicalCourse": {
+                    "$ref": "#/definitions/models.CourseCanonical"
+                },
+                "canonicalCourseID": {
+                    "description": "Optional link to catalog canonical course / offering (Courses v2 backfill).",
+                    "type": "integer"
+                },
                 "clientAgreement": {
                     "description": "Pass if the client agreed with the survey; not looked at by GORM.\nTrue means user agreed, false means user disagreed, and null/missing means user does not have any\nagreement/disagreement.",
                     "type": "boolean"
@@ -10881,6 +10946,12 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "mentalHealthSupport": {
+                    "type": "integer"
+                },
+                "offering": {
+                    "$ref": "#/definitions/models.Offering"
+                },
+                "offeringID": {
                     "type": "integer"
                 },
                 "outsideHelpfulness": {
@@ -11308,6 +11379,108 @@ const docTemplate = `{
                 "userID": {
                     "description": "Belongs to user",
                     "type": "integer"
+                }
+            }
+        },
+        "models.Offering": {
+            "type": "object",
+            "properties": {
+                "classNbr": {
+                    "type": "integer"
+                },
+                "component": {
+                    "type": "string"
+                },
+                "courseCanonical": {
+                    "$ref": "#/definitions/models.CourseCanonical"
+                },
+                "courseCanonicalID": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "instructors": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.OfferingInstructor"
+                    }
+                },
+                "meetings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.OfferingMeeting"
+                    }
+                },
+                "section": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "strm": {
+                    "type": "integer"
+                },
+                "term": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "year": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.OfferingInstructor": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "nameAsListed": {
+                    "type": "string"
+                },
+                "offering": {
+                    "$ref": "#/definitions/models.Offering"
+                },
+                "offeringID": {
+                    "type": "integer"
+                },
+                "unixID": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "userID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.OfferingMeeting": {
+            "type": "object",
+            "properties": {
+                "days": {
+                    "type": "string"
+                },
+                "end": {
+                    "type": "string"
+                },
+                "facility": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "offering": {
+                    "$ref": "#/definitions/models.Offering"
+                },
+                "offeringID": {
+                    "type": "integer"
+                },
+                "start": {
+                    "type": "string"
                 }
             }
         },
