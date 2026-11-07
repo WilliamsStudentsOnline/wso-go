@@ -176,6 +176,10 @@ func (t *Controller) GetJobRunLogs(c *gin.Context) {
 			t.RespondAPIError(c, lib.ErrorNoScopeAuthorization)
 			return
 		}
+		// ServeFile will 304 when the browser sends validators; XHR then gets an empty body
+		c.Request.Header.Del("If-None-Match")
+		c.Request.Header.Del("If-Modified-Since")
+		c.Header("Cache-Control", "no-store")
 		c.File(*run.LogPath)
 		return
 	}
@@ -186,6 +190,7 @@ func (t *Controller) GetJobRunLogs(c *gin.Context) {
 			t.RespondError(c, err)
 			return
 		}
+		c.Header("Cache-Control", "no-store")
 		c.Data(200, "text/plain; charset=utf-8", out)
 		return
 	}
