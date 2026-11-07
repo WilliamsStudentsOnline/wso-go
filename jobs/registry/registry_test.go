@@ -115,3 +115,23 @@ func TestValidateUnitDeps(t *testing.T) {
 	j.Wants = []string{"not-a-unit"}
 	assert.Error(t, j.Validate())
 }
+
+func TestDefaultHasPilotJobs(t *testing.T) {
+	_, ok := Default().Get("user-home-info")
+	assert.True(t, ok)
+	j, ok := Default().Get("library-hours-update")
+	assert.True(t, ok)
+	assert.NotNil(t, j.Schedule)
+}
+
+func TestDefaultPortedJobs(t *testing.T) {
+	_, ok := Default().Get("update-all-users-from-ldap")
+	assert.True(t, ok)
+	assert.GreaterOrEqual(t, len(Default().Scheduled()), 10)
+	assert.GreaterOrEqual(t, len(Default().All()), 13)
+
+	for _, j := range Default().Scheduled() {
+		_, err := j.BuildArgs(nil)
+		require.NoError(t, err, "scheduled job %s", j.Name)
+	}
+}
