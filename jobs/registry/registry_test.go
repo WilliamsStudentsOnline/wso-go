@@ -75,7 +75,34 @@ func TestBuildArgs(t *testing.T) {
 
 	args, err = j.BuildArgs(map[string]string{"file": "/x", "console": "false"})
 	require.NoError(t, err)
-	assert.Equal(t, []string{"-file", "/x", "-mode", "a", "-out", "/tmp/out.json"}, args)
+	assert.Equal(t, []string{
+		"-file", "/x",
+		"-console=false",
+		"-mode", "a",
+		"-out", "/tmp/out.json",
+	}, args)
+}
+
+func TestManualOnlyDormsUpdateRequiresLocal(t *testing.T) {
+	j, ok := Default().Get("dorms-update")
+	require.True(t, ok)
+	assert.Nil(t, j.Schedule)
+
+	local, ok := j.ParamByName("local")
+	require.True(t, ok)
+	assert.True(t, local.Required)
+	assert.Empty(t, local.Default)
+
+	_, err := j.BuildArgs(map[string]string{})
+	assert.Error(t, err)
+
+	args, err := j.BuildArgs(map[string]string{"local": "true"})
+	require.NoError(t, err)
+	assert.Contains(t, args, "-local")
+
+	args, err = j.BuildArgs(map[string]string{"local": "false"})
+	require.NoError(t, err)
+	assert.Contains(t, args, "-local=false")
 }
 
 func TestRegistry(t *testing.T) {

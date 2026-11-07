@@ -112,8 +112,11 @@ func (j Job) BuildArgs(values map[string]string) ([]string, error) {
 			if err != nil {
 				return nil, fmt.Errorf("param %q: %w", p.Name, err)
 			}
+			// always pass an explicit value so false can override a binary's true default
 			if v {
 				args = append(args, flag)
+			} else {
+				args = append(args, flag+"=false")
 			}
 		case ParamEnum:
 			if !contains(p.EnumValues, raw) {
