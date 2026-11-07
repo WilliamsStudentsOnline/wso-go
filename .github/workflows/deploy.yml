@@ -33,10 +33,34 @@ jobs:
           set -euo pipefail
           mkdir -p /opt/wso-go
           cp wso-backend_linux /opt/wso-go/wso-backend_linux
+          cp wso-jobctl_linux /opt/wso-go/wso-jobctl_linux
           cp job-*_linux /opt/wso-go/
-          chmod +x /opt/wso-go/wso-backend_linux /opt/wso-go/job-*_linux
+          chmod +x /opt/wso-go/wso-backend_linux /opt/wso-go/wso-jobctl_linux /opt/wso-go/job-*_linux
           sudo systemctl restart WSO-Go
           sudo systemctl try-restart WSO-Mobile || true
+      - name: Sync job systemd units
+        run: |
+          set -euo pipefail
+
+          mapfile -t old_timers < <(
+            systemctl list-unit-files 'wso-job-*.timer' --no-legend 2>/dev/null \
+              | awk '{print $1}' || true
+          )
+
+          sudo /opt/wso-go/wso-jobctl_linux gen-units -out /etc/systemd/system
+          sudo systemctl daemon-reload
+
+          shopt -s nullglob
+          for timer in /etc/systemd/system/wso-job-*.timer; do
+            sudo systemctl enable --now "$(basename "$timer")"
+          done
+
+          for t in "${old_timers[@]+"${old_timers[@]}"}"; do
+            if [ ! -f "/etc/systemd/system/$t" ]; then
+              sudo systemctl disable --now "$t" 2>/dev/null || true
+              sudo systemctl reset-failed "$t" 2>/dev/null || true
+            fi
+          done
 
   deploy-prod:
     name: Deploy to production
@@ -59,10 +83,34 @@ jobs:
           set -euo pipefail
           mkdir -p /opt/wso-go
           cp wso-backend_linux /opt/wso-go/wso-backend_linux
+          cp wso-jobctl_linux /opt/wso-go/wso-jobctl_linux
           cp job-*_linux /opt/wso-go/
-          chmod +x /opt/wso-go/wso-backend_linux /opt/wso-go/job-*_linux
+          chmod +x /opt/wso-go/wso-backend_linux /opt/wso-go/wso-jobctl_linux /opt/wso-go/job-*_linux
           sudo systemctl restart WSO-Go
           sudo systemctl try-restart WSO-Mobile || true
+      - name: Sync job systemd units
+        run: |
+          set -euo pipefail
+
+          mapfile -t old_timers < <(
+            systemctl list-unit-files 'wso-job-*.timer' --no-legend 2>/dev/null \
+              | awk '{print $1}' || true
+          )
+
+          sudo /opt/wso-go/wso-jobctl_linux gen-units -out /etc/systemd/system
+          sudo systemctl daemon-reload
+
+          shopt -s nullglob
+          for timer in /etc/systemd/system/wso-job-*.timer; do
+            sudo systemctl enable --now "$(basename "$timer")"
+          done
+
+          for t in "${old_timers[@]+"${old_timers[@]}"}"; do
+            if [ ! -f "/etc/systemd/system/$t" ]; then
+              sudo systemctl disable --now "$t" 2>/dev/null || true
+              sudo systemctl reset-failed "$t" 2>/dev/null || true
+            fi
+          done
       - name: Health check
         run: |
           set -euo pipefail
