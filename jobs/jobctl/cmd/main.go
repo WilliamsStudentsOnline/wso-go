@@ -3,6 +3,9 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
+	"strings"
+	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/jobs/jobctl"
@@ -41,6 +44,35 @@ func main() {
 			Usage: "mark a job run as finished and copy logs",
 			Flags: configFlag(),
 			Action: recordFinish,
+		},
+		{
+			Name:      "run",
+			Usage:     "enqueue a job run",
+			ArgsUsage: "<job-name>",
+			Flags: append(configFlag(),
+				cli.StringSliceFlag{
+					Name:  "set",
+					Usage: "param=value, repeatable",
+				},
+				cli.StringFlag{
+					Name:  "run-at",
+					Usage: "optional RFC3339 run time; queues until then",
+				},
+			),
+			Action: runJob,
+		},
+		{
+			Name:  "dispatch",
+			Usage: "start pending runs",
+			Flags: configFlag(),
+			Action: dispatch,
+		},
+		{
+			Name:      "cancel",
+			Usage:     "cancel a pending run or stop a running one",
+			ArgsUsage: "<run-id>",
+			Flags:     configFlag(),
+			Action:    cancelRun,
 		},
 	}
 
@@ -86,4 +118,94 @@ func recordStart(c *cli.Context) error {
 
 func recordFinish(c *cli.Context) error {
 	return withDB(c.String("config"), jobctl.RecordFinish)
+}
+
+func runJob(c *cli.Context) error {
+	name := c.Args().First()
+	if name == "" {
+		return fmt.Errorf("job name required")
+	}
+	values, err := parseSetFlags(c.StringSlice("set"))
+	if err != nil {
+		return err
+	}
+	var runAt *time.Time
+	if s := c.String("run-at"); s != "" {
+		t, err := time.Parse(time.RFC3339, s)
+		if err != nil {
+			return fmt.Errorf("run-at: %w", err)
+		}
+		t = t.UTC()
+		runAt = &t
+	}
+
+	return withDB(c.String("config"), func(db *gorm.DB) error {
+		sd, err := jobctl.NewSystemd()
+		if err != nil {
+			return err
+		}
+		defer sd.Close()
+		run, err := jobctl.Enqueue(db, sd, registry.Default(), jobctl.EnqueueOpts{
+			JobName: name,
+			Values:  values,
+			RunAt:   runAt,
+		})
+		if err != nil {
+			return err
+		}
+		fmt.Printf("run %d status=%s job=%s\n", run.ID, run.Status, run.JobName)
+		return nil
+	})
+}
+
+func dispatch(c *cli.Context) error {
+	return withDB(c.String("config"), func(db *gorm.DB) error {
+		sd, err := jobctl.NewSystemd()
+		if err != nil {
+			return err
+		}
+		defer sd.Close()
+		n, err := jobctl.DispatchDue(db, sd, registry.Default())
+		if err != nil {
+			return err
+		}
+		fmt.Printf("started %d run(s)\n", n)
+		return nil
+	})
+}
+
+func cancelRun(c *cli.Context) error {
+	idStr := c.Args().First()
+	if idStr == "" {
+		return fmt.Errorf("run id required")
+	}
+	id, err := strconv.ParseUint(idStr, 10, 64)
+	if err != nil {
+		return fmt.Errorf("run id: %w", err)
+	}
+	return withDB(c.String("config"), func(db *gorm.DB) error {
+		sd, err := jobctl.NewSystemd()
+		if err != nil {
+			return err
+		}
+		defer sd.Close()
+		run, err := jobctl.Cancel(db, sd, uint(id))
+		if err != nil {
+			return err
+		}
+		fmt.Printf("run %d status=%s\n", run.ID, run.Status)
+		return nil
+	})
+}
+
+func parseSetFlags(sets []string) (map[string]string, error) {
+	out := map[string]string{}
+	for _, s := range sets {
+		k, v, ok := strings.Cut(s, "=")
+		if !ok || k == "" {
+			return nil, fmt.Errorf("invalid --set %q (want name=value)", s)
+		}
+		out[k] = v
+	}
+	return out, nil
 }
