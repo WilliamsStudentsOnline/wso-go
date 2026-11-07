@@ -282,6 +282,270 @@
                 }
             }
         },
+        "/admin/jobs": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "list registered batch jobs and next timer elapse when available",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin-jobs"
+                ],
+                "summary": "List batch jobs",
+                "operationId": "listAdminJobs",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/admin.jobInfo"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/jobs/runs": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "list job run history with optional filters",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin-jobs"
+                ],
+                "summary": "List job runs",
+                "operationId": "listAdminJobRuns",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "job name",
+                        "name": "job",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "run status",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 50,
+                        "description": "max rows",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.JobRun"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/jobs/runs/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin-jobs"
+                ],
+                "summary": "Get a job run",
+                "operationId": "getAdminJobRun",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "run id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.JobRun"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/jobs/runs/{id}/cancel": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "cancel a pending run or stop a running one",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin-jobs"
+                ],
+                "summary": "Cancel a job run",
+                "operationId": "cancelAdminJobRun",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "run id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.JobRun"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/jobs/runs/{id}/logs": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "admin-jobs"
+                ],
+                "summary": "Get job run logs",
+                "operationId": "getAdminJobRunLogs",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "run id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/jobs/{name}/runs": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "enqueue via JSON or multipart with optional file; queues when the job is already running",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin-jobs"
+                ],
+                "summary": "Enqueue or schedule a job run",
+                "operationId": "createAdminJobRun",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "job name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "JSON params",
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/admin.createJobRunRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.JobRun"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/tasks": {
             "get": {
                 "security": [
@@ -9065,6 +9329,46 @@
                 }
             }
         },
+        "admin.createJobRunRequest": {
+            "type": "object",
+            "properties": {
+                "params": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "runAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "admin.jobInfo": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "hasActiveRun": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "nextRunAt": {
+                    "type": "string"
+                },
+                "params": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/registry.Param"
+                    }
+                },
+                "schedule": {
+                    "$ref": "#/definitions/registry.Schedule"
+                }
+            }
+        },
         "auth.AuthResponse": {
             "type": "object",
             "properties": {
@@ -11192,6 +11496,59 @@
                 "GoodrichPaymentMethodSwipePlusCreditCard"
             ]
         },
+        "models.JobRun": {
+            "type": "object",
+            "properties": {
+                "args": {
+                    "type": "string"
+                },
+                "exitStatus": {
+                    "type": "integer"
+                },
+                "finishedAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "inputFileName": {
+                    "type": "string"
+                },
+                "inputSha256": {
+                    "type": "string"
+                },
+                "invocationID": {
+                    "type": "string"
+                },
+                "jobName": {
+                    "type": "string"
+                },
+                "logPath": {
+                    "type": "string"
+                },
+                "runAt": {
+                    "type": "string"
+                },
+                "startedAt": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "trigger": {
+                    "type": "string"
+                },
+                "triggeredByUser": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "triggeredByUserID": {
+                    "type": "integer"
+                },
+                "unitName": {
+                    "type": "string"
+                }
+            }
+        },
         "models.ListingType": {
             "type": "string",
             "enum": [
@@ -11641,6 +11998,55 @@
                 "useIP": {
                     "description": "If true, will authenticate based on IP. Will return either off-campus or on-campus token",
                     "type": "boolean"
+                }
+            }
+        },
+        "registry.Param": {
+            "type": "object",
+            "properties": {
+                "default": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "enumValues": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "required": {
+                    "type": "boolean"
+                },
+                "type": {
+                    "$ref": "#/definitions/registry.ParamType"
+                }
+            }
+        },
+        "registry.ParamType": {
+            "type": "string",
+            "enum": [
+                "string",
+                "bool",
+                "enum",
+                "file"
+            ],
+            "x-enum-varnames": [
+                "ParamString",
+                "ParamBool",
+                "ParamEnum",
+                "ParamFile"
+            ]
+        },
+        "registry.Schedule": {
+            "type": "object",
+            "properties": {
+                "onCalendar": {
+                    "type": "string"
                 }
             }
         },
