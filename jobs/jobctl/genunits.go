@@ -44,7 +44,7 @@ Requires={{.ServiceFile}}
 
 [Timer]
 OnCalendar={{.OnCalendar}}
-Persistent=true
+Persistent=false
 Unit={{.ServiceFile}}
 
 [Install]

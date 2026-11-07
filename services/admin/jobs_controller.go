@@ -110,7 +110,7 @@ func (t *Controller) ListJobRuns(c *gin.Context) {
 		}
 	}
 	var runs []models.JobRun
-	if err := q.Limit(limit).Find(&runs).Error; err != nil {
+	if err := q.Preload("TriggeredByUser").Limit(limit).Find(&runs).Error; err != nil {
 		t.RespondError(c, err)
 		return
 	}
