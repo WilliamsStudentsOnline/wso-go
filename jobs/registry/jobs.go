@@ -87,10 +87,9 @@ func init() {
 		Binary:      InstallDir + "/job-user-csv-data_linux",
 		Params: []Param{
 			{Name: "config", Type: ParamString, Default: defaultConfig},
-			{Name: "file", Type: ParamString, Default: "/var/sftp/oit/wso_student_data.csv"},
-			{Name: "console", Type: ParamBool, Default: "true"},
+			{Name: "file", Type: ParamString, Required: true, Description: "path to OIT student CSV"},
+			{Name: "console", Type: ParamBool},
 		},
-		Schedule: &Schedule{OnCalendar: "*-*-* 04:00:00"},
 		Requires: needsMariaDB,
 		After:    needsMariaDB,
 	})
