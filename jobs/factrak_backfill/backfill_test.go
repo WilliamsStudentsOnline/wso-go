@@ -27,6 +27,31 @@ func TestParseCourseCode(t *testing.T) {
 	assert.Error(err)
 }
 
+func TestParseCourseCodes(t *testing.T) {
+	assert := testify.New(t)
+	cases := []struct {
+		raw  string
+		want []CourseCode
+	}{
+		{"127T", []CourseCode{{Number: 127, Letter: "T"}}},
+		{"301b", []CourseCode{{Number: 301, Letter: "B"}}},
+		{"101 Lab", []CourseCode{{Number: 101, Normalized: true}}},
+		{"201-02", []CourseCode{{Number: 201, Normalized: true}}},
+		{"301E1", []CourseCode{{Number: 301, Normalized: true}}},
+		{"140/204", []CourseCode{{Number: 140}, {Number: 204}}},
+		{"CHIN 101/102", nil}, // starts with letters: not a number
+	}
+	for _, c := range cases {
+		got, err := ParseCourseCodes(c.raw)
+		if c.want == nil {
+			assert.Error(err, c.raw)
+			continue
+		}
+		assert.NoError(err, c.raw)
+		assert.Equal(c.want, got, c.raw)
+	}
+}
+
 func TestCatalogYearTerm(t *testing.T) {
 	assert := testify.New(t)
 	y, term, ok := CatalogYearTerm("fall", 2026)
@@ -154,7 +179,7 @@ func TestBackfillExactAndAliasAndDisambiguate(t *testing.T) {
 	assert.NoError(db.Create(&s4).Error)
 
 	// Dry run
-	report, err := RunBackfill(db, log, Options{DryRun: true, IncludeResults: true})
+	report, err := RunBackfill(db, log, Options{DryRun: true, IncludeResults: true, Overrides: []Override{}})
 	assert.NoError(err)
 	t.Logf("dry-run report: exact=%d disambig=%d ambig=%d unmatched=%d",
 		report.ExactListing, report.Disambiguated, report.Ambiguous, report.Unmatched)
@@ -168,7 +193,7 @@ func TestBackfillExactAndAliasAndDisambiguate(t *testing.T) {
 	assert.Equal(1, report.Unmatched)
 
 	// Apply
-	report, err = RunBackfill(db, log, Options{DryRun: false, SkipLinked: true, IncludeResults: true})
+	report, err = RunBackfill(db, log, Options{DryRun: false, SkipLinked: true, IncludeResults: true, Overrides: []Override{}})
 	assert.NoError(err)
 	assert.Equal(3, report.Applied)
 
@@ -192,4 +217,108 @@ func TestBackfillExactAndAliasAndDisambiguate(t *testing.T) {
 	linked = models.FactrakSurvey{}
 	assert.NoError(db.Where("id = ?", s4.ID).First(&linked).Error)
 	assert.Nil(linked.CanonicalCourseID)
+}
+
+func TestBackfillTypoRulesAndOverrides(t *testing.T) {
+	assert := testify.New(t)
+	db := test_utils.SetupServiceTest(assert)
+	log := zap.NewNop().Sugar()
+
+	dept := models.Department{Name: "Test Dept"}
+	assert.NoError(db.Create(&dept).Error)
+	area := func(abbrev string) *uint {
+		a := models.AreaOfStudy{Name: abbrev, Abbreviation: abbrev, DepartmentID: &dept.ID}
+		assert.NoError(db.Create(&a).Error)
+		return &a.ID
+	}
+	phil, hist, phys, chem := area("PHIL"), area("HIST"), area("PHYS"), area("CHEM")
+
+	prof := models.User{Type: models.UserTypeProfessor, Name: "Pat Prof", UnixID: "pp1", Visible: lib.BoolToPtr(true)}
+	student := models.User{Type: models.UserTypeStudent, Name: "Stu Dent", UnixID: "sd1", Visible: lib.BoolToPtr(true)}
+	assert.NoError(db.Create(&prof).Error)
+	assert.NoError(db.Create(&student).Error)
+
+	// course creates a canonical course with one listing, taught by prof in Fall 2027 (Fall 2026 surveys).
+	classNbr := 2000
+	course := func(crse, subject string, number int, letter string) models.CourseCanonical {
+		cc := models.CourseCanonical{CrseID: crse, Title: crse}
+		assert.NoError(db.Create(&cc).Error)
+		assert.NoError(db.Create(&models.CourseListing{
+			CourseCanonicalID: cc.ID, Subject: subject, Number: number, Letter: letter,
+			FirstValidYear: 2023, LastValidYear: 2027,
+		}).Error)
+		classNbr++
+		off := models.Offering{
+			CourseCanonicalID: cc.ID, Strm: 1271, Year: 2027, Term: "Fall", Section: "01",
+			ClassNbr: classNbr, Title: crse, Component: "SEM", Status: models.OfferingStatusOffered,
+		}
+		assert.NoError(db.Create(&off).Error)
+		assert.NoError(db.Create(&models.OfferingInstructor{
+			OfferingID: off.ID, UnixID: "pp1", UserID: &prof.ID, NameAsListed: "Pat Prof",
+		}).Error)
+		return cc
+	}
+	tutorial := course("200001", "PHIL", 127, "")
+	sectionE := course("200002", "HIST", 301, "E")
+	otherSection := models.CourseCanonical{CrseID: "200003", Title: "HIST 301F (not taught by prof)"}
+	assert.NoError(db.Create(&otherSection).Error)
+	assert.NoError(db.Create(&models.CourseListing{
+		CourseCanonicalID: otherSection.ID, Subject: "HIST", Number: 301, Letter: "F",
+		FirstValidYear: 2023, LastValidYear: 2027,
+	}).Error)
+	psych := course("200004", "PSYC", 354, "")
+	lab := course("200005", "CHEM", 101, "")
+	reviewed := course("200006", "PHIL", 450, "")
+
+	fall := models.FactrakSurveySemesterSeasonFall
+	y2026 := 2026
+	survey := func(areaID *uint, number string) models.FactrakSurvey {
+		fc := models.Course{Number: number, AreaOfStudyID: areaID}
+		assert.NoError(db.Create(&fc).Error)
+		s := models.FactrakSurvey{
+			UserID: student.ID, ProfessorID: prof.ID, CourseID: fc.ID, Comment: number,
+			SemesterSeason: &fall, SemesterYear: &y2026,
+		}
+		assert.NoError(db.Create(&s).Error)
+		return s
+	}
+	sTutorial := survey(phil, "127T")
+	sSection := survey(hist, "301")
+	sWrongSubject := survey(phys, "354")
+	sLab := survey(chem, "101 Lab")
+	sClassNbr := survey(phys, "2004") // lab's class number (class numbers start at 2001 above)
+	sNoSemester := survey(hist, "301")
+	assert.NoError(db.Model(&sNoSemester).Updates(map[string]interface{}{"semester_season": nil, "semester_year": nil}).Error)
+	sOverride := survey(phil, "999")
+	sStale := survey(phil, "998") // override below names a different filed course
+
+	overrides := []Override{
+		{SurveyID: sOverride.ID, FiledAs: "PHIL 999", CrseID: "200006", Reason: "reviewed"},
+		{SurveyID: sStale.ID, FiledAs: "PHIL 111", CrseID: "200006", Reason: "stale"},
+	}
+	report, err := RunBackfill(db, log, Options{DryRun: false, IncludeResults: true, Overrides: overrides})
+	assert.NoError(err)
+
+	byID := map[uint]Result{}
+	for _, r := range report.Results {
+		byID[r.SurveyID] = r
+	}
+	expect := func(s models.FactrakSurvey, method string, cc models.CourseCanonical) {
+		r := byID[s.ID]
+		assert.Equal(method, r.Method, s.Comment)
+		if assert.NotNil(r.CanonicalCourseID, s.Comment) {
+			assert.Equal(cc.ID, *r.CanonicalCourseID, s.Comment)
+		}
+	}
+	expect(sTutorial, MethodTutorialSuffix, tutorial)
+	expect(sSection, MethodLetteredSection, sectionE)
+	expect(sWrongSubject, MethodProfessorSameNumber, psych)
+	expect(sLab, MethodNormalizedCode, lab)
+	expect(sClassNbr, MethodClassNumber, lab)
+	expect(sOverride, MethodManualOverride, reviewed)
+
+	assert.Equal(MatchUnmatched, byID[sStale.ID].Status)
+	assert.Equal(MatchUnmatched, byID[sNoSemester.ID].Status) // no term to pick a section from
+	assert.Equal(1, report.OverridesSkipped)
+	assert.Equal(6, report.Applied)
 }
