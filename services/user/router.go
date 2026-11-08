@@ -14,6 +14,8 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	writer.Use(auth.RequireScopes(auth.ScopeWriteSelf))
 
 	r.GET("", c.ListUsers)
+	r.GET("/countries", c.ListCountries)
+	r.GET("/states", c.ListUSStates)
 	r.GET("/:userID", c.GetUser)
 	writer.PATCH("/:userID", c.UpdateUser)
 	writer.PUT("/:userID/tags", c.UpdateUserTags)
