@@ -8,7 +8,6 @@ import (
 	"go.uber.org/zap"
 )
 
-// SetupRouter mounts board routes on the given router group
 func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) {
 	c := NewController(db, cfg, log)
 

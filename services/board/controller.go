@@ -11,7 +11,6 @@ import (
 	"go.uber.org/zap"
 )
 
-// Controller for the board service
 type Controller struct {
 	services.BaseController
 	threadModel *models.BoardThreadModel
