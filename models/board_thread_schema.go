@@ -36,7 +36,6 @@ type BoardThread struct {
 	RideInformation  *BoardRideInformation  `gorm:"foreignkey:ThreadID;association_foreignkey:ID" json:"ride,omitempty"`
 	Body             string                 `gorm:"-" json:"body,omitempty"` // hydrated from OP for API convenience
 
-	// Mirrors BaseSchema.CreatedAt for JSON (BaseSchema uses json:"-").
 	CreatedTime time.Time `gorm:"-" json:"createdAt"`
 }
 

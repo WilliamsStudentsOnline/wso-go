@@ -16,7 +16,6 @@ type BoardPost struct {
 	Content string `gorm:"size:65535;not null" json:"content"`
 	IsOP    *bool  `gorm:"column:is_op;DEFAULT:false;not null" json:"isOP"`
 
-	// Mirrors BaseSchema.CreatedAt for JSON (BaseSchema uses json:"-").
 	CreatedTime time.Time `gorm:"-" json:"createdAt"`
 }
 
