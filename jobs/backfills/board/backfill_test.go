@@ -57,7 +57,6 @@ func TestBoardBackfill_CopyOnlyIdempotent(t *testing.T) {
 	assert.Equal(4, postCount) // 2 discussion posts + 1 bulletin op + 1 ride op
 	assert.Equal(1, rideInformationCount)
 
-	// Legacy untouched
 	var discCount, bullCount, rideCount int
 	assert.NoError(db.Model(&models.Discussion{}).Count(&discCount).Error)
 	assert.NoError(db.Model(&models.Bulletin{}).Count(&bullCount).Error)
@@ -66,7 +65,6 @@ func TestBoardBackfill_CopyOnlyIdempotent(t *testing.T) {
 	assert.Equal(1, bullCount)
 	assert.Equal(1, rideCount)
 
-	// Idempotent
 	res2, err := boardbackfill.Run(db, log)
 	assert.NoError(err)
 	assert.Equal(0, res2.DiscussionsMigrated)

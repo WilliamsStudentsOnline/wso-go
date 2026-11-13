@@ -10,7 +10,6 @@ import (
 	"go.uber.org/zap"
 )
 
-// BackfillResult summarizes a copy-only board backfill run.
 type BackfillResult struct {
 	DiscussionsMigrated int
 	BulletinsMigrated   int
@@ -18,8 +17,7 @@ type BackfillResult struct {
 	Skipped             int
 }
 
-// Run copies legacy discussions/posts, bulletins, and bulletin_rides into board_*
-// tables with new IDs. Does not modify legacy rows. Idempotent via board_backfill_map.
+// copy-only into board_*; idempotent via board_backfill_map
 func Run(db *gorm.DB, log *zap.SugaredLogger) (*BackfillResult, error) {
 	if log == nil {
 		log = zap.NewNop().Sugar()
@@ -122,7 +120,6 @@ func migrateDiscussions(db *gorm.DB, log *zap.SugaredLogger) (migrated, skipped 
 			return
 		}
 
-		// Preserve legacy timestamps after create.
 		if err = tx.Model(thread).Updates(map[string]interface{}{
 			"created_at":  d.CreatedAt,
 			"updated_at":  d.UpdatedAt,
@@ -290,7 +287,7 @@ func mapBulletinType(t string) string {
 	case models.BulletinTypeLostAndFound, "LostFound", "LostAndFound":
 		return models.BoardThreadTypeLostAndFound
 	default:
-		// Legacy seed sometimes stored rides as bulletin rows; real rides live in bulletin_rides.
+		// "Ride" bulletin rows are skipped; real rides are in bulletin_rides
 		return ""
 	}
 }
