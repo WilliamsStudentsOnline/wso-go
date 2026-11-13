@@ -42,12 +42,12 @@ type ModeratorTask struct {
 	RequestingUserID *uint `gorm:"index:index_moderator_tasks_on_requesting_user_id" json:"requestingUserID"`
 	RequestingUser   *User `json:"requestingUser,omitempty"`
 
-	TaskType   ModeratorTaskType `gorm:"index:index_moderator_tasks_on_task_type;not null" json:"taskType" enums:",FACTRAK_REVIEW,NEW_USER_TAG"`
+	TaskType   ModeratorTaskType `gorm:"index:index_moderator_tasks_on_task_type,index_moderator_tasks_on_task_type_task_reference_resolved_at;not null" json:"taskType" enums:",FACTRAK_REVIEW,NEW_USER_TAG"`
 	TaskFields string            `gorm:"column:task_fields;type:text;not null" json:"-"`
 
-	TaskReference string `gorm:"column:task_reference;index:index_moderator_tasks_on_task_reference;not null" json:"taskReference"`
+	TaskReference string `gorm:"column:task_reference;index:index_moderator_tasks_on_task_reference,index_moderator_tasks_on_task_type_task_reference_resolved_at;not null" json:"taskReference"`
 
-	ResolvedAt       *time.Time               `gorm:"index:index_moderator_tasks_on_resolved_at" json:"resolvedAt"`
+	ResolvedAt       *time.Time               `gorm:"index:index_moderator_tasks_on_resolved_at,index_moderator_tasks_on_task_type_task_reference_resolved_at" json:"resolvedAt"`
 	Resolution       *ModeratorTaskResolution `json:"resolution" enums:",APPROVED,REJECTED"`
 	ResolvedByUserID *uint                    `gorm:"index:index_moderator_tasks_on_resolved_by_user_id" json:"resolvedByUserID"`
 	ResolvedByUser   *User                    `json:"resolvedByUser,omitempty"`

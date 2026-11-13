@@ -38,5 +38,9 @@ func AutoMigrateModels(db *gorm.DB) error {
 		&models.ModeratorTask{},
 		&models.Feedback{},
 		&models.JobRun{},
+		&models.BoardThread{},
+		&models.BoardPost{},
+		&models.BoardRideInformation{},
+		&models.BoardBackfillMap{},
 	).Error
 }

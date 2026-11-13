@@ -1,6 +1,7 @@
-h1:M2gkAyrFop8CD6mlujpnJdZUhv1tRIZcWE1yOtCHaig=
+h1:Mpg8xy4C0TNCNL5qtGZN4lMc5jp2m5eSHu9umqOUSOo=
 20261007235756_baseline.up.sql h1:Kmw4SweP0Aq6KlzT+VIDWQbg6ciJQrA4FhwGY6M1PZ0=
 20261026053754_create_moderator_tasks.up.sql h1:8w76fayR9zvi+VurrNkuh5mqEaKUdKceqM/HFT8G63c=
 20261028030000_add_pronoun_override_to_users.up.sql h1:R4Sw2PDHXSCPMU+V2anl+V+21unwpTopVtgWjtc7rEw=
 20261028030631_create_feedback.up.sql h1:7NVR+9jkqEU5cp5vAEMKW3/xEuuLrarFRwNCa2erEDs=
 20261028120000_create_job_runs.up.sql h1:5NyREPmfW9DUiG8G7q57DzqUMjAZelIUqOYbPQqYvrc=
+20261113185324_create_board_tables.up.sql h1:S55XTmdWSV1MJToMyC3y47t9NWFRWPmm9oXJ6Zz2FCA=
