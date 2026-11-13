@@ -82,6 +82,41 @@ func TestUserModel_PopulateSearchFields(t *testing.T) {
 	assert.Equal("foo#user1#research assistant#2022#computer science#2885#ap3#east 103#palo alto, california", res.SearchFields)
 }
 
+func TestUserModel_UpdateUserRefreshesSearchFields(t *testing.T) {
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+
+	u := &User{
+		Type:        UserTypeStudent,
+		Name:        "Foo",
+		UnixID:      "user1",
+		Visible:     lib.BoolToPtr(true),
+		AtWilliams:  lib.BoolToPtr(true),
+		HomeVisible: lib.BoolToPtr(true),
+		HomeTown:    lib.StrToPtr("Palo Alto"),
+		HomeState:   lib.StrToPtr("California"),
+		HomeCountry: lib.StrToPtr("United States"),
+	}
+	assert.NoError(db.Create(u).Error)
+
+	m := NewUserModel(db, zaptest.NewLogger(t).Sugar())
+	assert.NoError(m.PopulateSearchFields(u.ID))
+
+	var loaded User
+	assert.NoError(db.First(&loaded, u.ID).Error)
+	assert.Contains(loaded.SearchFields, "palo alto")
+
+	loaded.HomeTown = lib.StrToPtr("Boston")
+	loaded.HomeState = lib.StrToPtr("Massachusetts")
+	assert.NoError(m.UpdateUser(&loaded))
+
+	var res User
+	assert.NoError(db.First(&res, u.ID).Error)
+	assert.Equal("Boston", *res.HomeTown)
+	assert.Contains(res.SearchFields, "boston")
+	assert.NotContains(res.SearchFields, "palo alto")
+}
+
 func ExampleUserModel_LDAPLookup() {
 	db, err := utils.SetupServiceDB()
 	if err != nil {

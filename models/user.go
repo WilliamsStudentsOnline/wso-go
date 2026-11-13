@@ -147,8 +147,8 @@ func (m *UserModel) DoesUserExist(id uint) (exists bool, err error) {
 
 // Update the user. Only allow specific keys to be passed
 func (m *UserModel) UpdateUser(user *User) (err error) {
-	// Generate search fields here.
-	searchFields, err := m.generateSearchFields(user.ID)
+	// index the in-memory user — generateSearchFields(id) would reload the old row
+	searchFields, err := m.generateSearchFieldsByUser(*user)
 	if err != nil {
 		return
 	}
