@@ -182,7 +182,12 @@ func init() {
 		Params: []Param{
 			{Name: "config", Type: ParamString, Default: defaultConfig},
 			{Name: "console", Type: ParamBool, Default: "true"},
-			{Name: "disable-migration-check", Type: ParamBool},
+			{
+				Name:        "disable-migration-check",
+				Type:        ParamBool,
+				Default:     "false",
+				Description: "allow run when DB migrations are behind (escape hatch only)",
+			},
 		},
 		Requires: needsMariaDB,
 		After:    needsMariaDB,
