@@ -102,11 +102,11 @@ func boardCopy(typ string) (title, body string) {
 		return "Seed job: " + gofakeit.JobTitle(),
 			fmt.Sprintf("%s\n\nHours / pay / contact are fake fixtures for local development only.\n\n%s", gofakeit.Sentence(10), para())
 	case models.BoardThreadTypeExchange:
-		return fmt.Sprintf("Seed exchange: %s", gofakeit.ProductName()),
+		return fmt.Sprintf("Seed exchange: %s", gofakeit.HipsterWord()),
 			para()
 	case models.BoardThreadTypeLostAndFound:
 		return fmt.Sprintf("Seed lost & found: %s", gofakeit.Word()),
-			fmt.Sprintf("Last seen near %s.\n\n%s", gofakeit.Street(), para())
+			fmt.Sprintf("Last seen near %s.\n\n%s", gofakeit.StreetName(), para())
 	case models.BoardThreadTypeRide:
 		return "Seed ride",
 			para()
