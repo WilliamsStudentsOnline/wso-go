@@ -83,26 +83,26 @@ func TestBuildArgs(t *testing.T) {
 	}, args)
 }
 
-func TestManualOnlyDormsUpdateRequiresLocal(t *testing.T) {
+func TestManualOnlyDormsUpdateRequiresDir(t *testing.T) {
 	j, ok := Default().Get("dorms-update")
 	require.True(t, ok)
 	assert.Nil(t, j.Schedule)
 
-	local, ok := j.ParamByName("local")
+	dir, ok := j.ParamByName("dir")
 	require.True(t, ok)
-	assert.True(t, local.Required)
-	assert.Empty(t, local.Default)
+	assert.True(t, dir.Required)
+	assert.Empty(t, dir.Default)
+
+	_, ok = j.ParamByName("local")
+	assert.False(t, ok)
 
 	_, err := j.BuildArgs(map[string]string{})
 	assert.Error(t, err)
 
-	args, err := j.BuildArgs(map[string]string{"local": "true"})
+	args, err := j.BuildArgs(map[string]string{"dir": "/tmp/dorms"})
 	require.NoError(t, err)
-	assert.Contains(t, args, "-local")
-
-	args, err = j.BuildArgs(map[string]string{"local": "false"})
-	require.NoError(t, err)
-	assert.Contains(t, args, "-local=false")
+	assert.Contains(t, args, "-dir")
+	assert.Contains(t, args, "/tmp/dorms")
 }
 
 func TestFroshPhotosUsesDir(t *testing.T) {

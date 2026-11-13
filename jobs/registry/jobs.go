@@ -35,7 +35,7 @@ func init() {
 		Binary:      InstallDir + "/job-dorms-update_linux",
 		Params: []Param{
 			{Name: "config", Type: ParamString, Default: defaultConfig},
-			{Name: "local", Type: ParamBool, Required: true, Description: "use embedded fixtures (true) or dorm/rooms paths (false)"},
+			{Name: "dir", Type: ParamString, Required: true, Description: "directory containing dorms.csv and rooms/"},
 			{Name: "console", Type: ParamBool},
 		},
 		Requires: needsMariaDB,
