@@ -20,7 +20,6 @@ MYSQL_PASSWORD="${MYSQL_ROOT_PASSWORD:-secret-mysql-password}"
 MYSQL_DATABASE="${MYSQL_DATABASE:-wso}"
 SEED_SQL="${SEED_SQL:-$ROOT/db/seed/development.sql.gz}"
 AIR_VERSION="${AIR_VERSION:-v1.67.0}"
-DEV_CONFIG="${DEV_CONFIG:-config/environment/development.yaml}"
 
 export COMPOSE_PROJECT_NAME
 export MYSQL_HOST_PORT REDIS_HOST_PORT TEST_MYSQL_HOST_PORT
@@ -65,7 +64,6 @@ db_has_users_table() {
 }
 
 # MySQL 8 dumps use utf8mb4_0900_*; MariaDB 10.11 rejects those.
-# Rewrite to the server collation from docker-compose (utf8mb4_unicode_ci).
 rewrite_mysql8_collations() {
   sed -E 's/utf8mb4_0900_[A-Za-z0-9_]+/utf8mb4_unicode_ci/g'
 }
@@ -91,12 +89,6 @@ import_seed_if_empty() {
   fi
   [[ -f "$SEED_SQL" ]] || die "seed missing at $SEED_SQL"
   import_seed_sql "$SEED_SQL"
-}
-
-# Apply any Atlas migrations newer than the dump (or catch up an existing volume).
-migrate_db() {
-  echo "devenv: running migrations"
-  go run ./db/seed/cmd -config "$DEV_CONFIG" -model none
 }
 
 cleanup() {
@@ -139,7 +131,6 @@ cmd_up() {
   "${COMPOSE[@]}" up -d --wait
 
   import_seed_if_empty
-  migrate_db
 
   trap cleanup EXIT INT TERM
   echo "devenv: starting API! Ctrl+C to stop"

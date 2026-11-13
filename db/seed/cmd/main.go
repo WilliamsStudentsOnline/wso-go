@@ -19,11 +19,11 @@ func main() {
 	// Command-line flags
 	// Note: these can be overridden by env vars
 	flag.StringVar(&configPath, "config", "", "path to config file")
-	flag.StringVar(&model, "model", "none", "model: none (migrate only) | user | dorm | ephmatch | ephmatch_profile")
+	flag.StringVar(&model, "model", "", "model (eg user, ephmatch, ephmatch_profile)")
 	flag.IntVar(&n, "n", 0, "number of models to generate")
-	flag.BoolVar(&disableMigrationCheck, "disable-migration-check", false, "deprecated: migrate always runs before seed")
+	flag.BoolVar(&disableMigrationCheck, "disable-migration-check", false, "don't check for outdated migrations")
+
 	flag.Parse()
-	_ = disableMigrationCheck
 
 	/* Config */
 	cfg, err := config.LoadConfig(configPath)
@@ -44,19 +44,21 @@ func main() {
 	defer config.CloseDatabase(db, log)
 
 	/* Database Migrations */
-	// Always migrate first so a stale development.sql.gz can catch up.
-	if err := migrate.MigrateDB(db); err != nil {
-		log.Fatal("Migration Error: " + err.Error())
+	// NOTE: Job will not migrate anything; will fail if db is not updated on migrations
+	dbUpToDate, err := migrate.MigrationUpToDate(db)
+	if err != nil {
+		log.Fatal("Migration Checking Error: " + err.Error())
+	}
+
+	if !dbUpToDate {
+		if disableMigrationCheck {
+			log.Warnf("Database migrations are not up to date")
+		} else {
+			log.Fatalf("Database migrations are not up to date")
+		}
 	}
 
 	switch model {
-	case "none", "":
-		log.Info("Migrations up to date (no seed model requested)")
-		return
-	case "user", "users":
-		err = seeder.Users(n, db)
-	case "dorm", "dorms":
-		err = seeder.Dorms(n, db)
 	case "ephmatch_profile":
 		err = seeder.EphmatchProfiles(n, db)
 	case "ephmatch":

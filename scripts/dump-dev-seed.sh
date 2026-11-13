@@ -1,11 +1,7 @@
 #!/usr/bin/env bash
-# Refresh db/seed/development.sql.gz from the running devenv MySQL.
-#
-# Typical flow after schema changes:
-#   1. make dev-reset && make dev   # import current gz, then migrate
-#   2. (optional) tweak data in the DB
-#   3. ./scripts/dump-dev-seed.sh   # rewrite the gz from this DB
-#   4. commit db/seed/development.sql.gz
+# Write db/seed/development.sql.gz from the running devenv MySQL.
+# Usage: make dev-reset && make dev  # import + migrate via backend
+#        make dev-seed-dump
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -28,7 +24,7 @@ COMPOSE=(docker compose -p "$COMPOSE_PROJECT_NAME")
 die() { echo "dump-dev-seed: $*" >&2; exit 1; }
 
 "${COMPOSE[@]}" ps --status running --services 2>/dev/null | grep -qx mysql \
-  || die "mysql is not running (start with make dev / ./scripts/devenv.sh up)"
+  || die "mysql is not running (start with make dev)"
 
 echo "dump-dev-seed: dumping ${MYSQL_DATABASE} → ${OUT}"
 "${COMPOSE[@]}" exec -T mysql mysqldump \

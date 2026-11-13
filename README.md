@@ -24,19 +24,7 @@ Then:
 make dev
 ```
 
-This command runs MySQL and Redis in the background and serves our API, with hot reloading. Stop the development server with `Ctrl+C`. On an empty database it imports `db/seed/development.sql.gz`, then runs Atlas migrations so the dump can lag schema slightly. Database states will persist between runs; use `make dev-reset` to wipe them. If something gets stuck, try `make dev-down` to shut down the Docker containers running in the background.
-
-### Updating the development seed dump
-
-After migrations (or meaningful seed-data changes) land, refresh the checked-in dump so new clones stay rich and close to current schema:
-
-```bash
-make dev-reset && make dev   # import current gz, then migrate
-# optional: tweak rows in the running DB
-make dev-seed-dump           # rewrite db/seed/development.sql.gz
-```
-
-Commit the updated `db/seed/development.sql.gz`. Optional Go fabs under `db/seed/` (`go run ./db/seed/cmd -model …`) are for ad-hoc synthetic rows, not a replacement for the dump.
+This command runs MySQL and Redis in the background and serves our API, with hot reloading. Stop the development server with `Ctrl+C`. Database states will persist between runs; use `make dev-reset` to wipe them. If something gets stuck, try `make dev-down` to shut down the Docker containers running in the background.
 
 ## Onboarding 
 
@@ -54,15 +42,7 @@ WSO is working on an official policy/stance for AI-assisted coding. For now, we 
 
 ### Backfill jobs
 
-One-shot data migrations (legacy table → new table) live under `jobs/backfills/<domain>/` and are **manual-only** — never give them a `Schedule` in `jobs/registry`.
-
-Conventions:
-
-- Job / binary name: `backfill_<domain>` (e.g. `backfill_board`)
-- Package path: `jobs/backfills/<domain>/` with a small `cmd/` entrypoint
-- Idempotency: a domain-specific `*_backfill_map` table with a unique `(source_table, source_id)` (or equivalent) so re-runs skip already-copied rows
-- Prefer copy-only: do not mutate or delete legacy source rows in the backfill itself
-- Register in `jobs/registry` with `Schedule: nil` so they only appear in the jobs console / `wso-jobctl` for manual runs
+Manual-only (no `Schedule` in `jobs/registry`). Name them `backfill_<domain>`, put them under `jobs/backfills/<domain>/`, and keep a domain `*_backfill_map` (unique on source id) so re-runs are idempotent.
 
 ### Git Workflow/Pipeline
 Steps for a 10/10 development workflow:
@@ -183,11 +163,10 @@ Analytics are served at port `:9092`!
   - `environment/development.yml` is the local development configuration yaml
 - `db/` contains migration code
   - `atlas/` Atlas config, `schema.sql`, and versioned SQL migrations
-  - `seed/development.sql.gz` Baseline local-dev database (import on empty devenv, then migrate). Refresh with `make dev-seed-dump`
-  - `seed/` Optional Go fabs (`go run ./db/seed/cmd`) for ad-hoc synthetic rows
+  - `seed/development.sql.gz` Seeded database for local dev (refresh with `make dev-seed-dump`)
   - `migrations/` frozen historical gormigrate migrations (predating our migration to Atlas)
 - `docs/` contains swagger API docs (generated for you, do not hand edit!)
-- `jobs/` contains batch job binaries and the jobs-queue registry (scheduled cron-style jobs plus manual-only backfills under `jobs/backfills/`)
+- `jobs/` contains cron job launching code and specific jobs to run on the server (e.g. update users from LDAP)
 - `lib/` has library files (helpful functions, errors, etc.). We try to minimize the number of external libraries we import here, as this is so widely used
   - `errors.go` contains all API errors
   - `auth/` contains authentication info about scopes and useful ways to use scopes
