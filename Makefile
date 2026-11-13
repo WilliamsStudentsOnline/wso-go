@@ -234,22 +234,25 @@ dev-down:
 dev-reset:
 	@./scripts/devenv.sh reset
 
-# tests for local dev
-TEST_COMPOSE = docker compose -p wso-test -f docker-compose.test.yml
+# tests for local dev — ports / project from .env (see .env.example)
+-include .env
+export
+COMPOSE_PROJECT_NAME ?= $(notdir $(CURDIR))
+TEST_COMPOSE_PROJECT ?= $(COMPOSE_PROJECT_NAME)-test
 TEST_MYSQL_ROOT_PASSWORD ?= secret-mysql-password
 TEST_MYSQL_HOST ?= 127.0.0.1
-TEST_MYSQL_PORT ?= 3307
+TEST_MYSQL_HOST_PORT ?= 3307
+TEST_MYSQL_PORT ?= $(TEST_MYSQL_HOST_PORT)
 
 .PHONY: _test-mysql-up
 _test-mysql-up:
 	@if [ -z "$(DOCKER)" ]; then echo "docker not found in PATH"; exit 1; fi
-	@$(DOCKER) compose -p wso-test -f docker-compose.test.yml up -d --wait
+	@$(DOCKER) compose -p $(TEST_COMPOSE_PROJECT) -f docker-compose.test.yml up -d --wait
 
 .PHONY: _test-mysql-down
 _test-mysql-down:
 	@if [ -z "$(DOCKER)" ]; then echo "docker not found in PATH"; exit 1; fi
-	@$(DOCKER) compose -p wso-test -f docker-compose.test.yml down
-	@$(DOCKER) rm -f wso-mysql-test >/dev/null 2>&1 || true
+	@$(DOCKER) compose -p $(TEST_COMPOSE_PROJECT) -f docker-compose.test.yml down
 
 # Relative paths so gotestsum --watch can fsnotify them (import paths are not dirs)
 GO_MODULE = $(shell go list -m)
@@ -306,8 +309,9 @@ mod:
 	go mod download
 
 ATLAS_MYSQL_ROOT_PASSWORD ?= secret-mysql-password
-ATLAS_SCHEMA_DSN ?= root:$(ATLAS_MYSQL_ROOT_PASSWORD)@tcp(127.0.0.1:3306)/wso_atlas?parseTime=true&charset=utf8mb4&multiStatements=true
-ATLAS_SCHEMA_URL ?= mysql://root:$(ATLAS_MYSQL_ROOT_PASSWORD)@127.0.0.1:3306/wso_atlas
+MYSQL_HOST_PORT ?= 3306
+ATLAS_SCHEMA_DSN ?= root:$(ATLAS_MYSQL_ROOT_PASSWORD)@tcp(127.0.0.1:$(MYSQL_HOST_PORT))/wso_atlas?parseTime=true&charset=utf8mb4&multiStatements=true
+ATLAS_SCHEMA_URL ?= mysql://root:$(ATLAS_MYSQL_ROOT_PASSWORD)@127.0.0.1:$(MYSQL_HOST_PORT)/wso_atlas
 ATLAS := $(shell command -v atlas 2>/dev/null)
 DOCKER := $(shell command -v docker 2>/dev/null)
 
@@ -315,8 +319,8 @@ DOCKER := $(shell command -v docker 2>/dev/null)
 .PHONY: atlas-mysql-up
 atlas-mysql-up:
 	@if [ -z "$(DOCKER)" ]; then echo "docker not found in PATH"; exit 1; fi
-	@$(DOCKER) compose up -d --wait mysql
-	@$(DOCKER) exec -e MYSQL_PWD=$(ATLAS_MYSQL_ROOT_PASSWORD) wso-mysql \
+	@$(DOCKER) compose -p $(COMPOSE_PROJECT_NAME) up -d --wait mysql
+	@$(DOCKER) compose -p $(COMPOSE_PROJECT_NAME) exec -T -e MYSQL_PWD=$(ATLAS_MYSQL_ROOT_PASSWORD) mysql \
 		mysql -uroot -e "CREATE DATABASE IF NOT EXISTS wso_atlas;"
 
 # regenerate db/atlas/schema.sql from current GORM models (internal use)

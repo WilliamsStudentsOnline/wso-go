@@ -26,6 +26,19 @@ make dev
 
 This command runs MySQL and Redis in the background and serves our API, with hot reloading. Stop the development server with `Ctrl+C`. Database states will persist between runs; use `make dev-reset` to wipe them. If something gets stuck, try `make dev-down` to shut down the Docker containers running in the background.
 
+### Multiple worktrees
+
+Compose project name defaults to the checkout directory basename, and host ports default to `3306` / `6379` / `3307` (test). To run a second worktree alongside another, copy `.env.example` to `.env` and pick free ports:
+
+```bash
+cp .env.example .env
+# e.g. MYSQL_HOST_PORT=3308 REDIS_HOST_PORT=6380 TEST_MYSQL_HOST_PORT=3309
+```
+
+`.env` is gitignored; `make dev` exports matching `WSO_MYSQL_PORT` / `WSO_REDIS_ADDR` so the API follows those ports without editing `development.yaml`.
+
+If you previously used fixed container names (`wso-mysql` / `wso-redis`), remove those once after upgrading: `docker rm -f wso-mysql wso-redis wso-mysql-test`.
+
 ## Onboarding 
 
 ### Learning Go
