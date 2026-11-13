@@ -7,6 +7,7 @@ import (
 	_ "image/png"
 	"net/http"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
@@ -130,6 +131,32 @@ func (t *Controller) ListUsers(c *gin.Context) {
 	t.RespondOK(c, responses.ConvertListUsersResponse(users))
 }
 
+// ListCountries returns the country names accepted for a user's hometown.
+// @Summary List valid countries
+// @Description Returns country names that can be used in a user's hometown.
+// @ID listUserCountries
+// @Tags users
+// @Produce json
+// @Success 200 {array} string
+// @Security Bearer
+// @Router /users/countries [get]
+func (t *Controller) ListCountries(c *gin.Context) {
+	t.RespondOK(c, validCountries)
+}
+
+// ListUSStates returns state names accepted for a United States hometown.
+// @Summary List valid US states
+// @Description Returns US states and the District of Columbia accepted in a user's hometown.
+// @ID listUserUSStates
+// @Tags users
+// @Produce json
+// @Success 200 {array} string
+// @Security Bearer
+// @Router /users/states [get]
+func (t *Controller) ListUSStates(c *gin.Context) {
+	t.RespondOK(c, validStates)
+}
+
 //go:generate go run github.com/WilliamsStudentsOnline/wso-go/lib/generate/service_responses/cmd -in responses/get_user.json -out responses/get_user.go
 
 // Get user by id. Pass "me" if you want to get self
@@ -203,6 +230,9 @@ type UpdateUserParams struct {
 	Visible                   *bool              `json:"visible"`
 	DormVisible               *bool              `json:"dormVisible"`
 	HomeVisible               *bool              `json:"homeVisible"`
+	HomeTown                  *string            `json:"homeTown"`
+	HomeState                 *string            `json:"homeState"`
+	HomeCountry               *string            `json:"homeCountry"`
 	OffCycle                  *bool              `json:"offCycle"`
 	HasAcceptedFactrakPolicy  *bool              `json:"hasAcceptedFactrakPolicy"`
 	HasAcceptedDormtrakPolicy *bool              `json:"hasAcceptedDormtrakPolicy"`
@@ -225,6 +255,8 @@ type UpdateUserParams struct {
 // @Failure 1405 {object} services.BaseErrorResponse "user id could not be parsed"
 // @Failure 1331 {object} services.BaseErrorResponse "must be self"
 // @Failure 1100 {object} services.BaseErrorResponse "could not parse malformed request data"
+// @Failure 1410 {object} services.BaseErrorResponse "hometown city, state, or country is too long"
+// @Failure 1411 {object} services.BaseErrorResponse "hometown must include a city and a valid US state or country"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -263,6 +295,67 @@ func (t *Controller) UpdateUser(c *gin.Context) {
 	user.Visible = lib.BoolPtrDefaults(updateData.Visible, user.Visible)
 	user.DormVisible = lib.BoolPtrDefaults(updateData.DormVisible, user.DormVisible)
 	user.HomeVisible = lib.BoolPtrDefaults(updateData.HomeVisible, user.HomeVisible)
+	user.HomeTown = lib.StrPtrDefaults(updateData.HomeTown, user.HomeTown)
+	user.HomeState = lib.StrPtrDefaults(updateData.HomeState, user.HomeState)
+	user.HomeCountry = lib.StrPtrDefaults(updateData.HomeCountry, user.HomeCountry)
+
+	locationUpdated := updateData.HomeTown != nil || updateData.HomeState != nil || updateData.HomeCountry != nil
+	if locationUpdated {
+		normalizeLocationPart := func(value *string) *string {
+			if value == nil {
+				return nil
+			}
+			trimmed := strings.TrimSpace(*value)
+			if trimmed == "" {
+				return nil
+			}
+			return &trimmed
+		}
+		user.HomeTown = normalizeLocationPart(user.HomeTown)
+		user.HomeState = normalizeLocationPart(user.HomeState)
+		user.HomeCountry = normalizeLocationPart(user.HomeCountry)
+
+		locationCleared := user.HomeTown == nil && user.HomeState == nil && user.HomeCountry == nil
+		if !locationCleared {
+			if user.HomeTown == nil || user.HomeCountry == nil {
+				t.RespondError(c, lib.ErrorUserInvalidHomeLocation)
+				return
+			}
+			country, valid := canonicalCountry(*user.HomeCountry)
+			if !valid {
+				t.RespondError(c, lib.ErrorUserInvalidHomeLocation)
+				return
+			}
+			user.HomeCountry = lib.StrToPtr(country)
+			isUnitedStates := country == "United States"
+			if isUnitedStates {
+				if user.HomeState == nil {
+					t.RespondError(c, lib.ErrorUserInvalidHomeLocation)
+					return
+				}
+				state, valid := canonicalUSState(*user.HomeState)
+				if !valid {
+					t.RespondError(c, lib.ErrorUserInvalidHomeLocation)
+					return
+				}
+				user.HomeState = lib.StrToPtr(state)
+			} else {
+				user.HomeState = nil
+			}
+		}
+
+		tooLong := false
+		for _, part := range []*string{user.HomeTown, user.HomeState, user.HomeCountry} {
+			if part != nil && utf8.RuneCountInString(*part) > 255 {
+				tooLong = true
+				break
+			}
+		}
+		if tooLong {
+			t.RespondError(c, lib.ErrorUserHomeTownTooLong)
+			return
+		}
+	}
 	user.OffCycle = lib.BoolPtrDefaults(updateData.OffCycle, user.OffCycle)
 	user.HasAcceptedFactrakPolicy = lib.BoolPtrDefaults(updateData.HasAcceptedFactrakPolicy, user.HasAcceptedFactrakPolicy)
 	user.HasAcceptedDormtrakPolicy = lib.BoolPtrDefaults(updateData.HasAcceptedDormtrakPolicy, user.HasAcceptedDormtrakPolicy)

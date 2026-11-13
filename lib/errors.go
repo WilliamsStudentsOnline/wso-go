@@ -107,6 +107,8 @@ var (
 	ErrorUserInvalidCampusStatus = NewAPIError(1407, "user campus status is invalid")
 	ErrorUserTagAlreadyExists    = NewAPIError(1408, "tag already exists")
 	ErrorUserTagNameRequired     = NewAPIError(1409, "tag name is required")
+	ErrorUserHomeTownTooLong     = NewAPIError(1410, "hometown city, state, or country is too long")
+	ErrorUserInvalidHomeLocation = NewAPIError(1411, "hometown must include a city and a valid US state or country")
 
 	// 15** are factrak errors
 	// Create/Update errors

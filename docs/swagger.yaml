@@ -2296,6 +2296,12 @@ definitions:
         type: boolean
       hasAcceptedFactrakPolicy:
         type: boolean
+      homeCountry:
+        type: string
+      homeState:
+        type: string
+      homeTown:
+        type: string
       homeVisible:
         type: boolean
       nickname:
@@ -8159,6 +8165,14 @@ paths:
           description: user id could not be parsed
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
+        "1410":
+          description: hometown city, state, or country is too long
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "1411":
+          description: hometown must include a city and a valid US state or country
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Update user by user id
@@ -8327,6 +8341,43 @@ paths:
       security:
       - Bearer: []
       summary: Update user tags by user id
+      tags:
+      - users
+  /users/countries:
+    get:
+      description: Returns country names that can be used in a user's hometown.
+      operationId: listUserCountries
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+      security:
+      - Bearer: []
+      summary: List valid countries
+      tags:
+      - users
+  /users/states:
+    get:
+      description: Returns US states and the District of Columbia accepted in a user's
+        hometown.
+      operationId: listUserUSStates
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+      security:
+      - Bearer: []
+      summary: List valid US states
       tags:
       - users
   /words:

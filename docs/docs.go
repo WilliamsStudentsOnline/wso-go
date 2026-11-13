@@ -8840,6 +8840,64 @@ const docTemplate = `{
                 }
             }
         },
+        "/users/countries": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Returns country names that can be used in a user's hometown.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "List valid countries",
+                "operationId": "listUserCountries",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/states": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Returns US states and the District of Columbia accepted in a user's hometown.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "List valid US states",
+                "operationId": "listUserUSStates",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/users/{userID}": {
             "get": {
                 "security": [
@@ -8958,6 +9016,18 @@ const docTemplate = `{
                     },
                     "1405": {
                         "description": "user id could not be parsed",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "1410": {
+                        "description": "hometown city, state, or country is too long",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "1411": {
+                        "description": "hometown must include a city and a valid US state or country",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -12628,6 +12698,15 @@ const docTemplate = `{
                 },
                 "hasAcceptedFactrakPolicy": {
                     "type": "boolean"
+                },
+                "homeCountry": {
+                    "type": "string"
+                },
+                "homeState": {
+                    "type": "string"
+                },
+                "homeTown": {
+                    "type": "string"
                 },
                 "homeVisible": {
                     "type": "boolean"
