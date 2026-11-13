@@ -2,7 +2,6 @@ package seed
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
@@ -24,6 +23,16 @@ var boardTypeCycle = []string{
 	models.BoardThreadTypeExchange,
 	models.BoardThreadTypeLostAndFound,
 	models.BoardThreadTypeRide,
+}
+
+var campusPlaces = []string{
+	"Sawyer", "Schow", "Paresky", "Baxter", "Science Quad", "Hopkins Gate",
+	"Mission", "Driscoll", "Goodrich", "Lasell Gym", "Williams Inn", "Route 2",
+}
+
+var rideHubs = []string{
+	"Williamstown", "Albany", "Boston", "NYC", "Springfield", "Pittsfield",
+	"Burlington", "Hartford", "Logan", "Albany Airport",
 }
 
 // GenerateBoardThread builds a synthetic board thread of the given type.
@@ -49,20 +58,22 @@ func GenerateBoardThread(typ string, userID uint, userName string) BoardThreadSe
 
 	if typ == models.BoardThreadTypeRide {
 		offering := gofakeit.Bool()
+		src, dst := rideEndpoints()
 		seed.Ride = &models.BoardRideInformation{
 			OfferingRide: &offering,
-			Source:       gofakeit.City(),
-			Destination:  gofakeit.City(),
+			Source:       src,
+			Destination:  dst,
 		}
-		label := "request"
+		label := "Looking for a ride"
 		if offering {
-			label = "offer"
+			label = "Offering a ride"
 		}
-		seed.Thread.Title = fmt.Sprintf(
-			"Seed ride %s: %s → %s",
-			label,
-			seed.Ride.Source,
-			seed.Ride.Destination,
+		seed.Thread.Title = fmt.Sprintf("%s: %s → %s", label, src, dst)
+		depart := time.Now().Add(time.Duration(gofakeit.Number(12, 14*24)) * time.Hour)
+		seed.Thread.StartsAt = &depart
+		seed.Body = fmt.Sprintf(
+			"Leaving %s for %s. Flexible on exact time — text if you want a seat.\n\n(Local seed data — not a real trip.)",
+			src, dst,
 		)
 	}
 
@@ -81,37 +92,102 @@ func GenerateBoardThreadCycled(i int, userID uint, userName string) BoardThreadS
 	return GenerateBoardThread(typ, userID, userName)
 }
 
-// GenerateBoardReplyBody returns a longer synthetic reply for local feeds.
+// GenerateBoardReplyBody returns a short synthetic reply for local feeds.
 func GenerateBoardReplyBody() string {
-	return strings.TrimSpace(fmt.Sprintf(
-		"%s\n\n%s",
-		gofakeit.Sentence(12),
-		gofakeit.Paragraph(1, 3, 8, "\n\n"),
-	))
+	replies := []string{
+		"Interested — can you send details?",
+		"I can help with this this weekend.",
+		"Same, also looking.",
+		"Thanks for posting — just messaged you.",
+		"Still available?",
+		"Count me in if you have room.",
+	}
+	return replies[gofakeit.Number(0, len(replies)-1)]
+}
+
+func pick(ss []string) string {
+	return ss[gofakeit.Number(0, len(ss)-1)]
+}
+
+func rideEndpoints() (string, string) {
+	a, b := pick(rideHubs), pick(rideHubs)
+	for a == b {
+		b = pick(rideHubs)
+	}
+	return a, b
 }
 
 func boardCopy(typ string) (title, body string) {
-	para := func() string {
-		return gofakeit.Paragraph(2, 4, 12, "\n\n")
-	}
+	place := pick(campusPlaces)
 	switch typ {
 	case models.BoardThreadTypeAnnouncement:
-		return "Seed announcement: " + gofakeit.Sentence(6),
-			para()
+		titles := []string{
+			"Mountain Day update — dining hours this week",
+			"Reminder: register for spring housing",
+			"Library extended hours before finals",
+			"Campus shuttle schedule change starting Monday",
+			"WSO maintenance window this Sunday night",
+		}
+		bodies := []string{
+			"Quick heads-up for anyone planning around campus this week. Details are on the usual channels; reply here if something looks wrong.",
+			"Please read before the deadline. If you already submitted, you can ignore this.",
+			"Posting here so it’s findable later. Ping an admin if you need this pinned longer.",
+		}
+		return pick(titles), pick(bodies)
 	case models.BoardThreadTypeJob:
-		return "Seed job: " + gofakeit.JobTitle(),
-			fmt.Sprintf("%s\n\nHours / pay / contact are fake fixtures for local development only.\n\n%s", gofakeit.Sentence(10), para())
+		titles := []string{
+			"Research assistant — short spring term gig",
+			"Looking for a Paresky event staffer",
+			"Paid note-taker for a large lecture",
+			"Help needed setting up a club website",
+			"Weekend dining shift coverage",
+		}
+		bodies := []string{
+			fmt.Sprintf("Looking for a student available a few hours a week near %s. Fake seed posting — hours/pay are placeholders for local UI testing.", place),
+			"Flexible schedule, on-campus only. This is synthetic seed data for local development.",
+		}
+		return pick(titles), pick(bodies)
 	case models.BoardThreadTypeExchange:
-		return fmt.Sprintf("Seed exchange: %s", gofakeit.HipsterWord()),
-			para()
+		titles := []string{
+			"Selling a mini fridge (good condition)",
+			"Free: desk lamp by Sawyer entrance",
+			"ISO winter coat, size M",
+			"Trading textbooks — calc / chem",
+			"Giving away a bike pump",
+		}
+		bodies := []string{
+			fmt.Sprintf("Can meet near %s. Cash or Venmo. Seed listing — not a real sale.", place),
+			"Message if you want it; first come first served. (Local seed data.)",
+		}
+		return pick(titles), pick(bodies)
 	case models.BoardThreadTypeLostAndFound:
-		return fmt.Sprintf("Seed lost & found: %s", gofakeit.Word()),
-			fmt.Sprintf("Last seen near %s.\n\n%s", gofakeit.StreetName(), para())
+		titles := []string{
+			"Lost: black North Face gloves",
+			"Found: AirPods case near Paresky",
+			"Lost water bottle — blue Hydro Flask",
+			"Found student ID outside Schow",
+			"Lost scarf on the Science Quad path",
+		}
+		bodies := []string{
+			fmt.Sprintf("Last seen around %s. Text if you’ve seen it — thanks. (Seed post for local feeds.)", place),
+			fmt.Sprintf("Picked this up near %s; describe it and it’s yours. Synthetic seed data.", place),
+		}
+		return pick(titles), pick(bodies)
 	case models.BoardThreadTypeRide:
-		return "Seed ride",
-			para()
+		return "Ride", "See ride details."
 	default:
-		return fmt.Sprintf("Seed discussion: %s", gofakeit.Sentence(5)),
-			para()
+		titles := []string{
+			"Anyone else confused about the new meal plan options?",
+			"Best quiet study spots on a Sunday?",
+			"Recommendations for a cheap printer on campus",
+			"Is the gym crowded after 5pm?",
+			"What’s the move for Thanksgiving travel?",
+		}
+		bodies := []string{
+			"Curious what people are doing this year. Looking for practical tips, not hot takes.",
+			fmt.Sprintf("Been hanging around %s and figured I’d ask here. Seed discussion for local UI.", place),
+			"Reply with whatever worked for you — trying to collect a few options.",
+		}
+		return pick(titles), pick(bodies)
 	}
 }
