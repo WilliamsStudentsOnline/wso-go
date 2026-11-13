@@ -89,7 +89,8 @@ Use `make check-migrations` to validate migration checksums and replay SQL on an
 
 Legacy Go files under `db/migrations/` are frozen (historical gormigrate); do not add new ones.
 
-One-shot data backfills (legacy table → new table) are not Atlas migrations. Put them under `jobs/backfills/<domain>/`, register them in `jobs/registry` without a `Schedule`, name the job `backfill_<domain>`, and track progress in a domain-specific `*_backfill_map` table so re-runs are safe.
+#### Backfills
+Sometimes we may wish to make major changes to tables that are already populated with user data, e.g. merging multiple tables into one, or preparing to make destructive changes to an existing table. To do this, we first write an additive migration, then write code to move the existing data over to the new table. These are called backfills and should be written as jobs in `jobs/backfills`, registered as manual. Jobs should be prefixed with `backfill_` and ensure idempotency/safety with a `backfill_map_` table tracking which rows have already been moved over.
 
 #### Schema
 Schemas are defined following the [GORM guidelines](https://gorm.io/docs/models). Optional fields and all booleans are pointer-type, and associations are documented [here](https://gorm.io/docs/belongs_to.html). When working with any optional fields, you can easily convert a literal value into a pointer by using the `lib/to_pointer.go` file, which has functions like `lib.StrToPtr(str string) *string`.
