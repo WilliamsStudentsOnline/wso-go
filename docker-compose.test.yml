@@ -1,6 +1,5 @@
 # local dev tests only
 # but still torn down by `make dev-down`/`make dev-reset`
-# Project name is <COMPOSE_PROJECT_NAME>-test (see scripts/devenv.sh / Makefile).
 services:
   mysql:
     image: mariadb:10.11

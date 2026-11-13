@@ -234,7 +234,7 @@ dev-down:
 dev-reset:
 	@./scripts/devenv.sh reset
 
-# tests for local dev — ports / project from .env (see .env.example)
+# tests for local dev
 -include .env
 export
 COMPOSE_PROJECT_NAME ?= $(notdir $(CURDIR))

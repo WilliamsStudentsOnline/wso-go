@@ -5,7 +5,6 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
-# Single source of truth for worktree-local ports / project name.
 if [[ -f .env ]]; then
   set -a
   # shellcheck disable=SC1091
@@ -24,7 +23,6 @@ AIR_VERSION="${AIR_VERSION:-v1.67.0}"
 
 export COMPOSE_PROJECT_NAME
 export MYSQL_HOST_PORT REDIS_HOST_PORT TEST_MYSQL_HOST_PORT
-# App config (envconfig prefix wso_) — overrides development.yaml ports when set.
 export WSO_MYSQL_PORT="$MYSQL_HOST_PORT"
 export WSO_REDIS_ADDR="127.0.0.1:${REDIS_HOST_PORT}"
 
@@ -113,7 +111,7 @@ cmd_reset() {
 cmd_up() {
   prereq
 
-  echo "devenv: starting background services (project=${COMPOSE_PROJECT_NAME}, mysql=:${MYSQL_HOST_PORT}, redis=:${REDIS_HOST_PORT})"
+  echo "devenv: starting background services"
   "${COMPOSE[@]}" up -d --wait
 
   import_seed_if_empty

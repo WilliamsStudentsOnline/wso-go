@@ -1,6 +1,4 @@
 # for local dev
-# Host ports / project name come from .env (see .env.example).
-# No container_name — Compose namespaces by project so worktrees don't clash.
 services:
   mysql:
     image: mariadb:10.11
