@@ -8,7 +8,6 @@ import (
 	"go.uber.org/zap"
 )
 
-// BoardPostModel models board posts
 type BoardPostModel struct {
 	*BaseModel
 }
@@ -21,7 +20,6 @@ func (m *BoardPostModel) GetPostByID(id uint, p *BoardPost) error {
 	return m.DB.Preload("User").Preload("Thread").First(p, id).Error
 }
 
-// CreateReply creates a reply and updates thread last_active / reply_count
 func (m *BoardPostModel) CreateReply(threadID uint, p *BoardPost) error {
 	tx := m.DB.Begin()
 	if err := tx.Error; err != nil {
@@ -54,8 +52,7 @@ func (m *BoardPostModel) UpdatePost(p *BoardPost) error {
 	return m.DB.Save(p).Error
 }
 
-// DeletePost soft-deletes a post. If it is the OP, cascades to the whole thread
-// Otherwise decrements reply_count and refreshes last_active
+// OP delete cascades to the whole thread
 func (m *BoardPostModel) DeletePost(p *BoardPost) error {
 	if p.IsOP != nil && *p.IsOP {
 		tm := NewBoardThreadModel(m.DB, m.log)

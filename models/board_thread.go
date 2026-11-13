@@ -11,7 +11,6 @@ import (
 	"go.uber.org/zap"
 )
 
-// BoardThreadModel models board threads
 type BoardThreadModel struct {
 	*BaseModel
 }
@@ -20,20 +19,17 @@ func NewBoardThreadModel(db *gorm.DB, log *zap.SugaredLogger) *BoardThreadModel 
 	return &BoardThreadModel{BaseModel: NewBaseModel(db, log)}
 }
 
-// GetBoardThreadsOptions controls feed listing
 type GetBoardThreadsOptions struct {
-	// Cursor pagination: opaque "sortValue|id" from a previous page
+	// opaque "sortValue|id"; wins over Offset when set
 	Cursor *string `json:"cursor" form:"cursor"`
-	// Offset pagination (preferred for page dropdowns). Ignored when Cursor is set.
-	Offset *uint `json:"offset" form:"offset"`
-	Limit  *uint `json:"limit" form:"limit"`
+	Offset *uint   `json:"offset" form:"offset"`
+	Limit  *uint   `json:"limit" form:"limit"`
 
-	// Sort: activity (default), created, startsAt
+	// activity (default), created, startsAt
 	Sort string `json:"sort" form:"sort"`
-	// IncludeNull only applies when Sort=startsAt (nulls last)
+	// only for Sort=startsAt (nulls last)
 	IncludeNull bool `json:"includeNull" form:"includeNull"`
 
-	// Filters
 	Types        []string `json:"type" form:"type[]"`
 	Resolved     *bool    `json:"resolved" form:"resolved"`
 	OfferingRide *bool    `json:"offeringRide" form:"offeringRide"`
@@ -100,7 +96,7 @@ func (o *GetBoardThreadsOptions) Paginate(db *gorm.DB) *gorm.DB {
 }
 
 func (o *GetBoardThreadsOptions) Preloader(db *gorm.DB) *gorm.DB {
-	// Default list payload: author, ride info, and OP post (for body preview).
+	// default: author, ride, OP (for body preview)
 	if o.Preload == nil {
 		return db.Preload("User").Preload("RideInformation").Preload("Posts", func(db *gorm.DB) *gorm.DB {
 			return db.Where("board_posts.is_op = ?", true)
@@ -125,7 +121,7 @@ func (o *GetBoardThreadsOptions) Preloader(db *gorm.DB) *gorm.DB {
 
 func (o *GetBoardThreadsOptions) Filter(db *gorm.DB) *gorm.DB {
 	now := time.Now()
-	// Always exclude not-yet-started and expired
+	// hide not-yet-started / expired
 	db = db.Where("board_threads.starts_at IS NULL OR board_threads.starts_at <= ?", now)
 	db = db.Where("board_threads.ends_at IS NULL OR board_threads.ends_at > ?", now)
 
@@ -191,7 +187,6 @@ func parseBoardCursor(cursor string) (time.Time, uint, error) {
 	return t, uint(id64), nil
 }
 
-// BoardCursorForThread builds the next-page cursor for a thread under the given sort
 func BoardCursorForThread(t *BoardThread, sort string) string {
 	var sortVal time.Time
 	switch sort {
@@ -217,7 +212,7 @@ func (m *BoardThreadModel) GetThreads(threads *[]*BoardThread, opts *GetBoardThr
 	}
 	for _, t := range *threads {
 		hydrateThreadBody(t)
-		// List responses only need Body; drop posts to keep payload small.
+		// list only needs Body
 		t.Posts = nil
 	}
 	return nil
@@ -297,7 +292,6 @@ func (m *BoardThreadModel) DoesThreadExist(id uint) (bool, error) {
 	return count > 0, err
 }
 
-// CreateThread creates a thread with its OP post and optional ride information in one transaction
 func (m *BoardThreadModel) CreateThread(t *BoardThread, body string, ride *BoardRideInformation) error {
 	tx := m.DB.Begin()
 	if err := tx.Error; err != nil {
@@ -357,7 +351,6 @@ func (m *BoardThreadModel) UpdateOPContent(threadID uint, content string) error 
 		Update("content", content).Error
 }
 
-// DeleteThread soft-deletes the thread, its posts, and ride information
 func (m *BoardThreadModel) DeleteThread(t *BoardThread) error {
 	tx := m.DB.Begin()
 	if err := tx.Error; err != nil {
