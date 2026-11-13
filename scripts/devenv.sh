@@ -5,12 +5,29 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
-COMPOSE=(docker compose)
-TEST_COMPOSE=(docker compose -p wso-test -f docker-compose.test.yml)
+if [[ -f .env ]]; then
+  set -a
+  # shellcheck disable=SC1091
+  source .env
+  set +a
+fi
+
+COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-$(basename "$ROOT")}"
+MYSQL_HOST_PORT="${MYSQL_HOST_PORT:-3306}"
+REDIS_HOST_PORT="${REDIS_HOST_PORT:-6379}"
+TEST_MYSQL_HOST_PORT="${TEST_MYSQL_HOST_PORT:-3307}"
 MYSQL_PASSWORD="${MYSQL_ROOT_PASSWORD:-secret-mysql-password}"
 MYSQL_DATABASE="${MYSQL_DATABASE:-wso}"
 SEED_SQL="${SEED_SQL:-$ROOT/db/seed/development.sql.gz}"
 AIR_VERSION="${AIR_VERSION:-v1.67.0}"
+
+export COMPOSE_PROJECT_NAME
+export MYSQL_HOST_PORT REDIS_HOST_PORT TEST_MYSQL_HOST_PORT
+export WSO_MYSQL_PORT="$MYSQL_HOST_PORT"
+export WSO_REDIS_ADDR="127.0.0.1:${REDIS_HOST_PORT}"
+
+COMPOSE=(docker compose -p "$COMPOSE_PROJECT_NAME")
+TEST_COMPOSE=(docker compose -p "${COMPOSE_PROJECT_NAME}-test" -f docker-compose.test.yml)
 
 CLEANING=0
 AIR_PID=""
@@ -28,7 +45,6 @@ stop_test_mysql() {
   else
     "${TEST_COMPOSE[@]}" down >/dev/null 2>&1 || true
   fi
-  docker rm -f wso-mysql-test >/dev/null 2>&1 || true
 }
 
 prereq() {
@@ -42,7 +58,7 @@ prereq() {
 }
 
 db_has_users_table() {
-  docker exec wso-mysql mysql -uroot -p"$MYSQL_PASSWORD" -N -e \
+  "${COMPOSE[@]}" exec -T mysql mysql -uroot -p"$MYSQL_PASSWORD" -N -e \
     "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='${MYSQL_DATABASE}' AND table_name='users';" \
     2>/dev/null | tr -d '\r' | grep -qx '1'
 }
@@ -54,8 +70,8 @@ import_seed_if_empty() {
   [[ -f "$SEED_SQL" ]] || die "seed missing at $SEED_SQL"
   echo "devenv: importing seed"
   case "$SEED_SQL" in
-    *.gz) gunzip -c "$SEED_SQL" | docker exec -i wso-mysql mysql -uroot -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" ;;
-    *) docker exec -i wso-mysql mysql -uroot -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" <"$SEED_SQL" ;;
+    *.gz) gunzip -c "$SEED_SQL" | "${COMPOSE[@]}" exec -T mysql mysql -uroot -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" ;;
+    *) "${COMPOSE[@]}" exec -T -i mysql mysql -uroot -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" <"$SEED_SQL" ;;
   esac
 }
 
