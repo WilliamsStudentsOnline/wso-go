@@ -23,6 +23,7 @@ func main() {
 	/* Flags */
 	var configPath string
 	var useLocal bool
+	var dataDir string
 	var dormPath string
 	var roomsPath string
 	var disableMigrationCheck bool
@@ -31,6 +32,7 @@ func main() {
 	// Command-line flags
 	flag.StringVar(&configPath, "config", "", "path to config file")
 	flag.BoolVar(&useLocal, "local", true, "use local embedded data")
+	flag.StringVar(&dataDir, "dir", "", "directory containing dorms.csv and rooms/")
 	flag.StringVar(&dormPath, "dorm", "jobs/dorms_update/data/dorms.csv", "path to dorm info csv file")
 	flag.StringVar(&roomsPath, "rooms", "jobs/dorms_update/data/rooms", "path to room info directory of csv files")
 	flag.BoolVar(&disableMigrationCheck, "disable-migration-check", false, "don't check for outdated migrations")
@@ -57,6 +59,12 @@ func main() {
 	defer log.Sync()
 
 	/* Parse params */
+	if dataDir != "" {
+		useLocal = false
+		dormPath = filepath.Join(dataDir, "dorms.csv")
+		roomsPath = filepath.Join(dataDir, "rooms")
+	}
+
 	dormPath, err = filepath.Abs(dormPath)
 	if err != nil {
 		log.Fatal("Dorm Path Error: " + err.Error())
