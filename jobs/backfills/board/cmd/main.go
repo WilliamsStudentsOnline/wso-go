@@ -27,7 +27,7 @@ func main() {
 		cfg.LogFormats = append(cfg.LogFormats, "console")
 	}
 
-	log, err := logging.SetupLog(cfg, "board-backfill")
+	log, err := logging.SetupLog(cfg, "backfill_board")
 	if err != nil {
 		panic("Log Setup Error: " + err.Error())
 	}

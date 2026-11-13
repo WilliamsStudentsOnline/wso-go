@@ -119,9 +119,9 @@ job-ephmatch-update-dates:
 job-mobile-fetcher:
 	go build -tags=jsoniter -o job-mobile-fetcher ./jobs/mobile_fetcher/cmd
 
-.PHONY: job-board-backfill
-job-board-backfill:
-	go build -tags=jsoniter -o job-board-backfill ./jobs/backfills/board/cmd
+.PHONY: job-backfill_board
+job-backfill_board:
+	go build -tags=jsoniter -o job-backfill_board ./jobs/backfills/board/cmd
 
 .PHONY: job-jobctl
 job-jobctl:
@@ -156,7 +156,7 @@ build-jobs:
 	go build -tags=jsoniter -o job-ephmatch_update_dates ./jobs/ephmatch_update_dates
 	go build -tags jsoniter -o job-library-hours-update ./jobs/library_hours_update/cmd
 	go build -tags=jsoniter -o job-mobile-fetcher ./jobs/mobile_fetcher/cmd
-	go build -tags=jsoniter -o job-board-backfill ./jobs/backfills/board/cmd
+	go build -tags=jsoniter -o job-backfill_board ./jobs/backfills/board/cmd
 	go build -tags=jsoniter -o wso-jobctl ./jobs/jobctl/cmd
 
 .PHONY: build-jobs-prod-linux
@@ -177,7 +177,7 @@ build-jobs-prod-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-ephmatch_update_dates_linux ./jobs/ephmatch_update_dates
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-library-hours-update_linux ./jobs/library_hours_update/cmd
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-mobile-fetcher_linux ./jobs/mobile_fetcher/cmd
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-board-backfill_linux ./jobs/backfills/board/cmd
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-backfill_board_linux ./jobs/backfills/board/cmd
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o wso-jobctl_linux ./jobs/jobctl/cmd
 
 .PHONY: sync-prod

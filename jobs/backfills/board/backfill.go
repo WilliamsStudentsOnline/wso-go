@@ -17,7 +17,7 @@ type BackfillResult struct {
 	Skipped             int
 }
 
-// copy-only into board_*; idempotent via board_backfill_map
+// copy-only into board_*; idempotent via backfill_map_board
 func Run(db *gorm.DB, log *zap.SugaredLogger) (*BackfillResult, error) {
 	if log == nil {
 		log = zap.NewNop().Sugar()

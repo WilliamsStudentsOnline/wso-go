@@ -176,9 +176,9 @@ func init() {
 		After:    needsMariaDB,
 	})
 	mustRegister(Job{
-		Name:        "board-backfill",
+		Name:        "backfill_board",
 		Description: "copy legacy bulletins/discussions/rides into board_* (idempotent)",
-		Binary:      InstallDir + "/job-board-backfill_linux",
+		Binary:      InstallDir + "/job-backfill_board_linux",
 		Params: []Param{
 			{Name: "config", Type: ParamString, Default: defaultConfig},
 			{Name: "console", Type: ParamBool, Default: "true"},
