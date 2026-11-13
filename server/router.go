@@ -30,7 +30,6 @@ import (
 
 	booktrakService "github.com/WilliamsStudentsOnline/wso-go/services/booktrak"
 	boardService "github.com/WilliamsStudentsOnline/wso-go/services/board"
-	bulletinService "github.com/WilliamsStudentsOnline/wso-go/services/bulletin"
 	bulletinRSSService "github.com/WilliamsStudentsOnline/wso-go/services/bulletin/rss"
 	chatService "github.com/WilliamsStudentsOnline/wso-go/services/chat"
 	dormtrakService "github.com/WilliamsStudentsOnline/wso-go/services/dormtrak"
@@ -204,12 +203,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 		dormtrakGroup.Use(auth.RequireScopes(auth.ScopeDormtrak))
 		dormtrakService.SetupRouter(dormtrakGroup, db, cfg, log.Named("dormtrak"))
 
-		// Bulletin Service
-		bulletinGroup := v2.Group("/bulletin")
-		bulletinGroup.Use(auth.RequireScopes(auth.ScopeBulletin))
-		bulletinService.SetupRouter(bulletinGroup, db, cfg, log.Named("bulletin"))
-
-		// Board Service (unified threads)
+		// Board Service
 		boardGroup := v2.Group("/board")
 		boardGroup.Use(auth.RequireScopes(auth.ScopeBulletin))
 		boardService.SetupRouter(boardGroup, db, cfg, log.Named("board"))
