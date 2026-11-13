@@ -755,6 +755,8 @@ definitions:
     properties:
       content:
         type: string
+      createdAt:
+        type: string
       exUserName:
         type: string
       id:
@@ -789,6 +791,8 @@ definitions:
     properties:
       body:
         description: hydrated from OP for API convenience
+        type: string
+      createdAt:
         type: string
       endsAt:
         type: string
@@ -3493,6 +3497,10 @@ paths:
         in: query
         name: cursor
         type: string
+      - description: Offset pagination
+        in: query
+        name: offset
+        type: integer
       - description: Limit
         in: query
         name: limit

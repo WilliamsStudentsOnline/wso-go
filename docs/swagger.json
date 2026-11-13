@@ -1588,6 +1588,12 @@
                     },
                     {
                         "type": "integer",
+                        "description": "Offset pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
                         "description": "Limit",
                         "name": "limit",
                         "in": "query"
@@ -10725,6 +10731,9 @@
                 "content": {
                     "type": "string"
                 },
+                "createdAt": {
+                    "type": "string"
+                },
                 "exUserName": {
                     "type": "string"
                 },
@@ -10776,6 +10785,9 @@
             "properties": {
                 "body": {
                     "description": "hydrated from OP for API convenience",
+                    "type": "string"
+                },
+                "createdAt": {
                     "type": "string"
                 },
                 "endsAt": {

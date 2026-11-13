@@ -1590,6 +1590,12 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
+                        "description": "Offset pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
                         "description": "Limit",
                         "name": "limit",
                         "in": "query"
@@ -10727,6 +10733,9 @@ const docTemplate = `{
                 "content": {
                     "type": "string"
                 },
+                "createdAt": {
+                    "type": "string"
+                },
                 "exUserName": {
                     "type": "string"
                 },
@@ -10778,6 +10787,9 @@ const docTemplate = `{
             "properties": {
                 "body": {
                     "description": "hydrated from OP for API convenience",
+                    "type": "string"
+                },
+                "createdAt": {
                     "type": "string"
                 },
                 "endsAt": {
