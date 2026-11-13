@@ -10,8 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Bridge dual-writes legacy bulletin/discussion/ride mutations into board_* tables
-// Failures are logged and swallowed so legacy endpoints stay authoritative
+// Bridge best-effort dual-writes into board_*; failures are swallowed
 type Bridge struct {
 	db      *gorm.DB
 	log     *zap.SugaredLogger
@@ -73,8 +72,7 @@ func (b *Bridge) AfterUpdatePost(post *models.Post) {
 	}
 }
 
-// AfterDeletePost mirrors a legacy post delete
-// discussionAlsoDeleted is true when legacy also soft-deleted the discussion
+// discussionAlsoDeleted when legacy also soft-deleted the discussion
 func (b *Bridge) AfterDeletePost(post *models.Post, discussionAlsoDeleted bool) {
 	if err := b.deletePost(post, discussionAlsoDeleted); err != nil {
 		b.log.Warnf("board dual-write delete post %d: %v", post.ID, err)
@@ -247,7 +245,7 @@ func (b *Bridge) deletePost(post *models.Post, discussionAlsoDeleted bool) error
 		return err
 	}
 
-	// Soft-delete the board post without OP→thread cascade (legacy keeps the discussion)
+	// OP delete must not cascade the thread (legacy keeps the discussion)
 	if bp.IsOP != nil && *bp.IsOP {
 		return b.db.Delete(&bp).Error
 	}
@@ -345,7 +343,7 @@ func (b *Bridge) findBoardPostID(post *models.Post) (uint, error) {
 		return id, nil
 	}
 
-	// Fallback for backfilled posts: match preserved created_at within the mapped thread
+	// unmapped posts: match created_at in the mapped thread
 	threadID, ok, err := b.lookupMappedID(models.BoardBackfillSourceDiscussions, post.DiscussionID)
 	if err != nil || !ok {
 		return 0, err

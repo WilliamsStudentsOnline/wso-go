@@ -171,7 +171,6 @@ func TestBridge_UpdateSkipsWhenUnmapped(t *testing.T) {
 		UserID: 1, StartDate: time.Now(),
 	}
 	b.ID = 99999
-	// Should not panic or create rows
 	bridge.AfterUpdateBulletin(&b)
 	bridge.AfterDeleteBulletin(&b)
 
