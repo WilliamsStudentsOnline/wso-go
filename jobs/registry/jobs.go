@@ -31,7 +31,7 @@ func init() {
 	})
 	mustRegister(Job{
 		Name:        "dorms-update",
-		Description: "reload dorm / room data from embedded fixtures",
+		Description: "reload dorm / room data",
 		Binary:      InstallDir + "/job-dorms-update_linux",
 		Params: []Param{
 			{Name: "config", Type: ParamString, Default: defaultConfig},

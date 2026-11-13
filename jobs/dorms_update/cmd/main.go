@@ -1,11 +1,9 @@
 package main
 
 import (
-	"bytes"
 	"encoding/csv"
 	"flag"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -17,24 +15,16 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 )
 
-//go:generate go run gen.go
-
 func main() {
 	/* Flags */
 	var configPath string
-	var useLocal bool
 	var dataDir string
-	var dormPath string
-	var roomsPath string
 	var disableMigrationCheck bool
 	var console bool
 
 	// Command-line flags
 	flag.StringVar(&configPath, "config", "", "path to config file")
-	flag.BoolVar(&useLocal, "local", true, "use local embedded data")
-	flag.StringVar(&dataDir, "dir", "", "directory containing dorms.csv and rooms/")
-	flag.StringVar(&dormPath, "dorm", "jobs/dorms_update/data/dorms.csv", "path to dorm info csv file")
-	flag.StringVar(&roomsPath, "rooms", "jobs/dorms_update/data/rooms", "path to room info directory of csv files")
+	flag.StringVar(&dataDir, "dir", "jobs/dorms_update/data", "directory containing dorms.csv and rooms/")
 	flag.BoolVar(&disableMigrationCheck, "disable-migration-check", false, "don't check for outdated migrations")
 	flag.BoolVar(&console, "console", false, "print logs in console as well as in ")
 
@@ -59,23 +49,13 @@ func main() {
 	defer log.Sync()
 
 	/* Parse params */
-	if dataDir != "" {
-		useLocal = false
-		dormPath = filepath.Join(dataDir, "dorms.csv")
-		roomsPath = filepath.Join(dataDir, "rooms")
-	}
-
-	dormPath, err = filepath.Abs(dormPath)
+	dataDir, err = filepath.Abs(dataDir)
 	if err != nil {
-		log.Fatal("Dorm Path Error: " + err.Error())
+		log.Fatal("Data Dir Error: " + err.Error())
 		return
 	}
-
-	roomsPath, err = filepath.Abs(roomsPath)
-	if err != nil {
-		log.Fatal("Rooms Path Error: " + err.Error())
-		return
-	}
+	dormPath := filepath.Join(dataDir, "dorms.csv")
+	roomsPath := filepath.Join(dataDir, "rooms")
 
 	/* DATABASE */
 	db := config.LoadDatabase(cfg, log)
@@ -100,7 +80,7 @@ func main() {
 	log.Info("Updating Dorms")
 
 	/* Parse Dorm CSV */
-	dorms, err := ReadDorms(dormPath, useLocal)
+	dorms, err := ReadDorms(dormPath)
 	if err != nil {
 		log.Fatal("Dorm Parse Error: " + err.Error())
 		return
@@ -126,7 +106,7 @@ func main() {
 
 	for _, dbDorm := range dbDorms {
 		dormRoomPath := filepath.Join(roomsPath, dbDorm.Name+".csv")
-		rooms, err := ReadRooms(dormRoomPath, useLocal)
+		rooms, err := ReadRooms(dormRoomPath)
 		if err != nil {
 			log.Fatal("Read Rooms Error: " + err.Error())
 			return
@@ -152,22 +132,15 @@ func main() {
 	log.Info("successfully updated dorm info")
 }
 
-func ReadDorms(file string, useLocal bool) ([]*dorms_update.Dorm, error) {
-	var r io.Reader
-
-	if useLocal {
-		r = bytes.NewBufferString(dormsCSV)
-	} else {
-		// Open file
-		r, err := os.Open(file)
-		if err != nil {
-			return nil, err
-		}
-		defer r.Close()
+func ReadDorms(file string) ([]*dorms_update.Dorm, error) {
+	f, err := os.Open(file)
+	if err != nil {
+		return nil, err
 	}
+	defer f.Close()
 
 	// Read file into matrix of strings
-	lines, err := csv.NewReader(r).ReadAll()
+	lines, err := csv.NewReader(f).ReadAll()
 	if err != nil {
 		return nil, err
 	}
@@ -231,23 +204,15 @@ func ReadDorms(file string, useLocal bool) ([]*dorms_update.Dorm, error) {
 	return dorms, nil
 }
 
-func ReadRooms(file string, useLocal bool) ([]*dorms_update.Room, error) {
-	var r io.Reader
-
-	if useLocal {
-		baseFile := filepath.Base(file)
-		r = bytes.NewBufferString(roomCSVs[baseFile])
-	} else {
-		// Open file
-		r, err := os.Open(file)
-		if err != nil {
-			return nil, err
-		}
-		defer r.Close()
+func ReadRooms(file string) ([]*dorms_update.Room, error) {
+	f, err := os.Open(file)
+	if err != nil {
+		return nil, err
 	}
+	defer f.Close()
 
 	// Read file into matrix of strings
-	lines, err := csv.NewReader(r).ReadAll()
+	lines, err := csv.NewReader(f).ReadAll()
 	if err != nil {
 		return nil, err
 	}

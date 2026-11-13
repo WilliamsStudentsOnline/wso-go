@@ -8,13 +8,10 @@ BINARY_NAME=wso-backend
 DOCKER_TAG=wso-backend
 GIT_REPO=github.com/WilliamsStudentsOnline/wso-go
 BUILD_DIRS = config db lib models server services sanitize
-BUILD_DEPS = $(call rwildcard, $(BUILD_DIRS), *.go) $(wildcard jobs/*/*.go) jobs/dorms_update/cmd/data.go docs/docs.go
+BUILD_DEPS = $(call rwildcard, $(BUILD_DIRS), *.go) $(wildcard jobs/*/*.go) docs/docs.go
 SERVICE_DIRS = $(wildcard services/*)
 SWAGGER := $(shell which swag 2>/dev/null)
 GOIMPORTS := $(shell which goimports 2>/dev/null)
-
-jobs/dorms_update/cmd/data.go: $(wildcard jobs/dorms_update/data/*) jobs/dorms_update/cmd/gen.go
-	go generate $(GIT_REPO)/jobs/dorms_update/cmd
 
 docs docs/docs.go docs/swagger.json docs/swagger.yaml: $(wildcard models/*.go) $(wildcard services/**/*.go) $(wildcard services/**/**/*.go) server/router.go
 ifdef SWAGGER
@@ -215,7 +212,7 @@ Edit your ~/.bashrc to add this line:
 endef
 
 .PHONY: commit
-commit: jobs/dorms_update/cmd/data.go docs/docs.go fmt services/*/responses/*.go
+commit: docs/docs.go fmt services/*/responses/*.go
 
 .PHONY: run-dev
 run-dev: dev
