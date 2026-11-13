@@ -89,6 +89,9 @@ Use `make check-migrations` to validate migration checksums and replay SQL on an
 
 Legacy Go files under `db/migrations/` are frozen (historical gormigrate); do not add new ones.
 
+#### Backfills
+Sometimes we may wish to make major changes to tables that are already populated with user data, e.g. merging multiple tables into one, or preparing to make destructive changes to an existing table. To do this, we first write an additive migration, then write code to move the existing data over to the new table. These are called backfills and should be written as jobs in `jobs/backfills`, registered as manual. Jobs should be prefixed with `backfill_` and ensure idempotency/safety with a `backfill_map_` table tracking which rows have already been moved over.
+
 #### Schema
 Schemas are defined following the [GORM guidelines](https://gorm.io/docs/models). Optional fields and all booleans are pointer-type, and associations are documented [here](https://gorm.io/docs/belongs_to.html). When working with any optional fields, you can easily convert a literal value into a pointer by using the `lib/to_pointer.go` file, which has functions like `lib.StrToPtr(str string) *string`.
 
@@ -159,7 +162,7 @@ Analytics are served at port `:9092`!
   - `environment/development.yml` is the local development configuration yaml
 - `db/` contains migration code
   - `atlas/` Atlas config, `schema.sql`, and versioned SQL migrations
-  - `seed/development.sql.gz` Seeded database for local dev (regenerate with mysql + gzip)
+  - `seed/development.sql.gz` Seeded database for local dev (refresh with `make dev-seed-dump`)
   - `migrations/` frozen historical gormigrate migrations (predating our migration to Atlas)
 - `docs/` contains swagger API docs (generated for you, do not hand edit!)
 - `jobs/` contains cron job launching code and specific jobs to run on the server (e.g. update users from LDAP)

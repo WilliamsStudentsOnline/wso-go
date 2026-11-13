@@ -234,6 +234,10 @@ dev-down:
 dev-reset:
 	@./scripts/devenv.sh reset
 
+.PHONY: dev-seed-dump
+dev-seed-dump:
+	@./scripts/dump-dev-seed.sh
+
 # tests for local dev
 -include .env
 export
