@@ -149,6 +149,10 @@ func migrateDiscussions(db *gorm.DB, log *zap.SugaredLogger) (migrated, skipped 
 				tx.Rollback()
 				return
 			}
+			if err = recordMap(tx, models.BoardBackfillSourcePosts, p.ID, bp.ID); err != nil {
+				tx.Rollback()
+				return
+			}
 			if bp.IsOP == nil || !*bp.IsOP {
 				replyCount++
 			}

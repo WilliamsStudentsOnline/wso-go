@@ -65,6 +65,12 @@ func TestBoardBackfill_CopyOnlyIdempotent(t *testing.T) {
 	assert.Equal(1, bullCount)
 	assert.Equal(1, rideCount)
 
+	var postMaps int
+	assert.NoError(db.Model(&models.BoardBackfillMap{}).
+		Where("source_table = ?", models.BoardBackfillSourcePosts).
+		Count(&postMaps).Error)
+	assert.Equal(2, postMaps)
+
 	res2, err := boardbackfill.Run(db, log)
 	assert.NoError(err)
 	assert.Equal(0, res2.DiscussionsMigrated)
