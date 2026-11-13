@@ -66,7 +66,7 @@ func TestBoardThreadModel_ListShowsUpcomingRides(t *testing.T) {
 		StartsAt: &future,
 	}
 	assert.NoError(tm.CreateThread(upcoming, "body", &models.BoardRideInformation{
-		OfferingRide: lib.TruePtr(true), Source: "A", Destination: "B",
+		OfferingRide: lib.BoolToPtr(true), Source: "A", Destination: "B",
 	}))
 
 	gone := &models.BoardThread{
@@ -75,7 +75,7 @@ func TestBoardThreadModel_ListShowsUpcomingRides(t *testing.T) {
 		StartsAt: &past,
 	}
 	assert.NoError(tm.CreateThread(gone, "body", &models.BoardRideInformation{
-		OfferingRide: lib.TruePtr(false), Source: "C", Destination: "D",
+		OfferingRide: lib.BoolToPtr(false), Source: "C", Destination: "D",
 	}))
 
 	scheduled := &models.BoardThread{
