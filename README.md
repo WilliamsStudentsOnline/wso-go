@@ -40,10 +40,6 @@ WSO is working on an official policy/stance for AI-assisted coding. For now, we 
 
 ## Development
 
-### Backfill jobs
-
-Manual-only (no `Schedule` in `jobs/registry`). Name them `backfill_<domain>`, put them under `jobs/backfills/<domain>/`, and keep a domain `*_backfill_map` (unique on source id) so re-runs are idempotent.
-
 ### Git Workflow/Pipeline
 Steps for a 10/10 development workflow:
 
@@ -92,6 +88,8 @@ To generate a database migration:
 Use `make check-migrations` to validate migration checksums and replay SQL on an ephemeral db (note that CI will run the same check).
 
 Legacy Go files under `db/migrations/` are frozen (historical gormigrate); do not add new ones.
+
+One-shot data backfills (legacy table → new table) are not Atlas migrations. Put them under `jobs/backfills/<domain>/`, register them in `jobs/registry` without a `Schedule`, name the job `backfill_<domain>`, and track progress in a domain-specific `*_backfill_map` table so re-runs are safe.
 
 #### Schema
 Schemas are defined following the [GORM guidelines](https://gorm.io/docs/models). Optional fields and all booleans are pointer-type, and associations are documented [here](https://gorm.io/docs/belongs_to.html). When working with any optional fields, you can easily convert a literal value into a pointer by using the `lib/to_pointer.go` file, which has functions like `lib.StrToPtr(str string) *string`.

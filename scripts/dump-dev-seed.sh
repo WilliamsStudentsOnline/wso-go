@@ -1,7 +1,4 @@
 #!/usr/bin/env bash
-# Write db/seed/development.sql.gz from the running devenv MySQL.
-# Usage: make dev-reset && make dev  # import + migrate via backend
-#        make dev-seed-dump
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
