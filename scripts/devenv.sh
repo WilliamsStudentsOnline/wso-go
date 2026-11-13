@@ -18,8 +18,8 @@ REDIS_HOST_PORT="${REDIS_HOST_PORT:-6379}"
 TEST_MYSQL_HOST_PORT="${TEST_MYSQL_HOST_PORT:-3307}"
 MYSQL_PASSWORD="${MYSQL_ROOT_PASSWORD:-secret-mysql-password}"
 MYSQL_DATABASE="${MYSQL_DATABASE:-wso}"
-SEED_SQL="${SEED_SQL:-$ROOT/db/seed/development.sql.gz}"
 AIR_VERSION="${AIR_VERSION:-v1.67.0}"
+DEV_CONFIG="${DEV_CONFIG:-config/environment/development.yaml}"
 
 export COMPOSE_PROJECT_NAME
 export MYSQL_HOST_PORT REDIS_HOST_PORT TEST_MYSQL_HOST_PORT
@@ -57,22 +57,26 @@ prereq() {
   fi
 }
 
-db_has_users_table() {
-  "${COMPOSE[@]}" exec -T mysql mysql -uroot -p"$MYSQL_PASSWORD" -N -e \
+db_has_seed_data() {
+  local count
+  count="$("${COMPOSE[@]}" exec -T mysql mysql -uroot -p"$MYSQL_PASSWORD" -N -e \
     "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='${MYSQL_DATABASE}' AND table_name='users';" \
-    2>/dev/null | tr -d '\r' | grep -qx '1'
+    2>/dev/null | tr -d '\r' || true)"
+  [[ "$count" == "1" ]] || return 1
+  count="$("${COMPOSE[@]}" exec -T mysql mysql -uroot -p"$MYSQL_PASSWORD" -N -e \
+    "SELECT COUNT(*) FROM \`${MYSQL_DATABASE}\`.users;" \
+    2>/dev/null | tr -d '\r' || true)"
+  [[ -n "$count" && "$count" -gt 0 ]]
 }
 
-import_seed_if_empty() {
-  if db_has_users_table; then
+# empty DB → migrate → synthetic seed (see db/seed/seeder).
+seed_if_empty() {
+  if db_has_seed_data; then
+    echo "devenv: database already seeded"
     return 0
   fi
-  [[ -f "$SEED_SQL" ]] || die "seed missing at $SEED_SQL"
-  echo "devenv: importing seed"
-  case "$SEED_SQL" in
-    *.gz) gunzip -c "$SEED_SQL" | "${COMPOSE[@]}" exec -T mysql mysql -uroot -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" ;;
-    *) "${COMPOSE[@]}" exec -T -i mysql mysql -uroot -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" <"$SEED_SQL" ;;
-  esac
+  echo "devenv: migrate + seed (empty → migrate → seed)"
+  go run ./db/seed/cmd -config "$DEV_CONFIG" -model all
 }
 
 cleanup() {
@@ -114,7 +118,7 @@ cmd_up() {
   echo "devenv: starting background services"
   "${COMPOSE[@]}" up -d --wait
 
-  import_seed_if_empty
+  seed_if_empty
 
   trap cleanup EXIT INT TERM
   echo "devenv: starting API! Ctrl+C to stop"

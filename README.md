@@ -24,7 +24,7 @@ Then:
 make dev
 ```
 
-This command runs MySQL and Redis in the background and serves our API, with hot reloading. Stop the development server with `Ctrl+C`. Database states will persist between runs; use `make dev-reset` to wipe them. If something gets stuck, try `make dev-down` to shut down the Docker containers running in the background.
+This command runs MySQL and Redis in the background and serves our API, with hot reloading. Stop the development server with `Ctrl+C`. On an empty database it runs **migrate then seed** (synthetic local data via `go run ./db/seed/cmd`). With `disable_ldap: true` in development config, log in as `student` or `admin` with any password. Database states will persist between runs; use `make dev-reset` to wipe them. If something gets stuck, try `make dev-down` to shut down the Docker containers running in the background.
 
 ## Onboarding 
 
@@ -39,6 +39,18 @@ You can use whatever you want as your Go IDE. VSCode is a popular choice as a li
 WSO is working on an official policy/stance for AI-assisted coding. For now, we ask that you use the `ai` tag on all PRs where AI was substantively used (e.g. in code generation or planning). AI is a double-edged sword which can dramatically help or hurt your learning and understanding; we ask that you be mindful when using it. We reserve the right to reject slop, withdraw Cursor privileges, or ban repeat offenders from contributing to WSO.
 
 ## Development
+
+### Backfill jobs
+
+One-shot data migrations (legacy table → new table) live under `jobs/backfills/<domain>/` and are **manual-only** — never give them a `Schedule` in `jobs/registry`.
+
+Conventions:
+
+- Job / binary name: `backfill_<domain>` (e.g. `backfill_board`)
+- Package path: `jobs/backfills/<domain>/` with a small `cmd/` entrypoint
+- Idempotency: a domain-specific `*_backfill_map` table with a unique `(source_table, source_id)` (or equivalent) so re-runs skip already-copied rows
+- Prefer copy-only: do not mutate or delete legacy source rows in the backfill itself
+- Register in `jobs/registry` with `Schedule: nil` so they only appear in the jobs console / `wso-jobctl` for manual runs
 
 ### Git Workflow/Pipeline
 Steps for a 10/10 development workflow:
@@ -159,10 +171,10 @@ Analytics are served at port `:9092`!
   - `environment/development.yml` is the local development configuration yaml
 - `db/` contains migration code
   - `atlas/` Atlas config, `schema.sql`, and versioned SQL migrations
-  - `seed/development.sql.gz` Seeded database for local dev (regenerate with mysql + gzip)
+  - `seed/` Synthetic local-dev seeders (`go run ./db/seed/cmd`); devenv runs migrate then seed on an empty DB
   - `migrations/` frozen historical gormigrate migrations (predating our migration to Atlas)
 - `docs/` contains swagger API docs (generated for you, do not hand edit!)
-- `jobs/` contains cron job launching code and specific jobs to run on the server (e.g. update users from LDAP)
+- `jobs/` contains batch job binaries and the jobs-queue registry (scheduled cron-style jobs plus manual-only backfills under `jobs/backfills/`)
 - `lib/` has library files (helpful functions, errors, etc.). We try to minimize the number of external libraries we import here, as this is so widely used
   - `errors.go` contains all API errors
   - `auth/` contains authentication info about scopes and useful ways to use scopes
