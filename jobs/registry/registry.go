@@ -19,16 +19,16 @@ const (
 )
 
 type Param struct {
-	Name        string
-	Type        ParamType
-	Required    bool
-	Default     string
-	Description string
-	EnumValues  []string
+	Name        string    `json:"name"`
+	Type        ParamType `json:"type"`
+	Required    bool      `json:"required"`
+	Default     string    `json:"default,omitempty"`
+	Description string    `json:"description,omitempty"`
+	EnumValues  []string  `json:"enumValues,omitempty"`
 }
 
 type Schedule struct {
-	OnCalendar string
+	OnCalendar string `json:"onCalendar,omitempty"`
 }
 
 type Job struct {

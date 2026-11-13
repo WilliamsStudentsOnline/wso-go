@@ -105,6 +105,25 @@ func TestManualOnlyDormsUpdateRequiresLocal(t *testing.T) {
 	assert.Contains(t, args, "-local=false")
 }
 
+func TestFroshPhotosUsesDir(t *testing.T) {
+	j, ok := Default().Get("frosh-photos")
+	require.True(t, ok)
+	dir, ok := j.ParamByName("dir")
+	require.True(t, ok)
+	assert.True(t, dir.Required)
+	_, ok = j.ParamByName("in")
+	assert.False(t, ok)
+}
+
+func TestUserHomeInfoFileIsPathString(t *testing.T) {
+	j, ok := Default().Get("user-home-info")
+	require.True(t, ok)
+	file, ok := j.ParamByName("file")
+	require.True(t, ok)
+	assert.Equal(t, ParamString, file.Type)
+	assert.True(t, file.Required)
+}
+
 func TestRegistry(t *testing.T) {
 	r := New()
 	require.NoError(t, r.Register(sampleJob()))
