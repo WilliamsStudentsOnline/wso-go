@@ -175,6 +175,18 @@ func init() {
 		Requires: needsMariaDB,
 		After:    needsMariaDB,
 	})
+	mustRegister(Job{
+		Name:        "board-backfill",
+		Description: "copy legacy bulletins/discussions/rides into board_* (idempotent)",
+		Binary:      InstallDir + "/job-board-backfill_linux",
+		Params: []Param{
+			{Name: "config", Type: ParamString, Default: defaultConfig},
+			{Name: "console", Type: ParamBool, Default: "true"},
+			{Name: "disable-migration-check", Type: ParamBool},
+		},
+		Requires: needsMariaDB,
+		After:    needsMariaDB,
+	})
 }
 
 func mustRegister(j Job) {

@@ -163,6 +163,13 @@ func migrateDiscussions(db *gorm.DB, log *zap.SugaredLogger) (migrated, skipped 
 
 		if err = recordMap(tx, models.BoardBackfillSourceDiscussions, d.ID, thread.ID); err != nil {
 			tx.Rollback()
+			// concurrent run already claimed this source row
+			done, e2 := alreadyMigrated(db, models.BoardBackfillSourceDiscussions, d.ID)
+			if e2 == nil && done {
+				skipped++
+				err = nil
+				continue
+			}
 			return
 		}
 		if err = tx.Commit().Error; err != nil {
@@ -255,6 +262,12 @@ func migrateBulletins(db *gorm.DB, log *zap.SugaredLogger) (migrated, skipped in
 
 		if err = recordMap(tx, models.BoardBackfillSourceBulletins, b.ID, thread.ID); err != nil {
 			tx.Rollback()
+			done, e2 := alreadyMigrated(db, models.BoardBackfillSourceBulletins, b.ID)
+			if e2 == nil && done {
+				skipped++
+				err = nil
+				continue
+			}
 			return
 		}
 		if err = tx.Commit().Error; err != nil {
@@ -368,6 +381,12 @@ func migrateRides(db *gorm.DB, log *zap.SugaredLogger) (migrated, skipped int, e
 
 		if err = recordMap(tx, models.BoardBackfillSourceBulletinRides, r.ID, thread.ID); err != nil {
 			tx.Rollback()
+			done, e2 := alreadyMigrated(db, models.BoardBackfillSourceBulletinRides, r.ID)
+			if e2 == nil && done {
+				skipped++
+				err = nil
+				continue
+			}
 			return
 		}
 		if err = tx.Commit().Error; err != nil {

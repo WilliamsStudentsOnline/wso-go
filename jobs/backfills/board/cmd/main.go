@@ -36,7 +36,7 @@ func main() {
 	db := config.LoadDatabase(cfg, log)
 	defer config.CloseDatabase(db, log)
 
-	dbUpToDate, err := migrate.MigrationUpToDate(migrate.MigrationGormOptions, db)
+	dbUpToDate, err := migrate.MigrationUpToDate(db)
 	if err != nil {
 		log.Fatal("Migration Checking Error: " + err.Error())
 	}
