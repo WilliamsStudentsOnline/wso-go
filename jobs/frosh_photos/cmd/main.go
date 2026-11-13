@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"image"
 	_ "image/gif"
 	_ "image/jpeg"
@@ -17,12 +16,11 @@ import (
 )
 
 func main() {
-	fmt.Println("HHJHIAWfbneriuyvnjkwrb")
 	var inDir string
 	var configPath string
 	var console bool
 
-	flag.StringVar(&inDir, "in", "", "input directory")
+	flag.StringVar(&inDir, "dir", "", "input directory")
 	flag.StringVar(&configPath, "config", "", "path to config file")
 	flag.BoolVar(&console, "console", false, "print logs in console as well as in ")
 	flag.Parse()

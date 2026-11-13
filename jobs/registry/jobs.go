@@ -10,7 +10,7 @@ func init() {
 		Description: "ingest registrar WSO TSV (home address, SU box, entry)",
 		Binary:      InstallDir + "/job-user-home-info_linux",
 		Params: []Param{
-			{Name: "file", Type: ParamFile, Required: true, Description: "path to registrar TSV"},
+			{Name: "file", Type: ParamString, Required: true, Description: "path to registrar TSV"},
 			{Name: "console", Type: ParamBool, Description: "also log to console"},
 			{Name: "config", Type: ParamString, Default: defaultConfig},
 		},
@@ -22,7 +22,7 @@ func init() {
 		Description: "import frosh profile photos from a directory of {unix}.jpg",
 		Binary:      InstallDir + "/job-frosh-photos_linux",
 		Params: []Param{
-			{Name: "in", Type: ParamString, Required: true, Description: "directory of unix.jpg photos"},
+			{Name: "dir", Type: ParamString, Required: true, Description: "directory of unix.jpg photos"},
 			{Name: "config", Type: ParamString, Default: defaultConfig},
 			{Name: "console", Type: ParamBool},
 		},
