@@ -12,6 +12,20 @@ CREATE TABLE `areas_of_study` (
   INDEX `idx_areas_of_study_deleted_at` (`deleted_at`),
   UNIQUE INDEX `name` (`name`)
 ) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- Create "backfill_map_board" table
+CREATE TABLE `backfill_map_board` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime NULL,
+  `updated_at` datetime NULL,
+  `deleted_at` datetime NULL,
+  `source_table` varchar(255) NOT NULL,
+  `source_id` int unsigned NOT NULL,
+  `thread_id` int unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `idx_backfill_map_board_deleted_at` (`deleted_at`),
+  UNIQUE INDEX `idx_backfill_map_board_source` (`source_table`, `source_id`),
+  INDEX `idx_backfill_map_board_thread` (`thread_id`)
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- Create "banned_users" table
 CREATE TABLE `banned_users` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -29,20 +43,6 @@ CREATE TABLE `banned_users` (
   PRIMARY KEY (`id`),
   INDEX `idx_banned_users_deleted_at` (`deleted_at`),
   INDEX `index_banned_users_on_user_id` (`user_id`)
-) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
--- Create "board_backfill_map" table
-CREATE TABLE `board_backfill_map` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `created_at` datetime NULL,
-  `updated_at` datetime NULL,
-  `deleted_at` datetime NULL,
-  `source_table` varchar(255) NOT NULL,
-  `source_id` int unsigned NOT NULL,
-  `thread_id` int unsigned NOT NULL,
-  PRIMARY KEY (`id`),
-  INDEX `idx_board_backfill_map_deleted_at` (`deleted_at`),
-  UNIQUE INDEX `idx_board_backfill_source` (`source_table`, `source_id`),
-  INDEX `idx_board_backfill_thread` (`thread_id`)
 ) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- Create "board_posts" table
 CREATE TABLE `board_posts` (
@@ -405,6 +405,24 @@ CREATE TABLE `factrak_surveys` (
   INDEX `index_factrak_surveys_on_professor_id` (`professor_id`),
   INDEX `index_factrak_surveys_on_user_id` (`user_id`)
 ) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- Create "feedback" table
+CREATE TABLE `feedback` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime NULL,
+  `updated_at` datetime NULL,
+  `deleted_at` datetime NULL,
+  `user_id` int unsigned NULL,
+  `preferred_name` varchar(255) NULL,
+  `priority` varchar(255) NOT NULL DEFAULT 'none',
+  `url` varchar(255) NULL,
+  `notes` longtext NOT NULL,
+  `admin_notes` longtext NULL,
+  `issue` varchar(255) NULL,
+  PRIMARY KEY (`id`),
+  INDEX `idx_feedback_deleted_at` (`deleted_at`),
+  INDEX `index_feedback_on_priority` (`priority`),
+  INDEX `index_feedback_on_user_id` (`user_id`)
+) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- Create "goodrich_menu_items" table
 CREATE TABLE `goodrich_menu_items` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -490,25 +508,8 @@ CREATE TABLE `moderator_tasks` (
   INDEX `index_moderator_tasks_on_resolved_at` (`resolved_at`),
   INDEX `index_moderator_tasks_on_resolved_by_user_id` (`resolved_by_user_id`),
   INDEX `index_moderator_tasks_on_task_reference` (`task_reference`),
-  INDEX `index_moderator_tasks_on_task_type` (`task_type`)
-) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
--- Create "feedback" table
-CREATE TABLE `feedback` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `created_at` datetime NULL,
-  `updated_at` datetime NULL,
-  `deleted_at` datetime NULL,
-  `user_id` int unsigned NULL,
-  `preferred_name` varchar(255) NULL,
-  `priority` varchar(255) NOT NULL DEFAULT 'none',
-  `url` varchar(255) NULL,
-  `notes` longtext NOT NULL,
-  `admin_notes` longtext NULL,
-  `issue` varchar(255) NULL,
-  PRIMARY KEY (`id`),
-  INDEX `idx_feedback_deleted_at` (`deleted_at`),
-  INDEX `index_feedback_on_priority` (`priority`),
-  INDEX `index_feedback_on_user_id` (`user_id`)
+  INDEX `index_moderator_tasks_on_task_type` (`task_type`),
+  INDEX `index_moderator_tasks_on_task_type_task_reference_resolved_at` (`task_type`, `task_reference`, `resolved_at`)
 ) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- Create "neighborhoods" table
 CREATE TABLE `neighborhoods` (

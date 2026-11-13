@@ -5,13 +5,13 @@ package models
 type BoardBackfillMap struct {
 	BaseSchema
 
-	SourceTable string `gorm:"unique_index:idx_board_backfill_source;not null" json:"sourceTable"`
-	SourceID    uint   `gorm:"unique_index:idx_board_backfill_source;not null" json:"sourceID"`
-	ThreadID    uint   `gorm:"index:idx_board_backfill_thread;not null" json:"threadID"`
+	SourceTable string `gorm:"unique_index:idx_backfill_map_board_source;not null" json:"sourceTable"`
+	SourceID    uint   `gorm:"unique_index:idx_backfill_map_board_source;not null" json:"sourceID"`
+	ThreadID    uint   `gorm:"index:idx_backfill_map_board_thread;not null" json:"threadID"`
 }
 
 func (*BoardBackfillMap) TableName() string {
-	return "board_backfill_map"
+	return "backfill_map_board"
 }
 
 const (

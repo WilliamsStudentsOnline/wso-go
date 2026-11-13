@@ -1,5 +1,5 @@
--- create "board_backfill_map" table
-CREATE TABLE `board_backfill_map` (
+-- create "backfill_map_board" table
+CREATE TABLE `backfill_map_board` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `created_at` datetime NULL,
   `updated_at` datetime NULL,
@@ -8,9 +8,9 @@ CREATE TABLE `board_backfill_map` (
   `source_id` int unsigned NOT NULL,
   `thread_id` int unsigned NOT NULL,
   PRIMARY KEY (`id`),
-  INDEX `idx_board_backfill_map_deleted_at` (`deleted_at`),
-  UNIQUE INDEX `idx_board_backfill_source` (`source_table`, `source_id`),
-  INDEX `idx_board_backfill_thread` (`thread_id`)
+  INDEX `idx_backfill_map_board_deleted_at` (`deleted_at`),
+  UNIQUE INDEX `idx_backfill_map_board_source` (`source_table`, `source_id`),
+  INDEX `idx_backfill_map_board_thread` (`thread_id`)
 ) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- create "board_posts" table
 CREATE TABLE `board_posts` (

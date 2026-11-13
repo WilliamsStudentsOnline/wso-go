@@ -4,5 +4,5 @@ DROP TABLE `board_threads`;
 DROP TABLE `board_ride_information`;
 -- reverse: create "board_posts" table
 DROP TABLE `board_posts`;
--- reverse: create "board_backfill_map" table
-DROP TABLE `board_backfill_map`;
+-- reverse: create "backfill_map_board" table
+DROP TABLE `backfill_map_board`;
