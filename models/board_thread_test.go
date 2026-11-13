@@ -48,6 +48,54 @@ func TestBoardThreadModel_CreateAndFilterResolved(t *testing.T) {
 	assert.Equal("done", threads[0].Title)
 }
 
+func TestBoardThreadModel_ListShowsUpcomingRides(t *testing.T) {
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+	log := zaptest.NewLogger(t).Sugar()
+	tm := models.NewBoardThreadModel(db, log)
+
+	u := models.User{Type: models.UserTypeStudent, UnixID: "u-ride", Name: "R"}
+	assert.NoError(db.Create(&u).Error)
+
+	future := time.Now().Add(48 * time.Hour)
+	past := time.Now().Add(-48 * time.Hour)
+
+	upcoming := &models.BoardThread{
+		Type: models.BoardThreadTypeRide, Title: "upcoming", UserID: u.ID,
+		ExUserName: u.Name, RepliesEnabled: lib.TruePtr(), LastActive: time.Now(),
+		StartsAt: &future,
+	}
+	assert.NoError(tm.CreateThread(upcoming, "body", &models.BoardRideInformation{
+		OfferingRide: lib.TruePtr(true), Source: "A", Destination: "B",
+	}))
+
+	gone := &models.BoardThread{
+		Type: models.BoardThreadTypeRide, Title: "past", UserID: u.ID,
+		ExUserName: u.Name, RepliesEnabled: lib.TruePtr(), LastActive: time.Now(),
+		StartsAt: &past,
+	}
+	assert.NoError(tm.CreateThread(gone, "body", &models.BoardRideInformation{
+		OfferingRide: lib.TruePtr(false), Source: "C", Destination: "D",
+	}))
+
+	scheduled := &models.BoardThread{
+		Type: models.BoardThreadTypeAnnouncement, Title: "later", UserID: u.ID,
+		ExUserName: u.Name, RepliesEnabled: lib.TruePtr(), LastActive: time.Now(),
+		StartsAt: &future,
+	}
+	assert.NoError(tm.CreateThread(scheduled, "body", nil))
+
+	var threads []*models.BoardThread
+	assert.NoError(tm.GetThreads(&threads, &models.GetBoardThreadsOptions{}))
+	titles := make([]string, 0, len(threads))
+	for _, th := range threads {
+		titles = append(titles, th.Title)
+	}
+	assert.Contains(titles, "upcoming")
+	assert.NotContains(titles, "past")
+	assert.NotContains(titles, "later")
+}
+
 func TestBoardThreadModel_RepliesEnabledFalsePersists(t *testing.T) {
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)

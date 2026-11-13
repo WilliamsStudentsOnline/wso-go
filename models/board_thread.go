@@ -121,8 +121,13 @@ func (o *GetBoardThreadsOptions) Preloader(db *gorm.DB) *gorm.DB {
 
 func (o *GetBoardThreadsOptions) Filter(db *gorm.DB) *gorm.DB {
 	now := time.Now()
-	// hide not-yet-started / expired
-	db = db.Where("board_threads.starts_at IS NULL OR board_threads.starts_at <= ?", now)
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	// rides: starts_at is departure (show today+); others: publish window (hide not-yet-started)
+	db = db.Where(`(
+		(board_threads.type = ? AND (board_threads.starts_at IS NULL OR board_threads.starts_at >= ?))
+		OR
+		(board_threads.type <> ? AND (board_threads.starts_at IS NULL OR board_threads.starts_at <= ?))
+	)`, BoardThreadTypeRide, today, BoardThreadTypeRide, now)
 	db = db.Where("board_threads.ends_at IS NULL OR board_threads.ends_at > ?", now)
 
 	if len(o.Types) > 0 {
