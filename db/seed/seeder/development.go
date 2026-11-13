@@ -5,41 +5,10 @@ import (
 
 	"github.com/WilliamsStudentsOnline/wso-go/db/seed"
 	"github.com/jinzhu/gorm"
-	"go.uber.org/zap"
 )
 
-// Development fills a fresh migrated DB with a small, synthetic dataset for local
-// devenv. Idempotent: no-ops when users already exist.
-func Development(db *gorm.DB) error {
-	n, err := UserCount(db)
-	if err != nil {
-		return err
-	}
-	if n > 0 {
-		zap.S().Infof("development seed: skipping (%d users already present)", n)
-		return nil
-	}
-
-	zap.S().Info("development seed: users")
-	if err := Users(0, db); err != nil {
-		return fmt.Errorf("users: %w", err)
-	}
-
-	zap.S().Info("development seed: dorms")
-	if err := Dorms(4, db); err != nil {
-		return fmt.Errorf("dorms: %w", err)
-	}
-
-	zap.S().Info("development seed: ephmatch profiles")
-	if err := EphmatchProfiles(16, db); err != nil {
-		return fmt.Errorf("ephmatch profiles: %w", err)
-	}
-
-	zap.S().Info("development seed: done")
-	return nil
-}
-
-// Dorms inserts n synthetic dorms (no rooms).
+// Dorms inserts n synthetic dorms (no rooms). Optional; local devenv normally
+// loads db/seed/development.sql.gz instead.
 func Dorms(n int, db *gorm.DB) error {
 	if n <= 0 {
 		n = 4

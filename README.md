@@ -24,7 +24,19 @@ Then:
 make dev
 ```
 
-This command runs MySQL and Redis in the background and serves our API, with hot reloading. Stop the development server with `Ctrl+C`. On an empty database it runs **migrate then seed** (synthetic local data via `go run ./db/seed/cmd`). With `disable_ldap: true` in development config, log in as `student` or `admin` with any password. Database states will persist between runs; use `make dev-reset` to wipe them. If something gets stuck, try `make dev-down` to shut down the Docker containers running in the background.
+This command runs MySQL and Redis in the background and serves our API, with hot reloading. Stop the development server with `Ctrl+C`. On an empty database it imports `db/seed/development.sql.gz`, then runs Atlas migrations so the dump can lag schema slightly. Database states will persist between runs; use `make dev-reset` to wipe them. If something gets stuck, try `make dev-down` to shut down the Docker containers running in the background.
+
+### Updating the development seed dump
+
+After migrations (or meaningful seed-data changes) land, refresh the checked-in dump so new clones stay rich and close to current schema:
+
+```bash
+make dev-reset && make dev   # import current gz, then migrate
+# optional: tweak rows in the running DB
+make dev-seed-dump           # rewrite db/seed/development.sql.gz
+```
+
+Commit the updated `db/seed/development.sql.gz`. Optional Go fabs under `db/seed/` (`go run ./db/seed/cmd -model …`) are for ad-hoc synthetic rows, not a replacement for the dump.
 
 ## Onboarding 
 
@@ -171,7 +183,8 @@ Analytics are served at port `:9092`!
   - `environment/development.yml` is the local development configuration yaml
 - `db/` contains migration code
   - `atlas/` Atlas config, `schema.sql`, and versioned SQL migrations
-  - `seed/` Synthetic local-dev seeders (`go run ./db/seed/cmd`); devenv runs migrate then seed on an empty DB
+  - `seed/development.sql.gz` Baseline local-dev database (import on empty devenv, then migrate). Refresh with `make dev-seed-dump`
+  - `seed/` Optional Go fabs (`go run ./db/seed/cmd`) for ad-hoc synthetic rows
   - `migrations/` frozen historical gormigrate migrations (predating our migration to Atlas)
 - `docs/` contains swagger API docs (generated for you, do not hand edit!)
 - `jobs/` contains batch job binaries and the jobs-queue registry (scheduled cron-style jobs plus manual-only backfills under `jobs/backfills/`)

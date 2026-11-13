@@ -19,8 +19,8 @@ func main() {
 	// Command-line flags
 	// Note: these can be overridden by env vars
 	flag.StringVar(&configPath, "config", "", "path to config file")
-	flag.StringVar(&model, "model", "all", "model: all | user | dorm | ephmatch | ephmatch_profile")
-	flag.IntVar(&n, "n", 0, "number of models to generate (0 = seeder default)")
+	flag.StringVar(&model, "model", "none", "model: none (migrate only) | user | dorm | ephmatch | ephmatch_profile")
+	flag.IntVar(&n, "n", 0, "number of models to generate")
 	flag.BoolVar(&disableMigrationCheck, "disable-migration-check", false, "deprecated: migrate always runs before seed")
 	flag.Parse()
 	_ = disableMigrationCheck
@@ -44,14 +44,15 @@ func main() {
 	defer config.CloseDatabase(db, log)
 
 	/* Database Migrations */
-	// Schema first, then data — same order as devenv (empty → migrate → seed).
+	// Always migrate first so a stale development.sql.gz can catch up.
 	if err := migrate.MigrateDB(db); err != nil {
 		log.Fatal("Migration Error: " + err.Error())
 	}
 
 	switch model {
-	case "all", "":
-		err = seeder.Development(db)
+	case "none", "":
+		log.Info("Migrations up to date (no seed model requested)")
+		return
 	case "user", "users":
 		err = seeder.Users(n, db)
 	case "dorm", "dorms":
