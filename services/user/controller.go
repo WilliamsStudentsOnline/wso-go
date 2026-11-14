@@ -316,6 +316,7 @@ func (t *Controller) UpdateUser(c *gin.Context) {
 		user.HomeCountry = normalizeLocationPart(user.HomeCountry)
 
 		locationCleared := user.HomeTown == nil && user.HomeState == nil && user.HomeCountry == nil
+		usLocation := false
 		if !locationCleared {
 			if user.HomeTown == nil || user.HomeCountry == nil {
 				t.RespondError(c, lib.ErrorUserInvalidHomeLocation)
@@ -328,6 +329,7 @@ func (t *Controller) UpdateUser(c *gin.Context) {
 			}
 			user.HomeCountry = lib.StrToPtr(country)
 			isUnitedStates := country == "United States"
+			usLocation = isUnitedStates
 			if isUnitedStates {
 				if user.HomeState == nil {
 					t.RespondError(c, lib.ErrorUserInvalidHomeLocation)
@@ -353,6 +355,10 @@ func (t *Controller) UpdateUser(c *gin.Context) {
 		}
 		if tooLong {
 			t.RespondError(c, lib.ErrorUserHomeTownTooLong)
+			return
+		}
+		if usLocation && !validCityTownInState(*user.HomeTown, *user.HomeState) {
+			t.RespondError(c, lib.ErrorUserInvalidHomeLocation)
 			return
 		}
 	}
