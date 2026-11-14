@@ -207,4 +207,14 @@ var (
 	ErrorModeratorTaskTagRequestLimit   = NewAPIError(2405, "too many open user tag task requests")
 	ErrorModeratorTaskTagRequestOpen    = NewAPIError(2406, "open tag request already exists for this name")
 	ErrorModeratorTaskFactrakFlagOpen   = NewAPIError(2407, "open factrak flag already exists for this survey")
+
+	// board
+	ErrorBoardInvalidType             = NewAPIError(2408, "invalid board thread type")
+	ErrorBoardInvalidDates            = NewAPIError(2409, "startsAt cannot be after endsAt")
+	ErrorBoardRepliesDisabled         = NewAPIErrorWithHTTP(2410, http.StatusForbidden, "replies are disabled on this thread")
+	ErrorBoardRideInformationRequired = NewAPIError(2411, "ride threads require offeringRide, source, and destination")
+	ErrorBoardTypeImmutable           = NewAPIError(2412, "thread type cannot be changed")
+	ErrorBoardThreadNotFound          = NewAPIErrorWithHTTP(2413, http.StatusNotFound, "board thread cannot be found")
+	ErrorBoardPostNotFound            = NewAPIErrorWithHTTP(2414, http.StatusNotFound, "board post cannot be found")
+	ErrorBoardCannotFlagSelf          = NewAPIErrorWithHTTP(2415, http.StatusForbidden, "cannot flag your own content")
 )

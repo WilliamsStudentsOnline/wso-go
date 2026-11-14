@@ -19,7 +19,7 @@ func main() {
 	// Command-line flags
 	// Note: these can be overridden by env vars
 	flag.StringVar(&configPath, "config", "", "path to config file")
-	flag.StringVar(&model, "model", "", "model (eg user, ephmatch, ephmatch_profile)")
+	flag.StringVar(&model, "model", "", "model (eg board, ephmatch, ephmatch_profile)")
 	flag.IntVar(&n, "n", 0, "number of models to generate")
 	flag.BoolVar(&disableMigrationCheck, "disable-migration-check", false, "don't check for outdated migrations")
 
@@ -59,6 +59,8 @@ func main() {
 	}
 
 	switch model {
+	case "board":
+		err = seeder.BoardThreads(n, db)
 	case "ephmatch_profile":
 		err = seeder.EphmatchProfiles(n, db)
 	case "ephmatch":

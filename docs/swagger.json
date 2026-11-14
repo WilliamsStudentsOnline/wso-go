@@ -282,6 +282,270 @@
                 }
             }
         },
+        "/admin/jobs": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "list registered batch jobs and next timer elapse when available",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin-jobs"
+                ],
+                "summary": "List batch jobs",
+                "operationId": "listAdminJobs",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/admin.jobInfo"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/jobs/runs": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "list job run history with optional filters",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin-jobs"
+                ],
+                "summary": "List job runs",
+                "operationId": "listAdminJobRuns",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "job name",
+                        "name": "job",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "run status",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 50,
+                        "description": "max rows",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.JobRun"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/jobs/runs/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin-jobs"
+                ],
+                "summary": "Get a job run",
+                "operationId": "getAdminJobRun",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "run id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.JobRun"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/jobs/runs/{id}/cancel": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "cancel a pending run or stop a running one",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin-jobs"
+                ],
+                "summary": "Cancel a job run",
+                "operationId": "cancelAdminJobRun",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "run id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.JobRun"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/jobs/runs/{id}/logs": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "admin-jobs"
+                ],
+                "summary": "Get job run logs",
+                "operationId": "getAdminJobRunLogs",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "run id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/jobs/{name}/runs": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "enqueue via JSON or multipart with optional file; queues when the job is already running",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin-jobs"
+                ],
+                "summary": "Enqueue or schedule a job run",
+                "operationId": "createAdminJobRun",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "job name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "JSON params",
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/admin.createJobRunRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.JobRun"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/tasks": {
             "get": {
                 "security": [
@@ -306,7 +570,9 @@
                     {
                         "enum": [
                             "FACTRAK_REVIEW",
-                            "NEW_USER_TAG"
+                            "NEW_USER_TAG",
+                            "BOARD_THREAD_REVIEW",
+                            "BOARD_POST_REVIEW"
                         ],
                         "type": "string",
                         "description": "Filter by task type",
@@ -1220,6 +1486,474 @@
                         "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/board/replies/{replyID}": {
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "tags": [
+                    "board"
+                ],
+                "summary": "Delete a reply (OP delete cascades to thread)",
+                "operationId": "deleteBoardReply",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Reply ID",
+                        "name": "replyID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.BoardPost"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "board"
+                ],
+                "summary": "Update a reply",
+                "operationId": "updateBoardReply",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Reply ID",
+                        "name": "replyID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update params",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/board.UpdateReplyParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.BoardPost"
+                        }
+                    }
+                }
+            }
+        },
+        "/board/replies/{replyID}/flag": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "creates a BOARD_POST_REVIEW moderator task for the post",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "board"
+                ],
+                "summary": "Flag a board reply",
+                "operationId": "flagBoardReply",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Reply ID",
+                        "name": "replyID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/board/threads": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "board"
+                ],
+                "summary": "List board threads",
+                "operationId": "listBoardThreads",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Cursor pagination",
+                        "name": "cursor",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "activity|created|startsAt",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Include null startsAt when sorting by startsAt",
+                        "name": "includeNull",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Thread types",
+                        "name": "type[]",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Filter by resolved",
+                        "name": "resolved",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Filter rides by offeringRide",
+                        "name": "offeringRide",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Filter by author",
+                        "name": "userID",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/board.listThreadsResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "board"
+                ],
+                "summary": "Create board thread",
+                "operationId": "createBoardThread",
+                "parameters": [
+                    {
+                        "description": "Create params",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/board.CreateThreadParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.BoardThread"
+                        }
+                    }
+                }
+            }
+        },
+        "/board/threads/{threadID}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "board"
+                ],
+                "summary": "Get board thread",
+                "operationId": "getBoardThread",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Thread ID",
+                        "name": "threadID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.BoardThread"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "tags": [
+                    "board"
+                ],
+                "summary": "Delete board thread",
+                "operationId": "deleteBoardThread",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Thread ID",
+                        "name": "threadID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.BoardThread"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "board"
+                ],
+                "summary": "Update board thread",
+                "operationId": "updateBoardThread",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Thread ID",
+                        "name": "threadID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update params",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/board.UpdateThreadParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.BoardThread"
+                        }
+                    }
+                }
+            }
+        },
+        "/board/threads/{threadID}/flag": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "creates a BOARD_THREAD_REVIEW moderator task for the thread",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "board"
+                ],
+                "summary": "Flag a board thread",
+                "operationId": "flagBoardThread",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Thread ID",
+                        "name": "threadID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/board/threads/{threadID}/replies": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "board"
+                ],
+                "summary": "Create a reply on a thread",
+                "operationId": "createBoardReply",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Thread ID",
+                        "name": "threadID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Reply content",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/board.CreateReplyParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.BoardPost"
                         }
                     }
                 }
@@ -9135,6 +9869,46 @@
                 }
             }
         },
+        "admin.createJobRunRequest": {
+            "type": "object",
+            "properties": {
+                "params": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "runAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "admin.jobInfo": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "hasActiveRun": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "nextRunAt": {
+                    "type": "string"
+                },
+                "params": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/registry.Param"
+                    }
+                },
+                "schedule": {
+                    "$ref": "#/definitions/registry.Schedule"
+                }
+            }
+        },
         "auth.AuthResponse": {
             "type": "object",
             "properties": {
@@ -9182,6 +9956,116 @@
                 },
                 "visible": {
                     "type": "boolean"
+                }
+            }
+        },
+        "board.CreateReplyParams": {
+            "type": "object",
+            "required": [
+                "content"
+            ],
+            "properties": {
+                "content": {
+                    "type": "string"
+                }
+            }
+        },
+        "board.CreateThreadParams": {
+            "type": "object",
+            "required": [
+                "body",
+                "title",
+                "type"
+            ],
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "endsAt": {
+                    "type": "string"
+                },
+                "repliesEnabled": {
+                    "type": "boolean"
+                },
+                "resolved": {
+                    "type": "boolean"
+                },
+                "ride": {
+                    "$ref": "#/definitions/board.createThreadRideParams"
+                },
+                "startsAt": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "board.UpdateReplyParams": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                }
+            }
+        },
+        "board.UpdateThreadParams": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "endsAt": {
+                    "type": "string"
+                },
+                "repliesEnabled": {
+                    "type": "boolean"
+                },
+                "resolved": {
+                    "type": "boolean"
+                },
+                "ride": {
+                    "$ref": "#/definitions/board.createThreadRideParams"
+                },
+                "startsAt": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "board.createThreadRideParams": {
+            "type": "object",
+            "properties": {
+                "destination": {
+                    "type": "string"
+                },
+                "offeringRide": {
+                    "type": "boolean"
+                },
+                "source": {
+                    "type": "string"
+                }
+            }
+        },
+        "board.listThreadsResponse": {
+            "type": "object",
+            "properties": {
+                "nextCursor": {
+                    "type": "string"
+                },
+                "threads": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.BoardThread"
+                    }
                 }
             }
         },
@@ -10025,6 +10909,119 @@
                             "$ref": "#/definitions/models.User"
                         }
                     ]
+                },
+                "userID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.BoardPost": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "exUserName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isOP": {
+                    "type": "boolean"
+                },
+                "thread": {
+                    "$ref": "#/definitions/models.BoardThread"
+                },
+                "threadID": {
+                    "type": "integer"
+                },
+                "user": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "userID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.BoardRideInformation": {
+            "type": "object",
+            "properties": {
+                "destination": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "offeringRide": {
+                    "type": "boolean"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "thread": {
+                    "$ref": "#/definitions/models.BoardThread"
+                },
+                "threadID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.BoardThread": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "description": "hydrated from OP for API convenience",
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "endsAt": {
+                    "type": "string"
+                },
+                "exUserName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "lastActive": {
+                    "type": "string"
+                },
+                "posts": {
+                    "description": "Associations",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.BoardPost"
+                    }
+                },
+                "repliesEnabled": {
+                    "type": "boolean"
+                },
+                "replyCount": {
+                    "type": "integer"
+                },
+                "resolved": {
+                    "type": "boolean"
+                },
+                "ride": {
+                    "$ref": "#/definitions/models.BoardRideInformation"
+                },
+                "startsAt": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/models.User"
                 },
                 "userID": {
                     "type": "integer"
@@ -11262,6 +12259,59 @@
                 "GoodrichPaymentMethodSwipePlusCreditCard"
             ]
         },
+        "models.JobRun": {
+            "type": "object",
+            "properties": {
+                "args": {
+                    "type": "string"
+                },
+                "exitStatus": {
+                    "type": "integer"
+                },
+                "finishedAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "inputFileName": {
+                    "type": "string"
+                },
+                "inputSha256": {
+                    "type": "string"
+                },
+                "invocationID": {
+                    "type": "string"
+                },
+                "jobName": {
+                    "type": "string"
+                },
+                "logPath": {
+                    "type": "string"
+                },
+                "runAt": {
+                    "type": "string"
+                },
+                "startedAt": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "trigger": {
+                    "type": "string"
+                },
+                "triggeredByUser": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "triggeredByUserID": {
+                    "type": "integer"
+                },
+                "unitName": {
+                    "type": "string"
+                }
+            }
+        },
         "models.ListingType": {
             "type": "string",
             "enum": [
@@ -11293,12 +12343,16 @@
             "enum": [
                 "",
                 "FACTRAK_REVIEW",
-                "NEW_USER_TAG"
+                "NEW_USER_TAG",
+                "BOARD_THREAD_REVIEW",
+                "BOARD_POST_REVIEW"
             ],
             "x-enum-varnames": [
                 "ModeratorTaskTypeUndefined",
                 "ModeratorTaskTypeFactrakReview",
-                "ModeratorTaskTypeNewUserTag"
+                "ModeratorTaskTypeNewUserTag",
+                "ModeratorTaskTypeBoardThreadReview",
+                "ModeratorTaskTypeBoardPostReview"
             ]
         },
         "models.Neighborhood": {
@@ -11711,6 +12765,55 @@
                 "useIP": {
                     "description": "If true, will authenticate based on IP. Will return either off-campus or on-campus token",
                     "type": "boolean"
+                }
+            }
+        },
+        "registry.Param": {
+            "type": "object",
+            "properties": {
+                "default": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "enumValues": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "required": {
+                    "type": "boolean"
+                },
+                "type": {
+                    "$ref": "#/definitions/registry.ParamType"
+                }
+            }
+        },
+        "registry.ParamType": {
+            "type": "string",
+            "enum": [
+                "string",
+                "bool",
+                "enum",
+                "file"
+            ],
+            "x-enum-varnames": [
+                "ParamString",
+                "ParamBool",
+                "ParamEnum",
+                "ParamFile"
+            ]
+        },
+        "registry.Schedule": {
+            "type": "object",
+            "properties": {
+                "onCalendar": {
+                    "type": "string"
                 }
             }
         },

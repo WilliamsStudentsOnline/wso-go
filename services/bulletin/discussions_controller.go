@@ -226,6 +226,7 @@ func (t *Controller) CreateDiscussion(c *gin.Context) {
 		t.RespondError(c, err)
 		return
 	}
+	t.boardBridge.AfterCreateDiscussion(&discussion)
 
 	t.RespondCreated(c, discussion)
 }
@@ -266,6 +267,7 @@ func (t *Controller) DeleteDiscussion(c *gin.Context) {
 		t.RespondError(c, err)
 		return
 	}
+	t.boardBridge.AfterDeleteDiscussion(&discussion)
 
 	t.RespondOK(c, discussion)
 }

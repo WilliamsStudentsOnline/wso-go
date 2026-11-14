@@ -40,6 +40,32 @@ definitions:
     required:
     - resolution
     type: object
+  admin.createJobRunRequest:
+    properties:
+      params:
+        additionalProperties:
+          type: string
+        type: object
+      runAt:
+        type: string
+    type: object
+  admin.jobInfo:
+    properties:
+      description:
+        type: string
+      hasActiveRun:
+        type: boolean
+      name:
+        type: string
+      nextRunAt:
+        type: string
+      params:
+        items:
+          $ref: '#/definitions/registry.Param'
+        type: array
+      schedule:
+        $ref: '#/definitions/registry.Schedule'
+    type: object
   auth.AuthResponse:
     properties:
       expire:
@@ -72,6 +98,78 @@ definitions:
         type: string
       visible:
         type: boolean
+    type: object
+  board.CreateReplyParams:
+    properties:
+      content:
+        type: string
+    required:
+    - content
+    type: object
+  board.CreateThreadParams:
+    properties:
+      body:
+        type: string
+      endsAt:
+        type: string
+      repliesEnabled:
+        type: boolean
+      resolved:
+        type: boolean
+      ride:
+        $ref: '#/definitions/board.createThreadRideParams'
+      startsAt:
+        type: string
+      title:
+        type: string
+      type:
+        type: string
+    required:
+    - body
+    - title
+    - type
+    type: object
+  board.UpdateReplyParams:
+    properties:
+      content:
+        type: string
+    type: object
+  board.UpdateThreadParams:
+    properties:
+      body:
+        type: string
+      endsAt:
+        type: string
+      repliesEnabled:
+        type: boolean
+      resolved:
+        type: boolean
+      ride:
+        $ref: '#/definitions/board.createThreadRideParams'
+      startsAt:
+        type: string
+      title:
+        type: string
+      type:
+        type: string
+    type: object
+  board.createThreadRideParams:
+    properties:
+      destination:
+        type: string
+      offeringRide:
+        type: boolean
+      source:
+        type: string
+    type: object
+  board.listThreadsResponse:
+    properties:
+      nextCursor:
+        type: string
+      threads:
+        items:
+          $ref: '#/definitions/models.BoardThread'
+        type: array
     type: object
   booktrak.CreateBookListingParams:
     properties:
@@ -650,6 +748,81 @@ definitions:
         allOf:
         - $ref: '#/definitions/models.User'
         description: Belongs to user
+      userID:
+        type: integer
+    type: object
+  models.BoardPost:
+    properties:
+      content:
+        type: string
+      createdAt:
+        type: string
+      exUserName:
+        type: string
+      id:
+        type: integer
+      isOP:
+        type: boolean
+      thread:
+        $ref: '#/definitions/models.BoardThread'
+      threadID:
+        type: integer
+      user:
+        $ref: '#/definitions/models.User'
+      userID:
+        type: integer
+    type: object
+  models.BoardRideInformation:
+    properties:
+      destination:
+        type: string
+      id:
+        type: integer
+      offeringRide:
+        type: boolean
+      source:
+        type: string
+      thread:
+        $ref: '#/definitions/models.BoardThread'
+      threadID:
+        type: integer
+    type: object
+  models.BoardThread:
+    properties:
+      body:
+        description: hydrated from OP for API convenience
+        type: string
+      createdAt:
+        type: string
+      endsAt:
+        type: string
+      exUserName:
+        type: string
+      id:
+        type: integer
+      lastActive:
+        type: string
+      posts:
+        description: Associations
+        items:
+          $ref: '#/definitions/models.BoardPost'
+        type: array
+      repliesEnabled:
+        type: boolean
+      replyCount:
+        type: integer
+      resolved:
+        type: boolean
+      ride:
+        $ref: '#/definitions/models.BoardRideInformation'
+      startsAt:
+        type: string
+      title:
+        type: string
+      type:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
       userID:
         type: integer
     type: object
@@ -1509,6 +1682,41 @@ definitions:
     - GoodrichPaymentMethodCash
     - GoodrichPaymentMethodSwipePlusCash
     - GoodrichPaymentMethodSwipePlusCreditCard
+  models.JobRun:
+    properties:
+      args:
+        type: string
+      exitStatus:
+        type: integer
+      finishedAt:
+        type: string
+      id:
+        type: integer
+      inputFileName:
+        type: string
+      inputSha256:
+        type: string
+      invocationID:
+        type: string
+      jobName:
+        type: string
+      logPath:
+        type: string
+      runAt:
+        type: string
+      startedAt:
+        type: string
+      status:
+        type: string
+      trigger:
+        type: string
+      triggeredByUser:
+        $ref: '#/definitions/models.User'
+      triggeredByUserID:
+        type: integer
+      unitName:
+        type: string
+    type: object
   models.ListingType:
     enum:
     - ""
@@ -1534,11 +1742,15 @@ definitions:
     - ""
     - FACTRAK_REVIEW
     - NEW_USER_TAG
+    - BOARD_THREAD_REVIEW
+    - BOARD_POST_REVIEW
     type: string
     x-enum-varnames:
     - ModeratorTaskTypeUndefined
     - ModeratorTaskTypeFactrakReview
     - ModeratorTaskTypeNewUserTag
+    - ModeratorTaskTypeBoardThreadReview
+    - ModeratorTaskTypeBoardPostReview
   models.Neighborhood:
     properties:
       dorms:
@@ -1822,6 +2034,40 @@ definitions:
         description: If true, will authenticate based on IP. Will return either off-campus
           or on-campus token
         type: boolean
+    type: object
+  registry.Param:
+    properties:
+      default:
+        type: string
+      description:
+        type: string
+      enumValues:
+        items:
+          type: string
+        type: array
+      name:
+        type: string
+      required:
+        type: boolean
+      type:
+        $ref: '#/definitions/registry.ParamType'
+    type: object
+  registry.ParamType:
+    enum:
+    - string
+    - bool
+    - enum
+    - file
+    type: string
+    x-enum-varnames:
+    - ParamString
+    - ParamBool
+    - ParamEnum
+    - ParamFile
+  registry.Schedule:
+    properties:
+      onCalendar:
+        type: string
     type: object
   responses.GetUserResponseDepartment:
     properties:
@@ -2413,6 +2659,174 @@ paths:
       tags:
       - admin
       - feedback
+  /admin/jobs:
+    get:
+      description: list registered batch jobs and next timer elapse when available
+      operationId: listAdminJobs
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/admin.jobInfo'
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: List batch jobs
+      tags:
+      - admin-jobs
+  /admin/jobs/{name}/runs:
+    post:
+      consumes:
+      - application/json
+      description: enqueue via JSON or multipart with optional file; queues when the
+        job is already running
+      operationId: createAdminJobRun
+      parameters:
+      - description: job name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: JSON params
+        in: body
+        name: body
+        schema:
+          $ref: '#/definitions/admin.createJobRunRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.JobRun'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Enqueue or schedule a job run
+      tags:
+      - admin-jobs
+  /admin/jobs/runs:
+    get:
+      description: list job run history with optional filters
+      operationId: listAdminJobRuns
+      parameters:
+      - description: job name
+        in: query
+        name: job
+        type: string
+      - description: run status
+        in: query
+        name: status
+        type: string
+      - default: 50
+        description: max rows
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.JobRun'
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: List job runs
+      tags:
+      - admin-jobs
+  /admin/jobs/runs/{id}:
+    get:
+      operationId: getAdminJobRun
+      parameters:
+      - description: run id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.JobRun'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get a job run
+      tags:
+      - admin-jobs
+  /admin/jobs/runs/{id}/cancel:
+    post:
+      description: cancel a pending run or stop a running one
+      operationId: cancelAdminJobRun
+      parameters:
+      - description: run id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.JobRun'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Cancel a job run
+      tags:
+      - admin-jobs
+  /admin/jobs/runs/{id}/logs:
+    get:
+      operationId: getAdminJobRunLogs
+      parameters:
+      - description: run id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get job run logs
+      tags:
+      - admin-jobs
   /admin/tasks:
     get:
       consumes:
@@ -2424,6 +2838,8 @@ paths:
         enum:
         - FACTRAK_REVIEW
         - NEW_USER_TAG
+        - BOARD_THREAD_REVIEW
+        - BOARD_POST_REVIEW
         in: query
         name: taskType
         type: string
@@ -3038,6 +3454,303 @@ paths:
       summary: Set homepage banner
       tags:
       - banner
+  /board/replies/{replyID}:
+    delete:
+      operationId: deleteBoardReply
+      parameters:
+      - description: Reply ID
+        in: path
+        name: replyID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BoardPost'
+      security:
+      - Bearer: []
+      summary: Delete a reply (OP delete cascades to thread)
+      tags:
+      - board
+    patch:
+      consumes:
+      - application/json
+      operationId: updateBoardReply
+      parameters:
+      - description: Reply ID
+        in: path
+        name: replyID
+        required: true
+        type: integer
+      - description: Update params
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/board.UpdateReplyParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BoardPost'
+      security:
+      - Bearer: []
+      summary: Update a reply
+      tags:
+      - board
+  /board/replies/{replyID}/flag:
+    post:
+      consumes:
+      - application/json
+      description: creates a BOARD_POST_REVIEW moderator task for the post
+      operationId: flagBoardReply
+      parameters:
+      - description: Reply ID
+        in: path
+        name: replyID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Flag a board reply
+      tags:
+      - board
+  /board/threads:
+    get:
+      operationId: listBoardThreads
+      parameters:
+      - description: Cursor pagination
+        in: query
+        name: cursor
+        type: string
+      - description: Offset pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: activity|created|startsAt
+        in: query
+        name: sort
+        type: string
+      - description: Include null startsAt when sorting by startsAt
+        in: query
+        name: includeNull
+        type: boolean
+      - collectionFormat: csv
+        description: Thread types
+        in: query
+        items:
+          type: string
+        name: type[]
+        type: array
+      - description: Filter by resolved
+        in: query
+        name: resolved
+        type: boolean
+      - description: Filter rides by offeringRide
+        in: query
+        name: offeringRide
+        type: boolean
+      - description: Filter by author
+        in: query
+        name: userID
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/board.listThreadsResponse'
+      security:
+      - Bearer: []
+      summary: List board threads
+      tags:
+      - board
+    post:
+      consumes:
+      - application/json
+      operationId: createBoardThread
+      parameters:
+      - description: Create params
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/board.CreateThreadParams'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.BoardThread'
+      security:
+      - Bearer: []
+      summary: Create board thread
+      tags:
+      - board
+  /board/threads/{threadID}:
+    delete:
+      operationId: deleteBoardThread
+      parameters:
+      - description: Thread ID
+        in: path
+        name: threadID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BoardThread'
+      security:
+      - Bearer: []
+      summary: Delete board thread
+      tags:
+      - board
+    get:
+      operationId: getBoardThread
+      parameters:
+      - description: Thread ID
+        in: path
+        name: threadID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BoardThread'
+      security:
+      - Bearer: []
+      summary: Get board thread
+      tags:
+      - board
+    patch:
+      consumes:
+      - application/json
+      operationId: updateBoardThread
+      parameters:
+      - description: Thread ID
+        in: path
+        name: threadID
+        required: true
+        type: integer
+      - description: Update params
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/board.UpdateThreadParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BoardThread'
+      security:
+      - Bearer: []
+      summary: Update board thread
+      tags:
+      - board
+  /board/threads/{threadID}/flag:
+    post:
+      consumes:
+      - application/json
+      description: creates a BOARD_THREAD_REVIEW moderator task for the thread
+      operationId: flagBoardThread
+      parameters:
+      - description: Thread ID
+        in: path
+        name: threadID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Flag a board thread
+      tags:
+      - board
+  /board/threads/{threadID}/replies:
+    post:
+      consumes:
+      - application/json
+      operationId: createBoardReply
+      parameters:
+      - description: Thread ID
+        in: path
+        name: threadID
+        required: true
+        type: integer
+      - description: Reply content
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/board.CreateReplyParams'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.BoardPost'
+      security:
+      - Bearer: []
+      summary: Create a reply on a thread
+      tags:
+      - board
   /books/{bookID}:
     get:
       consumes:

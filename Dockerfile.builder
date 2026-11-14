@@ -49,3 +49,7 @@ RUN go build -ldflags "-w -s" -tags=jsoniter \
 RUN go build -ldflags "-w -s" -tags=jsoniter \
     -o /wso/jobs/dorms-update \
     /go/src/github.com/WilliamsStudentsOnline/wso-go/jobs/dorms_update/cmd
+# Board backfill (legacy → board_*)
+RUN go build -ldflags "-w -s" -tags=jsoniter \
+    -o /wso/jobs/backfill_board \
+    /go/src/github.com/WilliamsStudentsOnline/wso-go/jobs/backfills/board/cmd

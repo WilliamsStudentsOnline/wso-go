@@ -2,7 +2,6 @@
 services:
   mysql:
     image: mariadb:10.11
-    container_name: wso-mysql
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: secret-mysql-password
@@ -11,7 +10,7 @@ services:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
     ports:
-      - "3306:3306"
+      - "${MYSQL_HOST_PORT:-3306}:3306"
     volumes:
       - wso_mysql_data:/var/lib/mysql
     healthcheck:
@@ -23,10 +22,9 @@ services:
 
   redis:
     image: redis:7
-    container_name: wso-redis
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - "${REDIS_HOST_PORT:-6379}:6379"
     volumes:
       - wso_redis_data:/data
       - ./lib/redis_util/redis.conf:/usr/local/etc/redis/redis.conf:ro

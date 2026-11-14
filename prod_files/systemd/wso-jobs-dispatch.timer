@@ -1,0 +1,12 @@
+[Unit]
+Description=WSO jobs dispatch timer
+Requires=wso-jobs-dispatch.service
+
+[Timer]
+OnCalendar=*-*-* *:*:00
+AccuracySec=15s
+Persistent=true
+Unit=wso-jobs-dispatch.service
+
+[Install]
+WantedBy=timers.target

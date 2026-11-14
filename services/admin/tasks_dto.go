@@ -33,6 +33,14 @@ type UserTagTaskContext struct {
 	Tag          *models.Tag `json:"tag,omitempty"`
 }
 
+type BoardThreadReviewTaskContext struct {
+	Thread *models.BoardThread `json:"thread,omitempty"`
+}
+
+type BoardPostReviewTaskContext struct {
+	Post *models.BoardPost `json:"post,omitempty"`
+}
+
 type ResolveTasksBody struct {
 	Resolution models.ModeratorTaskResolution `json:"resolution" binding:"required" enums:"APPROVED,REJECTED"`
 }

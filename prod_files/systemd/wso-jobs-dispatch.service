@@ -1,0 +1,9 @@
+[Unit]
+Description=WSO jobs dispatch (start due pending runs)
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=wso
+Group=wso
+ExecStart=/opt/wso-go/wso-jobctl_linux dispatch -config /opt/wso-go/static/wso-backend-config.yaml

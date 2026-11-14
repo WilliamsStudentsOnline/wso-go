@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/auth"
@@ -145,4 +146,41 @@ func TestResolveAppliesToSharedReference(t *testing.T) {
 		require.NotNil(t, task.ResolvedAt)
 		assert.Equal(models.ModeratorTaskResolutionRejected, *task.Resolution)
 	}
+}
+
+func TestResolveBoardThreadReviewDeletesThread(t *testing.T) {
+	assert, env := setupAdminTasks(t)
+
+	author := models.User{Type: models.UserTypeStudent, UnixID: "author", Name: "Author"}
+	assert.NoError(env.DB.Create(&author).Error)
+	thread := models.BoardThread{
+		Type: models.BoardThreadTypeDiscussion, Title: "flagged", UserID: author.ID,
+		ExUserName: author.Name, RepliesEnabled: lib.TruePtr(), LastActive: time.Now(),
+	}
+	assert.NoError(env.DB.Create(&thread).Error)
+	op := models.BoardPost{
+		ThreadID: thread.ID, UserID: author.ID, ExUserName: author.Name,
+		Content: "body", IsOP: lib.TruePtr(),
+	}
+	assert.NoError(env.DB.Create(&op).Error)
+
+	uid := uint(7)
+	task, err := models.NewBoardThreadReviewTask(&uid, thread.ID)
+	require.NoError(t, err)
+	require.NoError(t, env.DB.Create(task).Error)
+
+	body, _ := json.Marshal(ResolveTasksBody{Resolution: models.ModeratorTaskResolutionApproved})
+	w, err := utils.DoHTTPReq(env.Router, http.MethodPost,
+		fmt.Sprintf("/tasks/%d/resolve", task.ID), bytes.NewReader(body))
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+
+	var gone models.BoardThread
+	err = env.DB.First(&gone, thread.ID).Error
+	assert.True(gorm.IsRecordNotFoundError(err))
+
+	var resolved models.ModeratorTask
+	assert.NoError(env.DB.First(&resolved, task.ID).Error)
+	require.NotNil(t, resolved.ResolvedAt)
+	assert.Equal(models.ModeratorTaskResolutionApproved, *resolved.Resolution)
 }
