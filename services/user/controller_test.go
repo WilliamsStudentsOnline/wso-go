@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/http/httptest"
 	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
@@ -384,6 +386,133 @@ func TestController_UpdateUser(t *testing.T) {
 
 	// Status is okay
 	assert.Equal(http.StatusForbidden, w.Code)
+}
+
+func TestController_UpdateUserHomeLocation(t *testing.T) {
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+
+	user := models.User{
+		Name:       "Location Test",
+		UnixID:     "location-test",
+		Visible:    lib.BoolToPtr(true),
+		AtWilliams: lib.BoolToPtr(true),
+	}
+	assert.NoError(db.Create(&user).Error)
+
+	router := utils.SetupRouter(auth.ScopeUsers, auth.ScopeWriteSelf)
+	utils.AddUserContexts(router, user.ID)
+	SetupRouter(router, db, utils.SetupConfig(), zaptest.NewLogger(t).Sugar())
+
+	countriesResponse, err := utils.DoHTTPReq(router, http.MethodGet, "/countries", nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, countriesResponse.Code)
+	countriesData := utils.GetHTTPDataResp(assert, countriesResponse.Body.Bytes()).Data
+	var countries []string
+	assert.NoError(json.Unmarshal(countriesData, &countries))
+	assert.Contains(countries, "Ghana")
+	assert.Contains(countries, "United States")
+
+	statesResponse, err := utils.DoHTTPReq(router, http.MethodGet, "/states", nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, statesResponse.Code)
+	statesData := utils.GetHTTPDataResp(assert, statesResponse.Body.Bytes()).Data
+	var states []string
+	assert.NoError(json.Unmarshal(statesData, &states))
+	assert.Contains(states, "Massachusetts")
+
+	patch := func(body map[string]interface{}) *httptest.ResponseRecorder {
+		data, err := json.Marshal(body)
+		assert.NoError(err)
+		w, err := utils.DoHTTPReq(router, http.MethodPatch, "/me", bytes.NewBuffer(data))
+		assert.NoError(err)
+		return w
+	}
+
+	// Trim whitespace and normalize US country aliases.
+	w := patch(map[string]interface{}{
+		"homeTown":    " Boston ",
+		"homeState":   " MA ",
+		"homeCountry": " usa ",
+	})
+	assert.Equal(http.StatusOK, w.Code)
+	var saved models.User
+	assert.NoError(db.First(&saved, user.ID).Error)
+	assert.Equal("Boston", *saved.HomeTown)
+	assert.Equal("Massachusetts", *saved.HomeState)
+	assert.Equal("United States", *saved.HomeCountry)
+
+	// A US hometown without a state is rejected and leaves the prior value intact.
+	w = patch(map[string]interface{}{
+		"homeTown":    "Albany",
+		"homeState":   " ",
+		"homeCountry": "United States",
+	})
+	assert.Equal(http.StatusBadRequest, w.Code)
+	assert.Equal(lib.ErrorUserInvalidHomeLocation.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+	assert.NoError(db.First(&saved, user.ID).Error)
+	assert.Equal("Boston", *saved.HomeTown)
+
+	// Only listed US states or their postal abbreviations are accepted.
+	w = patch(map[string]interface{}{
+		"homeTown":    "Albany",
+		"homeState":   "Narnia",
+		"homeCountry": "United States",
+	})
+	assert.Equal(http.StatusBadRequest, w.Code)
+	assert.Equal(lib.ErrorUserInvalidHomeLocation.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+	assert.NoError(db.First(&saved, user.ID).Error)
+	assert.Equal("Boston", *saved.HomeTown)
+
+	// International locations use a country and do not retain a state field.
+	w = patch(map[string]interface{}{
+		"homeTown":    " Accra ",
+		"homeState":   "Ashanti",
+		"homeCountry": " Ghana ",
+	})
+	assert.Equal(http.StatusOK, w.Code)
+	assert.NoError(db.First(&saved, user.ID).Error)
+	assert.Equal("Accra", *saved.HomeTown)
+	assert.Nil(saved.HomeState)
+	assert.Equal("Ghana", *saved.HomeCountry)
+
+	// A state is discarded for international locations, even if it is malformed.
+	w = patch(map[string]interface{}{
+		"homeTown":    "Sunyani",
+		"homeState":   strings.Repeat("x", 256),
+		"homeCountry": "Ghana",
+	})
+	assert.Equal(http.StatusOK, w.Code)
+	assert.NoError(db.First(&saved, user.ID).Error)
+	assert.Nil(saved.HomeState)
+
+	// A country not in the published country list must not be saved.
+	w = patch(map[string]interface{}{
+		"homeTown":    "Accra",
+		"homeCountry": "Narnia",
+	})
+	assert.Equal(http.StatusBadRequest, w.Code)
+	assert.Equal(lib.ErrorUserInvalidHomeLocation.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+	assert.NoError(db.First(&saved, user.ID).Error)
+	assert.Equal("Ghana", *saved.HomeCountry)
+
+	w = patch(map[string]interface{}{
+		"homeTown": strings.Repeat("x", 256),
+	})
+	assert.Equal(http.StatusBadRequest, w.Code)
+	assert.Equal(lib.ErrorUserHomeTownTooLong.Code, utils.GetHTTPDataResp(assert, w.Body.Bytes()).Error.ErrorCode)
+
+	// Sending blank parts clears the entire location.
+	w = patch(map[string]interface{}{
+		"homeTown":    "",
+		"homeState":   "",
+		"homeCountry": "",
+	})
+	assert.Equal(http.StatusOK, w.Code)
+	assert.NoError(db.First(&saved, user.ID).Error)
+	assert.Nil(saved.HomeTown)
+	assert.Nil(saved.HomeState)
+	assert.Nil(saved.HomeCountry)
 }
 
 func TestController_UpdateUserPronounOverride(t *testing.T) {
