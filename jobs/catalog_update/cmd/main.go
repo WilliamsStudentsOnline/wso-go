@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -16,189 +17,290 @@ import (
 	"go.uber.org/zap"
 )
 
+// Course Scheduler's JSON numbers semesters linearly from Fall 2020 (+10 per year)
 const (
-	FixedFallSemesterID   = 1201
-	FixedFallSemesterYear = 2020
+	fixedFallSemesterID   = 1201
+	fixedFallSemesterYear = 2020
 )
 
-var (
-	configPath            string
-	filename              string
-	factrakFilename       string
-	savePreviousYears     int
-	draftCatalog          bool
-	disableMigrationCheck bool
-	console               bool
+type options struct {
+	configPath, file, factrakFile, archiveDir, catalogDir, unitsDir string
+	year, previousYears, fromYear, toYear                           int
+	draft, migrate, disableMigrationCheck, ingestDB, noIngestDB     bool
+	skipJSON, skipCurrent, rematchInstructors, units, console       bool
+}
 
-	log           *zap.SugaredLogger
-	searchFactrak factrak.SearchFactrak
-)
+type job struct {
+	opts     options
+	log      *zap.SugaredLogger
+	db       *gorm.DB
+	factrak  factrak.SearchFactrak
+	ingestDB bool
+}
 
 func main() {
-	var year int
+	opts := parseFlags()
+	j, closeDB := setup(opts)
+	defer closeDB()
+	defer j.log.Sync()
 
-	flag.StringVar(&configPath, "config", "", "path to config file")
-	flag.IntVar(&year, "year", 0, "the calendar year; set this to the year of spring semester")
-	flag.IntVar(&savePreviousYears, "previous-years", 0, "parse n previous years and save to public JSONs")
-	flag.StringVar(&filename, "file", "courses.json", "where to save the courses JSON file")
-	flag.StringVar(&factrakFilename, "factrak-file", "", "where to save the JSON aggregated with Factrak info")
-	flag.BoolVar(&draftCatalog, "draft", false, "get the draft catalog at catalog.draft.williams.edu")
-	flag.BoolVar(&disableMigrationCheck, "disable-migration-check", false, "don't check for outdated migrations")
-	flag.BoolVar(&console, "console", false, "print logs in console as well as in ")
+	if err := j.run(); err != nil {
+		j.log.Fatal(err)
+	}
+}
 
+func parseFlags() options {
+	var o options
+	flag.StringVar(&o.configPath, "config", "", "config file; enables the database steps")
+	flag.IntVar(&o.year, "year", 0, "catalog year (spring calendar year); default is the current academic year")
+	flag.IntVar(&o.previousYears, "previous-years", 0, "also write JSON for this many earlier years")
+	flag.IntVar(&o.fromYear, "from-year", 0, "first catalog year of a historical load (with -to-year)")
+	flag.IntVar(&o.toYear, "to-year", 0, "last catalog year of a historical load (with -from-year)")
+	flag.StringVar(&o.file, "file", "courses.json", "Course Scheduler JSON output")
+	flag.StringVar(&o.factrakFile, "factrak-file", "", "Course Scheduler JSON with Factrak scores (current year only)")
+	flag.StringVar(&o.archiveDir, "archive-dir", "", "where to save raw catalog JSON (default: <dir of -file>/catalog-archive)")
+	flag.StringVar(&o.catalogDir, "catalog-dir", "", "read raw-YYYY.json / year_YYYY.json from here instead of the network")
+	flag.BoolVar(&o.draft, "draft", false, "use the draft catalog (catalog.draft.williams.edu)")
+	flag.BoolVar(&o.migrate, "migrate", false, "apply pending database migrations first")
+	flag.BoolVar(&o.disableMigrationCheck, "disable-migration-check", false, "run even if migrations are pending")
+	flag.BoolVar(&o.ingestDB, "ingest-db", false, "upsert into the database (default when -config is set)")
+	flag.BoolVar(&o.noIngestDB, "no-ingest-db", false, "don't upsert into the database even with -config")
+	flag.BoolVar(&o.skipJSON, "skip-json", false, "don't write JSON files")
+	flag.BoolVar(&o.skipCurrent, "skip-current", false, "skip step 1 (implied by -from-year/-to-year)")
+	flag.BoolVar(&o.rematchInstructors, "rematch-instructors", false, "re-link catalog instructors to WSO users")
+	flag.BoolVar(&o.units, "units", false, "update areas_of_study and course_attributes from the catalog's unit pages")
+	flag.StringVar(&o.unitsDir, "units-dir", "", "read unit pages (index.html, <code>.html) from here instead of the network")
+	flag.BoolVar(&o.console, "console", false, "also log to the console")
 	flag.Parse()
 
-	/* Flag Defaults */
-
-	// Year defaults to spring of current academic year
-	if year == 0 {
-		year = time.Now().Year()
-		if time.Now().Month() >= time.March { // load next year's catalog options in mar-aug, or this year's in sep-dec
-			year += 1
+	if o.year == 0 {
+		// Next year's catalog is published in spring, so switch over in March
+		o.year = time.Now().Year()
+		if time.Now().Month() >= time.March {
+			o.year++
 		}
 	}
+	if o.archiveDir == "" {
+		o.archiveDir = filepath.Join(filepath.Dir(o.file), "catalog-archive")
+	}
+	if o.historical() {
+		if o.fromYear == 0 || o.toYear == 0 {
+			panic("both -from-year and -to-year are required for a historical load")
+		}
+		if o.fromYear > o.toYear {
+			panic(fmt.Sprintf("-from-year (%d) must be <= -to-year (%d)", o.fromYear, o.toYear))
+		}
+		if o.fromYear < catalog.EarliestCatalogYear {
+			panic(fmt.Sprintf("-from-year (%d) is before the earliest catalog year, %d", o.fromYear, catalog.EarliestCatalogYear))
+		}
+		o.skipCurrent = true
+	}
+	return o
+}
 
-	/* CONFIG */
-	var cfg *config.Config
-	var err error
-	if configPath != "" {
-		/* Config */
-		cfg, err = config.LoadConfig(configPath)
-		if err != nil {
+func (o options) historical() bool { return o.fromYear != 0 || o.toYear != 0 }
+
+func setup(o options) (*job, func()) {
+	cfg := &config.Config{LogLevel: "info"}
+	if o.configPath != "" {
+		var err error
+		if cfg, err = config.LoadConfig(o.configPath); err != nil {
 			panic("Config Error: " + err.Error())
 		}
-	} else {
-		cfg = &config.Config{
-			LogLevel: "info",
-		}
 	}
-
-	if console {
+	if o.console {
 		cfg.LogFormats = append(cfg.LogFormats, "console")
 	}
-
-	/* LOGGING */
-	log, err = logging.SetupLog(cfg, "catalog-update")
+	log, err := logging.SetupLog(cfg, "catalog-update")
 	if err != nil {
 		panic("Log Setup Error: " + err.Error())
 	}
-	defer log.Sync()
 
-	searchFactrak = nil
-	var factrakDB *gorm.DB = nil
-
-	/* LOAD DB AND FACTRAK SEARCH ENGINE IF ENABLED */
-
-	// If no config path, don't load db or do search
-	// If config path, load up the db and do the search for factrak profs
-	if configPath != "" {
-		/* DATABASE */
-		db := config.LoadDatabase(cfg, log)
-		factrakDB = db
-		defer config.CloseDatabase(db, log)
-
-		/* Database Migrations */
-		// NOTE: Job will not migrate anything; will fail if db is not updated on migrations
-		dbUpToDate, err := migrate.MigrationUpToDate(db)
-		if err != nil {
-			log.Fatal("Migration Checking Error: " + err.Error())
+	j := &job{opts: o, log: log, ingestDB: (o.configPath != "" || o.ingestDB) && !o.noIngestDB}
+	if o.configPath == "" {
+		if j.ingestDB || o.rematchInstructors || o.units {
+			log.Fatal("-ingest-db, -rematch-instructors and -units need -config for the database")
 		}
+		return j, func() {}
+	}
 
-		if !dbUpToDate {
-			if disableMigrationCheck {
-				log.Warnf("Database migrations are not up to date")
-			} else {
-				log.Fatalf("Database migrations are not up to date")
+	j.db = config.LoadDatabase(cfg, log)
+	if o.migrate {
+		if err := migrate.MigrateDB(j.db); err != nil {
+			log.Fatal("Migration Error: " + err.Error())
+		}
+		log.Info("Database migrations applied")
+	}
+	upToDate, err := migrate.MigrationUpToDate(j.db)
+	if err != nil {
+		log.Fatal("Migration Checking Error: " + err.Error())
+	}
+	if !upToDate {
+		if !o.disableMigrationCheck {
+			log.Fatal("Database migrations are not up to date (pass -migrate to apply)")
+		}
+		log.Warn("Database migrations are not up to date")
+	}
+	j.factrak = factrak.NewSearchFactrak(j.db, cfg, log)
+	return j, func() { config.CloseDatabase(j.db, log) }
+}
+
+func (j *job) run() error {
+	o := j.opts
+	rematchOnly := o.rematchInstructors && !o.historical() && o.previousYears == 0
+	if rematchOnly || (o.skipCurrent && !o.historical() && o.previousYears == 0) {
+		return j.finish()
+	}
+
+	year := o.year
+	if !o.skipCurrent {
+		latest, err := j.loadCurrent()
+		if err != nil {
+			return err
+		}
+		year = min(year, latest) // don't ask for catalogs that don't exist yet
+	}
+	if o.historical() {
+		if err := j.loadYears(o.fromYear, o.toYear); err != nil {
+			return err
+		}
+	} else {
+		j.writePreviousYears(year)
+	}
+	return j.finish()
+}
+
+func (j *job) finish() error {
+	if j.opts.rematchInstructors {
+		if _, err := catalog.RematchOfferingInstructors(j.db, j.log); err != nil {
+			return err
+		}
+	}
+	if j.opts.units {
+		units, err := catalog.LoadCatalogUnits(j.opts.unitsDir, filepath.Join(j.opts.archiveDir, "units"), j.log)
+		if err != nil {
+			return err
+		}
+		if _, err := catalog.UpdateAreasAndAttributes(j.db, units, j.log); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (j *job) loadCurrent() (int, error) {
+	courses, err := j.loadYear(0)
+	if err != nil {
+		return 0, err
+	}
+	if len(courses) == 0 && !j.opts.skipJSON {
+		return 0, fmt.Errorf("current catalog produced zero courses")
+	}
+	if !j.opts.skipJSON {
+		if err := j.writeJSON(courses, j.opts.file); err != nil {
+			return 0, err
+		}
+	}
+	if j.opts.factrakFile != "" {
+		f, err := os.OpenFile(j.opts.factrakFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+		if err != nil {
+			return 0, err
+		}
+		defer f.Close()
+		if err := catalog.SaveFactrakCatalog(f, courses, j.db); err != nil {
+			return 0, err
+		}
+		j.log.Infof("Saved Factrak-scored catalog to %s", j.opts.factrakFile)
+	}
+	if len(courses) == 0 {
+		return j.opts.year, nil
+	}
+	return courses[0].Year, nil
+}
+
+func (j *job) loadYears(from, to int) error {
+	j.log.Infof("Historical load: catalog years %d–%d", from, to)
+	for y := from; y <= to; y++ {
+		courses, err := j.loadYear(y)
+		if err != nil {
+			return fmt.Errorf("catalog year %d: %w", y, err)
+		}
+		if !j.opts.skipJSON {
+			if err := j.writeJSON(courses, yearFile(j.opts.file, y)); err != nil {
+				return fmt.Errorf("write catalog year %d: %w", y, err)
 			}
 		}
-
-		searchFactrak = factrak.NewSearchFactrak(db, cfg, log)
+		j.log.Infof("Catalog year %d loaded", y)
 	}
-
-	courses, err := getCatalogCourses(0)
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-
-	// Save current year
-	err = writeCatalogFile(courses, filename)
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-
-	// Save current year with Factrak reviews
-	f_factrak, err := os.OpenFile(factrakFilename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-	defer f_factrak.Close()
-	err = catalog.SaveFactrakCatalog(f_factrak, courses, factrakDB)
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-	log.Infof("Successfully saved factrak-aggregated course catalog to %s", factrakFilename)
-
-	year = min(year, courses[0].Year) // prevent trying to access future catalogs
-
-	// Saves previous years to processed JSON, optionally cross listings as well
-	// Will write extra files for current year for compatibility (e.g. would save courses.json and courses-2025.json in AY 2024-5)
-	for i := 0; i <= savePreviousYears; i++ {
-		courses, err := getCatalogCourses(year - i)
-		if err != nil {
-			log.Errorf("Failed to parse catalog: %v", err)
-			continue
-		}
-
-		err = writeCatalogFile(courses, strings.Replace(filename, ".json", fmt.Sprintf("-%v.json", year-i), 1))
-		if err != nil {
-			log.Error("Failed to write catalog: %v", err)
-			continue
-		}
-	}
-
-}
-
-func getCatalogCourses(year int) (courses []catalog.Course, err error) {
-	log.Infof("Fetching catalog for %v", year)
-
-	rawCourses, err := catalog.GetCatalog(year, draftCatalog)
-	if err != nil {
-		return
-	}
-
-	yearForSemID := rawCourses[0].AcademicYear
-	// Set the fall semester ID to be a linear scale (+10 every year) starting at a fixed point
-	fallSemesterID := FixedFallSemesterID + 10*(yearForSemID-FixedFallSemesterYear)
-	// Set winter semester ID to be one more than fall semester ID
-	winterSemesterID := fallSemesterID + 1
-	// Set spring semester ID to be two more than fall semester ID
-	springSemesterID := fallSemesterID + 2
-
-	courses, err = catalog.ParseCatalog(rawCourses, fallSemesterID, winterSemesterID, springSemesterID, log, searchFactrak)
-	if err != nil {
-		return
-	}
-	log.Infof("Successfully loaded catalog courses for %v", year)
-	return
-}
-
-func writeCatalogFile(courses []catalog.Course, filename string) (err error) {
-	f_course, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
-	if err != nil {
-		return
-	}
-	defer f_course.Close()
-
-	err = catalog.SaveCatalog(f_course, courses)
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-
-	log.Infof("Successfully saved parsed catalog to %v", filename)
 	return nil
+}
+
+// Also writes the given year, so courses-YYYY.json exists alongside courses.json
+func (j *job) writePreviousYears(year int) {
+	for i := 0; i <= j.opts.previousYears; i++ {
+		courses, err := j.loadYear(year - i)
+		if err != nil {
+			j.log.Errorf("Failed to load catalog year %d: %v", year-i, err)
+			continue
+		}
+		if j.opts.skipJSON {
+			continue
+		}
+		if err := j.writeJSON(courses, yearFile(j.opts.file, year-i)); err != nil {
+			j.log.Errorf("Failed to write catalog year %d: %v", year-i, err)
+		}
+	}
+}
+
+func (j *job) loadYear(year int) ([]catalog.Course, error) {
+	body, err := j.fetchRaw(year)
+	if err != nil {
+		return nil, err
+	}
+	if err := catalog.ArchiveRawCatalog(j.opts.archiveDir, year, body); err != nil {
+		return nil, fmt.Errorf("archive raw catalog: %w", err)
+	}
+	raw, err := catalog.DecodeCatalog(body)
+	if err != nil {
+		return nil, err
+	}
+	if j.ingestDB {
+		if err := catalog.IngestCatalog(j.db, raw, j.log); err != nil {
+			return nil, fmt.Errorf("ingest catalog: %w", err)
+		}
+	}
+	if j.opts.skipJSON || len(raw) == 0 {
+		return []catalog.Course{}, nil
+	}
+	fall := fixedFallSemesterID + 10*(raw[0].AcademicYear-fixedFallSemesterYear)
+	return catalog.ParseCatalog(raw, fall, fall+1, fall+2, j.log, j.factrak)
+}
+
+func (j *job) fetchRaw(year int) ([]byte, error) {
+	if j.opts.catalogDir == "" {
+		j.log.Infof("Fetching catalog year %d (0 = current)", year)
+		return catalog.FetchCatalogJSON(year, j.opts.draft)
+	}
+	if year == 0 {
+		return nil, fmt.Errorf("-catalog-dir can't load the current year; pass -from-year/-to-year")
+	}
+	j.log.Infof("Reading catalog year %d from %s", year, j.opts.catalogDir)
+	return catalog.ReadCatalogYearFile(j.opts.catalogDir, year)
+}
+
+func (j *job) writeJSON(courses []catalog.Course, path string) error {
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	if err := catalog.SaveCatalog(f, courses); err != nil {
+		return err
+	}
+	j.log.Infof("Saved catalog to %s", path)
+	return nil
+}
+
+func yearFile(file string, year int) string {
+	return strings.Replace(file, ".json", fmt.Sprintf("-%d.json", year), 1)
 }
