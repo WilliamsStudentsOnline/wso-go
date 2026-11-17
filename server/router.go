@@ -33,6 +33,7 @@ import (
 	bulletinService "github.com/WilliamsStudentsOnline/wso-go/services/bulletin"
 	bulletinRSSService "github.com/WilliamsStudentsOnline/wso-go/services/bulletin/rss"
 	chatService "github.com/WilliamsStudentsOnline/wso-go/services/chat"
+	coursesService "github.com/WilliamsStudentsOnline/wso-go/services/courses"
 	dormtrakService "github.com/WilliamsStudentsOnline/wso-go/services/dormtrak"
 	ephcatchService "github.com/WilliamsStudentsOnline/wso-go/services/ephcatch"
 	ephmatchService "github.com/WilliamsStudentsOnline/wso-go/services/ephmatch"
@@ -201,6 +202,11 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 		// Feedback (user submit)
 		feedbackGroup := v2.Group("/feedback")
 		feedbackService.SetupRouter(feedbackGroup, db, cfg, log.Named("feedback"))
+
+		// Courses Service
+		coursesGroup := v2.Group("/courses")
+		coursesGroup.Use(auth.RequireScopes(auth.ScopeAllOther))
+		coursesService.SetupRouter(coursesGroup, db, cfg, log.Named("courses"))
 
 		// Factrak Service
 		factrakGroup := v2.Group("/factrak")

@@ -362,6 +362,401 @@ definitions:
       offer:
         type: boolean
     type: object
+  courses.AreaResponse:
+    properties:
+      abbreviation:
+        type: string
+      attributes:
+        items:
+          $ref: '#/definitions/courses.AttributeResponse'
+        type: array
+      catalogKind:
+        type: string
+      catalogSubjects:
+        description: listing subjects for this area, e.g. WGST covers WGSS
+        items:
+          type: string
+        type: array
+      catalogURL:
+        description: set when the area is in the current catalog
+        type: string
+      curriculumPDFURL:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      websiteURL:
+        type: string
+    type: object
+  courses.AttributeResponse:
+    properties:
+      area:
+        description: owning area's abbreviation
+        type: string
+      code:
+        type: string
+      kind:
+        description: distribution or program
+        type: string
+      name:
+        type: string
+    type: object
+  courses.CanonicalListingResponse:
+    properties:
+      code:
+        type: string
+      firstValidYear:
+        type: integer
+      lastValidYear:
+        type: integer
+      letter:
+        type: string
+      number:
+        type: integer
+      subject:
+        type: string
+    type: object
+  courses.CodeDistributions:
+    properties:
+      code:
+        type: string
+      div1:
+        type: boolean
+      div2:
+        type: boolean
+      div3:
+        type: boolean
+      dpe:
+        type: boolean
+      qfr:
+        type: boolean
+      wac:
+        type: boolean
+    type: object
+  courses.CourseFactrakResponse:
+    properties:
+      crseID:
+        type: string
+      currentRecommends:
+        description: Course Scheduler's score is currentRecommends/currentReviews
+        type: integer
+      currentReviews:
+        description: reviews of this term's instructors
+        type: integer
+      recommends:
+        description: of those, how many said yes
+        type: integer
+      reviews:
+        description: reviews that answered "would recommend"
+        type: integer
+    type: object
+  courses.CourseHistoryEntry:
+    properties:
+      instructors:
+        items:
+          $ref: '#/definitions/courses.InstructorResponse'
+        type: array
+      label:
+        type: string
+      source:
+        type: string
+      status:
+        type: string
+      strm:
+        type: integer
+      title:
+        type: string
+    type: object
+  courses.CourseInSemesterResponse:
+    properties:
+      attributes:
+        items:
+          type: string
+        type: array
+      byCode:
+        description: Only when the codes count differently (ENGL 215 is Div I, AAS
+          215 is Div II); the flags above are the union
+        items:
+          $ref: '#/definitions/courses.CodeDistributions'
+        type: array
+      campus:
+        type: string
+      classFormat:
+        type: string
+      components:
+        type: string
+      crseID:
+        type: string
+      departmentNotes:
+        type: string
+      description:
+        type: string
+      div1:
+        type: boolean
+      div2:
+        type: boolean
+      div3:
+        type: boolean
+      dpe:
+        type: boolean
+      dpeNotes:
+        type: string
+      enrollmentPreferences:
+        type: string
+      extraInfo:
+        type: string
+      fifthCourse:
+        type: boolean
+      gradingBasis:
+        type: string
+      gradingBasisDesc:
+        type: string
+      listings:
+        items:
+          $ref: '#/definitions/courses.ListingResponse'
+        type: array
+      materialFee:
+        type: string
+      passFail:
+        type: boolean
+      prereqs:
+        type: string
+      qfr:
+        type: boolean
+      qfrNotes:
+        type: string
+      requirementsEvaluation:
+        type: string
+      sections:
+        items:
+          $ref: '#/definitions/courses.SectionResponse'
+        type: array
+      shortDescription:
+        type: string
+      source:
+        description: catalog, or last_offered for recovered history
+        type: string
+      status:
+        type: string
+      strm:
+        type: integer
+      term:
+        $ref: '#/definitions/courses.TermResponse'
+      title:
+        type: string
+      units:
+        type: string
+      wac:
+        type: boolean
+      wacNotes:
+        type: string
+    type: object
+  courses.CourseResponse:
+    properties:
+      crseID:
+        type: string
+      description:
+        type: string
+      history:
+        description: newest first
+        items:
+          $ref: '#/definitions/courses.CourseHistoryEntry'
+        type: array
+      listings:
+        items:
+          $ref: '#/definitions/courses.CanonicalListingResponse'
+        type: array
+      professors:
+        items:
+          $ref: '#/definitions/courses.InstructorResponse'
+        type: array
+      title:
+        type: string
+    type: object
+  courses.CourseSearchResult:
+    properties:
+      crseID:
+        type: string
+      lastOffered:
+        $ref: '#/definitions/courses.CourseTermRef'
+      listings:
+        items:
+          $ref: '#/definitions/courses.ListingResponse'
+        type: array
+      terms:
+        description: newest first
+        items:
+          $ref: '#/definitions/courses.CourseTermRef'
+        type: array
+      title:
+        type: string
+    type: object
+  courses.CourseTermRef:
+    properties:
+      label:
+        type: string
+      source:
+        type: string
+      status:
+        type: string
+      strm:
+        type: integer
+    type: object
+  courses.InstructorResponse:
+    properties:
+      name:
+        type: string
+      userID:
+        description: WSO user, when matched
+        type: integer
+    type: object
+  courses.ListingResponse:
+    properties:
+      code:
+        type: string
+      letter:
+        type: string
+      number:
+        type: integer
+      subject:
+        type: string
+    type: object
+  courses.MeetingResponse:
+    properties:
+      days:
+        type: string
+      end:
+        type: string
+      facility:
+        type: string
+      start:
+        type: string
+    type: object
+  courses.SectionResponse:
+    properties:
+      classNbr:
+        type: integer
+      code:
+        description: the code this class number is under; cross-listed classes have
+          one section per code
+        type: string
+      component:
+        description: LEC, SEM, LAB, TUT, ...
+        type: string
+      consent:
+        type: string
+      enrollmentLimit:
+        type: integer
+      expectedEnrollment:
+        type: integer
+      instructors:
+        items:
+          $ref: '#/definitions/courses.InstructorResponse'
+        type: array
+      meetings:
+        items:
+          $ref: '#/definitions/courses.MeetingResponse'
+        type: array
+      section:
+        type: string
+      status:
+        description: offered or cancelled
+        type: string
+    type: object
+  courses.TermCatalogResponse:
+    properties:
+      courses:
+        items:
+          $ref: '#/definitions/courses.TermCourseResponse'
+        type: array
+      term:
+        $ref: '#/definitions/courses.TermResponse'
+    type: object
+  courses.TermCourseResponse:
+    properties:
+      attributes:
+        items:
+          type: string
+        type: array
+      byCode:
+        description: Only when the codes count differently (ENGL 215 is Div I, AAS
+          215 is Div II); the flags above are the union
+        items:
+          $ref: '#/definitions/courses.CodeDistributions'
+        type: array
+      campus:
+        type: string
+      classFormat:
+        type: string
+      components:
+        type: string
+      crseID:
+        type: string
+      description:
+        description: only with include=description
+        type: string
+      div1:
+        type: boolean
+      div2:
+        type: boolean
+      div3:
+        type: boolean
+      dpe:
+        type: boolean
+      fifthCourse:
+        type: boolean
+      gradingBasis:
+        type: string
+      gradingBasisDesc:
+        type: string
+      listings:
+        items:
+          $ref: '#/definitions/courses.ListingResponse'
+        type: array
+      passFail:
+        type: boolean
+      qfr:
+        type: boolean
+      sections:
+        items:
+          $ref: '#/definitions/courses.SectionResponse'
+        type: array
+      shortDescription:
+        type: string
+      source:
+        description: catalog, or last_offered for recovered history
+        type: string
+      status:
+        type: string
+      strm:
+        type: integer
+      title:
+        type: string
+      units:
+        type: string
+      wac:
+        type: boolean
+    type: object
+  courses.TermResponse:
+    properties:
+      courseCount:
+        type: integer
+      current:
+        type: boolean
+      label:
+        type: string
+      strm:
+        type: integer
+      term:
+        description: Fall, Winter or Spring
+        type: string
+      year:
+        description: 'catalog year (spring calendar year): Fall 2026 is 2027'
+        type: integer
+    type: object
   dormtrak.DormRoomPhotoInfo:
     properties:
       dormRoomId:
@@ -5634,6 +6029,409 @@ paths:
       summary: Get Chat Auth JWT token
       tags:
       - chat
+  /courses/areas:
+    get:
+      description: Every area of study (subject) with its catalog details and attribute
+        groups. catalogURL is set when the area is in the current catalog.
+      operationId: listCourseAreas
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/courses.AreaResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: List areas of study
+      tags:
+      - courses
+  /courses/attributes:
+    get:
+      description: Readable names for catalog attribute codes (distributions and department/program
+        groups like AFR_AFRCORE).
+      operationId: listCourseAttributes
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/courses.AttributeResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: List course attributes
+      tags:
+      - courses
+  /courses/catalog/{crseID}:
+    get:
+      description: 'A canonical course across all terms: listings with the years each
+        was used, offering history (newest first) and every professor who taught it.'
+      operationId: getCatalogCourse
+      parameters:
+      - description: Catalog course ID
+        in: path
+        name: crseID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/courses.CourseResponse'
+        "404":
+          description: '404: record not found'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get a course
+      tags:
+      - courses
+  /courses/catalog/{crseID}/ratings:
+    get:
+      description: Averaged Factrak ratings for a catalog course across all its cross-listings,
+        like Factrak's course ratings (reviews from the last 5 years), optionally
+        for one professor. Needs full Factrak access.
+      operationId: getCatalogCourseRatings
+      parameters:
+      - description: Catalog course ID
+        in: path
+        name: crseID
+        required: true
+        type: string
+      - description: Only reviews of this professor
+        in: query
+        name: professorID
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.FactrakSurveyAvgRatings'
+        "400":
+          description: '1100: could not parse malformed request data'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: '404: record not found'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get a course's Factrak ratings
+      tags:
+      - courses
+  /courses/catalog/{crseID}/reviews:
+    get:
+      description: 'Factrak reviews linked to a catalog course, across all its cross-listings,
+        newest first. Same rules as Factrak''s own survey list: full Factrak access,
+        reviews from the last 5 years, professors still at Williams, authors hidden.'
+      operationId: listCourseReviews
+      parameters:
+      - description: Catalog course ID
+        in: path
+        name: crseID
+        required: true
+        type: string
+      - description: Only reviews of this professor
+        in: query
+        name: professorID
+        type: integer
+      - description: Default 20, max 100
+        in: query
+        name: limit
+        type: integer
+      - description: Offset pagination
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.FactrakSurvey'
+            type: array
+        "400":
+          description: '1100: could not parse malformed request data'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: '404: record not found'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: List a course's Factrak reviews
+      tags:
+      - courses
+  /courses/search:
+    get:
+      description: 'Search canonical courses across every term we have. Text matches
+        like the per-semester search: every word must appear in the title, a code,
+        an instructor''s name or the description ("csci136" also works). Filters match
+        the per-semester ones: any option within a group, every group must match;
+        divisions and distributions count if the course had them in any term. Each
+        result lists the terms it was offered.'
+      operationId: searchCourses
+      parameters:
+      - description: Words to match in title, code, instructor or description
+        in: query
+        name: q
+        type: string
+      - collectionFormat: multi
+        description: Only courses with a listing in one of these subjects, e.g. CSCI
+        in: query
+        items:
+          type: string
+        name: subject
+        type: array
+      - collectionFormat: multi
+        description: 'Listing level: 0 (winter study), 1 (100-level) to 4 (400-level)'
+        in: query
+        items:
+          type: integer
+        name: level
+        type: array
+      - collectionFormat: multi
+        description: Divisions
+        in: query
+        items:
+          enum:
+          - div1
+          - div2
+          - div3
+          type: string
+        name: division
+        type: array
+      - collectionFormat: multi
+        description: Distribution requirements
+        in: query
+        items:
+          enum:
+          - dpe
+          - qfr
+          - wac
+          type: string
+        name: distribution
+        type: array
+      - description: 'Recency: offered this or last academic year, or within the past
+          3'
+        enum:
+        - last-year
+        - 3-years
+        in: query
+        name: offered
+        type: string
+      - description: Default 25, max 100
+        in: query
+        name: limit
+        type: integer
+      - description: Offset pagination
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/courses.CourseSearchResult'
+            type: array
+        "400":
+          description: '1100: could not parse malformed request data; 1101: request
+            data validation failed'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Search the all-time catalog
+      tags:
+      - courses
+  /courses/terms:
+    get:
+      description: Terms with catalog data, newest first. `current` marks the term
+        in session (over the summer, the coming fall).
+      operationId: listCourseTerms
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/courses.TermResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: List catalog terms
+      tags:
+      - courses
+  /courses/terms/{strm}:
+    get:
+      description: Every catalog course in a term with listings, attributes and sections,
+        for browsing and client-side filtering. Cached per term; supports If-None-Match.
+      operationId: getCourseTermCatalog
+      parameters:
+      - description: Term code, e.g. 1271 (Fall 2026)
+        in: path
+        name: strm
+        required: true
+        type: integer
+      - description: Set to description to include full course descriptions
+        enum:
+        - description
+        in: query
+        name: include
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/courses.TermCatalogResponse'
+        "304":
+          description: Not modified
+        "400":
+          description: '1100: could not parse malformed request data'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: '404: record not found'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get a term's courses
+      tags:
+      - courses
+  /courses/terms/{strm}/{crseID}:
+    get:
+      description: One course in one term with every catalog detail and its sections.
+        Also works for recovered terms before Fall 2022.
+      operationId: getCourseInSemester
+      parameters:
+      - description: Term code, e.g. 1271 (Fall 2026)
+        in: path
+        name: strm
+        required: true
+        type: integer
+      - description: Catalog course ID
+        in: path
+        name: crseID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/courses.CourseInSemesterResponse'
+        "400":
+          description: '1100: could not parse malformed request data'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: '404: record not found'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get a course in a term
+      tags:
+      - courses
+  /courses/terms/{strm}/factrak:
+    get:
+      description: '"Would recommend" counts for each course in a term that has linked
+        Factrak reviews, overall and for the term''s own instructors. Uses the reviews
+        Factrak shows: from the last 5 years, for professors still at Williams. Reviews
+        whose catalog link is a mismatch (the professor never taught this course in
+        the catalog) are left out unless includeMismatch=true. Needs full Factrak
+        access.'
+      operationId: getCourseTermFactrak
+      parameters:
+      - description: Term code, e.g. 1271 (Fall 2026)
+        in: path
+        name: strm
+        required: true
+        type: integer
+      - description: Also count reviews with a mismatched catalog link
+        in: query
+        name: includeMismatch
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/courses.CourseFactrakResponse'
+            type: array
+        "400":
+          description: '1100: could not parse malformed request data'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get Factrak scores for a term
+      tags:
+      - courses
   /dormtrak/dorms:
     get:
       consumes:

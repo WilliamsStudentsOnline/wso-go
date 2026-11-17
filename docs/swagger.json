@@ -4409,6 +4409,593 @@
                 }
             }
         },
+        "/courses/areas": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Every area of study (subject) with its catalog details and attribute groups. catalogURL is set when the area is in the current catalog.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "courses"
+                ],
+                "summary": "List areas of study",
+                "operationId": "listCourseAreas",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/courses.AreaResponse"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/courses/attributes": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Readable names for catalog attribute codes (distributions and department/program groups like AFR_AFRCORE).",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "courses"
+                ],
+                "summary": "List course attributes",
+                "operationId": "listCourseAttributes",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/courses.AttributeResponse"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/courses/catalog/{crseID}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "A canonical course across all terms: listings with the years each was used, offering history (newest first) and every professor who taught it.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "courses"
+                ],
+                "summary": "Get a course",
+                "operationId": "getCatalogCourse",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Catalog course ID",
+                        "name": "crseID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/courses.CourseResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "404: record not found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/courses/catalog/{crseID}/ratings": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Averaged Factrak ratings for a catalog course across all its cross-listings, like Factrak's course ratings (reviews from the last 5 years), optionally for one professor. Needs full Factrak access.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "courses"
+                ],
+                "summary": "Get a course's Factrak ratings",
+                "operationId": "getCatalogCourseRatings",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Catalog course ID",
+                        "name": "crseID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Only reviews of this professor",
+                        "name": "professorID",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.FactrakSurveyAvgRatings"
+                        }
+                    },
+                    "400": {
+                        "description": "1100: could not parse malformed request data",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "404: record not found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/courses/catalog/{crseID}/reviews": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Factrak reviews linked to a catalog course, across all its cross-listings, newest first. Same rules as Factrak's own survey list: full Factrak access, reviews from the last 5 years, professors still at Williams, authors hidden.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "courses"
+                ],
+                "summary": "List a course's Factrak reviews",
+                "operationId": "listCourseReviews",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Catalog course ID",
+                        "name": "crseID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Only reviews of this professor",
+                        "name": "professorID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Default 20, max 100",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset pagination",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.FactrakSurvey"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "1100: could not parse malformed request data",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "404: record not found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/courses/search": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Search canonical courses across every term we have. Text matches like the per-semester search: every word must appear in the title, a code, an instructor's name or the description (\"csci136\" also works). Filters match the per-semester ones: any option within a group, every group must match; divisions and distributions count if the course had them in any term. Each result lists the terms it was offered.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "courses"
+                ],
+                "summary": "Search the all-time catalog",
+                "operationId": "searchCourses",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Words to match in title, code, instructor or description",
+                        "name": "q",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "Only courses with a listing in one of these subjects, e.g. CSCI",
+                        "name": "subject",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "Listing level: 0 (winter study), 1 (100-level) to 4 (400-level)",
+                        "name": "level",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "enum": [
+                                "div1",
+                                "div2",
+                                "div3"
+                            ],
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "Divisions",
+                        "name": "division",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "enum": [
+                                "dpe",
+                                "qfr",
+                                "wac"
+                            ],
+                            "type": "string"
+                        },
+                        "collectionFormat": "multi",
+                        "description": "Distribution requirements",
+                        "name": "distribution",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "last-year",
+                            "3-years"
+                        ],
+                        "type": "string",
+                        "description": "Recency: offered this or last academic year, or within the past 3",
+                        "name": "offered",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Default 25, max 100",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset pagination",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/courses.CourseSearchResult"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/courses/terms": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Terms with catalog data, newest first. `current` marks the term in session (over the summer, the coming fall).",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "courses"
+                ],
+                "summary": "List catalog terms",
+                "operationId": "listCourseTerms",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/courses.TermResponse"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/courses/terms/{strm}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Every catalog course in a term with listings, attributes and sections, for browsing and client-side filtering. Cached per term; supports If-None-Match.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "courses"
+                ],
+                "summary": "Get a term's courses",
+                "operationId": "getCourseTermCatalog",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Term code, e.g. 1271 (Fall 2026)",
+                        "name": "strm",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            "description"
+                        ],
+                        "type": "string",
+                        "description": "Set to description to include full course descriptions",
+                        "name": "include",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/courses.TermCatalogResponse"
+                        }
+                    },
+                    "304": {
+                        "description": "Not modified"
+                    },
+                    "400": {
+                        "description": "1100: could not parse malformed request data",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "404: record not found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/courses/terms/{strm}/factrak": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "\"Would recommend\" counts for each course in a term that has linked Factrak reviews, overall and for the term's own instructors. Uses the reviews Factrak shows: from the last 5 years, for professors still at Williams. Reviews whose catalog link is a mismatch (the professor never taught this course in the catalog) are left out unless includeMismatch=true. Needs full Factrak access.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "courses"
+                ],
+                "summary": "Get Factrak scores for a term",
+                "operationId": "getCourseTermFactrak",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Term code, e.g. 1271 (Fall 2026)",
+                        "name": "strm",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Also count reviews with a mismatched catalog link",
+                        "name": "includeMismatch",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/courses.CourseFactrakResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "1100: could not parse malformed request data",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/courses/terms/{strm}/{crseID}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "One course in one term with every catalog detail and its sections. Also works for recovered terms before Fall 2022.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "courses"
+                ],
+                "summary": "Get a course in a term",
+                "operationId": "getCourseInSemester",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Term code, e.g. 1271 (Fall 2026)",
+                        "name": "strm",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Catalog course ID",
+                        "name": "crseID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/courses.CourseInSemesterResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "1100: could not parse malformed request data",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "404: record not found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/dormtrak/dorms": {
             "get": {
                 "security": [
@@ -9619,6 +10206,592 @@
                 },
                 "offer": {
                     "type": "boolean"
+                }
+            }
+        },
+        "courses.AreaResponse": {
+            "type": "object",
+            "properties": {
+                "abbreviation": {
+                    "type": "string"
+                },
+                "attributes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/courses.AttributeResponse"
+                    }
+                },
+                "catalogKind": {
+                    "type": "string"
+                },
+                "catalogSubjects": {
+                    "description": "listing subjects for this area, e.g. WGST covers WGSS",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "catalogURL": {
+                    "description": "set when the area is in the current catalog",
+                    "type": "string"
+                },
+                "curriculumPDFURL": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "websiteURL": {
+                    "type": "string"
+                }
+            }
+        },
+        "courses.AttributeResponse": {
+            "type": "object",
+            "properties": {
+                "area": {
+                    "description": "owning area's abbreviation",
+                    "type": "string"
+                },
+                "code": {
+                    "type": "string"
+                },
+                "kind": {
+                    "description": "distribution or program",
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "courses.CanonicalListingResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "firstValidYear": {
+                    "type": "integer"
+                },
+                "lastValidYear": {
+                    "type": "integer"
+                },
+                "letter": {
+                    "type": "string"
+                },
+                "number": {
+                    "type": "integer"
+                },
+                "subject": {
+                    "type": "string"
+                }
+            }
+        },
+        "courses.CodeDistributions": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "div1": {
+                    "type": "boolean"
+                },
+                "div2": {
+                    "type": "boolean"
+                },
+                "div3": {
+                    "type": "boolean"
+                },
+                "dpe": {
+                    "type": "boolean"
+                },
+                "qfr": {
+                    "type": "boolean"
+                },
+                "wac": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "courses.CourseFactrakResponse": {
+            "type": "object",
+            "properties": {
+                "crseID": {
+                    "type": "string"
+                },
+                "currentRecommends": {
+                    "description": "Course Scheduler's score is currentRecommends/currentReviews",
+                    "type": "integer"
+                },
+                "currentReviews": {
+                    "description": "reviews of this term's instructors",
+                    "type": "integer"
+                },
+                "recommends": {
+                    "description": "of those, how many said yes",
+                    "type": "integer"
+                },
+                "reviews": {
+                    "description": "reviews that answered \"would recommend\"",
+                    "type": "integer"
+                }
+            }
+        },
+        "courses.CourseHistoryEntry": {
+            "type": "object",
+            "properties": {
+                "instructors": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/courses.InstructorResponse"
+                    }
+                },
+                "label": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "strm": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "courses.CourseInSemesterResponse": {
+            "type": "object",
+            "properties": {
+                "attributes": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "byCode": {
+                    "description": "Only when the codes count differently (ENGL 215 is Div I, AAS 215 is Div II); the flags above are the union",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/courses.CodeDistributions"
+                    }
+                },
+                "campus": {
+                    "type": "string"
+                },
+                "classFormat": {
+                    "type": "string"
+                },
+                "components": {
+                    "type": "string"
+                },
+                "crseID": {
+                    "type": "string"
+                },
+                "departmentNotes": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "div1": {
+                    "type": "boolean"
+                },
+                "div2": {
+                    "type": "boolean"
+                },
+                "div3": {
+                    "type": "boolean"
+                },
+                "dpe": {
+                    "type": "boolean"
+                },
+                "dpeNotes": {
+                    "type": "string"
+                },
+                "enrollmentPreferences": {
+                    "type": "string"
+                },
+                "extraInfo": {
+                    "type": "string"
+                },
+                "fifthCourse": {
+                    "type": "boolean"
+                },
+                "gradingBasis": {
+                    "type": "string"
+                },
+                "gradingBasisDesc": {
+                    "type": "string"
+                },
+                "listings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/courses.ListingResponse"
+                    }
+                },
+                "materialFee": {
+                    "type": "string"
+                },
+                "passFail": {
+                    "type": "boolean"
+                },
+                "prereqs": {
+                    "type": "string"
+                },
+                "qfr": {
+                    "type": "boolean"
+                },
+                "qfrNotes": {
+                    "type": "string"
+                },
+                "requirementsEvaluation": {
+                    "type": "string"
+                },
+                "sections": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/courses.SectionResponse"
+                    }
+                },
+                "shortDescription": {
+                    "type": "string"
+                },
+                "source": {
+                    "description": "catalog, or last_offered for recovered history",
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "strm": {
+                    "type": "integer"
+                },
+                "term": {
+                    "$ref": "#/definitions/courses.TermResponse"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "units": {
+                    "type": "string"
+                },
+                "wac": {
+                    "type": "boolean"
+                },
+                "wacNotes": {
+                    "type": "string"
+                }
+            }
+        },
+        "courses.CourseResponse": {
+            "type": "object",
+            "properties": {
+                "crseID": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "history": {
+                    "description": "newest first",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/courses.CourseHistoryEntry"
+                    }
+                },
+                "listings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/courses.CanonicalListingResponse"
+                    }
+                },
+                "professors": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/courses.InstructorResponse"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "courses.CourseSearchResult": {
+            "type": "object",
+            "properties": {
+                "crseID": {
+                    "type": "string"
+                },
+                "lastOffered": {
+                    "$ref": "#/definitions/courses.CourseTermRef"
+                },
+                "listings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/courses.ListingResponse"
+                    }
+                },
+                "terms": {
+                    "description": "newest first",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/courses.CourseTermRef"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "courses.CourseTermRef": {
+            "type": "object",
+            "properties": {
+                "label": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "strm": {
+                    "type": "integer"
+                }
+            }
+        },
+        "courses.InstructorResponse": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "userID": {
+                    "description": "WSO user, when matched",
+                    "type": "integer"
+                }
+            }
+        },
+        "courses.ListingResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "letter": {
+                    "type": "string"
+                },
+                "number": {
+                    "type": "integer"
+                },
+                "subject": {
+                    "type": "string"
+                }
+            }
+        },
+        "courses.MeetingResponse": {
+            "type": "object",
+            "properties": {
+                "days": {
+                    "type": "string"
+                },
+                "end": {
+                    "type": "string"
+                },
+                "facility": {
+                    "type": "string"
+                },
+                "start": {
+                    "type": "string"
+                }
+            }
+        },
+        "courses.SectionResponse": {
+            "type": "object",
+            "properties": {
+                "classNbr": {
+                    "type": "integer"
+                },
+                "code": {
+                    "description": "the code this class number is under; cross-listed classes have one section per code",
+                    "type": "string"
+                },
+                "component": {
+                    "description": "LEC, SEM, LAB, TUT, ...",
+                    "type": "string"
+                },
+                "consent": {
+                    "type": "string"
+                },
+                "enrollmentLimit": {
+                    "type": "integer"
+                },
+                "expectedEnrollment": {
+                    "type": "integer"
+                },
+                "instructors": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/courses.InstructorResponse"
+                    }
+                },
+                "meetings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/courses.MeetingResponse"
+                    }
+                },
+                "section": {
+                    "type": "string"
+                },
+                "status": {
+                    "description": "offered or cancelled",
+                    "type": "string"
+                }
+            }
+        },
+        "courses.TermCatalogResponse": {
+            "type": "object",
+            "properties": {
+                "courses": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/courses.TermCourseResponse"
+                    }
+                },
+                "term": {
+                    "$ref": "#/definitions/courses.TermResponse"
+                }
+            }
+        },
+        "courses.TermCourseResponse": {
+            "type": "object",
+            "properties": {
+                "attributes": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "byCode": {
+                    "description": "Only when the codes count differently (ENGL 215 is Div I, AAS 215 is Div II); the flags above are the union",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/courses.CodeDistributions"
+                    }
+                },
+                "campus": {
+                    "type": "string"
+                },
+                "classFormat": {
+                    "type": "string"
+                },
+                "components": {
+                    "type": "string"
+                },
+                "crseID": {
+                    "type": "string"
+                },
+                "description": {
+                    "description": "only with include=description",
+                    "type": "string"
+                },
+                "div1": {
+                    "type": "boolean"
+                },
+                "div2": {
+                    "type": "boolean"
+                },
+                "div3": {
+                    "type": "boolean"
+                },
+                "dpe": {
+                    "type": "boolean"
+                },
+                "fifthCourse": {
+                    "type": "boolean"
+                },
+                "gradingBasis": {
+                    "type": "string"
+                },
+                "gradingBasisDesc": {
+                    "type": "string"
+                },
+                "listings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/courses.ListingResponse"
+                    }
+                },
+                "passFail": {
+                    "type": "boolean"
+                },
+                "qfr": {
+                    "type": "boolean"
+                },
+                "sections": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/courses.SectionResponse"
+                    }
+                },
+                "shortDescription": {
+                    "type": "string"
+                },
+                "source": {
+                    "description": "catalog, or last_offered for recovered history",
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "strm": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "units": {
+                    "type": "string"
+                },
+                "wac": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "courses.TermResponse": {
+            "type": "object",
+            "properties": {
+                "courseCount": {
+                    "type": "integer"
+                },
+                "current": {
+                    "type": "boolean"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "strm": {
+                    "type": "integer"
+                },
+                "term": {
+                    "description": "Fall, Winter or Spring",
+                    "type": "string"
+                },
+                "year": {
+                    "description": "catalog year (spring calendar year): Fall 2026 is 2027",
+                    "type": "integer"
                 }
             }
         },
