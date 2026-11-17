@@ -362,6 +362,23 @@ definitions:
       offer:
         type: boolean
     type: object
+  courses.AddMyCourseRequest:
+    properties:
+      classNbrs:
+        description: optional sections in that term
+        items:
+          type: integer
+        type: array
+      crseID:
+        type: string
+      hidden:
+        type: boolean
+      strm:
+        description: optional; without it the course is "someday"
+        type: integer
+    required:
+    - crseID
+    type: object
   courses.AreaResponse:
     properties:
       abbreviation:
@@ -642,6 +659,40 @@ definitions:
       strm:
         type: integer
     type: object
+  courses.DistributionsResponse:
+    properties:
+      earned:
+        $ref: '#/definitions/courses.PlanDistributions'
+      needed:
+        $ref: '#/definitions/courses.PlanDistributions'
+      withPlanned:
+        $ref: '#/definitions/courses.PlanDistributions'
+    type: object
+  courses.ImportTranscriptRequest:
+    properties:
+      courses:
+        items:
+          $ref: '#/definitions/courses.TranscriptCourseRef'
+        maxItems: 200
+        minItems: 1
+        type: array
+    required:
+    - courses
+    type: object
+  courses.ImportTranscriptResponse:
+    properties:
+      added:
+        type: integer
+      kept:
+        type: integer
+      removed:
+        type: integer
+      reviewed:
+        description: not on the transcript, but kept for their reviews
+        type: integer
+      through:
+        type: integer
+    type: object
   courses.InstructorResponse:
     properties:
       name:
@@ -649,6 +700,16 @@ definitions:
       userID:
         description: WSO user, when matched
         type: integer
+    type: object
+  courses.LinkMyReviewRequest:
+    properties:
+      classNbr:
+        type: integer
+      strm:
+        type: integer
+    required:
+    - classNbr
+    - strm
     type: object
   courses.ListingResponse:
     properties:
@@ -671,6 +732,111 @@ definitions:
         type: string
       start:
         type: string
+    type: object
+  courses.MyCourseResponse:
+    properties:
+      components:
+        description: Components the course offers that term (LEC, LAB, ...) and the
+          ones with no chosen section yet
+        items:
+          type: string
+        type: array
+      crseID:
+        type: string
+      div1:
+        description: From the course's term, or for a someday course its newest term
+        type: boolean
+      div2:
+        type: boolean
+      div3:
+        type: boolean
+      dpe:
+        type: boolean
+      hasReview:
+        description: the course can't be removed while this is true
+        type: boolean
+      hidden:
+        description: listed, but not on the timetable or in distributions
+        type: boolean
+      id:
+        type: integer
+      listings:
+        items:
+          $ref: '#/definitions/courses.ListingResponse'
+        type: array
+      missingComponents:
+        items:
+          type: string
+        type: array
+      qfr:
+        type: boolean
+      sections:
+        description: the chosen sections, with meetings for the timetable
+        items:
+          $ref: '#/definitions/courses.SectionResponse'
+        type: array
+      term:
+        allOf:
+        - $ref: '#/definitions/courses.CourseTermRef'
+        description: empty for a "someday" course
+      title:
+        type: string
+      wac:
+        type: boolean
+    type: object
+  courses.MyReviewResponse:
+    properties:
+      comment:
+        type: string
+      course:
+        description: the Factrak course it was filed under, e.g. "CSCI 136"
+        type: string
+      courseLinkVerificationSource:
+        type: string
+      createdTime:
+        type: string
+      crseID:
+        description: the catalog course it's about (linked or our best guess)
+        type: string
+      id:
+        type: integer
+      linked:
+        allOf:
+        - $ref: '#/definitions/courses.ReviewSectionRef'
+        description: The section it's linked to, by exact match or because the author
+          said so
+      professor:
+        type: string
+      professorID:
+        type: integer
+      semester:
+        type: string
+      suggestions:
+        description: Sections of our best-guess course this professor taught, when
+          not linked
+        items:
+          $ref: '#/definitions/courses.ReviewSectionRef'
+        type: array
+      wouldRecommendCourse:
+        description: The survey's yes/no answers, when given
+        type: boolean
+      wouldTakeAnother:
+        type: boolean
+    type: object
+  courses.PlanDistributions:
+    properties:
+      div1:
+        type: integer
+      div2:
+        type: integer
+      div3:
+        type: integer
+      dpe:
+        type: integer
+      qfr:
+        type: integer
+      ws:
+        type: integer
     type: object
   courses.ProfessorCourseResponse:
     properties:
@@ -803,6 +969,32 @@ definitions:
       instructor:
         $ref: '#/definitions/courses.InstructorResponse'
     type: object
+  courses.ReviewSectionRef:
+    properties:
+      classNbr:
+        type: integer
+      code:
+        description: e.g. "MATH 373" (cross-listed classes have one class number per
+          code)
+        type: string
+      component:
+        type: string
+      crseID:
+        type: string
+      meetings:
+        description: when and where it met, to help pick the right one
+        items:
+          $ref: '#/definitions/courses.MeetingResponse'
+        type: array
+      section:
+        type: string
+      strm:
+        type: integer
+      termLabel:
+        type: string
+      title:
+        type: string
+    type: object
   courses.SectionResponse:
     properties:
       classNbr:
@@ -925,6 +1117,72 @@ definitions:
         description: 'catalog year (spring calendar year): Fall 2026 is 2027'
         type: integer
     type: object
+  courses.TranscriptCourseRef:
+    properties:
+      crseID:
+        type: string
+      strm:
+        type: integer
+    required:
+    - crseID
+    - strm
+    type: object
+  courses.TranscriptPreviewResponse:
+    properties:
+      format:
+        description: wmsr102a (progress report) or wmsr102b (transcript)
+        type: string
+      remove:
+        description: Courses in those terms (or someday courses now taken) that would
+          come off; reviewed ones stay
+        items:
+          $ref: '#/definitions/courses.MyCourseResponse'
+        type: array
+      reviewed:
+        items:
+          $ref: '#/definitions/courses.MyCourseResponse'
+        type: array
+      rows:
+        items:
+          $ref: '#/definitions/courses.TranscriptRow'
+        type: array
+      through:
+        description: the last term on it; later terms aren't touched
+        type: integer
+    type: object
+  courses.TranscriptRow:
+    properties:
+      catalogTitle:
+        type: string
+      code:
+        description: as printed, e.g. "CSCI 136"
+        type: string
+      crseID:
+        description: The catalog course it matched in that term; empty when our catalog
+          doesn't have it
+        type: string
+      status:
+        description: add, keep (already on the list) or unmatched
+        type: string
+      strm:
+        type: integer
+      termLabel:
+        description: e.g. "Fall 2026"
+        type: string
+      title:
+        description: as printed, abbreviations and all
+        type: string
+    type: object
+  courses.UpdateMyCourseRequest:
+    properties:
+      classNbrs:
+        description: replaces the chosen sections; [] clears them
+        items:
+          type: integer
+        type: array
+      hidden:
+        type: boolean
+    type: object
   dormtrak.DormRoomPhotoInfo:
     properties:
       dormRoomId:
@@ -1034,6 +1292,27 @@ definitions:
       agree:
         type: boolean
     type: object
+  factrak.DeficitExemptionCreateParams:
+    properties:
+      reason:
+        description: Why the student can't write this semester's surveys; at most
+          1000 characters
+        type: string
+    required:
+    - reason
+    type: object
+  factrak.DeficitExemptionCreatedResponse:
+    properties:
+      id:
+        type: integer
+      semesterSeason:
+        enum:
+        - fall
+        - spring
+        type: string
+      semesterYear:
+        type: integer
+    type: object
   factrak.SurveyCreateParams:
     properties:
       approachability:
@@ -1043,6 +1322,8 @@ definitions:
       areaOfStudyAbbreviation:
         description: 'Or this:'
         type: string
+      classNbr:
+        type: integer
       comment:
         description: 'Params:'
         type: string
@@ -1078,7 +1359,7 @@ definitions:
         minimum: 0
         type: integer
       professorID:
-        description: 'Must include this:'
+        description: 'Must include this, unless a section with one instructor is given:'
         type: integer
       promoteDiscussion:
         maximum: 7
@@ -1089,13 +1370,16 @@ definitions:
         type: string
       semesterYear:
         type: integer
+      strm:
+        description: 'A catalog section instead of a course: fills in the course and
+          semester, and the professor if only one'
+        type: integer
       wouldRecommendCourse:
         type: boolean
       wouldTakeAnother:
         type: boolean
     required:
     - comment
-    - professorID
     type: object
   factrak.SurveyUpdateParams:
     properties:
@@ -3754,6 +4038,7 @@ paths:
         - BOARD_THREAD_REVIEW
         - BOARD_POST_REVIEW
         - USER_PHOTO_REVIEW
+        - FACTRAK_DEFICIT_EXEMPTION
         in: query
         name: taskType
         type: string
@@ -3818,7 +4103,8 @@ paths:
     delete:
       consumes:
       - application/json
-      description: soft-deletes a single moderator task by id
+      description: soft-deletes a single moderator task by id; deleting an open FACTRAK_DEFICIT_EXEMPTION
+        task rejects its request
       operationId: deleteModeratorTask
       parameters:
       - description: Task ID
@@ -3836,7 +4122,7 @@ paths:
               type: integer
             type: object
         "404":
-          description: Not Found
+          description: '404: record not found'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "500":
@@ -6451,6 +6737,374 @@ paths:
       summary: Get a course's Factrak stats
       tags:
       - courses
+  /courses/mine:
+    get:
+      description: 'The signed-in user''s courses: taken, current, planned and "someday",
+        newest term first. With strm, only that term (for the timetable). Each course
+        says which components (LEC, LAB, ...) still have no chosen section.'
+      operationId: listMyCourses
+      parameters:
+      - description: Term code, e.g. 1271
+        in: query
+        name: strm
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/courses.MyCourseResponse'
+            type: array
+        "400":
+          description: '1100: could not parse malformed request data'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: List my courses
+      tags:
+      - courses
+    post:
+      consumes:
+      - application/json
+      description: Adds a course, optionally in a term (strm) and with sections (classNbrs).
+        If the course is already on the list for that term, the sections are added
+        to it, so a lecture and its lab can be added one at a time.
+      operationId: addMyCourse
+      parameters:
+      - description: Course to add
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/courses.AddMyCourseRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/courses.MyCourseResponse'
+        "400":
+          description: '1100: could not parse malformed request data; 1101: request
+            data validation failed; 2801: section is not part of this course in that
+            term; 2802: sections need a term (strm)'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: '404: record not found'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Add a course to my courses
+      tags:
+      - courses
+  /courses/mine/{myCourseID}:
+    delete:
+      description: Takes a course (and its chosen sections) off the list. Refused
+        with 409 while you have a Factrak review of the course; delete the review
+        first.
+      operationId: deleteMyCourse
+      parameters:
+      - description: My course ID
+        in: path
+        name: myCourseID
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: '1100: could not parse malformed request data'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: '404: record not found'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "409":
+          description: '2800: delete your review of this course before removing it'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Remove a course from my courses
+      tags:
+      - courses
+    patch:
+      consumes:
+      - application/json
+      description: Hides or shows a course, or replaces its chosen sections (class
+        numbers in the course's term).
+      operationId: updateMyCourse
+      parameters:
+      - description: My course ID
+        in: path
+        name: myCourseID
+        required: true
+        type: integer
+      - description: Changes
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/courses.UpdateMyCourseRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/courses.MyCourseResponse'
+        "400":
+          description: '1100: could not parse malformed request data; 2801: section
+            is not part of this course in that term; 2802: sections need a term (strm)'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: '404: record not found'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Update a course in my courses
+      tags:
+      - courses
+  /courses/mine/{myCourseID}/sections/{classNbr}:
+    delete:
+      description: Drops one chosen section (by class number); the course stays on
+        the list.
+      operationId: removeMyCourseSection
+      parameters:
+      - description: My course ID
+        in: path
+        name: myCourseID
+        required: true
+        type: integer
+      - description: Class number
+        in: path
+        name: classNbr
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/courses.MyCourseResponse'
+        "400":
+          description: '1100: could not parse malformed request data'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: '404: record not found'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Remove a section from a course in my courses
+      tags:
+      - courses
+  /courses/mine/distributions:
+    get:
+      description: 'Div I/II/III (at most two courses per subject count toward a division),
+        writing skills, QFR and DPE over the signed-in user''s courses (not hidden):
+        earned through the current term, and including planned and someday courses.
+        No class year needed.'
+      operationId: getMyDistributions
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/courses.DistributionsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: My distribution requirements
+      tags:
+      - courses
+  /courses/mine/reviews:
+    get:
+      description: The signed-in user's own reviews, newest first. Each says which
+        section it's linked to or, if none, suggests sections of the course we think
+        it's about that its professor taught.
+      operationId: listMyReviews
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/courses.MyReviewResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: List my Factrak reviews
+      tags:
+      - courses
+  /courses/mine/reviews/{surveyID}/link:
+    post:
+      consumes:
+      - application/json
+      description: Records the section (term and class number) one of your reviews
+        was about. The section must be of the review's course, taught by its professor,
+        in a term that's over. The review's course and term follow the section, and
+        the section goes on your My courses.
+      operationId: linkMyReview
+      parameters:
+      - description: Review (survey) ID
+        in: path
+        name: surveyID
+        required: true
+        type: integer
+      - description: Section
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/courses.LinkMyReviewRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/courses.MyReviewResponse'
+        "400":
+          description: '1100: could not parse malformed request data; 1101: request
+            data validation failed; 1541: no offered catalog section with that term
+            and class number; 1542: professor did not teach that section; 2830: courses
+            can be reviewed once their term has started; 2831: a review can only be
+            linked to a section of its own course'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: '404: record not found'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Link my review to a section
+      tags:
+      - courses
+  /courses/mine/transcript:
+    put:
+      consumes:
+      - application/json
+      description: 'Resets every term up to the last one given to exactly these courses
+        (from a transcript preview): they''re added, or kept with their sections,
+        and other courses in those terms come off, as do someday entries for courses
+        now taken. Later terms are left alone, and courses you reviewed are never
+        removed.'
+      operationId: importMyTranscript
+      parameters:
+      - description: Matched courses
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/courses.ImportTranscriptRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/courses.ImportTranscriptResponse'
+        "400":
+          description: '1100: could not parse malformed request data; 1101: request
+            data validation failed'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: '404: record not found'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Import a transcript into my courses
+      tags:
+      - courses
+  /courses/mine/transcript/preview:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Reads a Williams academic progress report or internal transcript
+        PDF (one page, at most 2 MB) and matches its courses to the catalog. Nothing
+        is saved, the PDF included. The response says which courses would be added,
+        which are already on the list, which we couldn't match, and which courses
+        in the transcript's terms would come off (reviewed courses never do). Import
+        with PUT /courses/mine/transcript.
+      operationId: previewMyTranscript
+      parameters:
+      - description: Progress report or transcript PDF
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/courses.TranscriptPreviewResponse'
+        "400":
+          description: '2820: couldn''t read that PDF: upload a one-page Williams
+            academic progress report or internal transcript'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Preview importing a transcript PDF
+      tags:
+      - courses
   /courses/professors:
     get:
       description: Professors by name (every word must match), including ones who
@@ -8109,6 +8763,46 @@ paths:
       summary: List course surveys
       tags:
       - factrak
+  /factrak/deficit/exemptions:
+    post:
+      consumes:
+      - application/json
+      description: ask to be excused from this semester's Factrak survey requirement;
+        a moderator approves or rejects it
+      operationId: createDeficitExemption
+      parameters:
+      - description: Create Deficit Exemption Params
+        in: body
+        name: createParams
+        required: true
+        schema:
+          $ref: '#/definitions/factrak.DeficitExemptionCreateParams'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/factrak.DeficitExemptionCreatedResponse'
+        "400":
+          description: '1100: could not parse malformed request data; 1101: request
+            data validation failed; 1533: user must be a student and could not be
+            found; 1561: reason is required and must be 1000 characters or fewer'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "409":
+          description: '1560: a deficit exemption was already requested for this semester'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Request a survey deficit exemption
+      tags:
+      - factrak
   /factrak/departments:
     get:
       consumes:
@@ -8608,7 +9302,9 @@ paths:
             area of study could not be found; 1537: survey already exists with passed
             user ID, professor ID, and course ID; 1538: survey course semester has
             an incorrect year or season; 1539: survey course format is invalid; 1540:
-            survey course year is in the future'
+            survey course year is in the future; 1541: no offered catalog section
+            with that term and class number; 1542: professor did not teach that section;
+            2830: courses can be reviewed once their term has started'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "500":

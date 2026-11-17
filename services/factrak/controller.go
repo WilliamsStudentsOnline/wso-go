@@ -16,15 +16,17 @@ import (
 type Controller struct {
 	services.BaseController
 	// Put models here:
-	professorModel   *models.ProfessorModel
-	userModel        *models.UserModel
-	courseModel      *models.CourseModel
-	departmentModel  *models.DepartmentModel
-	areaOfStudyModel *models.AreaOfStudyModel
+	professorModel     *models.ProfessorModel
+	userModel          *models.UserModel
+	courseModel        *models.CourseModel
+	departmentModel    *models.DepartmentModel
+	areaOfStudyModel   *models.AreaOfStudyModel
 	agreementModel     *models.FactrakAgreementModel
 	surveyModel        *models.FactrakSurveyModel
 	studentModel       *models.StudentModel
 	moderatorTaskModel *models.ModeratorTaskModel
+	exemptionModel     *models.FactrakDeficitExemptionModel
+	catalogModel       *models.CourseCatalogModel
 	factrakSearch      search.SearchFactrak
 }
 
@@ -40,6 +42,8 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 		surveyModel:        models.NewFactrakSurveyModel(db, log),
 		studentModel:       models.NewStudentModel(db, log),
 		moderatorTaskModel: models.NewModeratorTaskModel(db, log),
+		exemptionModel:     models.NewFactrakDeficitExemptionModel(db, log),
+		catalogModel:       models.NewCourseCatalogModel(db, log),
 		factrakSearch:      search.NewSearchFactrak(db, cfg, log),
 	}
 }

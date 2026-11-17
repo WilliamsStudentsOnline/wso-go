@@ -120,10 +120,15 @@ var (
 	ErrorSurveyCourseSemesterBad   = NewAPIError(1538, "survey course semester has an incorrect year or season")
 	ErrorSurveyCourseFormatBad     = NewAPIError(1539, "survey course format is invalid")
 	ErrorSurveyCourseYearFuture    = NewAPIError(1540, "survey course year is in the future")
+	ErrorSurveySectionNotFound     = NewAPIError(1541, "no offered catalog section with that term and class number")
+	ErrorSurveySectionProfessor    = NewAPIError(1542, "professor did not teach that section")
 	// Agreement errors
 	ErrorSurveyAgreementNotFound      = NewAPIErrorWithHTTP(1551, http.StatusNotFound, "survey agreement could not be found")
 	ErrorSurveyAgreementAlreadyExists = NewAPIError(1552, "survey agreement already exists for this user and survey")
 	ErrorSurveyAgreementNoSelf        = NewAPIError(1553, "cannot create survey agreement with your own survey")
+	// Deficit exemption errors
+	ErrorDeficitExemptionExists        = NewAPIErrorWithHTTP(1560, http.StatusConflict, "a deficit exemption was already requested for this semester")
+	ErrorDeficitExemptionReasonInvalid = NewAPIError(1561, "reason is required and must be 1000 characters or fewer")
 	// Ranking errors
 	ErrorInvalidRankingMetric = NewAPIErrorWithHTTP(1570, http.StatusBadRequest, "cannot rank by this metric")
 
@@ -223,4 +228,12 @@ var (
 
 	// 27** are WCFM errors
 	ErrorWCFMUnavailable = NewAPIErrorWithHTTP(2700, http.StatusBadGateway, "unable to load WCFM data from spinitron")
+
+	// 28** are My courses errors
+	ErrorMyCourseHasReview    = NewAPIErrorWithHTTP(2800, http.StatusConflict, "delete your review of this course before removing it")
+	ErrorMyCourseSection      = NewAPIErrorWithHTTP(2801, http.StatusBadRequest, "section is not part of this course in that term")
+	ErrorMyCourseNeedsTerm    = NewAPIErrorWithHTTP(2802, http.StatusBadRequest, "sections need a term (strm)")
+	ErrorTranscriptUnreadable = NewAPIErrorWithHTTP(2820, http.StatusBadRequest, "couldn't read that PDF: upload a one-page Williams academic progress report or internal transcript")
+	ErrorReviewTermNotStarted = NewAPIErrorWithHTTP(2830, http.StatusBadRequest, "courses can be reviewed once their term has started")
+	ErrorReviewOtherCourse    = NewAPIErrorWithHTTP(2831, http.StatusBadRequest, "a review can only be linked to a section of its own course")
 )
