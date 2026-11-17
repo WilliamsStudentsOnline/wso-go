@@ -60,6 +60,14 @@ services/words/words_data.go: services/words/words.json
 job-catalog-update:
 	go build -tags=jsoniter -o job-catalog-update ./jobs/catalog_update/cmd
 
+.PHONY: job-backfill_factrak
+job-backfill_factrak:
+	go build -tags=jsoniter -o job-backfill_factrak ./jobs/backfills/factrak/cmd
+
+.PHONY: job-backfill_areas
+job-backfill_areas:
+	go build -tags=jsoniter -o job-backfill_areas ./jobs/backfills/areas/cmd
+
 .PHONY: job-update-all-factrak-survey-deficits
 job-update-all-factrak-survey-deficits:
 	go build -tags=jsoniter -o job-update-all-factrak-survey-deficits ./jobs/update_all_factrak_survey_deficits/cmd
@@ -168,6 +176,8 @@ build-jobs:
 	go build -tags=jsoniter -o job-mobile-fetcher ./jobs/mobile_fetcher/cmd
 	go build -tags=jsoniter -o job-williams-record-update ./jobs/williams_record_update/cmd
 	go build -tags=jsoniter -o job-backfill_board ./jobs/backfills/board/cmd
+	go build -tags=jsoniter -o job-backfill_factrak ./jobs/backfills/factrak/cmd
+	go build -tags=jsoniter -o job-backfill_areas ./jobs/backfills/areas/cmd
 	go build -tags=jsoniter -o wso-jobctl ./jobs/jobctl/cmd
 
 .PHONY: build-jobs-prod-linux
@@ -191,6 +201,8 @@ build-jobs-prod-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-mobile-fetcher_linux ./jobs/mobile_fetcher/cmd
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-williams-record-update_linux ./jobs/williams_record_update/cmd
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-backfill_board_linux ./jobs/backfills/board/cmd
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-backfill_factrak_linux ./jobs/backfills/factrak/cmd
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-backfill_areas_linux ./jobs/backfills/areas/cmd
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o wso-jobctl_linux ./jobs/jobctl/cmd
 
 .PHONY: sync-prod
