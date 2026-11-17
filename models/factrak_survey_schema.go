@@ -14,6 +14,15 @@ const (
 	FactrakSurveySemesterSeasonSpring      = "spring"
 )
 
+// Most to least sure; empty when the survey has no catalog link
+const (
+	CourseLinkVerificationSourceAuthorConfirmed = "author_confirmed" // the author attached it to a term or section
+	CourseLinkVerificationSourceVerified        = "verified"         // linked to the section: term and professor matched
+	CourseLinkVerificationSourceConfirmed       = "confirmed"        // the professor taught this course in the catalog
+	CourseLinkVerificationSourceHistorical      = "historical"       // the professor isn't in the catalog (left before Fall 2022)
+	CourseLinkVerificationSourceMismatch        = "mismatch"         // the professor is in the catalog but never taught this course
+)
+
 // FactrakSurvey Schema
 type FactrakSurvey struct {
 	BaseSchema
@@ -29,6 +38,14 @@ type FactrakSurvey struct {
 	// Belongs to course
 	CourseID uint    `gorm:"index:index_factrak_surveys_on_course_id;not null" json:"courseID"`
 	Course   *Course `json:"course,omitempty"`
+
+	CourseCanonicalID *uint            `gorm:"index:index_factrak_surveys_on_course_canonical_id" json:"canonicalCourseID,omitempty"`
+	CourseCanonical   *CourseCanonical `json:"canonicalCourse,omitempty"`
+	CourseOfferingID  *uint            `gorm:"index:index_factrak_surveys_on_course_offering_id" json:"offeringID,omitempty"`
+	CourseOffering    *CourseOffering  `json:"offering,omitempty"`
+	// The author's My courses entry for this course
+	UserCourseID                 *uint  `gorm:"index:index_factrak_surveys_on_user_course_id" json:"userCourseID,omitempty"`
+	CourseLinkVerificationSource string `gorm:"size:32;index:index_factrak_surveys_on_course_link_verification_source" json:"courseLinkVerificationSource,omitempty" enums:",author_confirmed,verified,confirmed,historical,mismatch"`
 
 	WouldRecommendCourse *bool   `json:"wouldRecommendCourse"`
 	CourseWorkload       *int    `json:"courseWorkload"`

@@ -45,5 +45,15 @@ func AutoMigrateModels(db *gorm.DB) error {
 		&models.BoardPoll{},
 		&models.BoardPollOption{},
 		&models.BoardPollVote{},
+		&models.CourseCanonical{},
+		&models.CourseListing{},
+		&models.CourseInSemester{},
+		&models.CourseAttribute{},
+		&models.CourseOffering{},
+		&models.CourseOfferingMeeting{},
+		&models.CourseOfferingInstructor{},
+		&models.UserCourse{},
+		&models.UserCourseOffering{},
+		&models.FactrakDeficitExemption{},
 	).Error
 }

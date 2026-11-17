@@ -10080,6 +10080,13 @@ const docTemplate = `{
                 "abbreviation": {
                     "type": "string"
                 },
+                "catalogKind": {
+                    "description": "Non-empty CatalogURL means the subject is in the current catalog",
+                    "type": "string"
+                },
+                "catalogURL": {
+                    "type": "string"
+                },
                 "courses": {
                     "description": "Has many courses",
                     "type": "array",
@@ -10087,12 +10094,18 @@ const docTemplate = `{
                         "$ref": "#/definitions/models.Course"
                     }
                 },
+                "curriculumPDFURL": {
+                    "type": "string"
+                },
                 "department": {
                     "$ref": "#/definitions/models.Department"
                 },
                 "departmentID": {
                     "description": "Belongs to department",
                     "type": "integer"
+                },
+                "description": {
+                    "type": "string"
                 },
                 "id": {
                     "type": "integer"
@@ -10106,6 +10119,9 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/models.User"
                     }
+                },
+                "websiteURL": {
+                    "type": "string"
                 }
             }
         },
@@ -10539,6 +10555,338 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/models.User"
                     }
+                }
+            }
+        },
+        "models.CourseCanonical": {
+            "type": "object",
+            "properties": {
+                "coursesInSemester": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.CourseInSemester"
+                    }
+                },
+                "crseID": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "listings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.CourseListing"
+                    }
+                },
+                "offerings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.CourseOffering"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.CourseInSemester": {
+            "type": "object",
+            "properties": {
+                "attributes": {
+                    "description": "Comma-separated catalog codes, e.g. \"DIV_D3,QFR_QFR,AFR_AFRCORE\"",
+                    "type": "string"
+                },
+                "campus": {
+                    "type": "string"
+                },
+                "classFormat": {
+                    "type": "string"
+                },
+                "components": {
+                    "description": "e.g. \"lecture/laboratory\"",
+                    "type": "string"
+                },
+                "courseCanonical": {
+                    "$ref": "#/definitions/models.CourseCanonical"
+                },
+                "courseCanonicalID": {
+                    "type": "integer"
+                },
+                "departmentNotes": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "div1": {
+                    "type": "boolean"
+                },
+                "div2": {
+                    "type": "boolean"
+                },
+                "div3": {
+                    "type": "boolean"
+                },
+                "dpe": {
+                    "type": "boolean"
+                },
+                "dpeNotes": {
+                    "description": "difference, power and equity notes",
+                    "type": "string"
+                },
+                "enrollmentPreferences": {
+                    "type": "string"
+                },
+                "extraInfo": {
+                    "type": "string"
+                },
+                "gradingBasis": {
+                    "description": "catalog code: GRD, OPT, WPP, ...",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "materialFee": {
+                    "type": "string"
+                },
+                "offerings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.CourseOffering"
+                    }
+                },
+                "prereqs": {
+                    "type": "string"
+                },
+                "qfr": {
+                    "type": "boolean"
+                },
+                "qfrNotes": {
+                    "description": "quantitative/formal reasoning notes",
+                    "type": "string"
+                },
+                "requirementsEvaluation": {
+                    "type": "string"
+                },
+                "shortDescription": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "status": {
+                    "description": "offered if any section is offered, else cancelled",
+                    "type": "string"
+                },
+                "strm": {
+                    "type": "integer"
+                },
+                "term": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "units": {
+                    "type": "string"
+                },
+                "wac": {
+                    "type": "boolean"
+                },
+                "wacNotes": {
+                    "description": "writing-intensive notes",
+                    "type": "string"
+                },
+                "year": {
+                    "description": "catalog year (spring calendar year): Fall 2026 is 2027",
+                    "type": "integer"
+                }
+            }
+        },
+        "models.CourseListing": {
+            "type": "object",
+            "properties": {
+                "courseCanonical": {
+                    "$ref": "#/definitions/models.CourseCanonical"
+                },
+                "courseCanonicalID": {
+                    "type": "integer"
+                },
+                "firstValidYear": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "lastValidYear": {
+                    "type": "integer"
+                },
+                "letter": {
+                    "type": "string"
+                },
+                "number": {
+                    "type": "integer"
+                },
+                "subject": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.CourseOffering": {
+            "type": "object",
+            "properties": {
+                "attributes": {
+                    "description": "Cross-listed classes can differ by code: ENGL 215 is Div I, AAS 215 is Div II",
+                    "type": "string"
+                },
+                "catalogLetter": {
+                    "type": "string"
+                },
+                "catalogNumber": {
+                    "type": "integer"
+                },
+                "classNbr": {
+                    "type": "integer"
+                },
+                "component": {
+                    "type": "string"
+                },
+                "consent": {
+                    "description": "N (none), I (instructor), D (department)",
+                    "type": "string"
+                },
+                "courseCanonical": {
+                    "$ref": "#/definitions/models.CourseCanonical"
+                },
+                "courseCanonicalID": {
+                    "type": "integer"
+                },
+                "courseInSemester": {
+                    "$ref": "#/definitions/models.CourseInSemester"
+                },
+                "courseInSemesterID": {
+                    "type": "integer"
+                },
+                "div1": {
+                    "type": "boolean"
+                },
+                "div2": {
+                    "type": "boolean"
+                },
+                "div3": {
+                    "type": "boolean"
+                },
+                "dpe": {
+                    "type": "boolean"
+                },
+                "enrollmentLimit": {
+                    "type": "integer"
+                },
+                "expectedEnrollment": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "instructors": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.CourseOfferingInstructor"
+                    }
+                },
+                "meetings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.CourseOfferingMeeting"
+                    }
+                },
+                "qfr": {
+                    "type": "boolean"
+                },
+                "section": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "strm": {
+                    "type": "integer"
+                },
+                "subject": {
+                    "description": "Cross-listed classes have one class number per code (MATH 373 is 1263, PHYS 373 is 1264)",
+                    "type": "string"
+                },
+                "term": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "wac": {
+                    "type": "boolean"
+                },
+                "year": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.CourseOfferingInstructor": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "nameAsListed": {
+                    "type": "string"
+                },
+                "offering": {
+                    "$ref": "#/definitions/models.CourseOffering"
+                },
+                "offeringID": {
+                    "type": "integer"
+                },
+                "unixID": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "userID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.CourseOfferingMeeting": {
+            "type": "object",
+            "properties": {
+                "days": {
+                    "type": "string"
+                },
+                "end": {
+                    "type": "string"
+                },
+                "facility": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "offering": {
+                    "$ref": "#/definitions/models.CourseOffering"
+                },
+                "offeringID": {
+                    "type": "integer"
+                },
+                "start": {
+                    "type": "string"
                 }
             }
         },
@@ -11187,6 +11535,12 @@ const docTemplate = `{
                 "approachability": {
                     "type": "integer"
                 },
+                "canonicalCourse": {
+                    "$ref": "#/definitions/models.CourseCanonical"
+                },
+                "canonicalCourseID": {
+                    "type": "integer"
+                },
                 "clientAgreement": {
                     "description": "Pass if the client agreed with the survey; not looked at by GORM.\nTrue means user agreed, false means user disagreed, and null/missing means user does not have any\nagreement/disagreement.",
                     "type": "boolean"
@@ -11204,6 +11558,17 @@ const docTemplate = `{
                 "courseID": {
                     "description": "Belongs to course",
                     "type": "integer"
+                },
+                "courseLinkVerificationSource": {
+                    "type": "string",
+                    "enum": [
+                        "",
+                        "author_confirmed",
+                        "verified",
+                        "confirmed",
+                        "historical",
+                        "mismatch"
+                    ]
                 },
                 "courseStimulating": {
                     "type": "integer"
@@ -11228,6 +11593,12 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "mentalHealthSupport": {
+                    "type": "integer"
+                },
+                "offering": {
+                    "$ref": "#/definitions/models.CourseOffering"
+                },
+                "offeringID": {
                     "type": "integer"
                 },
                 "outsideHelpfulness": {
@@ -11259,6 +11630,10 @@ const docTemplate = `{
                 },
                 "user": {
                     "$ref": "#/definitions/models.User"
+                },
+                "userCourseID": {
+                    "description": "The author's My courses entry for this course",
+                    "type": "integer"
                 },
                 "userID": {
                     "description": "Belongs to user (student)",
