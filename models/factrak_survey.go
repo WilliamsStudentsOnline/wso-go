@@ -23,9 +23,10 @@ func NewFactrakSurveyModel(db *gorm.DB, log *zap.SugaredLogger) *FactrakSurveyMo
 
 type GetAllFactrakSurveysOptions struct {
 	// Scopes for specific surveys
-	ProfessorID *uint `json:"professorID" form:"professorID"`
-	CourseID    *uint `json:"courseID" form:"courseID"`
-	UserID      *uint `json:"userID" form:"userID"`
+	ProfessorID       *uint `json:"professorID" form:"professorID"`
+	CourseID          *uint `json:"courseID" form:"courseID"`
+	UserID            *uint `json:"userID" form:"userID"`
+	CourseCanonicalID *uint `json:"-" form:"-"`
 
 	// Pagination
 	Start *time.Time `json:"start" form:"start"`
@@ -103,6 +104,9 @@ func (o *GetAllFactrakSurveysOptions) Run(db *gorm.DB) *gorm.DB {
 	}
 	if o.UserID != nil {
 		db = m.withAuthorID(*o.UserID)(db)
+	}
+	if o.CourseCanonicalID != nil {
+		db = db.Where("factrak_surveys.course_canonical_id = ?", *o.CourseCanonicalID)
 	}
 	if o.Flagged {
 		db = m.scopeFlagged(db)
@@ -365,24 +369,6 @@ func (m *FactrakSurveyModel) getSingleRating(ratings *FactrakSurveyAvgRatings, m
 	return
 }
 
-func (*FactrakSurveyModel) registrationStart(now time.Time) time.Time {
-	// if changed, also change scheduled update user stuff
-	springReg := time.October
-	fallReg := time.March
-
-	// Between October/X and February/X+1, want October/X
-	month := now.Month()
-
-	// TODO: Ensure time.Local is EST/EDT on server
-	if month <= time.February {
-		return time.Date(now.Year()-1, springReg, 1, 1, 0, 0, 0, time.Local)
-	} else if month >= time.October {
-		return time.Date(now.Year(), springReg, 1, 1, 0, 0, 0, time.Local)
-	} else {
-		return time.Date(now.Year(), fallReg, 1, 1, 0, 0, 0, time.Local)
-	}
-}
-
 // Default for scopes factrak surveys to preload other objects.
 func (m *FactrakSurveyModel) scopePreloadDefault(db *gorm.DB) *gorm.DB {
 	db = m.preloadProfessor(db)
@@ -438,13 +424,29 @@ func (*FactrakSurveyModel) scopeFlagged(db *gorm.DB) *gorm.DB {
 }
 
 func (*FactrakSurveyModel) scopeProfAtWilliams(db *gorm.DB) *gorm.DB {
-	return db.Joins("JOIN users AS professors ON professors.id = factrak_surveys.professor_id").Where("professors.at_williams = ?", true)
+	return db.Joins("JOIN users AS professors ON professors.id = factrak_surveys.professor_id").
+		Where("professors.at_williams = ? OR "+teachingThisYearSQL("professors.id"), true, CurrentCatalogYear(time.Now()), CourseOfferingStatusOffered)
 }
 
 func (m *FactrakSurveyModel) withScopeThisSemester(now time.Time) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Where("factrak_surveys.created_at >= ?", m.registrationStart(now))
+		return db.Where("factrak_surveys.created_at >= ?", FactrakDeficitSemesterStart(now))
 	}
+}
+
+// Over the summer, the coming year (Fall 2026 is catalog year 2027)
+func CurrentCatalogYear(now time.Time) int {
+	if now.Month() >= time.June {
+		return now.Year() + 1
+	}
+	return now.Year()
+}
+
+// The at_williams flag misses visiting faculty and staff who teach; args: year, CourseOfferingStatusOffered
+func teachingThisYearSQL(userIDColumn string) string {
+	return `EXISTS (SELECT 1 FROM course_offering_instructors oiy
+  JOIN course_offerings oy ON oy.id = oiy.course_offering_id AND oy.deleted_at IS NULL
+  WHERE oiy.user_id = ` + userIDColumn + ` AND oiy.deleted_at IS NULL AND oy.year = ? AND oy.status = ?)`
 }
 
 func (*FactrakSurveyModel) scopeCurrent(db *gorm.DB) *gorm.DB {
@@ -498,4 +500,15 @@ type FactrakSurveyAvgRatings struct {
 	NumOutsideHelpfulness   int     `json:"numOutsideHelpfulness"`
 	AvgMentalHealthSupport  float64 `json:"avgMentalHealthSupport"`
 	NumMentalHealthSupport  int     `json:"numMentalHealthSupport"`
+}
+
+func (m *FactrakSurveyModel) GetSurveyRatingsForCatalogCourse(canonicalCourseID uint, profID *uint, ratings *FactrakSurveyAvgRatings) error {
+	scopes := []func(db *gorm.DB) *gorm.DB{m.scopeCurrent, func(db *gorm.DB) *gorm.DB {
+		return db.Where("factrak_surveys.course_canonical_id = ?", canonicalCourseID).
+			Where("(factrak_surveys.course_link_verification_source IS NULL OR factrak_surveys.course_link_verification_source <> ?)", CourseLinkVerificationSourceMismatch)
+	}}
+	if profID != nil {
+		scopes = append(scopes, m.withProfessorID(*profID))
+	}
+	return m.getSurveyRatings(ratings, scopes...)
 }

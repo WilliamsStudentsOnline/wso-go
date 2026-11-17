@@ -50,9 +50,10 @@ func init() {
 			{Name: "config", Type: ParamString, Default: defaultConfig},
 			{Name: "console", Type: ParamBool, Default: "true"},
 		},
-		Schedule: &Schedule{OnCalendar: "*-02,09-01 00:00:00"},
+		// Depends on OnCampusSemesters, so run after update-on-campus-semesters (00:00 the same days)
+		Schedule: &Schedule{OnCalendar: "*-03,10-01 01:00:00"},
 		Requires: needsMariaDB,
-		After:    needsMariaDB,
+		After:    append([]string{"wso-job-update-on-campus-semesters.service"}, needsMariaDB...),
 	})
 	mustRegister(Job{
 		Name:        "update-all-users-from-ldap",
@@ -156,7 +157,7 @@ func init() {
 			{Name: "config", Type: ParamString, Default: defaultConfig},
 			{Name: "console", Type: ParamBool, Default: "true"},
 		},
-		Schedule: &Schedule{OnCalendar: "*-02,09-01 00:00:00"},
+		Schedule: &Schedule{OnCalendar: "*-03,10-01 00:00:00"},
 		Requires: needsMariaDB,
 		After:    needsMariaDB,
 	})

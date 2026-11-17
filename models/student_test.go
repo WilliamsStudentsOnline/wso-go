@@ -1,6 +1,7 @@
 package models_test
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -342,5 +343,121 @@ func TestStudentModel_UpdateFactrakSurveyDeficit(t *testing.T) {
 
 		// Cleanup
 		assert.NoError(db.Unscoped().Delete(&student).Error)
+	})
+}
+
+func TestStudentModel_UpdateFactrakSurveyDeficit_PerSemester(t *testing.T) {
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+
+	now := time.Date(2025, time.November, 15, 12, 0, 0, 0, time.Local)
+	thisSem := time.Date(2025, time.October, 1, 0, 0, 0, 0, time.Local)
+	lastSem := thisSem.Add(-time.Second)
+
+	m := NewStudentModel(db, zaptest.NewLogger(t).Sugar())
+	m.Clock = testClock{now}
+
+	n := 0
+	newStudent := func(onCampusSemesters int, classYear *int) *User {
+		n++
+		student := &User{
+			Type:              UserTypeStudent,
+			Name:              "Student",
+			UnixID:            fmt.Sprintf("deficit%d", n),
+			ClassYear:         classYear,
+			OnCampusSemesters: onCampusSemesters,
+		}
+		assert.NoError(db.Create(student).Error)
+		return student
+	}
+	writeSurveys := func(student *User, createdAt time.Time, season *string, year *int, count int) {
+		for i := 0; i < count; i++ {
+			survey := FactrakSurvey{UserID: student.ID, SemesterSeason: season, SemesterYear: year}
+			survey.CreatedAt = createdAt
+			assert.NoError(db.Create(&survey).Error)
+		}
+	}
+	deficit := func(student *User) int {
+		assert.NoError(m.UpdateFactrakSurveyDeficit(student))
+		var got User
+		assert.NoError(db.First(&got, student.ID).Error)
+		if !assert.NotNil(got.FactrakSurveyDeficit) {
+			return -1
+		}
+		return *got.FactrakSurveyDeficit
+	}
+	fall, spring := FactrakSurveySemesterSeasonFall, FactrakSurveySemesterSeasonSpring
+
+	t.Run("pre-frosh", func(t *testing.T) {
+		student := newStudent(0, lib.IntToPtr(2029))
+		assert.Equal(0, deficit(student))
+	})
+
+	t.Run("first semester", func(t *testing.T) {
+		student := newStudent(1, lib.IntToPtr(2029))
+		assert.Equal(0, deficit(student))
+	})
+
+	t.Run("later semester, no reviews written this semester", func(t *testing.T) {
+		student := newStudent(5, lib.IntToPtr(2027))
+		// Reviews written before the semester began don't count, even about this semester
+		writeSurveys(student, lastSem, nil, nil, 10)
+		writeSurveys(student, lastSem, &fall, lib.IntToPtr(2025), 2)
+		assert.Equal(2, deficit(student))
+	})
+
+	t.Run("later semester, one review written this semester", func(t *testing.T) {
+		student := newStudent(3, lib.IntToPtr(2028))
+		writeSurveys(student, thisSem, &spring, lib.IntToPtr(2025), 1)
+		assert.Equal(1, deficit(student))
+	})
+
+	t.Run("later semester, two or more reviews written this semester", func(t *testing.T) {
+		// The survey's own semester doesn't matter
+		two := newStudent(3, lib.IntToPtr(2028))
+		writeSurveys(two, thisSem, &fall, lib.IntToPtr(2020), 1)
+		writeSurveys(two, now, nil, nil, 1)
+		assert.Equal(0, deficit(two))
+
+		three := newStudent(3, lib.IntToPtr(2028))
+		writeSurveys(three, now, &spring, lib.IntToPtr(2025), 3)
+		assert.Equal(0, deficit(three))
+	})
+
+	t.Run("no class year", func(t *testing.T) {
+		student := newStudent(4, nil)
+		assert.Equal(2, deficit(student))
+	})
+
+	t.Run("approved exemption", func(t *testing.T) {
+		student := newStudent(4, lib.IntToPtr(2027))
+		exemption := FactrakDeficitExemption{
+			UserID: student.ID, SemesterSeason: FactrakSurveySemesterSeasonFall, SemesterYear: 2025,
+			Reason: "abroad", Status: FactrakDeficitExemptionStatusPending,
+		}
+		assert.NoError(db.Create(&exemption).Error)
+		assert.Equal(2, deficit(student))
+
+		other := FactrakDeficitExemption{
+			UserID: student.ID, SemesterSeason: FactrakSurveySemesterSeasonSpring, SemesterYear: 2025,
+			Reason: "abroad", Status: FactrakDeficitExemptionStatusApproved,
+		}
+		assert.NoError(db.Create(&other).Error)
+		assert.Equal(2, deficit(student))
+
+		assert.NoError(db.Model(&exemption).Update("status", FactrakDeficitExemptionStatusApproved).Error)
+		assert.Equal(0, deficit(student))
+	})
+
+	t.Run("recomputing gives the same result", func(t *testing.T) {
+		student := newStudent(4, lib.IntToPtr(2027))
+		writeSurveys(student, now, nil, nil, 1)
+		assert.Equal(1, deficit(student))
+		assert.Equal(1, deficit(student))
+
+		// Only the ID set, as the moderator path passes it
+		bare := &User{}
+		bare.ID = student.ID
+		assert.Equal(1, deficit(bare))
 	})
 }

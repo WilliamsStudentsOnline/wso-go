@@ -3,6 +3,7 @@ package models
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/jinzhu/gorm"
@@ -177,6 +178,10 @@ func (m *ProfessorModel) GetProfessorByIDWithCourse(id uint, u *User, courseID *
 	return
 }
 
+func (m *ProfessorModel) GetCatalogProfessorByID(id uint, u *User) error {
+	return m.DB.Scopes(scopeCatalogProfessor, m.scopeCurrent).Where(NewUserWithID(id)).First(u).Error
+}
+
 func (m *ProfessorModel) GetProfessorsByCourse(courseID uint, professors *[]*User) (err error) {
 	return m.GetAllProfessors(professors, &GetAllProfessorsOptions{
 		CourseID: &courseID,
@@ -215,7 +220,12 @@ func (m *ProfessorModel) GetProfessorsByAreaOfStudy(areaID uint, professors *[]*
 
 // Default scope: at williams and is professor
 func (m *ProfessorModel) scopeDefault(db *gorm.DB) *gorm.DB {
-	return m.scopeAtWilliams(m.scopeIsProfessor(db))
+	return m.scopeCurrent(m.scopeIsProfessor(db))
+}
+
+// Teaching this year counts, since the directory flag misses visiting faculty
+func (m *ProfessorModel) scopeCurrent(db *gorm.DB) *gorm.DB {
+	return db.Where("users.at_williams = ? OR "+teachingThisYearSQL("users.id"), true, CurrentCatalogYear(time.Now()), CourseOfferingStatusOffered)
 }
 
 func (m *ProfessorModel) scopeIsProfessor(db *gorm.DB) *gorm.DB {

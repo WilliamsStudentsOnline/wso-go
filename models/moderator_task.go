@@ -26,7 +26,7 @@ type GetAllModeratorTasksOptions struct {
 	Offset *uint `json:"offset" form:"offset"`
 	Limit  *uint `json:"limit" form:"limit"`
 
-	TaskType      *ModeratorTaskType `json:"taskType" form:"taskType" enums:",FACTRAK_REVIEW,NEW_USER_TAG,BOARD_THREAD_REVIEW,BOARD_POST_REVIEW,USER_PHOTO_REVIEW"`
+	TaskType      *ModeratorTaskType `json:"taskType" form:"taskType" enums:",FACTRAK_REVIEW,NEW_USER_TAG,BOARD_THREAD_REVIEW,BOARD_POST_REVIEW,USER_PHOTO_REVIEW,FACTRAK_DEFICIT_EXEMPTION"`
 	TaskReference *string            `json:"taskReference" form:"taskReference"`
 	// leave empty to filter only open tasks
 	ResolvedAt *time.Time `json:"resolvedAt" form:"resolvedAt"`
@@ -362,5 +362,29 @@ func NewUserPhotoReviewTask(requestingUserID *uint, targetUserID uint) (*Moderat
 		TaskType:         ModeratorTaskTypeUserPhotoReview,
 		TaskFields:       fields,
 		TaskReference:    TaskReference(ModeratorTaskTypeUserPhotoReview, targetUserID),
+	}, nil
+}
+
+func DecodeFactrakDeficitExemptionFields(taskFieldsJSON string) (*FactrakDeficitExemptionTaskFields, error) {
+	var fields FactrakDeficitExemptionTaskFields
+	if err := json.Unmarshal([]byte(taskFieldsJSON), &fields); err != nil {
+		return nil, err
+	}
+	return &fields, nil
+}
+
+func NewFactrakDeficitExemptionTask(requestingUserID *uint, exemptionID uint) (*ModeratorTask, error) {
+	if exemptionID == 0 {
+		return nil, errors.New("factrakDeficitExemptionID is required")
+	}
+	fields, err := EncodeTaskFields(FactrakDeficitExemptionTaskFields{FactrakDeficitExemptionID: exemptionID})
+	if err != nil {
+		return nil, err
+	}
+	return &ModeratorTask{
+		RequestingUserID: requestingUserID,
+		TaskType:         ModeratorTaskTypeFactrakDeficitExemption,
+		TaskFields:       fields,
+		TaskReference:    TaskReference(ModeratorTaskTypeFactrakDeficitExemption, exemptionID),
 	}, nil
 }
