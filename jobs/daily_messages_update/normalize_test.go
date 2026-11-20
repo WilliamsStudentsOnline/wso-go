@@ -142,3 +142,27 @@ func TestNormalizeTolerantFields(t *testing.T) {
 	assert.Equal(t, 3, out.Categories[1].Messages[0].ID)
 	assert.Equal(t, 4, out.Categories[1].Messages[1].ID)
 }
+
+func TestNormalizeUsesFeedDate(t *testing.T) {
+	raw, err := os.ReadFile("testdata/feed.json")
+	require.NoError(t, err)
+	out, _, err := Normalize(raw, "2026-11-21", testNow)
+	require.NoError(t, err)
+	assert.Equal(t, "2026-11-20", out.Date)
+
+	out, _, err = Normalize([]byte(`[]`), "2026-11-21", testNow)
+	require.NoError(t, err)
+	assert.Equal(t, "2026-11-21", out.Date)
+
+	tied := []byte(`{"A": [
+		{"ID": 1, "type": "announcement", "meta": {"acf_daily_message_run_dates_0": [{"value": "20261123"}], "acf_daily_message_run_dates_1": [{"value": "20261120"}]}},
+		{"ID": 2, "type": "announcement", "meta": {"acf_daily_message_run_dates_0": [{"value": "20261120"}], "acf_daily_message_run_dates_1": [{"value": "20261123"}]}}
+	]}`)
+	out, _, err = Normalize(tied, "2026-11-21", testNow)
+	require.NoError(t, err)
+	assert.Equal(t, "2026-11-20", out.Date)
+
+	out, _, err = Normalize(tied, "2026-11-23", testNow)
+	require.NoError(t, err)
+	assert.Equal(t, "2026-11-23", out.Date)
+}

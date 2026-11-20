@@ -35,7 +35,7 @@ func Update(client *http.Client, url, outDir, todayLink string, now time.Time) e
 		return err
 	}
 
-	dest := filepath.Join(outDir, date+".json")
+	dest := filepath.Join(outDir, out.Date+".json")
 	if err := atomicWrite(dest, b); err != nil {
 		return fmt.Errorf("write %s: %w", dest, err)
 	}

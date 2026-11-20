@@ -56,3 +56,20 @@ func TestUpdateKeepsFileOnError(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "old", string(b))
 }
+
+func TestUpdateNamesFileByFeedDate(t *testing.T) {
+	feed, err := os.ReadFile("testdata/feed.json")
+	require.NoError(t, err)
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write(feed)
+	}))
+	defer srv.Close()
+
+	dir := t.TempDir()
+	afterMidnight := time.Date(2026, 11, 21, 0, 5, 0, 0, eastern)
+	require.NoError(t, Update(srv.Client(), srv.URL, dir, "", afterMidnight))
+	_, err = os.Stat(filepath.Join(dir, "2026-11-20.json"))
+	assert.NoError(t, err)
+	_, err = os.Stat(filepath.Join(dir, "2026-11-21.json"))
+	assert.True(t, os.IsNotExist(err))
+}

@@ -131,7 +131,27 @@ func Normalize(raw []byte, date string, now time.Time) (Export, []error, error) 
 	if err := expectDelim(dec, '}'); err != nil {
 		return Export{}, nil, err
 	}
+	out.Date = feedDate(out, date)
 	return out, skipped, nil
+}
+
+// the date most messages run on, since upstream may flip days later than midnight
+func feedDate(out Export, fallback string) string {
+	counts := map[string]int{}
+	for _, c := range out.Categories {
+		for _, m := range c.Messages {
+			for _, d := range m.RunDates {
+				counts[d]++
+			}
+		}
+	}
+	best := fallback
+	for d, n := range counts {
+		if n > counts[best] || (n == counts[best] && best != fallback && d < best) {
+			best = d
+		}
+	}
+	return best
 }
 
 // PHP serializes a filtered list as an object keyed by index
