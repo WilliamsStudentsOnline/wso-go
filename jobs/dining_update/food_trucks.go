@@ -7,16 +7,14 @@ const (
 	foodTruckCloseTime = "2:00pm"
 )
 
-// foodTruckNames is the display name for each truck vendor id.
 var foodTruckNames = map[string]string{
 	foodTruckFullBelly: "Full Belly Fewd",
 	foodTruckBerkshire: "Berkshire Catering Co",
 }
 
-// foodTruckSchedule maps YYYY-MM-DD (year-inclusive) to the truck vendor ids
-// present that day. Days with no trucks are omitted (e.g. Spring Break).
+// key is date (YYYY-MM-DD), value is trucks on campus that day
 var foodTruckSchedule = map[string][]string{
-	// Fall 2026
+	// fall 2026
 	"2026-09-08": {foodTruckFullBelly},
 	"2026-09-10": {foodTruckBerkshire},
 	"2026-09-15": {foodTruckFullBelly},
@@ -40,7 +38,7 @@ var foodTruckSchedule = map[string][]string{
 	"2026-11-17": {foodTruckFullBelly},
 	"2026-11-19": {foodTruckBerkshire},
 
-	// Spring 2027
+	// spring 2027
 	"2027-02-16": {foodTruckFullBelly},
 	"2027-02-18": {foodTruckBerkshire},
 	"2027-02-23": {foodTruckFullBelly},
@@ -51,7 +49,7 @@ var foodTruckSchedule = map[string][]string{
 	"2027-03-11": {foodTruckBerkshire},
 	"2027-03-16": {foodTruckFullBelly},
 	"2027-03-18": {foodTruckBerkshire},
-	// 2027-03-23 .. 2027-04-01: Spring Break — no trucks
+	// spring break, no trucks
 	"2027-04-06": {foodTruckFullBelly},
 	"2027-04-08": {foodTruckBerkshire},
 	"2027-04-13": {foodTruckFullBelly},
@@ -67,9 +65,6 @@ var foodTruckSchedule = map[string][]string{
 	"2027-05-18": {foodTruckFullBelly},
 }
 
-// applyFoodTrucks injects scheduled food-truck vendors into existing date
-// entries. Dates with no schedule entry are left unchanged; no new date keys
-// are created, so output stays tied to the normal dining week.
 func applyFoodTrucks(vendorsByDate map[string]map[string]Vendor) {
 	for dateStr, vendors := range vendorsByDate {
 		truckIDs, ok := foodTruckSchedule[dateStr]
