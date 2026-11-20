@@ -1,6 +1,7 @@
 package jobctl
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -217,4 +218,49 @@ func TestDispatchDueMarksBadArgsFailed(t *testing.T) {
 	var got models.JobRun
 	require.NoError(t, db.First(&got, run.ID).Error)
 	assert.Equal(t, models.JobStatusFailed, got.Status)
+}
+
+func TestEnqueueRejectsDisabledJob(t *testing.T) {
+	setupRedis(t)
+	db := setupRecordDB(t)
+	r := registry.New()
+	require.NoError(t, r.Register(registry.Job{
+		Name:   "example",
+		Binary: registry.InstallDir + "/job-example_linux",
+	}))
+	require.NoError(t, SetJobDisabled(context.Background(), "example", true))
+
+	_, err := Enqueue(db, nil, r, EnqueueOpts{JobName: "example"})
+	require.ErrorIs(t, err, ErrJobDisabled)
+
+	var n int
+	require.NoError(t, db.Model(&models.JobRun{}).Count(&n).Error)
+	assert.Equal(t, 0, n)
+}
+
+func TestDispatchDueSkipsDisabledJob(t *testing.T) {
+	setupRedis(t)
+	db := setupRecordDB(t)
+	r := registry.New()
+	require.NoError(t, r.Register(registry.Job{
+		Name:   "example",
+		Binary: registry.InstallDir + "/job-example_linux",
+	}))
+	require.NoError(t, SetJobDisabled(context.Background(), "example", true))
+
+	run := models.JobRun{
+		JobName: "example",
+		Trigger: models.JobTriggerManual,
+		Status:  models.JobStatusPending,
+		Args:    "{}",
+	}
+	require.NoError(t, db.Create(&run).Error)
+
+	n, err := DispatchDue(db, nil, r)
+	require.NoError(t, err)
+	assert.Equal(t, 0, n)
+
+	var got models.JobRun
+	require.NoError(t, db.First(&got, run.ID).Error)
+	assert.Equal(t, models.JobStatusPending, got.Status)
 }

@@ -51,6 +51,11 @@ func RecordStart(db *gorm.DB) error {
 		return db.Model(&run).Updates(updates).Error
 	}
 
+	// failing ExecStartPre skips the run
+	if disabledJobsOrNone()[jobName] {
+		return fmt.Errorf("%w: %s", ErrJobDisabled, jobName)
+	}
+
 	run := models.JobRun{
 		JobName:      jobName,
 		Trigger:      models.JobTriggerTimer,
