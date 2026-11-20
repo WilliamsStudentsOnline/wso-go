@@ -41,6 +41,12 @@ type BoardPostReviewTaskContext struct {
 	Post *models.BoardPost `json:"post,omitempty"`
 }
 
+type UserPhotoReviewTaskContext struct {
+	TargetUserID uint   `json:"targetUserID"`
+	Name         string `json:"name,omitempty"`
+	UnixID       string `json:"unixID,omitempty"`
+}
+
 type ResolveTasksBody struct {
 	Resolution models.ModeratorTaskResolution `json:"resolution" binding:"required" enums:"APPROVED,REJECTED"`
 }

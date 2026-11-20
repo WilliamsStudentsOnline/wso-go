@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"os"
 	"strings"
 	"time"
 
@@ -18,7 +19,7 @@ import (
 // @Tags admin,moderator
 // @Accept json
 // @Produce json
-// @Param taskType query string false "Filter by task type" Enums(FACTRAK_REVIEW,NEW_USER_TAG,BOARD_THREAD_REVIEW,BOARD_POST_REVIEW)
+// @Param taskType query string false "Filter by task type" Enums(FACTRAK_REVIEW,NEW_USER_TAG,BOARD_THREAD_REVIEW,BOARD_POST_REVIEW,USER_PHOTO_REVIEW)
 // @Param resolvedAt query string false "Omit for open tasks only; set any time to list resolved tasks"
 // @Param taskReference query string false "Filter by task reference"
 // @Param orderBy query string false "Sort order; default taskReference" Enums(taskReference,createdAt)
@@ -309,6 +310,18 @@ func (t *Controller) contextForTask(taskType models.ModeratorTaskType, taskField
 			return nil, err
 		}
 		return BoardPostReviewTaskContext{Post: &post}, nil
+	case models.ModeratorTaskTypeUserPhotoReview:
+		fields, err := models.DecodeUserPhotoReviewFields(taskFieldsJSON)
+		if err != nil {
+			return nil, err
+		}
+		ctx := UserPhotoReviewTaskContext{TargetUserID: fields.TargetUserID}
+		var user models.User
+		if err := t.userModel.GetUserByID(fields.TargetUserID, &user); err == nil {
+			ctx.Name = user.Name
+			ctx.UnixID = user.UnixID
+		}
+		return ctx, nil
 	default:
 		return nil, nil
 	}
@@ -324,6 +337,8 @@ func (t *Controller) applyApproveSideEffect(c *gin.Context, taskType models.Mode
 		return t.approveBoardThreadReview(c, sample)
 	case models.ModeratorTaskTypeBoardPostReview:
 		return t.approveBoardPostReview(c, sample)
+	case models.ModeratorTaskTypeUserPhotoReview:
+		return t.approveUserPhotoReview(c, sample)
 	default:
 		return lib.ErrorModeratorTaskInvalidType
 	}
@@ -443,6 +458,35 @@ func (t *Controller) approveBoardPostReview(c *gin.Context, sample *models.Moder
 
 	t.Log.Infow("board post deleted via moderator approve",
 		"postID", fields.BoardPostID,
+		"taskReference", sample.TaskReference,
+		"actorUserID", services.GetUserID(c),
+	)
+	return nil
+}
+
+func (t *Controller) approveUserPhotoReview(c *gin.Context, sample *models.ModeratorTask) error {
+	fields, err := models.DecodeUserPhotoReviewFields(sample.TaskFields)
+	if err != nil {
+		return err
+	}
+
+	var user models.User
+	if err := t.userModel.GetUserByID(fields.TargetUserID, &user); err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			return lib.ErrorModeratorTaskSubjectGone
+		}
+		return err
+	}
+
+	if err := t.pictureBackend.DeleteUserPhoto(user.UnixID); err != nil {
+		if os.IsNotExist(err) {
+			return lib.ErrorModeratorTaskSubjectGone
+		}
+		return err
+	}
+
+	t.Log.Infow("user photo deleted via moderator approve",
+		"targetUserID", fields.TargetUserID,
 		"taskReference", sample.TaskReference,
 		"actorUserID", services.GetUserID(c),
 	)

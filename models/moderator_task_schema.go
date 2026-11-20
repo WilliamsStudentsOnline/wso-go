@@ -17,6 +17,7 @@ const (
 	ModeratorTaskTypeNewUserTag        ModeratorTaskType = "NEW_USER_TAG"
 	ModeratorTaskTypeBoardThreadReview ModeratorTaskType = "BOARD_THREAD_REVIEW"
 	ModeratorTaskTypeBoardPostReview   ModeratorTaskType = "BOARD_POST_REVIEW"
+	ModeratorTaskTypeUserPhotoReview   ModeratorTaskType = "USER_PHOTO_REVIEW"
 )
 
 const MaxOpenUserTagTasksPerRequester = 3
@@ -46,13 +47,17 @@ type BoardPostReviewTaskFields struct {
 	BoardPostID uint `json:"boardPostID"`
 }
 
+type UserPhotoReviewTaskFields struct {
+	TargetUserID uint `json:"targetUserID"`
+}
+
 type ModeratorTask struct {
 	BaseSchema
 
 	RequestingUserID *uint `gorm:"index:index_moderator_tasks_on_requesting_user_id" json:"requestingUserID"`
 	RequestingUser   *User `json:"requestingUser,omitempty"`
 
-	TaskType   ModeratorTaskType `gorm:"index:index_moderator_tasks_on_task_type,index_moderator_tasks_on_task_type_task_reference_resolved_at;not null" json:"taskType" enums:",FACTRAK_REVIEW,NEW_USER_TAG"`
+	TaskType   ModeratorTaskType `gorm:"index:index_moderator_tasks_on_task_type,index_moderator_tasks_on_task_type_task_reference_resolved_at;not null" json:"taskType" enums:",FACTRAK_REVIEW,NEW_USER_TAG,BOARD_THREAD_REVIEW,BOARD_POST_REVIEW,USER_PHOTO_REVIEW"`
 	TaskFields string            `gorm:"column:task_fields;type:text;not null" json:"-"`
 
 	TaskReference string `gorm:"column:task_reference;index:index_moderator_tasks_on_task_reference,index_moderator_tasks_on_task_type_task_reference_resolved_at;not null" json:"taskReference"`
@@ -84,7 +89,7 @@ func (t *ModeratorTaskType) UnmarshalJSON(b []byte) error {
 	}
 	switch *t {
 	case ModeratorTaskTypeUndefined, ModeratorTaskTypeFactrakReview, ModeratorTaskTypeNewUserTag,
-		ModeratorTaskTypeBoardThreadReview, ModeratorTaskTypeBoardPostReview:
+		ModeratorTaskTypeBoardThreadReview, ModeratorTaskTypeBoardPostReview, ModeratorTaskTypeUserPhotoReview:
 		return nil
 	}
 	return errors.New("invalid moderator task type")
@@ -106,7 +111,7 @@ func (r *ModeratorTaskResolution) UnmarshalJSON(b []byte) error {
 func (t ModeratorTaskType) Validate() error {
 	switch t {
 	case ModeratorTaskTypeFactrakReview, ModeratorTaskTypeNewUserTag,
-		ModeratorTaskTypeBoardThreadReview, ModeratorTaskTypeBoardPostReview:
+		ModeratorTaskTypeBoardThreadReview, ModeratorTaskTypeBoardPostReview, ModeratorTaskTypeUserPhotoReview:
 		return nil
 	case ModeratorTaskTypeUndefined:
 		return errors.New("task type is required")

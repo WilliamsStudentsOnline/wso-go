@@ -1,6 +1,7 @@
 package local_test
 
 import (
+	"os"
 	"testing"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib/pictures/local"
@@ -44,4 +45,22 @@ func TestUserPhoto(t *testing.T) {
 	if assert.NoError(err) {
 		assert.True(exists)
 	}
+}
+
+func TestDeleteUserPhoto(t *testing.T) {
+	assert := testify.New(t)
+	backend, err := local.NewBackend(t.TempDir(), zaptest.NewLogger(t).Sugar())
+	assert.NoError(err)
+
+	unixID := "ys5"
+	assert.NoError(backend.SaveUserPhotoBoth(unixID, test_utils.CreateTestImage(100, 100)))
+
+	assert.NoError(backend.DeleteUserPhoto(unixID))
+	exists, err := backend.DoesUserPhotoExists(unixID)
+	if assert.NoError(err) {
+		assert.False(exists)
+	}
+
+	err = backend.DeleteUserPhoto(unixID)
+	assert.True(os.IsNotExist(err))
 }

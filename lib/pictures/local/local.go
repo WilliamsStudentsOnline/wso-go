@@ -136,6 +136,26 @@ func (b *Backend) SaveUserPhotoLarge(unixID string, img image.Image) error {
 	return b.saveUserProfile(img, unixID, dirUserLarge)
 }
 
+// DeleteUserPhoto removes both thumb and large photos. Returns an os.IsNotExist
+// error only when neither exists.
+func (b *Backend) DeleteUserPhoto(unixID string) error {
+	removed := false
+	for _, category := range []string{dirUserThumb, dirUserLarge} {
+		err := os.Remove(filepath.Join(b.path, category, unixID+".jpg"))
+		if os.IsNotExist(err) {
+			continue
+		}
+		if err != nil {
+			return err
+		}
+		removed = true
+	}
+	if !removed {
+		return os.ErrNotExist
+	}
+	return nil
+}
+
 func (b *Backend) DoesPhotoExists(unixID string, category string) (bool, error) {
 	path := filepath.Join(b.path, category, unixID+".jpg")
 
