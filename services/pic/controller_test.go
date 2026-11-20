@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
+	libauth "github.com/WilliamsStudentsOnline/wso-go/lib/auth"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/pictures"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/pictures/local"
 	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
@@ -28,6 +29,10 @@ type picEnv struct {
 }
 
 func setupPic(t *testing.T, users ...*models.User) picEnv {
+	return setupPicWithLevel(t, auth.TokenLevelUser, users...)
+}
+
+func setupPicWithLevel(t *testing.T, level auth.TokenLevel, users ...*models.User) picEnv {
 	t.Helper()
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
@@ -46,7 +51,7 @@ func setupPic(t *testing.T, users ...*models.User) picEnv {
 	mw, err := api.LoadMiddleware(cfg, db, log)
 	require.NoError(t, err)
 	token, _, err := mw.TokenGenerator(&auth.AuthenticatorPayload{
-		TokenLevel: auth.TokenLevelUser,
+		TokenLevel: level,
 		User:       &viewer,
 	})
 	require.NoError(t, err)
@@ -54,7 +59,9 @@ func setupPic(t *testing.T, users ...*models.User) picEnv {
 	router := gin.New()
 	group := router.Group("")
 	group.Use(mw.MiddlewareFunc())
-	pic.SetupRouter(group.Group("/pic"), db, cfg, log)
+	picGroup := group.Group("/pic")
+	picGroup.Use(libauth.RequireScopes(libauth.ScopeUsers))
+	pic.SetupRouter(picGroup, db, cfg, log)
 
 	return picEnv{router: router, token: token, dir: cfg.PictureLocalPath}
 }
@@ -96,6 +103,14 @@ func TestGetPicture_RequiresAuth(t *testing.T) {
 	savePhoto(t, env.dir, "stu")
 
 	assert.Equal(http.StatusUnauthorized, env.get("/pic/user/large/stu.jpg", false).Code)
+}
+
+func TestGetPicture_RequiresUsersScope(t *testing.T) {
+	assert := testify.New(t)
+	env := setupPicWithLevel(t, auth.TokenLevelOffCampus)
+	savePhoto(t, env.dir, "stu")
+
+	assert.Equal(http.StatusForbidden, env.get("/pic/user/large/stu.jpg", true).Code)
 }
 
 func TestGetPicture_HiddenPhoto(t *testing.T) {
