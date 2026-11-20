@@ -111,8 +111,8 @@ func init() {
 		Description: "normalize today's daily messages into dated JSON files",
 		Binary:      InstallDir + "/job-daily-messages-update_linux",
 		Params: []Param{
-			{Name: "outdir", Type: ParamString, Default: "/home/wso/wso/static/daily_messages"},
-			{Name: "today", Type: ParamString, Default: "/home/wso/wso/static/daily_messages/today.json"},
+			{Name: "outdir", Type: ParamString, Default: "/opt/wso-go/static/mobile/daily_messages"},
+			{Name: "today", Type: ParamString, Default: "/opt/wso-go/static/mobile/daily_messages.json"},
 			{Name: "url", Type: ParamString},
 		},
 		Schedule: &Schedule{OnCalendar: "*:0/15"},
