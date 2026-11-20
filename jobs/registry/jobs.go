@@ -72,8 +72,8 @@ func init() {
 		Binary:      InstallDir + "/job-catalog-update_linux",
 		Params: []Param{
 			{Name: "config", Type: ParamString, Default: defaultConfig},
-			{Name: "file", Type: ParamString, Default: "/home/wso/wso/static/courses.json"},
-			{Name: "factrak-file", Type: ParamString, Default: "/home/wso/wso/static-auth/courses.json"},
+			{Name: "file", Type: ParamString, Default: "/opt/wso-go/static/courses.json"},
+			{Name: "factrak-file", Type: ParamString, Default: "/opt/wso-go/static-auth/courses.json"},
 			{Name: "console", Type: ParamBool},
 			{Name: "draft", Type: ParamBool},
 		},
@@ -98,20 +98,20 @@ func init() {
 		Description: "fetch dining menus into dated JSON files",
 		Binary:      InstallDir + "/job-dining-update_linux",
 		Params: []Param{
-			{Name: "outdir", Type: ParamString, Default: "/home/wso/wso/static/dining"},
+			{Name: "outdir", Type: ParamString, Default: "/opt/wso-go/static/menus"},
 			{Name: "vi", Type: ParamString},
-			{Name: "today", Type: ParamString},
+			{Name: "today", Type: ParamString, Default: "/opt/wso-go/static/dining.json"},
 			{Name: "force", Type: ParamBool},
 			{Name: "date", Type: ParamString},
 		},
-		Schedule: &Schedule{OnCalendar: "*-*-* 01:00:00"},
+		Schedule: &Schedule{OnCalendar: "*-*-* *:00:00"},
 	})
 	mustRegister(Job{
 		Name:        "library-hours-update",
 		Description: "refresh library hours JSON",
 		Binary:      InstallDir + "/job-library-hours-update_linux",
 		Params: []Param{
-			{Name: "out", Type: ParamString, Default: "/home/wso/wso/static/library.json"},
+			{Name: "out", Type: ParamString, Default: "/opt/wso-go/static/library.json"},
 		},
 		Schedule: &Schedule{OnCalendar: "*-*-* 01:00:00"},
 	})
