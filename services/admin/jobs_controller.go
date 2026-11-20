@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -31,8 +32,13 @@ type jobInfo struct {
 	Description  string             `json:"description"`
 	Params       []registry.Param   `json:"params"`
 	Schedule     *registry.Schedule `json:"schedule,omitempty"`
+	Disabled     bool               `json:"disabled"`
 	NextRunAt    *time.Time         `json:"nextRunAt,omitempty"`
 	HasActiveRun bool               `json:"hasActiveRun"`
+}
+
+type updateJobRequest struct {
+	Disabled *bool `json:"disabled" binding:"required"`
 }
 
 type createJobRunRequest struct {
@@ -58,28 +64,91 @@ func (t *Controller) ListJobs(c *gin.Context) {
 		defer sd.Close()
 	}
 
+	disabled, err := jobctl.DisabledJobs(c)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
 	out := make([]jobInfo, 0, len(r.All()))
 	for _, j := range r.All() {
-		info := jobInfo{
-			Name:        j.Name,
-			Description: j.Description,
-			Params:      j.Params,
-			Schedule:    j.Schedule,
-		}
-		active, err := t.jobRunModel.HasActiveRun(j.Name)
+		info, err := t.buildJobInfo(j, disabled[j.Name], sd)
 		if err != nil {
 			t.RespondError(c, err)
 			return
 		}
-		info.HasActiveRun = active
-		if sd != nil && j.Schedule != nil {
-			if next, err := sd.TimerNextElapse(j.Name); err == nil {
-				info.NextRunAt = next
-			}
-		}
 		out = append(out, info)
 	}
 	t.RespondOK(c, out)
+}
+
+func (t *Controller) buildJobInfo(j registry.Job, disabled bool, sd *jobctl.Systemd) (jobInfo, error) {
+	info := jobInfo{
+		Name:        j.Name,
+		Description: j.Description,
+		Params:      j.Params,
+		Schedule:    j.Schedule,
+		Disabled:    disabled,
+	}
+	active, err := t.jobRunModel.HasActiveRun(j.Name)
+	if err != nil {
+		return info, err
+	}
+	info.HasActiveRun = active
+	if sd != nil && j.Schedule != nil && !disabled {
+		if next, err := sd.TimerNextElapse(j.Name); err == nil {
+			info.NextRunAt = next
+		}
+	}
+	return info, nil
+}
+
+// UpdateJob godoc
+// @Summary Update a batch job
+// @Description while disabled, new runs return 409 and timer and queued runs don't start
+// @ID updateAdminJob
+// @Tags admin-jobs
+// @Accept json
+// @Produce json
+// @Param name path string true "job name"
+// @Param body body admin.updateJobRequest true "job settings"
+// @Success 200 {object} admin.jobInfo
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed"
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
+// @Security Bearer
+// @Router /admin/jobs/{name} [patch]
+func (t *Controller) UpdateJob(c *gin.Context) {
+	name := c.Param("name")
+	j, ok := registry.Default().Get(name)
+	if !ok {
+		t.RespondAPIError(c, lib.ErrorRecordNotFound)
+		return
+	}
+	var body updateJobRequest
+	if err := c.ShouldBindJSON(&body); err != nil {
+		t.RespondBadBind(c, err)
+		return
+	}
+
+	userID := services.GetUserID(c)
+	if err := jobctl.SetJobDisabled(c, name, *body.Disabled); err != nil {
+		t.RespondError(c, err)
+		return
+	}
+	t.Log.Infof("admin update job user=%d job=%s disabled=%t", userID, name, *body.Disabled)
+
+	var sd *jobctl.Systemd
+	if s, err := jobctl.NewSystemd(); err == nil {
+		sd = s
+		defer sd.Close()
+	}
+	info, err := t.buildJobInfo(j, *body.Disabled, sd)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+	t.RespondOK(c, info)
 }
 
 // ListJobRuns godoc
@@ -214,6 +283,7 @@ func (t *Controller) GetJobRunLogs(c *gin.Context) {
 // @Success 200 {object} models.JobRun
 // @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data"
 // @Failure 404 {object} services.BaseErrorResponse
+// @Failure 409 {object} services.BaseErrorResponse "2500: job is disabled"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /admin/jobs/{name}/runs [post]
@@ -223,6 +293,15 @@ func (t *Controller) CreateJobRun(c *gin.Context) {
 	j, ok := reg.Get(name)
 	if !ok {
 		t.RespondAPIError(c, lib.ErrorRecordNotFound)
+		return
+	}
+	disabled, err := jobctl.IsJobDisabled(c, name)
+	if err != nil {
+		t.RespondError(c, err)
+		return
+	}
+	if disabled {
+		t.RespondAPIError(c, lib.ErrorJobDisabled)
 		return
 	}
 
@@ -292,6 +371,10 @@ func (t *Controller) CreateJobRun(c *gin.Context) {
 	})
 	if err != nil {
 		t.Log.Warnf("admin create job run user=%d job=%s: %v", userID, name, err)
+		if errors.Is(err, jobctl.ErrJobDisabled) {
+			t.RespondAPIError(c, lib.ErrorJobDisabled)
+			return
+		}
 		t.RespondError(c, err)
 		return
 	}
