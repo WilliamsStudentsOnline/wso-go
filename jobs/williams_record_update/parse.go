@@ -18,7 +18,7 @@ var skipTags = map[string]bool{
 	"form": true, "button": true, "video": true, "audio": true, "object": true, "embed": true,
 }
 
-func ParseContent(content string) ([]ArticleBlock, error) {
+func parseContent(content string) ([]ArticleBlock, error) {
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(content))
 	if err != nil {
 		return nil, err

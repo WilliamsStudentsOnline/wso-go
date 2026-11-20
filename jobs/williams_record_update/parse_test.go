@@ -121,7 +121,7 @@ func TestParseContent(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := ParseContent(tt.in)
+			got, err := parseContent(tt.in)
 			testify.NoError(t, err)
 			testify.Equal(t, tt.want, got)
 		})

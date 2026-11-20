@@ -50,11 +50,11 @@ func toArticle(item rssItem) (Article, error) {
 	if err != nil {
 		return Article{}, err
 	}
-	content, err := ParseContent(item.Content)
+	content, err := parseContent(item.Content)
 	if err != nil {
 		return Article{}, fmt.Errorf("parse content: %w", err)
 	}
-	description, err := ParseContent(item.Description)
+	description, err := parseContent(item.Description)
 	if err != nil {
 		return Article{}, fmt.Errorf("parse description: %w", err)
 	}
