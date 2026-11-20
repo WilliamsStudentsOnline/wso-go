@@ -67,7 +67,47 @@ func (client *RedisClient) SetWithExpiration(ctx context.Context, key string, va
 	return client.rdb.Set(ctx, key, value, duration).Err()
 }
 
+func (client *RedisClient) Del(ctx context.Context, keys ...string) error {
+	if client == nil {
+		return ErrRedisClientNotConfigured
+	}
+	return client.rdb.Del(ctx, keys...).Err()
+}
+
+// Wrappers for sets
+func (client *RedisClient) SAdd(ctx context.Context, key string, members ...interface{}) error {
+	if client == nil {
+		return ErrRedisClientNotConfigured
+	}
+	return client.rdb.SAdd(ctx, key, members...).Err()
+}
+
+func (client *RedisClient) SRem(ctx context.Context, key string, members ...interface{}) error {
+	if client == nil {
+		return ErrRedisClientNotConfigured
+	}
+	return client.rdb.SRem(ctx, key, members...).Err()
+}
+
+func (client *RedisClient) SIsMember(ctx context.Context, key string, member interface{}) (bool, error) {
+	if client == nil {
+		return false, ErrRedisClientNotConfigured
+	}
+	return client.rdb.SIsMember(ctx, key, member).Result()
+}
+
+func (client *RedisClient) SMembers(ctx context.Context, key string) ([]string, error) {
+	if client == nil {
+		return nil, ErrRedisClientNotConfigured
+	}
+	return client.rdb.SMembers(ctx, key).Result()
+}
+
 // Key formatting
 func GetHomepageBannerKey() string {
 	return "homepage:banner"
+}
+
+func GetDisabledJobsKey() string {
+	return "jobs:disabled"
 }
