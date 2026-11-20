@@ -449,6 +449,7 @@ eco-cafe:
 clean-cuisine:
   name: "Clean Cuisine"
   nutrislice_slug: "paresky-clean-cuisine"
+  merge_into: whitmans
   operating: true
   online_order: false
   hours:

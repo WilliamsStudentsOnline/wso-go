@@ -12,6 +12,8 @@ type VendorInfo struct {
 	NutriSliceSlug string `json:"NutriSliceSlug" yaml:"nutrislice_slug"`
 	Operating      bool   `json:"operating" yaml:"operating"`
 	OnlineOrder    bool   `json:"onlineOrder" yaml:"online_order"`
+	// vendor id whose meals this vendor's courses are folded into
+	MergeInto string `json:"mergeInto,omitempty" yaml:"merge_into,omitempty"`
 	// key is day of week, value is list of meals to hours
 	Hours map[string]VendorInfoHoursWeek `json:"hours" yaml:"hours"`
 }
