@@ -111,3 +111,7 @@ func GetHomepageBannerKey() string {
 func GetDisabledJobsKey() string {
 	return "jobs:disabled"
 }
+
+func GetWCFMCacheKey(name string) string {
+	return "wcfm:" + name
+}
