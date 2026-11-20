@@ -12286,6 +12286,9 @@ const docTemplate = `{
                 "optOutEphcatch": {
                     "type": "boolean"
                 },
+                "photoHidden": {
+                    "type": "boolean"
+                },
                 "pronoun": {
                     "type": "string"
                 },
@@ -12585,6 +12588,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "optOutEphcatch": {
+                    "type": "boolean"
+                },
+                "photoHidden": {
                     "type": "boolean"
                 },
                 "pronoun": {
@@ -12899,6 +12905,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "optOutEphcatch": {
+                    "type": "boolean"
+                },
+                "photoHidden": {
                     "type": "boolean"
                 },
                 "pronoun": {

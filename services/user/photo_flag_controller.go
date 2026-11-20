@@ -48,7 +48,7 @@ func (t *Controller) FlagUserPhoto(c *gin.Context) {
 		t.RespondError(c, err)
 		return
 	}
-	if !exists {
+	if !exists || (target.PhotoHidden != nil && *target.PhotoHidden) {
 		t.RespondAPIError(c, lib.ErrorUserPhotoNotFound)
 		return
 	}

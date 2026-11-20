@@ -614,6 +614,7 @@ CREATE TABLE `users` (
   `home_state` varchar(255) NULL,
   `home_country` varchar(255) NULL,
   `home_visible` bool NOT NULL DEFAULT 1,
+  `photo_hidden` bool NOT NULL DEFAULT 0,
   `major` varchar(255) NULL,
   `su_box` varchar(255) NULL,
   `entry` varchar(255) NULL,

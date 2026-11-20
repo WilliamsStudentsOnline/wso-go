@@ -136,6 +136,7 @@ type ListUsersResponseUser struct {
 	HomeState                 *string                      `json:"homeState"`
 	HomeTown                  *string                      `json:"homeTown"`
 	HomeVisible               *bool                        `json:"homeVisible"`
+	PhotoHidden               *bool                        `json:"photoHidden"`
 	HomeZip                   *string                      `json:"homeZip"`
 	Id                        uint                         `json:"id"`
 	Major                     *string                      `json:"major"`
@@ -186,6 +187,7 @@ func ConvertListUsersResponseUser(m *models.User) *ListUsersResponseUser {
 	r.HomeState = m.HomeState
 	r.HomeTown = m.HomeTown
 	r.HomeVisible = m.HomeVisible
+	r.PhotoHidden = m.PhotoHidden
 	r.HomeZip = m.HomeZip
 	r.Id = m.ID
 	r.Major = m.Major

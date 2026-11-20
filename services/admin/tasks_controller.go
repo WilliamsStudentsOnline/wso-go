@@ -1,7 +1,6 @@
 package admin
 
 import (
-	"os"
 	"strings"
 	"time"
 
@@ -478,14 +477,11 @@ func (t *Controller) approveUserPhotoReview(c *gin.Context, sample *models.Moder
 		return err
 	}
 
-	if err := t.pictureBackend.DeleteUserPhoto(user.UnixID); err != nil {
-		if os.IsNotExist(err) {
-			return lib.ErrorModeratorTaskSubjectGone
-		}
+	if err := t.userModel.SetPhotoHidden(user.ID, true); err != nil {
 		return err
 	}
 
-	t.Log.Infow("user photo deleted via moderator approve",
+	t.Log.Infow("user photo hidden via moderator approve",
 		"targetUserID", fields.TargetUserID,
 		"taskReference", sample.TaskReference,
 		"actorUserID", services.GetUserID(c),

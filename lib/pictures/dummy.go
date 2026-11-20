@@ -39,7 +39,3 @@ func (*pictureBackendDummy) SaveDormRoom(dormRoomID uint, reviewID uint, img ima
 func (*pictureBackendDummy) ListDormRoom(dormRoomID uint) ([]string, error) {
 	return []string{}, nil
 }
-
-func (*pictureBackendDummy) DeleteUserPhoto(unixID string) error {
-	return nil
-}

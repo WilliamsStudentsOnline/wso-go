@@ -21,7 +21,6 @@ type PictureBackend interface {
 	SaveUserPhotoBoth(unixID string, img image.Image) error
 	SaveUserPhotoLarge(unixID string, img image.Image) error
 	SaveUserPhotoThumb(unixID string, img image.Image) error
-	DeleteUserPhoto(unixID string) error
 	SaveEphmatchPhoto(unixID string, img image.Image) error
 	DeleteEphmatchPhoto(unixID string) error
 	SaveDormRoom(dormRoomID uint, reviewID uint, img image.Image) error

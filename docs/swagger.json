@@ -12284,6 +12284,9 @@
                 "optOutEphcatch": {
                     "type": "boolean"
                 },
+                "photoHidden": {
+                    "type": "boolean"
+                },
                 "pronoun": {
                     "type": "string"
                 },
@@ -12583,6 +12586,9 @@
                     "type": "integer"
                 },
                 "optOutEphcatch": {
+                    "type": "boolean"
+                },
+                "photoHidden": {
                     "type": "boolean"
                 },
                 "pronoun": {
@@ -12897,6 +12903,9 @@
                     "type": "integer"
                 },
                 "optOutEphcatch": {
+                    "type": "boolean"
+                },
+                "photoHidden": {
                     "type": "boolean"
                 },
                 "pronoun": {
