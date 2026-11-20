@@ -22,7 +22,7 @@ var (
 	httpClient       = &http.Client{Timeout: 5 * time.Second}
 )
 
-// no colon in the offset, so not RFC3339
+// offset has no colon
 const spinitronTimeLayout = "2006-01-02T15:04:05-0700"
 
 type spinTime struct{ time.Time }
@@ -150,7 +150,7 @@ func fetchIcecast(ctx context.Context) (icecastStatus, error) {
 		return icecastStatus{}, err
 	}
 
-	// object, array, or missing depending on mount count
+	// shape varies by mount count
 	raw := bytes.TrimSpace(body.Icestats.Source)
 	var sources []icecastSource
 	switch {
