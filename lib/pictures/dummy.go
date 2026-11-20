@@ -1,6 +1,9 @@
 package pictures
 
-import "image"
+import (
+	"image"
+	"os"
+)
 
 func NewPictureBackendDummy() PictureBackend {
 	return &pictureBackendDummy{}
@@ -38,4 +41,8 @@ func (*pictureBackendDummy) SaveDormRoom(dormRoomID uint, reviewID uint, img ima
 
 func (*pictureBackendDummy) ListDormRoom(dormRoomID uint) ([]string, error) {
 	return []string{}, nil
+}
+
+func (*pictureBackendDummy) OpenPicture(relPath string) (*os.File, error) {
+	return nil, os.ErrNotExist
 }

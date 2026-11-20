@@ -693,7 +693,8 @@ const docTemplate = `{
                             "FACTRAK_REVIEW",
                             "NEW_USER_TAG",
                             "BOARD_THREAD_REVIEW",
-                            "BOARD_POST_REVIEW"
+                            "BOARD_POST_REVIEW",
+                            "USER_PHOTO_REVIEW"
                         ],
                         "type": "string",
                         "description": "Filter by task type",
@@ -9168,6 +9169,65 @@ const docTemplate = `{
                 }
             }
         },
+        "/users/{userID}/photo/flag": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "creates a USER_PHOTO_REVIEW moderator task for the user's profile photo",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Flag a user's profile photo",
+                "operationId": "flagUserPhoto",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "open flag already exists for this photo (2417)",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "cannot flag your own photo (2418)",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "user or profile photo not found (2416)",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users/{userID}/tag-requests": {
             "post": {
                 "security": [
@@ -11878,14 +11938,16 @@ const docTemplate = `{
                 "FACTRAK_REVIEW",
                 "NEW_USER_TAG",
                 "BOARD_THREAD_REVIEW",
-                "BOARD_POST_REVIEW"
+                "BOARD_POST_REVIEW",
+                "USER_PHOTO_REVIEW"
             ],
             "x-enum-varnames": [
                 "ModeratorTaskTypeUndefined",
                 "ModeratorTaskTypeFactrakReview",
                 "ModeratorTaskTypeNewUserTag",
                 "ModeratorTaskTypeBoardThreadReview",
-                "ModeratorTaskTypeBoardPostReview"
+                "ModeratorTaskTypeBoardPostReview",
+                "ModeratorTaskTypeUserPhotoReview"
             ]
         },
         "models.Neighborhood": {
@@ -12212,6 +12274,9 @@ const docTemplate = `{
                 "optOutEphcatch": {
                     "type": "boolean"
                 },
+                "photoHidden": {
+                    "type": "boolean"
+                },
                 "pronoun": {
                     "type": "string"
                 },
@@ -12511,6 +12576,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "optOutEphcatch": {
+                    "type": "boolean"
+                },
+                "photoHidden": {
                     "type": "boolean"
                 },
                 "pronoun": {
@@ -12825,6 +12893,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "optOutEphcatch": {
+                    "type": "boolean"
+                },
+                "photoHidden": {
                     "type": "boolean"
                 },
                 "pronoun": {

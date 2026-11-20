@@ -513,6 +513,11 @@ func (t *Controller) UploadProfilePhoto(c *gin.Context) {
 		return
 	}
 
+	if err := t.userModel.SetPhotoHidden(user.ID, false); err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
 	t.RespondOK(c, nil)
 }
 

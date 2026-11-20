@@ -252,6 +252,10 @@ func (m *UserModel) UpdateUserTags(id uint, tags []string) (err error) {
 }
 
 // Populates the search field. This is an expensive function, so call is sparingly.
+func (m *UserModel) SetPhotoHidden(id uint, hidden bool) error {
+	return m.DB.Model(NewUserWithID(id)).Update("photo_hidden", hidden).Error
+}
+
 func (m *UserModel) PopulateSearchFields(id uint) (err error) {
 	searchFields, err := m.generateSearchFields(id)
 	if err != nil {

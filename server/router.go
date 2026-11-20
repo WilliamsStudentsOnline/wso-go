@@ -41,6 +41,7 @@ import (
 	goodrichService "github.com/WilliamsStudentsOnline/wso-go/services/goodrich"
 	notificationService "github.com/WilliamsStudentsOnline/wso-go/services/notification"
 	onboardingService "github.com/WilliamsStudentsOnline/wso-go/services/onboarding"
+	picService "github.com/WilliamsStudentsOnline/wso-go/services/pic"
 	userService "github.com/WilliamsStudentsOnline/wso-go/services/user"
 	wordsService "github.com/WilliamsStudentsOnline/wso-go/services/words"
 )
@@ -267,6 +268,11 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 	coursesFactrakFile := router.Group("/courses-factrak")
 	coursesFactrakFile.Use(auth.RequireScopes(auth.ScopeFactrakFull))
 	coursesFactrakFile.StaticFS("/", http.Dir("/opt/wso-go/static-auth"))
+
+	// Profile and other pictures (previously served by Telos)
+	picGroup := router.Group("/pic")
+	picGroup.Use(auth.RequireScopes(auth.ScopeUsers))
+	picService.SetupRouter(picGroup, db, cfg, log.Named("pic"))
 
 	return r, nil
 }

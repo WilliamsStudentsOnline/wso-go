@@ -240,6 +240,24 @@ func (b *Backend) ListDormRoom(dormRoomID uint) ([]string, error) {
 	return pics, nil
 }
 
+func (b *Backend) OpenPicture(relPath string) (*os.File, error) {
+	// Cleaning against "/" drops any ".." that would climb above the picture root
+	f, err := os.Open(filepath.Join(b.path, filepath.Clean("/"+relPath)))
+	if err != nil {
+		return nil, err
+	}
+	info, err := f.Stat()
+	if err != nil {
+		f.Close()
+		return nil, err
+	}
+	if info.IsDir() {
+		f.Close()
+		return nil, os.ErrNotExist
+	}
+	return f, nil
+}
+
 // All file names should be in the format `ephmatch/{userID}.jpg`
 func (b *Backend) SaveEphmatchPhoto(unixID string, img image.Image) error {
 	return b.saveUserProfile(img, unixID, dirEphmatch)

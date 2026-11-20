@@ -1748,6 +1748,7 @@ definitions:
     - NEW_USER_TAG
     - BOARD_THREAD_REVIEW
     - BOARD_POST_REVIEW
+    - USER_PHOTO_REVIEW
     type: string
     x-enum-varnames:
     - ModeratorTaskTypeUndefined
@@ -1755,6 +1756,7 @@ definitions:
     - ModeratorTaskTypeNewUserTag
     - ModeratorTaskTypeBoardThreadReview
     - ModeratorTaskTypeBoardPostReview
+    - ModeratorTaskTypeUserPhotoReview
   models.Neighborhood:
     properties:
       dorms:
@@ -1978,6 +1980,8 @@ definitions:
         type: integer
       optOutEphcatch:
         type: boolean
+      photoHidden:
+        type: boolean
       pronoun:
         type: string
       pronounOverride:
@@ -2179,6 +2183,8 @@ definitions:
       officeID:
         type: integer
       optOutEphcatch:
+        type: boolean
+      photoHidden:
         type: boolean
       pronoun:
         type: string
@@ -2385,6 +2391,8 @@ definitions:
       officeID:
         type: integer
       optOutEphcatch:
+        type: boolean
+      photoHidden:
         type: boolean
       pronoun:
         type: string
@@ -2928,6 +2936,7 @@ paths:
         - NEW_USER_TAG
         - BOARD_THREAD_REVIEW
         - BOARD_POST_REVIEW
+        - USER_PHOTO_REVIEW
         in: query
         name: taskType
         type: string
@@ -8512,6 +8521,45 @@ paths:
       security:
       - Bearer: []
       summary: Upload a profile photo by user id
+      tags:
+      - users
+  /users/{userID}/photo/flag:
+    post:
+      consumes:
+      - application/json
+      description: creates a USER_PHOTO_REVIEW moderator task for the user's profile
+        photo
+      operationId: flagUserPhoto
+      parameters:
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: open flag already exists for this photo (2417)
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "403":
+          description: cannot flag your own photo (2418)
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: user or profile photo not found (2416)
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Flag a user's profile photo
       tags:
       - users
   /users/{userID}/tag-requests:

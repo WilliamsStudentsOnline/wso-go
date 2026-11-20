@@ -68,6 +68,9 @@
         "homeVisible": {
           "type": "boolean"
         },
+        "photoHidden": {
+          "type": "boolean"
+        },
         "major": {
           "type": "string"
         },

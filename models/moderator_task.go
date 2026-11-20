@@ -26,7 +26,7 @@ type GetAllModeratorTasksOptions struct {
 	Offset *uint `json:"offset" form:"offset"`
 	Limit  *uint `json:"limit" form:"limit"`
 
-	TaskType      *ModeratorTaskType `json:"taskType" form:"taskType" enums:",FACTRAK_REVIEW,NEW_USER_TAG,BOARD_THREAD_REVIEW,BOARD_POST_REVIEW"`
+	TaskType      *ModeratorTaskType `json:"taskType" form:"taskType" enums:",FACTRAK_REVIEW,NEW_USER_TAG,BOARD_THREAD_REVIEW,BOARD_POST_REVIEW,USER_PHOTO_REVIEW"`
 	TaskReference *string            `json:"taskReference" form:"taskReference"`
 	// leave empty to filter only open tasks
 	ResolvedAt *time.Time `json:"resolvedAt" form:"resolvedAt"`
@@ -338,5 +338,29 @@ func NewBoardPostReviewTask(requestingUserID *uint, postID uint) (*ModeratorTask
 		TaskType:         ModeratorTaskTypeBoardPostReview,
 		TaskFields:       fields,
 		TaskReference:    TaskReference(ModeratorTaskTypeBoardPostReview, postID),
+	}, nil
+}
+
+func DecodeUserPhotoReviewFields(taskFieldsJSON string) (*UserPhotoReviewTaskFields, error) {
+	var fields UserPhotoReviewTaskFields
+	if err := json.Unmarshal([]byte(taskFieldsJSON), &fields); err != nil {
+		return nil, err
+	}
+	return &fields, nil
+}
+
+func NewUserPhotoReviewTask(requestingUserID *uint, targetUserID uint) (*ModeratorTask, error) {
+	if targetUserID == 0 {
+		return nil, errors.New("targetUserID is required")
+	}
+	fields, err := EncodeTaskFields(UserPhotoReviewTaskFields{TargetUserID: targetUserID})
+	if err != nil {
+		return nil, err
+	}
+	return &ModeratorTask{
+		RequestingUserID: requestingUserID,
+		TaskType:         ModeratorTaskTypeUserPhotoReview,
+		TaskFields:       fields,
+		TaskReference:    TaskReference(ModeratorTaskTypeUserPhotoReview, targetUserID),
 	}, nil
 }

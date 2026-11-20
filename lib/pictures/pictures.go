@@ -3,6 +3,7 @@ package pictures
 import (
 	"errors"
 	"image"
+	"os"
 
 	"github.com/WilliamsStudentsOnline/wso-go/config"
 	"github.com/WilliamsStudentsOnline/wso-go/lib/pictures/local"
@@ -25,6 +26,8 @@ type PictureBackend interface {
 	DeleteEphmatchPhoto(unixID string) error
 	SaveDormRoom(dormRoomID uint, reviewID uint, img image.Image) error
 	ListDormRoom(dormRoomID uint) ([]string, error)
+	// OpenPicture opens a file by path relative to the picture root.
+	OpenPicture(relPath string) (*os.File, error)
 }
 
 func NewPictureBackend(cfg *config.Config, log *zap.SugaredLogger) (PictureBackend, error) {

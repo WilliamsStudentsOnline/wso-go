@@ -215,6 +215,11 @@ var (
 	ErrorBoardPostNotFound            = NewAPIErrorWithHTTP(2414, http.StatusNotFound, "board post cannot be found")
 	ErrorBoardCannotFlagSelf          = NewAPIErrorWithHTTP(2415, http.StatusForbidden, "cannot flag your own content")
 
+	// user photo flags
+	ErrorUserPhotoNotFound      = NewAPIErrorWithHTTP(2416, http.StatusNotFound, "user has no profile photo")
+	ErrorUserPhotoFlagOpen      = NewAPIError(2417, "open flag already exists for this photo")
+	ErrorUserCannotFlagOwnPhoto = NewAPIErrorWithHTTP(2418, http.StatusForbidden, "cannot flag your own photo")
+
 	// 25** are admin job errors
 	ErrorJobDisabled = NewAPIErrorWithHTTP(2500, http.StatusConflict, "job is disabled")
 )

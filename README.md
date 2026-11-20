@@ -26,6 +26,8 @@ make dev
 
 This command runs MySQL and Redis in the background and serves our API, with hot reloading. Stop the development server with `Ctrl+C`. Database states will persist between runs; use `make dev-reset` to wipe them. If something gets stuck, try `make dev-down` to shut down the Docker containers running in the background.
 
+Profile and other pictures are served by the API at `/pic` from `picture_local_path` (with `picture_backend: local`), so Telos is not needed locally.
+
 ## Onboarding 
 
 ### Learning Go
