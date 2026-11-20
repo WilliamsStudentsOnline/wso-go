@@ -64,3 +64,7 @@ func (t *Controller) HealthCheck(c *gin.Context) {
 func (t *Controller) RespondInternalServerError(c *gin.Context) {
 	t.RespondAPIError(c, lib.ErrorInternalServerError)
 }
+
+func (t *Controller) RespondGone(c *gin.Context) {
+	t.RespondAPIError(c, lib.ErrorBooktrakDeprecated)
+}
