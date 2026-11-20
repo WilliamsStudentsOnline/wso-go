@@ -8571,6 +8571,9 @@ const docTemplate = `{
                 "content"
             ],
             "properties": {
+                "anonymous": {
+                    "type": "boolean"
+                },
                 "content": {
                     "type": "string"
                 }
@@ -8584,6 +8587,9 @@ const docTemplate = `{
                 "type"
             ],
             "properties": {
+                "anonymous": {
+                    "type": "boolean"
+                },
                 "body": {
                     "type": "string"
                 },
@@ -9398,6 +9404,12 @@ const docTemplate = `{
         "models.BoardPost": {
             "type": "object",
             "properties": {
+                "anonymous": {
+                    "type": "boolean"
+                },
+                "byOP": {
+                    "type": "boolean"
+                },
                 "content": {
                     "type": "string"
                 },
@@ -9409,6 +9421,9 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "isMine": {
+                    "type": "boolean"
                 },
                 "isOP": {
                     "type": "boolean"
@@ -9453,6 +9468,9 @@ const docTemplate = `{
         "models.BoardThread": {
             "type": "object",
             "properties": {
+                "anonymous": {
+                    "type": "boolean"
+                },
                 "body": {
                     "description": "hydrated from OP for API convenience",
                     "type": "string"

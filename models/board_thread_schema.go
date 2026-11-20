@@ -30,11 +30,12 @@ type BoardThread struct {
 
 	LastActive time.Time `gorm:"index:index_board_threads_on_last_active;not null" json:"lastActive"`
 	ReplyCount int       `gorm:"DEFAULT:0;not null" json:"replyCount"`
+	Anonymous  *bool     `gorm:"DEFAULT:false;not null" json:"anonymous"`
 
 	// Associations
-	Posts            []*BoardPost           `gorm:"foreignkey:ThreadID;association_foreignkey:ID" json:"posts,omitempty"`
-	RideInformation  *BoardRideInformation  `gorm:"foreignkey:ThreadID;association_foreignkey:ID" json:"ride,omitempty"`
-	Body             string                 `gorm:"-" json:"body,omitempty"` // hydrated from OP for API convenience
+	Posts           []*BoardPost          `gorm:"foreignkey:ThreadID;association_foreignkey:ID" json:"posts,omitempty"`
+	RideInformation *BoardRideInformation `gorm:"foreignkey:ThreadID;association_foreignkey:ID" json:"ride,omitempty"`
+	Body            string                `gorm:"-" json:"body,omitempty"` // hydrated from OP for API convenience
 
 	CreatedTime time.Time `gorm:"-" json:"createdAt"`
 }
@@ -59,6 +60,10 @@ func (t *BoardThread) BeforeCreate() error {
 func (t *BoardThread) AfterFind() (err error) {
 	t.CreatedTime = t.CreatedAt
 	return
+}
+
+func (t *BoardThread) IsAnonymous() bool {
+	return t.Anonymous != nil && *t.Anonymous
 }
 
 func IsValidBoardThreadType(typ string) bool {

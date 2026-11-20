@@ -13,8 +13,12 @@ type BoardPost struct {
 	User       *User  `json:"user,omitempty"`
 	ExUserName string `json:"exUserName"`
 
-	Content string `gorm:"size:65535;not null" json:"content"`
-	IsOP    *bool  `gorm:"column:is_op;DEFAULT:false;not null" json:"isOP"`
+	Content   string `gorm:"size:65535;not null" json:"content"`
+	IsOP      *bool  `gorm:"column:is_op;DEFAULT:false;not null" json:"isOP"`
+	Anonymous *bool  `gorm:"DEFAULT:false;not null" json:"anonymous"`
+
+	ByOP   bool `gorm:"-" json:"byOP"`
+	IsMine bool `gorm:"-" json:"isMine"`
 
 	CreatedTime time.Time `gorm:"-" json:"createdAt"`
 }
@@ -27,6 +31,10 @@ func NewBoardPostByID(id uint) *BoardPost {
 	return &BoardPost{
 		BaseSchema: BaseSchema{ID: id},
 	}
+}
+
+func (p *BoardPost) IsAnonymous() bool {
+	return p.Anonymous != nil && *p.Anonymous
 }
 
 func (p *BoardPost) AfterFind() (err error) {

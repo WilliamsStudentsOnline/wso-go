@@ -215,4 +215,5 @@ var (
 	ErrorBoardThreadNotFound          = NewAPIErrorWithHTTP(2413, http.StatusNotFound, "board thread cannot be found")
 	ErrorBoardPostNotFound            = NewAPIErrorWithHTTP(2414, http.StatusNotFound, "board post cannot be found")
 	ErrorBoardCannotFlagSelf          = NewAPIErrorWithHTTP(2415, http.StatusForbidden, "cannot flag your own content")
+	ErrorBoardAnonymousNotAllowed     = NewAPIError(2416, "only discussions can be posted anonymously")
 )

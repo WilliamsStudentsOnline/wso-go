@@ -41,13 +41,8 @@ func sanitizeThread(c *gin.Context, t *models.BoardThread) {
 	if t == nil {
 		return
 	}
-	if hasUserAuth(c) {
-		sanitize.User(t.User, c)
-	} else {
-		t.User = nil
-		t.ExUserName = ""
-	}
-	sanitizePosts(c, t.Posts)
+	sanitizePosts(c, t.Posts, t.UserID)
+	redactAuthor(c, t.IsAnonymous(), &t.UserID, &t.User, &t.ExUserName)
 }
 
 func sanitizeThreads(c *gin.Context, threads []*models.BoardThread) {
@@ -56,19 +51,27 @@ func sanitizeThreads(c *gin.Context, threads []*models.BoardThread) {
 	}
 }
 
-func sanitizePosts(c *gin.Context, posts []*models.BoardPost) {
-	userAuth := hasUserAuth(c)
+func sanitizePosts(c *gin.Context, posts []*models.BoardPost, opUserID uint) {
+	viewerID := services.GetUserID(c)
 	for _, p := range posts {
 		if p == nil {
 			continue
 		}
-		if userAuth {
-			sanitize.User(p.User, c)
-		} else {
-			p.User = nil
-			p.ExUserName = ""
-		}
+		p.ByOP = p.UserID == opUserID
+		p.IsMine = viewerID != 0 && p.UserID == viewerID
+		sanitizeThread(c, p.Thread)
+		redactAuthor(c, p.IsAnonymous(), &p.UserID, &p.User, &p.ExUserName)
 	}
+}
+
+func redactAuthor(c *gin.Context, anonymous bool, userID *uint, user **models.User, exUserName *string) {
+	if (anonymous && !isAdmin(c)) || !hasUserAuth(c) {
+		*userID = 0
+		*user = nil
+		*exUserName = ""
+		return
+	}
+	sanitize.User(*user, c)
 }
 
 func canMutate(c *gin.Context, ownerID uint) bool {
