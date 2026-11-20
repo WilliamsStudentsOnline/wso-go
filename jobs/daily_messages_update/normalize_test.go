@@ -166,3 +166,19 @@ func TestNormalizeUsesFeedDate(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "2026-11-23", out.Date)
 }
+
+func TestNormalizeReviewEdgeCases(t *testing.T) {
+	raw := []byte(`{"A": [
+		{"ID": "7", "type": "announcement", "permalink": "https://events.williams.edu/?p=7&utm_source=dm#x",
+		 "content": "<p>keep</p><style>.x{color:red}</style><script>alert(1)</script>",
+		 "meta": {"acf_daily_message_run_dates_0": [{"value": "20261101"}]}}
+	]}`)
+	out, skipped, err := Normalize(raw, "2026-11-20", testNow)
+	require.NoError(t, err)
+	require.Empty(t, skipped)
+	m := out.Categories[0].Messages[0]
+	assert.Equal(t, 7, m.ID)
+	assert.Equal(t, "https://events.williams.edu/?p=7", m.URL)
+	assert.Equal(t, "keep", m.Body)
+	assert.Equal(t, "2026-11-20", out.Date)
+}

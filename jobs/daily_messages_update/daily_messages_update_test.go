@@ -38,7 +38,7 @@ func TestUpdateWritesFiles(t *testing.T) {
 	}
 	target, err := os.Readlink(today)
 	require.NoError(t, err)
-	assert.Equal(t, filepath.Join(dir, "2026-11-20.json"), target)
+	assert.Equal(t, "2026-11-20.json", target)
 }
 
 func TestUpdateKeepsFileOnError(t *testing.T) {
@@ -72,4 +72,16 @@ func TestUpdateNamesFileByFeedDate(t *testing.T) {
 	assert.NoError(t, err)
 	_, err = os.Stat(filepath.Join(dir, "2026-11-21.json"))
 	assert.True(t, os.IsNotExist(err))
+}
+
+func TestUpdateSkipsWithoutFailing(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`{"A": [{"ID": 1, "type": "announcement"}, {"ID": {}}]}`))
+	}))
+	defer srv.Close()
+
+	dir := t.TempDir()
+	require.NoError(t, Update(srv.Client(), srv.URL, dir, "", testNow))
+	_, err := os.Stat(filepath.Join(dir, "2026-11-20.json"))
+	assert.NoError(t, err)
 }

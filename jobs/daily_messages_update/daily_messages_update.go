@@ -2,9 +2,9 @@ package daily_messages_update
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -40,12 +40,16 @@ func Update(client *http.Client, url, outDir, todayLink string, now time.Time) e
 		return fmt.Errorf("write %s: %w", dest, err)
 	}
 	if todayLink != "" {
-		if err := atomicSymlink(dest, todayLink); err != nil {
+		target, err := filepath.Rel(filepath.Dir(todayLink), dest)
+		if err != nil {
+			return err
+		}
+		if err := atomicSymlink(target, todayLink); err != nil {
 			return fmt.Errorf("link %s: %w", todayLink, err)
 		}
 	}
-	if len(skipped) > 0 {
-		return fmt.Errorf("wrote %s but skipped %d item(s): %w", dest, len(skipped), errors.Join(skipped...))
+	for _, err := range skipped {
+		log.Printf("skipped: %v", err)
 	}
 	return nil
 }
@@ -89,7 +93,7 @@ func atomicWrite(dest string, b []byte) error {
 }
 
 func atomicSymlink(target, link string) error {
-	tmp := link + ".tmp"
+	tmp := fmt.Sprintf("%s.tmp.%d", link, os.Getpid())
 	_ = os.Remove(tmp)
 	if err := os.Symlink(target, tmp); err != nil {
 		return err

@@ -6,7 +6,7 @@ import (
 )
 
 type rawMessage struct {
-	ID             int             `json:"ID"`
+	ID             looseInt        `json:"ID"`
 	Type           looseString     `json:"type"`
 	Title          looseString     `json:"title"`
 	Content        looseString     `json:"content"`
@@ -32,7 +32,21 @@ func isObject(b []byte) bool {
 	return bytes.HasPrefix(bytes.TrimSpace(b), []byte("{"))
 }
 
-// upstream sends false or null in place of empty strings
+type looseInt int
+
+func (i *looseInt) UnmarshalJSON(b []byte) error {
+	var n json.Number
+	if err := json.Unmarshal(bytes.Trim(b, `"`), &n); err != nil {
+		return err
+	}
+	v, err := n.Int64()
+	if err != nil {
+		return err
+	}
+	*i = looseInt(v)
+	return nil
+}
+
 type looseString string
 
 func (s *looseString) UnmarshalJSON(b []byte) error {
@@ -45,7 +59,6 @@ func (s *looseString) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// PHP serializes an empty map as []
 type looseMap map[string]string
 
 func (m *looseMap) UnmarshalJSON(b []byte) error {
@@ -94,7 +107,6 @@ func (t *looseTerms) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// first value of each meta key; a key is present even if its value is unusable
 type looseMeta map[string]string
 
 func (m *looseMeta) UnmarshalJSON(b []byte) error {

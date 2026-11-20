@@ -8,7 +8,6 @@ import (
 	"net/url"
 	"regexp"
 	"sort"
-	"strconv"
 	"strings"
 	"time"
 
@@ -135,7 +134,6 @@ func Normalize(raw []byte, date string, now time.Time) (Export, []error, error) 
 	return out, skipped, nil
 }
 
-// the date most messages run on, since upstream may flip days later than midnight
 func feedDate(out Export, fallback string) string {
 	counts := map[string]int{}
 	for _, c := range out.Categories {
@@ -145,8 +143,16 @@ func feedDate(out Export, fallback string) string {
 			}
 		}
 	}
+	day, err := time.Parse("2006-01-02", fallback)
+	if err != nil {
+		return fallback
+	}
+	prev := day.AddDate(0, 0, -1).Format("2006-01-02")
 	best := fallback
 	for d, n := range counts {
+		if d != fallback && d != prev {
+			continue
+		}
 		if n > counts[best] || (n == counts[best] && best != fallback && d < best) {
 			best = d
 		}
@@ -154,7 +160,6 @@ func feedDate(out Export, fallback string) string {
 	return best
 }
 
-// PHP serializes a filtered list as an object keyed by index
 func categoryItems(value json.RawMessage) ([]json.RawMessage, error) {
 	if !isObject(value) {
 		var items []json.RawMessage
@@ -170,10 +175,8 @@ func categoryItems(value json.RawMessage) ([]json.RawMessage, error) {
 		keys = append(keys, k)
 	}
 	sort.Slice(keys, func(i, j int) bool {
-		a, errA := strconv.Atoi(keys[i])
-		b, errB := strconv.Atoi(keys[j])
-		if errA == nil && errB == nil {
-			return a < b
+		if len(keys[i]) != len(keys[j]) {
+			return len(keys[i]) < len(keys[j])
 		}
 		return keys[i] < keys[j]
 	})
@@ -197,13 +200,13 @@ func expectDelim(dec *json.Decoder, want json.Delim) error {
 
 func normalizeMessage(r rawMessage) Message {
 	m := Message{
-		ID:        r.ID,
+		ID:        int(r.ID),
 		Type:      string(r.Type),
 		Title:     cleanText(string(r.Title)),
 		Summary:   htmlToText(string(r.DmText)),
 		Body:      htmlToText(string(r.Content)),
 		BodyHTML:  strings.TrimSpace(string(r.Content)),
-		URL:       stripQuery(string(r.Permalink)),
+		URL:       stripTracking(string(r.Permalink)),
 		MoreURL:   strings.TrimSpace(string(r.WebsiteURL)),
 		TicketURL: strings.TrimSpace(string(r.TicketURL)),
 		ImageURL:  strings.TrimSpace(string(r.ThumbURLFull)),
@@ -260,12 +263,18 @@ func parseEventTime(v string) string {
 	return t.Format(time.RFC3339)
 }
 
-func stripQuery(raw string) string {
+func stripTracking(raw string) string {
 	u, err := url.Parse(strings.TrimSpace(raw))
 	if err != nil {
 		return strings.TrimSpace(raw)
 	}
-	u.RawQuery = ""
+	q := u.Query()
+	for k := range q {
+		if strings.HasPrefix(k, "utm_") {
+			q.Del(k)
+		}
+	}
+	u.RawQuery = q.Encode()
 	u.Fragment = ""
 	return u.String()
 }
@@ -274,7 +283,7 @@ var spaceRun = regexp.MustCompile(`[ \t\x{a0}]+`)
 
 func cleanText(s string) string {
 	s = html.UnescapeString(s)
-	s = strings.ReplaceAll(s, "​", "")
+	s = strings.ReplaceAll(s, "\u200b", "")
 	return strings.TrimSpace(spaceRun.ReplaceAllString(s, " "))
 }
 
@@ -292,7 +301,7 @@ func htmlToText(s string) string {
 	var b strings.Builder
 	var walk func(n *nethtml.Node)
 	walk = func(n *nethtml.Node) {
-		if isMoreLink(n) {
+		if isMoreLink(n) || (n.Type == nethtml.ElementNode && (n.Data == "script" || n.Data == "style")) {
 			return
 		}
 		if n.Type == nethtml.TextNode {
