@@ -29,7 +29,6 @@ type VendorInfoHoursMeals struct {
 //go:embed vendor_info.yaml
 var embeddedVendorInfo []byte
 
-// empty path uses the embedded vendor_info.yaml
 func ReadVendorInfo(path string) (map[string]VendorInfo, error) {
 	data := embeddedVendorInfo
 	if path != "" {
