@@ -75,12 +75,10 @@ jobs:
           set -euo pipefail
           labels="$PR_LABELS"
           if [[ "${{ github.event_name }}" == "merge_group" ]]; then
-            # merge_group events carry no pull_request payload; the PR number is in
-            # head_ref (gh-readonly-queue/<base>/pr-<number>-<sha>)
+            # merge_group events have no pull_request payload
             pr="$(sed -nE 's#.*/pr-([0-9]+)-.*#\1#p' <<<"$MERGE_GROUP_REF")"
             labels="$(gh pr view "$pr" --repo "$GITHUB_REPOSITORY" --json labels --jq '[.labels[].name] | join(",")')"
           elif [[ "${{ github.event_name }}" == "push" ]]; then
-            # push to master: use the labels of the PR(s) that produced this commit
             labels="$(gh api "repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/pulls" --jq '[.[].labels[].name] | join(",")')"
           fi
           if [[ ",$labels," == *",allow-breaking-changes,"* ]]; then
@@ -94,7 +92,7 @@ jobs:
         continue-on-error: true
         env:
           OPENAPI_BASE_REF: ${{ steps.base.outputs.ref }}
-          # true when the PR (looked up from head_ref in the merge queue) has the allow-breaking-changes label
+          # true when PR (or merge queue PR) has the allow-breaking-changes label
           ALLOW_BREAKING_CHANGES: ${{ steps.breaking.outputs.allow }}
         run: make check-api
 
