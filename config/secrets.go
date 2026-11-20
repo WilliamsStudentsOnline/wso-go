@@ -31,7 +31,6 @@ type Secrets struct {
 	// WSO Email
 	GoodrichEmailPassword string `yaml:"goodrich_email_password" envconfig:"goodrich_email_password"`
 
-	// WCFM now-playing and schedule
 	SpinitronToken string `yaml:"spinitron_token" envconfig:"spinitron_token"`
 }
 

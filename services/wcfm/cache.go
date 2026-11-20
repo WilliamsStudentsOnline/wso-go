@@ -11,7 +11,6 @@ import (
 	"go.uber.org/zap"
 )
 
-// how long the last good copy survives to cover a spinitron outage
 const staleTTL = 24 * time.Hour
 
 var store *redis_util.Lazy
@@ -47,7 +46,7 @@ func shared(key string, fetch func() ([]byte, error)) ([]byte, error) {
 	flights[key] = f
 	flightsMu.Unlock()
 
-	// deferred so a panicking fetch can't leave waiters blocked forever
+	// deferred so a panic can't strand waiters
 	defer func() {
 		flightsMu.Lock()
 		delete(flights, key)
@@ -67,8 +66,6 @@ func redisGet(ctx context.Context, key string) ([]byte, bool) {
 	return []byte(s), ok
 }
 
-// Falls through to fetch when redis is down so local dev works without it,
-// and serves the last good copy when the fetch fails
 func cached[T any](ctx context.Context, log *zap.SugaredLogger, name string, ttl time.Duration, fetch func(context.Context) (T, error)) (T, error) {
 	var out T
 	key := redis_util.GetWCFMCacheKey(name)

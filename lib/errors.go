@@ -218,6 +218,6 @@ var (
 	// 25** are admin job errors
 	ErrorJobDisabled = NewAPIErrorWithHTTP(2500, http.StatusConflict, "job is disabled")
 
-	// 26** are WCFM errors
-	ErrorWCFMUnavailable = NewAPIErrorWithHTTP(2600, http.StatusBadGateway, "unable to load WCFM data from spinitron")
+	// 27** are WCFM errors
+	ErrorWCFMUnavailable = NewAPIErrorWithHTTP(2700, http.StatusBadGateway, "unable to load WCFM data from spinitron")
 )

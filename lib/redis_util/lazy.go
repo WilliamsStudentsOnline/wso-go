@@ -7,7 +7,6 @@ import (
 
 const reconnectEvery = 30 * time.Second
 
-// Lazy reconnects to a redis that was down when the service started
 type Lazy struct {
 	addr    string
 	db      int
@@ -28,7 +27,7 @@ func NewLazyForTest() (*Lazy, error) {
 	return &Lazy{addr: DefaultRedisAddr, db: TestDatabaseID, client: c}, err
 }
 
-// Client is nil while redis is unreachable; RedisClient methods handle a nil receiver
+// nil while redis is down; RedisClient methods handle a nil receiver
 func (l *Lazy) Client() *RedisClient {
 	if l == nil {
 		return nil

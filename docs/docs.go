@@ -9328,7 +9328,7 @@ const docTemplate = `{
                         }
                     },
                     "502": {
-                        "description": "2600: unable to load WCFM data from spinitron",
+                        "description": "2700: unable to load WCFM data from spinitron",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -9364,7 +9364,7 @@ const docTemplate = `{
                         }
                     },
                     "502": {
-                        "description": "2600: unable to load WCFM data from spinitron",
+                        "description": "2700: unable to load WCFM data from spinitron",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }

@@ -35,8 +35,7 @@ const (
 
 	// lets spinitron catch up after a song or show boundary before clients poll
 	boundarySlack = 3 * time.Second
-	// DJs log by hand, so poll briskly right after a song should have ended,
-	// then settle to once a minute while the last song stays up
+	// DJs log by hand, so poll briskly just after a song ends, then once a minute
 	overdueRefresh = 8 * time.Second
 	overdueWindow  = time.Minute
 	staleRefresh   = time.Minute
@@ -125,7 +124,6 @@ func (t *Controller) loadSpins(ctx context.Context) ([]Track, error) {
 	})
 }
 
-// Spinitron creates automation playlists ahead of time, so the newest is not always on air
 func (t *Controller) loadPlaylists(ctx context.Context) ([]Show, error) {
 	return cached(ctx, t.Log, "playlists", playlistsTTL, func(ctx context.Context) ([]Show, error) {
 		var body struct {
@@ -307,8 +305,7 @@ func refreshAfter(now time.Time, track *Track, onAir, next *Show) time.Duration 
 	return min(max(wait, minRefresh), maxRefresh)
 }
 
-// Automation fills unscheduled hours with placeholder playlists titled like
-// "91.9 WCFM Williamstown 11/20/26, 2:00AM", which aren't shows
+// automation fills unscheduled hours with placeholder playlists that aren't shows
 func scheduled(p Show, schedule []Show, now time.Time) bool {
 	if !p.Automated {
 		return true
@@ -364,7 +361,7 @@ func buildNow(now time.Time, spins []Track, playlists, schedule []Show, ice *ice
 // @Tags wcfm
 // @Produce json
 // @Success 200 {object} wcfm.Now
-// @Failure 502 {object} services.BaseErrorResponse "2600: unable to load WCFM data from spinitron"
+// @Failure 502 {object} services.BaseErrorResponse "2700: unable to load WCFM data from spinitron"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Router /wcfm/now [get]
 func (t *Controller) GetNow(c *gin.Context) {
@@ -406,7 +403,7 @@ func (t *Controller) GetNow(c *gin.Context) {
 // @Tags wcfm
 // @Produce json
 // @Success 200 {array} wcfm.Show
-// @Failure 502 {object} services.BaseErrorResponse "2600: unable to load WCFM data from spinitron"
+// @Failure 502 {object} services.BaseErrorResponse "2700: unable to load WCFM data from spinitron"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Router /wcfm/schedule [get]
 func (t *Controller) GetSchedule(c *gin.Context) {
