@@ -65,13 +65,35 @@ jobs:
             echo "ref=HEAD^" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Resolve allow-breaking-changes label
+        id: breaking
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+          MERGE_GROUP_REF: ${{ github.event.merge_group.head_ref }}
+        run: |
+          set -euo pipefail
+          labels="$PR_LABELS"
+          if [[ "${{ github.event_name }}" == "merge_group" ]]; then
+            # merge_group events have no pull_request payload
+            pr="$(sed -nE 's#.*/pr-([0-9]+)-.*#\1#p' <<<"$MERGE_GROUP_REF")"
+            labels="$(gh pr view "$pr" --repo "$GITHUB_REPOSITORY" --json labels --jq '[.labels[].name] | join(",")')"
+          elif [[ "${{ github.event_name }}" == "push" ]]; then
+            labels="$(gh api "repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/pulls" --jq '[.[].labels[].name] | join(",")')"
+          fi
+          if [[ ",$labels," == *",allow-breaking-changes,"* ]]; then
+            echo "allow=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "allow=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Check OpenAPI
         id: openapi
         continue-on-error: true
         env:
           OPENAPI_BASE_REF: ${{ steps.base.outputs.ref }}
           # true when PR (or merge queue PR) has the allow-breaking-changes label
-          ALLOW_BREAKING_CHANGES: ${{ contains(join(github.event.pull_request.labels.*.name, ','), 'allow-breaking-changes') }}
+          ALLOW_BREAKING_CHANGES: ${{ steps.breaking.outputs.allow }}
         run: make check-api
 
       - name: OpenAPI summary
