@@ -116,6 +116,15 @@ func init() {
 		Schedule: &Schedule{OnCalendar: "*-*-* 01:00:00"},
 	})
 	mustRegister(Job{
+		Name:        "williams-record-update",
+		Description: "refresh Williams Record articles JSON",
+		Binary:      InstallDir + "/job-williams-record-update_linux",
+		Params: []Param{
+			{Name: "out", Type: ParamString, Default: "/opt/wso-go/static/mobile/williams_record.json"},
+		},
+		Schedule: &Schedule{OnCalendar: "*-*-* *:15:00"},
+	})
+	mustRegister(Job{
 		Name:        "schedule-notifs",
 		Description: "send a named scheduled notification (e.g. salmon)",
 		Binary:      InstallDir + "/job-schedule-notifs_linux",
