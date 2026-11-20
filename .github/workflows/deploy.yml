@@ -33,9 +33,9 @@ jobs:
           set -euo pipefail
           mkdir -p /opt/wso-go
           mkdir -p /opt/wso-go/logs
-          cp wso-backend_linux /opt/wso-go/wso-backend_linux
-          cp wso-jobctl_linux /opt/wso-go/wso-jobctl_linux
-          cp job-*_linux /opt/wso-go/
+          cp --remove-destination wso-backend_linux /opt/wso-go/wso-backend_linux
+          cp --remove-destination wso-jobctl_linux /opt/wso-go/wso-jobctl_linux
+          cp --remove-destination job-*_linux /opt/wso-go/
           chmod +x /opt/wso-go/wso-backend_linux /opt/wso-go/wso-jobctl_linux /opt/wso-go/job-*_linux
           sudo systemctl restart WSO-Go
           sudo systemctl try-restart WSO-Mobile || true
@@ -88,9 +88,9 @@ jobs:
           set -euo pipefail
           mkdir -p /opt/wso-go
           mkdir -p /opt/wso-go/logs
-          cp wso-backend_linux /opt/wso-go/wso-backend_linux
-          cp wso-jobctl_linux /opt/wso-go/wso-jobctl_linux
-          cp job-*_linux /opt/wso-go/
+          cp --remove-destination wso-backend_linux /opt/wso-go/wso-backend_linux
+          cp --remove-destination wso-jobctl_linux /opt/wso-go/wso-jobctl_linux
+          cp --remove-destination job-*_linux /opt/wso-go/
           chmod +x /opt/wso-go/wso-backend_linux /opt/wso-go/wso-jobctl_linux /opt/wso-go/job-*_linux
           sudo systemctl restart WSO-Go
           sudo systemctl try-restart WSO-Mobile || true
