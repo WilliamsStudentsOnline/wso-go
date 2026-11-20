@@ -14,20 +14,11 @@ import (
 	"go.uber.org/zap"
 )
 
-var client *redis_util.RedisClient
-
-func ConfigureClient(addr string) error {
-	if addr == "" {
-		addr = redis_util.DefaultRedisAddr
-	}
-	var err error
-	client, err = redis_util.SetupClient(addr, "", redis_util.AdminDatabaseID)
-	return err
-}
+var store *redis_util.Lazy
 
 func ConfigureControllerForTest() error {
 	var err error
-	client, err = redis_util.SetupRedisClientForTest()
+	store, err = redis_util.NewLazyForTest()
 	return err
 }
 
@@ -67,7 +58,7 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 // @Failure 500 {object} services.BaseErrorResponse
 // @Router /banner [get]
 func (t *Controller) GetBanner(c *gin.Context) {
-	val, err := client.Get(c, redis_util.GetHomepageBannerKey())
+	val, err := store.Client().Get(c, redis_util.GetHomepageBannerKey())
 	if err == redis_util.ErrRedisClientNotConfigured {
 		t.RespondAPIError(c, lib.ErrorRedisClientNotConfigured)
 		return
@@ -126,7 +117,7 @@ func (t *Controller) SetBanner(c *gin.Context) {
 		return
 	}
 
-	err = client.Set(c, redis_util.GetHomepageBannerKey(), string(payload))
+	err = store.Client().Set(c, redis_util.GetHomepageBannerKey(), string(payload))
 	if err == redis_util.ErrRedisClientNotConfigured {
 		t.RespondAPIError(c, lib.ErrorRedisClientNotConfigured)
 		return

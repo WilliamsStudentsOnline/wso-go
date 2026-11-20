@@ -28,8 +28,8 @@ import (
 	autocompleteService "github.com/WilliamsStudentsOnline/wso-go/services/autocomplete"
 	bannerService "github.com/WilliamsStudentsOnline/wso-go/services/banner"
 
-	booktrakService "github.com/WilliamsStudentsOnline/wso-go/services/booktrak"
 	boardService "github.com/WilliamsStudentsOnline/wso-go/services/board"
+	booktrakService "github.com/WilliamsStudentsOnline/wso-go/services/booktrak"
 	bulletinService "github.com/WilliamsStudentsOnline/wso-go/services/bulletin"
 	bulletinRSSService "github.com/WilliamsStudentsOnline/wso-go/services/bulletin/rss"
 	chatService "github.com/WilliamsStudentsOnline/wso-go/services/chat"
@@ -42,6 +42,7 @@ import (
 	notificationService "github.com/WilliamsStudentsOnline/wso-go/services/notification"
 	onboardingService "github.com/WilliamsStudentsOnline/wso-go/services/onboarding"
 	userService "github.com/WilliamsStudentsOnline/wso-go/services/user"
+	wcfmService "github.com/WilliamsStudentsOnline/wso-go/services/wcfm"
 	wordsService "github.com/WilliamsStudentsOnline/wso-go/services/words"
 )
 
@@ -149,6 +150,9 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 
 	// Initialize public banner endpoint
 	bannerService.SetupPublicRouter(r.Group("/api/v2/banner"), db, cfg, log.Named("banner"))
+
+	// Initialize public WCFM endpoints
+	wcfmService.SetupRouter(r.Group("/api/v2/wcfm"), cfg, log.Named("wcfm"))
 
 	// Run API docs if it is enabled
 	// NOTE: This currently requires no JWT to access.

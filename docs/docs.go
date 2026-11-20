@@ -9303,6 +9303,75 @@ const docTemplate = `{
                 }
             }
         },
+        "/wcfm/now": {
+            "get": {
+                "description": "get the current show, current and recent tracks, next show, and live listener count for WCFM 91.9. Poll again after refreshAfter seconds.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "wcfm"
+                ],
+                "summary": "Get what's on WCFM",
+                "operationId": "getWCFMNow",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/wcfm.Now"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "2600: unable to load WCFM data from spinitron",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/wcfm/schedule": {
+            "get": {
+                "description": "get WCFM shows airing over the next week, including the one on now",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "wcfm"
+                ],
+                "summary": "Get the WCFM schedule",
+                "operationId": "getWCFMSchedule",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/wcfm.Show"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "2600: unable to load WCFM data from spinitron",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/words": {
             "get": {
                 "security": [
@@ -12955,6 +13024,106 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "wcfm.Now": {
+            "type": "object",
+            "properties": {
+                "listeners": {
+                    "type": "integer"
+                },
+                "live": {
+                    "type": "boolean"
+                },
+                "next": {
+                    "$ref": "#/definitions/wcfm.Show"
+                },
+                "onAir": {
+                    "$ref": "#/definitions/wcfm.Show"
+                },
+                "recent": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/wcfm.Track"
+                    }
+                },
+                "refreshAfter": {
+                    "description": "seconds until this response is likely to change",
+                    "type": "integer"
+                },
+                "streamURL": {
+                    "type": "string"
+                },
+                "track": {
+                    "$ref": "#/definitions/wcfm.Track"
+                }
+            }
+        },
+        "wcfm.Show": {
+            "type": "object",
+            "properties": {
+                "automated": {
+                    "type": "boolean"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "djs": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "end": {
+                    "type": "string"
+                },
+                "episodeName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "start": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "wcfm.Track": {
+            "type": "object",
+            "properties": {
+                "album": {
+                    "type": "string"
+                },
+                "artist": {
+                    "type": "string"
+                },
+                "end": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "song": {
+                    "type": "string"
+                },
+                "start": {
+                    "type": "string"
+                },
+                "year": {
+                    "type": "integer"
                 }
             }
         }

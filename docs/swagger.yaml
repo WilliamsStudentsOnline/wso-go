@@ -2471,6 +2471,72 @@ definitions:
           type: string
         type: array
     type: object
+  wcfm.Now:
+    properties:
+      listeners:
+        type: integer
+      live:
+        type: boolean
+      next:
+        $ref: '#/definitions/wcfm.Show'
+      onAir:
+        $ref: '#/definitions/wcfm.Show'
+      recent:
+        items:
+          $ref: '#/definitions/wcfm.Track'
+        type: array
+      refreshAfter:
+        description: seconds until this response is likely to change
+        type: integer
+      streamURL:
+        type: string
+      track:
+        $ref: '#/definitions/wcfm.Track'
+    type: object
+  wcfm.Show:
+    properties:
+      automated:
+        type: boolean
+      description:
+        type: string
+      djs:
+        items:
+          type: string
+        type: array
+      end:
+        type: string
+      episodeName:
+        type: string
+      id:
+        type: integer
+      image:
+        type: string
+      start:
+        type: string
+      title:
+        type: string
+    type: object
+  wcfm.Track:
+    properties:
+      album:
+        type: string
+      artist:
+        type: string
+      end:
+        type: string
+      id:
+        type: integer
+      image:
+        type: string
+      label:
+        type: string
+      song:
+        type: string
+      start:
+        type: string
+      year:
+        type: integer
+    type: object
 host: wso.williams.edu
 info:
   contact:
@@ -8607,6 +8673,54 @@ paths:
       summary: Update user tags by user id
       tags:
       - users
+  /wcfm/now:
+    get:
+      description: get the current show, current and recent tracks, next show, and
+        live listener count for WCFM 91.9. Poll again after refreshAfter seconds.
+      operationId: getWCFMNow
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/wcfm.Now'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "502":
+          description: '2600: unable to load WCFM data from spinitron'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      summary: Get what's on WCFM
+      tags:
+      - wcfm
+  /wcfm/schedule:
+    get:
+      description: get WCFM shows airing over the next week, including the one on
+        now
+      operationId: getWCFMSchedule
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/wcfm.Show'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "502":
+          description: '2600: unable to load WCFM data from spinitron'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      summary: Get the WCFM schedule
+      tags:
+      - wcfm
   /words:
     get:
       consumes:
