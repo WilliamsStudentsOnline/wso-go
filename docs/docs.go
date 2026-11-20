@@ -95,18 +95,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -165,18 +153,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.Feedback"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -227,18 +203,6 @@ const docTemplate = `{
                             "additionalProperties": {
                                 "type": "integer"
                             }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "404": {
@@ -305,18 +269,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -356,18 +308,6 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/admin.jobInfo"
                             }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "500": {
@@ -426,18 +366,6 @@ const docTemplate = `{
                             }
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -480,18 +408,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "1100: could not parse malformed request data",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -549,18 +465,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -609,18 +513,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "1100: could not parse malformed request data",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -685,18 +577,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "1100: could not parse malformed request data",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -814,18 +694,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -885,18 +753,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/admin.ModeratorTaskResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -947,18 +803,6 @@ const docTemplate = `{
                             "additionalProperties": {
                                 "type": "integer"
                             }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "404": {
@@ -1030,18 +874,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "404": {
                         "description": "404: record not found; 2402: no open tasks for this subject",
                         "schema": {
@@ -1089,12 +921,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/auth.AuthResponse"
                         }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
                     }
                 }
             }
@@ -1128,12 +954,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/auth.AuthResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "403": {
@@ -1177,12 +997,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/auth.AuthResponse"
                         }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
                     }
                 }
             }
@@ -1218,12 +1032,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/old.AuthResponse"
                         }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
                     }
                 }
             }
@@ -1252,12 +1060,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/old.AuthResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "403": {
@@ -1293,12 +1095,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/old.AuthResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "403": {
@@ -1356,18 +1152,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -1431,18 +1215,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -1498,18 +1270,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -1573,18 +1333,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -1640,18 +1388,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -1738,18 +1474,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "1100: could not parse malformed request data; 1101: request data validation failed; 2300: redis client not configured, is redis running locally?",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -1870,14 +1594,8 @@ const docTemplate = `{
                     "200": {
                         "description": "OK"
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "403": {
-                        "description": "1330: no scope authorization; 2415: cannot flag your own content",
+                        "description": "2415: cannot flag your own content",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -2158,14 +1876,8 @@ const docTemplate = `{
                     "200": {
                         "description": "OK"
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "403": {
-                        "description": "1330: no scope authorization; 2415: cannot flag your own content",
+                        "description": "2415: cannot flag your own content",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -2298,12 +2010,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -2354,12 +2060,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -2406,12 +2106,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "1100: could not parse malformed request data",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -2475,12 +2169,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "1100: could not parse malformed request data; 1101: request data validation failed; 2253: passed courses don't all exist",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -2615,12 +2303,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -2671,12 +2353,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -2723,12 +2399,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "1100: could not parse malformed request data",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -2797,7 +2467,7 @@ const docTemplate = `{
                         }
                     },
                     "403": {
-                        "description": "1330: no scope authorization; 1331: must be self",
+                        "description": "1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -2853,7 +2523,7 @@ const docTemplate = `{
                         }
                     },
                     "403": {
-                        "description": "1330: no scope authorization; 1331: must be self",
+                        "description": "1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -2950,12 +2620,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -3006,12 +2670,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -3058,12 +2716,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "400: path ID could not be parsed",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -3123,7 +2775,7 @@ const docTemplate = `{
                         }
                     },
                     "403": {
-                        "description": "1330: no scope authorization; 1331: must be self",
+                        "description": "1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -3192,7 +2844,7 @@ const docTemplate = `{
                         }
                     },
                     "403": {
-                        "description": "1330: no scope authorization; 1331: must be self",
+                        "description": "1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -3283,12 +2935,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -3340,7 +2986,7 @@ const docTemplate = `{
                         }
                     },
                     "403": {
-                        "description": "1330: no scope authorization; 1332: authenticated user not found",
+                        "description": "1332: authenticated user not found",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -3405,12 +3051,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "404": {
                         "description": "404: record not found",
                         "schema": {
@@ -3461,12 +3101,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "400: path ID could not be parsed",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -3558,12 +3192,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "404": {
                         "description": "404: record not found",
                         "schema": {
@@ -3623,7 +3251,7 @@ const docTemplate = `{
                         }
                     },
                     "403": {
-                        "description": "1330: no scope authorization; 1332: authenticated user not found",
+                        "description": "1332: authenticated user not found",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -3684,12 +3312,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "404": {
                         "description": "404: record not found",
                         "schema": {
@@ -3745,7 +3367,7 @@ const docTemplate = `{
                         }
                     },
                     "403": {
-                        "description": "1330: no scope authorization; 1331: must be self",
+                        "description": "1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -3814,7 +3436,7 @@ const docTemplate = `{
                         }
                     },
                     "403": {
-                        "description": "1330: no scope authorization; 1331: must be self",
+                        "description": "1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -3911,12 +3533,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -3967,12 +3583,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -4019,12 +3629,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "400: path ID could not be parsed",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -4084,7 +3688,7 @@ const docTemplate = `{
                         }
                     },
                     "403": {
-                        "description": "1330: no scope authorization; 1331: must be self",
+                        "description": "1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -4153,7 +3757,7 @@ const docTemplate = `{
                         }
                     },
                     "403": {
-                        "description": "1330: no scope authorization; 1331: must be self",
+                        "description": "1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -4559,18 +4163,6 @@ const docTemplate = `{
                             "type": "string"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -4651,18 +4243,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -4709,18 +4289,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -4777,18 +4345,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -4864,18 +4420,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -4918,18 +4462,6 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/models.Neighborhood"
                             }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "500": {
@@ -4978,18 +4510,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -5050,18 +4570,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -5104,18 +4612,6 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/models.DormtrakRanking"
                             }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "500": {
@@ -5210,14 +4706,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "403": {
-                        "description": "1330: no scope authorization; 1331: must be self",
+                        "description": "1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -5272,18 +4762,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -5330,18 +4808,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -5394,14 +4860,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.DormtrakReview"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "403": {
-                        "description": "1330: no scope authorization; 1331: must be self",
+                        "description": "1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -5469,14 +4929,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "403": {
-                        "description": "1330: no scope authorization; 1331: must be self",
+                        "description": "1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -5541,14 +4995,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "403": {
-                        "description": "1330: no scope authorization; 1331: must be self",
+                        "description": "1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -5606,18 +5054,6 @@ const docTemplate = `{
                             }
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -5669,18 +5105,6 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/dormtrak.DormRoomPhotoInfo"
                             }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "404": {
@@ -5763,18 +5187,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -5821,18 +5233,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -5890,18 +5290,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -5949,18 +5337,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -5999,18 +5375,6 @@ const docTemplate = `{
                             }
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -6041,12 +5405,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/ephmatch.GetAvailabilityResp"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "410": {
@@ -6099,18 +5457,6 @@ const docTemplate = `{
                             }
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "410": {
                         "description": "1900: ephmatch api is deprecated",
                         "schema": {
@@ -6144,18 +5490,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/ephmatch.CountMatchesResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "410": {
@@ -6199,18 +5533,6 @@ const docTemplate = `{
                     "200": {
                         "description": "OK"
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "410": {
                         "description": "1900: ephmatch api is deprecated",
                         "schema": {
@@ -6244,18 +5566,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.EphmatchProfile"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "410": {
@@ -6302,18 +5612,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.EphmatchProfile"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "410": {
                         "description": "1900: ephmatch api is deprecated",
                         "schema": {
@@ -6345,18 +5643,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.EphmatchProfile"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "410": {
@@ -6403,18 +5689,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.EphmatchProfile"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "410": {
                         "description": "1900: ephmatch api is deprecated",
                         "schema": {
@@ -6456,18 +5730,6 @@ const docTemplate = `{
                     "200": {
                         "description": "OK"
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "410": {
                         "description": "1900: ephmatch api is deprecated",
                         "schema": {
@@ -6494,18 +5756,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK"
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
                     },
                     "410": {
                         "description": "1900: ephmatch api is deprecated",
@@ -6581,18 +5831,6 @@ const docTemplate = `{
                             }
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "410": {
                         "description": "1900: ephmatch api is deprecated",
                         "schema": {
@@ -6635,18 +5873,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.EphmatchProfile"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "410": {
@@ -6700,18 +5926,6 @@ const docTemplate = `{
                         "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/ephmatch.SetProfileRelationResp"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "410": {
@@ -6788,18 +6002,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -6846,18 +6048,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -6922,18 +6112,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -6990,18 +6168,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -7116,18 +6282,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -7180,18 +6334,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -7256,18 +6398,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -7326,18 +6456,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -7442,18 +6560,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -7496,18 +6602,6 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/models.Department"
                             }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "500": {
@@ -7556,18 +6650,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -7632,18 +6714,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -7700,18 +6770,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -7826,18 +6884,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -7890,18 +6936,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -7962,18 +6996,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -8042,18 +7064,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -8154,18 +7164,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "1100: could not parse malformed request data; 1101: request data validation failed",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -8274,14 +7272,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "403": {
-                        "description": "1330: no scope authorization; 1331: must be self",
+                        "description": "1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -8336,18 +7328,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -8394,18 +7374,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -8460,14 +7428,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.FactrakSurvey"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "403": {
-                        "description": "1330: no scope authorization; 1331: must be self",
+                        "description": "1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -8535,14 +7497,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "403": {
-                        "description": "1330: no scope authorization; 1331: must be self",
+                        "description": "1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -8599,18 +7555,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -8678,18 +7622,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -8740,18 +7672,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -8819,18 +7739,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "404": {
                         "description": "404: record not found; 1551: survey agreement could not be found",
                         "schema": {
@@ -8880,18 +7788,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "2407: open factrak flag already exists for this survey",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -8996,14 +7892,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "403": {
-                        "description": "1330: no scope authorization; 1331: must be self",
+                        "description": "1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -9066,14 +7956,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "403": {
-                        "description": "1330: no scope authorization; 1331: must be self",
+                        "description": "1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -9126,18 +8010,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "1100: could not parse malformed request data; 1101: request data validation failed",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -9201,18 +8073,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -9256,18 +8116,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "2140: goodrich closed on this date; 2170: goodrich has no time slots available; 2171: cannot acquire a lease as no leases available",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -9358,18 +8206,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -9420,18 +8256,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -9478,18 +8302,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -9557,18 +8369,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -9613,18 +8413,6 @@ const docTemplate = `{
                             }
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -9661,18 +8449,6 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/models.GoodrichOrder"
                             }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "500": {
@@ -9725,14 +8501,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "403": {
-                        "description": "1330: no scope authorization; 1331: must be self",
+                        "description": "1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -9824,18 +8594,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -9869,18 +8627,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.NotificationSettings"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "500": {
@@ -9927,18 +8673,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.NotificationSettings"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -9981,12 +8715,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.User"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "404": {
@@ -10039,12 +8767,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.User"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -10093,12 +8815,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.User"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "404": {
@@ -10181,18 +8897,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -10239,18 +8943,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "1403: user not visible; 1404: user not at williams; 1405: user id could not be parsed",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -10318,14 +9010,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "403": {
-                        "description": "1330: no scope authorization; 1331: must be self",
+                        "description": "1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -10390,14 +9076,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "403": {
-                        "description": "1330: no scope authorization; 1331: must be self",
+                        "description": "1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -10469,14 +9149,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "403": {
-                        "description": "1330: no scope authorization; 1331: must be self",
+                        "description": "1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -10537,14 +9211,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "403": {
-                        "description": "1330: no scope authorization; 1331: must be self",
+                        "description": "1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -14222,7 +12890,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "/api/v2",
 	Schemes:          []string{"https", "http"},
 	Title:            "WSO API",
-	Description:      "API for WSO services like factrak, facebook, dormtrak, course scheduler, and others.",
+	Description:      "API for WSO services like factrak, facebook, dormtrak, and others.\n\nErrors: failed requests return the real HTTP status, with a body of the form\n`{\"status\": <HTTP status>, \"error\": {\"errorCode\": <WSO code>, \"message\": \"...\", \"errors\": [...]}}`.\nClients should branch on `error.errorCode`. Per-endpoint `@Failure` entries list the WSO codes\nan endpoint can return under its HTTP status, as `code: message`.\n\nAuth: every endpoint marked with the Bearer security scheme may return 401 (missing or invalid token)\nand 403 with errorCode 1330 (token lacks the required scope). These are not repeated per endpoint.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

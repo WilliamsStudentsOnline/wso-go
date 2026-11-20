@@ -27,8 +27,6 @@ import (
 // @Param preload query []string false "Preload" Enums(requestingUser,resolvedByUser)
 // @Success 200 {array} admin.ModeratorTaskResponse
 // @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed"
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /admin/tasks [get]
@@ -65,8 +63,6 @@ func (t *Controller) ListTasks(c *gin.Context) {
 // @Param taskID path uint true "Task ID"
 // @Param preload query []string false "Preload" Enums(requestingUser,resolvedByUser)
 // @Success 200 {object} admin.ModeratorTaskResponse
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -102,8 +98,6 @@ func (t *Controller) GetTask(c *gin.Context) {
 // @Param body body admin.ResolveTasksBody true "Resolution"
 // @Success 200 {array} admin.ModeratorTaskResponse
 // @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed; 1409: tag name is required; 2400: invalid task type; 2401: invalid task resolution"
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 404 {object} services.BaseErrorResponse "404: record not found; 2402: no open tasks for this subject"
 // @Failure 409 {object} services.BaseErrorResponse "2403: task subject is already gone"
 // @Failure 500 {object} services.BaseErrorResponse
@@ -209,8 +203,6 @@ func (t *Controller) ResolveTasks(c *gin.Context) {
 // @Produce json
 // @Param taskID path uint true "Task ID"
 // @Success 200 {object} map[string]uint
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer

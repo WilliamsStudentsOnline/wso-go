@@ -22,8 +22,6 @@ import (
 // @Param q query string false "Search Query"
 // @Success 200 {array} models.Dorm
 // @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed"
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /dormtrak/dorms [get]
@@ -61,8 +59,6 @@ func (t *Controller) ListDorms(c *gin.Context) {
 // @Param dormID path uint true "Dorm ID"
 // @Success 200 {object} models.Dorm
 // @Failure 400 {object} services.BaseErrorResponse
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -98,8 +94,6 @@ func (t *Controller) GetDorm(c *gin.Context) {
 // @Param limit query int false "Limit Pagination"
 // @Success 200 {array} models.DormRoom
 // @Failure 400 {object} services.BaseErrorResponse
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -157,8 +151,6 @@ func (t *Controller) GetDormRooms(c *gin.Context) {
 // @Param dormID path uint true "Dorm ID"
 // @Success 200 {object} models.DormFacts
 // @Failure 400 {object} services.BaseErrorResponse
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer

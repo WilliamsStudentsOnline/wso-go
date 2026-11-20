@@ -27,7 +27,6 @@ import (
 // @Param all query string false "Get All Rides (no restriction on date)"
 // @Success 200 {array} models.BulletinRide
 // @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data"
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/rides [get]
@@ -77,7 +76,6 @@ func (t *Controller) ListRides(c *gin.Context) {
 // @Param rideID path uint true "Ride ID"
 // @Success 200 {object} models.BulletinRide
 // @Failure 400 {object} services.BaseErrorResponse "400: path ID could not be parsed"
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 404 {object} services.BaseErrorResponse "404: record not found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -127,7 +125,6 @@ type CreateRideParams struct {
 // @Param createParams body bulletin.CreateRideParams true "Create Ride Params"
 // @Success 201 {object} models.BulletinRide
 // @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed; 1831: invalid bulletin type; 1841: date cannot be in past"
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/rides [post]
@@ -191,7 +188,7 @@ type UpdateRideParams struct {
 // @Param rideID path uint true "Ride ID"
 // @Success 200 {object} models.BulletinRide
 // @Failure 400 {object} services.BaseErrorResponse "400: path ID could not be parsed; 1100: could not parse malformed request data; 1841: date cannot be in past"
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization; 1331: must be self"
+// @Failure 403 {object} services.BaseErrorResponse "1331: must be self"
 // @Failure 404 {object} services.BaseErrorResponse "404: record not found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -269,7 +266,7 @@ func (t *Controller) UpdateRide(c *gin.Context) {
 // @Param rideID path uint true "Ride ID"
 // @Success 200 {object} models.BulletinRide
 // @Failure 400 {object} services.BaseErrorResponse "400: path ID could not be parsed"
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization; 1331: must be self"
+// @Failure 403 {object} services.BaseErrorResponse "1331: must be self"
 // @Failure 404 {object} services.BaseErrorResponse "404: record not found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer

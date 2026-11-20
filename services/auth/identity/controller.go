@@ -130,6 +130,5 @@ func (t *Controller) Authenticator(c *gin.Context) (interface{}, error) {
 // @Produce  json
 // @Param identityCredentials body identity.Credentials true "Identity Credentials"
 // @Success 200 {object} auth.AuthResponse
-// @Failure 401 {object} services.BaseErrorResponse
 // @Router /auth/identity/token [post]
 func authIdentityToken() {}

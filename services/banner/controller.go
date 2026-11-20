@@ -106,8 +106,6 @@ func (t *Controller) GetBanner(c *gin.Context) {
 // @Param banner body banner.Banner true "Banner fields"
 // @Success 200 {object} banner.Banner
 // @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed; 2300: redis client not configured, is redis running locally?"
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /banner [post]

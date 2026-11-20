@@ -25,7 +25,6 @@ type CreateBookListingParams struct {
 // @Param createParams body booktrak.CreateBookListingParams true "Create Book Listing Params"
 // @Success 201 {object} models.BookListing
 // @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed; 2232: passed condition is invalid; 2250: passed book could not be found"
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /booktrak/listings [post]
@@ -83,7 +82,7 @@ func (t *Controller) CreateBookListing(c *gin.Context) {
 // @Param bookListingID path uint true "Book Listing ID"
 // @Success 200 {object} models.BookListing
 // @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed; 2232: passed condition is invalid; 2250: passed book could not be found"
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization; 1331: must be self"
+// @Failure 403 {object} services.BaseErrorResponse "1331: must be self"
 // @Failure 404 {object} services.BaseErrorResponse "404: record not found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -175,7 +174,6 @@ type ListBookListingsParams struct {
 // @Param preload query []string false "Preload" Enums(user,book)
 // @Success 200 {array} models.BookListing
 // @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed"
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /booktrak/listings [get]
@@ -218,7 +216,6 @@ func (t *Controller) ListBookListings(c *gin.Context) {
 // @Param bookListingID path uint true "Book Listing ID"
 // @Success 200 {object} models.BookListing
 // @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data"
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 404 {object} services.BaseErrorResponse "404: record not found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -249,7 +246,7 @@ func (t *Controller) GetBookListing(c *gin.Context) {
 // @Produce  json
 // @Param bookListingID path uint true "Book Listing ID"
 // @Success 200 {object} models.BookListing
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization; 1331: must be self"
+// @Failure 403 {object} services.BaseErrorResponse "1331: must be self"
 // @Failure 404 {object} services.BaseErrorResponse "404: record not found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer

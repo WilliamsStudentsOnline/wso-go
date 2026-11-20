@@ -17,8 +17,7 @@ import (
 // @Produce json
 // @Param threadID path uint true "Thread ID"
 // @Success 200
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization; 2415: cannot flag your own content"
+// @Failure 403 {object} services.BaseErrorResponse "2415: cannot flag your own content"
 // @Failure 404 {object} services.BaseErrorResponse "2413: board thread cannot be found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -75,8 +74,7 @@ func (t *Controller) FlagThread(c *gin.Context) {
 // @Produce json
 // @Param replyID path uint true "Reply ID"
 // @Success 200
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization; 2415: cannot flag your own content"
+// @Failure 403 {object} services.BaseErrorResponse "2415: cannot flag your own content"
 // @Failure 404 {object} services.BaseErrorResponse "2414: board post cannot be found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer

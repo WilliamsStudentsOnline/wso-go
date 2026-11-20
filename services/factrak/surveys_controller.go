@@ -30,8 +30,7 @@ import (
 // @Param populateClientAgreement query bool false "Populate Client's Agreement"
 // @Success 200 {array} models.FactrakSurvey
 // @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed"
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization; 1331: must be self"
+// @Failure 403 {object} services.BaseErrorResponse "1331: must be self"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/surveys [get]
@@ -92,8 +91,6 @@ func (t *Controller) ListSurveys(c *gin.Context) {
 // @Param surveyID path uint true "Survey ID"
 // @Success 200 {object} models.FactrakSurvey
 // @Failure 400 {object} services.BaseErrorResponse
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -186,8 +183,6 @@ type SurveyCreateParams struct {
 // @Param createParams body factrak.SurveyCreateParams true "Create Survey Params"
 // @Success 201 {object} models.FactrakSurvey
 // @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed; 1402: user cannot be prefrosh; 1531: missing course parameters in create data: courseID or (areaOfStudyAbbreviation and courseNumber); 1532: comment must be 100 characters or more; 1533: user must be a student and could not be found; 1534: passed professor must be a professor and could not be found; 1535: passed course could not be found; 1536: passed area of study could not be found; 1537: survey already exists with passed user ID, professor ID, and course ID; 1538: survey course semester has an incorrect year or season; 1539: survey course format is invalid; 1540: survey course year is in the future"
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/surveys [post]
@@ -422,8 +417,7 @@ type SurveyUpdateParams struct {
 // @Param surveyID path uint true "Survey ID"
 // @Success 200 {object} models.FactrakSurvey
 // @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed; 1532: comment must be 100 characters or more; 1538: survey course semester has an incorrect year or season; 1539: survey course format is invalid; 1540: survey course year is in the future"
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization; 1331: must be self"
+// @Failure 403 {object} services.BaseErrorResponse "1331: must be self"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -548,8 +542,7 @@ func (t *Controller) UpdateSurvey(c *gin.Context) {
 // @Produce  json
 // @Param surveyID path uint true "Survey ID"
 // @Success 200 {object} models.FactrakSurvey
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization; 1331: must be self"
+// @Failure 403 {object} services.BaseErrorResponse "1331: must be self"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -622,8 +615,6 @@ func (t *Controller) DeleteSurvey(c *gin.Context) {
 // @Param surveyID path uint true "Survey ID"
 // @Success 200
 // @Failure 400 {object} services.BaseErrorResponse "2407: open factrak flag already exists for this survey"
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer

@@ -22,7 +22,6 @@ import (
 // @Param postID path uint true "Post ID"
 // @Success 200 {object} models.Post
 // @Failure 400 {object} services.BaseErrorResponse "400: path ID could not be parsed"
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 404 {object} services.BaseErrorResponse "404: record not found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -77,7 +76,7 @@ type CreatePostParams struct {
 // @Param createParams body bulletin.CreatePostParams true "Create Post Params"
 // @Success 201 {object} models.Post
 // @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed"
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization; 1332: authenticated user not found"
+// @Failure 403 {object} services.BaseErrorResponse "1332: authenticated user not found"
 // @Failure 404 {object} services.BaseErrorResponse "1850: discussion cannot be found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -150,7 +149,7 @@ type UpdatePostParams struct {
 // @Param postID path uint true "Post ID"
 // @Success 200 {object} models.Post
 // @Failure 400 {object} services.BaseErrorResponse "400: path ID could not be parsed; 1100: could not parse malformed request data"
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization; 1331: must be self"
+// @Failure 403 {object} services.BaseErrorResponse "1331: must be self"
 // @Failure 404 {object} services.BaseErrorResponse "404: record not found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -210,7 +209,7 @@ func (t *Controller) UpdatePost(c *gin.Context) {
 // @Param postID path uint true "Post ID"
 // @Success 200 {object} models.Post
 // @Failure 400 {object} services.BaseErrorResponse "400: path ID could not be parsed"
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization; 1331: must be self"
+// @Failure 403 {object} services.BaseErrorResponse "1331: must be self"
 // @Failure 404 {object} services.BaseErrorResponse "404: record not found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer

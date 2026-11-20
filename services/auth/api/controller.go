@@ -56,7 +56,6 @@ func (t *Controller) Authenticator(c *gin.Context) (interface{}, error) {
 // @Produce  json
 // @Param identityToken query string true "Identity Token"
 // @Success 200 {object} auth.AuthResponse
-// @Failure 401 {object} services.BaseErrorResponse
 // @Failure 403 {object} services.BaseErrorResponse
 // @Router /auth/api/token [post]
 func authAPIToken() {}
@@ -69,7 +68,6 @@ func authAPIToken() {}
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} auth.AuthResponse
-// @Failure 401 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /auth/api/refresh [get]
 func authAPIRefresh() {}

@@ -63,7 +63,6 @@ type GetAvailabilityResp struct {
 // @Tags ephmatch
 // @Produce  json
 // @Success 200 {object} ephmatch.GetAvailabilityResp
-// @Failure 401 {object} services.BaseErrorResponse
 // @Failure 410 {object} services.BaseErrorResponse "1900: ephmatch api is deprecated"
 // @Security Bearer
 // @Router /ephmatch/availability [get]

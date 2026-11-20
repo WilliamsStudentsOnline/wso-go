@@ -14,8 +14,6 @@ import (
 // @Accept  json
 // @Produce  json
 // @Success 200 {array} models.DormtrakRanking
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /dormtrak/rankings [get]

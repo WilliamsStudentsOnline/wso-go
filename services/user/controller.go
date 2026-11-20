@@ -66,8 +66,6 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 // @Param q query string false "Search Query"
 // @Success 200 {array} responses.ListUsersResponseUser
 // @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed; 1150: invalid search token; 1151: invalid search query; 1152: unknown search field"
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /users [get]
@@ -146,8 +144,6 @@ func (t *Controller) ListUsers(c *gin.Context) {
 // @Param userID path uint true "User ID"
 // @Success 200 {object} responses.GetUserResponseUser
 // @Failure 400 {object} services.BaseErrorResponse "1403: user not visible; 1404: user not at williams; 1405: user id could not be parsed"
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -226,8 +222,7 @@ type UpdateUserParams struct {
 // @Param updateParams body user.UpdateUserParams true "Update User Parameters"
 // @Success 200 {object} responses.GetUserResponseUser
 // @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1405: user id could not be parsed; 1407: user campus status is invalid"
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization; 1331: must be self"
+// @Failure 403 {object} services.BaseErrorResponse "1331: must be self"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -313,8 +308,7 @@ type UpdateUserTagsParams struct {
 // @Param updateTagsParams body user.UpdateUserTagsParams true "Update Tags Params"
 // @Success 200
 // @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1405: user id could not be parsed; 1406: invalid user tag"
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization; 1331: must be self"
+// @Failure 403 {object} services.BaseErrorResponse "1331: must be self"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -366,8 +360,7 @@ type CreateTagRequestParams struct {
 // @Param body body user.CreateTagRequestParams true "Tag request"
 // @Success 200 {object} map[string]interface{}
 // @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed; 1405: user id could not be parsed; 1408: tag already exists; 1409: tag name is required; 2405: too many open user tag task requests; 2406: open tag request already exists for this name"
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization; 1331: must be self"
+// @Failure 403 {object} services.BaseErrorResponse "1331: must be self"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /users/{userID}/tag-requests [post]
@@ -466,8 +459,7 @@ func (t *Controller) CreateTagRequest(c *gin.Context) {
 // @Param file formData file true "Profile Photo"
 // @Success 200
 // @Failure 400 {object} services.BaseErrorResponse "1405: user id could not be parsed"
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization; 1331: must be self"
+// @Failure 403 {object} services.BaseErrorResponse "1331: must be self"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse "1160: unable to save uploaded picture"
 // @Security Bearer

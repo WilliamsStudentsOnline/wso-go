@@ -25,7 +25,6 @@ import (
 // @Param getLastPost query bool false "Get Last Post (get last/latest post of the discussion)"
 // @Success 200 {array} models.Discussion
 // @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data"
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/discussions [get]
@@ -69,7 +68,6 @@ func (t *Controller) ListDiscussions(c *gin.Context) {
 // @Param preload query []string false "Preload List"
 // @Success 200 {object} models.Discussion
 // @Failure 400 {object} services.BaseErrorResponse "400: path ID could not be parsed; 1100: could not parse malformed request data"
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 404 {object} services.BaseErrorResponse "404: record not found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -124,7 +122,6 @@ func (t *Controller) GetDiscussion(c *gin.Context) {
 // @Param preload query []string false "Preload List"
 // @Success 200 {array} models.Post
 // @Failure 400 {object} services.BaseErrorResponse "400: path ID could not be parsed; 1100: could not parse malformed request data"
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 404 {object} services.BaseErrorResponse "404: record not found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -185,7 +182,7 @@ type CreateDiscussionParams struct {
 // @Param createParams body bulletin.CreateDiscussionParams true "Create Discussion Params"
 // @Success 201 {object} models.Discussion
 // @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed"
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization; 1332: authenticated user not found"
+// @Failure 403 {object} services.BaseErrorResponse "1332: authenticated user not found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/discussions [post]
@@ -246,7 +243,6 @@ func (t *Controller) CreateDiscussion(c *gin.Context) {
 // @Param discussionID path uint true "Discussion ID"
 // @Success 200 {object} models.Discussion
 // @Failure 400 {object} services.BaseErrorResponse "400: path ID could not be parsed"
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 404 {object} services.BaseErrorResponse "404: record not found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer

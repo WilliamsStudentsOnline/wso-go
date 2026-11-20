@@ -18,8 +18,7 @@ import (
 // @Param body body feedback.CreateFeedbackParams true "Feedback"
 // @Success 201 {object} models.Feedback
 // @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed"
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization; 1331: must be self"
+// @Failure 403 {object} services.BaseErrorResponse "1331: must be self"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /feedback [post]
@@ -64,8 +63,6 @@ func (t *Controller) CreateFeedback(c *gin.Context) {
 // @Param preload query []string false "Preload" Enums(user)
 // @Success 200 {array} models.Feedback
 // @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed"
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /admin/feedback [get]
@@ -101,8 +98,6 @@ func (t *Controller) ListFeedback(c *gin.Context) {
 // @Param feedbackID path uint true "Feedback ID"
 // @Param preload query []string false "Preload" Enums(user)
 // @Success 200 {object} models.Feedback
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -136,8 +131,6 @@ func (t *Controller) GetFeedback(c *gin.Context) {
 // @Param body body feedback.UpdateFeedbackParams true "Update"
 // @Success 200 {object} models.Feedback
 // @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed"
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -192,8 +185,6 @@ func (t *Controller) UpdateFeedback(c *gin.Context) {
 // @Produce json
 // @Param feedbackID path uint true "Feedback ID"
 // @Success 200 {object} map[string]uint
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer

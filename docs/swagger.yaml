@@ -2467,8 +2467,16 @@ info:
   contact:
     email: wso-dev@wso.williams.edu
     name: WSO Dev
-  description: API for WSO services like factrak, facebook, dormtrak, course scheduler,
-    and others.
+  description: |-
+    API for WSO services like factrak, facebook, dormtrak, and others.
+
+    Errors: failed requests return the real HTTP status, with a body of the form
+    `{"status": <HTTP status>, "error": {"errorCode": <WSO code>, "message": "...", "errors": [...]}}`.
+    Clients should branch on `error.errorCode`. Per-endpoint `@Failure` entries list the WSO codes
+    an endpoint can return under its HTTP status, as `code: message`.
+
+    Auth: every endpoint marked with the Bearer security scheme may return 401 (missing or invalid token)
+    and 403 with errorCode 1330 (token lacks the required scope). These are not repeated per endpoint.
   title: WSO API
   version: 2.0.0
 paths:
@@ -2521,14 +2529,6 @@ paths:
             data validation failed'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -2560,14 +2560,6 @@ paths:
             additionalProperties:
               type: integer
             type: object
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
@@ -2609,14 +2601,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.Feedback'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
@@ -2660,14 +2644,6 @@ paths:
             data validation failed'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
@@ -2695,14 +2671,6 @@ paths:
             items:
               $ref: '#/definitions/admin.jobInfo'
             type: array
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -2739,14 +2707,6 @@ paths:
             $ref: '#/definitions/models.JobRun'
         "400":
           description: '1100: could not parse malformed request data'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -2789,14 +2749,6 @@ paths:
             items:
               $ref: '#/definitions/models.JobRun'
             type: array
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -2824,14 +2776,6 @@ paths:
             $ref: '#/definitions/models.JobRun'
         "400":
           description: '1100: could not parse malformed request data'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -2868,14 +2812,6 @@ paths:
           description: '1100: could not parse malformed request data'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
@@ -2907,14 +2843,6 @@ paths:
             type: string
         "400":
           description: '1100: could not parse malformed request data'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -2993,14 +2921,6 @@ paths:
             data validation failed'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -3032,14 +2952,6 @@ paths:
             additionalProperties:
               type: integer
             type: object
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
@@ -3082,14 +2994,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/admin.ModeratorTaskResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
@@ -3137,14 +3041,6 @@ paths:
             type; 2401: invalid task resolution'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: '404: record not found; 2402: no open tasks for this subject'
           schema:
@@ -3177,10 +3073,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/auth.AuthResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
       security:
       - Bearer: []
       summary: Refresh API Token
@@ -3206,10 +3098,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/auth.AuthResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "403":
           description: Forbidden
           schema:
@@ -3238,10 +3126,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/auth.AuthResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
       summary: Authenticate Identity Token
       tags:
       - auth
@@ -3266,10 +3150,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/old.AuthResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
       summary: Authenticate and Login
       tags:
       - auth
@@ -3287,10 +3167,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/old.AuthResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "403":
           description: Forbidden
           schema:
@@ -3314,10 +3190,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/old.AuthResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "403":
           description: Forbidden
           schema:
@@ -3355,14 +3227,6 @@ paths:
             type: array
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "500":
@@ -3404,14 +3268,6 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -3449,14 +3305,6 @@ paths:
             type: array
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "500":
@@ -3498,14 +3346,6 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -3543,14 +3383,6 @@ paths:
             type: array
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "500":
@@ -3612,14 +3444,6 @@ paths:
           description: '1100: could not parse malformed request data; 1101: request
             data validation failed; 2300: redis client not configured, is redis running
             locally?'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "500":
@@ -3695,12 +3519,8 @@ paths:
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "403":
-          description: '1330: no scope authorization; 2415: cannot flag your own content'
+          description: '2415: cannot flag your own content'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -3878,12 +3698,8 @@ paths:
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "403":
-          description: '1330: no scope authorization; 2415: cannot flag your own content'
+          description: '2415: cannot flag your own content'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -3969,10 +3785,6 @@ paths:
             data validation failed'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -4006,10 +3818,6 @@ paths:
             data validation failed; 2251: could not find by book by ISBN'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -4040,10 +3848,6 @@ paths:
             $ref: '#/definitions/models.Book'
         "400":
           description: '1100: could not parse malformed request data'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -4086,10 +3890,6 @@ paths:
         "400":
           description: '1100: could not parse malformed request data; 1101: request
             data validation failed; 2253: passed courses don''t all exist'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -4182,10 +3982,6 @@ paths:
             data validation failed'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -4220,10 +4016,6 @@ paths:
             book could not be found'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -4253,7 +4045,7 @@ paths:
           schema:
             $ref: '#/definitions/models.BookListing'
         "403":
-          description: '1330: no scope authorization; 1331: must be self'
+          description: '1331: must be self'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -4291,10 +4083,6 @@ paths:
             $ref: '#/definitions/models.BookListing'
         "400":
           description: '1100: could not parse malformed request data'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -4341,7 +4129,7 @@ paths:
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "403":
-          description: '1330: no scope authorization; 1331: must be self'
+          description: '1331: must be self'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -4404,10 +4192,6 @@ paths:
           description: '1100: could not parse malformed request data'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -4440,10 +4224,6 @@ paths:
           description: '1100: could not parse malformed request data; 1101: request
             data validation failed; 1830: start date cannot be after end date; 1831:
             invalid bulletin type'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "500":
@@ -4479,7 +4259,7 @@ paths:
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "403":
-          description: '1330: no scope authorization; 1331: must be self'
+          description: '1331: must be self'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -4515,10 +4295,6 @@ paths:
             $ref: '#/definitions/models.Bulletin'
         "400":
           description: '400: path ID could not be parsed'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -4564,7 +4340,7 @@ paths:
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "403":
-          description: '1330: no scope authorization; 1331: must be self'
+          description: '1331: must be self'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -4623,10 +4399,6 @@ paths:
           description: '1100: could not parse malformed request data'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -4661,8 +4433,7 @@ paths:
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "403":
-          description: '1330: no scope authorization; 1332: authenticated user not
-            found'
+          description: '1332: authenticated user not found'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "500":
@@ -4695,10 +4466,6 @@ paths:
             $ref: '#/definitions/models.Discussion'
         "400":
           description: '400: path ID could not be parsed'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -4742,10 +4509,6 @@ paths:
         "400":
           description: '400: path ID could not be parsed; 1100: could not parse malformed
             request data'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -4806,10 +4569,6 @@ paths:
             request data'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: '404: record not found'
           schema:
@@ -4849,8 +4608,7 @@ paths:
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "403":
-          description: '1330: no scope authorization; 1332: authenticated user not
-            found'
+          description: '1332: authenticated user not found'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -4890,7 +4648,7 @@ paths:
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "403":
-          description: '1330: no scope authorization; 1331: must be self'
+          description: '1331: must be self'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -4926,10 +4684,6 @@ paths:
             $ref: '#/definitions/models.Post'
         "400":
           description: '400: path ID could not be parsed'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -4975,7 +4729,7 @@ paths:
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "403":
-          description: '1330: no scope authorization; 1331: must be self'
+          description: '1331: must be self'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -5038,10 +4792,6 @@ paths:
           description: '1100: could not parse malformed request data'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -5074,10 +4824,6 @@ paths:
           description: '1100: could not parse malformed request data; 1101: request
             data validation failed; 1831: invalid bulletin type; 1841: date cannot
             be in past'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "500":
@@ -5113,7 +4859,7 @@ paths:
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "403":
-          description: '1330: no scope authorization; 1331: must be self'
+          description: '1331: must be self'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -5149,10 +4895,6 @@ paths:
             $ref: '#/definitions/models.BulletinRide'
         "400":
           description: '400: path ID could not be parsed'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -5198,7 +4940,7 @@ paths:
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "403":
-          description: '1330: no scope authorization; 1331: must be self'
+          description: '1331: must be self'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -5457,14 +5199,6 @@ paths:
           description: OK
           schema:
             type: string
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
@@ -5518,14 +5252,6 @@ paths:
             data validation failed'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -5556,14 +5282,6 @@ paths:
             $ref: '#/definitions/models.Dorm'
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -5601,14 +5319,6 @@ paths:
             $ref: '#/definitions/models.DormFacts'
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -5657,14 +5367,6 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
@@ -5693,14 +5395,6 @@ paths:
             items:
               $ref: '#/definitions/models.Neighborhood'
             type: array
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -5731,14 +5425,6 @@ paths:
             $ref: '#/definitions/models.Neighborhood'
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -5777,14 +5463,6 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
@@ -5813,14 +5491,6 @@ paths:
             items:
               $ref: '#/definitions/models.DormtrakRanking'
             type: array
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -5882,12 +5552,8 @@ paths:
             data validation failed'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "403":
-          description: '1330: no scope authorization; 1331: must be self'
+          description: '1331: must be self'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "500":
@@ -5926,14 +5592,6 @@ paths:
             ID'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -5962,12 +5620,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.DormtrakReview'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "403":
-          description: '1330: no scope authorization; 1331: must be self'
+          description: '1331: must be self'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -6003,14 +5657,6 @@ paths:
             $ref: '#/definitions/models.DormtrakReview'
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -6055,12 +5701,8 @@ paths:
             data validation failed'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "403":
-          description: '1330: no scope authorization; 1331: must be self'
+          description: '1331: must be self'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -6103,12 +5745,8 @@ paths:
           description: '1640: too many photos already uploaded to this review'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "403":
-          description: '1330: no scope authorization; 1331: must be self'
+          description: '1331: must be self'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -6145,14 +5783,6 @@ paths:
             items:
               $ref: '#/definitions/dormtrak.DormRoomPhotoInfo'
             type: array
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
@@ -6187,14 +5817,6 @@ paths:
             items:
               $ref: '#/definitions/dormtrak.DormRoomPhotoInfo'
             type: array
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
@@ -6248,14 +5870,6 @@ paths:
             data validation failed'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -6286,14 +5900,6 @@ paths:
             $ref: '#/definitions/models.Ephcatcher'
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -6332,14 +5938,6 @@ paths:
             ID'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -6371,14 +5969,6 @@ paths:
             exist with user ID and passed ephcatcher ID'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -6403,14 +5993,6 @@ paths:
             items:
               $ref: '#/definitions/models.User'
             type: array
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -6431,10 +6013,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/ephmatch.GetAvailabilityResp'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "410":
           description: '1900: ephmatch api is deprecated'
           schema:
@@ -6467,14 +6045,6 @@ paths:
             items:
               $ref: '#/definitions/responses.ListMatchesResponseEphmatchMatch'
             type: array
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "410":
           description: '1900: ephmatch api is deprecated'
           schema:
@@ -6498,14 +6068,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/ephmatch.CountMatchesResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "410":
           description: '1900: ephmatch api is deprecated'
           schema:
@@ -6533,14 +6095,6 @@ paths:
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "410":
           description: '1900: ephmatch api is deprecated'
           schema:
@@ -6563,14 +6117,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.EphmatchProfile'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "410":
           description: '1900: ephmatch api is deprecated'
           schema:
@@ -6592,14 +6138,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.EphmatchProfile'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "410":
           description: '1900: ephmatch api is deprecated'
           schema:
@@ -6628,14 +6166,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.EphmatchProfile'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "410":
           description: '1900: ephmatch api is deprecated'
           schema:
@@ -6664,14 +6194,6 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/models.EphmatchProfile'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "410":
           description: '1900: ephmatch api is deprecated'
           schema:
@@ -6690,14 +6212,6 @@ paths:
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "410":
           description: '1900: ephmatch api is deprecated'
           schema:
@@ -6723,14 +6237,6 @@ paths:
       responses:
         "200":
           description: OK
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "410":
           description: '1900: ephmatch api is deprecated'
           schema:
@@ -6779,14 +6285,6 @@ paths:
             items:
               $ref: '#/definitions/models.EphmatchProfile'
             type: array
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "410":
           description: '1900: ephmatch api is deprecated'
           schema:
@@ -6815,14 +6313,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.EphmatchProfile'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "410":
           description: '1900: ephmatch api is deprecated'
           schema:
@@ -6858,14 +6348,6 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/ephmatch.SetProfileRelationResp'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "410":
           description: '1900: ephmatch api is deprecated'
           schema:
@@ -6915,14 +6397,6 @@ paths:
             data validation failed'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -6953,14 +6427,6 @@ paths:
             $ref: '#/definitions/models.AreaOfStudy'
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -7004,14 +6470,6 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
@@ -7049,14 +6507,6 @@ paths:
             type: array
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -7132,14 +6582,6 @@ paths:
             data validation failed; 1570: cannot rank by this metric'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -7176,14 +6618,6 @@ paths:
             $ref: '#/definitions/models.Course'
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -7225,14 +6659,6 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
@@ -7271,14 +6697,6 @@ paths:
             $ref: '#/definitions/models.FactrakSurveyAvgRatings'
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -7348,14 +6766,6 @@ paths:
             data validation failed'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
@@ -7384,14 +6794,6 @@ paths:
             items:
               $ref: '#/definitions/models.Department'
             type: array
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -7422,14 +6824,6 @@ paths:
             $ref: '#/definitions/models.Department'
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -7471,14 +6865,6 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
@@ -7516,14 +6902,6 @@ paths:
             type: array
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -7599,14 +6977,6 @@ paths:
             data validation failed; 1570: cannot rank by this metric'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -7643,14 +7013,6 @@ paths:
             $ref: '#/definitions/models.User'
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -7690,14 +7052,6 @@ paths:
             type: array
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -7743,14 +7097,6 @@ paths:
             $ref: '#/definitions/models.FactrakSurveyAvgRatings'
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -7818,14 +7164,6 @@ paths:
         "400":
           description: '1100: could not parse malformed request data; 1101: request
             data validation failed'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -7898,12 +7236,8 @@ paths:
             data validation failed'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "403":
-          description: '1330: no scope authorization; 1331: must be self'
+          description: '1331: must be self'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "500":
@@ -7947,14 +7281,6 @@ paths:
             survey course year is in the future'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -7983,12 +7309,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.FactrakSurvey'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "403":
-          description: '1330: no scope authorization; 1331: must be self'
+          description: '1331: must be self'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -8026,14 +7348,6 @@ paths:
             $ref: '#/definitions/models.FactrakSurvey'
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -8080,12 +7394,8 @@ paths:
             course format is invalid; 1540: survey course year is in the future'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "403":
-          description: '1330: no scope authorization; 1331: must be self'
+          description: '1331: must be self'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -8124,14 +7434,6 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: '404: record not found; 1551: survey agreement could not be
             found'
@@ -8166,14 +7468,6 @@ paths:
             $ref: '#/definitions/models.FactrakAgreement'
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -8216,14 +7510,6 @@ paths:
             $ref: '#/definitions/models.FactrakAgreement'
         "400":
           description: '1100: could not parse malformed request data'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -8270,14 +7556,6 @@ paths:
             survey agreement with your own survey'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
@@ -8310,14 +7588,6 @@ paths:
           description: OK
         "400":
           description: '2407: open factrak flag already exists for this survey'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -8387,12 +7657,8 @@ paths:
             data validation failed'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "403":
-          description: '1330: no scope authorization; 1331: must be self'
+          description: '1331: must be self'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -8433,12 +7699,8 @@ paths:
             data validation failed'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "403":
-          description: '1330: no scope authorization; 1331: must be self'
+          description: '1331: must be self'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "500":
@@ -8473,14 +7735,6 @@ paths:
         "400":
           description: '1100: could not parse malformed request data; 1101: request
             data validation failed'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "500":
@@ -8521,14 +7775,6 @@ paths:
           description: '1100: could not parse malformed request data'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
@@ -8558,14 +7804,6 @@ paths:
         "400":
           description: '2140: goodrich closed on this date; 2170: goodrich has no
             time slots available; 2171: cannot acquire a lease as no leases available'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "500":
@@ -8625,14 +7863,6 @@ paths:
             data validation failed'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -8673,14 +7903,6 @@ paths:
             reload this page and try again; 2173: goodrich order lease has expired'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -8711,14 +7933,6 @@ paths:
             $ref: '#/definitions/models.GoodrichOrder'
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -8763,14 +7977,6 @@ paths:
             order status is invalid'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
@@ -8799,14 +8005,6 @@ paths:
             items:
               $ref: '#/definitions/goodrich.TimeSlot'
             type: array
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -8831,14 +8029,6 @@ paths:
             items:
               $ref: '#/definitions/models.GoodrichOrder'
             type: array
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -8871,12 +8061,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "403":
-          description: '1330: no scope authorization; 1331: must be self'
+          description: '1331: must be self'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -8935,14 +8121,6 @@ paths:
             token is empty'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -8965,14 +8143,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.NotificationSettings'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -9001,14 +8171,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.NotificationSettings'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -9037,10 +8199,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.User'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
@@ -9073,10 +8231,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.User'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
@@ -9109,10 +8263,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.User'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "404":
           description: Not Found
           schema:
@@ -9169,14 +8319,6 @@ paths:
             query; 1152: unknown search field'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -9209,14 +8351,6 @@ paths:
         "400":
           description: '1403: user not visible; 1404: user not at williams; 1405:
             user id could not be parsed'
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
-        "403":
-          description: '1330: no scope authorization'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -9262,12 +8396,8 @@ paths:
             could not be parsed; 1407: user campus status is invalid'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "403":
-          description: '1330: no scope authorization; 1331: must be self'
+          description: '1331: must be self'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -9310,12 +8440,8 @@ paths:
           description: '1405: user id could not be parsed'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "403":
-          description: '1330: no scope authorization; 1331: must be self'
+          description: '1331: must be self'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":
@@ -9364,12 +8490,8 @@ paths:
             requests; 2406: open tag request already exists for this name'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "403":
-          description: '1330: no scope authorization; 1331: must be self'
+          description: '1331: must be self'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "500":
@@ -9411,12 +8533,8 @@ paths:
             could not be parsed; 1406: invalid user tag'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/services.BaseErrorResponse'
         "403":
-          description: '1330: no scope authorization; 1331: must be self'
+          description: '1331: must be self'
           schema:
             $ref: '#/definitions/services.BaseErrorResponse'
         "404":

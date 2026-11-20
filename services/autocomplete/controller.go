@@ -38,8 +38,6 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 // @Param limit query int false "Limit"
 // @Success 200 {array} autocomplete.ACEntry
 // @Failure 400 {object} services.BaseErrorResponse
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /autocomplete/area-of-study [get]
@@ -58,8 +56,6 @@ func (t *Controller) AreaOfStudy(c *gin.Context) {
 // @Param limit query int false "Limit"
 // @Success 200 {array} autocomplete.ACEntry
 // @Failure 400 {object} services.BaseErrorResponse
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /autocomplete/course [get]
@@ -78,8 +74,6 @@ func (t *Controller) Course(c *gin.Context) {
 // @Param limit query int false "Limit"
 // @Success 200 {array} autocomplete.ACEntry
 // @Failure 400 {object} services.BaseErrorResponse
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /autocomplete/professor [get]
@@ -98,8 +92,6 @@ func (t *Controller) Professor(c *gin.Context) {
 // @Param limit query int false "Limit"
 // @Success 200 {array} autocomplete.ACEntry
 // @Failure 400 {object} services.BaseErrorResponse
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /autocomplete/tag [get]
@@ -118,8 +110,6 @@ func (t *Controller) Tag(c *gin.Context) {
 // @Param limit query int false "Limit"
 // @Success 200 {array} autocomplete.ACEntry
 // @Failure 400 {object} services.BaseErrorResponse
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /autocomplete/factrak [get]

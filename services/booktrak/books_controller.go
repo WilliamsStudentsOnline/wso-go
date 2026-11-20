@@ -28,7 +28,6 @@ type ListBooksParams struct {
 // @Param isbn query string false "Book ISBN-13 (must be in ISBN format)"
 // @Success 200 {array} models.Book
 // @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed"
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /booktrak/books [get]
@@ -66,7 +65,6 @@ type CreateBookParams struct {
 // @Param createParams body booktrak.CreateBookParams true "Create Book Params"
 // @Success 201 {object} models.Book
 // @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed; 2251: could not find by book by ISBN"
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /booktrak/books [post]
@@ -151,7 +149,6 @@ type UpdateBookCoursesParams struct {
 // @Param bookID path uint true "Book ID"
 // @Success 200 {object} models.Book
 // @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed; 2253: passed courses don't all exist"
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 404 {object} services.BaseErrorResponse "404: record not found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -189,7 +186,6 @@ func (t *Controller) UpdateBookCourses(c *gin.Context) {
 // @Param bookID path uint true "Book ID"
 // @Success 200 {object} models.Book
 // @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data"
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 404 {object} services.BaseErrorResponse "404: record not found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer

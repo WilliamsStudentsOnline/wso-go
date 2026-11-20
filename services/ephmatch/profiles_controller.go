@@ -23,8 +23,6 @@ import (
 // @Param noRelations query bool false "Get profiles with no previous relations"
 // @Param preload query []string false "Preload List [tags, relation, matched]"
 // @Success 200 {array} models.EphmatchProfile
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 410 {object} services.BaseErrorResponse "1900: ephmatch api is deprecated"
 // @Security Bearer
 // @Router /ephmatch/profiles [get]
@@ -86,8 +84,6 @@ func (t *Controller) ListProfiles(c *gin.Context) {
 // @Produce  json
 // @Param profileUserID path uint true "Profile User ID"
 // @Success 200 {object} models.EphmatchProfile
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 410 {object} services.BaseErrorResponse "1900: ephmatch api is deprecated"
 // @Security Bearer
 // @Router /ephmatch/profiles/{profileUserID} [get]
@@ -178,8 +174,6 @@ const (
 // @Param profileUserID path uint true "Profile User ID"
 // @Param relationParams body ephmatch.SetProfileRelationParams true "Set Profile Relation Params"
 // @Success 201 {object} SetProfileRelationResp
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 410 {object} services.BaseErrorResponse "1900: ephmatch api is deprecated"
 // @Security Bearer
 // @Router /ephmatch/profiles/{profileUserID}/relation [put]

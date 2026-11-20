@@ -18,8 +18,6 @@ import (
 // @Accept  json
 // @Produce  json
 // @Success 200 {array} models.Department
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/departments [get]
@@ -46,8 +44,6 @@ func (t *Controller) ListDepartments(c *gin.Context) {
 // @Param departmentID path uint true "Department ID"
 // @Success 200 {object} models.Department
 // @Failure 400 {object} services.BaseErrorResponse
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -82,8 +78,6 @@ func (t *Controller) GetDepartment(c *gin.Context) {
 // @Param departmentID path uint true "Department ID"
 // @Success 200 {array} models.User
 // @Failure 400 {object} services.BaseErrorResponse
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -131,8 +125,6 @@ func (t *Controller) ListDepartmentProfessors(c *gin.Context) {
 // @Param departmentID path uint true "Department ID"
 // @Success 200 {array} models.Course
 // @Failure 400 {object} services.BaseErrorResponse
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer

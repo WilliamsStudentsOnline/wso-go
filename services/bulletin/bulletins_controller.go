@@ -27,7 +27,6 @@ import (
 // @Param all query bool false "Get All Bulletins (no restriction on startDate, endDate)"
 // @Success 200 {array} models.Bulletin
 // @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data"
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/bulletins [get]
@@ -70,7 +69,6 @@ func (t *Controller) ListBulletins(c *gin.Context) {
 // @Param bulletinID path uint true "Bulletin ID"
 // @Success 200 {object} models.Bulletin
 // @Failure 400 {object} services.BaseErrorResponse "400: path ID could not be parsed"
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 404 {object} services.BaseErrorResponse "404: record not found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -121,7 +119,6 @@ type CreateBulletinParams struct {
 // @Param createParams body bulletin.CreateBulletinParams true "Create Bulletin Params"
 // @Success 201 {object} models.Bulletin
 // @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed; 1830: start date cannot be after end date; 1831: invalid bulletin type"
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/bulletins [post]
@@ -196,7 +193,7 @@ type UpdateBulletinParams struct {
 // @Param bulletinID path uint true "Bulletin ID"
 // @Success 200 {object} models.Bulletin
 // @Failure 400 {object} services.BaseErrorResponse "400: path ID could not be parsed; 1100: could not parse malformed request data; 1830: start date cannot be after end date"
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization; 1331: must be self"
+// @Failure 403 {object} services.BaseErrorResponse "1331: must be self"
 // @Failure 404 {object} services.BaseErrorResponse "404: record not found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -269,7 +266,7 @@ func (t *Controller) UpdateBulletin(c *gin.Context) {
 // @Param bulletinID path uint true "Bulletin ID"
 // @Success 200 {object} models.Bulletin
 // @Failure 400 {object} services.BaseErrorResponse "400: path ID could not be parsed"
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization; 1331: must be self"
+// @Failure 403 {object} services.BaseErrorResponse "1331: must be self"
 // @Failure 404 {object} services.BaseErrorResponse "404: record not found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer

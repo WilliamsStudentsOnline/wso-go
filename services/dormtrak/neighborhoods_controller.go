@@ -17,8 +17,6 @@ import (
 // @Accept  json
 // @Produce  json
 // @Success 200 {array} models.Neighborhood
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /dormtrak/neighborhoods [get]
@@ -44,8 +42,6 @@ func (t *Controller) ListNeighborhoods(c *gin.Context) {
 // @Param neighborhoodID path uint true "Neighborhood ID"
 // @Success 200 {object} models.Neighborhood
 // @Failure 400 {object} services.BaseErrorResponse
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -79,8 +75,6 @@ func (t *Controller) GetNeighborhood(c *gin.Context) {
 // @Param neighborhoodID path uint true "Neighborhood ID"
 // @Success 200 {object} models.NeighborhoodFacts
 // @Failure 400 {object} services.BaseErrorResponse
-// @Failure 401 {object} services.BaseErrorResponse
-// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
