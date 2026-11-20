@@ -21,7 +21,7 @@ func ConfigureClient(addr string) error {
 		addr = redis_util.DefaultRedisAddr
 	}
 	var err error
-	client, err = redis_util.SetupClient(addr, "", redis_util.BannerDatabaseID)
+	client, err = redis_util.SetupClient(addr, "", redis_util.AdminDatabaseID)
 	return err
 }
 

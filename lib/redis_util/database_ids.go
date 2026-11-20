@@ -1,4 +1,4 @@
 package redis_util
 
-const BannerDatabaseID = 2
+const AdminDatabaseID = 2 // homepage banner, disabled jobs
 const TestDatabaseID = 10
