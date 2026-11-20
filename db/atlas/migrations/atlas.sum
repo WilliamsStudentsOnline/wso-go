@@ -1,4 +1,4 @@
-h1:+KU9TMyNi0Ge7shFv/atyBOTVI++hqAgs/Qkb/7Q39M=
+h1:NggVw8jXm538LQ0DgAOJ3IHcVoJht6RDHEbv+E3wftE=
 20261007235756_baseline.up.sql h1:Kmw4SweP0Aq6KlzT+VIDWQbg6ciJQrA4FhwGY6M1PZ0=
 20261026053754_create_moderator_tasks.up.sql h1:8w76fayR9zvi+VurrNkuh5mqEaKUdKceqM/HFT8G63c=
 20261028030000_add_pronoun_override_to_users.up.sql h1:R4Sw2PDHXSCPMU+V2anl+V+21unwpTopVtgWjtc7rEw=
@@ -6,3 +6,4 @@ h1:+KU9TMyNi0Ge7shFv/atyBOTVI++hqAgs/Qkb/7Q39M=
 20261028120000_create_job_runs.up.sql h1:5NyREPmfW9DUiG8G7q57DzqUMjAZelIUqOYbPQqYvrc=
 20261113185324_create_board_tables.up.sql h1:S55XTmdWSV1MJToMyC3y47t9NWFRWPmm9oXJ6Zz2FCA=
 20261120120000_add_board_anonymous.up.sql h1:uNS3s6b9mLpiai8JZiSR5dGjpBHGOP5kYs88RhZz2l0=
+20261120220139_add_board_polls.up.sql h1:216Dpq1hCQ52ctjQov1wBmku6OELHJbA1skAVQxcVo8=
