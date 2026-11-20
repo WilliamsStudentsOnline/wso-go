@@ -11,8 +11,6 @@ lib/test_utils
 server/cmd
 services/onboarding
 services/goodrich
-services/ephmatch
 services/booktrak
 services/chat
-lib/search/ephmatch
 lib/search/dormtrak

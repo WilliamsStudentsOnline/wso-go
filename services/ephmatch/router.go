@@ -1,13 +1,15 @@
 package ephmatch
 
 import (
-	"github.com/WilliamsStudentsOnline/wso-go/config"
+	"github.com/WilliamsStudentsOnline/wso-go/lib"
+	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
 )
 
-func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) {
-	c := NewController(db, cfg, log)
-	r.Any("/*path", c.RespondGone)
+func SetupRouter(r gin.IRouter, log *zap.SugaredLogger) {
+	c := services.BaseController{Log: log}
+	r.Any("/*path", func(ctx *gin.Context) {
+		c.RespondAPIError(ctx, lib.ErrorEphmatchDeprecated)
+	})
 }

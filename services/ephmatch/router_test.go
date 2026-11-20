@@ -14,7 +14,7 @@ import (
 func TestSetupRouter_Gone(t *testing.T) {
 	assert := testify.New(t)
 	router := utils.SetupRouter()
-	SetupRouter(router.Group("/ephmatch"), nil, utils.SetupConfig(), zaptest.NewLogger(t).Sugar())
+	SetupRouter(router.Group("/ephmatch"), zaptest.NewLogger(t).Sugar())
 
 	for _, req := range []struct{ method, path string }{
 		{http.MethodGet, "/ephmatch/availability"},

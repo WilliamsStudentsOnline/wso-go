@@ -22,8 +22,6 @@ type PictureBackend interface {
 	SaveUserPhotoBoth(unixID string, img image.Image) error
 	SaveUserPhotoLarge(unixID string, img image.Image) error
 	SaveUserPhotoThumb(unixID string, img image.Image) error
-	SaveEphmatchPhoto(unixID string, img image.Image) error
-	DeleteEphmatchPhoto(unixID string) error
 	SaveDormRoom(dormRoomID uint, reviewID uint, img image.Image) error
 	ListDormRoom(dormRoomID uint) ([]string, error)
 	// OpenPicture opens a file by path relative to the picture root.

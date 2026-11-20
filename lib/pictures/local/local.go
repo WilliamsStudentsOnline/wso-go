@@ -18,7 +18,6 @@ import (
 const (
 	dirUserThumb        = "user/thumb"
 	dirUserLarge        = "user/large"
-	dirEphmatch         = "ephmatch"
 	dirDormtrakDormroom = "dormtrak/dormroom"
 	maxDormtrakPhotos   = 10
 )
@@ -58,7 +57,7 @@ func NewBackend(path string, log *zap.SugaredLogger) (*Backend, error) {
 	}
 
 	// Warn if these sub directories don't exist
-	requiredDirs := []string{dirUserThumb, dirUserLarge, dirEphmatch, dirDormtrakDormroom}
+	requiredDirs := []string{dirUserThumb, dirUserLarge, dirDormtrakDormroom}
 	for _, dir := range requiredDirs {
 		fullPath := filepath.Join(absPath, dir)
 		if _, statErr := os.Stat(fullPath); os.IsNotExist(statErr) {
@@ -256,19 +255,4 @@ func (b *Backend) OpenPicture(relPath string) (*os.File, error) {
 		return nil, os.ErrNotExist
 	}
 	return f, nil
-}
-
-// All file names should be in the format `ephmatch/{userID}.jpg`
-func (b *Backend) SaveEphmatchPhoto(unixID string, img image.Image) error {
-	return b.saveUserProfile(img, unixID, dirEphmatch)
-}
-
-func (b *Backend) DeleteEphmatchPhoto(unixID string) error {
-	fPath := filepath.Join(b.path, dirEphmatch, unixID+".jpg")
-
-	if _, statErr := os.Stat(fPath); os.IsNotExist(statErr) {
-		return statErr
-	}
-
-	return os.Remove(fPath)
 }
