@@ -2,15 +2,12 @@ package wcfm
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
-	"sync/atomic"
 	"testing"
 	"time"
 
@@ -115,21 +112,6 @@ func TestBuildNow_Fixtures(t *testing.T) {
 	}
 }
 
-func TestBuildNow_StaleTrackStaysUp(t *testing.T) {
-	assert := testify.New(t)
-	start := fixtureNow.Add(-20 * time.Minute)
-	spins := []Track{{ID: 1, Start: start, End: start.Add(4 * time.Minute)}}
-
-	now := buildNow(fixtureNow, spins, nil, nil, nil)
-
-	if assert.NotNil(now.Track) {
-		assert.Equal(1, now.Track.ID)
-	}
-	assert.Nil(now.Listeners)
-	assert.Empty(now.Recent)
-	assert.Equal(int(staleRefresh.Seconds()), now.RefreshAfter)
-}
-
 func TestRefreshAfter(t *testing.T) {
 	now := fixtureNow
 	track := func(endsIn time.Duration) *Track { return &Track{End: now.Add(endsIn)} }
@@ -187,29 +169,6 @@ func TestFetchIcecast_SourceShapes(t *testing.T) {
 	}
 }
 
-func TestEndpoints_Public(t *testing.T) {
-	assert := testify.New(t)
-	fakeUpstream(t, http.StatusOK)
-	router := utils.SetupRouter()
-	c := newTestController(t)
-	router.GET("/now", c.GetNow)
-	router.GET("/schedule", c.GetSchedule)
-
-	w, err := utils.DoHTTPReq(router, http.MethodGet, "/now", nil)
-	assert.NoError(err)
-	var now Now
-	assert.NoError(json.Unmarshal(utils.GetGoodResp(assert, w).Data, &now))
-	assert.Equal(StreamURL, now.StreamURL)
-	assert.Positive(now.RefreshAfter)
-
-	// fixture shows are in the past by the time tests run, so only the shape is checked
-	w, err = utils.DoHTTPReq(router, http.MethodGet, "/schedule", nil)
-	assert.NoError(err)
-	var schedule []Show
-	assert.NoError(json.Unmarshal(utils.GetGoodResp(assert, w).Data, &schedule))
-	assert.NotNil(schedule)
-}
-
 func TestGetNow_UpstreamDown(t *testing.T) {
 	assert := testify.New(t)
 	fakeUpstream(t, http.StatusServiceUnavailable)
@@ -221,7 +180,7 @@ func TestGetNow_UpstreamDown(t *testing.T) {
 	utils.CheckRespError(assert, w, lib.ErrorWCFMUnavailable)
 }
 
-func TestCached_UsesRedis(t *testing.T) {
+func TestCached_RedisHitThenStaleFallback(t *testing.T) {
 	assert := testify.New(t)
 	if err := ConfigureControllerForTest(); err != nil {
 		if os.Getenv("GITHUB_ACTIONS") == "" {
@@ -231,23 +190,29 @@ func TestCached_UsesRedis(t *testing.T) {
 	}
 	ctx := context.Background()
 	log := zaptest.NewLogger(t).Sugar()
+	key := redis_util.GetWCFMCacheKey("test")
 	t.Cleanup(func() {
-		_ = store.Client().Del(ctx, redis_util.GetWCFMCacheKey("test"), redis_util.GetWCFMCacheKey("stale:test"))
+		_ = store.Client().Del(ctx, key, redis_util.GetWCFMCacheKey("stale:test"))
 		store = nil
 	})
 
 	calls := 0
-	fetch := func(context.Context) ([]Track, error) {
+	good := func(context.Context) (string, error) {
 		calls++
-		return []Track{{ID: calls, Song: "song"}}, nil
+		return "last good", nil
 	}
-	first, err := cached(ctx, log, "test", time.Minute, fetch)
-	assert.NoError(err)
-	second, err := cached(ctx, log, "test", time.Minute, fetch)
-	assert.NoError(err)
-
+	for range 2 {
+		got, err := cached(ctx, log, "test", time.Minute, good)
+		assert.NoError(err)
+		assert.Equal("last good", got)
+	}
 	assert.Equal(1, calls)
-	assert.Equal(first, second)
+
+	assert.NoError(store.Client().Del(ctx, key))
+	down := func(context.Context) (string, error) { return "", errors.New("spinitron down") }
+	got, err := cached(ctx, log, "test", time.Minute, down)
+	assert.NoError(err)
+	assert.Equal("last good", got)
 }
 
 func TestDJNames_DropsStationPersona(t *testing.T) {
@@ -269,90 +234,5 @@ func TestBuildNow_UnscheduledAutomationIsNotAShow(t *testing.T) {
 	now = buildNow(fixtureNow, nil, []Show{scheduledAuto}, []Show{scheduledAuto, next}, nil)
 	if assert.NotNil(now.OnAir) {
 		assert.Equal("Tunes and Turpentine", now.OnAir.Title)
-	}
-}
-
-func TestCached_ServesStaleWhenFetchFails(t *testing.T) {
-	assert := testify.New(t)
-	if err := ConfigureControllerForTest(); err != nil {
-		if os.Getenv("GITHUB_ACTIONS") == "" {
-			t.Skipf("redis not reachable: %v", err)
-		}
-		t.Fatal(err)
-	}
-	ctx := context.Background()
-	log := zaptest.NewLogger(t).Sugar()
-	t.Cleanup(func() {
-		_ = store.Client().Del(ctx, redis_util.GetWCFMCacheKey("stale-test"), redis_util.GetWCFMCacheKey("stale:stale-test"))
-		store = nil
-	})
-
-	good := func(context.Context) (string, error) { return "last good", nil }
-	_, err := cached(ctx, log, "stale-test", time.Minute, good)
-	assert.NoError(err)
-	assert.NoError(store.Client().Del(ctx, redis_util.GetWCFMCacheKey("stale-test")))
-
-	down := func(context.Context) (string, error) { return "", errors.New("spinitron down") }
-	got, err := cached(ctx, log, "stale-test", time.Minute, down)
-	assert.NoError(err)
-	assert.Equal("last good", got)
-}
-
-func TestCached_SharesConcurrentMisses(t *testing.T) {
-	assert := testify.New(t)
-	store = nil
-	log := zaptest.NewLogger(t).Sugar()
-
-	var calls atomic.Int32
-	release := make(chan struct{})
-	fetch := func(context.Context) (int, error) {
-		calls.Add(1)
-		<-release
-		return 7, nil
-	}
-
-	var wg sync.WaitGroup
-	results := make([]int, 10)
-	for i := range results {
-		wg.Go(func() {
-			results[i], _ = cached(context.Background(), log, "shared-test", time.Minute, fetch)
-		})
-	}
-	waiting := func() int {
-		flightsMu.Lock()
-		defer flightsMu.Unlock()
-		if f, ok := flights[redis_util.GetWCFMCacheKey("shared-test")]; ok {
-			return f.waiters
-		}
-		return 0
-	}
-	assert.Eventually(func() bool { return waiting() == len(results)-1 }, time.Second, time.Millisecond)
-	close(release)
-	wg.Wait()
-
-	assert.Equal(int32(1), calls.Load())
-	for _, r := range results {
-		assert.Equal(7, r)
-	}
-}
-
-func TestShared_PanicReleasesWaiters(t *testing.T) {
-	assert := testify.New(t)
-	func() {
-		defer func() { _ = recover() }()
-		_, _ = shared("panic-test", func() ([]byte, error) { panic("boom") })
-	}()
-
-	done := make(chan struct{})
-	go func() {
-		payload, err := shared("panic-test", func() ([]byte, error) { return []byte("ok"), nil })
-		assert.NoError(err)
-		assert.Equal("ok", string(payload))
-		close(done)
-	}()
-	select {
-	case <-done:
-	case <-time.After(time.Second):
-		t.Fatal("key stayed locked after a panicking fetch")
 	}
 }

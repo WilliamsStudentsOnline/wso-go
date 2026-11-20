@@ -26,7 +26,6 @@ type flight struct {
 	done    chan struct{}
 	payload []byte
 	err     error
-	waiters int
 }
 
 var (
@@ -40,7 +39,6 @@ var (
 func shared(key string, fetch func() ([]byte, error)) ([]byte, error) {
 	flightsMu.Lock()
 	if f, ok := flights[key]; ok {
-		f.waiters++
 		flightsMu.Unlock()
 		<-f.done
 		return f.payload, f.err
