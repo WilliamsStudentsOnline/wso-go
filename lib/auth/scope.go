@@ -42,14 +42,6 @@ const (
 	// Service: Chat
 	ScopeChat = "service:chat"
 
-	// Service: Ephmatch
-	// Allows access to read/write self profile on Ephmatch. For when a user is eligible but not signed up
-	ScopeEphmatch = "service:ephmatch"
-	// Allows access to matches. For when a user is signed up but Ephmatch is closed
-	ScopeEphmatchMatches = "service:ephmatch:matches"
-	// Allows access to read profiles, write like/unlike. For when a user is signed up and Ephmatch is open
-	ScopeEphmatchProfiles = "service:ephmatch:profiles"
-
 	// Service: Goodrich
 	// Allows access to read/write self goodrich orders and read goodrich menu
 	ScopeGoodrich = "service:goodrich"
