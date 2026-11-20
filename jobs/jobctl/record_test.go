@@ -1,6 +1,7 @@
 package jobctl
 
 import (
+	"context"
 	"os"
 	"strconv"
 	"testing"
@@ -37,6 +38,25 @@ func TestRecordStartTimerCreatesRow(t *testing.T) {
 	assert.Equal(t, models.JobStatusRunning, run.Status)
 	require.NotNil(t, run.InvocationID)
 	assert.Equal(t, "inv-timer-1", *run.InvocationID)
+}
+
+func TestRecordStartTimerRefusesDisabledJob(t *testing.T) {
+	setupRedis(t)
+	db := setupRecordDB(t)
+	require.NoError(t, SetJobDisabled(context.Background(), "library-hours-update", true))
+
+	t.Setenv("WSO_JOB_NAME", "library-hours-update")
+	t.Setenv("INVOCATION_ID", "inv-timer-2")
+	os.Unsetenv("WSO_JOB_RUN_ID")
+
+	require.ErrorIs(t, RecordStart(db), ErrJobDisabled)
+
+	var n int
+	require.NoError(t, db.Model(&models.JobRun{}).Count(&n).Error)
+	assert.Equal(t, 0, n)
+
+	require.NoError(t, SetJobDisabled(context.Background(), "library-hours-update", false))
+	require.NoError(t, RecordStart(db))
 }
 
 func TestRecordStartUpdatesPending(t *testing.T) {

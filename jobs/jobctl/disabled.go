@@ -2,6 +2,7 @@ package jobctl
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 
@@ -60,4 +61,16 @@ func SetJobDisabled(ctx context.Context, name string, disabled bool) error {
 		return redisClient.SAdd(ctx, disabledJobsKey, name)
 	}
 	return redisClient.SRem(ctx, disabledJobsKey, name)
+}
+
+// fails open on Redis errors
+func disabledJobsOrNone() map[string]bool {
+	disabled, err := DisabledJobs(context.Background())
+	if err != nil {
+		if !errors.Is(err, redis_util.ErrRedisClientNotConfigured) {
+			fmt.Fprintf(os.Stderr, "jobctl: reading disabled jobs: %v\n", err)
+		}
+		return map[string]bool{}
+	}
+	return disabled
 }

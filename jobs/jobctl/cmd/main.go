@@ -106,6 +106,9 @@ func withDB(configPath string, fn func(*gorm.DB) error) error {
 	if err != nil {
 		return err
 	}
+	if err := jobctl.ConfigureRedis(cfg.RedisAddr); err != nil {
+		fmt.Fprintf(os.Stderr, "jobctl: redis unavailable, not checking disabled jobs: %v\n", err)
+	}
 	log := zap.NewNop().Sugar()
 	db := config.LoadDatabase(cfg, log)
 	defer config.CloseDatabase(db, log)

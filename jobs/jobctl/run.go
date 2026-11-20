@@ -2,6 +2,7 @@ package jobctl
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -9,6 +10,8 @@ import (
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/jinzhu/gorm"
 )
+
+var ErrJobDisabled = errors.New("job is disabled")
 
 type EnqueueOpts struct {
 	JobName           string
@@ -24,6 +27,9 @@ func Enqueue(db *gorm.DB, sd *Systemd, r *registry.Registry, opts EnqueueOpts) (
 	j, ok := r.Get(opts.JobName)
 	if !ok {
 		return nil, fmt.Errorf("unknown job %q", opts.JobName)
+	}
+	if disabledJobsOrNone()[j.Name] {
+		return nil, fmt.Errorf("%w: %s", ErrJobDisabled, j.Name)
 	}
 	args, err := j.BuildArgs(opts.Values)
 	if err != nil {
@@ -75,6 +81,7 @@ func DispatchDue(db *gorm.DB, sd *Systemd, r *registry.Registry) (started int, e
 	if err := q.Find(&pending).Error; err != nil {
 		return 0, err
 	}
+	disabled := disabledJobsOrNone()
 
 	seenBusy := map[string]bool{}
 	for i := range pending {
@@ -88,6 +95,9 @@ func DispatchDue(db *gorm.DB, sd *Systemd, r *registry.Registry) (started int, e
 				"status":      models.JobStatusFailed,
 				"finished_at": now,
 			}).Error
+			continue
+		}
+		if disabled[run.JobName] {
 			continue
 		}
 		active, err := hasActive(db, run.JobName)
