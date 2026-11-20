@@ -69,7 +69,7 @@ func (p *contentParser) walk(n *html.Node) {
 		p.flush()
 		p.addText(textOf(n))
 	case containsTag(n, "img") || hasBlockDescendant(n):
-		// inline wrapper (e.g. <a><img></a>, <span><p>) around block content
+		// e.g. <a><img></a>, <span><p>
 		p.walkChildren(n)
 	default:
 		p.pending = append(p.pending, n)

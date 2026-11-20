@@ -8,7 +8,7 @@ const (
 )
 
 type ArticleBlock struct {
-	Type    string `json:"type" enums:"text,image"`
+	Type    string `json:"type"`
 	Text    string `json:"text,omitempty"`
 	URL     string `json:"url,omitempty"`
 	Caption string `json:"caption,omitempty"`
