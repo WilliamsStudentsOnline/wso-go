@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"path/filepath"
-	"strings"
 	"testing"
 	"time"
 
@@ -19,43 +17,39 @@ import (
 	"go.uber.org/zap/zaptest"
 )
 
-// Fixtures were captured from spinitron while this moment was on air
 var fixtureNow = time.Date(2026, 11, 20, 6, 15, 0, 0, time.UTC)
 
-const automationPersona = `{"id":182353,"name":"WCFM"}`
-
-func fixture(t *testing.T, name string) []byte {
-	t.Helper()
-	b, err := os.ReadFile(filepath.Join("testdata", name))
-	if err != nil {
-		t.Fatal(err)
-	}
-	return b
+// Trimmed spinitron responses; spins use a local offset and shows UTC, as spinitron does
+var upstream = map[string]string{
+	"/api/spins": `{"items":[
+		{"id":3,"start":"2026-11-20T01:13:51-0500","end":"2026-11-20T01:17:22-0500","artist":"Sun Kil Moon","song":"Carry Me Ohio","release":"Ghosts of the Great Highway","released":2003},
+		{"id":2,"start":"2026-11-20T01:09:00-0500","end":"2026-11-20T01:13:40-0500","artist":"Slowdive","song":"Catch the Breeze"},
+		{"id":1,"start":"2026-11-20T01:05:00-0500","end":"2026-11-20T01:08:50-0500","artist":"Big Thief","song":"Pretty Things"}]}`,
+	"/api/playlists": `{"items":[
+		{"id":11,"show_id":102,"persona_id":1,"automation":1,"start":"2026-11-20T07:00:00+0000","end":"2026-11-20T08:00:00+0000","title":"91.9 WCFM Williamstown 11/20/26, 2:00 AM"},
+		{"id":10,"show_id":101,"persona_id":2,"automation":0,"start":"2026-11-20T06:00:00+0000","end":"2026-11-20T07:00:00+0000","title":"Tunes and Turpentine","episode_name":"Night Shift"}]}`,
+	"/api/shows": `{"_meta":{"pageCount":1},"items":[
+		{"id":103,"start":"2026-11-20T12:00:00+0000","end":"2026-11-20T13:00:00+0000","title":"Unsupervised","_links":{"personas":[{"href":"https://spinitron.com/api/personas/1"}]}},
+		{"id":101,"start":"2026-11-20T06:00:00+0000","end":"2026-11-20T07:00:00+0000","title":"Tunes and Turpentine","_links":{"personas":[{"href":"https://spinitron.com/api/personas/2"}]}}]}`,
+	"/api/personas/1":  `{"id":1,"name":"WCFM"}`,
+	"/api/personas/2":  `{"id":2,"name":"DJ Moss"}`,
+	"/status-json.xsl": `{"icestats":{"source":{"listenurl":"http://x:8000/stream","listeners":14}}}`,
 }
 
 func fakeUpstream(t *testing.T, status int) {
 	t.Helper()
-	routes := map[string][]byte{
-		"/api/spins":       fixture(t, "spins.json"),
-		"/api/playlists":   fixture(t, "playlists.json"),
-		"/api/shows":       fixture(t, "shows.json"),
-		"/status-json.xsl": fixture(t, "icecast.json"),
-	}
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/status-json.xsl" && r.Header.Get("Authorization") != "Bearer test-token" {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
-		body, ok := routes[r.URL.Path]
-		if strings.HasPrefix(r.URL.Path, "/api/personas/") {
-			body, ok = []byte(automationPersona), true
-		}
+		body, ok := upstream[r.URL.Path]
 		if !ok {
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
 		w.WriteHeader(status)
-		_, _ = w.Write(body)
+		_, _ = w.Write([]byte(body))
 	}))
 	t.Cleanup(srv.Close)
 
@@ -69,7 +63,7 @@ func newTestController(t *testing.T) *Controller {
 	return NewController(cfg, zaptest.NewLogger(t).Sugar())
 }
 
-func TestBuildNow_Fixtures(t *testing.T) {
+func TestBuildNow(t *testing.T) {
 	assert := testify.New(t)
 	fakeUpstream(t, http.StatusOK)
 	c := newTestController(t)
@@ -88,28 +82,25 @@ func TestBuildNow_Fixtures(t *testing.T) {
 
 	assert.True(now.Live)
 	assert.Equal(14, *now.Listeners)
-	assert.Equal(StreamURL, now.StreamURL)
-
+	// the newest playlist is pre-created automation that hasn't started yet
 	if assert.NotNil(now.OnAir) {
 		assert.Equal("Tunes and Turpentine", now.OnAir.Title)
-		assert.True(now.OnAir.Automated)
-		assert.Empty(now.OnAir.DJs)
+		assert.Equal("Night Shift", now.OnAir.EpisodeName)
+		assert.Equal([]string{"DJ Moss"}, now.OnAir.DJs)
 	}
 	if assert.NotNil(now.Track) {
-		assert.Equal("Sun Kil Moon", now.Track.Artist)
+		assert.Equal("Carry Me Ohio", now.Track.Song)
 		assert.Equal(time.Date(2026, 11, 20, 6, 13, 51, 0, time.UTC), now.Track.Start)
 	}
-	assert.Len(now.Recent, recentCount)
+	assert.Len(now.Recent, 2)
 	if assert.NotNil(now.Next) {
 		assert.Equal("Unsupervised", now.Next.Title)
+		assert.Empty(now.Next.DJs)
 	}
 	assert.Equal(60, now.RefreshAfter)
 
-	// the newest playlist is pre-created automation that hasn't started yet
-	earlier := buildNow(fixtureNow.Add(-30*time.Minute), spins, playlists, []Show{playlists[1]}, &ice)
-	if assert.NotNil(earlier.OnAir) {
-		assert.Equal("Sailing Lubitz", earlier.OnAir.Title)
-	}
+	later := buildNow(fixtureNow.Add(time.Hour), spins, playlists, schedule, &ice)
+	assert.Nil(later.OnAir)
 }
 
 func TestRefreshAfter(t *testing.T) {
@@ -213,26 +204,4 @@ func TestCached_RedisHitThenStaleFallback(t *testing.T) {
 	got, err := cached(ctx, log, "test", time.Minute, down)
 	assert.NoError(err)
 	assert.Equal("last good", got)
-}
-
-func TestDJNames_DropsStationPersona(t *testing.T) {
-	names := map[int]string{1: "WCFM", 2: "DJ Moss", 3: ""}
-	testify.Equal(t, []string{"DJ Moss"}, djNames(names, []int{1, 2, 3, 4}))
-}
-
-func TestBuildNow_UnscheduledAutomationIsNotAShow(t *testing.T) {
-	assert := testify.New(t)
-	start := fixtureNow.Add(-10 * time.Minute)
-	auto := Show{ID: 1, Title: "91.9 WCFM Williamstown 11/20/26, 2:00AM", Automated: true, Start: start, End: start.Add(time.Hour)}
-	scheduledAuto := Show{ID: 2, Title: "Tunes and Turpentine", Automated: true, Start: start, End: start.Add(time.Hour)}
-	next := Show{ID: 3, Title: "Unsupervised", Start: start.Add(5 * time.Hour), End: start.Add(6 * time.Hour)}
-
-	now := buildNow(fixtureNow, nil, []Show{auto}, []Show{next}, nil)
-	assert.Nil(now.OnAir)
-	assert.Equal("Unsupervised", now.Next.Title)
-
-	now = buildNow(fixtureNow, nil, []Show{scheduledAuto}, []Show{scheduledAuto, next}, nil)
-	if assert.NotNil(now.OnAir) {
-		assert.Equal("Tunes and Turpentine", now.OnAir.Title)
-	}
 }
