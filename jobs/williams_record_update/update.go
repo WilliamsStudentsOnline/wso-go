@@ -27,7 +27,6 @@ func Update(client *http.Client, feedURL, out string) (int, error) {
 		}
 		articles = append(articles, article)
 	}
-	// keep the last good file rather than serving nothing
 	if len(articles) == 0 {
 		return 0, errors.New("feed had no usable articles")
 	}

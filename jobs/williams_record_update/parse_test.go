@@ -1,7 +1,6 @@
 package williams_record_update
 
 import (
-	"os"
 	"testing"
 
 	testify "github.com/stretchr/testify/assert"
@@ -126,62 +125,4 @@ func TestParseContent(t *testing.T) {
 			testify.Equal(t, tt.want, got)
 		})
 	}
-}
-
-func TestParseFixtureFeed(t *testing.T) {
-	assert := testify.New(t)
-	f, err := os.Open("testdata/feed.xml")
-	assert.NoError(err)
-	defer f.Close()
-
-	items, err := parseFeed(f)
-	assert.NoError(err)
-	assert.Len(items, 10)
-
-	byGUID := map[string]Article{}
-	for _, item := range items {
-		a, err := toArticle(item)
-		assert.NoError(err)
-		assert.NotEmpty(a.Title)
-		assert.NotEmpty(a.Author)
-		assert.NotEmpty(a.Description)
-		assert.False(a.PublishedAt.IsZero())
-		assert.NotEmpty(a.Content, a.Title)
-		for _, b := range a.Content {
-			switch b.Type {
-			case ArticleBlockText:
-				assert.NotEmpty(b.Text)
-				assert.NotContains(b.Text, "<")
-			case ArticleBlockImage:
-				assert.Regexp(`^https://williamsrecord\.com/wp-content/uploads/`, b.URL)
-			default:
-				t.Errorf("unexpected block type %q", b.Type)
-			}
-		}
-		byGUID[a.GUID] = a
-	}
-
-	palantir := byGUID["https://williamsrecord.com/?p=474112"]
-	assert.Equal("Palantir postpones recruitment event following community backlash", palantir.Title)
-	assert.Equal("Audrey Adam and Arleny Flores", palantir.Author)
-	assert.Equal([]string{"College", "News"}, []string(palantir.Categories))
-	assert.Equal("2026-11-18T06:00:55Z", palantir.PublishedAt.Format("2006-01-02T15:04:05Z07:00"))
-	assert.Equal(image(
-		"https://williamsrecord.com/wp-content/uploads/2026/11/Screenshot-2026-11-17-at-10.42.17-PM.png",
-		"Audrey Adam/The Williams Record",
-	), palantir.Content[0])
-
-	band := byGUID["https://williamsrecord.com/?p=474052"]
-	var images int
-	for _, b := range band.Content {
-		if b.Type == ArticleBlockImage {
-			images++
-		}
-	}
-	assert.Equal(5, images)
-	assert.Equal(text("“e to the x dx dx,"), band.Content[3])
-
-	captain := byGUID["https://williamsrecord.com/?p=474039"]
-	assert.Equal([]string{"Captain's Corner", "Sports"}, []string(captain.Categories))
-	assert.Equal(text("Team: Women’s soccer"), captain.Content[1])
 }

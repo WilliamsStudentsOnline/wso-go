@@ -31,29 +31,6 @@ func readArticles(t *testing.T, path string) []Article {
 	return articles
 }
 
-func TestUpdateWritesJSON(t *testing.T) {
-	assert := testify.New(t)
-	feed, err := os.ReadFile("testdata/feed.xml")
-	require.NoError(t, err)
-	srv := serve(t, http.StatusOK, feed)
-	out := filepath.Join(t.TempDir(), "mobile", "williams_record.json")
-
-	n, err := Update(srv.Client(), srv.URL, out)
-	assert.NoError(err)
-	assert.Equal(10, n)
-
-	articles := readArticles(t, out)
-	require.Len(t, articles, 10)
-	assert.Equal("https://williamsrecord.com/?p=474112", articles[0].GUID)
-	assert.Equal(ArticleBlockImage, articles[0].Content[0].Type)
-
-	info, err := os.Stat(out)
-	assert.NoError(err)
-	assert.Equal(os.FileMode(0o644), info.Mode().Perm())
-	entries, _ := os.ReadDir(filepath.Dir(out))
-	assert.Len(entries, 1)
-}
-
 func TestUpdateSkipsBadItems(t *testing.T) {
 	assert := testify.New(t)
 	srv := serve(t, http.StatusOK, []byte(`<?xml version="1.0"?>

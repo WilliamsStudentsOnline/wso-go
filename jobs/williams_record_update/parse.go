@@ -33,7 +33,6 @@ func parseContent(content string) ([]ArticleBlock, error) {
 
 type contentParser struct {
 	blocks []ArticleBlock
-	// loose inline content between block elements
 	pending []*html.Node
 }
 
@@ -69,7 +68,6 @@ func (p *contentParser) walk(n *html.Node) {
 		p.flush()
 		p.addText(textOf(n))
 	case containsTag(n, "img") || hasBlockDescendant(n):
-		// e.g. <a><img></a>, <span><p>
 		p.walkChildren(n)
 	default:
 		p.pending = append(p.pending, n)
@@ -106,7 +104,6 @@ func (p *contentParser) addImage(img *html.Node, caption string) {
 	})
 }
 
-// galleries nest a figure per image
 func (p *contentParser) addFigure(fig *html.Node) {
 	if containsTag(fig, "figure") {
 		p.walkChildren(fig)
@@ -177,7 +174,6 @@ func normalizeText(s string) string {
 }
 
 func imageSrc(img *html.Node) string {
-	// lazy loaders put a placeholder in src
 	for _, key := range []string{"data-src", "data-lazy-src", "src"} {
 		v := strings.TrimSpace(attr(img, key))
 		if v == "" || strings.HasPrefix(v, "data:") {
