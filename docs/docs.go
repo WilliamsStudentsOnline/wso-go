@@ -9201,32 +9201,20 @@ const docTemplate = `{
                     "200": {
                         "description": "OK"
                     },
-                    "2416": {
-                        "description": "user has no profile photo",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "2417": {
-                        "description": "open flag already exists for this photo",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "2418": {
-                        "description": "cannot flag your own photo",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "open flag already exists for this photo (2417)",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "cannot flag your own photo (2418)",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "user or profile photo not found (2416)",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }

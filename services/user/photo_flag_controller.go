@@ -16,11 +16,9 @@ import (
 // @Produce json
 // @Param userID path uint true "User ID"
 // @Success 200
-// @Failure 2416 {object} services.BaseErrorResponse "user has no profile photo"
-// @Failure 2417 {object} services.BaseErrorResponse "open flag already exists for this photo"
-// @Failure 2418 {object} services.BaseErrorResponse "cannot flag your own photo"
-// @Failure 400 {object} services.BaseErrorResponse
-// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "open flag already exists for this photo (2417)"
+// @Failure 403 {object} services.BaseErrorResponse "cannot flag your own photo (2418)"
+// @Failure 404 {object} services.BaseErrorResponse "user or profile photo not found (2416)"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /users/{userID}/photo/flag [post]
