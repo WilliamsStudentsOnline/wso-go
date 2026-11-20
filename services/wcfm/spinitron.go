@@ -17,12 +17,12 @@ const StreamURL = "https://wcfm-streaming.williams.edu:8443/stream"
 
 var (
 	spinitronBaseURL = "https://spinitron.com/api"
-	// 8443 only offers TLS_RSA ciphers, which Go no longer enables by default
+	// 8443 only has TLS_RSA ciphers
 	icecastStatusURL = "http://wcfm-streaming.williams.edu:8000/status-json.xsl"
 	httpClient       = &http.Client{Timeout: 5 * time.Second}
 )
 
-// Spinitron omits the colon in UTC offsets, which time.RFC3339 rejects
+// no colon in the offset, so not RFC3339
 const spinitronTimeLayout = "2006-01-02T15:04:05-0700"
 
 type spinTime struct{ time.Time }
@@ -150,7 +150,7 @@ func fetchIcecast(ctx context.Context) (icecastStatus, error) {
 		return icecastStatus{}, err
 	}
 
-	// Icecast reports one mount as an object, several as an array, and none by omitting the field
+	// object, array, or missing depending on mount count
 	raw := bytes.TrimSpace(body.Icestats.Source)
 	var sources []icecastSource
 	switch {

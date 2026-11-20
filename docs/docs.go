@@ -13049,7 +13049,7 @@ const docTemplate = `{
                     }
                 },
                 "refreshAfter": {
-                    "description": "seconds until this response is likely to change",
+                    "description": "seconds until the next poll",
                     "type": "integer"
                 },
                 "streamURL": {

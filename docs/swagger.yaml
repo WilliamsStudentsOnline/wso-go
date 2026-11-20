@@ -2486,7 +2486,7 @@ definitions:
           $ref: '#/definitions/wcfm.Track'
         type: array
       refreshAfter:
-        description: seconds until this response is likely to change
+        description: seconds until the next poll
         type: integer
       streamURL:
         type: string

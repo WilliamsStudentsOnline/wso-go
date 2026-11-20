@@ -19,7 +19,6 @@ import (
 
 var fixtureNow = time.Date(2026, 11, 20, 6, 15, 0, 0, time.UTC)
 
-// Trimmed spinitron responses; spins use a local offset and shows UTC, as spinitron does
 var upstream = map[string]string{
 	"/api/spins": `{"items":[
 		{"id":3,"start":"2026-11-20T01:13:51-0500","end":"2026-11-20T01:17:22-0500","artist":"Sun Kil Moon","song":"Carry Me Ohio","release":"Ghosts of the Great Highway","released":2003},
@@ -82,7 +81,7 @@ func TestBuildNow(t *testing.T) {
 
 	assert.True(now.Live)
 	assert.Equal(14, *now.Listeners)
-	// the newest playlist is pre-created automation that hasn't started yet
+	// newest playlist hasn't started yet
 	if assert.NotNil(now.OnAir) {
 		assert.Equal("Tunes and Turpentine", now.OnAir.Title)
 		assert.Equal("Night Shift", now.OnAir.EpisodeName)

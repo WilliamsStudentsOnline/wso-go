@@ -34,7 +34,7 @@ var (
 	errFetchPanicked = errors.New("wcfm fetch panicked")
 )
 
-// Clients poll in step at song boundaries, so concurrent misses share one fetch
+// prevent spam polling / race on song end
 func shared(key string, fetch func() ([]byte, error)) ([]byte, error) {
 	flightsMu.Lock()
 	if f, ok := flights[key]; ok {
@@ -46,7 +46,6 @@ func shared(key string, fetch func() ([]byte, error)) ([]byte, error) {
 	flights[key] = f
 	flightsMu.Unlock()
 
-	// deferred so a panic can't strand waiters
 	defer func() {
 		flightsMu.Lock()
 		delete(flights, key)
@@ -75,7 +74,7 @@ func cached[T any](ctx context.Context, log *zap.SugaredLogger, name string, ttl
 	}
 
 	payload, err := shared(key, func() ([]byte, error) {
-		// one caller hanging up shouldn't fail everyone sharing the fetch
+		// allow someone to hang up
 		ctx := context.WithoutCancel(ctx)
 		val, err := fetch(ctx)
 		if err != nil {

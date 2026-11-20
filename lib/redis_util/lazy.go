@@ -27,7 +27,7 @@ func NewLazyForTest() (*Lazy, error) {
 	return &Lazy{addr: DefaultRedisAddr, db: TestDatabaseID, client: c}, err
 }
 
-// nil while redis is down; RedisClient methods handle a nil receiver
+// nil while redis is down
 func (l *Lazy) Client() *RedisClient {
 	if l == nil {
 		return nil

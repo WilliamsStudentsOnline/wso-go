@@ -25,7 +25,7 @@ const (
 	personaTTL   = 24 * time.Hour
 
 	recentCount = 8
-	// headroom for automation playlists spinitron creates ahead of time
+	// spinitron pre-creates automation playlists
 	playlistCount    = 20
 	scheduleDays     = 7
 	maxSchedulePages = 5
@@ -33,9 +33,9 @@ const (
 
 	stationPersonaName = "WCFM"
 
-	// lets spinitron catch up after a song or show boundary before clients poll
+	// let spinitron catch up
 	boundarySlack = 3 * time.Second
-	// DJs log by hand, so poll briskly just after a song ends, then once a minute
+	// DJs log spins late
 	overdueRefresh = 8 * time.Second
 	overdueWindow  = time.Minute
 	staleRefresh   = time.Minute
@@ -89,7 +89,7 @@ type Now struct {
 	Track     *Track  `json:"track"`
 	Recent    []Track `json:"recent"`
 	Next      *Show   `json:"next"`
-	// seconds until this response is likely to change
+	// seconds until the next poll
 	RefreshAfter int `json:"refreshAfter"`
 }
 
@@ -232,7 +232,7 @@ func (t *Controller) personaName(ctx context.Context, id int) (string, error) {
 	})
 }
 
-// Fails on any lookup error so a partial DJ list never gets cached
+// don't cache partial DJ lists
 func (t *Controller) resolvePersonas(ctx context.Context, ids []int) (map[int]string, error) {
 	var (
 		mu       sync.Mutex
@@ -266,7 +266,7 @@ func (t *Controller) resolvePersonas(ctx context.Context, ids []int) (map[int]st
 	return names, firstErr
 }
 
-// WCFM files most shows under a station-wide persona, which isn't a DJ
+// most shows use the station persona
 func djNames(names map[int]string, ids []int) []string {
 	djs := []string{}
 	for _, id := range ids {
@@ -305,7 +305,7 @@ func refreshAfter(now time.Time, track *Track, onAir, next *Show) time.Duration 
 	return min(max(wait, minRefresh), maxRefresh)
 }
 
-// automation fills unscheduled hours with placeholder playlists that aren't shows
+// skip automation placeholders
 func scheduled(p Show, schedule []Show, now time.Time) bool {
 	if !p.Automated {
 		return true
