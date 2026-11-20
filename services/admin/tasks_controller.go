@@ -26,7 +26,7 @@ import (
 // @Param limit query int false "Limit pagination"
 // @Param preload query []string false "Preload" Enums(requestingUser,resolvedByUser)
 // @Success 200 {array} admin.ModeratorTaskResponse
-// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /admin/tasks [get]
@@ -97,9 +97,9 @@ func (t *Controller) GetTask(c *gin.Context) {
 // @Param taskID path uint true "Task ID"
 // @Param body body admin.ResolveTasksBody true "Resolution"
 // @Success 200 {array} admin.ModeratorTaskResponse
-// @Failure 400 {object} services.BaseErrorResponse
-// @Failure 404 {object} services.BaseErrorResponse
-// @Failure 409 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed; 1409: tag name is required; 2400: invalid task type; 2401: invalid task resolution"
+// @Failure 404 {object} services.BaseErrorResponse "404: record not found; 2402: no open tasks for this subject"
+// @Failure 409 {object} services.BaseErrorResponse "2403: task subject is already gone"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /admin/tasks/{taskID}/resolve [post]

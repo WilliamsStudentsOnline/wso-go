@@ -26,8 +26,8 @@ import (
 // @Param preload query []string false "Preload (course, professor)"
 // @Param populateAgreements query bool false "Populate Agreement Counts"
 // @Success 200 {array} models.FactrakSurvey
-// @Failure 1331 {object} services.BaseErrorResponse "must be self"
-// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed"
+// @Failure 403 {object} services.BaseErrorResponse "1331: must be self"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer

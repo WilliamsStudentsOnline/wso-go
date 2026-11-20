@@ -23,9 +23,7 @@ import (
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} models.EphmatchProfile
-// @Failure 400 {object} services.BaseErrorResponse
-// @Failure 404 {object} services.BaseErrorResponse
-// @Failure 500 {object} services.BaseErrorResponse
+// @Failure 410 {object} services.BaseErrorResponse "1900: ephmatch api is deprecated"
 // @Security Bearer
 // @Router /ephmatch/profile [get]
 func (t *Controller) GetSelfProfile(c *gin.Context) {
@@ -67,10 +65,7 @@ type ProfileCreateParams struct {
 // @Produce  json
 // @Param createParams body ephmatch.ProfileCreateParams true "Create Profile Params"
 // @Success 201 {object} models.EphmatchProfile
-// @Failure 1101 {object} services.BaseErrorResponse "request data validation failed"
-// @Failure 400 {object} services.BaseErrorResponse
-// @Failure 404 {object} services.BaseErrorResponse
-// @Failure 500 {object} services.BaseErrorResponse
+// @Failure 410 {object} services.BaseErrorResponse "1900: ephmatch api is deprecated"
 // @Security Bearer
 // @Router /ephmatch/profile [post]
 func (t *Controller) CreateProfile(c *gin.Context) {
@@ -176,10 +171,7 @@ type ProfileUpdateParams struct {
 // @Produce  json
 // @Param updateParams body ephmatch.ProfileUpdateParams true "Update Profile Params"
 // @Success 200 {object} models.EphmatchProfile
-// @Failure 1101 {object} services.BaseErrorResponse "request data validation failed"
-// @Failure 400 {object} services.BaseErrorResponse
-// @Failure 404 {object} services.BaseErrorResponse
-// @Failure 500 {object} services.BaseErrorResponse
+// @Failure 410 {object} services.BaseErrorResponse "1900: ephmatch api is deprecated"
 // @Security Bearer
 // @Router /ephmatch/profile [patch]
 func (t *Controller) UpdateProfile(c *gin.Context) {
@@ -270,9 +262,7 @@ func (t *Controller) UpdateProfile(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} models.EphmatchProfile
-// @Failure 400 {object} services.BaseErrorResponse
-// @Failure 404 {object} services.BaseErrorResponse
-// @Failure 500 {object} services.BaseErrorResponse
+// @Failure 410 {object} services.BaseErrorResponse "1900: ephmatch api is deprecated"
 // @Security Bearer
 // @Router /ephmatch/profile [delete]
 func (t *Controller) DeleteProfile(c *gin.Context) {
@@ -314,9 +304,7 @@ func (t *Controller) DeleteProfile(c *gin.Context) {
 // @Produce  json
 // @Param file formData file true "Profile Photo"
 // @Success 200
-// @Failure 400 {object} services.BaseErrorResponse
-// @Failure 404 {object} services.BaseErrorResponse
-// @Failure 500 {object} services.BaseErrorResponse
+// @Failure 410 {object} services.BaseErrorResponse "1900: ephmatch api is deprecated"
 // @Security Bearer
 // @Router /ephmatch/profile/photo [put]
 func (t *Controller) UploadEphmatchProfilePhoto(c *gin.Context) {
@@ -368,9 +356,7 @@ func (t *Controller) UploadEphmatchProfilePhoto(c *gin.Context) {
 // @Tags users
 // @Produce  json
 // @Success 200
-// @Failure 400 {object} services.BaseErrorResponse
-// @Failure 404 {object} services.BaseErrorResponse
-// @Failure 500 {object} services.BaseErrorResponse
+// @Failure 410 {object} services.BaseErrorResponse "1900: ephmatch api is deprecated"
 // @Security Bearer
 // @Router /ephmatch/profile/photo [delete]
 func (t *Controller) DeleteEphmatchProfilePhoto(c *gin.Context) {

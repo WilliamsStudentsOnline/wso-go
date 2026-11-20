@@ -18,6 +18,7 @@ import (
 // @Produce  json
 // @Param all query bool false "Get all menu items (including unavailable)"
 // @Success 200 {array} models.GoodrichMenuItem
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /goodrich/menu [get]
@@ -110,7 +111,7 @@ type UpdateMenuItemParams struct {
 // @Param updateParams body goodrich.UpdateMenuItemParams true "Update Menu Item Params"
 // @Param itemID path uint true "Item ID"
 // @Success 200 {object} models.GoodrichMenuItem
-// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer

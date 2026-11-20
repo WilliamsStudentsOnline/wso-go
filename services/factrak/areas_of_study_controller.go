@@ -22,6 +22,7 @@ import (
 // @Param preload query []string false "Preload List (department, courses)"
 // @Param sort query string false "Sort Order (id, name; default name)"
 // @Success 200 {array} models.AreaOfStudy
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/areas-of-study [get]

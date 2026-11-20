@@ -26,6 +26,7 @@ import (
 // @Param type query string false "Bulletin Type"
 // @Param all query bool false "Get All Bulletins (no restriction on startDate, endDate)"
 // @Success 200 {array} models.Bulletin
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/bulletins [get]
@@ -67,8 +68,8 @@ func (t *Controller) ListBulletins(c *gin.Context) {
 // @Produce  json
 // @Param bulletinID path uint true "Bulletin ID"
 // @Success 200 {object} models.Bulletin
-// @Failure 400 {object} services.BaseErrorResponse
-// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "400: path ID could not be parsed"
+// @Failure 404 {object} services.BaseErrorResponse "404: record not found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/bulletins/{bulletinID} [get]
@@ -117,10 +118,7 @@ type CreateBulletinParams struct {
 // @Produce  json
 // @Param createParams body bulletin.CreateBulletinParams true "Create Bulletin Params"
 // @Success 201 {object} models.Bulletin
-// @Failure 1830 {object} services.BaseErrorResponse "start date cannot be after end date"
-// @Failure 1831 {object} services.BaseErrorResponse "invalid bulletin type"
-// @Failure 1101 {object} services.BaseErrorResponse "request data validation failed"
-// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed; 1830: start date cannot be after end date; 1831: invalid bulletin type"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/bulletins [post]
@@ -194,10 +192,9 @@ type UpdateBulletinParams struct {
 // @Param updateParams body bulletin.UpdateBulletinParams true "Update Bulletin Params"
 // @Param bulletinID path uint true "Bulletin ID"
 // @Success 200 {object} models.Bulletin
-// @Failure 1830 {object} services.BaseErrorResponse "start date cannot be after end date"
-// @Failure 1331 {object} services.BaseErrorResponse "must be self"
-// @Failure 400 {object} services.BaseErrorResponse
-// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "400: path ID could not be parsed; 1100: could not parse malformed request data; 1830: start date cannot be after end date"
+// @Failure 403 {object} services.BaseErrorResponse "1331: must be self"
+// @Failure 404 {object} services.BaseErrorResponse "404: record not found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/bulletins/{bulletinID} [patch]
@@ -268,9 +265,9 @@ func (t *Controller) UpdateBulletin(c *gin.Context) {
 // @Produce  json
 // @Param bulletinID path uint true "Bulletin ID"
 // @Success 200 {object} models.Bulletin
-// @Failure 1331 {object} services.BaseErrorResponse "must be self"
-// @Failure 400 {object} services.BaseErrorResponse
-// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "400: path ID could not be parsed"
+// @Failure 403 {object} services.BaseErrorResponse "1331: must be self"
+// @Failure 404 {object} services.BaseErrorResponse "404: record not found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/bulletins/{bulletinID} [delete]

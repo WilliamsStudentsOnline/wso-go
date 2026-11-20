@@ -21,6 +21,7 @@ import (
 // @Param preload query []string false "Preload List"
 // @Param q query string false "Search Query"
 // @Success 200 {array} models.Ephcatcher
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /ephcatch/ephcatchers [get]
@@ -98,11 +99,7 @@ func (t *Controller) GetEphcatcher(c *gin.Context) {
 // @Produce  json
 // @Param ephcatcherID path uint true "Ephcatcher ID"
 // @Success 201
-// @Failure 1730 {object} services.BaseErrorResponse "cannot ephcatch-like yourself"
-// @Failure 1731 {object} services.BaseErrorResponse "ephcatcher could not be found"
-// @Failure 1732 {object} services.BaseErrorResponse "ephcatch already exists with user ID and passed ephcatcher ID"
-// @Failure 400 {object} services.BaseErrorResponse
-// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "1730: cannot ephcatch-like yourself; 1731: ephcatcher could not be found; 1732: ephcatch already exists with user ID and passed ephcatcher ID"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /ephcatch/ephcatchers/{ephcatcherID}/like [post]
@@ -160,8 +157,7 @@ func (t *Controller) LikeEphcatcher(c *gin.Context) {
 // @Produce  json
 // @Param ephcatcherID path uint true "Ephcatcher ID"
 // @Success 201
-// @Failure 400 {object} services.BaseErrorResponse
-// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "1731: ephcatcher could not be found; 1733: ephcatch does not exist with user ID and passed ephcatcher ID"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /ephcatch/ephcatchers/{ephcatcherID}/unlike [post]

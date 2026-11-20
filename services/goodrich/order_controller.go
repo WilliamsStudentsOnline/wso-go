@@ -47,6 +47,9 @@ func (t *Controller) ListUserOrders(c *gin.Context) {
 // @Produce  json
 // @Param orderID path uint true "Order ID"
 // @Success 200 {object} models.GoodrichOrder
+// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 403 {object} services.BaseErrorResponse "1331: must be self"
+// @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /goodrich/user/orders/{orderID} [get]
@@ -98,6 +101,7 @@ type CreateOrderParams struct {
 // @Produce  json
 // @Param createParams body goodrich.CreateOrderParams true "Create Order Params"
 // @Success 201 {object} models.GoodrichOrder
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 2130: goodrich payment method is invalid; 2131: goodrich time slot is not valid; 2132: missing williams id number for payment swipe or points; 2133: unknown menu item in order; 2134: unavailable menu item in order; 2135: goodrich time is on wrong day; 2136: goodrich time is filled; 2137: cannot get combo pricing with this selection of items; 2138: cannot use a swipe on more than $5; 2139: order has no items; 2140: goodrich closed on this date; 2141: out of a menu item in order; 2172: goodrich lease missing: reload this page and try again; 2173: goodrich order lease has expired"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /goodrich/orders [post]

@@ -21,6 +21,7 @@ import (
 // @Param preload query []string false "Preload List"
 // @Param q query string false "Search Query"
 // @Success 200 {array} models.Dorm
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /dormtrak/dorms [get]

@@ -47,7 +47,15 @@ import (
 
 // @title WSO API
 // @version 2.0.0
-// @description API for WSO services like factrak, facebook, dormtrak, course scheduler, and others.
+// @description API for WSO services like factrak, facebook, dormtrak, and others.
+// @description
+// @description Errors: failed requests return the real HTTP status, with a body of the form
+// @description `{"status": <HTTP status>, "error": {"errorCode": <WSO code>, "message": "...", "errors": [...]}}`.
+// @description Clients should branch on `error.errorCode`. Per-endpoint `@Failure` entries list the WSO codes
+// @description an endpoint can return under its HTTP status, as `code: message`.
+// @description
+// @description Auth: every endpoint marked with the Bearer security scheme may return 401 (missing or invalid token)
+// @description and 403 with errorCode 1330 (token lacks the required scope). These are not repeated per endpoint.
 
 // @contact.name WSO Dev
 // @contact.email wso-dev@wso.williams.edu

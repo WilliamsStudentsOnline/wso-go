@@ -17,7 +17,8 @@ import (
 // @Produce json
 // @Param body body feedback.CreateFeedbackParams true "Feedback"
 // @Success 201 {object} models.Feedback
-// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed"
+// @Failure 403 {object} services.BaseErrorResponse "1331: must be self"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /feedback [post]
@@ -61,7 +62,7 @@ func (t *Controller) CreateFeedback(c *gin.Context) {
 // @Param limit query int false "Limit pagination"
 // @Param preload query []string false "Preload" Enums(user)
 // @Success 200 {array} models.Feedback
-// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /admin/feedback [get]
@@ -129,7 +130,7 @@ func (t *Controller) GetFeedback(c *gin.Context) {
 // @Param feedbackID path uint true "Feedback ID"
 // @Param body body feedback.UpdateFeedbackParams true "Update"
 // @Success 200 {object} models.Feedback
-// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer

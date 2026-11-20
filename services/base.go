@@ -148,7 +148,7 @@ func (b BaseController) RespondErrorCode(c *gin.Context, code int, err error) {
 func respondError(c *gin.Context, httpCode int, err *RespError) {
 	c.Set(ErrorCodeKey, err.ErrorCode)
 	c.AbortWithStatusJSON(httpCode, BaseErrorResponse{
-		Status: err.ErrorCode,
+		Status: httpCode,
 		Error:  err,
 		// We set this in the context at any point if we need to update the token
 		UpdateToken: c.GetBool(UpdateTokenKey),

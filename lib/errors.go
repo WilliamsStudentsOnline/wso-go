@@ -95,7 +95,7 @@ var (
 	ErrorMustBeSelf                   = NewAPIErrorWithHTTP(1331, http.StatusForbidden, "must be self")
 	ErrorAuthedUserNotFound           = NewAPIErrorWithHTTP(1332, http.StatusForbidden, "authenticated user not found")
 	ErrorMissingIdentityCredentials   = NewAPIErrorWithHTTP(1351, http.StatusBadRequest, "missing identity credentials (unix id or password)")
-	ErrorFailedIdentityAuthentication = NewAPIErrorWithHTTP(1351, http.StatusBadRequest, "failed to authenticate identity (incorrect unix id or password)")
+	ErrorFailedIdentityAuthentication = NewAPIErrorWithHTTP(1352, http.StatusBadRequest, "failed to authenticate identity (incorrect unix id or password)")
 
 	// 14** are user service errors
 	ErrorUserMustBeStudent       = NewAPIError(1401, "user must be a student")
@@ -132,14 +132,14 @@ var (
 	ErrorReviewStudentNotFound = NewAPIError(1633, "user must be a student and could not be found")
 	ErrorReviewMissingDorm     = NewAPIError(1634, "user is missing dorm field")
 	ErrorReviewDormNotOwner    = NewAPIError(1635, "user does not own this dorm room")
-	ErrorReviewAlreadyExists   = NewAPIError(1536, "review already exists with passed user ID and dorm room ID")
+	ErrorReviewAlreadyExists   = NewAPIError(1636, "review already exists with passed user ID and dorm room ID")
 	ErrorDormtrakTooManyPhotos = NewAPIErrorWithHTTP(1640, http.StatusBadRequest, "too many photos already uploaded to this review")
 
 	// 17** are ephcatch errors
 	ErrorEphcatchLikeNoSelf    = NewAPIError(1730, "cannot ephcatch-like yourself")
 	ErrorEphcatcherNotFound    = NewAPIError(1731, "ephcatcher could not be found")
 	ErrorEphcatchAlreadyExists = NewAPIError(1732, "ephcatch already exists with user ID and passed ephcatcher ID")
-	ErrorEphcatchDoesNotExist  = NewAPIError(1732, "ephcatch does not exist with user ID and passed ephcatcher ID")
+	ErrorEphcatchDoesNotExist  = NewAPIError(1733, "ephcatch does not exist with user ID and passed ephcatcher ID")
 
 	// 18** are bulletin errors
 	ErrorBulletinInvalidDates   = NewAPIError(1830, "start date cannot be after end date")
@@ -192,9 +192,8 @@ var (
 	ErrorBookCourseNotFound         = NewAPIError(2253, "passed courses don't all exist")
 
 	// 23** are errors for Redis-based services
-	ErrorRedisClientNotConfigured        = NewAPIError(2300, "redis client not configured, is redis running locally?")
-	ErrorCourseSchedulerSelectionStrconv = NewAPIError(2310, "unable to assert course scheduler selection as string")
-	ErrorBannerUnmarshal                 = NewAPIError(2320, "unable to unmarshal banner from redis")
+	ErrorRedisClientNotConfigured = NewAPIError(2300, "redis client not configured, is redis running locally?")
+	ErrorBannerUnmarshal          = NewAPIError(2320, "unable to unmarshal banner from redis")
 
 	// 24** are errors for the moderator console
 	ErrorModeratorTaskInvalidType       = NewAPIError(2400, "invalid task type")

@@ -63,6 +63,7 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 // @Accept json
 // @Produce json
 // @Success 200 {object} banner.Banner
+// @Failure 400 {object} services.BaseErrorResponse "2300: redis client not configured, is redis running locally?; 2320: unable to unmarshal banner from redis"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Router /banner [get]
 func (t *Controller) GetBanner(c *gin.Context) {
@@ -104,7 +105,7 @@ func (t *Controller) GetBanner(c *gin.Context) {
 // @Produce json
 // @Param banner body banner.Banner true "Banner fields"
 // @Success 200 {object} banner.Banner
-// @Failure 403 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed; 2300: redis client not configured, is redis running locally?"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /banner [post]

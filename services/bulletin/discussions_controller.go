@@ -24,6 +24,7 @@ import (
 // @Param preload query []string false "Preload List"
 // @Param getLastPost query bool false "Get Last Post (get last/latest post of the discussion)"
 // @Success 200 {array} models.Discussion
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/discussions [get]
@@ -66,8 +67,8 @@ func (t *Controller) ListDiscussions(c *gin.Context) {
 // @Param discussionID path uint true "Discussion ID"
 // @Param preload query []string false "Preload List"
 // @Success 200 {object} models.Discussion
-// @Failure 400 {object} services.BaseErrorResponse
-// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "400: path ID could not be parsed; 1100: could not parse malformed request data"
+// @Failure 404 {object} services.BaseErrorResponse "404: record not found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/discussions/{discussionID} [get]
@@ -120,6 +121,8 @@ func (t *Controller) GetDiscussion(c *gin.Context) {
 // @Param limit query int false "Limit Pagination"
 // @Param preload query []string false "Preload List"
 // @Success 200 {array} models.Post
+// @Failure 400 {object} services.BaseErrorResponse "400: path ID could not be parsed; 1100: could not parse malformed request data"
+// @Failure 404 {object} services.BaseErrorResponse "404: record not found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/discussions/{discussionID}/posts [get]
@@ -178,9 +181,8 @@ type CreateDiscussionParams struct {
 // @Produce  json
 // @Param createParams body bulletin.CreateDiscussionParams true "Create Discussion Params"
 // @Success 201 {object} models.Discussion
-// @Failure 1101 {object} services.BaseErrorResponse "request data validation failed"
-// @Failure 1332 {object} services.BaseErrorResponse "authenticated user not found"
-// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed"
+// @Failure 403 {object} services.BaseErrorResponse "1332: authenticated user not found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/discussions [post]
@@ -240,11 +242,11 @@ func (t *Controller) CreateDiscussion(c *gin.Context) {
 // @Produce  json
 // @Param discussionID path uint true "Discussion ID"
 // @Success 200 {object} models.Discussion
-// @Failure 400 {object} services.BaseErrorResponse
-// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "400: path ID could not be parsed"
+// @Failure 404 {object} services.BaseErrorResponse "404: record not found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
-// @Router /bulletin/discussion/{discussionID} [delete]
+// @Router /bulletin/discussions/{discussionID} [delete]
 func (t *Controller) DeleteDiscussion(c *gin.Context) {
 	// Decode discussionID.
 	discussionID, err := services.GetUIntParam(c, "discussionID")

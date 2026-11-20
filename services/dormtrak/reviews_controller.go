@@ -32,7 +32,8 @@ import (
 // @Param preload query []string false "Preload List"
 // @Param commented query bool false "Restrict to commented reviews"
 // @Success 200 {array} models.DormtrakReview
-// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed"
+// @Failure 403 {object} services.BaseErrorResponse "1331: must be self"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /dormtrak/reviews [get]
@@ -133,13 +134,7 @@ type ReviewCreateParams struct {
 // @Produce  json
 // @Param createParams body dormtrak.ReviewCreateParams true "Create Review Params"
 // @Success 201 {object} models.DormtrakReview
-// @Failure 1633 {object} services.BaseErrorResponse "user must be a student and could not be found"
-// @Failure 1634 {object} services.BaseErrorResponse "user is missing dorm field"
-// @Failure 1635 {object} services.BaseErrorResponse "user does not own this dorm room"
-// @Failure 1636 {object} services.BaseErrorResponse "review already exists with passed user ID and dorm room ID"
-// @Failure 1101 {object} services.BaseErrorResponse "request data validation failed"
-// @Failure 400 {object} services.BaseErrorResponse
-// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed; 1633: user must be a student and could not be found; 1634: user is missing dorm field; 1635: user does not own this dorm room; 1636: review already exists with passed user ID and dorm room ID"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /dormtrak/reviews [post]
@@ -253,9 +248,8 @@ type ReviewUpdateParams struct {
 // @Param updateParams body dormtrak.ReviewUpdateParams true "Update Review Params"
 // @Param reviewID path uint true "review ID"
 // @Success 200 {object} models.DormtrakReview
-// @Failure 1101 {object} services.BaseErrorResponse "request data validation failed"
-// @Failure 1331 {object} services.BaseErrorResponse "must be self"
-// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed"
+// @Failure 403 {object} services.BaseErrorResponse "1331: must be self"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -330,8 +324,7 @@ func (t *Controller) UpdateReview(c *gin.Context) {
 // @Produce  json
 // @Param reviewID path uint true "Review ID"
 // @Success 200 {object} models.DormtrakReview
-// @Failure 1331 {object} services.BaseErrorResponse "must be self"
-// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 403 {object} services.BaseErrorResponse "1331: must be self"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -380,11 +373,10 @@ func (t *Controller) DeleteReview(c *gin.Context) {
 // @Param reviewID path uint true "Review ID"
 // @Param file formData file true "Dorm Room Photo"
 // @Success 200
-// @Failure 1160 {object} services.BaseErrorResponse "unable to save picture"
-// @Failure 1331 {object} services.BaseErrorResponse "must be self"
-// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "1640: too many photos already uploaded to this review"
+// @Failure 403 {object} services.BaseErrorResponse "1331: must be self"
 // @Failure 404 {object} services.BaseErrorResponse
-// @Failure 500 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse "1160: unable to save uploaded picture"
 // @Security Bearer
 // @Router /dormtrak/reviews/{reviewID}/photo [put]
 func (t *Controller) UploadDormRoomPhoto(c *gin.Context) {
@@ -456,7 +448,6 @@ func (t *Controller) UploadDormRoomPhoto(c *gin.Context) {
 // @Produce  json
 // @Param reviewID path uint true "Review ID"
 // @Success 200 {array} DormRoomPhotoInfo
-// @Failure 400 {object} services.BaseErrorResponse
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer

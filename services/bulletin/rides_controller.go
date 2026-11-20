@@ -26,6 +26,7 @@ import (
 // @Param type query string false "Ride Type (request, offer)"
 // @Param all query string false "Get All Rides (no restriction on date)"
 // @Success 200 {array} models.BulletinRide
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/rides [get]
@@ -74,8 +75,8 @@ func (t *Controller) ListRides(c *gin.Context) {
 // @Produce  json
 // @Param rideID path uint true "Ride ID"
 // @Success 200 {object} models.BulletinRide
-// @Failure 400 {object} services.BaseErrorResponse
-// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "400: path ID could not be parsed"
+// @Failure 404 {object} services.BaseErrorResponse "404: record not found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/rides/{rideID} [get]
@@ -123,9 +124,7 @@ type CreateRideParams struct {
 // @Produce  json
 // @Param createParams body bulletin.CreateRideParams true "Create Ride Params"
 // @Success 201 {object} models.BulletinRide
-// @Failure 1830 {object} services.BaseErrorResponse "date cannot be in past"
-// @Failure 1101 {object} services.BaseErrorResponse "request data validation failed"
-// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed; 1831: invalid bulletin type; 1841: date cannot be in past"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/rides [post]
@@ -188,10 +187,9 @@ type UpdateRideParams struct {
 // @Param updateParams body bulletin.UpdateRideParams true "Update Ride Params"
 // @Param rideID path uint true "Ride ID"
 // @Success 200 {object} models.BulletinRide
-// @Failure 1830 {object} services.BaseErrorResponse "date cannot be in past"
-// @Failure 1331 {object} services.BaseErrorResponse "must be self"
-// @Failure 400 {object} services.BaseErrorResponse
-// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "400: path ID could not be parsed; 1100: could not parse malformed request data; 1841: date cannot be in past"
+// @Failure 403 {object} services.BaseErrorResponse "1331: must be self"
+// @Failure 404 {object} services.BaseErrorResponse "404: record not found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/rides/{rideID} [patch]
@@ -267,9 +265,9 @@ func (t *Controller) UpdateRide(c *gin.Context) {
 // @Produce  json
 // @Param rideID path uint true "Ride ID"
 // @Success 200 {object} models.BulletinRide
-// @Failure 1331 {object} services.BaseErrorResponse "must be self"
-// @Failure 400 {object} services.BaseErrorResponse
-// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "400: path ID could not be parsed"
+// @Failure 403 {object} services.BaseErrorResponse "1331: must be self"
+// @Failure 404 {object} services.BaseErrorResponse "404: record not found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/rides/{rideID} [delete]

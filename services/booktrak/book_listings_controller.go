@@ -24,8 +24,7 @@ type CreateBookListingParams struct {
 // @Produce  json
 // @Param createParams body booktrak.CreateBookListingParams true "Create Book Listing Params"
 // @Success 201 {object} models.BookListing
-// @Failure 2232 {object} services.BaseErrorResponse "invalid book condition"
-// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed; 2232: passed condition is invalid; 2250: passed book could not be found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /booktrak/listings [post]
@@ -82,10 +81,9 @@ func (t *Controller) CreateBookListing(c *gin.Context) {
 // @Param updateParams body booktrak.CreateBookListingParams true "Create Book Listing Params"
 // @Param bookListingID path uint true "Book Listing ID"
 // @Success 200 {object} models.BookListing
-// @Failure 1331 {object} services.BaseErrorResponse "must be self"
-// @Failure 2232 {object} services.BaseErrorResponse "invalid book condition"
-// @Failure 400 {object} services.BaseErrorResponse
-// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed; 2232: passed condition is invalid; 2250: passed book could not be found"
+// @Failure 403 {object} services.BaseErrorResponse "1331: must be self"
+// @Failure 404 {object} services.BaseErrorResponse "404: record not found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /booktrak/listings/{bookListingID} [put]
@@ -175,6 +173,7 @@ type ListBookListingsParams struct {
 // @Param listingType query string false "Type of the listing" Enum(BUY,SELL)
 // @Param preload query []string false "Preload" Enums(user,book)
 // @Success 200 {array} models.BookListing
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /booktrak/listings [get]
@@ -216,10 +215,11 @@ func (t *Controller) ListBookListings(c *gin.Context) {
 // @Produce  json
 // @Param bookListingID path uint true "Book Listing ID"
 // @Success 200 {object} models.BookListing
-// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data"
+// @Failure 404 {object} services.BaseErrorResponse "404: record not found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
-// @Router /listings/{bookListingID} [get]
+// @Router /booktrak/listings/{bookListingID} [get]
 func (t *Controller) GetBookListing(c *gin.Context) {
 	bookListingID, err := services.GetUIntParam(c, "bookListingID")
 	if err != nil {
@@ -246,9 +246,8 @@ func (t *Controller) GetBookListing(c *gin.Context) {
 // @Produce  json
 // @Param bookListingID path uint true "Book Listing ID"
 // @Success 200 {object} models.BookListing
-// @Failure 1331 {object} services.BaseErrorResponse "must be self"
-// @Failure 400 {object} services.BaseErrorResponse
-// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 403 {object} services.BaseErrorResponse "1331: must be self"
+// @Failure 404 {object} services.BaseErrorResponse "404: record not found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /booktrak/listings/{bookListingID} [delete]

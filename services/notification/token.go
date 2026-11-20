@@ -21,9 +21,7 @@ type TokenCreateParams struct {
 // @Produce  json
 // @Param updateParams body notification.TokenCreateParams true "Create Token Params"
 // @Success 200 {object} models.NotificationToken
-// @Failure 1101 {object} services.BaseErrorResponse "request data validation failed"
-// @Failure 400 {object} services.BaseErrorResponse
-// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "2030: notification token type is invalid; 2031: notification token is empty"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /notification/app/token [post]

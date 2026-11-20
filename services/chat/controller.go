@@ -52,7 +52,6 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 // @Accept  json
 // @Produce  json
 // @Success 200 {string} string token
-// @Failure 400 {object} services.BaseErrorResponse
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer

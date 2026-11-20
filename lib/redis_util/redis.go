@@ -3,7 +3,6 @@ package redis_util
 import (
 	"context"
 	"errors"
-	"strconv"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -69,10 +68,6 @@ func (client *RedisClient) SetWithExpiration(ctx context.Context, key string, va
 }
 
 // Key formatting
-func GetUserSelectionStr(userID uint) string {
-	return "user-selection:" + strconv.FormatUint(uint64(userID), 10)
-}
-
 func GetHomepageBannerKey() string {
 	return "homepage:banner"
 }

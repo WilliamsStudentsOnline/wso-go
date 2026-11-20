@@ -47,7 +47,7 @@ type createJobRunRequest struct {
 // @Tags admin-jobs
 // @Produce json
 // @Success 200 {array} admin.jobInfo
-// @Failure 403 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /admin/jobs [get]
 func (t *Controller) ListJobs(c *gin.Context) {
@@ -92,7 +92,7 @@ func (t *Controller) ListJobs(c *gin.Context) {
 // @Param status query string false "run status"
 // @Param limit query int false "max rows" default(50)
 // @Success 200 {array} models.JobRun
-// @Failure 403 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /admin/jobs/runs [get]
 func (t *Controller) ListJobRuns(c *gin.Context) {
@@ -124,7 +124,9 @@ func (t *Controller) ListJobRuns(c *gin.Context) {
 // @Produce json
 // @Param id path int true "run id"
 // @Success 200 {object} models.JobRun
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data"
 // @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /admin/jobs/runs/{id} [get]
 func (t *Controller) GetJobRun(c *gin.Context) {
@@ -152,7 +154,9 @@ func (t *Controller) GetJobRun(c *gin.Context) {
 // @Produce text/plain
 // @Param id path int true "run id"
 // @Success 200 {string} string
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data"
 // @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /admin/jobs/runs/{id}/logs [get]
 func (t *Controller) GetJobRunLogs(c *gin.Context) {
@@ -208,7 +212,9 @@ func (t *Controller) GetJobRunLogs(c *gin.Context) {
 // @Param name path string true "job name"
 // @Param body body admin.createJobRunRequest false "JSON params"
 // @Success 200 {object} models.JobRun
-// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data"
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /admin/jobs/{name}/runs [post]
 func (t *Controller) CreateJobRun(c *gin.Context) {
@@ -301,7 +307,9 @@ func (t *Controller) CreateJobRun(c *gin.Context) {
 // @Produce json
 // @Param id path int true "run id"
 // @Success 200 {object} models.JobRun
-// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data"
+// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /admin/jobs/runs/{id}/cancel [post]
 func (t *Controller) CancelJobRun(c *gin.Context) {
