@@ -35,6 +35,7 @@ type BoardThread struct {
 	// Associations
 	Posts           []*BoardPost          `gorm:"foreignkey:ThreadID;association_foreignkey:ID" json:"posts,omitempty"`
 	RideInformation *BoardRideInformation `gorm:"foreignkey:ThreadID;association_foreignkey:ID" json:"ride,omitempty"`
+	Poll            *BoardPoll            `gorm:"foreignkey:ThreadID;association_foreignkey:ID" json:"poll,omitempty"`
 	Body            string                `gorm:"-" json:"body,omitempty"` // hydrated from OP for API convenience
 
 	CreatedTime time.Time `gorm:"-" json:"createdAt"`

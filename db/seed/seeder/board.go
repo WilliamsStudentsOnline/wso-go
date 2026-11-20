@@ -44,7 +44,7 @@ func BoardThreads(n int, db *gorm.DB) error {
 	for i := 0; i < n; i++ {
 		u := users[rand.Intn(len(users))]
 		s := seed.GenerateBoardThreadCycled(i, u.ID, u.Name)
-		if err := tm.CreateThread(s.Thread, s.Body, s.Ride); err != nil {
+		if err := tm.CreateThread(s.Thread, s.Body, s.Ride, nil); err != nil {
 			return err
 		}
 

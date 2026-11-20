@@ -101,6 +101,11 @@ func (t *Controller) GetThread(c *gin.Context) {
 		return
 	}
 
+	if err := t.fillPollResults(c, thread.Poll); err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
 	sanitizeThread(c, &thread)
 	t.RespondOK(c, thread)
 }
@@ -121,6 +126,7 @@ type CreateThreadParams struct {
 	EndsAt         *time.Time              `json:"endsAt"`
 	Ride           *createThreadRideParams `json:"ride"`
 	Anonymous      bool                    `json:"anonymous"`
+	Poll           *createThreadPollParams `json:"poll"`
 }
 
 // CreateThread godoc
@@ -155,6 +161,19 @@ func (t *Controller) CreateThread(c *gin.Context) {
 	if params.StartsAt != nil && params.EndsAt != nil && params.StartsAt.After(*params.EndsAt) {
 		t.RespondAPIError(c, lib.ErrorBoardInvalidDates)
 		return
+	}
+
+	var poll *models.BoardPoll
+	if params.Poll != nil {
+		if params.Type != models.BoardThreadTypeDiscussion {
+			t.RespondAPIError(c, lib.ErrorBoardPollNotAllowed)
+			return
+		}
+		var ok bool
+		if poll, ok = newPoll(params.Poll); !ok {
+			t.RespondAPIError(c, lib.ErrorBoardInvalidPoll)
+			return
+		}
 	}
 
 	user := new(models.User)
@@ -199,7 +218,7 @@ func (t *Controller) CreateThread(c *gin.Context) {
 		}
 	}
 
-	if err := t.threadModel.CreateThread(thread, params.Body, ride); err != nil {
+	if err := t.threadModel.CreateThread(thread, params.Body, ride, poll); err != nil {
 		t.RespondError(c, err)
 		return
 	}

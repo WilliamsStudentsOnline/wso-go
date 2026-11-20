@@ -1961,6 +1961,52 @@ const docTemplate = `{
                 }
             }
         },
+        "/board/threads/{threadID}/vote": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "board"
+                ],
+                "summary": "Vote in a thread's poll, replacing any earlier vote",
+                "operationId": "voteBoardPoll",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Thread ID",
+                        "name": "threadID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Vote params",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/board.VoteParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.BoardPoll"
+                        }
+                    }
+                }
+            }
+        },
         "/books/{bookID}": {
             "get": {
                 "security": [
@@ -8596,6 +8642,9 @@ const docTemplate = `{
                 "endsAt": {
                     "type": "string"
                 },
+                "poll": {
+                    "$ref": "#/definitions/board.createThreadPollParams"
+                },
                 "repliesEnabled": {
                     "type": "boolean"
                 },
@@ -8650,6 +8699,31 @@ const docTemplate = `{
                 },
                 "type": {
                     "type": "string"
+                }
+            }
+        },
+        "board.VoteParams": {
+            "type": "object",
+            "required": [
+                "optionID"
+            ],
+            "properties": {
+                "optionID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "board.createThreadPollParams": {
+            "type": "object",
+            "properties": {
+                "closesAt": {
+                    "type": "string"
+                },
+                "options": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
@@ -9401,6 +9475,49 @@ const docTemplate = `{
                 }
             }
         },
+        "models.BoardPoll": {
+            "type": "object",
+            "properties": {
+                "closed": {
+                    "type": "boolean"
+                },
+                "closesAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "myVote": {
+                    "type": "integer"
+                },
+                "options": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.BoardPollOption"
+                    }
+                },
+                "threadID": {
+                    "type": "integer"
+                },
+                "totalVotes": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.BoardPollOption": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "votes": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.BoardPost": {
             "type": "object",
             "properties": {
@@ -9489,6 +9606,9 @@ const docTemplate = `{
                 },
                 "lastActive": {
                     "type": "string"
+                },
+                "poll": {
+                    "$ref": "#/definitions/models.BoardPoll"
                 },
                 "posts": {
                     "description": "Associations",

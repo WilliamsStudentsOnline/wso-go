@@ -24,14 +24,14 @@ func TestBoardThreadModel_CreateAndFilterResolved(t *testing.T) {
 		Type: models.BoardThreadTypeExchange, Title: "open", UserID: u.ID,
 		ExUserName: u.Name, RepliesEnabled: lib.TruePtr(), LastActive: time.Now(),
 	}
-	assert.NoError(tm.CreateThread(open, "body", nil))
+	assert.NoError(tm.CreateThread(open, "body", nil, nil))
 
 	resolved := &models.BoardThread{
 		Type: models.BoardThreadTypeExchange, Title: "done", UserID: u.ID,
 		ExUserName: u.Name, RepliesEnabled: lib.TruePtr(), LastActive: time.Now(),
 		Resolved: lib.BoolToPtr(true),
 	}
-	assert.NoError(tm.CreateThread(resolved, "body2", nil))
+	assert.NoError(tm.CreateThread(resolved, "body2", nil, nil))
 
 	var threads []*models.BoardThread
 	assert.NoError(tm.GetThreads(&threads, &models.GetBoardThreadsOptions{
@@ -67,7 +67,7 @@ func TestBoardThreadModel_ListShowsUpcomingRides(t *testing.T) {
 	}
 	assert.NoError(tm.CreateThread(upcoming, "body", &models.BoardRideInformation{
 		OfferingRide: lib.BoolToPtr(true), Source: "A", Destination: "B",
-	}))
+	}, nil))
 
 	gone := &models.BoardThread{
 		Type: models.BoardThreadTypeRide, Title: "past", UserID: u.ID,
@@ -76,14 +76,14 @@ func TestBoardThreadModel_ListShowsUpcomingRides(t *testing.T) {
 	}
 	assert.NoError(tm.CreateThread(gone, "body", &models.BoardRideInformation{
 		OfferingRide: lib.BoolToPtr(false), Source: "C", Destination: "D",
-	}))
+	}, nil))
 
 	scheduled := &models.BoardThread{
 		Type: models.BoardThreadTypeAnnouncement, Title: "later", UserID: u.ID,
 		ExUserName: u.Name, RepliesEnabled: lib.TruePtr(), LastActive: time.Now(),
 		StartsAt: &future,
 	}
-	assert.NoError(tm.CreateThread(scheduled, "body", nil))
+	assert.NoError(tm.CreateThread(scheduled, "body", nil, nil))
 
 	var threads []*models.BoardThread
 	assert.NoError(tm.GetThreads(&threads, &models.GetBoardThreadsOptions{}))
@@ -109,7 +109,7 @@ func TestBoardThreadModel_RepliesEnabledFalsePersists(t *testing.T) {
 		Type: models.BoardThreadTypeDiscussion, Title: "x", UserID: u.ID,
 		ExUserName: u.Name, RepliesEnabled: lib.FalsePtr(), LastActive: time.Now(),
 	}
-	assert.NoError(tm.CreateThread(th, "body", nil))
+	assert.NoError(tm.CreateThread(th, "body", nil, nil))
 	assert.NotNil(th.RepliesEnabled)
 	assert.False(*th.RepliesEnabled)
 
