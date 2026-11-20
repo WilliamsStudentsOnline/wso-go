@@ -1,6 +1,7 @@
 package dining_update
 
 import (
+	_ "embed"
 	"io/ioutil"
 
 	"gopkg.in/yaml.v2"
@@ -25,14 +26,22 @@ type VendorInfoHoursMeals struct {
 	NutriSliceMenuType string `json:"nutrislice_menu_type,omitempty" yaml:"nutrislice_menu_type,omitempty"`
 }
 
+//go:embed vendor_info.yaml
+var embeddedVendorInfo []byte
+
+// empty path uses the embedded vendor_info.yaml
 func ReadVendorInfo(path string) (map[string]VendorInfo, error) {
-	data, err := ioutil.ReadFile(path)
-	if err != nil {
-		return nil, err
+	data := embeddedVendorInfo
+	if path != "" {
+		var err error
+		data, err = ioutil.ReadFile(path)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	out := make(map[string]VendorInfo)
-	err = yaml.Unmarshal(data, &out)
+	err := yaml.Unmarshal(data, &out)
 	if err != nil {
 		return nil, err
 	}
