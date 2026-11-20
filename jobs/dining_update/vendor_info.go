@@ -7,10 +7,10 @@ import (
 )
 
 type VendorInfo struct {
-	Name            string `json:"name" yaml:"name"`
-	NutriSliceSlug  string `json:"NutriSliceSlug" yaml:"nutrislice_slug"`
-	Operating       bool   `json:"operating" yaml:"operating"`
-	OnlineOrder     bool   `json:"onlineOrder" yaml:"online_order"`
+	Name           string `json:"name" yaml:"name"`
+	NutriSliceSlug string `json:"NutriSliceSlug" yaml:"nutrislice_slug"`
+	Operating      bool   `json:"operating" yaml:"operating"`
+	OnlineOrder    bool   `json:"onlineOrder" yaml:"online_order"`
 	// key is day of week, value is list of meals to hours
 	Hours map[string]VendorInfoHoursWeek `json:"hours" yaml:"hours"`
 }
@@ -19,9 +19,10 @@ type VendorInfo struct {
 type VendorInfoHoursWeek map[string]VendorInfoHoursMeals
 
 type VendorInfoHoursMeals struct {
-	Open        string `json:"open" yaml:"open"`
-	Close       string `json:"close" yaml:"close"`
-	DisplayName string `json:"display_name,omitempty" yaml:"display_name,omitempty"`
+	Open               string `json:"open" yaml:"open"`
+	Close              string `json:"close" yaml:"close"`
+	DisplayName        string `json:"display_name,omitempty" yaml:"display_name,omitempty"`
+	NutriSliceMenuType string `json:"nutrislice_menu_type,omitempty" yaml:"nutrislice_menu_type,omitempty"`
 }
 
 func ReadVendorInfo(path string) (map[string]VendorInfo, error) {
