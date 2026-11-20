@@ -77,12 +77,6 @@ type Config struct {
 	/* Search */
 	SearchBackend string `yaml:"search_backend" envconfig:"search_backend"`
 
-	/* Ephmatch */
-	// Periods/eras of time when ephmatch is open
-	EphmatchEras []EphmatchEra `yaml:"ephmatch_eras" envconfig:"ephmatch_eras"`
-	// Enable ephmatch indefinitely
-	EphmatchEnableNow bool `yaml:"ephmatch_enable_now" envconfig:"ephmatch_enable_now"`
-
 	Secrets *Secrets `yaml:"-" envconfig:"-"`
 
 	/* Pictures */
@@ -120,12 +114,6 @@ type Config struct {
 	/* Email */
 	EmailSMTPHost string `yaml:"email_smtp_host" envconfig:"email_smtp_host"`
 	EmailSMTPPort int    `yaml:"email_smtp_port" envconfig:"email_smtp_port"`
-}
-
-type EphmatchEra struct {
-	Start      time.Time `yaml:"start"`
-	End        time.Time `yaml:"end"`
-	SeniorOnly bool      `yaml:"senior_only"`
 }
 
 // Check what environment our config is in

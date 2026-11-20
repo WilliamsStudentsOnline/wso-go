@@ -27,14 +27,6 @@ func (*pictureBackendDummy) SaveUserPhotoLarge(unixID string, img image.Image) e
 	return nil
 }
 
-func (*pictureBackendDummy) SaveEphmatchPhoto(unixID string, img image.Image) error {
-	return nil
-}
-
-func (*pictureBackendDummy) DeleteEphmatchPhoto(unixID string) error {
-	return nil
-}
-
 func (*pictureBackendDummy) SaveDormRoom(dormRoomID uint, reviewID uint, img image.Image) error {
 	return nil
 }

@@ -238,7 +238,7 @@ func SetupRouter(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogger) (*gin.
 
 		// Ephmatch Service
 		ephmatchGroup := v2.Group("/ephmatch")
-		ephmatchService.SetupRouter(ephmatchGroup, db, cfg, log.Named("ephmatch"))
+		ephmatchService.SetupRouter(ephmatchGroup, log.Named("ephmatch"))
 
 		// Bulletin RSS Service
 		bulletinRSSGroup := r.Group("/api/v2/bulletin/rss")

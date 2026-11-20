@@ -150,16 +150,6 @@ var (
 	// 19** are ephmatch errors
 	ErrorEphmatchDeprecated = NewAPIErrorWithHTTP(1900, http.StatusGone, "ephmatch api is deprecated")
 
-	ErrorEphmatchLikeNoSelf               = NewAPIError(1930, "cannot ephmatch-like yourself")
-	ErrorEphmatchProfileNotFound          = NewAPIError(1931, "ephmatch profile could not be found")
-	ErrorEphmatchRelationAlreadyExists    = NewAPIError(1932, "ephmatch relation already exists with user ID and passed ephmatch profile user ID")
-	ErrorEphmatchDoesNotExist             = NewAPIError(1933, "ephmatch does not exist with user ID and passed ephmatch profile user ID")
-	ErrorEphmatchInvalidMessagingPlatform = NewAPIError(1934, "ephmatch messaging platform is invalid")
-	ErrorEphmatchEmptyMessagingUsername   = NewAPIError(1935, "ephmatch messaging username is empty")
-	ErrorEphmatchDescriptionTooLong       = NewAPIError(1936, "ephmatch description is too long")
-	ErrorEphmatchInvalidRelation          = NewAPIError(1937, "ephmatch relation is invalid")
-	ErrorEphmatchInvalidLookingFor        = NewAPIError(1938, "ephmatch looking for is invalid")
-
 	// 20** are notification errors
 	ErrorNotificationInvalidTokenType = NewAPIError(2030, "notification token type is invalid")
 	ErrorNotificationEmptyToken       = NewAPIError(2031, "notification token is empty")
