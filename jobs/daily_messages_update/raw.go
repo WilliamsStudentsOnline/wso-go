@@ -7,38 +7,29 @@ import (
 
 type rawMessage struct {
 	ID             int             `json:"ID"`
-	Type           string          `json:"type"`
-	Title          string          `json:"title"`
-	Content        string          `json:"content"`
-	DmText         string          `json:"dm_text"`
-	Permalink      string          `json:"permalink"`
+	Type           looseString     `json:"type"`
+	Title          looseString     `json:"title"`
+	Content        looseString     `json:"content"`
+	DmText         looseString     `json:"dm_text"`
+	Permalink      looseString     `json:"permalink"`
 	WebsiteURL     looseString     `json:"website_url"`
 	TicketURL      looseString     `json:"ticket_url"`
 	ThumbURLFull   looseString     `json:"thumb_url_full"`
-	Author         string          `json:"author"`
-	AuthorEmail    string          `json:"author_email"`
-	LdapDepartment string          `json:"ldap_department"`
+	Author         looseString     `json:"author"`
+	AuthorEmail    looseString     `json:"author_email"`
+	LdapDepartment looseString     `json:"ldap_department"`
 	DeptsArr       looseMap        `json:"depts_arr"`
-	Orgs           string          `json:"orgs"`
+	Orgs           looseString     `json:"orgs"`
 	Venue          looseString     `json:"venue"`
 	VenueRoom      looseString     `json:"venue_room"`
 	AllDay         json.RawMessage `json:"all_day"`
-	TimeFormatted  string          `json:"time_formatted"`
-	Terms          struct {
-		Audience []struct {
-			Slug string `json:"slug"`
-		} `json:"daily_message_audience"`
-	} `json:"terms"`
-	Meta map[string][]struct {
-		Value looseString `json:"value"`
-	} `json:"meta"`
+	TimeFormatted  looseString     `json:"time_formatted"`
+	Terms          looseTerms      `json:"terms"`
+	Meta           looseMeta       `json:"meta"`
 }
 
-func (r rawMessage) metaValue(key string) string {
-	if v := r.Meta[key]; len(v) > 0 {
-		return string(v[0].Value)
-	}
-	return ""
+func isObject(b []byte) bool {
+	return bytes.HasPrefix(bytes.TrimSpace(b), []byte("{"))
 }
 
 // upstream sends false or null in place of empty strings
@@ -58,14 +49,74 @@ func (s *looseString) UnmarshalJSON(b []byte) error {
 type looseMap map[string]string
 
 func (m *looseMap) UnmarshalJSON(b []byte) error {
-	if bytes.HasPrefix(bytes.TrimSpace(b), []byte("[")) {
-		*m = nil
+	*m = nil
+	if !isObject(b) {
 		return nil
 	}
-	var v map[string]string
+	var v map[string]looseString
 	if err := json.Unmarshal(b, &v); err != nil {
-		return err
+		return nil
 	}
-	*m = v
+	out := make(looseMap, len(v))
+	for k, s := range v {
+		out[k] = string(s)
+	}
+	*m = out
+	return nil
+}
+
+type looseTerms struct {
+	Audience []string
+}
+
+func (t *looseTerms) UnmarshalJSON(b []byte) error {
+	*t = looseTerms{}
+	if !isObject(b) {
+		return nil
+	}
+	var v struct {
+		Audience json.RawMessage `json:"daily_message_audience"`
+	}
+	if err := json.Unmarshal(b, &v); err != nil {
+		return nil
+	}
+	var terms []struct {
+		Slug looseString `json:"slug"`
+	}
+	if err := json.Unmarshal(v.Audience, &terms); err != nil {
+		return nil
+	}
+	for _, term := range terms {
+		if term.Slug != "" {
+			t.Audience = append(t.Audience, string(term.Slug))
+		}
+	}
+	return nil
+}
+
+// first value of each meta key; a key is present even if its value is unusable
+type looseMeta map[string]string
+
+func (m *looseMeta) UnmarshalJSON(b []byte) error {
+	*m = nil
+	if !isObject(b) {
+		return nil
+	}
+	var v map[string]json.RawMessage
+	if err := json.Unmarshal(b, &v); err != nil {
+		return nil
+	}
+	out := make(looseMeta, len(v))
+	for k, raw := range v {
+		var vals []struct {
+			Value looseString `json:"value"`
+		}
+		if json.Unmarshal(raw, &vals) == nil && len(vals) > 0 {
+			out[k] = string(vals[0].Value)
+		} else {
+			out[k] = ""
+		}
+	}
+	*m = out
 	return nil
 }

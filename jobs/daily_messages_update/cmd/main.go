@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"time"
+	_ "time/tzdata"
 
 	"github.com/WilliamsStudentsOnline/wso-go/jobs/daily_messages_update"
 )

@@ -2,6 +2,7 @@ package daily_messages_update
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -25,7 +26,7 @@ func Update(client *http.Client, url, outDir, todayLink string, now time.Time) e
 	}
 
 	date := now.In(eastern).Format("2006-01-02")
-	out, err := Normalize(raw, date, now)
+	out, skipped, err := Normalize(raw, date, now)
 	if err != nil {
 		return fmt.Errorf("normalize: %w", err)
 	}
@@ -42,6 +43,9 @@ func Update(client *http.Client, url, outDir, todayLink string, now time.Time) e
 		if err := atomicSymlink(dest, todayLink); err != nil {
 			return fmt.Errorf("link %s: %w", todayLink, err)
 		}
+	}
+	if len(skipped) > 0 {
+		return fmt.Errorf("wrote %s but skipped %d item(s): %w", dest, len(skipped), errors.Join(skipped...))
 	}
 	return nil
 }

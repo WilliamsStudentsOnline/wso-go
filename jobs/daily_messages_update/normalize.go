@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -74,7 +75,7 @@ type Event struct {
 	Room          string `json:"room"`
 }
 
-func Normalize(raw []byte, date string, now time.Time) (Export, error) {
+func Normalize(raw []byte, date string, now time.Time) (Export, []error, error) {
 	out := Export{
 		Date:       date,
 		UpdateTime: now.In(eastern).Format(time.RFC3339),
@@ -85,100 +86,127 @@ func Normalize(raw []byte, date string, now time.Time) (Export, error) {
 	if bytes.HasPrefix(trimmed, []byte("[")) {
 		var empty []json.RawMessage
 		if err := json.Unmarshal(trimmed, &empty); err != nil {
-			return Export{}, err
+			return Export{}, nil, err
 		}
 		if len(empty) != 0 {
-			return Export{}, fmt.Errorf("expected object or empty array, got array of %d", len(empty))
+			return Export{}, nil, fmt.Errorf("expected object or empty array, got array of %d", len(empty))
 		}
-		return out, nil
+		return out, nil, nil
 	}
 
+	var skipped []error
 	dec := json.NewDecoder(bytes.NewReader(trimmed))
-	if _, err := expectDelim(dec, '{'); err != nil {
-		return Export{}, err
+	if err := expectDelim(dec, '{'); err != nil {
+		return Export{}, nil, err
 	}
 	for dec.More() {
 		tok, err := dec.Token()
 		if err != nil {
-			return Export{}, err
+			return Export{}, nil, err
 		}
 		name, ok := tok.(string)
 		if !ok {
-			return Export{}, fmt.Errorf("unexpected category key %v", tok)
+			return Export{}, nil, fmt.Errorf("unexpected category key %v", tok)
 		}
-		var raws []rawMessage
-		if err := dec.Decode(&raws); err != nil {
-			return Export{}, fmt.Errorf("category %q: %w", name, err)
+		var value json.RawMessage
+		if err := dec.Decode(&value); err != nil {
+			return Export{}, nil, fmt.Errorf("category %q: %w", name, err)
 		}
-		cat := Category{Name: cleanText(name), Messages: make([]Message, 0, len(raws))}
-		for _, r := range raws {
-			m, err := normalizeMessage(r)
-			if err != nil {
-				return Export{}, fmt.Errorf("message %d: %w", r.ID, err)
+		items, err := categoryItems(value)
+		if err != nil {
+			skipped = append(skipped, fmt.Errorf("category %q: %w", name, err))
+			continue
+		}
+		cat := Category{Name: cleanText(name), Messages: make([]Message, 0, len(items))}
+		for i, item := range items {
+			var r rawMessage
+			if err := json.Unmarshal(item, &r); err != nil {
+				skipped = append(skipped, fmt.Errorf("category %q item %d: %w", name, i, err))
+				continue
 			}
-			cat.Messages = append(cat.Messages, m)
+			cat.Messages = append(cat.Messages, normalizeMessage(r))
 		}
 		out.Categories = append(out.Categories, cat)
 	}
-	if _, err := expectDelim(dec, '}'); err != nil {
-		return Export{}, err
+	if err := expectDelim(dec, '}'); err != nil {
+		return Export{}, nil, err
 	}
-	return out, nil
+	return out, skipped, nil
 }
 
-func expectDelim(dec *json.Decoder, want json.Delim) (json.Token, error) {
-	tok, err := dec.Token()
-	if err != nil {
+// PHP serializes a filtered list as an object keyed by index
+func categoryItems(value json.RawMessage) ([]json.RawMessage, error) {
+	if !isObject(value) {
+		var items []json.RawMessage
+		err := json.Unmarshal(value, &items)
+		return items, err
+	}
+	var byKey map[string]json.RawMessage
+	if err := json.Unmarshal(value, &byKey); err != nil {
 		return nil, err
 	}
-	if d, ok := tok.(json.Delim); !ok || d != want {
-		return nil, fmt.Errorf("expected %q, got %v", want, tok)
+	keys := make([]string, 0, len(byKey))
+	for k := range byKey {
+		keys = append(keys, k)
 	}
-	return tok, nil
+	sort.Slice(keys, func(i, j int) bool {
+		a, errA := strconv.Atoi(keys[i])
+		b, errB := strconv.Atoi(keys[j])
+		if errA == nil && errB == nil {
+			return a < b
+		}
+		return keys[i] < keys[j]
+	})
+	items := make([]json.RawMessage, 0, len(keys))
+	for _, k := range keys {
+		items = append(items, byKey[k])
+	}
+	return items, nil
 }
 
-func normalizeMessage(r rawMessage) (Message, error) {
+func expectDelim(dec *json.Decoder, want json.Delim) error {
+	tok, err := dec.Token()
+	if err != nil {
+		return err
+	}
+	if d, ok := tok.(json.Delim); !ok || d != want {
+		return fmt.Errorf("expected %q, got %v", want, tok)
+	}
+	return nil
+}
+
+func normalizeMessage(r rawMessage) Message {
 	m := Message{
 		ID:        r.ID,
-		Type:      r.Type,
-		Title:     cleanText(r.Title),
-		Summary:   htmlToText(r.DmText),
-		Body:      htmlToText(r.Content),
-		BodyHTML:  strings.TrimSpace(r.Content),
-		URL:       stripQuery(r.Permalink),
+		Type:      string(r.Type),
+		Title:     cleanText(string(r.Title)),
+		Summary:   htmlToText(string(r.DmText)),
+		Body:      htmlToText(string(r.Content)),
+		BodyHTML:  strings.TrimSpace(string(r.Content)),
+		URL:       stripQuery(string(r.Permalink)),
 		MoreURL:   strings.TrimSpace(string(r.WebsiteURL)),
 		TicketURL: strings.TrimSpace(string(r.TicketURL)),
 		ImageURL:  strings.TrimSpace(string(r.ThumbURLFull)),
 		Author: Author{
-			Name:       cleanText(r.Author),
-			Email:      strings.TrimSpace(r.AuthorEmail),
-			Department: cleanText(r.LdapDepartment),
+			Name:       cleanText(string(r.Author)),
+			Email:      strings.TrimSpace(string(r.AuthorEmail)),
+			Department: cleanText(string(r.LdapDepartment)),
 		},
-		Organizations: cleanText(r.Orgs),
-		Audiences:     []string{},
+		Organizations: cleanText(string(r.Orgs)),
+		Audiences:     append([]string{}, r.Terms.Audience...),
 		RunDates:      []string{},
 		Departments:   []Department{},
-	}
-
-	for _, a := range r.Terms.Audience {
-		m.Audiences = append(m.Audiences, a.Slug)
 	}
 	sort.Strings(m.Audiences)
 
 	for i := 0; ; i++ {
-		key := fmt.Sprintf("acf_daily_message_run_dates_%d", i)
-		if _, ok := r.Meta[key]; !ok {
+		v, ok := r.Meta[fmt.Sprintf("acf_daily_message_run_dates_%d", i)]
+		if !ok {
 			break
 		}
-		v := r.metaValue(key)
-		if v == "" {
-			continue
+		if d, err := time.Parse("20060102", v); err == nil {
+			m.RunDates = append(m.RunDates, d.Format("2006-01-02"))
 		}
-		d, err := time.Parse("20060102", v)
-		if err != nil {
-			return Message{}, fmt.Errorf("run date %q: %w", v, err)
-		}
-		m.RunDates = append(m.RunDates, d.Format("2006-01-02"))
 	}
 
 	for slug, name := range r.DeptsArr {
@@ -187,44 +215,29 @@ func normalizeMessage(r rawMessage) (Message, error) {
 	sort.Slice(m.Departments, func(i, j int) bool { return m.Departments[i].Slug < m.Departments[j].Slug })
 
 	if r.Type != "announcement" {
-		ev, err := normalizeEvent(r)
-		if err != nil {
-			return Message{}, err
-		}
-		m.Event = ev
+		m.Event = normalizeEvent(r)
 	}
-	return m, nil
+	return m
 }
 
-func normalizeEvent(r rawMessage) (*Event, error) {
-	start, err := parseEventTime(r.metaValue("_EventStartDate"))
-	if err != nil {
-		return nil, fmt.Errorf("start: %w", err)
-	}
-	end, err := parseEventTime(r.metaValue("_EventEndDate"))
-	if err != nil {
-		return nil, fmt.Errorf("end: %w", err)
-	}
+func normalizeEvent(r rawMessage) *Event {
 	allDay := strings.Trim(string(r.AllDay), `"`)
 	return &Event{
-		Start:         start,
-		End:           end,
+		Start:         parseEventTime(r.Meta["_EventStartDate"]),
+		End:           parseEventTime(r.Meta["_EventEndDate"]),
 		AllDay:        allDay == "1" || allDay == "true",
-		TimeFormatted: cleanText(r.TimeFormatted),
+		TimeFormatted: cleanText(string(r.TimeFormatted)),
 		Venue:         cleanText(string(r.Venue)),
 		Room:          cleanText(string(r.VenueRoom)),
-	}, nil
+	}
 }
 
-func parseEventTime(v string) (string, error) {
-	if v == "" {
-		return "", nil
-	}
+func parseEventTime(v string) string {
 	t, err := time.ParseInLocation("2006-01-02 15:04:05", v, eastern)
-	if err != nil {
-		return "", err
+	if err != nil || t.Year() < 1900 {
+		return ""
 	}
-	return t.Format(time.RFC3339), nil
+	return t.Format(time.RFC3339)
 }
 
 func stripQuery(raw string) string {

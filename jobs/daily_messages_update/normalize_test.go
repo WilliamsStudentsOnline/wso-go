@@ -16,7 +16,8 @@ func loadFixture(t *testing.T, name string) Export {
 	raw, err := os.ReadFile("testdata/" + name)
 	require.NoError(t, err)
 	now := time.Date(2026, 11, 20, 7, 15, 0, 0, eastern)
-	out, err := Normalize(raw, "2026-11-20", now)
+	out, skipped, err := Normalize(raw, "2026-11-20", now)
+	require.Empty(t, skipped)
 	require.NoError(t, err)
 	return out
 }
@@ -107,4 +108,37 @@ func TestNormalizeFeed(t *testing.T) {
 			assert.NotContains(t, m.Title, "&#", m.ID)
 		}
 	}
+}
+
+func TestNormalizeTolerantFields(t *testing.T) {
+	raw := []byte(`{
+		"A": [
+			{"ID": 1, "type": "event", "title": false, "content": null, "dm_text": false, "permalink": false,
+			 "author": false, "orgs": null, "depts_arr": false, "terms": [], "meta": [], "all_day": "1"},
+			{"ID": "bad"},
+			{"ID": 2, "type": "announcement", "title": "ok", "terms": {"daily_message_audience": false},
+			 "meta": {"acf_daily_message_run_dates_0": [{"value": "garbage"}], "acf_daily_message_run_dates_1": [{"value": "20261120"}], "other": "x"}}
+		],
+		"B": {"0": {"ID": 3, "type": "announcement", "title": "zero"}, "2": {"ID": 4, "type": "announcement", "title": "two"}}
+	}`)
+	out, skipped, err := Normalize(raw, "2026-11-20", testNow)
+	require.NoError(t, err)
+	require.Len(t, skipped, 1)
+
+	require.Len(t, out.Categories, 2)
+	require.Len(t, out.Categories[0].Messages, 2)
+	first := out.Categories[0].Messages[0]
+	assert.Equal(t, 1, first.ID)
+	assert.Equal(t, "", first.Title)
+	assert.Equal(t, []Department{}, first.Departments)
+	assert.Equal(t, []string{}, first.Audiences)
+	require.NotNil(t, first.Event)
+	assert.True(t, first.Event.AllDay)
+	assert.Equal(t, "", first.Event.Start)
+
+	assert.Equal(t, []string{"2026-11-20"}, out.Categories[0].Messages[1].RunDates)
+
+	require.Len(t, out.Categories[1].Messages, 2)
+	assert.Equal(t, 3, out.Categories[1].Messages[0].ID)
+	assert.Equal(t, 4, out.Categories[1].Messages[1].ID)
 }
