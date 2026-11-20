@@ -449,6 +449,7 @@ eco-cafe:
 clean-cuisine:
   name: "Clean Cuisine"
   nutrislice_slug: "paresky-clean-cuisine"
+  merge_into: whitmans
   operating: true
   online_order: false
   hours:
@@ -516,3 +517,30 @@ clean-cuisine:
       dinner:
         open: 5:00pm
         close: 8:00pm
+
+t-bar-cafe:
+  name: "T-Bar Cafe"
+  nutrislice_slug: "t-bar-cafe"
+  operating: true
+  online_order: false
+  hours:
+    monday:
+      lunch:
+        open: 11:30am
+        close: 2:00pm
+    tuesday:
+      lunch:
+        open: 11:30am
+        close: 2:00pm
+    wednesday:
+      lunch:
+        open: 11:30am
+        close: 2:00pm
+    thursday:
+      lunch:
+        open: 11:30am
+        close: 2:00pm
+    friday:
+      lunch:
+        open: 11:30am
+        close: 2:00pm

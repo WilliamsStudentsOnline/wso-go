@@ -120,6 +120,15 @@ func loadDiningNutrislice(vendorInfoPath string, startDate time.Time) (WeeklyDin
 		}
 	}
 
+	for vendorID, vendorInfo := range vendorsInfo {
+		if vendorInfo.MergeInto == "" {
+			continue
+		}
+		for _, vendors := range weeklyDiningInfo.VendorsByDate {
+			mergeVendorCourses(vendors, vendorID, vendorInfo.MergeInto)
+		}
+	}
+
 	// non nutrislice vendors
 	for viID, vi := range vendorsInfo {
 		if nutriVendorIDs[viID] {
@@ -283,4 +292,33 @@ func nutriSliceMenuType(vendorInfo VendorInfo, mealType string) string {
 		}
 	}
 	return mealType
+}
+
+func mergeVendorCourses(vendors map[string]Vendor, srcID, dstID string) {
+	src, ok := vendors[srcID]
+	if !ok {
+		return
+	}
+	delete(vendors, srcID)
+
+	dst, ok := vendors[dstID]
+	if !ok {
+		return
+	}
+	for mealKey, srcMeal := range src.Meals {
+		dstMeal, ok := dst.Meals[mealKey]
+		if !ok {
+			continue
+		}
+		if dstMeal.Courses == nil {
+			dstMeal.Courses = make(map[string]*Course)
+		}
+		for courseName, course := range srcMeal.Courses {
+			if existing, ok := dstMeal.Courses[courseName]; ok {
+				existing.Items = append(existing.Items, course.Items...)
+				continue
+			}
+			dstMeal.Courses[courseName] = course
+		}
+	}
 }

@@ -19,7 +19,7 @@ func main() {
 
 	flag.StringVar(&outDir, "outdir", "./menus", "directory to write YYYY-MM-DD.json menu files")
 	flag.StringVar(&todayLink, "today", "", "path to symlink for today's menu (optional)")
-	flag.StringVar(&vendorInfoPath, "vi", "vendor_info.yaml", "path to vendor info YAML file")
+	flag.StringVar(&vendorInfoPath, "vi", "", "path to vendor info YAML file (default: embedded)")
 	flag.BoolVar(&force, "force", false, "force refresh even if today's file already exists")
 	flag.StringVar(&dateStr, "date", "", "fetch week containing YYYY/MM/DD (default: today)")
 
