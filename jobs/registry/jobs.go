@@ -107,6 +107,17 @@ func init() {
 		Schedule: &Schedule{OnCalendar: "*-*-* *:00:00"},
 	})
 	mustRegister(Job{
+		Name:        "daily-messages-update",
+		Description: "normalize today's daily messages into dated JSON files",
+		Binary:      InstallDir + "/job-daily-messages-update_linux",
+		Params: []Param{
+			{Name: "outdir", Type: ParamString, Default: "/opt/wso-go/static/mobile/daily_messages"},
+			{Name: "today", Type: ParamString, Default: "/opt/wso-go/static/mobile/daily_messages.json"},
+			{Name: "url", Type: ParamString},
+		},
+		Schedule: &Schedule{OnCalendar: "*:0/15"},
+	})
+	mustRegister(Job{
 		Name:        "library-hours-update",
 		Description: "refresh library hours JSON",
 		Binary:      InstallDir + "/job-library-hours-update_linux",

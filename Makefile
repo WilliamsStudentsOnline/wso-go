@@ -111,6 +111,10 @@ job-ephmatch-reset:
 job-ephmatch-update-dates:
 	go build -tags jsoniter -o job-ephmatch_update_dates ./jobs/ephmatch_update_dates
 
+.PHONY: job-daily-messages-update
+job-daily-messages-update:
+	go build -tags=jsoniter -o job-daily-messages-update ./jobs/daily_messages_update/cmd
+
 .PHONY: job-library-hours-update
  job-library-hours-update:
 	go build -tags jsoniter -o job-library-hours-update ./jobs/job_library_hours_update
@@ -152,6 +156,7 @@ build-jobs:
 	go build  -tags=jsoniter -o job-user-csv-data ./jobs/user_csv_data/cmd
 	go build  -tags=jsoniter -o job-user-home-info ./jobs/user_home_info/cmd
 	go build  -tags=jsoniter -o job-dining-update ./jobs/dining_update/cmd
+	go build  -tags=jsoniter -o job-daily-messages-update ./jobs/daily_messages_update/cmd
 	go build  -tags=jsoniter -o job-schedule-notifs ./jobs/schedule_notifs/cmd
 	go build  -tags=jsoniter -o job-update-on-campus-semesters ./jobs/update_on_campus_semesters/cmd
 	go build -tags=jsoniter -o job-initialize-on-campus-semesters ./jobs/update_on_campus_semesters/initial-calculation
@@ -174,6 +179,7 @@ build-jobs-prod-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-user-csv-data_linux ./jobs/user_csv_data/cmd
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-user-home-info_linux ./jobs/user_home_info/cmd
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-dining-update_linux ./jobs/dining_update/cmd
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-daily-messages-update_linux ./jobs/daily_messages_update/cmd
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-schedule-notifs_linux ./jobs/schedule_notifs/cmd
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-update-on-campus-semesters_linux ./jobs/update_on_campus_semesters/cmd
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -tags=jsoniter -o job-initialize-on-campus-semesters_linux ./jobs/update_on_campus_semesters/initial-calculation
