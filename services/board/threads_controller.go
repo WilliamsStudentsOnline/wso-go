@@ -39,6 +39,9 @@ func (t *Controller) ListThreads(c *gin.Context) {
 		t.RespondBadBind(c, err)
 		return
 	}
+	if params.UserID != nil && *params.UserID != services.GetUserID(c) && !isAdmin(c) {
+		params.ExcludeAnonymous = true
+	}
 
 	var threads []*models.BoardThread
 	if err := t.threadModel.GetThreads(&threads, &params); err != nil {
@@ -117,6 +120,7 @@ type CreateThreadParams struct {
 	StartsAt       *time.Time              `json:"startsAt"`
 	EndsAt         *time.Time              `json:"endsAt"`
 	Ride           *createThreadRideParams `json:"ride"`
+	Anonymous      bool                    `json:"anonymous"`
 }
 
 // CreateThread godoc
@@ -140,6 +144,11 @@ func (t *Controller) CreateThread(c *gin.Context) {
 
 	if !models.IsValidBoardThreadType(params.Type) {
 		t.RespondAPIError(c, lib.ErrorBoardInvalidType)
+		return
+	}
+
+	if params.Anonymous && params.Type != models.BoardThreadTypeDiscussion {
+		t.RespondAPIError(c, lib.ErrorBoardAnonymousNotAllowed)
 		return
 	}
 
@@ -173,6 +182,7 @@ func (t *Controller) CreateThread(c *gin.Context) {
 		StartsAt:       params.StartsAt,
 		EndsAt:         params.EndsAt,
 		LastActive:     time.Now(),
+		Anonymous:      &params.Anonymous,
 	}
 
 	var ride *models.BoardRideInformation
@@ -194,6 +204,7 @@ func (t *Controller) CreateThread(c *gin.Context) {
 		return
 	}
 
+	sanitizeThread(c, thread)
 	t.RespondCreated(c, thread)
 }
 

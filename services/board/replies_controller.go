@@ -11,7 +11,8 @@ import (
 )
 
 type CreateReplyParams struct {
-	Content string `json:"content" binding:"required"`
+	Content   string `json:"content" binding:"required"`
+	Anonymous bool   `json:"anonymous"`
 }
 
 // CreateReply godoc
@@ -53,6 +54,14 @@ func (t *Controller) CreateReply(c *gin.Context) {
 		return
 	}
 
+	anonymous := params.Anonymous
+	if userID == thread.UserID {
+		anonymous = thread.IsAnonymous()
+	} else if anonymous && thread.Type != models.BoardThreadTypeDiscussion {
+		t.RespondAPIError(c, lib.ErrorBoardAnonymousNotAllowed)
+		return
+	}
+
 	user := new(models.User)
 	if err := t.userModel.GetUserByID(userID, user); err != nil {
 		if gorm.IsRecordNotFoundError(err) {
@@ -67,6 +76,7 @@ func (t *Controller) CreateReply(c *gin.Context) {
 		UserID:     userID,
 		ExUserName: user.Name,
 		Content:    params.Content,
+		Anonymous:  &anonymous,
 	}
 
 	if err := t.postModel.CreateReply(threadID, post); err != nil {
@@ -74,6 +84,7 @@ func (t *Controller) CreateReply(c *gin.Context) {
 		return
 	}
 
+	sanitizePosts(c, []*models.BoardPost{post}, thread.UserID)
 	t.RespondCreated(c, post)
 }
 
@@ -125,7 +136,11 @@ func (t *Controller) UpdateReply(c *gin.Context) {
 		return
 	}
 
-	sanitizePosts(c, []*models.BoardPost{&post})
+	var opUserID uint
+	if post.Thread != nil {
+		opUserID = post.Thread.UserID
+	}
+	sanitizePosts(c, []*models.BoardPost{&post}, opUserID)
 	t.RespondOK(c, post)
 }
 

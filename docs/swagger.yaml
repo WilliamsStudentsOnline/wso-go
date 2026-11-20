@@ -101,6 +101,8 @@ definitions:
     type: object
   board.CreateReplyParams:
     properties:
+      anonymous:
+        type: boolean
       content:
         type: string
     required:
@@ -108,6 +110,8 @@ definitions:
     type: object
   board.CreateThreadParams:
     properties:
+      anonymous:
+        type: boolean
       body:
         type: string
       endsAt:
@@ -669,6 +673,10 @@ definitions:
     type: object
   models.BoardPost:
     properties:
+      anonymous:
+        type: boolean
+      byOP:
+        type: boolean
       content:
         type: string
       createdAt:
@@ -677,6 +685,8 @@ definitions:
         type: string
       id:
         type: integer
+      isMine:
+        type: boolean
       isOP:
         type: boolean
       thread:
@@ -705,6 +715,8 @@ definitions:
     type: object
   models.BoardThread:
     properties:
+      anonymous:
+        type: boolean
       body:
         description: hydrated from OP for API convenience
         type: string

@@ -8569,6 +8569,9 @@
                 "content"
             ],
             "properties": {
+                "anonymous": {
+                    "type": "boolean"
+                },
                 "content": {
                     "type": "string"
                 }
@@ -8582,6 +8585,9 @@
                 "type"
             ],
             "properties": {
+                "anonymous": {
+                    "type": "boolean"
+                },
                 "body": {
                     "type": "string"
                 },
@@ -9396,6 +9402,12 @@
         "models.BoardPost": {
             "type": "object",
             "properties": {
+                "anonymous": {
+                    "type": "boolean"
+                },
+                "byOP": {
+                    "type": "boolean"
+                },
                 "content": {
                     "type": "string"
                 },
@@ -9407,6 +9419,9 @@
                 },
                 "id": {
                     "type": "integer"
+                },
+                "isMine": {
+                    "type": "boolean"
                 },
                 "isOP": {
                     "type": "boolean"
@@ -9451,6 +9466,9 @@
         "models.BoardThread": {
             "type": "object",
             "properties": {
+                "anonymous": {
+                    "type": "boolean"
+                },
                 "body": {
                     "description": "hydrated from OP for API convenience",
                     "type": "string"

@@ -35,6 +35,8 @@ type GetBoardThreadsOptions struct {
 	OfferingRide *bool    `json:"offeringRide" form:"offeringRide"`
 	UserID       *uint    `json:"userID" form:"userID"`
 
+	ExcludeAnonymous bool `json:"-" form:"-"`
+
 	Preload []string `json:"preload" form:"preload[]"`
 }
 
@@ -152,6 +154,10 @@ func (o *GetBoardThreadsOptions) Filter(db *gorm.DB) *gorm.DB {
 
 	if o.UserID != nil {
 		db = db.Where("board_threads.user_id = ?", *o.UserID)
+	}
+
+	if o.ExcludeAnonymous {
+		db = db.Where("board_threads.anonymous = ?", false)
 	}
 
 	if o.OfferingRide != nil {
@@ -322,6 +328,7 @@ func (m *BoardThreadModel) CreateThread(t *BoardThread, body string, ride *Board
 		ExUserName: t.ExUserName,
 		Content:    body,
 		IsOP:       lib.TruePtr(),
+		Anonymous:  t.Anonymous,
 	}
 	if err := tx.Create(op).Error; err != nil {
 		tx.Rollback()
