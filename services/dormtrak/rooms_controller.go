@@ -25,7 +25,8 @@ type DormRoomPhotoInfo struct {
 // @Produce  json
 // @Param roomID path uint true "Dorm Room ID"
 // @Success 200 {array} DormRoomPhotoInfo
-// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 401 {object} services.BaseErrorResponse
+// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer

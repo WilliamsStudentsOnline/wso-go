@@ -22,6 +22,9 @@ import (
 // @Param preload query []string false "Preload List (department, courses)"
 // @Param sort query string false "Sort Order (id, name; default name)"
 // @Success 200 {array} models.AreaOfStudy
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed"
+// @Failure 401 {object} services.BaseErrorResponse
+// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/areas-of-study [get]
@@ -56,6 +59,8 @@ func (t *Controller) ListAreasOfStudy(c *gin.Context) {
 // @Param areaOfStudyID path uint true "Area of Study ID"
 // @Success 200 {object} models.AreaOfStudy
 // @Failure 400 {object} services.BaseErrorResponse
+// @Failure 401 {object} services.BaseErrorResponse
+// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -90,6 +95,8 @@ func (t *Controller) GetAreaOfStudy(c *gin.Context) {
 // @Param areaOfStudyID path uint true "Area of Study ID"
 // @Success 200 {array} models.User
 // @Failure 400 {object} services.BaseErrorResponse
+// @Failure 401 {object} services.BaseErrorResponse
+// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -138,6 +145,8 @@ func (t *Controller) ListAreaOfStudyProfessors(c *gin.Context) {
 // @Param areaOfStudyID path uint true "Area of Study ID"
 // @Success 200 {array} models.Course
 // @Failure 400 {object} services.BaseErrorResponse
+// @Failure 401 {object} services.BaseErrorResponse
+// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer

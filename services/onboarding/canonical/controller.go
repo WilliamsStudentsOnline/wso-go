@@ -35,6 +35,8 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 // @Produce  json
 // @Param unixID path string true "Unix ID"
 // @Success 200 {object} models.User
+// @Failure 401 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /onboarding/canonical/{unixID} [get]

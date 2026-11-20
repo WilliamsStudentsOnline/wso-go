@@ -22,6 +22,9 @@ type OrderLease struct {
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} goodrich.OrderLease
+// @Failure 400 {object} services.BaseErrorResponse "2140: goodrich closed on this date; 2170: goodrich has no time slots available; 2171: cannot acquire a lease as no leases available"
+// @Failure 401 {object} services.BaseErrorResponse
+// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /goodrich/order-lease [get]

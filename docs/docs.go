@@ -90,7 +90,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -153,6 +165,18 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.Feedback"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -203,6 +227,18 @@ const docTemplate = `{
                             "additionalProperties": {
                                 "type": "integer"
                             }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "404": {
@@ -264,7 +300,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -310,8 +358,20 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "403": {
-                        "description": "Forbidden",
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -366,8 +426,20 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "403": {
-                        "description": "Forbidden",
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -406,8 +478,32 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.JobRun"
                         }
                     },
+                    "400": {
+                        "description": "1100: could not parse malformed request data",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -448,7 +544,31 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "1100: could not parse malformed request data",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -487,8 +607,32 @@ const docTemplate = `{
                             "type": "string"
                         }
                     },
+                    "400": {
+                        "description": "1100: could not parse malformed request data",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -540,7 +684,31 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "1100: could not parse malformed request data",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -641,7 +809,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -705,6 +885,18 @@ const docTemplate = `{
                             "$ref": "#/definitions/admin.ModeratorTaskResponse"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -755,6 +947,18 @@ const docTemplate = `{
                             "additionalProperties": {
                                 "type": "integer"
                             }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "404": {
@@ -821,19 +1025,31 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed; 1409: tag name is required; 2400: invalid task type; 2401: invalid task resolution",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "404: record not found; 2402: no open tasks for this subject",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "409": {
-                        "description": "Conflict",
+                        "description": "2403: task subject is already gone",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -874,20 +1090,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/auth.AuthResponse"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "401": {
                         "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -926,20 +1130,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/auth.AuthResponse"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -980,20 +1178,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/auth.AuthResponse"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "401": {
                         "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -1033,20 +1219,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/old.AuthResponse"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "401": {
                         "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -1080,20 +1254,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/old.AuthResponse"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -1127,20 +1295,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/old.AuthResponse"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -1190,6 +1352,24 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/autocomplete.ACEntry"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "500": {
@@ -1245,6 +1425,24 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -1296,6 +1494,24 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/autocomplete.ACEntry"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "500": {
@@ -1351,6 +1567,24 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -1404,6 +1638,24 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -1432,6 +1684,12 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/banner.Banner"
+                        }
+                    },
+                    "400": {
+                        "description": "2300: redis client not configured, is redis running locally?; 2320: unable to unmarshal banner from redis",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "500": {
@@ -1478,8 +1736,20 @@ const docTemplate = `{
                             "$ref": "#/definitions/banner.Banner"
                         }
                     },
+                    "400": {
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed; 2300: redis client not configured, is redis running locally?",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "403": {
-                        "description": "Forbidden",
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -1600,20 +1870,20 @@ const docTemplate = `{
                     "200": {
                         "description": "OK"
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "403": {
-                        "description": "Forbidden",
+                        "description": "1330: no scope authorization; 2415: cannot flag your own content",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "2414: board post cannot be found",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -1888,20 +2158,20 @@ const docTemplate = `{
                     "200": {
                         "description": "OK"
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "403": {
-                        "description": "Forbidden",
+                        "description": "1330: no scope authorization; 2415: cannot flag your own content",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "2413: board thread cannot be found",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -1956,56 +2226,6 @@ const docTemplate = `{
                         "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/models.BoardPost"
-                        }
-                    }
-                }
-            }
-        },
-        "/books/{bookID}": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "get a book by book id",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "books"
-                ],
-                "summary": "Get book by book id",
-                "operationId": "getBook",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Book ID",
-                        "name": "bookID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.Book"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     }
                 }
@@ -2072,6 +2292,18 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "400": {
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -2080,7 +2312,7 @@ const docTemplate = `{
                     }
                 }
             },
-            "put": {
+            "post": {
                 "security": [
                     {
                         "Bearer": []
@@ -2116,14 +2348,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.Book"
                         }
                     },
-                    "2251": {
-                        "description": "failed to find book online by isbn",
+                    "400": {
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed; 2251: could not find by book by ISBN",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -2138,6 +2370,66 @@ const docTemplate = `{
             }
         },
         "/booktrak/books/{bookID}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "get a book by book id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "books"
+                ],
+                "summary": "Get book by book id",
+                "operationId": "getBook",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Book ID",
+                        "name": "bookID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Book"
+                        }
+                    },
+                    "400": {
+                        "description": "1100: could not parse malformed request data",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "404: record not found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            },
             "patch": {
                 "security": [
                     {
@@ -2181,14 +2473,20 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.Book"
                         }
                     },
-                    "2253": {
-                        "description": "some courses could not be found",
+                    "400": {
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed; 2253: passed courses don't all exist",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "404: record not found",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -2311,6 +2609,18 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "400": {
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -2355,14 +2665,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.BookListing"
                         }
                     },
-                    "2232": {
-                        "description": "invalid book condition",
+                    "400": {
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed; 2232: passed condition is invalid; 2250: passed book could not be found",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -2377,6 +2687,66 @@ const docTemplate = `{
             }
         },
         "/booktrak/listings/{bookListingID}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "get a book listing by book listing id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "booktrak"
+                ],
+                "summary": "Get book listing by book listing id",
+                "operationId": "getBookListing",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Book Listing ID",
+                        "name": "bookListingID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.BookListing"
+                        }
+                    },
+                    "400": {
+                        "description": "1100: could not parse malformed request data",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "404: record not found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            },
             "put": {
                 "security": [
                     {
@@ -2414,32 +2784,26 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1331": {
-                        "description": "must be self",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "200": {
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.BookListing"
                         }
                     },
-                    "2232": {
-                        "description": "invalid book condition",
+                    "400": {
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed; 2232: passed condition is invalid; 2250: passed book could not be found",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "403": {
+                        "description": "1330: no scope authorization; 1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "404: record not found",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -2482,26 +2846,20 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1331": {
-                        "description": "must be self",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "200": {
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.BookListing"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "403": {
+                        "description": "1330: no scope authorization; 1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "404: record not found",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -2586,6 +2944,18 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "400": {
+                        "description": "1100: could not parse malformed request data",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -2624,24 +2994,6 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1101": {
-                        "description": "request data validation failed",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1830": {
-                        "description": "start date cannot be after end date",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1831": {
-                        "description": "invalid bulletin type",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "201": {
                         "description": "Created",
                         "schema": {
@@ -2649,7 +3001,13 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed; 1830: start date cannot be after end date; 1831: invalid bulletin type",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -2699,13 +3057,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "400: path ID could not be parsed",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "404: record not found",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -2746,12 +3110,6 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1331": {
-                        "description": "must be self",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "200": {
                         "description": "OK",
                         "schema": {
@@ -2759,13 +3117,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "400: path ID could not be parsed",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization; 1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "404: record not found",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -2815,18 +3179,6 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1331": {
-                        "description": "must be self",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1830": {
-                        "description": "start date cannot be after end date",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "200": {
                         "description": "OK",
                         "schema": {
@@ -2834,69 +3186,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "400: path ID could not be parsed; 1100: could not parse malformed request data; 1830: start date cannot be after end date",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization; 1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/bulletin/discussion/{discussionID}": {
-            "delete": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Deletes a discussion (must be admin)",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "bulletins"
-                ],
-                "summary": "Delete discussion",
-                "operationId": "deleteDiscussion",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Discussion ID",
-                        "name": "discussionID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.Discussion"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
+                        "description": "404: record not found",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -2975,6 +3277,18 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "400": {
+                        "description": "1100: could not parse malformed request data",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -3013,18 +3327,6 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1101": {
-                        "description": "request data validation failed",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1332": {
-                        "description": "authenticated user not found",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "201": {
                         "description": "Created",
                         "schema": {
@@ -3032,7 +3334,13 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization; 1332: authenticated user not found",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -3092,13 +3400,79 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "400: path ID could not be parsed; 1100: could not parse malformed request data",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "404: record not found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Deletes a discussion (must be admin)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "bulletins"
+                ],
+                "summary": "Delete discussion",
+                "operationId": "deleteDiscussion",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Discussion ID",
+                        "name": "discussionID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Discussion"
+                        }
+                    },
+                    "400": {
+                        "description": "400: path ID could not be parsed",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "404: record not found",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -3178,6 +3552,24 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "400": {
+                        "description": "400: path ID could not be parsed; 1100: could not parse malformed request data",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "404: record not found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -3218,24 +3610,6 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1101": {
-                        "description": "request data validation failed",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1332": {
-                        "description": "authenticated user not found",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1850": {
-                        "description": "discussion cannot be found",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "201": {
                         "description": "Created",
                         "schema": {
@@ -3243,7 +3617,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization; 1332: authenticated user not found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "1850: discussion cannot be found",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -3293,13 +3679,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "400: path ID could not be parsed",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "404: record not found",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -3340,12 +3732,6 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1331": {
-                        "description": "must be self",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "200": {
                         "description": "OK",
                         "schema": {
@@ -3353,13 +3739,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "400: path ID could not be parsed",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization; 1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "404: record not found",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -3409,12 +3801,6 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1331": {
-                        "description": "must be self",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "200": {
                         "description": "OK",
                         "schema": {
@@ -3422,13 +3808,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "400: path ID could not be parsed; 1100: could not parse malformed request data",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization; 1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "404: record not found",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -3513,6 +3905,18 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "400": {
+                        "description": "1100: could not parse malformed request data",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -3551,18 +3955,6 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1101": {
-                        "description": "request data validation failed",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1830": {
-                        "description": "date cannot be in past",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "201": {
                         "description": "Created",
                         "schema": {
@@ -3570,7 +3962,13 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed; 1831: invalid bulletin type; 1841: date cannot be in past",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -3620,13 +4018,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "400: path ID could not be parsed",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "404: record not found",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -3667,12 +4071,6 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1331": {
-                        "description": "must be self",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "200": {
                         "description": "OK",
                         "schema": {
@@ -3680,13 +4078,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "400: path ID could not be parsed",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization; 1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "404: record not found",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -3736,18 +4140,6 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1331": {
-                        "description": "must be self",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1830": {
-                        "description": "date cannot be in past",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "200": {
                         "description": "OK",
                         "schema": {
@@ -3755,13 +4147,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "400: path ID could not be parsed; 1100: could not parse malformed request data; 1841: date cannot be in past",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization; 1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "404: record not found",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -3874,6 +4272,12 @@ const docTemplate = `{
                         "description": "A RSS Feed serialized as XML string",
                         "schema": {
                             "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "1100: could not parse malformed request data",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "500": {
@@ -4114,6 +4518,12 @@ const docTemplate = `{
                             "type": "string"
                         }
                     },
+                    "400": {
+                        "description": "1100: could not parse malformed request data",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -4149,8 +4559,14 @@ const docTemplate = `{
                             "type": "string"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -4160,98 +4576,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/course-selections/{userID}": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "get courses selected by a user as a string of area of study and course ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "course-scheduler"
-                ],
-                "summary": "Get user course selections",
-                "operationId": "getSelections",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "UserID",
-                        "name": "userID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/coursescheduler.CourseSelectionsString"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "set courses selected by a user as a string of area of study and course ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "course-scheduler"
-                ],
-                "summary": "Set user course selections",
-                "operationId": "setSelection",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "UserID",
-                        "name": "userID",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Request body",
-                        "name": "courses",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -4321,6 +4645,24 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "400": {
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -4367,6 +4709,18 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -4423,6 +4777,18 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -4498,6 +4864,18 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -4540,6 +4918,18 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/models.Neighborhood"
                             }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "500": {
@@ -4588,6 +4978,18 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -4648,6 +5050,18 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -4690,6 +5104,18 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/models.DormtrakRanking"
                             }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "500": {
@@ -4779,7 +5205,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization; 1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -4822,36 +5260,6 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1101": {
-                        "description": "request data validation failed",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1633": {
-                        "description": "user must be a student and could not be found",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1634": {
-                        "description": "user is missing dorm field",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1635": {
-                        "description": "user does not own this dorm room",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1636": {
-                        "description": "review already exists with passed user ID and dorm room ID",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "201": {
                         "description": "Created",
                         "schema": {
@@ -4859,13 +5267,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed; 1633: user must be a student and could not be found; 1634: user is missing dorm field; 1635: user does not own this dorm room; 1636: review already exists with passed user ID and dorm room ID",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "404": {
-                        "description": "Not Found",
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -4920,6 +5334,18 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -4962,20 +5388,20 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1331": {
-                        "description": "must be self",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "200": {
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.DormtrakReview"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization; 1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -5031,18 +5457,6 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1101": {
-                        "description": "request data validation failed",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1331": {
-                        "description": "must be self",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "200": {
                         "description": "OK",
                         "schema": {
@@ -5050,7 +5464,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization; 1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -5106,23 +5532,23 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1160": {
-                        "description": "unable to save picture",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1331": {
-                        "description": "must be self",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "200": {
                         "description": "OK"
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "1640: too many photos already uploaded to this review",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization; 1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -5134,7 +5560,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "1160: unable to save uploaded picture",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -5180,8 +5606,14 @@ const docTemplate = `{
                             }
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -5239,8 +5671,14 @@ const docTemplate = `{
                             }
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -5319,6 +5757,24 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "400": {
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -5369,6 +5825,18 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -5413,35 +5881,23 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1730": {
-                        "description": "cannot ephcatch-like yourself",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1731": {
-                        "description": "ephcatcher could not be found",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1732": {
-                        "description": "ephcatch already exists with user ID and passed ephcatcher ID",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "201": {
                         "description": "Created"
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "1730: cannot ephcatch-like yourself; 1731: ephcatcher could not be found; 1732: ephcatch already exists with user ID and passed ephcatcher ID",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "404": {
-                        "description": "Not Found",
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -5488,13 +5944,19 @@ const docTemplate = `{
                         "description": "Created"
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "1731: ephcatcher could not be found; 1733: ephcatch does not exist with user ID and passed ephcatcher ID",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "404": {
-                        "description": "Not Found",
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -5537,6 +5999,18 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -5569,8 +6043,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/ephmatch.GetAvailabilityResp"
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "410": {
+                        "description": "1900: ephmatch api is deprecated",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -5619,8 +6099,20 @@ const docTemplate = `{
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "410": {
+                        "description": "1900: ephmatch api is deprecated",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -5654,8 +6146,20 @@ const docTemplate = `{
                             "$ref": "#/definitions/ephmatch.CountMatchesResponse"
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "410": {
+                        "description": "1900: ephmatch api is deprecated",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -5692,35 +6196,23 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1730": {
-                        "description": "cannot ephmatch-relate yourself",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1733": {
-                        "description": "ephmatch match could not be found",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "200": {
                         "description": "OK"
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "404": {
-                        "description": "Not Found",
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "410": {
+                        "description": "1900: ephmatch api is deprecated",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -5754,20 +6246,20 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.EphmatchProfile"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "404": {
-                        "description": "Not Found",
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "410": {
+                        "description": "1900: ephmatch api is deprecated",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -5804,32 +6296,26 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1101": {
-                        "description": "request data validation failed",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "201": {
                         "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/models.EphmatchProfile"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "404": {
-                        "description": "Not Found",
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "410": {
+                        "description": "1900: ephmatch api is deprecated",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -5861,20 +6347,20 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.EphmatchProfile"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "404": {
-                        "description": "Not Found",
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "410": {
+                        "description": "1900: ephmatch api is deprecated",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -5911,32 +6397,26 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1101": {
-                        "description": "request data validation failed",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "200": {
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.EphmatchProfile"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "404": {
-                        "description": "Not Found",
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "410": {
+                        "description": "1900: ephmatch api is deprecated",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -5976,20 +6456,20 @@ const docTemplate = `{
                     "200": {
                         "description": "OK"
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "404": {
-                        "description": "Not Found",
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "410": {
+                        "description": "1900: ephmatch api is deprecated",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -6015,20 +6495,20 @@ const docTemplate = `{
                     "200": {
                         "description": "OK"
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "404": {
-                        "description": "Not Found",
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "410": {
+                        "description": "1900: ephmatch api is deprecated",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -6101,8 +6581,20 @@ const docTemplate = `{
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "410": {
+                        "description": "1900: ephmatch api is deprecated",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -6145,20 +6637,20 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.EphmatchProfile"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "404": {
-                        "description": "Not Found",
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "410": {
+                        "description": "1900: ephmatch api is deprecated",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -6204,44 +6696,26 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1730": {
-                        "description": "cannot ephmatch-relate yourself",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1731": {
-                        "description": "ephmatch profile could not be found",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1732": {
-                        "description": "ephmatch relation already exists with user ID and passed ephmatch profile user ID",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "201": {
                         "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/ephmatch.SetProfileRelationResp"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "404": {
-                        "description": "Not Found",
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "410": {
+                        "description": "1900: ephmatch api is deprecated",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -6308,6 +6782,24 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "400": {
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -6354,6 +6846,18 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -6418,6 +6922,18 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -6474,6 +6990,18 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -6582,6 +7110,24 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "400": {
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed; 1570: cannot rank by this metric",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -6634,6 +7180,18 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -6698,6 +7256,18 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -6756,6 +7326,18 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -6855,7 +7437,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -6904,6 +7498,18 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -6950,6 +7556,18 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -7014,6 +7632,18 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -7070,6 +7700,18 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -7178,6 +7820,24 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "400": {
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed; 1570: cannot rank by this metric",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -7230,6 +7890,18 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -7290,6 +7962,18 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -7358,6 +8042,18 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -7457,7 +8153,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -7560,6 +8268,24 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "400": {
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization; 1331: must be self",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -7598,54 +8324,6 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1101": {
-                        "description": "request data validation failed",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1531": {
-                        "description": "missing course parameters in create data: courseID or (areaOfStudyAbbreviation and courseNumber)",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1532": {
-                        "description": "comment must be 100 characters or more",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1533": {
-                        "description": "user must be a student and could not be found",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1534": {
-                        "description": "passed professor must be a professor and could not be found",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1535": {
-                        "description": "passed course could not be found",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1536": {
-                        "description": "passed area of study could not be found",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1537": {
-                        "description": "survey already exists with passed user ID, professor ID, and course ID",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "201": {
                         "description": "Created",
                         "schema": {
@@ -7653,13 +8331,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed; 1402: user cannot be prefrosh; 1531: missing course parameters in create data: courseID or (areaOfStudyAbbreviation and courseNumber); 1532: comment must be 100 characters or more; 1533: user must be a student and could not be found; 1534: passed professor must be a professor and could not be found; 1535: passed course could not be found; 1536: passed area of study could not be found; 1537: survey already exists with passed user ID, professor ID, and course ID; 1538: survey course semester has an incorrect year or season; 1539: survey course format is invalid; 1540: survey course year is in the future",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "404": {
-                        "description": "Not Found",
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -7702,12 +8386,6 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1330": {
-                        "description": "no scope authorization",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "200": {
                         "description": "OK",
                         "schema": {
@@ -7716,6 +8394,18 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -7764,20 +8454,20 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1331": {
-                        "description": "must be self",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "200": {
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.FactrakSurvey"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization; 1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -7833,24 +8523,6 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1101": {
-                        "description": "request data validation failed",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1331": {
-                        "description": "must be self",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1532": {
-                        "description": "comment must be 100 characters or more",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "200": {
                         "description": "OK",
                         "schema": {
@@ -7858,7 +8530,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed; 1532: comment must be 100 characters or more; 1538: survey course semester has an incorrect year or season; 1539: survey course format is invalid; 1540: survey course year is in the future",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization; 1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -7907,12 +8591,6 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1551": {
-                        "description": "survey agreement could not be found",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "200": {
                         "description": "OK",
                         "schema": {
@@ -7925,8 +8603,20 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "404": {
-                        "description": "Not Found",
+                        "description": "404: record not found; 1551: survey agreement could not be found",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -7976,24 +8666,6 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1100": {
-                        "description": "could not parse malformed request data",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1552": {
-                        "description": "survey agreement already exists for this user and survey",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1553": {
-                        "description": "cannot create survey agreement with your own survey",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "201": {
                         "description": "Created",
                         "schema": {
@@ -8001,7 +8673,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "1100: could not parse malformed request data; 1552: survey agreement already exists for this user and survey; 1553: cannot create survey agreement with your own survey",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -8048,12 +8732,6 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1551": {
-                        "description": "survey agreement could not be found",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "200": {
                         "description": "OK",
                         "schema": {
@@ -8066,8 +8744,20 @@ const docTemplate = `{
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "404": {
-                        "description": "Not Found",
+                        "description": "404: record not found; 1551: survey agreement could not be found",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -8117,18 +8807,6 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1100": {
-                        "description": "could not parse malformed request data",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1551": {
-                        "description": "survey agreement could not be found",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "200": {
                         "description": "OK",
                         "schema": {
@@ -8136,13 +8814,25 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "1100: could not parse malformed request data",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "404: record not found; 1551: survey agreement could not be found",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -8188,14 +8878,20 @@ const docTemplate = `{
                     "200": {
                         "description": "OK"
                     },
-                    "2407": {
-                        "description": "open factrak flag already exists for this survey",
+                    "400": {
+                        "description": "2407: open factrak flag already exists for this survey",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -8285,12 +8981,6 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1331": {
-                        "description": "must be self",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "200": {
                         "description": "OK",
                         "schema": {
@@ -8301,7 +8991,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization; 1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -8359,7 +9061,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization; 1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -8408,6 +9122,24 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/models.GoodrichMenuItem"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "500": {
@@ -8464,7 +9196,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "1100: could not parse malformed request data",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -8508,6 +9252,24 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/goodrich.OrderLease"
+                        }
+                    },
+                    "400": {
+                        "description": "2140: goodrich closed on this date; 2170: goodrich has no time slots available; 2171: cannot acquire a lease as no leases available",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "500": {
@@ -8590,6 +9352,24 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "400": {
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -8634,6 +9414,24 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.GoodrichOrder"
                         }
                     },
+                    "400": {
+                        "description": "1100: could not parse malformed request data; 2130: goodrich payment method is invalid; 2131: goodrich time slot is not valid; 2132: missing williams id number for payment swipe or points; 2133: unknown menu item in order; 2134: unavailable menu item in order; 2135: goodrich time is on wrong day; 2136: goodrich time is filled; 2137: cannot get combo pricing with this selection of items; 2138: cannot use a swipe on more than $5; 2139: order has no items; 2140: goodrich closed on this date; 2141: out of a menu item in order; 2172: goodrich lease missing: reload this page and try again; 2173: goodrich order lease has expired",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -8676,6 +9474,30 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.GoodrichOrder"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "500": {
@@ -8729,6 +9551,30 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.GoodrichOrder"
                         }
                     },
+                    "400": {
+                        "description": "1100: could not parse malformed request data; 2150: goodrich order status is invalid",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -8767,6 +9613,18 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -8803,6 +9661,18 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/models.GoodrichOrder"
                             }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "500": {
@@ -8849,6 +9719,30 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.GoodrichOrder"
                         }
                     },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization; 1331: must be self",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -8887,56 +9781,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/listings/{bookListingID}": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "get a book listing by book listing id",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "booktrak"
-                ],
-                "summary": "Get book listing by book listing id",
-                "operationId": "getBookListing",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Book Listing ID",
-                        "name": "bookListingID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.BookListing"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/notification/app/token": {
             "post": {
                 "security": [
@@ -8968,12 +9812,6 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1101": {
-                        "description": "request data validation failed",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "200": {
                         "description": "OK",
                         "schema": {
@@ -8981,13 +9819,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "2030: notification token type is invalid; 2031: notification token is empty",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "404": {
-                        "description": "Not Found",
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -9027,14 +9871,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.NotificationSettings"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "404": {
-                        "description": "Not Found",
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -9077,26 +9921,20 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1101": {
-                        "description": "request data validation failed",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "200": {
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.NotificationSettings"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
-                    "404": {
-                        "description": "Not Found",
+                    "403": {
+                        "description": "1330: no scope authorization",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -9145,6 +9983,18 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.User"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -9189,6 +10039,18 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.User"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -9231,6 +10093,18 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "500": {
@@ -9301,6 +10175,24 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "400": {
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed; 1150: invalid search token; 1151: invalid search query; 1152: unknown search field",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -9339,28 +10231,28 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1403": {
-                        "description": "user not visible",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1404": {
-                        "description": "user not at williams",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1405": {
-                        "description": "user id could not be parsed",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "200": {
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/responses.GetUserResponseUser"
+                        }
+                    },
+                    "400": {
+                        "description": "1403: user not visible; 1404: user not at williams; 1405: user id could not be parsed",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "404": {
@@ -9414,28 +10306,28 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1100": {
-                        "description": "could not parse malformed request data",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1331": {
-                        "description": "must be self",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1405": {
-                        "description": "user id could not be parsed",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "200": {
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/responses.GetUserResponseUser"
+                        }
+                    },
+                    "400": {
+                        "description": "1100: could not parse malformed request data; 1405: user id could not be parsed; 1407: user campus status is invalid",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization; 1331: must be self",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     },
                     "404": {
@@ -9489,23 +10381,23 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1331": {
-                        "description": "must be self",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1405": {
-                        "description": "user id could not be parsed",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "200": {
                         "description": "OK"
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "1405: user id could not be parsed",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization; 1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -9517,7 +10409,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "1160: unable to save uploaded picture",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -9564,24 +10456,6 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1331": {
-                        "description": "must be self",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1408": {
-                        "description": "tag already exists",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1409": {
-                        "description": "tag name is required",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "200": {
                         "description": "OK",
                         "schema": {
@@ -9589,20 +10463,20 @@ const docTemplate = `{
                             "additionalProperties": true
                         }
                     },
-                    "2405": {
-                        "description": "too many open user tag moderator requests",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "2406": {
-                        "description": "open tag request already exists for this name",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed; 1405: user id could not be parsed; 1408: tag already exists; 1409: tag name is required; 2405: too many open user tag task requests; 2406: open tag request already exists for this name",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization; 1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -9654,35 +10528,23 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "1100": {
-                        "description": "could not parse malformed request data",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1331": {
-                        "description": "must be self",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1405": {
-                        "description": "user id could not be parsed",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
-                    "1406": {
-                        "description": "invalid user tag",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
-                        }
-                    },
                     "200": {
                         "description": "OK"
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "1100: could not parse malformed request data; 1405: user id could not be parsed; 1406: invalid user tag",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "1330: no scope authorization; 1331: must be self",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -9726,12 +10588,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/services.BaseErrorResponse"
                         }
                     }
                 }
@@ -10193,14 +11049,6 @@ const docTemplate = `{
                 },
                 "offer": {
                     "type": "boolean"
-                }
-            }
-        },
-        "coursescheduler.CourseSelectionsString": {
-            "type": "object",
-            "properties": {
-                "courses": {
-                    "type": "string"
                 }
             }
         },

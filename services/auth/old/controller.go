@@ -131,9 +131,7 @@ func (t *Controller) Authenticator(c *gin.Context) (interface{}, error) {
 // @Produce  json
 // @Param loginParams body old.LoginParams true "Login Parameters"
 // @Success 200 {object} old.AuthResponse
-// @Failure 400 {object} services.BaseErrorResponse
 // @Failure 401 {object} services.BaseErrorResponse
-// @Failure 500 {object} services.BaseErrorResponse
 // @Router /auth/login [post]
 func authLogin() {}
 
@@ -145,9 +143,8 @@ func authLogin() {}
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} old.AuthResponse
-// @Failure 400 {object} services.BaseErrorResponse
 // @Failure 401 {object} services.BaseErrorResponse
-// @Failure 500 {object} services.BaseErrorResponse
+// @Failure 403 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /auth/update-token [get]
 func authUpdate() {}
@@ -160,9 +157,8 @@ func authUpdate() {}
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} old.AuthResponse
-// @Failure 400 {object} services.BaseErrorResponse
 // @Failure 401 {object} services.BaseErrorResponse
-// @Failure 500 {object} services.BaseErrorResponse
+// @Failure 403 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /auth/refresh-token [get]
 func authRefresh() {}

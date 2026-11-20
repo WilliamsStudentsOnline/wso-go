@@ -21,9 +21,10 @@ import (
 // @Produce  json
 // @Param surveyID path uint true "Survey ID"
 // @Success 200 {object} models.FactrakAgreement
-// @Failure 1551 {object} services.BaseErrorResponse "survey agreement could not be found"
 // @Failure 400 {object} services.BaseErrorResponse
-// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 401 {object} services.BaseErrorResponse
+// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
+// @Failure 404 {object} services.BaseErrorResponse "404: record not found; 1551: survey agreement could not be found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/surveys/{surveyID}/agreement [get]
@@ -81,10 +82,9 @@ type AgreementCreateParams struct {
 // @Param surveyID path uint true "Survey ID"
 // @Param createParams body factrak.AgreementCreateParams true "Create Agreement Params"
 // @Success 201 {object} models.FactrakAgreement
-// @Failure 1553 {object} services.BaseErrorResponse "cannot create survey agreement with your own survey"
-// @Failure 1552 {object} services.BaseErrorResponse "survey agreement already exists for this user and survey"
-// @Failure 1100 {object} services.BaseErrorResponse "could not parse malformed request data"
-// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1552: survey agreement already exists for this user and survey; 1553: cannot create survey agreement with your own survey"
+// @Failure 401 {object} services.BaseErrorResponse
+// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -167,10 +167,10 @@ type AgreementUpdateParams struct {
 // @Param surveyID path uint true "Survey ID"
 // @Param updateParams body factrak.AgreementUpdateParams true "Update Agreement Params"
 // @Success 200 {object} models.FactrakAgreement
-// @Failure 1551 {object} services.BaseErrorResponse "survey agreement could not be found"
-// @Failure 1100 {object} services.BaseErrorResponse "could not parse malformed request data"
-// @Failure 400 {object} services.BaseErrorResponse
-// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data"
+// @Failure 401 {object} services.BaseErrorResponse
+// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
+// @Failure 404 {object} services.BaseErrorResponse "404: record not found; 1551: survey agreement could not be found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/surveys/{surveyID}/agreement [patch]
@@ -243,9 +243,10 @@ func (t *Controller) UpdateAgreement(c *gin.Context) {
 // @Produce  json
 // @Param surveyID path uint true "Survey ID"
 // @Success 200 {object} models.FactrakAgreement
-// @Failure 1551 {object} services.BaseErrorResponse "survey agreement could not be found"
 // @Failure 400 {object} services.BaseErrorResponse
-// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 401 {object} services.BaseErrorResponse
+// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
+// @Failure 404 {object} services.BaseErrorResponse "404: record not found; 1551: survey agreement could not be found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/surveys/{surveyID}/agreement [delete]

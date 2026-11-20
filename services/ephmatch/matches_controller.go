@@ -22,7 +22,9 @@ import (
 // @Produce  json
 // @Param preload query []string false "Preload List [tags]"
 // @Success 200 {array} responses.ListMatchesResponseEphmatchMatch
-// @Failure 500 {object} services.BaseErrorResponse
+// @Failure 401 {object} services.BaseErrorResponse
+// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
+// @Failure 410 {object} services.BaseErrorResponse "1900: ephmatch api is deprecated"
 // @Security Bearer
 // @Router /ephmatch/matches [get]
 func (t *Controller) ListMatches(c *gin.Context) {
@@ -74,7 +76,9 @@ type CountMatchesResponse struct {
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} ephmatch.CountMatchesResponse
-// @Failure 500 {object} services.BaseErrorResponse
+// @Failure 401 {object} services.BaseErrorResponse
+// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
+// @Failure 410 {object} services.BaseErrorResponse "1900: ephmatch api is deprecated"
 // @Security Bearer
 // @Router /ephmatch/matches-count [get]
 func (t *Controller) CountMatches(c *gin.Context) {
@@ -107,11 +111,9 @@ func (t *Controller) CountMatches(c *gin.Context) {
 // @Produce  json
 // @Param matchUserID path uint true "Match User ID"
 // @Success 200
-// @Failure 1730 {object} services.BaseErrorResponse "cannot ephmatch-relate yourself"
-// @Failure 1733 {object} services.BaseErrorResponse "ephmatch match could not be found"
-// @Failure 400 {object} services.BaseErrorResponse
-// @Failure 404 {object} services.BaseErrorResponse
-// @Failure 500 {object} services.BaseErrorResponse
+// @Failure 401 {object} services.BaseErrorResponse
+// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
+// @Failure 410 {object} services.BaseErrorResponse "1900: ephmatch api is deprecated"
 // @Security Bearer
 // @Router /ephmatch/matches/{matchUserID} [delete]
 func (t *Controller) Unmatch(c *gin.Context) {

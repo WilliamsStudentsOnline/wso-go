@@ -23,7 +23,9 @@ import (
 // @Param noRelations query bool false "Get profiles with no previous relations"
 // @Param preload query []string false "Preload List [tags, relation, matched]"
 // @Success 200 {array} models.EphmatchProfile
-// @Failure 500 {object} services.BaseErrorResponse
+// @Failure 401 {object} services.BaseErrorResponse
+// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
+// @Failure 410 {object} services.BaseErrorResponse "1900: ephmatch api is deprecated"
 // @Security Bearer
 // @Router /ephmatch/profiles [get]
 func (t *Controller) ListProfiles(c *gin.Context) {
@@ -84,9 +86,9 @@ func (t *Controller) ListProfiles(c *gin.Context) {
 // @Produce  json
 // @Param profileUserID path uint true "Profile User ID"
 // @Success 200 {object} models.EphmatchProfile
-// @Failure 400 {object} services.BaseErrorResponse
-// @Failure 404 {object} services.BaseErrorResponse
-// @Failure 500 {object} services.BaseErrorResponse
+// @Failure 401 {object} services.BaseErrorResponse
+// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
+// @Failure 410 {object} services.BaseErrorResponse "1900: ephmatch api is deprecated"
 // @Security Bearer
 // @Router /ephmatch/profiles/{profileUserID} [get]
 func (t *Controller) GetProfile(c *gin.Context) {
@@ -176,12 +178,9 @@ const (
 // @Param profileUserID path uint true "Profile User ID"
 // @Param relationParams body ephmatch.SetProfileRelationParams true "Set Profile Relation Params"
 // @Success 201 {object} SetProfileRelationResp
-// @Failure 1730 {object} services.BaseErrorResponse "cannot ephmatch-relate yourself"
-// @Failure 1731 {object} services.BaseErrorResponse "ephmatch profile could not be found"
-// @Failure 1732 {object} services.BaseErrorResponse "ephmatch relation already exists with user ID and passed ephmatch profile user ID"
-// @Failure 400 {object} services.BaseErrorResponse
-// @Failure 404 {object} services.BaseErrorResponse
-// @Failure 500 {object} services.BaseErrorResponse
+// @Failure 401 {object} services.BaseErrorResponse
+// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
+// @Failure 410 {object} services.BaseErrorResponse "1900: ephmatch api is deprecated"
 // @Security Bearer
 // @Router /ephmatch/profiles/{profileUserID}/relation [put]
 func (t *Controller) SetProfileRelation(c *gin.Context) {

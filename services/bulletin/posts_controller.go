@@ -21,8 +21,9 @@ import (
 // @Produce  json
 // @Param postID path uint true "Post ID"
 // @Success 200 {object} models.Post
-// @Failure 400 {object} services.BaseErrorResponse
-// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "400: path ID could not be parsed"
+// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
+// @Failure 404 {object} services.BaseErrorResponse "404: record not found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/posts/{postID} [get]
@@ -75,10 +76,9 @@ type CreatePostParams struct {
 // @Produce  json
 // @Param createParams body bulletin.CreatePostParams true "Create Post Params"
 // @Success 201 {object} models.Post
-// @Failure 1101 {object} services.BaseErrorResponse "request data validation failed"
-// @Failure 1332 {object} services.BaseErrorResponse "authenticated user not found"
-// @Failure 1850 {object} services.BaseErrorResponse "discussion cannot be found"
-// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed"
+// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization; 1332: authenticated user not found"
+// @Failure 404 {object} services.BaseErrorResponse "1850: discussion cannot be found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/posts [post]
@@ -149,9 +149,9 @@ type UpdatePostParams struct {
 // @Param updateParams body bulletin.UpdatePostParams true "Update Post Params"
 // @Param postID path uint true "Post ID"
 // @Success 200 {object} models.Post
-// @Failure 1331 {object} services.BaseErrorResponse "must be self"
-// @Failure 400 {object} services.BaseErrorResponse
-// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "400: path ID could not be parsed; 1100: could not parse malformed request data"
+// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization; 1331: must be self"
+// @Failure 404 {object} services.BaseErrorResponse "404: record not found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/posts/{postID} [patch]
@@ -209,9 +209,9 @@ func (t *Controller) UpdatePost(c *gin.Context) {
 // @Produce  json
 // @Param postID path uint true "Post ID"
 // @Success 200 {object} models.Post
-// @Failure 1331 {object} services.BaseErrorResponse "must be self"
-// @Failure 400 {object} services.BaseErrorResponse
-// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "400: path ID could not be parsed"
+// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization; 1331: must be self"
+// @Failure 404 {object} services.BaseErrorResponse "404: record not found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/posts/{postID} [delete]

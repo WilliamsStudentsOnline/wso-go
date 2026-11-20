@@ -120,6 +120,7 @@ func (t *Controller) ListAnnouncementBulletins(c *gin.Context) {
 // @Param type query string false "Ride Type (request, offer)"
 // @Param all query string false "Get All Bulletins (no restriction on startDate, endDate)"
 // @Success 200 {string} string "A RSS Feed serialized as XML string"
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/rss/ride [get]
@@ -199,6 +200,7 @@ func (t *Controller) ListRideBulletins(c *gin.Context) {
 // @Param offset query int false "Offset Pagination"
 // @Param limit query int false "Limit Pagination"
 // @Success 200 {string} string "A RSS Feed serialized as XML string"
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /bulletin/rss/discussion [get]

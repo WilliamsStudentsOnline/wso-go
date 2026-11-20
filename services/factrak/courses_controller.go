@@ -27,6 +27,9 @@ import (
 // @Param metric query string false "Ranking Metric"
 // @Param direction query bool false "Sorting Direction"
 // @Success 200 {array} models.Course
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed; 1570: cannot rank by this metric"
+// @Failure 401 {object} services.BaseErrorResponse
+// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/courses [get]
@@ -69,6 +72,8 @@ func (t *Controller) ListCourses(c *gin.Context) {
 // @Param courseID path uint true "Course ID"
 // @Success 200 {object} models.Course
 // @Failure 400 {object} services.BaseErrorResponse
+// @Failure 401 {object} services.BaseErrorResponse
+// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -119,7 +124,9 @@ func (t *Controller) GetCourse(c *gin.Context) {
 // @Param populateAgreements query bool false "Populate Agreement Counts"
 // @Param populateClientAgreement query bool false "Populate Client's Agreement"
 // @Success 200 {array} models.FactrakSurvey
-// @Failure 400 {object} services.BaseErrorResponse
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed"
+// @Failure 401 {object} services.BaseErrorResponse
+// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -179,6 +186,8 @@ func (t *Controller) ListCourseSurveys(c *gin.Context) {
 // @Param courseID path uint true "Course ID"
 // @Success 200 {array} models.User
 // @Failure 400 {object} services.BaseErrorResponse
+// @Failure 401 {object} services.BaseErrorResponse
+// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
@@ -227,6 +236,8 @@ func (t *Controller) ListCourseProfessors(c *gin.Context) {
 // @Param courseID path uint true "Course ID"
 // @Success 200 {object} models.FactrakSurveyAvgRatings
 // @Failure 400 {object} services.BaseErrorResponse
+// @Failure 401 {object} services.BaseErrorResponse
+// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 404 {object} services.BaseErrorResponse
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer

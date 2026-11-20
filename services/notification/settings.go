@@ -15,8 +15,8 @@ import (
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} models.NotificationSettings
-// @Failure 400 {object} services.BaseErrorResponse
-// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 401 {object} services.BaseErrorResponse
+// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /notification/settings [get]
@@ -49,9 +49,8 @@ type SettingsUpdateParams struct {
 // @Produce  json
 // @Param updateParams body notification.SettingsUpdateParams true "Update Settings Params"
 // @Success 200 {object} models.NotificationSettings
-// @Failure 1101 {object} services.BaseErrorResponse "request data validation failed"
-// @Failure 400 {object} services.BaseErrorResponse
-// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 401 {object} services.BaseErrorResponse
+// @Failure 403 {object} services.BaseErrorResponse "1330: no scope authorization"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /notification/settings [patch]
