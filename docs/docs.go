@@ -532,6 +532,71 @@ const docTemplate = `{
                 }
             }
         },
+        "/admin/jobs/{name}": {
+            "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "while disabled, new runs return 409 and timer and queued runs don't start",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin-jobs"
+                ],
+                "summary": "Update a batch job",
+                "operationId": "updateAdminJob",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "job name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "job settings",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/admin.updateJobRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin.jobInfo"
+                        }
+                    },
+                    "400": {
+                        "description": "1100: could not parse malformed request data; 1101: request data validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/jobs/{name}/runs": {
             "post": {
                 "security": [
@@ -583,6 +648,12 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "2500: job is disabled",
                         "schema": {
                             "$ref": "#/definitions/services.BaseErrorResponse"
                         }
@@ -9345,6 +9416,9 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "disabled": {
+                    "type": "boolean"
+                },
                 "hasActiveRun": {
                     "type": "boolean"
                 },
@@ -9362,6 +9436,17 @@ const docTemplate = `{
                 },
                 "schedule": {
                     "$ref": "#/definitions/registry.Schedule"
+                }
+            }
+        },
+        "admin.updateJobRequest": {
+            "type": "object",
+            "required": [
+                "disabled"
+            ],
+            "properties": {
+                "disabled": {
+                    "type": "boolean"
                 }
             }
         },

@@ -214,4 +214,7 @@ var (
 	ErrorBoardThreadNotFound          = NewAPIErrorWithHTTP(2413, http.StatusNotFound, "board thread cannot be found")
 	ErrorBoardPostNotFound            = NewAPIErrorWithHTTP(2414, http.StatusNotFound, "board post cannot be found")
 	ErrorBoardCannotFlagSelf          = NewAPIErrorWithHTTP(2415, http.StatusForbidden, "cannot flag your own content")
+
+	// 25** are admin job errors
+	ErrorJobDisabled = NewAPIErrorWithHTTP(2500, http.StatusConflict, "job is disabled")
 )
