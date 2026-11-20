@@ -54,26 +54,6 @@ func GenerateClaimsFactory(cfg *config.Config, db *gorm.DB, log *zap.SugaredLogg
 					}
 				}
 
-				// Ephmatch
-				// Give access to edit self profile on ephmatch to all eligible users
-				scope = append(scope, auth.ScopeEphmatch)
-				// If user has signed up, give access to matches
-				if hasEphmatchProfile(db, v.User.ID) {
-					scope = append(scope, auth.ScopeEphmatchMatches)
-					// If ephmatch is open, give access to like/unlike, other profiles
-					if enableEphmatch(cfg) {
-						// If ephmatch is senior only, only grant scope to seniors
-						// Otherwise, grant scope to everyone
-						if ephmatchSeniorOnly(cfg) {
-							if v.User.Student().SeniorPlus() {
-								scope = append(scope, auth.ScopeEphmatchProfiles)
-							}
-						} else {
-							scope = append(scope, auth.ScopeEphmatchProfiles)
-						}
-					}
-				}
-
 				// For factrak, user must be student and user accepted factrak policy
 				if v.User.HasAcceptedFactrakPolicy != nil && *v.User.HasAcceptedFactrakPolicy {
 					// TODO: ensure limited cannot get access via preloading
@@ -174,10 +154,6 @@ func removeBannedScope(scope *[]string, banInfo *models.BannedUser) {
 			if banInfo.BulletinWrite {
 				continue
 			}
-		case auth.ScopeEphmatch, auth.ScopeEphmatchMatches, auth.ScopeEphmatchProfiles:
-			if banInfo.Ephmatch {
-				continue
-			}
 		}
 
 		newScope = append(newScope, s)
@@ -187,46 +163,11 @@ func removeBannedScope(scope *[]string, banInfo *models.BannedUser) {
 	*scope = newScope
 }
 
-func hasEphmatchProfile(db *gorm.DB, userID uint) bool {
-	var count int
-	err := db.Model(&models.EphmatchProfile{}).Where("ephmatch_profiles.user_id = ?", userID).Count(&count).Error
-	if err != nil {
-		return false
-	}
-
-	return count > 0
-}
-
 func isSeniorWeek() bool {
 	now := time.Now()
 	seniorWeek := time.Date(now.Year(), time.May, 15, 0, 0, 0, 0, now.Location())
 	seniorWeekEnd := time.Date(now.Year(), models.StudentCutoffMonth, 1, 0, 0, 0, 0, now.Location())
 	return now.After(seniorWeek) && now.Before(seniorWeekEnd)
-}
-
-func getCurrentEphmatchEra(cfg *config.Config) (enabled bool, era *config.EphmatchEra) {
-	if cfg.EphmatchEnableNow {
-		return true, nil
-	}
-
-	now := time.Now()
-	for _, era := range cfg.EphmatchEras {
-		if era.Start.Before(now) && era.End.After(now) {
-			return true, &era
-		}
-	}
-
-	return false, nil
-}
-
-func enableEphmatch(cfg *config.Config) bool {
-	enabled, _ := getCurrentEphmatchEra(cfg)
-	return enabled
-}
-
-func ephmatchSeniorOnly(cfg *config.Config) bool {
-	_, era := getCurrentEphmatchEra(cfg)
-	return era != nil && era.SeniorOnly
 }
 
 func isWinterStudy() bool {

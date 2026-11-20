@@ -13,7 +13,7 @@ import (
 
 func TestRemoveBannedScope(t *testing.T) {
 	scope := []string{auth.ScopeChat, auth.ScopeUsers, auth.ScopeBulletin, auth.ScopeWriteSelf, auth.ScopeFactrakFull,
-		auth.ScopeFactrakLimited, auth.ScopeBulletinWrite, auth.ScopeEphmatch, auth.ScopeDormtrakWrite,
+		auth.ScopeFactrakLimited, auth.ScopeBulletinWrite, auth.ScopeDormtrakWrite,
 		auth.ScopeDormtrak}
 	banInfo := models.BannedUser{
 		Factrak:       true,
