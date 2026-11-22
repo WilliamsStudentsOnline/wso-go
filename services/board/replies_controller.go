@@ -136,11 +136,7 @@ func (t *Controller) UpdateReply(c *gin.Context) {
 		return
 	}
 
-	var opUserID uint
-	if post.Thread != nil {
-		opUserID = post.Thread.UserID
-	}
-	sanitizePosts(c, []*models.BoardPost{&post}, opUserID)
+	sanitizeLoadedPost(c, &post)
 	t.RespondOK(c, post)
 }
 
@@ -175,5 +171,6 @@ func (t *Controller) DeleteReply(c *gin.Context) {
 		return
 	}
 
+	sanitizeLoadedPost(c, &post)
 	t.RespondOK(c, post)
 }

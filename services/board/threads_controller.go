@@ -353,5 +353,6 @@ func (t *Controller) DeleteThread(c *gin.Context) {
 		return
 	}
 
+	sanitizeThread(c, &thread)
 	t.RespondOK(c, thread)
 }

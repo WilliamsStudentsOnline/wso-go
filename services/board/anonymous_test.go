@@ -218,3 +218,47 @@ func TestBoard_UserFilterHidesAnonymousThreads(t *testing.T) {
 	doJSON(assert, otherRouter, http.MethodGet, "/threads", nil, &list)
 	assert.Len(list.Threads, 2)
 }
+
+func TestBoard_DeleteResponsesRedactAnonymousAuthors(t *testing.T) {
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+
+	author := models.User{Type: models.UserTypeStudent, UnixID: "author", Name: "Author"}
+	other := models.User{Type: models.UserTypeStudent, UnixID: "other", Name: "Other"}
+	assert.NoError(db.Create(&author).Error)
+	assert.NoError(db.Create(&other).Error)
+	authorRouter := boardRouter(t, db, author.ID, writerScopes()...)
+	otherRouter := boardRouter(t, db, other.ID, writerScopes()...)
+
+	var created models.BoardThread
+	doJSON(assert, authorRouter, http.MethodPost, "/threads", CreateThreadParams{
+		Type: models.BoardThreadTypeDiscussion, Title: "Anon", Body: "body", Anonymous: true,
+	}, &created)
+
+	var reply models.BoardPost
+	doJSON(assert, otherRouter, http.MethodPost, fmt.Sprintf("/threads/%d/replies", created.ID), CreateReplyParams{Content: "named"}, &reply)
+	var anonReply models.BoardPost
+	doJSON(assert, otherRouter, http.MethodPost, fmt.Sprintf("/threads/%d/replies", created.ID), CreateReplyParams{Content: "anon", Anonymous: true}, &anonReply)
+
+	var deleted models.BoardPost
+	code := doJSON(assert, otherRouter, http.MethodDelete, fmt.Sprintf("/replies/%d", reply.ID), nil, &deleted)
+	assert.Equal(http.StatusOK, code)
+	assert.NotNil(deleted.Thread)
+	assert.Zero(deleted.Thread.UserID)
+	assert.Empty(deleted.Thread.ExUserName)
+	assert.Nil(deleted.Thread.User)
+
+	var deletedThread models.BoardThread
+	code = doJSON(assert, authorRouter, http.MethodDelete, fmt.Sprintf("/threads/%d", created.ID), nil, &deletedThread)
+	assert.Equal(http.StatusOK, code)
+	found := false
+	for _, p := range deletedThread.Posts {
+		if p.ID == anonReply.ID {
+			found = true
+			assert.Zero(p.UserID)
+			assert.Empty(p.ExUserName)
+			assert.Nil(p.User)
+		}
+	}
+	assert.True(found)
+}

@@ -66,6 +66,14 @@ func sanitizePosts(c *gin.Context, posts []*models.BoardPost, opUserID uint) {
 	}
 }
 
+func sanitizeLoadedPost(c *gin.Context, p *models.BoardPost) {
+	var opUserID uint
+	if p.Thread != nil {
+		opUserID = p.Thread.UserID
+	}
+	sanitizePosts(c, []*models.BoardPost{p}, opUserID)
+}
+
 func redactAuthor(c *gin.Context, anonymous bool, userID *uint, user **models.User, exUserName *string) {
 	if (anonymous && !isAdmin(c)) || !hasUserAuth(c) {
 		*userID = 0
