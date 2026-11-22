@@ -9487,6 +9487,9 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "isMine": {
+                    "type": "boolean"
+                },
                 "lastActive": {
                     "type": "string"
                 },

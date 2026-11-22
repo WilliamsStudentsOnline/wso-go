@@ -41,6 +41,8 @@ func sanitizeThread(c *gin.Context, t *models.BoardThread) {
 	if t == nil {
 		return
 	}
+	viewerID := services.GetUserID(c)
+	t.IsMine = viewerID != 0 && t.UserID == viewerID
 	sanitizePosts(c, t.Posts, t.UserID)
 	redactAuthor(c, t.IsAnonymous(), &t.UserID, &t.User, &t.ExUserName)
 }

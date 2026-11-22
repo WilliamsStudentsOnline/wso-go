@@ -87,6 +87,7 @@ func TestBoard_AnonymousRedaction(t *testing.T) {
 	var got models.BoardThread
 	doJSON(assert, otherRouter, http.MethodGet, url, nil, &got)
 	assert.Zero(got.UserID)
+	assert.False(got.IsMine)
 	assert.Nil(got.User)
 	assert.Empty(got.ExUserName)
 	assert.Len(got.Posts, 2)
@@ -101,6 +102,7 @@ func TestBoard_AnonymousRedaction(t *testing.T) {
 	got = models.BoardThread{}
 	doJSON(assert, authorRouter, http.MethodGet, url, nil, &got)
 	assert.Zero(got.UserID)
+	assert.True(got.IsMine)
 	assert.True(got.Posts[0].IsMine)
 	assert.False(got.Posts[1].IsMine)
 

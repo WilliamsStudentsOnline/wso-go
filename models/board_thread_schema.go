@@ -37,6 +37,7 @@ type BoardThread struct {
 	RideInformation *BoardRideInformation `gorm:"foreignkey:ThreadID;association_foreignkey:ID" json:"ride,omitempty"`
 	Body            string                `gorm:"-" json:"body,omitempty"` // hydrated from OP for API convenience
 
+	IsMine      bool      `gorm:"-" json:"isMine"`
 	CreatedTime time.Time `gorm:"-" json:"createdAt"`
 }
 
