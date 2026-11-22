@@ -262,6 +262,9 @@ func threadBody(thread *models.BoardThread) string {
 }
 
 func threadAuthorName(thread *models.BoardThread) string {
+	if thread.IsAnonymous() {
+		return "Anonymous"
+	}
 	name := userToAnonName(thread.User)
 	if name == "Unknown" && thread.ExUserName != "" {
 		return nameToAnonName(thread.ExUserName)
