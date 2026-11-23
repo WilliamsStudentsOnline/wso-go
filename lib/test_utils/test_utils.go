@@ -287,6 +287,7 @@ type APITestResp struct {
 	Error           *services.RespError `json:"error,omitempty"`
 	UpdateToken     bool                `json:"updateToken,omitempty"`
 	PaginationTotal int                 `json:"paginationTotal,omitempty"`
+	NextCursor      string              `json:"nextCursor,omitempty"`
 }
 
 // Retrieve the body of an HTTP response

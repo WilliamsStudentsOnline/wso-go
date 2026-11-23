@@ -1766,7 +1766,10 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/board.listThreadsResponse"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.BoardThread"
+                            }
                         }
                     }
                 }
@@ -9169,20 +9172,6 @@ const docTemplate = `{
                 },
                 "source": {
                     "type": "string"
-                }
-            }
-        },
-        "board.listThreadsResponse": {
-            "type": "object",
-            "properties": {
-                "nextCursor": {
-                    "type": "string"
-                },
-                "threads": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.BoardThread"
-                    }
                 }
             }
         },

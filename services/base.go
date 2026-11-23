@@ -23,6 +23,7 @@ type BaseResponse struct {
 	Error           *RespError  `json:"error,omitempty"`
 	UpdateToken     bool        `json:"updateToken,omitempty"`
 	PaginationTotal int         `json:"paginationTotal,omitempty"`
+	NextCursor      string      `json:"nextCursor,omitempty"`
 }
 
 type BaseErrorResponse struct {
@@ -40,6 +41,7 @@ type RespError struct {
 const (
 	UpdateTokenKey     = "updateToken"
 	PaginationTotalKey = "paginationTotal"
+	NextCursorKey      = "nextCursor"
 	ErrorCodeKey       = "errorCode"
 )
 
@@ -52,6 +54,7 @@ func (BaseController) RespondOK(c *gin.Context, data interface{}) {
 		// We set this in the context at any point if we need to update the token
 		UpdateToken:     c.GetBool(UpdateTokenKey),
 		PaginationTotal: c.GetInt(PaginationTotalKey),
+		NextCursor:      c.GetString(NextCursorKey),
 	})
 }
 
@@ -64,6 +67,7 @@ func (BaseController) RespondCreated(c *gin.Context, data interface{}) {
 		// We set this in the context at any point if we need to update the token
 		UpdateToken:     c.GetBool(UpdateTokenKey),
 		PaginationTotal: c.GetInt(PaginationTotalKey),
+		NextCursor:      c.GetString(NextCursorKey),
 	})
 }
 
@@ -214,4 +218,8 @@ func (BaseController) SetUpdateToken(c *gin.Context) {
 
 func (BaseController) SetPaginationTotal(c *gin.Context, total int) {
 	c.Set(PaginationTotalKey, total)
+}
+
+func (BaseController) SetNextCursor(c *gin.Context, cursor string) {
+	c.Set(NextCursorKey, cursor)
 }

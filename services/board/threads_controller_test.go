@@ -52,11 +52,15 @@ func TestBoard_CreateListGet(t *testing.T) {
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w.Code)
 	respData = utils.GetHTTPDataResp(assert, w.Body.Bytes())
-	var list struct {
-		Threads []*models.BoardThread `json:"threads"`
-	}
+	var list []*models.BoardThread
 	assert.NoError(json.Unmarshal(respData.Data, &list))
-	assert.Len(list.Threads, 1)
+	assert.Len(list, 1)
+	assert.Empty(respData.NextCursor)
+
+	w, err = utils.DoHTTPReq(router, http.MethodGet, "/threads?limit=1", nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+	assert.NotEmpty(utils.GetHTTPDataResp(assert, w.Body.Bytes()).NextCursor)
 
 	w, err = utils.DoHTTPReq(router, http.MethodGet, fmt.Sprintf("/threads/%d", created.ID), nil)
 	assert.NoError(err)
@@ -271,10 +275,8 @@ func TestBoard_FeedExcludesFutureAndExpired(t *testing.T) {
 	w, err := utils.DoHTTPReq(router, http.MethodGet, "/threads", nil)
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, w.Code)
-	var list struct {
-		Threads []*models.BoardThread `json:"threads"`
-	}
+	var list []*models.BoardThread
 	assert.NoError(json.Unmarshal(utils.GetHTTPDataResp(assert, w.Body.Bytes()).Data, &list))
-	assert.Len(list.Threads, 1)
-	assert.Equal("active", list.Threads[0].Title)
+	assert.Len(list, 1)
+	assert.Equal("active", list[0].Title)
 }
