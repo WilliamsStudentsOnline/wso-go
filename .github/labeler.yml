@@ -21,3 +21,10 @@ codegen:
           - .github/scripts/check-openapi.sh
           - .github/scripts/format-openapi-comment.py
           - .github/workflows/openapi.yml
+
+jobs:
+  - changed-files:
+      - any-glob-to-any-file:
+          - jobs/**
+          - services/admin/jobs*
+          - prod_files/systemd/**
