@@ -19,7 +19,6 @@ require (
 	github.com/golang-migrate/migrate/v4 v4.18.3
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/feeds v1.1.2
-	github.com/iancoleman/strcase v0.3.0
 	github.com/imdario/mergo v0.3.16
 	github.com/jinzhu/gorm v1.9.16
 	github.com/jinzhu/inflection v1.0.0
