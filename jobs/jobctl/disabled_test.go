@@ -2,20 +2,16 @@ package jobctl
 
 import (
 	"context"
-	"os"
 	"testing"
 
+	utils "github.com/WilliamsStudentsOnline/wso-go/lib/test_utils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func setupRedis(t *testing.T) {
 	t.Helper()
-	err := ConfigureRedisForTest()
-	if err != nil && os.Getenv("GITHUB_ACTIONS") == "" {
-		t.Skipf("redis not reachable: %v", err)
-	}
-	require.NoError(t, err)
+	utils.RequireRedis(t, ConfigureRedisForTest())
 }
 
 func TestSetJobDisabled(t *testing.T) {

@@ -9,7 +9,10 @@ if [[ "${IGNORE_SKIPS:-}" == "1" ]]; then
 else
   hash='#'
   skip_regex="$(awk "/^[^${hash}[:space:]]/ { print \$1 }" .github/coverage-exclude.txt | paste -sd'|' -)"
-  mapfile -t filtered < <(go list ./... | grep -Ev "/(${skip_regex})(/|$)")
+  filtered=()
+  while IFS= read -r p; do
+    filtered+=("$p")
+  done < <(go list ./... | grep -Ev "/(${skip_regex})(/|$)")
   if [[ ${#filtered[@]} -eq 0 ]]; then
     echo "gotest-filtered: no packages left after coverage-exclude filter" >&2
     exit 1
@@ -29,7 +32,7 @@ done
 
 if [[ "$replaced" -eq 0 ]]; then
   has_pkg=0
-  for arg in "${args[@]}"; do
+  for arg in ${args[@]+"${args[@]}"}; do
     case "$arg" in
       -* | "") ;;
       *)
@@ -45,4 +48,4 @@ if [[ "$replaced" -eq 0 ]]; then
   fi
 fi
 
-exec go test -json "${args[@]}"
+exec go test -json ${args[@]+"${args[@]}"}

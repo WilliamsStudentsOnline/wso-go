@@ -24,7 +24,7 @@ func NewLazy(addr string, db int) *Lazy {
 
 func NewLazyForTest() (*Lazy, error) {
 	c, err := SetupRedisClientForTest()
-	return &Lazy{addr: DefaultRedisAddr, db: TestDatabaseID, client: c}, err
+	return &Lazy{addr: TestRedisAddr(), db: TestDatabaseID, client: c}, err
 }
 
 // nil while redis is down

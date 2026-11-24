@@ -3,6 +3,7 @@ package redis_util
 import (
 	"context"
 	"errors"
+	"os"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -42,7 +43,14 @@ func SetupClient(url string, password string, databaseID int) (*RedisClient, err
 
 // Connect to a Redis database for testing
 func SetupRedisClientForTest() (*RedisClient, error) {
-	return SetupClient(DefaultRedisAddr, "", TestDatabaseID)
+	return SetupClient(TestRedisAddr(), "", TestDatabaseID)
+}
+
+func TestRedisAddr() string {
+	if addr := os.Getenv("WSO_TEST_REDIS_ADDR"); addr != "" {
+		return addr
+	}
+	return DefaultRedisAddr
 }
 
 // Wrappers for Get/Set
