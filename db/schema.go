@@ -42,5 +42,8 @@ func AutoMigrateModels(db *gorm.DB) error {
 		&models.BoardPost{},
 		&models.BoardRideInformation{},
 		&models.BoardBackfillMap{},
+		&models.BoardPoll{},
+		&models.BoardPollOption{},
+		&models.BoardPollVote{},
 	).Error
 }
