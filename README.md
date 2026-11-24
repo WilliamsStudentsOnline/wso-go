@@ -31,7 +31,7 @@ Profile and other pictures are served by the API at `/pic` from `picture_local_p
 ## Onboarding 
 
 ### Learning Go
-There are a number of resources out there to learn Go. The official tutorial is found [here](tour.golang.org). However, I prefer [Learn Go in Y Minutes](https://learnxinyminutes.com/docs/go/), which is pretty short and informative. 
+There are a number of resources out there to learn Go. The official tutorial is found [here](https://go.dev/tour). However, I prefer [Learn Go in Y Minutes](https://learnxinyminutes.com/docs/go/), which is pretty short and informative. 
 
 ### IDE
 You can use whatever you want as your Go IDE. VSCode is a popular choice as a lightweight editor. If you would like a full IDE, JetBrains Goland is free for students and it provides many more features. WSO also provides Cursor accounts for AI-assisted development, and may additionally provide ChatGPT and Anthropic subscriptions for power users.
@@ -72,9 +72,9 @@ Will start an interactive test runner using a separate DB. Tests hot-reload and 
 By default, local tests skip packages listed in `.github/coverage-exclude.txt`. Use `IGNORE_SKIPS=1` to run everything (this may lead to some failures, as packages are skipped intentionally).
 
 ## Models
-The models folder will contain all models. Currently, there are two types of structs for each model. Help with the database driver can be found [here](https://gorm.io/docs).
+The models folder will contain all models. Currently, there are two types of structs for each model. We use [jinzhu/gorm v1](https://v1.gorm.io/docs/) (not gorm.io v2) on MariaDB.
 The schema struct (e.g. `user_schema.go` or `User{}`) is the parsed Go interpretation of a database row. Any functions built off the schema struct should relate directly to the data at hand (such as `IsStudent()`), and not make any DB calls.
-The model struct (e.g. `user.go` or `UserModel{}`) is the database adapter for this model. It should contain the DB as a field and will run any CRUD or other DB-related queries. Most of these queries should return a schema struct.
+The model struct (e.g. `user.go` or `UserModel{}`) is the database adapter for this model. It embeds `*BaseModel` (which holds the DB) and runs any CRUD or other DB-related queries. Most of these queries should return a schema struct.
 
 ### Migrations
 
@@ -95,27 +95,16 @@ Legacy Go files under `db/migrations/` are frozen (historical gormigrate); do no
 Sometimes we may wish to make major changes to tables that are already populated with user data, e.g. merging multiple tables into one, or preparing to make destructive changes to an existing table. To do this, we first write an additive migration, then write code to move the existing data over to the new table. These are called backfills and should be written as jobs in `jobs/backfills`, registered as manual. Jobs should be prefixed with `backfill_` and ensure idempotency/safety with a `backfill_map_` table tracking which rows have already been moved over.
 
 #### Schema
-Schemas are defined following the [GORM guidelines](https://gorm.io/docs/models). Optional fields and all booleans are pointer-type, and associations are documented [here](https://gorm.io/docs/belongs_to.html). When working with any optional fields, you can easily convert a literal value into a pointer by using the `lib/to_pointer.go` file, which has functions like `lib.StrToPtr(str string) *string`.
-
-### Auto-Generate
-> This section may be out of date
-
-You can use the auto-generator to generate a services and models. Usage is as follows:
-
-For Services:
-`go run lib/generate/cmd/main.go service -m [model] [service_name]`
-
-For Models:
-`go run lib/generate/cmd/main.go model -t [table] [ModelName] `
+Schemas are defined following the [GORM v1 guidelines](https://v1.gorm.io/docs/models.html). Optional fields and all booleans are pointer-type, and associations are documented [here](https://v1.gorm.io/docs/belongs_to.html). When working with any optional fields, you can easily convert a literal value into a pointer by using the `lib/to_pointer.go` file, which has functions like `lib.StrToPtr(str string) *string`.
 
 ## API Endpoints
 
-API Endpoints are documented at `localhost:8080/docs`, and in the director `docs/` as swagger files. You can also 
+API Endpoints are documented at `localhost:8080/docs`, and in the directory `docs/` as swagger files. You can also 
 look at controller comments for any endpoint info. Don't use the provided query tools, bc they don't play nice 
 with our authentication.
 
 ### Services
-This project uses microservices to define API endpoints. This is essentially the combination of a controller and a router. Look at the dormtrak service for a good example.
+Each package under `services/` defines a group of API endpoints with a controller and a router. Look at the feedback service for a good example.
 All controller endpoints **MUST BE DOCUMENTED** in the style laid out (swaggo).
 
 ### REST-API Guidelines
@@ -148,26 +137,18 @@ We use something called a [JWT](jwt.io), or JSON Web Token for the API. This all
 
 ## Analytics
 
-> This section may be out of date
-
-wso-go can be run with Grafana and Prometheus to improve the quality and accessiblity of logs. This feature is non-critical and you do not need to use it. To install Grafana and Prometheus, you should read [this](https://grafana.com/docs/grafana/latest/setup-grafana/installation/debian/) site for Grafana and [this](https://prometheus.io/docs/prometheus/latest/installation/) site for Prometheus. Open source version of both can be installed using a package manager like `apt-get` or `brew`. Please also install the package `prometheus-node-exporter`, or else many Grafana graphs will not work correctly.
-
-Once you have these packages installed, you can optionally install the Grafana config files to your system Grafana directory by running `grafana-install` as root in the `prod_files/` directory. To run them alongside wso-go, run the command `make run-with-analytics`. This should autostart the servers. Grafana is accessible on port 9093 through a browser, and Prometheus is configured to run on port 9095. To login to Grafana for the first time, use the username `admin` and the password `admin`. All files will be found in the `prod_files/` directory. Please change the values in `run-analytics.sh` when you use this in production. 
-
-Alternatively, if you're running wso-go on a Linux system, you can install the systemd service files and edit the values to run Grafana and Prometheus. This is how it is actually done in production.
-
-Analytics are served at port `:9092`!
+Prometheus metrics are served on `:2112`. Production Grafana/Prometheus configs live in `prod_files/`.
 
 ## Codebase Structure
 
 - `config/` contains the server configuration library, logging library, secrets library, and various configurations
-  - `environment/development.yml` is the local development configuration yaml
+  - `environment/development.yaml` is the local development configuration yaml
 - `db/` contains migration code
   - `atlas/` Atlas config, `schema.sql`, and versioned SQL migrations
   - `seed/development.sql.gz` Seeded database for local dev (refresh with `make dev-seed-dump`)
   - `migrations/` frozen historical gormigrate migrations (predating our migration to Atlas)
 - `docs/` contains swagger API docs (generated for you, do not hand edit!)
-- `jobs/` contains cron job launching code and specific jobs to run on the server (e.g. update users from LDAP)
+- `jobs/` contains jobs run on the server (e.g. update users from LDAP), registered in `jobs/registry` and run as systemd units via `jobctl`
 - `lib/` has library files (helpful functions, errors, etc.). We try to minimize the number of external libraries we import here, as this is so widely used
   - `errors.go` contains all API errors
   - `auth/` contains authentication info about scopes and useful ways to use scopes
@@ -178,6 +159,6 @@ Analytics are served at port `:9092`!
   - `test_utils/` utilities for tests to use
 - `models/` contains database models
 - `server/` has master API routing and entrypoint for entire server
-- `services/` contains all server microservices
+- `services/` contains all API services
 
 Good luck!
