@@ -12,7 +12,7 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	c := NewController(db, cfg, log)
 
 	writer := r.Group("")
-	writer.Use(auth.RequireScopes(auth.ScopeWriteSelf, auth.ScopeBulletinWrite))
+	writer.Use(auth.RequireScopes(auth.ScopeBulletinWrite))
 
 	r.GET("/threads", c.ListThreads)
 	r.GET("/threads/:threadID", c.GetThread)

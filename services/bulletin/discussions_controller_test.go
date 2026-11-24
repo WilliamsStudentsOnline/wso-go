@@ -22,7 +22,7 @@ func TestController_ListDiscussions(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf)
+	router := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf, auth.ScopeBulletinWrite)
 	cfg := utils.SetupConfig()
 
 	u1 := models.User{
@@ -158,7 +158,7 @@ func TestController_GetDiscussion(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf, auth.ScopeUsers)
+	router := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf, auth.ScopeBulletinWrite, auth.ScopeUsers)
 	cfg := utils.SetupConfig()
 
 	u1 := models.User{
@@ -210,7 +210,7 @@ func TestController_GetDiscussion(t *testing.T) {
 	assert.NotEmpty(resp.Posts[0].ExUserName)
 
 	/* Get test discussion (signed out) */
-	r1 := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf)
+	r1 := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf, auth.ScopeBulletinWrite)
 	SetupRouter(r1, db, cfg, zaptest.NewLogger(t).Sugar())
 	w, err = utils.DoHTTPReq(r1, http.MethodGet, fmt.Sprintf("/discussions/%d?preload[]=user&preload[]=posts&preload[]=postsUsers", d1.ID), nil)
 	assert.NoError(err)
@@ -244,7 +244,7 @@ func TestController_GetDiscussionPosts(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf)
+	router := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf, auth.ScopeBulletinWrite)
 	cfg := utils.SetupConfig()
 
 	u1 := models.User{
@@ -332,7 +332,7 @@ func TestController_CreateDiscussion(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf)
+	router := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf, auth.ScopeBulletinWrite)
 	cfg := utils.SetupConfig()
 
 	u1 := models.User{
@@ -392,7 +392,7 @@ func TestController_DeleteDiscussion(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf, auth.ScopeAdminAll)
+	router := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf, auth.ScopeBulletinWrite, auth.ScopeAdminAll)
 	cfg := utils.SetupConfig()
 
 	u1 := models.User{
@@ -420,7 +420,7 @@ func TestController_DeleteDiscussion(t *testing.T) {
 
 	/* Delete discussion with incorrect scopes (expect failure) */
 	apiErr := lib.ErrorNoScopeAuthorization
-	r1 := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf)
+	r1 := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf, auth.ScopeBulletinWrite)
 	SetupRouter(r1, db, cfg, zaptest.NewLogger(t).Sugar())
 	w, err := utils.DoHTTPReq(r1, http.MethodDelete, fmt.Sprintf("/discussions/%d", d1.ID), nil)
 	assert.NoError(err)

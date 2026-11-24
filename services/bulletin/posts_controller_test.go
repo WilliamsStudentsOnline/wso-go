@@ -21,7 +21,7 @@ func TestController_GetPost(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf, auth.ScopeUsers)
+	router := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf, auth.ScopeBulletinWrite, auth.ScopeUsers)
 	cfg := utils.SetupConfig()
 
 	u1 := models.User{
@@ -67,7 +67,7 @@ func TestController_GetPost(t *testing.T) {
 	assert.NotEmpty(resp.ExUserName)
 
 	/* Get test discussion (signed out) */
-	r1 := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf)
+	r1 := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf, auth.ScopeBulletinWrite)
 	SetupRouter(r1, db, cfg, zaptest.NewLogger(t).Sugar())
 	w, err = utils.DoHTTPReq(r1, http.MethodGet, fmt.Sprintf("/posts/%d", p1.ID), nil)
 	assert.NoError(err)
@@ -99,7 +99,7 @@ func TestController_CreatePost(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf)
+	router := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf, auth.ScopeBulletinWrite)
 	cfg := utils.SetupConfig()
 
 	u1 := models.User{
@@ -170,7 +170,7 @@ func TestController_UpdatePost(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf)
+	router := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf, auth.ScopeBulletinWrite)
 	cfg := utils.SetupConfig()
 
 	u1 := models.User{
@@ -240,7 +240,7 @@ func TestController_DeletePost(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf)
+	router := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf, auth.ScopeBulletinWrite)
 	cfg := utils.SetupConfig()
 
 	u1 := models.User{
