@@ -19,6 +19,10 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	r.POST("/tasks/:taskID/resolve", c.ResolveTasks)
 	r.DELETE("/tasks/:taskID", c.DeleteTask)
 
+	r.GET("/users", c.ListUsers)
+	r.GET("/users/:userID/access", c.GetUserAccess)
+	r.PUT("/users/:userID/access", c.UpdateUserAccess)
+
 	r.GET("/jobs", c.ListJobs)
 	r.GET("/jobs/runs", c.ListJobRuns)
 	r.GET("/jobs/runs/:id", c.GetJobRun)
