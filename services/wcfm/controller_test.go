@@ -5,7 +5,6 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 	"time"
 
@@ -172,12 +171,7 @@ func TestGetNow_UpstreamDown(t *testing.T) {
 
 func TestCached_RedisHitThenStaleFallback(t *testing.T) {
 	assert := testify.New(t)
-	if err := ConfigureControllerForTest(); err != nil {
-		if os.Getenv("GITHUB_ACTIONS") == "" {
-			t.Skipf("redis not reachable: %v", err)
-		}
-		t.Fatal(err)
-	}
+	utils.RequireRedis(t, ConfigureControllerForTest())
 	ctx := context.Background()
 	log := zaptest.NewLogger(t).Sugar()
 	key := redis_util.GetWCFMCacheKey("test")

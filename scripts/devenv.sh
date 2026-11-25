@@ -27,7 +27,7 @@ export WSO_MYSQL_PORT="$MYSQL_HOST_PORT"
 export WSO_REDIS_ADDR="127.0.0.1:${REDIS_HOST_PORT}"
 
 COMPOSE=(docker compose -p "$COMPOSE_PROJECT_NAME")
-TEST_COMPOSE=(docker compose -p "${COMPOSE_PROJECT_NAME}-test" -f docker-compose.test.yml)
+TEST_COMPOSE=(docker compose -p "${COMPOSE_PROJECT_NAME}-test" -f docker-compose.test.yml --profile redis)
 
 CLEANING=0
 AIR_PID=""

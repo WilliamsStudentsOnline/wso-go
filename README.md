@@ -95,27 +95,16 @@ Legacy Go files under `db/migrations/` are frozen (historical gormigrate); do no
 Sometimes we may wish to make major changes to tables that are already populated with user data, e.g. merging multiple tables into one, or preparing to make destructive changes to an existing table. To do this, we first write an additive migration, then write code to move the existing data over to the new table. These are called backfills and should be written as jobs in `jobs/backfills`, registered as manual. Jobs should be prefixed with `backfill_` and ensure idempotency/safety with a `backfill_map_` table tracking which rows have already been moved over.
 
 #### Schema
-Schemas are defined following the [GORM guidelines](https://gorm.io/docs/models). Optional fields and all booleans are pointer-type, and associations are documented [here](https://gorm.io/docs/belongs_to.html). When working with any optional fields, you can easily convert a literal value into a pointer by using the `lib/to_pointer.go` file, which has functions like `lib.StrToPtr(str string) *string`.
-
-### Auto-Generate
-> This section may be out of date
-
-You can use the auto-generator to generate a services and models. Usage is as follows:
-
-For Services:
-`go run lib/generate/cmd/main.go service -m [model] [service_name]`
-
-For Models:
-`go run lib/generate/cmd/main.go model -t [table] [ModelName] `
+Schemas are defined following the [GORM v1 guidelines](https://v1.gorm.io/docs/models.html). Optional fields and all booleans are pointer-type, and associations are documented [here](https://v1.gorm.io/docs/belongs_to.html). When working with any optional fields, you can easily convert a literal value into a pointer by using the `lib/to_pointer.go` file, which has functions like `lib.StrToPtr(str string) *string`.
 
 ## API Endpoints
 
-API Endpoints are documented at `localhost:8080/docs`, and in the director `docs/` as swagger files. You can also 
+API Endpoints are documented at `localhost:8080/docs`, and in the directory `docs/` as swagger files. You can also 
 look at controller comments for any endpoint info. Don't use the provided query tools, bc they don't play nice 
 with our authentication.
 
 ### Services
-This project uses microservices to define API endpoints. This is essentially the combination of a controller and a router. Look at the dormtrak service for a good example.
+Each package under `services/` defines a group of API endpoints with a controller and a router. Look at the feedback service for a good example.
 All controller endpoints **MUST BE DOCUMENTED** in the style laid out (swaggo).
 
 ### REST-API Guidelines
@@ -161,13 +150,13 @@ Analytics are served at port `:9092`!
 ## Codebase Structure
 
 - `config/` contains the server configuration library, logging library, secrets library, and various configurations
-  - `environment/development.yml` is the local development configuration yaml
+  - `environment/development.yaml` is the local development configuration yaml
 - `db/` contains migration code
   - `atlas/` Atlas config, `schema.sql`, and versioned SQL migrations
   - `seed/development.sql.gz` Seeded database for local dev (refresh with `make dev-seed-dump`)
   - `migrations/` frozen historical gormigrate migrations (predating our migration to Atlas)
 - `docs/` contains swagger API docs (generated for you, do not hand edit!)
-- `jobs/` contains cron job launching code and specific jobs to run on the server (e.g. update users from LDAP)
+- `jobs/` contains jobs run on the server (e.g. update users from LDAP), registered in `jobs/registry` and run as systemd units via `jobctl`
 - `lib/` has library files (helpful functions, errors, etc.). We try to minimize the number of external libraries we import here, as this is so widely used
   - `errors.go` contains all API errors
   - `auth/` contains authentication info about scopes and useful ways to use scopes
@@ -178,6 +167,6 @@ Analytics are served at port `:9092`!
   - `test_utils/` utilities for tests to use
 - `models/` contains database models
 - `server/` has master API routing and entrypoint for entire server
-- `services/` contains all server microservices
+- `services/` contains all API services
 
 Good luck!

@@ -3,7 +3,6 @@ package admin_test
 import (
 	"encoding/json"
 	"net/http"
-	"os"
 	"strings"
 	"testing"
 
@@ -39,11 +38,7 @@ func listJobsDisabled(t *testing.T, env *utils.TestEnv) map[string]bool {
 
 func setupAdminJobs(t *testing.T) (*testify.Assertions, *utils.TestEnv) {
 	t.Helper()
-	err := jobctl.ConfigureRedisForTest()
-	if err != nil && os.Getenv("GITHUB_ACTIONS") == "" {
-		t.Skipf("redis not reachable: %v", err)
-	}
-	require.NoError(t, err)
+	utils.RequireRedis(t, jobctl.ConfigureRedisForTest())
 	return setupAdminTasks(t)
 }
 

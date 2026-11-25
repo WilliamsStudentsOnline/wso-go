@@ -12,6 +12,10 @@ BUILD_DEPS = $(call rwildcard, $(BUILD_DIRS), *.go) $(wildcard jobs/*/*.go) jobs
 SERVICE_DIRS = $(wildcard services/*)
 SWAGGER := $(shell which swag 2>/dev/null)
 GOIMPORTS := $(shell which goimports 2>/dev/null)
+SWAG_VERSION ?= v1.16.3
+GOIMPORTS_VERSION ?= v0.49.0
+OASDIFF_VERSION ?= v1.39.0
+SPECTRAL_VERSION ?= 6.16.3
 
 jobs/dorms_update/cmd/data.go: $(wildcard jobs/dorms_update/data/*) jobs/dorms_update/cmd/gen.go
 	go generate $(GIT_REPO)/jobs/dorms_update/cmd
@@ -221,13 +225,26 @@ goimports command is missing.
 GoImports Installation Instructions
 ---
 Run:
-  go get golang.org/x/tools/cmd/goimports
+  make install-tools
 
 Ensure your go bin is in your $$PATH.
 Edit your ~/.bashrc to add this line:
   export PATH=$$PATH:$$(go env GOPATH)/bin
 
 endef
+
+.PHONY: install-tools
+install-tools:
+	go install github.com/swaggo/swag/cmd/swag@$(SWAG_VERSION)
+	go install golang.org/x/tools/cmd/goimports@$(GOIMPORTS_VERSION)
+	go install github.com/oasdiff/oasdiff@$(OASDIFF_VERSION)
+	go install gotest.tools/gotestsum@$(GOTESTSUM_VERSION)
+	@if command -v npm >/dev/null 2>&1; then \
+		npm install -g @stoplight/spectral-cli@$(SPECTRAL_VERSION); \
+	else \
+		echo "npm not found; install Node, then: npm install -g @stoplight/spectral-cli@$(SPECTRAL_VERSION)"; \
+	fi
+	@command -v atlas >/dev/null 2>&1 || echo "atlas not found; install from https://atlasgo.io/getting-started"
 
 .PHONY: commit
 commit: jobs/dorms_update/cmd/data.go docs/docs.go fmt
@@ -262,11 +279,12 @@ TEST_MYSQL_ROOT_PASSWORD ?= secret-mysql-password
 TEST_MYSQL_HOST ?= 127.0.0.1
 TEST_MYSQL_HOST_PORT ?= 3307
 TEST_MYSQL_PORT ?= $(TEST_MYSQL_HOST_PORT)
+TEST_REDIS_HOST_PORT ?= 6380
 
 .PHONY: _test-mysql-up
 _test-mysql-up:
 	@if [ -z "$(DOCKER)" ]; then echo "docker not found in PATH"; exit 1; fi
-	@$(DOCKER) compose -p $(TEST_COMPOSE_PROJECT) -f docker-compose.test.yml up -d --wait
+	@$(DOCKER) compose -p $(TEST_COMPOSE_PROJECT) -f docker-compose.test.yml --profile redis up -d --wait
 
 .PHONY: _test-mysql-down
 _test-mysql-down:
@@ -288,8 +306,9 @@ export WSO_TEST_MYSQL_HOST ?= $(TEST_MYSQL_HOST)
 export WSO_TEST_MYSQL_PORT ?= $(TEST_MYSQL_PORT)
 export WSO_TEST_MYSQL_USER ?= root
 export WSO_TEST_MYSQL_PASSWORD ?= $(TEST_MYSQL_ROOT_PASSWORD)
+export WSO_TEST_REDIS_ADDR ?= 127.0.0.1:$(TEST_REDIS_HOST_PORT)
 
-GOTESTSUM_VERSION ?= latest
+GOTESTSUM_VERSION ?= v1.13.0
 GOTESTSUM_FMT = --format=pkgname-and-test-fails --format-hide-empty-pkg --hide-summary=output
 
 ensure_gotestsum = \
@@ -366,7 +385,7 @@ check-migrations:
 		echo "check-migrations: no migrations detected"; \
 		exit 0; \
 	fi; \
-	cd db/atlas && $(ATLAS) migrate validate --env local --config file://atlas.hcl; \
+	cd db/atlas && $(ATLAS) migrate validate --env local --config file://atlas.hcl && \
 	echo "check-migrations: passed ($$n version$$([ $$n -eq 1 ] || echo s))"
 
 ### Docker definitions

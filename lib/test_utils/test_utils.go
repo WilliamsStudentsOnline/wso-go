@@ -38,6 +38,17 @@ func envOr(key, fallback string) string {
 	return fallback
 }
 
+func RequireRedis(t *testing.T, err error) {
+	t.Helper()
+	if err == nil {
+		return
+	}
+	if os.Getenv("GITHUB_ACTIONS") == "" && os.Getenv("WSO_TEST_REDIS_ADDR") == "" {
+		t.Skipf("redis not reachable: %v", err)
+	}
+	t.Fatalf("redis not reachable: %v", err)
+}
+
 func testMySQLHost() string { return envOr("WSO_TEST_MYSQL_HOST", "127.0.0.1") }
 func testMySQLUser() string { return envOr("WSO_TEST_MYSQL_USER", "root") }
 func testMySQLPass() string {

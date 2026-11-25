@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
-	"os"
 	"testing"
 
 	"github.com/WilliamsStudentsOnline/wso-go/lib"
@@ -15,14 +14,9 @@ import (
 	"go.uber.org/zap/zaptest"
 )
 
-// Skip locally if redis isn't running (local dev only)
 func configureRedis(t *testing.T) {
 	t.Helper()
-	err := banner.ConfigureControllerForTest()
-	if err != nil && os.Getenv("GITHUB_ACTIONS") == "" {
-		t.Skipf("redis not reachable: %v", err)
-	}
-	testify.NoError(t, err)
+	utils.RequireRedis(t, banner.ConfigureControllerForTest())
 }
 
 func TestBanner_PostRequiresAdmin(t *testing.T) {

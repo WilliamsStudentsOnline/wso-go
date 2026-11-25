@@ -19,6 +19,17 @@ services:
       timeout: 5s
       retries: 30
       start_period: 5s
+  redis:
+    image: redis:7
+    profiles: [redis]
+    restart: unless-stopped
+    ports:
+      - "${TEST_REDIS_HOST_PORT:-6380}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
 
 volumes:
   wso_mysql_test_data:
