@@ -31,36 +31,44 @@ func NewStudentModel(db *gorm.DB, log *zap.SugaredLogger) *StudentModel {
 	}
 }
 
-// Given a user, update its survey deficit. Run this every semester and put however many needed.
-// We require 2 surveys this semester in order to access it.
+// Surveys written before the semester began don't count, whatever semester they're about
 func (m *StudentModel) UpdateFactrakSurveyDeficit(user *User) (err error) {
-	// Count written surveys
-	fsM := NewFactrakSurveyModel(m.DB, m.log)
-	surveyCount, err := fsM.CountSurveysByUser(user.ID)
+	now := m.Clock.Now()
+	deficit, err := m.factrakSurveyDeficit(user.ID, now)
 	if err != nil {
 		return
 	}
 
-	var deficit int
-
-	if surveyCount >= user.Student().surveyThreshold() {
-		deficit = 0
-	} else {
-		surveysThisSem, err := fsM.CountSurveysThisSemesterByUser(user.ID, m.Clock.Now())
-		if err != nil {
-			return err
-		}
-
-		deficit = 2 - surveysThisSem
-	}
-
-	// Minimum 0 deficit
-	if deficit < 0 {
-		deficit = 0
-	}
-
 	err = m.DB.Model(&user).Update("factrak_survey_deficit", deficit).Error
 	return
+}
+
+func (m *StudentModel) factrakSurveyDeficit(userID uint, now time.Time) (int, error) {
+	// Read from the database: callers may pass a user with only the ID set
+	var onCampusSemesters []int
+	err := m.DB.Model(&User{}).Where("users.id = ?", userID).Pluck("on_campus_semesters", &onCampusSemesters).Error
+	if err != nil {
+		return 0, err
+	}
+	// Students with no class year are never counted on campus, so they owe nothing too
+	if len(onCampusSemesters) == 0 || onCampusSemesters[0] <= 1 {
+		return 0, nil
+	}
+
+	exempt, err := NewFactrakDeficitExemptionModel(m.DB, m.log).HasApprovedExemption(userID, now)
+	if err != nil || exempt {
+		return 0, err
+	}
+
+	surveys, err := NewFactrakSurveyModel(m.DB, m.log).CountSurveysThisSemesterByUser(userID, now)
+	if err != nil {
+		return 0, err
+	}
+
+	if surveys >= 2 {
+		return 0, nil
+	}
+	return 2 - surveys, nil
 }
 
 func (m *StudentModel) SeniorYear() int {
@@ -227,20 +235,4 @@ func (s *Student) SeniorPlus() bool {
 
 func (s *Student) IsUpperClass() bool {
 	return s.YearNumber() >= StudentYearSophomore
-}
-
-// The Factrak survey requirement count
-// To be excluded from the 2 surveys requirement this sem, you must have submitted
-// at least 2N reviews, where N is the number of semesters you have stayed on campus.
-func (s *Student) surveyThreshold() int {
-	if s.ClassYear == nil {
-		// Mostly Language TAs and Grad students; return a flat 3 requirement
-		return 3
-	} else if s.OnCampusSemesters < 1 {
-		// Pre-Frosh
-		return 0
-	} else {
-		// Note that OnCampusSemesters signals the current semester, and user only need to write about past semesters
-		return (s.OnCampusSemesters - 1) * 2
-	}
 }

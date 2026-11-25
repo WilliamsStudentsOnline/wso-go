@@ -42,6 +42,7 @@ func TestBannedUser(t *testing.T) {
 	user := models.User{
 		Type:                     "student",
 		HasAcceptedFactrakPolicy: lib.BoolToPtr(true),
+		OnCampusSemesters:        2,
 	}
 
 	assert.NoError(db.Create(&user).Error)

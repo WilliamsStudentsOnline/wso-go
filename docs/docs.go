@@ -12003,7 +12003,8 @@ const docTemplate = `{
                 "NEW_USER_TAG",
                 "BOARD_THREAD_REVIEW",
                 "BOARD_POST_REVIEW",
-                "USER_PHOTO_REVIEW"
+                "USER_PHOTO_REVIEW",
+                "FACTRAK_DEFICIT_EXEMPTION"
             ],
             "x-enum-varnames": [
                 "ModeratorTaskTypeUndefined",
@@ -12011,7 +12012,8 @@ const docTemplate = `{
                 "ModeratorTaskTypeNewUserTag",
                 "ModeratorTaskTypeBoardThreadReview",
                 "ModeratorTaskTypeBoardPostReview",
-                "ModeratorTaskTypeUserPhotoReview"
+                "ModeratorTaskTypeUserPhotoReview",
+                "ModeratorTaskTypeFactrakDeficitExemption"
             ]
         },
         "models.Neighborhood": {

@@ -181,3 +181,14 @@ func TestDefaultPortedJobs(t *testing.T) {
 		require.NoError(t, err, "scheduled job %s", j.Name)
 	}
 }
+
+func TestDeficitJobRunsAfterOnCampusSemesters(t *testing.T) {
+	semesters, ok := Default().Get("update-on-campus-semesters")
+	require.True(t, ok)
+	deficits, ok := Default().Get("update-all-factrak-survey-deficits")
+	require.True(t, ok)
+
+	assert.Equal(t, "*-03,10-01 00:00:00", semesters.Schedule.OnCalendar)
+	assert.Equal(t, "*-03,10-01 01:00:00", deficits.Schedule.OnCalendar)
+	assert.Contains(t, deficits.After, semesters.ServiceFile())
+}
