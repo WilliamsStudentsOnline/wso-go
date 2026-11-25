@@ -22,6 +22,7 @@ need() {
 need swag
 need spectral
 need oasdiff
+need npx
 
 cleanup() {
   rm -rf "${SNAP_DIR:-}" "${BASE_DIR:-}"
@@ -73,36 +74,46 @@ fi
 echo "==> oasdiff vs ${OPENAPI_BASE_REF}"
 BASE_DIR="$(mktemp -d)"
 
-if ! git cat-file -e "${OPENAPI_BASE_REF}:docs/swagger.yaml" 2>/dev/null; then
-  echo "error: ${OPENAPI_BASE_REF}:docs/swagger.yaml not found (fetch the base ref?)" >&2
-  echo fail >"$RESULTS_DIR/breaking.status"
-  echo "base ref missing: ${OPENAPI_BASE_REF}" >"$RESULTS_DIR/breaking.txt"
+oasdiff_error() {
+  echo "error: $1" >&2
+  echo error >"$RESULTS_DIR/breaking.status"
+  echo "$1" >"$RESULTS_DIR/breaking.txt"
+  cat "$BASE_DIR/stderr" >>"$RESULTS_DIR/breaking.txt" 2>/dev/null || true
   echo '[]' >"$RESULTS_DIR/changelog.json"
   failed=1
-else
-  git show "${OPENAPI_BASE_REF}:docs/swagger.yaml" >"$BASE_DIR/base.yaml"
+}
 
+# Run from BASE_DIR so reports contain no temp paths
+run_oasdiff() {
+  (cd "$BASE_DIR" && oasdiff "$1" base.oas3.yaml head.oas3.yaml \
+    --severity-levels "$ROOT/.github/scripts/oasdiff-severity.txt" "${@:2}")
+}
+
+if ! git cat-file -e "${OPENAPI_BASE_REF}:docs/swagger.yaml" 2>/dev/null; then
+  oasdiff_error "${OPENAPI_BASE_REF}:docs/swagger.yaml not found (fetch the base ref?)"
+elif ! git show "${OPENAPI_BASE_REF}:docs/swagger.yaml" >"$BASE_DIR/base.yaml" \
+  || ! .github/scripts/convert-openapi.sh "$BASE_DIR/base.yaml" "$BASE_DIR/base.oas3.yaml" 2>"$BASE_DIR/stderr"; then
+  oasdiff_error "failed to convert ${OPENAPI_BASE_REF}:docs/swagger.yaml to OpenAPI 3"
+elif ! .github/scripts/convert-openapi.sh docs/swagger.yaml "$BASE_DIR/head.oas3.yaml" 2>"$BASE_DIR/stderr"; then
+  oasdiff_error "failed to convert docs/swagger.yaml to OpenAPI 3"
+elif ! run_oasdiff changelog --format json >"$RESULTS_DIR/changelog.json" 2>"$BASE_DIR/stderr"; then
+  oasdiff_error "oasdiff changelog failed"
+else
   set +e
-  oasdiff breaking "$BASE_DIR/base.yaml" docs/swagger.yaml --fail-on ERR --format text \
-    >"$RESULTS_DIR/breaking.txt" 2>&1
+  run_oasdiff breaking --fail-on ERR --format text \
+    >"$RESULTS_DIR/breaking.txt" 2>"$BASE_DIR/stderr"
   breaking_rc=$?
   set -e
   if [[ "$breaking_rc" -eq 0 ]]; then
     echo pass >"$RESULTS_DIR/breaking.status"
+  elif [[ "$breaking_rc" -ne 1 ]]; then
+    oasdiff_error "oasdiff breaking failed (exit ${breaking_rc})"
   elif [[ "$ALLOW_BREAKING" == "1" || "$ALLOW_BREAKING" == "true" ]]; then
     echo "==> breaking changes waived (allow-breaking-changes)"
     echo allowed >"$RESULTS_DIR/breaking.status"
   else
     echo fail >"$RESULTS_DIR/breaking.status"
     failed=1
-  fi
-
-  set +e
-  oasdiff changelog "$BASE_DIR/base.yaml" docs/swagger.yaml --format json \
-    >"$RESULTS_DIR/changelog.json" 2>/dev/null
-  set -e
-  if [[ ! -s "$RESULTS_DIR/changelog.json" ]]; then
-    echo '[]' >"$RESULTS_DIR/changelog.json"
   fi
 fi
 
