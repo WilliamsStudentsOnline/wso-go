@@ -6,6 +6,13 @@ type AreaOfStudy struct {
 	Name         string `gorm:"unique;not null" json:"name"`
 	Abbreviation string `gorm:"size:4;column:abbrev;unique;not null" json:"abbreviation"`
 
+	// Non-empty CatalogURL means the subject is in the current catalog
+	CatalogKind      string `gorm:"size:32" json:"catalogKind"` // major, concentration, "major,concentration", or empty
+	CatalogURL       string `json:"catalogURL"`
+	CurriculumPDFURL string `json:"curriculumPDFURL"`
+	WebsiteURL       string `json:"websiteURL"`
+	Description      string `gorm:"type:text" json:"description"`
+
 	// Belongs to department
 	DepartmentID *uint       `gorm:"not null" json:"departmentID"`
 	Department   *Department `json:"department,omitempty"`
