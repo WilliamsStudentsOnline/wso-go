@@ -967,6 +967,118 @@ const docTemplate = `{
                 }
             }
         },
+        "/admin/users": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "List users by search, or admins, moderators and banned users when q is empty",
+                "operationId": "listAdminUsers",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name or unix ID",
+                        "name": "q",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin.listUsersResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/users/{userID}/access": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Get a user's roles and bans",
+                "operationId": "getAdminUserAccess",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin.UserAccess"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Takes effect when the user's token is next issued or refreshed",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Replace a non-admin user's roles and bans",
+                "operationId": "updateAdminUserAccess",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Access",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/admin.UpdateUserAccessParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/admin.UserAccess"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/api/refresh": {
             "get": {
                 "security": [
@@ -8972,6 +9084,63 @@ const docTemplate = `{
                 }
             }
         },
+        "admin.UpdateUserAccessParams": {
+            "type": "object",
+            "properties": {
+                "bans": {
+                    "$ref": "#/definitions/admin.UserBans"
+                },
+                "factrakAdmin": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "admin.UserAccess": {
+            "type": "object",
+            "properties": {
+                "admin": {
+                    "type": "boolean"
+                },
+                "bans": {
+                    "$ref": "#/definitions/admin.UserBans"
+                },
+                "factrakAdmin": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "unixID": {
+                    "type": "string"
+                },
+                "userID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "admin.UserBans": {
+            "type": "object",
+            "properties": {
+                "bulletinRead": {
+                    "type": "boolean"
+                },
+                "bulletinWrite": {
+                    "type": "boolean"
+                },
+                "dormtrak": {
+                    "type": "boolean"
+                },
+                "factrak": {
+                    "type": "boolean"
+                },
+                "reason": {
+                    "type": "string"
+                }
+            }
+        },
         "admin.createJobRunRequest": {
             "type": "object",
             "properties": {
@@ -9012,6 +9181,17 @@ const docTemplate = `{
                 },
                 "schedule": {
                     "$ref": "#/definitions/registry.Schedule"
+                }
+            }
+        },
+        "admin.listUsersResponse": {
+            "type": "object",
+            "properties": {
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/admin.UserAccess"
+                    }
                 }
             }
         },
