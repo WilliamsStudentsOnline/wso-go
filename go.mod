@@ -23,6 +23,7 @@ require (
 	github.com/jinzhu/gorm v1.9.16
 	github.com/jinzhu/inflection v1.0.0
 	github.com/kelseyhightower/envconfig v1.4.0
+	github.com/ledongthuc/pdf v0.0.0-20261020125853-5e46805f718e
 	github.com/m1ome/leven v0.0.0-20170305195354-a3732db01c54
 	github.com/mileusna/useragent v1.3.5
 	github.com/nlopes/slack v0.6.0
