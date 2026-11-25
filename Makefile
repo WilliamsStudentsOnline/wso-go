@@ -48,9 +48,6 @@ endif
 check-api:
 	OPENAPI_BASE_REF=$(OPENAPI_BASE_REF) .github/scripts/check-openapi.sh
 
-services/*/responses/%.go: services/*/responses/%.json
-	go run $(GIT_REPO)/lib/generate/service_responses/cmd -in $< -out $@
-
 services/words/words_data.go: services/words/words.json
 	go generate $(GIT_REPO)/services/words
 
@@ -233,7 +230,7 @@ Edit your ~/.bashrc to add this line:
 endef
 
 .PHONY: commit
-commit: jobs/dorms_update/cmd/data.go docs/docs.go fmt services/*/responses/*.go
+commit: jobs/dorms_update/cmd/data.go docs/docs.go fmt
 
 .PHONY: run-dev
 run-dev: dev

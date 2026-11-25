@@ -50,8 +50,6 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 	}
 }
 
-//go:generate go run github.com/WilliamsStudentsOnline/wso-go/lib/generate/service_responses/cmd -in responses/list_users.json -out responses/list_users.go
-
 // ListUsers godoc
 // @Summary List users
 // @Description Get all users that are visible and at williams.
@@ -130,8 +128,6 @@ func (t *Controller) ListUsers(c *gin.Context) {
 
 	t.RespondOK(c, responses.ConvertListUsersResponse(users))
 }
-
-//go:generate go run github.com/WilliamsStudentsOnline/wso-go/lib/generate/service_responses/cmd -in responses/get_user.json -out responses/get_user.go
 
 // Get user by id. Pass "me" if you want to get self
 // GetUser godoc
