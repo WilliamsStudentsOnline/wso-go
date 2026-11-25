@@ -18,7 +18,7 @@ import (
 // @Tags admin,moderator
 // @Accept json
 // @Produce json
-// @Param taskType query string false "Filter by task type" Enums(FACTRAK_REVIEW,NEW_USER_TAG,BOARD_THREAD_REVIEW,BOARD_POST_REVIEW,USER_PHOTO_REVIEW)
+// @Param taskType query string false "Filter by task type" Enums(FACTRAK_REVIEW,NEW_USER_TAG,BOARD_THREAD_REVIEW,BOARD_POST_REVIEW,USER_PHOTO_REVIEW,FACTRAK_DEFICIT_EXEMPTION)
 // @Param resolvedAt query string false "Omit for open tasks only; set any time to list resolved tasks"
 // @Param taskReference query string false "Filter by task reference"
 // @Param orderBy query string false "Sort order; default taskReference" Enums(taskReference,createdAt)
@@ -163,6 +163,19 @@ func (t *Controller) ResolveTasks(c *gin.Context) {
 			return
 		}
 	}
+	if body.Resolution == models.ModeratorTaskResolutionRejected {
+		if err := t.applyRejectSideEffect(taskType, open[0]); err != nil {
+			t.Log.Warnw("moderator reject side effect failed",
+				"taskID", taskID,
+				"taskReference", taskReference,
+				"taskType", taskType,
+				"actorUserID", actorID,
+				"err", err,
+			)
+			t.RespondError(c, err)
+			return
+		}
+	}
 
 	now := time.Now().UTC()
 	n, err := t.moderatorTaskModel.ResolveOpenTasksByTaskReference(taskReference, body.Resolution, actorID, now)
@@ -196,14 +209,14 @@ func (t *Controller) ResolveTasks(c *gin.Context) {
 
 // DeleteTask godoc
 // @Summary Delete moderator task
-// @Description soft-deletes a single moderator task by id
+// @Description soft-deletes a single moderator task by id; deleting an open FACTRAK_DEFICIT_EXEMPTION task rejects its request
 // @ID deleteModeratorTask
 // @Tags admin,moderator
 // @Accept json
 // @Produce json
 // @Param taskID path uint true "Task ID"
 // @Success 200 {object} map[string]uint
-// @Failure 404 {object} services.BaseErrorResponse
+// @Failure 404 {object} services.BaseErrorResponse "404: record not found"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /admin/tasks/{taskID} [delete]
@@ -212,6 +225,20 @@ func (t *Controller) DeleteTask(c *gin.Context) {
 	if err != nil {
 		t.RespondError(c, err)
 		return
+	}
+
+	var task models.ModeratorTask
+	if err := t.moderatorTaskModel.GetTaskByID(taskID, &task); err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	// An open exemption request would otherwise stay pending and block the student from asking again
+	if task.ResolvedAt == nil && task.TaskType == models.ModeratorTaskTypeFactrakDeficitExemption {
+		if err := t.rejectFactrakDeficitExemption(&task); err != nil {
+			t.RespondError(c, err)
+			return
+		}
 	}
 
 	if err := t.moderatorTaskModel.SoftDeleteTaskByID(taskID); err != nil {
@@ -321,6 +348,20 @@ func (t *Controller) contextForTask(taskType models.ModeratorTaskType, taskField
 			ctx.UnixID = user.UnixID
 		}
 		return ctx, nil
+	case models.ModeratorTaskTypeFactrakDeficitExemption:
+		fields, err := models.DecodeFactrakDeficitExemptionFields(taskFieldsJSON)
+		if err != nil {
+			return nil, err
+		}
+		var exemption models.FactrakDeficitExemption
+		err = t.exemptionModel.GetExemptionByID(fields.FactrakDeficitExemptionID, &exemption)
+		if err != nil {
+			if gorm.IsRecordNotFoundError(err) {
+				return FactrakDeficitExemptionTaskContext{Exemption: nil}, nil
+			}
+			return nil, err
+		}
+		return FactrakDeficitExemptionTaskContext{Exemption: exemptionToResponse(&exemption)}, nil
 	default:
 		return nil, nil
 	}
@@ -338,8 +379,19 @@ func (t *Controller) applyApproveSideEffect(c *gin.Context, taskType models.Mode
 		return t.approveBoardPostReview(c, sample)
 	case models.ModeratorTaskTypeUserPhotoReview:
 		return t.approveUserPhotoReview(c, sample)
+	case models.ModeratorTaskTypeFactrakDeficitExemption:
+		return t.approveFactrakDeficitExemption(c, sample)
 	default:
 		return lib.ErrorModeratorTaskInvalidType
+	}
+}
+
+func (t *Controller) applyRejectSideEffect(taskType models.ModeratorTaskType, sample *models.ModeratorTask) error {
+	switch taskType {
+	case models.ModeratorTaskTypeFactrakDeficitExemption:
+		return t.rejectFactrakDeficitExemption(sample)
+	default:
+		return nil
 	}
 }
 
@@ -487,4 +539,45 @@ func (t *Controller) approveUserPhotoReview(c *gin.Context, sample *models.Moder
 		"actorUserID", services.GetUserID(c),
 	)
 	return nil
+}
+
+func (t *Controller) approveFactrakDeficitExemption(c *gin.Context, sample *models.ModeratorTask) error {
+	fields, err := models.DecodeFactrakDeficitExemptionFields(sample.TaskFields)
+	if err != nil {
+		return err
+	}
+
+	var exemption models.FactrakDeficitExemption
+	if err := t.exemptionModel.GetExemptionByID(fields.FactrakDeficitExemptionID, &exemption); err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			return lib.ErrorModeratorTaskSubjectGone
+		}
+		return err
+	}
+
+	if err := t.exemptionModel.SetExemptionStatus(exemption.ID, models.FactrakDeficitExemptionStatusApproved); err != nil {
+		return err
+	}
+
+	user := &models.User{}
+	user.ID = exemption.UserID
+	if err := t.studentModel.UpdateFactrakSurveyDeficit(user); err != nil {
+		return err
+	}
+
+	t.Log.Infow("factrak deficit exemption approved via moderator approve",
+		"exemptionID", exemption.ID,
+		"userID", exemption.UserID,
+		"taskReference", sample.TaskReference,
+		"actorUserID", services.GetUserID(c),
+	)
+	return nil
+}
+
+func (t *Controller) rejectFactrakDeficitExemption(sample *models.ModeratorTask) error {
+	fields, err := models.DecodeFactrakDeficitExemptionFields(sample.TaskFields)
+	if err != nil {
+		return err
+	}
+	return t.exemptionModel.SetExemptionStatus(fields.FactrakDeficitExemptionID, models.FactrakDeficitExemptionStatusRejected)
 }

@@ -20,6 +20,7 @@ type Controller struct {
 	jobRunModel        *models.JobRunModel
 	boardThreadModel   *models.BoardThreadModel
 	boardPostModel     *models.BoardPostModel
+	exemptionModel     *models.FactrakDeficitExemptionModel
 	cfg                *config.Config
 }
 
@@ -36,6 +37,7 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 		jobRunModel:        models.NewJobRunModel(db, log),
 		boardThreadModel:   models.NewBoardThreadModel(db, log),
 		boardPostModel:     models.NewBoardPostModel(db, log),
+		exemptionModel:     models.NewFactrakDeficitExemptionModel(db, log),
 		cfg:                cfg,
 	}
 }

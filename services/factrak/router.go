@@ -98,5 +98,7 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	full.PATCH("/surveys/:surveyID/agreement", c.UpdateAgreement)  // Edit agreement (either make it agree or disagree)
 	full.DELETE("/surveys/:surveyID/agreement", c.DeleteAgreement) // Delete agreement
 
+	r.POST("/deficit/exemptions", c.CreateDeficitExemption)
+
 	// Factrak review moderation lives under /api/v2/admin/tasks (FACTRAK_REVIEW)
 }

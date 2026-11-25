@@ -184,3 +184,91 @@ func TestResolveBoardThreadReviewDeletesThread(t *testing.T) {
 	require.NotNil(t, resolved.ResolvedAt)
 	assert.Equal(models.ModeratorTaskResolutionApproved, *resolved.Resolution)
 }
+
+func TestResolveFactrakDeficitExemption(t *testing.T) {
+	assert, env := setupAdminTasks(t)
+	exemptions := models.NewFactrakDeficitExemptionModel(env.DB, zaptest.NewLogger(t).Sugar())
+
+	newRequest := func(unixID string) (models.User, *models.FactrakDeficitExemption, models.ModeratorTask) {
+		student := models.User{Type: models.UserTypeStudent, Name: "Student", UnixID: unixID, OnCampusSemesters: 3}
+		require.NoError(t, env.DB.Create(&student).Error)
+		e, err := exemptions.CreateExemptionRequest(student.ID, "family emergency", time.Now())
+		require.NoError(t, err)
+		var task models.ModeratorTask
+		require.NoError(t, env.DB.Where("task_reference = ?",
+			models.TaskReference(models.ModeratorTaskTypeFactrakDeficitExemption, e.ID)).First(&task).Error)
+		return student, e, task
+	}
+	resolve := func(task models.ModeratorTask, resolution models.ModeratorTaskResolution) {
+		body, _ := json.Marshal(ResolveTasksBody{Resolution: resolution})
+		w, err := utils.DoHTTPReq(env.Router, http.MethodPost,
+			fmt.Sprintf("/tasks/%d/resolve", task.ID), bytes.NewReader(body))
+		assert.NoError(err)
+		assert.Equal(http.StatusOK, w.Code)
+	}
+
+	student, e, task := newRequest("exempt1")
+
+	w, err := utils.DoHTTPReq(env.Router, http.MethodGet,
+		fmt.Sprintf("/tasks/%d?preload[]=requestingUser", task.ID), nil)
+	assert.NoError(err)
+	resp := utils.GetGoodResp(assert, w)
+	var raw map[string]interface{}
+	assert.NoError(json.Unmarshal(resp.Data, &raw))
+	assert.Equal("FACTRAK_DEFICIT_EXEMPTION", raw["taskType"])
+	assert.Equal("exempt1", raw["requestingUser"].(map[string]interface{})["unixID"])
+	ctx := raw["context"].(map[string]interface{})["exemption"].(map[string]interface{})
+	assert.Equal("family emergency", ctx["reason"])
+	assert.Equal(e.SemesterSeason, ctx["semesterSeason"])
+	assert.Equal(float64(e.SemesterYear), ctx["semesterYear"])
+	assert.Equal(float64(student.ID), ctx["userID"])
+
+	var before models.User
+	require.NoError(t, env.DB.First(&before, student.ID).Error)
+	require.NotNil(t, before.FactrakSurveyDeficit)
+	assert.Equal(2, *before.FactrakSurveyDeficit)
+
+	resolve(task, models.ModeratorTaskResolutionApproved)
+
+	var approved models.FactrakDeficitExemption
+	require.NoError(t, env.DB.First(&approved, e.ID).Error)
+	assert.Equal(models.FactrakDeficitExemptionStatusApproved, approved.Status)
+	var after models.User
+	require.NoError(t, env.DB.First(&after, student.ID).Error)
+	assert.Equal(0, *after.FactrakSurveyDeficit)
+
+	other, e2, task2 := newRequest("exempt2")
+	resolve(task2, models.ModeratorTaskResolutionRejected)
+
+	var rejected models.FactrakDeficitExemption
+	require.NoError(t, env.DB.First(&rejected, e2.ID).Error)
+	assert.Equal(models.FactrakDeficitExemptionStatusRejected, rejected.Status)
+	var otherAfter models.User
+	require.NoError(t, env.DB.First(&otherAfter, other.ID).Error)
+	assert.Equal(2, *otherAfter.FactrakSurveyDeficit)
+}
+
+func TestDeleteFactrakDeficitExemptionTaskRejectsRequest(t *testing.T) {
+	assert, env := setupAdminTasks(t)
+	exemptions := models.NewFactrakDeficitExemptionModel(env.DB, zaptest.NewLogger(t).Sugar())
+
+	student := models.User{Type: models.UserTypeStudent, Name: "Student", UnixID: "exempt1", OnCampusSemesters: 3}
+	require.NoError(t, env.DB.Create(&student).Error)
+	now := time.Now()
+	e, err := exemptions.CreateExemptionRequest(student.ID, "family emergency", now)
+	require.NoError(t, err)
+	var task models.ModeratorTask
+	require.NoError(t, env.DB.Where("task_reference = ?",
+		models.TaskReference(models.ModeratorTaskTypeFactrakDeficitExemption, e.ID)).First(&task).Error)
+
+	w, err := utils.DoHTTPReq(env.Router, http.MethodDelete, fmt.Sprintf("/tasks/%d", task.ID), nil)
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, w.Code)
+
+	var rejected models.FactrakDeficitExemption
+	require.NoError(t, env.DB.First(&rejected, e.ID).Error)
+	assert.Equal(models.FactrakDeficitExemptionStatusRejected, rejected.Status)
+
+	_, err = exemptions.CreateExemptionRequest(student.ID, "trying again", now)
+	assert.NoError(err)
+}

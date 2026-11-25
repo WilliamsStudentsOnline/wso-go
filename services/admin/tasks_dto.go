@@ -47,6 +47,21 @@ type UserPhotoReviewTaskContext struct {
 	UnixID       string `json:"unixID,omitempty"`
 }
 
+type FactrakDeficitExemptionTaskContext struct {
+	Exemption *FactrakDeficitExemptionResponse `json:"exemption,omitempty"`
+}
+
+type FactrakDeficitExemptionResponse struct {
+	ID             uint                                 `json:"id"`
+	CreatedAt      time.Time                            `json:"createdAt"`
+	UserID         uint                                 `json:"userID"`
+	User           *models.User                         `json:"user,omitempty"`
+	SemesterSeason string                               `json:"semesterSeason" enums:"fall,spring"`
+	SemesterYear   int                                  `json:"semesterYear"`
+	Reason         string                               `json:"reason"`
+	Status         models.FactrakDeficitExemptionStatus `json:"status" enums:"pending,approved,rejected"`
+}
+
 type ResolveTasksBody struct {
 	Resolution models.ModeratorTaskResolution `json:"resolution" binding:"required" enums:"APPROVED,REJECTED"`
 }
@@ -69,6 +84,19 @@ func taskToResponse(t *models.ModeratorTask) *ModeratorTaskResponse {
 		Resolution:       t.Resolution,
 		ResolvedByUserID: t.ResolvedByUserID,
 		ResolvedByUser:   t.ResolvedByUser,
+	}
+}
+
+func exemptionToResponse(e *models.FactrakDeficitExemption) *FactrakDeficitExemptionResponse {
+	return &FactrakDeficitExemptionResponse{
+		ID:             e.ID,
+		CreatedAt:      e.CreatedAt,
+		UserID:         e.UserID,
+		User:           e.User,
+		SemesterSeason: e.SemesterSeason,
+		SemesterYear:   e.SemesterYear,
+		Reason:         e.Reason,
+		Status:         e.Status,
 	}
 }
 

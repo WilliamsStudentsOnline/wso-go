@@ -36,6 +36,7 @@ type Controller struct {
 	services.BaseController
 	catalog *models.CourseCatalogModel
 	surveys *models.FactrakSurveyModel
+	mine    *models.UserCourseModel
 	now     func() time.Time
 }
 
@@ -44,6 +45,7 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 		BaseController: services.BaseController{Log: log},
 		catalog:        models.NewCourseCatalogModel(db, log),
 		surveys:        models.NewFactrakSurveyModel(db, log),
+		mine:           models.NewUserCourseModel(db),
 		now:            time.Now,
 	}
 }

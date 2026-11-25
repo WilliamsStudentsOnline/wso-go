@@ -1,6 +1,7 @@
 package factrak
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 	"time"
@@ -153,8 +154,12 @@ type SurveyCreateParams struct {
 	AreaOfStudyAbbreviation *string `json:"areaOfStudyAbbreviation"` // Like "CSCI"
 	CourseNumber            *string `json:"courseNumber"`            // Like "256"
 
-	// Must include this:
-	ProfessorID *uint `json:"professorID" binding:"required"`
+	// A catalog section instead of a course: fills in the course and semester, and the professor if only one
+	Strm     *int `json:"strm"`
+	ClassNbr *int `json:"classNbr"`
+
+	// Must include this, unless a section with one instructor is given:
+	ProfessorID *uint `json:"professorID"`
 
 	// Params:
 	Comment              string  `json:"comment" binding:"required"`
@@ -182,7 +187,7 @@ type SurveyCreateParams struct {
 // @Produce  json
 // @Param createParams body factrak.SurveyCreateParams true "Create Survey Params"
 // @Success 201 {object} models.FactrakSurvey
-// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed; 1402: user cannot be prefrosh; 1531: missing course parameters in create data: courseID or (areaOfStudyAbbreviation and courseNumber); 1532: comment must be 100 characters or more; 1533: user must be a student and could not be found; 1534: passed professor must be a professor and could not be found; 1535: passed course could not be found; 1536: passed area of study could not be found; 1537: survey already exists with passed user ID, professor ID, and course ID; 1538: survey course semester has an incorrect year or season; 1539: survey course format is invalid; 1540: survey course year is in the future"
+// @Failure 400 {object} services.BaseErrorResponse "1100: could not parse malformed request data; 1101: request data validation failed; 1402: user cannot be prefrosh; 1531: missing course parameters in create data: courseID or (areaOfStudyAbbreviation and courseNumber); 1532: comment must be 100 characters or more; 1533: user must be a student and could not be found; 1534: passed professor must be a professor and could not be found; 1535: passed course could not be found; 1536: passed area of study could not be found; 1537: survey already exists with passed user ID, professor ID, and course ID; 1538: survey course semester has an incorrect year or season; 1539: survey course format is invalid; 1540: survey course year is in the future; 1541: no offered catalog section with that term and class number; 1542: professor did not teach that section; 2830: courses can be reviewed once their term has started"
 // @Failure 500 {object} services.BaseErrorResponse
 // @Security Bearer
 // @Router /factrak/surveys [post]
@@ -194,6 +199,33 @@ func (t *Controller) CreateSurvey(c *gin.Context) {
 	err := c.ShouldBind(&createData)
 	if err != nil {
 		t.RespondBadBind(c, err)
+		return
+	}
+
+	var section *models.ReviewSection
+	if createData.Strm != nil || createData.ClassNbr != nil {
+		if createData.Strm == nil || createData.ClassNbr == nil {
+			t.RespondError(c, lib.ErrorSurveyMissingCourseParams)
+			return
+		}
+		section, err = t.catalogModel.GetReviewSection(*createData.Strm, *createData.ClassNbr, time.Now())
+		if err != nil {
+			t.RespondError(c, reviewSectionError(err))
+			return
+		}
+		if createData.ProfessorID == nil && len(section.InstructorIDs) == 1 {
+			createData.ProfessorID = &section.InstructorIDs[0]
+		}
+		if createData.ProfessorID != nil && !section.TaughtBy(*createData.ProfessorID) {
+			t.RespondError(c, lib.ErrorSurveySectionProfessor)
+			return
+		}
+		createData.CourseID = &section.LegacyCourseID
+		createData.SemesterSeason = &section.Season
+		createData.SemesterYear = &section.CalendarYear
+	}
+	if createData.ProfessorID == nil {
+		t.RespondError(c, lib.ErrorSurveyProfessorNotFound)
 		return
 	}
 
@@ -271,7 +303,12 @@ func (t *Controller) CreateSurvey(c *gin.Context) {
 
 	// Check if professor exists
 	prof := new(models.User)
-	if err = t.professorModel.GetProfessorByID(*createData.ProfessorID, prof); err != nil {
+	if section != nil {
+		err = t.professorModel.GetCatalogProfessorByID(*createData.ProfessorID, prof)
+	} else {
+		err = t.professorModel.GetProfessorByID(*createData.ProfessorID, prof)
+	}
+	if err != nil {
 		// Don't return 404; instead, return professor not found
 		if gorm.IsRecordNotFoundError(err) {
 			err = lib.ErrorSurveyProfessorNotFound
@@ -367,6 +404,12 @@ func (t *Controller) CreateSurvey(c *gin.Context) {
 	if err != nil {
 		t.RespondError(c, err)
 		return
+	}
+	if section != nil {
+		if err = t.catalogModel.LinkSurveyToSection(&survey, section); err != nil {
+			t.RespondError(c, err)
+			return
+		}
 	}
 
 	// Update the survey deficit. This might be more expensive, as it calculates the net surveys, rather than just
@@ -666,4 +709,17 @@ func (t *Controller) FlagSurvey(c *gin.Context) {
 	)
 
 	t.RespondOK(c, nil)
+}
+
+func reviewSectionError(err error) error {
+	switch {
+	case errors.Is(err, models.ErrReviewSectionNotFound):
+		return lib.ErrorSurveySectionNotFound
+	case errors.Is(err, models.ErrReviewSectionNotStarted):
+		return lib.ErrorReviewTermNotStarted
+	case errors.Is(err, models.ErrReviewSectionNoLegacyCourse):
+		return lib.ErrorSurveyAreaOfStudyNotFound
+	default:
+		return err
+	}
 }
