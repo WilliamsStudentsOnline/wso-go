@@ -215,15 +215,6 @@ definitions:
       source:
         type: string
     type: object
-  board.listThreadsResponse:
-    properties:
-      nextCursor:
-        type: string
-      threads:
-        items:
-          $ref: '#/definitions/models.BoardThread'
-        type: array
-    type: object
   booktrak.CreateBookListingParams:
     properties:
       bookID:
@@ -3679,7 +3670,9 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/board.listThreadsResponse'
+            items:
+              $ref: '#/definitions/models.BoardThread'
+            type: array
       security:
       - Bearer: []
       summary: List board threads

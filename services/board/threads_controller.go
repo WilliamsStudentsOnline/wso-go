@@ -11,11 +11,6 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-type listThreadsResponse struct {
-	Threads    []*models.BoardThread `json:"threads"`
-	NextCursor string                `json:"nextCursor,omitempty"`
-}
-
 // ListThreads godoc
 // @Summary List board threads
 // @ID listBoardThreads
@@ -30,7 +25,7 @@ type listThreadsResponse struct {
 // @Param resolved query bool false "Filter by resolved"
 // @Param offeringRide query bool false "Filter rides by offeringRide"
 // @Param userID query int false "Filter by author"
-// @Success 200 {object} listThreadsResponse
+// @Success 200 {array} models.BoardThread
 // @Security Bearer
 // @Router /board/threads [get]
 func (t *Controller) ListThreads(c *gin.Context) {
@@ -55,7 +50,6 @@ func (t *Controller) ListThreads(c *gin.Context) {
 
 	sanitizeThreads(c, threads)
 
-	resp := listThreadsResponse{Threads: threads}
 	limit := 50
 	if params.Limit != nil {
 		limit = int(*params.Limit)
@@ -67,10 +61,10 @@ func (t *Controller) ListThreads(c *gin.Context) {
 		if sort == "" {
 			sort = "activity"
 		}
-		resp.NextCursor = models.BoardCursorForThread(threads[len(threads)-1], sort)
+		t.SetNextCursor(c, models.BoardCursorForThread(threads[len(threads)-1], sort))
 	}
 
-	t.RespondOK(c, resp)
+	t.RespondOK(c, threads)
 }
 
 // GetThread godoc
