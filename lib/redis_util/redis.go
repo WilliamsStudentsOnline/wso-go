@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -122,4 +123,9 @@ func GetDisabledJobsKey() string {
 
 func GetWCFMCacheKey(name string) string {
 	return "wcfm:" + name
+}
+
+// version changes with the term's catalog data, so stale entries are never read again
+func GetCourseTermCatalogKey(strm int, withDescription bool, version int64) string {
+	return "courses:term:" + strconv.Itoa(strm) + ":desc=" + strconv.FormatBool(withDescription) + ":v" + strconv.FormatInt(version, 10)
 }
