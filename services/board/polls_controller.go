@@ -1,13 +1,16 @@
 package board
 
 import (
+	"net/http"
 	"strings"
 	"time"
 	"unicode/utf8"
 
+	"github.com/WilliamsStudentsOnline/wso-go/lib"
 	"github.com/WilliamsStudentsOnline/wso-go/models"
 	"github.com/WilliamsStudentsOnline/wso-go/services"
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 )
 
 const (
@@ -74,4 +77,72 @@ func (t *Controller) fillPollResults(c *gin.Context, poll *models.BoardPoll) err
 	}
 	poll.TotalVotes = &total
 	return nil
+}
+
+type VoteParams struct {
+	OptionID uint `json:"optionID" binding:"required"`
+}
+
+// Vote godoc
+// @Summary Vote in a thread's poll, replacing any earlier vote
+// @ID voteBoardPoll
+// @Tags board
+// @Accept json
+// @Produce json
+// @Param threadID path uint true "Thread ID"
+// @Param body body VoteParams true "Vote params"
+// @Success 200 {object} models.BoardPoll
+// @Security Bearer
+// @Router /board/threads/{threadID}/vote [put]
+func (t *Controller) Vote(c *gin.Context) {
+	threadID, err := services.GetUIntParam(c, "threadID")
+	if err != nil {
+		t.RespondErrorCode(c, http.StatusBadRequest, err)
+		return
+	}
+
+	var params VoteParams
+	if err := c.ShouldBind(&params); err != nil {
+		t.RespondBadBind(c, err)
+		return
+	}
+
+	var poll models.BoardPoll
+	if err := t.pollModel.GetPollByThreadID(threadID, &poll); err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			t.RespondAPIError(c, lib.ErrorBoardPollNotFound)
+			return
+		}
+		t.RespondError(c, err)
+		return
+	}
+
+	if poll.Closed {
+		t.RespondAPIError(c, lib.ErrorBoardPollClosed)
+		return
+	}
+
+	validOption := false
+	for _, o := range poll.Options {
+		if o.ID == params.OptionID {
+			validOption = true
+			break
+		}
+	}
+	if !validOption {
+		t.RespondAPIError(c, lib.ErrorBoardInvalidPollOption)
+		return
+	}
+
+	if err := t.pollModel.SetVote(poll.ID, services.GetUserID(c), params.OptionID); err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	if err := t.fillPollResults(c, &poll); err != nil {
+		t.RespondError(c, err)
+		return
+	}
+
+	t.RespondOK(c, poll)
 }

@@ -19,6 +19,7 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	writer.POST("/threads", c.CreateThread)
 	writer.PATCH("/threads/:threadID", c.UpdateThread)
 	writer.DELETE("/threads/:threadID", c.DeleteThread)
+	writer.PUT("/threads/:threadID/vote", c.Vote)
 
 	writer.POST("/threads/:threadID/replies", c.CreateReply)
 	writer.PATCH("/replies/:replyID", c.UpdateReply)
