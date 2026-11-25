@@ -192,3 +192,39 @@ func TestDeficitJobRunsAfterOnCampusSemesters(t *testing.T) {
 	assert.Equal(t, "*-03,10-01 01:00:00", deficits.Schedule.OnCalendar)
 	assert.Contains(t, deficits.After, semesters.ServiceFile())
 }
+
+func TestManualFactrakBackfill(t *testing.T) {
+	j, ok := Default().Get("backfill_factrak")
+	require.True(t, ok)
+	assert.Nil(t, j.Schedule)
+
+	_, err := j.BuildArgs(nil)
+	assert.Error(t, err)
+	args, err := j.BuildArgs(map[string]string{"apply": "false"})
+	require.NoError(t, err)
+	assert.Contains(t, args, "-apply=false")
+	assert.Contains(t, args, "-skip-linked")
+	assert.Contains(t, args, "/var/log/wso-jobs/backfill_factrak-report.json")
+
+	args, err = j.BuildArgs(map[string]string{"apply": "true", "skip-linked": "false"})
+	require.NoError(t, err)
+	assert.Contains(t, args, "-apply")
+	assert.Contains(t, args, "-skip-linked=false")
+	assert.Contains(t, args, "-disable-migration-check=false")
+
+	args, err = j.BuildArgs(map[string]string{"apply": "true", "link-sources-only": "true"})
+	require.NoError(t, err)
+	assert.Contains(t, args, "-link-sources-only")
+}
+
+func TestManualAreasBackfill(t *testing.T) {
+	j, ok := Default().Get("backfill_areas")
+	require.True(t, ok)
+	assert.Nil(t, j.Schedule)
+
+	_, err := j.BuildArgs(nil)
+	assert.Error(t, err)
+	args, err := j.BuildArgs(map[string]string{"apply": "false"})
+	require.NoError(t, err)
+	assert.Equal(t, []string{"-config", defaultConfig, "-apply=false", "-disable-migration-check=false"}, args)
+}

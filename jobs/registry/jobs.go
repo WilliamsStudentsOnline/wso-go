@@ -213,6 +213,36 @@ func init() {
 		Requires: needsMariaDB,
 		After:    needsMariaDB,
 	})
+	mustRegister(Job{
+		Name:        "backfill_factrak",
+		Description: "link Factrak surveys to catalog courses and sections (dry run unless apply)",
+		Binary:      InstallDir + "/job-backfill_factrak_linux",
+		Params: []Param{
+			{Name: "config", Type: ParamString, Default: defaultConfig},
+			{Name: "apply", Type: ParamBool, Required: true, Description: "write links (true) or only report what would change (false)"},
+			{Name: "skip-linked", Type: ParamBool, Default: "true", Description: "skip surveys that already have a catalog course"},
+			{Name: "full-results", Type: ParamBool, Description: "list every survey in the report, not only unmatched and ambiguous ones"},
+			{Name: "report", Type: ParamString, Default: "/var/log/wso-jobs/backfill_factrak-report.json", Description: "where to write the JSON report"},
+			{Name: "link-sources-only", Type: ParamBool, Description: "only recompute link sources (after a catalog load), no matching; writes only with apply"},
+			{Name: "console", Type: ParamBool},
+			{Name: "disable-migration-check", Type: ParamBool, Default: "false", Description: "allow run when DB migrations are behind (escape hatch only)"},
+		},
+		Requires: needsMariaDB,
+		After:    needsMariaDB,
+	})
+	mustRegister(Job{
+		Name:        "backfill_areas",
+		Description: "add areas of study for programs that have none, e.g. East Asian Languages and Cultures (dry run unless apply)",
+		Binary:      InstallDir + "/job-backfill_areas_linux",
+		Params: []Param{
+			{Name: "config", Type: ParamString, Default: defaultConfig},
+			{Name: "apply", Type: ParamBool, Required: true, Description: "add the areas (true) or only log what would be added (false)"},
+			{Name: "console", Type: ParamBool},
+			{Name: "disable-migration-check", Type: ParamBool, Default: "false", Description: "allow run when DB migrations are behind (escape hatch only)"},
+		},
+		Requires: needsMariaDB,
+		After:    needsMariaDB,
+	})
 }
 
 func mustRegister(j Job) {
