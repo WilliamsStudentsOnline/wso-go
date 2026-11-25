@@ -14,7 +14,7 @@ SWAGGER := $(shell which swag 2>/dev/null)
 GOIMPORTS := $(shell which goimports 2>/dev/null)
 SWAG_VERSION ?= v1.16.3
 GOIMPORTS_VERSION ?= v0.49.0
-OASDIFF_VERSION ?= v1.10.8
+OASDIFF_VERSION ?= v1.39.0
 SPECTRAL_VERSION ?= 6.16.3
 
 jobs/dorms_update/cmd/data.go: $(wildcard jobs/dorms_update/data/*) jobs/dorms_update/cmd/gen.go
@@ -240,7 +240,7 @@ endef
 install-tools:
 	go install github.com/swaggo/swag/cmd/swag@$(SWAG_VERSION)
 	go install golang.org/x/tools/cmd/goimports@$(GOIMPORTS_VERSION)
-	go install github.com/tufin/oasdiff@$(OASDIFF_VERSION)
+	go install github.com/oasdiff/oasdiff@$(OASDIFF_VERSION)
 	go install gotest.tools/gotestsum@$(GOTESTSUM_VERSION)
 	@if command -v npm >/dev/null 2>&1; then \
 		npm install -g @stoplight/spectral-cli@$(SPECTRAL_VERSION); \
@@ -292,7 +292,7 @@ _test-mysql-up:
 .PHONY: _test-mysql-down
 _test-mysql-down:
 	@if [ -z "$(DOCKER)" ]; then echo "docker not found in PATH"; exit 1; fi
-	@$(DOCKER) compose -p $(TEST_COMPOSE_PROJECT) -f docker-compose.test.yml --profile redis down
+	@$(DOCKER) compose -p $(TEST_COMPOSE_PROJECT) -f docker-compose.test.yml down
 
 # Relative paths so gotestsum --watch can fsnotify them (import paths are not dirs)
 GO_MODULE = $(shell go list -m)

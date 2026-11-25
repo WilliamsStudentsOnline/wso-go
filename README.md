@@ -31,7 +31,7 @@ Profile and other pictures are served by the API at `/pic` from `picture_local_p
 ## Onboarding 
 
 ### Learning Go
-There are a number of resources out there to learn Go. The official tutorial is found [here](https://go.dev/tour). However, I prefer [Learn Go in Y Minutes](https://learnxinyminutes.com/docs/go/), which is pretty short and informative. 
+There are a number of resources out there to learn Go. The official tutorial is found [here](tour.golang.org). However, I prefer [Learn Go in Y Minutes](https://learnxinyminutes.com/docs/go/), which is pretty short and informative. 
 
 ### IDE
 You can use whatever you want as your Go IDE. VSCode is a popular choice as a lightweight editor. If you would like a full IDE, JetBrains Goland is free for students and it provides many more features. WSO also provides Cursor accounts for AI-assisted development, and may additionally provide ChatGPT and Anthropic subscriptions for power users.
@@ -72,9 +72,9 @@ Will start an interactive test runner using a separate DB. Tests hot-reload and 
 By default, local tests skip packages listed in `.github/coverage-exclude.txt`. Use `IGNORE_SKIPS=1` to run everything (this may lead to some failures, as packages are skipped intentionally).
 
 ## Models
-The models folder will contain all models. Currently, there are two types of structs for each model. We use [jinzhu/gorm v1](https://v1.gorm.io/docs/) (not gorm.io v2) on MariaDB.
+The models folder will contain all models. Currently, there are two types of structs for each model. Help with the database driver can be found [here](https://gorm.io/docs).
 The schema struct (e.g. `user_schema.go` or `User{}`) is the parsed Go interpretation of a database row. Any functions built off the schema struct should relate directly to the data at hand (such as `IsStudent()`), and not make any DB calls.
-The model struct (e.g. `user.go` or `UserModel{}`) is the database adapter for this model. It embeds `*BaseModel` (which holds the DB) and runs any CRUD or other DB-related queries. Most of these queries should return a schema struct.
+The model struct (e.g. `user.go` or `UserModel{}`) is the database adapter for this model. It should contain the DB as a field and will run any CRUD or other DB-related queries. Most of these queries should return a schema struct.
 
 ### Migrations
 
@@ -137,7 +137,15 @@ We use something called a [JWT](jwt.io), or JSON Web Token for the API. This all
 
 ## Analytics
 
-Prometheus metrics are served on `:2112`. Production Grafana/Prometheus configs live in `prod_files/`.
+> This section may be out of date
+
+wso-go can be run with Grafana and Prometheus to improve the quality and accessiblity of logs. This feature is non-critical and you do not need to use it. To install Grafana and Prometheus, you should read [this](https://grafana.com/docs/grafana/latest/setup-grafana/installation/debian/) site for Grafana and [this](https://prometheus.io/docs/prometheus/latest/installation/) site for Prometheus. Open source version of both can be installed using a package manager like `apt-get` or `brew`. Please also install the package `prometheus-node-exporter`, or else many Grafana graphs will not work correctly.
+
+Once you have these packages installed, you can optionally install the Grafana config files to your system Grafana directory by running `grafana-install` as root in the `prod_files/` directory. To run them alongside wso-go, run the command `make run-with-analytics`. This should autostart the servers. Grafana is accessible on port 9093 through a browser, and Prometheus is configured to run on port 9095. To login to Grafana for the first time, use the username `admin` and the password `admin`. All files will be found in the `prod_files/` directory. Please change the values in `run-analytics.sh` when you use this in production. 
+
+Alternatively, if you're running wso-go on a Linux system, you can install the systemd service files and edit the values to run Grafana and Prometheus. This is how it is actually done in production.
+
+Analytics are served at port `:9092`!
 
 ## Codebase Structure
 

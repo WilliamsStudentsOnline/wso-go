@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Run tests by package and/or name, e.g. scripts/test.sh services/feedback TestCreateFeedback
 set -euo pipefail
 
 usage() {
