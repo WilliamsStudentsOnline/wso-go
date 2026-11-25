@@ -246,9 +246,6 @@ install-tools:
 	fi
 	@command -v atlas >/dev/null 2>&1 || echo "atlas not found; install from https://atlasgo.io/getting-started"
 
-.PHONY: commit
-commit: jobs/dorms_update/cmd/data.go docs/docs.go fmt
-
 .PHONY: run-dev
 run-dev: dev
 
