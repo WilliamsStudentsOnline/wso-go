@@ -50,7 +50,7 @@ Steps for a 10/10 development workflow:
 3. Write the code and accompanying tests.
     * Please follow this [helpful guide](https://github.com/golang/go/wiki/CodeReviewComments) on how to write commit-worthy Go code.
     * Use [stacked pull requests](https://docs.github.com/en/pull-requests/how-tos/stacked-pull-requests) to split large changes into multiple reviewable chunks.
-    * Before committing any changes, run `make commit` to autoformat and update your code. You can also configure this to run automatically (e.g. on save) in your IDE.
+    * Before committing any changes, run `make fmt` to autoformat your code, and `make api` if you changed the API. You can also configure formatting to run automatically (e.g. on save) in your IDE.
 4. Make a pull request and link your original issue.
     * The pull request will be automatically tested, with results displayed in a pinned comment on your PR. Additional checks will run for migrations and API changes. More detailed logs are available under Actions.
 5. After approval, add the PR (or stack) to the [merge queue](https://github.com/WilliamsStudentsOnline/wso-go/queue/master). After a few minutes, it should be live on our dev server!
