@@ -116,12 +116,10 @@ func TestBoard_PollVoting(t *testing.T) {
 	assert.NoError(err)
 	utils.CheckRespError(assert, w, lib.ErrorBoardInvalidPollOption)
 
-	var list struct {
-		Threads []*models.BoardThread `json:"threads"`
-	}
+	var list []*models.BoardThread
 	doJSON(assert, voterRouter, http.MethodGet, "/threads", nil, &list)
-	assert.Len(list.Threads, 2)
-	for _, th := range list.Threads {
+	assert.Len(list, 2)
+	for _, th := range list {
 		assert.NotNil(th.Poll)
 	}
 }
@@ -155,11 +153,9 @@ func TestBoard_PollClosed(t *testing.T) {
 	assert.Equal(1, *got.Poll.TotalVotes)
 	assert.Equal(1, *got.Poll.Options[0].Votes)
 
-	var list struct {
-		Threads []*models.BoardThread `json:"threads"`
-	}
+	var list []*models.BoardThread
 	doJSON(assert, loggedOutRouter, http.MethodGet, "/threads", nil, &list)
-	assert.Len(list.Threads, 1)
+	assert.Len(list, 1)
 }
 
 func TestBoard_PollValidation(t *testing.T) {
