@@ -12,6 +12,7 @@ type Controller struct {
 	services.BaseController
 	db                 *gorm.DB
 	userModel          *models.UserModel
+	bannedUserModel    *models.BannedUserModel
 	studentModel       *models.StudentModel
 	tagModel           *models.TagModel
 	moderatorTaskModel *models.ModeratorTaskModel
@@ -27,6 +28,7 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 		BaseController:     services.BaseController{Log: log},
 		db:                 db,
 		userModel:          models.NewUserModel(db, log),
+		bannedUserModel:    models.NewBannedUserModel(db, log),
 		studentModel:       models.NewStudentModel(db, log),
 		tagModel:           models.NewTagModel(db, log),
 		moderatorTaskModel: models.NewModeratorTaskModel(db, log),

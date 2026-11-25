@@ -21,7 +21,7 @@ func TestController_ListRides(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf)
+	router := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf, auth.ScopeBulletinWrite)
 	cfg := utils.SetupConfig()
 
 	rides := []*models.BulletinRide{
@@ -128,7 +128,7 @@ func TestController_GetRide(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf, auth.ScopeUsers)
+	router := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf, auth.ScopeBulletinWrite, auth.ScopeUsers)
 	cfg := utils.SetupConfig()
 
 	b1 := models.BulletinRide{
@@ -170,7 +170,7 @@ func TestController_GetRide(t *testing.T) {
 	assert.NotNil(resp.User)
 
 	/* Get test ride (signed out) */
-	r1 := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf)
+	r1 := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf, auth.ScopeBulletinWrite)
 	SetupRouter(r1, db, cfg, zaptest.NewLogger(t).Sugar())
 	w, err = utils.DoHTTPReq(r1, http.MethodGet, fmt.Sprintf("/rides/%d", b1.ID), nil)
 	assert.NoError(err)
@@ -201,7 +201,7 @@ func TestController_CreateRide(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf)
+	router := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf, auth.ScopeBulletinWrite)
 	cfg := utils.SetupConfig()
 
 	u1 := models.User{
@@ -272,7 +272,7 @@ func TestController_UpdateRide(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf)
+	router := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf, auth.ScopeBulletinWrite)
 	cfg := utils.SetupConfig()
 
 	u1 := models.User{
@@ -372,7 +372,7 @@ func TestController_DeleteRide(t *testing.T) {
 	// Setup (can copy and paste this basically)
 	assert := testify.New(t)
 	db := utils.SetupServiceTest(assert)
-	router := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf)
+	router := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf, auth.ScopeBulletinWrite)
 	cfg := utils.SetupConfig()
 
 	u1 := models.User{

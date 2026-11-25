@@ -278,3 +278,24 @@ func TestBoard_FeedExcludesFutureAndExpired(t *testing.T) {
 	assert.Len(list.Threads, 1)
 	assert.Equal("active", list.Threads[0].Title)
 }
+
+func TestBoard_WritesRequireBulletinWrite(t *testing.T) {
+	assert := testify.New(t)
+	db := utils.SetupServiceTest(assert)
+	router := utils.SetupRouter(auth.ScopeBulletin, auth.ScopeWriteSelf, auth.ScopeUsers)
+	cfg := utils.SetupConfig()
+
+	u1 := models.User{Type: models.UserTypeStudent, UnixID: "u1", Name: "User One"}
+	assert.NoError(db.Create(&u1).Error)
+	utils.AddUserContexts(router, u1.ID)
+	SetupRouter(router, db, cfg, zaptest.NewLogger(t).Sugar())
+
+	body, _ := json.Marshal(CreateThreadParams{
+		Type:  models.BoardThreadTypeDiscussion,
+		Title: "Hello",
+		Body:  "body",
+	})
+	w, err := utils.DoHTTPReq(router, http.MethodPost, "/threads", bytes.NewReader(body))
+	assert.NoError(err)
+	utils.CheckRespError(assert, w, lib.ErrorNoScopeAuthorization)
+}

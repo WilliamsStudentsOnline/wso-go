@@ -13,8 +13,7 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	c := NewController(db, cfg, log)
 
 	writer := r.Group("")
-	// TODO: Deprecate auth.ScopeWriteSelf from here
-	writer.Use(auth.RequireScopes(auth.ScopeWriteSelf, auth.ScopeBulletinWrite))
+	writer.Use(auth.RequireScopes(auth.ScopeBulletinWrite))
 
 	// Bulletins et all
 	r.GET("/bulletins", c.ListBulletins)
