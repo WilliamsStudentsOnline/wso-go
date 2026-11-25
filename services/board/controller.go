@@ -15,6 +15,7 @@ type Controller struct {
 	services.BaseController
 	threadModel        *models.BoardThreadModel
 	postModel          *models.BoardPostModel
+	pollModel          *models.BoardPollModel
 	userModel          *models.UserModel
 	moderatorTaskModel *models.ModeratorTaskModel
 }
@@ -24,6 +25,7 @@ func NewController(db *gorm.DB, cfg *config.Config, log *zap.SugaredLogger) *Con
 		BaseController:     services.BaseController{Log: log},
 		threadModel:        models.NewBoardThreadModel(db, log),
 		postModel:          models.NewBoardPostModel(db, log),
+		pollModel:          models.NewBoardPollModel(db, log),
 		userModel:          models.NewUserModel(db, log),
 		moderatorTaskModel: models.NewModeratorTaskModel(db, log),
 	}

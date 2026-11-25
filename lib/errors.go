@@ -204,6 +204,11 @@ var (
 	ErrorBoardThreadNotFound          = NewAPIErrorWithHTTP(2413, http.StatusNotFound, "board thread cannot be found")
 	ErrorBoardPostNotFound            = NewAPIErrorWithHTTP(2414, http.StatusNotFound, "board post cannot be found")
 	ErrorBoardCannotFlagSelf          = NewAPIErrorWithHTTP(2415, http.StatusForbidden, "cannot flag your own content")
+	ErrorBoardPollNotAllowed          = NewAPIError(2419, "only discussions can have a poll")
+	ErrorBoardInvalidPoll             = NewAPIError(2420, "polls need 2 to 4 unique, non-empty options of at most 255 characters and any close time must be in the future")
+	ErrorBoardPollNotFound            = NewAPIErrorWithHTTP(2421, http.StatusNotFound, "board poll cannot be found")
+	ErrorBoardPollClosed              = NewAPIErrorWithHTTP(2422, http.StatusForbidden, "poll is closed")
+	ErrorBoardInvalidPollOption       = NewAPIError(2423, "option does not belong to this poll")
 
 	// user photo flags
 	ErrorUserPhotoNotFound      = NewAPIErrorWithHTTP(2416, http.StatusNotFound, "user has no profile photo")
