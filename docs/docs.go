@@ -10077,6 +10077,49 @@ const docTemplate = `{
                 }
             }
         },
+        "models.BoardPoll": {
+            "type": "object",
+            "properties": {
+                "closed": {
+                    "type": "boolean"
+                },
+                "closesAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "myVote": {
+                    "type": "integer"
+                },
+                "options": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.BoardPollOption"
+                    }
+                },
+                "threadID": {
+                    "type": "integer"
+                },
+                "totalVotes": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.BoardPollOption": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "votes": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.BoardPost": {
             "type": "object",
             "properties": {
@@ -10153,6 +10196,9 @@ const docTemplate = `{
                 },
                 "lastActive": {
                     "type": "string"
+                },
+                "poll": {
+                    "$ref": "#/definitions/models.BoardPoll"
                 },
                 "posts": {
                     "description": "Associations",

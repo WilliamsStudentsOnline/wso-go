@@ -98,7 +98,7 @@ func (o *GetBoardThreadsOptions) Paginate(db *gorm.DB) *gorm.DB {
 func (o *GetBoardThreadsOptions) Preloader(db *gorm.DB) *gorm.DB {
 	// default: author, ride, OP (for body preview)
 	if o.Preload == nil {
-		return db.Preload("User").Preload("RideInformation").Preload("Posts", func(db *gorm.DB) *gorm.DB {
+		return db.Preload("User").Preload("RideInformation").Preload("Poll").Preload("Posts", func(db *gorm.DB) *gorm.DB {
 			return db.Where("board_posts.is_op = ?", true)
 		})
 	}
@@ -107,6 +107,9 @@ func (o *GetBoardThreadsOptions) Preloader(db *gorm.DB) *gorm.DB {
 	}
 	if stringsContains(o.Preload, "ride") {
 		db = db.Preload("RideInformation")
+	}
+	if stringsContains(o.Preload, "poll") {
+		db = db.Preload("Poll")
 	}
 	if stringsContains(o.Preload, "posts") {
 		db = db.Preload("Posts", func(db *gorm.DB) *gorm.DB {
@@ -241,7 +244,7 @@ func (o *GetBoardThreadByIDOptions) Preloader(db *gorm.DB) *gorm.DB {
 	if o.Preload == nil {
 		db = db.Preload("User").Preload("RideInformation").Preload("Posts", func(db *gorm.DB) *gorm.DB {
 			return db.Order("board_posts.created_at asc")
-		}).Preload("Posts.User")
+		}).Preload("Posts.User").Preload("Poll").Preload("Poll.Options", preloadPollOptions)
 		return db
 	}
 	if stringsContains(o.Preload, "user") {
@@ -249,6 +252,9 @@ func (o *GetBoardThreadByIDOptions) Preloader(db *gorm.DB) *gorm.DB {
 	}
 	if stringsContains(o.Preload, "ride") {
 		db = db.Preload("RideInformation")
+	}
+	if stringsContains(o.Preload, "poll") {
+		db = db.Preload("Poll").Preload("Poll.Options", preloadPollOptions)
 	}
 	if stringsContains(o.Preload, "posts") {
 		db = db.Preload("Posts", func(db *gorm.DB) *gorm.DB {
@@ -297,7 +303,7 @@ func (m *BoardThreadModel) DoesThreadExist(id uint) (bool, error) {
 	return count > 0, err
 }
 
-func (m *BoardThreadModel) CreateThread(t *BoardThread, body string, ride *BoardRideInformation) error {
+func (m *BoardThreadModel) CreateThread(t *BoardThread, body string, ride *BoardRideInformation, poll *BoardPoll) error {
 	tx := m.DB.Begin()
 	if err := tx.Error; err != nil {
 		return err
@@ -337,13 +343,21 @@ func (m *BoardThreadModel) CreateThread(t *BoardThread, body string, ride *Board
 		t.RideInformation = ride
 	}
 
+	if poll != nil {
+		poll.ThreadID = t.ID
+		if err := tx.Create(poll).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
 	if err := tx.Commit().Error; err != nil {
 		return err
 	}
 
 	t.Posts = []*BoardPost{op}
 	t.Body = body
-	return m.DB.Preload("User").Preload("RideInformation").First(t, t.ID).Error
+	return m.DB.Preload("User").Preload("RideInformation").Preload("Poll").Preload("Poll.Options", preloadPollOptions).First(t, t.ID).Error
 }
 
 func (m *BoardThreadModel) UpdateThread(t *BoardThread) error {
@@ -367,6 +381,19 @@ func (m *BoardThreadModel) DeleteThread(t *BoardThread) error {
 		return err
 	}
 	if err := tx.Where("thread_id = ?", t.ID).Delete(&BoardRideInformation{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	pollIDs := tx.Model(&BoardPoll{}).Select("id").Where("thread_id = ?", t.ID).QueryExpr()
+	if err := tx.Where("poll_id IN (?)", pollIDs).Delete(&BoardPollVote{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	if err := tx.Where("poll_id IN (?)", pollIDs).Delete(&BoardPollOption{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	if err := tx.Where("thread_id = ?", t.ID).Delete(&BoardPoll{}).Error; err != nil {
 		tx.Rollback()
 		return err
 	}

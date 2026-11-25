@@ -713,6 +713,34 @@ definitions:
       userID:
         type: integer
     type: object
+  models.BoardPoll:
+    properties:
+      closed:
+        type: boolean
+      closesAt:
+        type: string
+      id:
+        type: integer
+      myVote:
+        type: integer
+      options:
+        items:
+          $ref: '#/definitions/models.BoardPollOption'
+        type: array
+      threadID:
+        type: integer
+      totalVotes:
+        type: integer
+    type: object
+  models.BoardPollOption:
+    properties:
+      id:
+        type: integer
+      label:
+        type: string
+      votes:
+        type: integer
+    type: object
   models.BoardPost:
     properties:
       content:
@@ -764,6 +792,8 @@ definitions:
         type: integer
       lastActive:
         type: string
+      poll:
+        $ref: '#/definitions/models.BoardPoll'
       posts:
         description: Associations
         items:

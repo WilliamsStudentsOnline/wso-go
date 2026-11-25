@@ -183,7 +183,7 @@ func (t *Controller) CreateThread(c *gin.Context) {
 		}
 	}
 
-	if err := t.threadModel.CreateThread(thread, params.Body, ride); err != nil {
+	if err := t.threadModel.CreateThread(thread, params.Body, ride, nil); err != nil {
 		t.RespondError(c, err)
 		return
 	}

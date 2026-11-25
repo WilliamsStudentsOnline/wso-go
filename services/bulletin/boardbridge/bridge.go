@@ -118,7 +118,7 @@ func (b *Bridge) createBulletin(bulletin *models.Bulletin) error {
 		EndsAt:         bulletin.EndDate,
 		LastActive:     time.Now(),
 	}
-	if err := b.threads.CreateThread(thread, bulletin.Body, nil); err != nil {
+	if err := b.threads.CreateThread(thread, bulletin.Body, nil, nil); err != nil {
 		return err
 	}
 	return b.recordMap(models.BoardBackfillSourceBulletins, bulletin.ID, thread.ID)
@@ -175,7 +175,7 @@ func (b *Bridge) createDiscussion(discussion *models.Discussion) error {
 	if !discussion.LastActive.IsZero() {
 		thread.LastActive = discussion.LastActive
 	}
-	if err := b.threads.CreateThread(thread, body, nil); err != nil {
+	if err := b.threads.CreateThread(thread, body, nil, nil); err != nil {
 		return err
 	}
 	if err := b.recordMap(models.BoardBackfillSourceDiscussions, discussion.ID, thread.ID); err != nil {
@@ -273,7 +273,7 @@ func (b *Bridge) createRide(ride *models.BulletinRide) error {
 		Source:       ride.Source,
 		Destination:  ride.Destination,
 	}
-	if err := b.threads.CreateThread(thread, ride.Body, rideInfo); err != nil {
+	if err := b.threads.CreateThread(thread, ride.Body, rideInfo, nil); err != nil {
 		return err
 	}
 	return b.recordMap(models.BoardBackfillSourceBulletinRides, ride.ID, thread.ID)
