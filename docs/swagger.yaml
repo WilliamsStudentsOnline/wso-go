@@ -554,6 +554,34 @@ definitions:
       wacNotes:
         type: string
     type: object
+  courses.CourseQuestionStats:
+    properties:
+      count:
+        type: integer
+      department:
+        items:
+          type: number
+        type: array
+      percent:
+        type: boolean
+      question:
+        type: string
+      value:
+        type: number
+    type: object
+  courses.CourseRelatedResponse:
+    properties:
+      attributes:
+        items:
+          $ref: '#/definitions/courses.RelatedAttributeResponse'
+        type: array
+      professors:
+        items:
+          $ref: '#/definitions/courses.RelatedProfessorResponse'
+        type: array
+      strm:
+        type: integer
+    type: object
   courses.CourseResponse:
     properties:
       crseID:
@@ -593,6 +621,15 @@ definitions:
         type: array
       title:
         type: string
+    type: object
+  courses.CourseStatsResponse:
+    properties:
+      department:
+        type: string
+      questions:
+        items:
+          $ref: '#/definitions/courses.CourseQuestionStats'
+        type: array
     type: object
   courses.CourseTermRef:
     properties:
@@ -634,6 +671,137 @@ definitions:
         type: string
       start:
         type: string
+    type: object
+  courses.ProfessorCourseResponse:
+    properties:
+      crseID:
+        type: string
+      lastTaught:
+        allOf:
+        - $ref: '#/definitions/courses.CourseTermRef'
+        description: empty when only reviewed
+      listings:
+        items:
+          $ref: '#/definitions/courses.ListingResponse'
+        type: array
+      reviews:
+        description: reviews Factrak shows, without mismatched catalog links
+        type: integer
+      terms:
+        description: every term taught, newest first
+        items:
+          $ref: '#/definitions/courses.CourseTermRef'
+        type: array
+      termsTaught:
+        type: integer
+      title:
+        type: string
+    type: object
+  courses.ProfessorQuestionStats:
+    properties:
+      count:
+        type: integer
+      department:
+        description: Other professors' values in the department, ascending; everyone
+          compared has at least 5 answers
+        items:
+          type: number
+        type: array
+      percent:
+        type: boolean
+      question:
+        description: the FactrakSurvey field, e.g. wouldRecommendCourse
+        type: string
+      terms:
+        description: terms with answers, oldest first
+        items:
+          $ref: '#/definitions/courses.ProfessorTermStat'
+        type: array
+      value:
+        description: 0 when count is 0
+        type: number
+    type: object
+  courses.ProfessorResponse:
+    properties:
+      atWilliams:
+        type: boolean
+      courses:
+        description: most recently taught first
+        items:
+          $ref: '#/definitions/courses.ProfessorCourseResponse'
+        type: array
+      department:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      office:
+        description: room, e.g. "TBL 301"; only for visible professors at Williams
+        type: string
+      teachingThisYear:
+        description: teaches an offered section this academic year
+        type: boolean
+      title:
+        type: string
+      unixID:
+        type: string
+    type: object
+  courses.ProfessorStatsResponse:
+    properties:
+      department:
+        type: string
+      questions:
+        items:
+          $ref: '#/definitions/courses.ProfessorQuestionStats'
+        type: array
+    type: object
+  courses.ProfessorSummaryResponse:
+    properties:
+      atWilliams:
+        type: boolean
+      department:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      teachingThisYear:
+        description: teaches an offered section this academic year
+        type: boolean
+      title:
+        type: string
+      unixID:
+        type: string
+    type: object
+  courses.ProfessorTermStat:
+    properties:
+      count:
+        type: integer
+      label:
+        type: string
+      strm:
+        type: integer
+      value:
+        type: number
+    type: object
+  courses.RelatedAttributeResponse:
+    properties:
+      code:
+        type: string
+      courses:
+        items:
+          $ref: '#/definitions/courses.TermCourseResponse'
+        type: array
+    type: object
+  courses.RelatedProfessorResponse:
+    properties:
+      courses:
+        items:
+          $ref: '#/definitions/courses.ProfessorCourseResponse'
+        type: array
+      instructor:
+        $ref: '#/definitions/courses.InstructorResponse'
     type: object
   courses.SectionResponse:
     properties:
@@ -6146,6 +6314,49 @@ paths:
       summary: Get a course's Factrak ratings
       tags:
       - courses
+  /courses/catalog/{crseID}/related:
+    get:
+      description: 'What a course page''s Related tab shows: for each instructor with
+        a WSO user in the term, up to 6 of their other courses, most recently taught
+        first; and for each of the course''s attributes in the term, except distributions
+        and attributes over 40 recent courses have, up to 6 other courses at their
+        most recent offering with it (in the last few catalog years), by code.'
+      operationId: getCatalogCourseRelated
+      parameters:
+      - description: Catalog course ID
+        in: path
+        name: crseID
+        required: true
+        type: string
+      - description: Term code for professors and attributes, e.g. 1271 (Fall 2026);
+          default the latest term the course was offered
+        in: query
+        name: strm
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/courses.CourseRelatedResponse'
+        "400":
+          description: '1100: could not parse malformed request data'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: '404: record not found'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Courses related to a course
+      tags:
+      - courses
   /courses/catalog/{crseID}/reviews:
     get:
       description: 'Factrak reviews linked to a catalog course, across all its cross-listings,
@@ -6194,6 +6405,260 @@ paths:
       security:
       - Bearer: []
       summary: List a course's Factrak reviews
+      tags:
+      - courses
+  /courses/catalog/{crseID}/stats:
+    get:
+      description: For each numeric or yes/no Factrak question, a catalog course's
+        average (yes/no questions as a percentage) and answer count over the reviews
+        its ratings count (all cross-listings, the last 5 years, without mismatched
+        links). For the whole course, every other course's value in the area of its
+        primary subject (each with at least 3 answers); with professorID, that professor's
+        sections and every other professor's value for this course (each with at least
+        3 answers). Needs full Factrak access.
+      operationId: getCatalogCourseStats
+      parameters:
+      - description: Catalog course ID
+        in: path
+        name: crseID
+        required: true
+        type: string
+      - description: Only reviews of this professor
+        in: query
+        name: professorID
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/courses.CourseStatsResponse'
+        "400":
+          description: '1100: could not parse malformed request data'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: '404: record not found'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get a course's Factrak stats
+      tags:
+      - courses
+  /courses/professors:
+    get:
+      description: Professors by name (every word must match), including ones who
+        have left Williams. Current professors first. With area, only professors who
+        taught an offered section listed under the area's catalog subjects in the
+        last 3 academic years, ordered by name.
+      operationId: searchProfessors
+      parameters:
+      - description: Name
+        in: query
+        name: q
+        type: string
+      - description: Area of study abbreviation, e.g. AFR
+        in: query
+        name: area
+        type: string
+      - description: Default 25, max 100
+        in: query
+        name: limit
+        type: integer
+      - description: Offset pagination
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/courses.ProfessorSummaryResponse'
+            type: array
+        "400":
+          description: '1100: could not parse malformed request data'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Search professors
+      tags:
+      - courses
+  /courses/professors/{professorID}:
+    get:
+      description: 'A professor''s page: name, title, department, office (visible
+        professors at Williams only), whether they''re at Williams and teaching this
+        year, and every catalog course they taught or have Factrak reviews for.'
+      operationId: getCourseProfessor
+      parameters:
+      - description: Professor (WSO user) ID
+        in: path
+        name: professorID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/courses.ProfessorResponse'
+        "400":
+          description: '1100: could not parse malformed request data'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: '404: record not found'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get a professor
+      tags:
+      - courses
+  /courses/professors/{professorID}/ratings:
+    get:
+      description: Averaged Factrak ratings for a professor, like Factrak's professor
+        ratings (reviews from the last 5 years). With crseID, only reviews of that
+        catalog course (all its cross-listings). Needs full Factrak access.
+      operationId: getCourseProfessorRatings
+      parameters:
+      - description: Professor (WSO user) ID
+        in: path
+        name: professorID
+        required: true
+        type: integer
+      - description: Only reviews of this catalog course
+        in: query
+        name: crseID
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.FactrakSurveyAvgRatings'
+        "400":
+          description: '1100: could not parse malformed request data'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: '404: record not found'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get a professor's Factrak ratings
+      tags:
+      - courses
+  /courses/professors/{professorID}/reviews:
+    get:
+      description: 'A professor''s Factrak reviews, newest first, optionally for one
+        catalog course (all its cross-listings). Same rules as Factrak''s survey list:
+        full Factrak access, last 5 years, professors still at Williams, authors hidden.'
+      operationId: listCourseProfessorReviews
+      parameters:
+      - description: Professor (WSO user) ID
+        in: path
+        name: professorID
+        required: true
+        type: integer
+      - description: Only reviews of this catalog course
+        in: query
+        name: crseID
+        type: string
+      - description: Default 20, max 100
+        in: query
+        name: limit
+        type: integer
+      - description: Offset pagination
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.FactrakSurvey'
+            type: array
+        "400":
+          description: '1100: could not parse malformed request data'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: '404: record not found'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: List a professor's Factrak reviews
+      tags:
+      - courses
+  /courses/professors/{professorID}/stats:
+    get:
+      description: For each numeric or yes/no Factrak question, the professor's average
+        (yes/no questions as a percentage) and answer count, every other professor's
+        value in their department (each with at least 5 answers; only when this professor
+        has at least 5), and the professor's value per term. Counts the reviews the
+        professor's ratings do (the last 5 years). Needs full Factrak access.
+      operationId: getCourseProfessorStats
+      parameters:
+      - description: Professor (WSO user) ID
+        in: path
+        name: professorID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/courses.ProfessorStatsResponse'
+        "400":
+          description: '1100: could not parse malformed request data'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "404":
+          description: '404: record not found'
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/services.BaseErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get a professor's Factrak stats
       tags:
       - courses
   /courses/search:

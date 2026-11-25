@@ -1,8 +1,10 @@
 package courses_test
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -61,6 +63,19 @@ func data(t *testing.T, assert *testify.Assertions, w []byte, out interface{}) {
 	resp := utils.GetHTTPDataResp(assert, w)
 	require.Nil(t, resp.Error)
 	require.NoError(t, json.Unmarshal(resp.Data, out))
+}
+
+func send(t *testing.T, env *utils.TestEnv, method, url string, body interface{}) (int, []byte) {
+	t.Helper()
+	var reader io.Reader
+	if body != nil {
+		b, err := json.Marshal(body)
+		require.NoError(t, err)
+		reader = bytes.NewReader(b)
+	}
+	rec, err := utils.DoHTTPReq(env.Router, method, url, reader)
+	require.NoError(t, err)
+	return rec.Code, rec.Body.Bytes()
 }
 
 func TestListTerms(t *testing.T) {

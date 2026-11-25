@@ -4585,6 +4585,65 @@
                 }
             }
         },
+        "/courses/catalog/{crseID}/related": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "What a course page's Related tab shows: for each instructor with a WSO user in the term, up to 6 of their other courses, most recently taught first; and for each of the course's attributes in the term, except distributions and attributes over 40 recent courses have, up to 6 other courses at their most recent offering with it (in the last few catalog years), by code.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "courses"
+                ],
+                "summary": "Courses related to a course",
+                "operationId": "getCatalogCourseRelated",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Catalog course ID",
+                        "name": "crseID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Term code for professors and attributes, e.g. 1271 (Fall 2026); default the latest term the course was offered",
+                        "name": "strm",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/courses.CourseRelatedResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "1100: could not parse malformed request data",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "404: record not found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/courses/catalog/{crseID}/reviews": {
             "get": {
                 "security": [
@@ -4636,6 +4695,371 @@
                             "items": {
                                 "$ref": "#/definitions/models.FactrakSurvey"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "1100: could not parse malformed request data",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "404: record not found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/courses/catalog/{crseID}/stats": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "For each numeric or yes/no Factrak question, a catalog course's average (yes/no questions as a percentage) and answer count over the reviews its ratings count (all cross-listings, the last 5 years, without mismatched links). For the whole course, every other course's value in the area of its primary subject (each with at least 3 answers); with professorID, that professor's sections and every other professor's value for this course (each with at least 3 answers). Needs full Factrak access.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "courses"
+                ],
+                "summary": "Get a course's Factrak stats",
+                "operationId": "getCatalogCourseStats",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Catalog course ID",
+                        "name": "crseID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Only reviews of this professor",
+                        "name": "professorID",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/courses.CourseStatsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "1100: could not parse malformed request data",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "404: record not found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/courses/professors": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Professors by name (every word must match), including ones who have left Williams. Current professors first. With area, only professors who taught an offered section listed under the area's catalog subjects in the last 3 academic years, ordered by name.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "courses"
+                ],
+                "summary": "Search professors",
+                "operationId": "searchProfessors",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Name",
+                        "name": "q",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Area of study abbreviation, e.g. AFR",
+                        "name": "area",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Default 25, max 100",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset pagination",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/courses.ProfessorSummaryResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "1100: could not parse malformed request data",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/courses/professors/{professorID}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "A professor's page: name, title, department, office (visible professors at Williams only), whether they're at Williams and teaching this year, and every catalog course they taught or have Factrak reviews for.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "courses"
+                ],
+                "summary": "Get a professor",
+                "operationId": "getCourseProfessor",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Professor (WSO user) ID",
+                        "name": "professorID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/courses.ProfessorResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "1100: could not parse malformed request data",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "404: record not found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/courses/professors/{professorID}/ratings": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Averaged Factrak ratings for a professor, like Factrak's professor ratings (reviews from the last 5 years). With crseID, only reviews of that catalog course (all its cross-listings). Needs full Factrak access.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "courses"
+                ],
+                "summary": "Get a professor's Factrak ratings",
+                "operationId": "getCourseProfessorRatings",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Professor (WSO user) ID",
+                        "name": "professorID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Only reviews of this catalog course",
+                        "name": "crseID",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.FactrakSurveyAvgRatings"
+                        }
+                    },
+                    "400": {
+                        "description": "1100: could not parse malformed request data",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "404: record not found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/courses/professors/{professorID}/reviews": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "A professor's Factrak reviews, newest first, optionally for one catalog course (all its cross-listings). Same rules as Factrak's survey list: full Factrak access, last 5 years, professors still at Williams, authors hidden.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "courses"
+                ],
+                "summary": "List a professor's Factrak reviews",
+                "operationId": "listCourseProfessorReviews",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Professor (WSO user) ID",
+                        "name": "professorID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Only reviews of this catalog course",
+                        "name": "crseID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Default 20, max 100",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset pagination",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.FactrakSurvey"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "1100: could not parse malformed request data",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "404: record not found",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/services.BaseErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/courses/professors/{professorID}/stats": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "For each numeric or yes/no Factrak question, the professor's average (yes/no questions as a percentage) and answer count, every other professor's value in their department (each with at least 5 answers; only when this professor has at least 5), and the professor's value per term. Counts the reviews the professor's ratings do (the last 5 years). Needs full Factrak access.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "courses"
+                ],
+                "summary": "Get a professor's Factrak stats",
+                "operationId": "getCourseProfessorStats",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Professor (WSO user) ID",
+                        "name": "professorID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/courses.ProfessorStatsResponse"
                         }
                     },
                     "400": {
@@ -10494,6 +10918,49 @@
                 }
             }
         },
+        "courses.CourseQuestionStats": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "department": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "percent": {
+                    "type": "boolean"
+                },
+                "question": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "number"
+                }
+            }
+        },
+        "courses.CourseRelatedResponse": {
+            "type": "object",
+            "properties": {
+                "attributes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/courses.RelatedAttributeResponse"
+                    }
+                },
+                "professors": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/courses.RelatedProfessorResponse"
+                    }
+                },
+                "strm": {
+                    "type": "integer"
+                }
+            }
+        },
         "courses.CourseResponse": {
             "type": "object",
             "properties": {
@@ -10551,6 +11018,20 @@
                 },
                 "title": {
                     "type": "string"
+                }
+            }
+        },
+        "courses.CourseStatsResponse": {
+            "type": "object",
+            "properties": {
+                "department": {
+                    "type": "string"
+                },
+                "questions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/courses.CourseQuestionStats"
+                    }
                 }
             }
         },
@@ -10614,6 +11095,202 @@
                 },
                 "start": {
                     "type": "string"
+                }
+            }
+        },
+        "courses.ProfessorCourseResponse": {
+            "type": "object",
+            "properties": {
+                "crseID": {
+                    "type": "string"
+                },
+                "lastTaught": {
+                    "description": "empty when only reviewed",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/courses.CourseTermRef"
+                        }
+                    ]
+                },
+                "listings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/courses.ListingResponse"
+                    }
+                },
+                "reviews": {
+                    "description": "reviews Factrak shows, without mismatched catalog links",
+                    "type": "integer"
+                },
+                "terms": {
+                    "description": "every term taught, newest first",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/courses.CourseTermRef"
+                    }
+                },
+                "termsTaught": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "courses.ProfessorQuestionStats": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "department": {
+                    "description": "Other professors' values in the department, ascending; everyone compared has at least 5 answers",
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "percent": {
+                    "type": "boolean"
+                },
+                "question": {
+                    "description": "the FactrakSurvey field, e.g. wouldRecommendCourse",
+                    "type": "string"
+                },
+                "terms": {
+                    "description": "terms with answers, oldest first",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/courses.ProfessorTermStat"
+                    }
+                },
+                "value": {
+                    "description": "0 when count is 0",
+                    "type": "number"
+                }
+            }
+        },
+        "courses.ProfessorResponse": {
+            "type": "object",
+            "properties": {
+                "atWilliams": {
+                    "type": "boolean"
+                },
+                "courses": {
+                    "description": "most recently taught first",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/courses.ProfessorCourseResponse"
+                    }
+                },
+                "department": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "office": {
+                    "description": "room, e.g. \"TBL 301\"; only for visible professors at Williams",
+                    "type": "string"
+                },
+                "teachingThisYear": {
+                    "description": "teaches an offered section this academic year",
+                    "type": "boolean"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "unixID": {
+                    "type": "string"
+                }
+            }
+        },
+        "courses.ProfessorStatsResponse": {
+            "type": "object",
+            "properties": {
+                "department": {
+                    "type": "string"
+                },
+                "questions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/courses.ProfessorQuestionStats"
+                    }
+                }
+            }
+        },
+        "courses.ProfessorSummaryResponse": {
+            "type": "object",
+            "properties": {
+                "atWilliams": {
+                    "type": "boolean"
+                },
+                "department": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "teachingThisYear": {
+                    "description": "teaches an offered section this academic year",
+                    "type": "boolean"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "unixID": {
+                    "type": "string"
+                }
+            }
+        },
+        "courses.ProfessorTermStat": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "strm": {
+                    "type": "integer"
+                },
+                "value": {
+                    "type": "number"
+                }
+            }
+        },
+        "courses.RelatedAttributeResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "courses": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/courses.TermCourseResponse"
+                    }
+                }
+            }
+        },
+        "courses.RelatedProfessorResponse": {
+            "type": "object",
+            "properties": {
+                "courses": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/courses.ProfessorCourseResponse"
+                    }
+                },
+                "instructor": {
+                    "$ref": "#/definitions/courses.InstructorResponse"
                 }
             }
         },

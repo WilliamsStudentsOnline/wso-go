@@ -25,6 +25,14 @@ func SetupRouter(r gin.IRouter, db *gorm.DB, cfg *config.Config, log *zap.Sugare
 	r.GET("/catalog/:crseID", c.GetCourse)
 	r.GET("/catalog/:crseID/reviews", factrakAccess, c.ListCourseReviews)
 	r.GET("/catalog/:crseID/ratings", factrakAccess, c.GetCourseRatings)
+	r.GET("/catalog/:crseID/stats", factrakAccess, c.GetCourseStats)
+	r.GET("/catalog/:crseID/related", c.GetCourseRelated)
 	r.GET("/attributes", c.ListAttributes)
+
+	r.GET("/professors", c.SearchProfessors)
+	r.GET("/professors/:professorID", c.GetProfessor)
+	r.GET("/professors/:professorID/ratings", factrakAccess, c.GetProfessorRatings)
+	r.GET("/professors/:professorID/reviews", factrakAccess, c.ListProfessorReviews)
+	r.GET("/professors/:professorID/stats", factrakAccess, c.GetProfessorStats)
 	r.GET("/areas", c.ListAreas)
 }
