@@ -28,7 +28,11 @@ jobs:
         run: echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
 
       - name: Install oasdiff
-        run: go install github.com/tufin/oasdiff@v1.10.8
+        run: go install github.com/oasdiff/oasdiff@v1.39.0
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "20"
 
       - name: Stage release asset + release notes
         id: notes
@@ -76,13 +80,21 @@ jobs:
               echo
             } >> release-body.md
 
+            .github/scripts/convert-openapi.sh /tmp/oas/base.yaml /tmp/oas/base.oas3.yaml
+            .github/scripts/convert-openapi.sh openapi.yaml /tmp/oas/head.oas3.yaml
+            severity=.github/scripts/oasdiff-severity.txt
+
             set +e
-            oasdiff breaking /tmp/oas/base.yaml openapi.yaml --fail-on ERR --format text \
-              > /tmp/oas/breaking.txt 2>&1
+            oasdiff breaking /tmp/oas/base.oas3.yaml /tmp/oas/head.oas3.yaml \
+              --severity-levels "$severity" --fail-on ERR --format text > /tmp/oas/breaking.txt
             breaking_rc=$?
-            oasdiff changelog /tmp/oas/base.yaml openapi.yaml --format text \
-              > /tmp/oas/changelog.txt 2>&1
             set -e
+            if [[ "$breaking_rc" -gt 1 ]]; then
+              echo "error: oasdiff breaking failed (exit ${breaking_rc})" >&2
+              exit 1
+            fi
+            oasdiff changelog /tmp/oas/base.oas3.yaml /tmp/oas/head.oas3.yaml \
+              --severity-levels "$severity" --format text > /tmp/oas/changelog.txt
 
             if [[ "$breaking_rc" -eq 0 ]]; then
               echo "**Breaking:** none" >> release-body.md

@@ -59,6 +59,10 @@ def breaking_section(status_path: Path, report_path: Path, base_ref: str) -> lis
         )
         if report:
             lines.extend(["", "```", report[:6000], "```"])
+    elif status == "error":
+        lines.append(f"❌ Breaking-change check vs `{base_ref}` could not run")
+        if report:
+            lines.extend(["", "```", report[:6000], "```"])
     else:
         lines.append(
             f"❌ Breaking changes vs `{base_ref}`; "
@@ -81,7 +85,7 @@ def changelog_section(changelog_json: Path) -> tuple[list[str], bool]:
         "",
     ]
     for item in data[:40]:
-        level = {0: "error", 1: "warn", 2: "info", 3: "info"}.get(
+        level = {3: "error", 2: "warn", 1: "info"}.get(
             item.get("level"), "info"
         )
         op = item.get("operation") or ""
@@ -116,7 +120,7 @@ def should_post_comment(
         return True
     if spectral_errors > 0:
         return True
-    if breaking in ("fail", "allowed"):
+    if breaking in ("fail", "allowed", "error"):
         return True
     return has_changelog
 

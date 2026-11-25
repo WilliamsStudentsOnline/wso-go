@@ -19,6 +19,8 @@ codegen:
           - .github/workflows/openapi-release.yml
           - .spectral.yaml
           - .github/scripts/check-openapi.sh
+          - .github/scripts/convert-openapi.sh
+          - .github/scripts/oasdiff-severity.txt
           - .github/scripts/format-openapi-comment.py
           - .github/workflows/openapi.yml
 
